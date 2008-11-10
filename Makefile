@@ -11,4 +11,4 @@ all = kwarc.xml
 #       urlbst --inlinelinks --hyperref $< > $@
 
 kwarc.xml:	kwarc.bib
-	bib2xml kwarc.bib
+	bib2xml $< > $@
