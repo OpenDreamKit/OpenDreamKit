@@ -6,5 +6,10 @@
 # alphahurl.bst: $(BIB)
 #       urlbst --inlinelinks --hyperref $< > $@
 
-kwarc.xml: kwarc.bib 
-	 latexml --destination=kwarc.xml kwarc.bib
+all:	kwarc.xml
+
+kwarc.tex.xml: kwarc.bib 
+	 latexml --preload=url.sty --destination=kwarc.xml kwarc.bib
+
+kwarc.xml: kwarc.tex.xml
+	 latexmlpost --destination=kwarc.xml kwarc.xml
