@@ -9,7 +9,7 @@
 all:	kwarc.xml
 
 kwarc.tex.xml: kwarc.bib 
-	 latexml --preload=url.sty --destination=kwarc.xml kwarc.bib
+	 latexml --preload=url.sty --destination=kwarc.tex.xml kwarc.bib
 
 kwarc.xml: kwarc.tex.xml
-	 latexmlpost --destination=kwarc.xml kwarc.xml
+	 latexmlpost --destination=kwarc.xml kwarc.tex.xml
