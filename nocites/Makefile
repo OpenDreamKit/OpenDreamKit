@@ -1,17 +1,12 @@
-\documentclass[10pt]{article}
-\usepackage[show]{ed}
-\usepackage{a4wide,url}
-\usepackage[style=alphabetic]{biblatex}
-\bibliography{kwarc}
-\title{Books published the KWARC Research Group at Jacobs}
-\author{}
-\date{generated \today}
-\begin{document}
-\maketitle
-\input{kwarc}
-\printbibliography
-\end{document}
-%%% Local Variables: 
-%%% mode: stex
-%%% TeX-master: t
-%%% End: 
+PREFIX = .
+DIRS = editions standards workshops books incollections proceedings techreports articles conferences software theses
+
+SRC = $(PREFIX)/../kwarc.bib $(PREFIX)/*.tex $(PREFIX)/*/*.tex $(PREFIX)/*/*/*.tex
+
+all:    all-here
+	@for d in $(DIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) $@) done
+
+all-here: $(SRC)
+	pdflatex all
+	bibtex all
+	pdflatex all
