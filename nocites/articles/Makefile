@@ -1,6 +1,7 @@
-SRC = *.tex */*.tex */*/*.tex
+PREFIX = ..
+SRC = $(PREFIX)/../kwarc.bib $(PREFIX)/*.tex $(PREFIX)/*/*.tex $(PREFIX)/*/*/*.tex
 
-all: ../kwarc.bib $(SRC)
+all: $(SRC)
 	pdflatex all
 	bibtex all
 	pdflatex all
