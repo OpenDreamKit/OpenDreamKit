@@ -1,6 +1,17 @@
-SRC = ../kwarc.bib *.tex */*.tex */*/*.tex
-DIRS = articles	conferences software editions standards	theses books incollections proceedings techreports workshops
-
-all:  $(SRC)
-	pdflatex all;bibtex all;pdflatex all;pdflatex all
-	@for d in $(DIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) $@) done
+\documentclass[10pt]{article}
+\usepackage[show]{ed}
+\usepackage{a4wide,url}
+\usepackage[style=alphabetic]{biblatex}
+\bibliography{kwarc}
+\title{Books published the KWARC Research Group at Jacobs}
+\author{}
+\date{generated \today}
+\begin{document}
+\maketitle
+\input{kwarc}
+\printbibliography
+\end{document}
+%%% Local Variables: 
+%%% mode: stex
+%%% TeX-master: t
+%%% End: 
