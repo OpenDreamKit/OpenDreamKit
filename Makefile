@@ -2,15 +2,18 @@ BST = alpha apalike
 BSTINPUTS = /usr/local/texlive/2008/texmf-dist/bibtex/bst/base/
 HURL = $(BST:%=%hurl.bst)
 URLH = $(BST:%=%urlh.bst)
+BIBS = kwarc.bib test.bib
+BIBS.bib.xml = $(BIBS:%.bib=%.bib.xml)
+BIBS.xml = $(BIBS:%.bib=%.xml)
 
 all:	kwarc.xml
 bst: $(HURL) $(URLH)
 
-kwarc.tex.xml: kwarc.bib 
-	 latexml --preload=url.sty --destination=kwarc.tex.xml kwarc.bib
+$(BIBS.bib.xml): %.bib.xml: %.bib 
+	 latexml --preload=url.sty --destination=$@ $<
 
-kwarc.xml: kwarc.tex.xml
-	 latexmlpost --destination=kwarc.xml kwarc.tex.xml
+$(BIBS.xml): %.xml: %.bib.xml
+	 latexmlpost --destination=$@ $<
 
 $(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
 	urlbst --inlinelinks --hyperref $< > $@
@@ -18,3 +21,5 @@ $(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
 $(URLH): %urlh.bst: $(BSTINPUTS)/%.bst
 	urlbst --hyperref $< > $@
 
+echo:
+	echo $(BIBS)
