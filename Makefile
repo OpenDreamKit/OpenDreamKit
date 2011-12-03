@@ -12,5 +12,7 @@ $(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
 $(URLH): %urlh.bst: $(BSTINPUTS)/%.bst
 	urlbst --hyperref $< > $@
 
-kwarc.bib: kwarcext.bib kwarcpubs.bib
-	cat kwarcext.bib kwarcpubs.bib > kwarc.bib
+## This is dangerous.  In the current state it will result in a broken output file.
+## Disabled.  --Christoph, 2011-12-04
+# kwarc.bib: kwarcext.bib kwarcpubs.bib
+# 	cat kwarcext.bib kwarcpubs.bib > kwarc.bib
