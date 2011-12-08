@@ -12,5 +12,5 @@ $(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
 $(URLH): %urlh.bst: $(BSTINPUTS)/%.bst
 	urlbst --hyperref $< > $@
 
-kwarc.bib: extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
-	cat extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib> kwarc.bib
+kwarc.bib: warning-kwarc.bib preamble.bib extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
+	cat warning-kwarc.bib preamble.bib extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib> kwarc.bib
