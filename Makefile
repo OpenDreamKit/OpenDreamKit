@@ -14,10 +14,7 @@ $(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
 $(URLH): %urlh.bst: $(BSTINPUTS)/%.bst
 	urlbst --hyperref $< > $@
 
-kwarc.bib: $(KWARC.bib)
-	cat $(KWARC.bib)> kwarc.bib
-
-kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex
+kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 	pdflatex kwarcpubs
 	biber kwarcpubs
 	pdflatex kwarcpubs
