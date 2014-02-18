@@ -4,7 +4,7 @@ HURL = $(BST:%=%hurl.bst)
 URLH = $(BST:%=%urlh.bst)
 KWARC.bib = extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
 KWARC.xml = $(KWARC.bib:%=%.xml)
-
+LBIBS = $(KWARC.xml:%=--bibliography=%)
 all: kwarcpubs.pdf $(KWARC.xml)
 bst: $(HURL) $(URLH)
 
@@ -22,3 +22,6 @@ kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 
 $(KWARC.xml): %.bib.xml: %.bib 
 	latexmlc $< --bibtex --preload=kwarcbibs.sty --destination=$@ --log=$<.ltxlog
+
+pubs.html: pabs.tex $(KWARC.xml)
+	latexmlc $(LBIBS) --format=html5 --destination=pubs.html --log=pubs.ltxlog $<
