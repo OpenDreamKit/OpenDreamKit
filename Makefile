@@ -23,5 +23,5 @@ kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 $(KWARC.xml): %.bib.xml: %.bib 
 	latexmlc $< --bibtex --preload=kwarcbibs.sty --destination=$@ --log=$<.ltxlog
 
-pubs.html: pabs.tex $(KWARC.xml)
+pubs.html: pubs.tex $(KWARC.xml)
 	latexmlc $(LBIBS) --format=html5 --destination=pubs.html --log=pubs.ltxlog $<
