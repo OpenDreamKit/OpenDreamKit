@@ -30,7 +30,7 @@ kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 $(KWARC.xml): %.bib.xml: %.bib 
 	latexmlc $< --bibtex --includestyles --preload=kwarcbibs.sty.ltxml --destination=$@ --log=$<.ltxlog
 
-pubs.html: pubs.tex $(KWARC.xml)
+Pubs.html: pubs.tex $(KWARC.xml)
 	latexmlc $(LBIBS) --format=html5 --destination=pubs.html --log=pubs.ltxlog $<
 
 mkohlhase-article.tex: kwarcpubs.bib.xml kwarcpubs.bib.xml
