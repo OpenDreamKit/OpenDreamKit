@@ -1,0 +1,376 @@
+% With this LaTeX package, I have tried to abstract from all the
+% repetitive code for each work package.
+%
+% If you have any problems or questions, let me (AL) know.
+%
+% Still to do:
+% - make work package header look slightly more beautiful
+% - automatically calculate month total per participant?
+
+\ProvidesPackage{Workpackage}
+
+\RequirePackage{boxedminipage}
+
+\newenvironment{framed}{%
+  \begin{boxedminipage}{\linewidth}}{
+  \end{boxedminipage}}
+
+\newcommand\PrintWPPartNumbers[2]{\csname #1nr\endcsname &}
+\newcommand\PrintWPParticipants[2]{\csname #1short\endcsname &}
+\newcommand\PrintWPPersonMonths[2]{#2 &}
+\newcommand\PrintTaskParticipants[2]{%
+  \mbox{\textbf{\WPmonths{#2}, \csname #1short\endcsname{} (Lead)}}%
+  \global\let\do\PrintMoreTaskParticipants}
+\newcommand\PrintMoreTaskParticipants[2]{%
+  \textbf{; \mbox{\WPmonths{#2}, \csname #1short\endcsname{}}}}
+\newcommand\WPmonths[1]{%
+  \ifnum1=#1\relax%
+    1 month%
+  \else
+    #1 months%
+  \fi}
+
+\newcommand{\TaskHeader}{%
+   \smallskip%
+    \begin{framed}%
+    \vspace{12pt}%
+    \begin{description}%
+    \item [\emph{\theTask: \theTaskTitle}]%
+    \hfill{\raggedleft%
+      \global\let\do\PrintTaskParticipants\theTaskParticipants\textbf{.}%
+    \par}%
+    \hfill\textit{Results:} \theTaskResults%
+    \par\ignorespaces%
+    \hfill\textit{Start Month:} \theTaskStart%
+    \textit{; End Month:} \theTaskEnd%
+    \par\ignorespaces%
+}
+
+\newcommand{\tasklabel}[1]{%
+  \protected@write\@auxout{}%
+         {\string\newlabel{#1}{{\theTask}{\thepage}}}%
+\@esphack}
+
+\newcommand{\wplabel}[1]{%
+  \protected@write\@auxout{}%
+%         {\string\newlabel{#1}{{WP\thewpno}{\thepage}}}%
+         {\string\newlabel{#1}{{\theWP}{\thepage}}}%
+\@esphack}
+
+\newcommand\WPReduce[1]{\expandafter\doWPReduce #1\end{#1}}
+\def\doWPReduce#1#2\end#3{\def #3{#2}}
+
+\newcounter{WP}
+\newcounter{Task}
+\renewcommand\theWP{WP\arabic{WP}}
+\renewcommand\theTask{T\arabic{WP}.\arabic{Task}}
+
+\newenvironment{Workpackage}[1]{%
+  % numbering
+  \setcounter{WP}{#1}% for now
+  \addtocounter{WP}{-1}%
+  \refstepcounter{WP}%
+  \setcounter{Task}{0}%
+  % local commands
+  \def\WPTitle##1{\def\theWPTitle{##1}}%
+  \def\WPStart##1{\def\theWPStart{##1}}%
+%  \def\WPActivityType##1{\def\theWPActivityType{##1}}%
+ \def\WPParticipant##1##2{%
+   \expandafter\def\expandafter\theWPParticipants\expandafter{%
+     \theWPParticipants\do{##1}{##2}}%
+   \WPReduce\theWPPartCols}%
+  \def\TaskTitle##1{\def\theTaskTitle{##1}}%
+  \def\TaskStart##1{\def\theTaskStart{##1}}%
+  \def\TaskEnd##1{\def\theTaskEnd{##1}}%
+   \def\TaskParticipant##1##2{%
+     \expandafter\def\expandafter\theTaskParticipants\expandafter{%
+       \theTaskParticipants\do{##1}{##2}}}%
+   \def\TaskResults##1{\def\theTaskResults{##1}}%
+  % reset
+  \let\theWPTitle\undefined
+  \let\theWPStart\undefined
+%  \let\theWPActivityType\undefined
+  \def\theWPParticipants{}%
+  \def\theWPPartCols{&&&&&&&}%
+  \def\WPResetTask{%
+    \refstepcounter{Task}%
+    \global\let\theTaskTitle\undefined%
+    \gdef\theTaskStart{??}%
+    \gdef\theTaskEnd{??}%
+    \gdef\theTaskParticipants{}%
+    \global\let\theTaskResults\undefined}
+  \WPResetTask
+  \newenvironment{WPObjectives}{%
+    % create WP header
+    \newpage
+    \addcontentsline{toc}{subsubsection}{\hspace{0.6in}\theWP{}: \theWPTitle{}}%
+    \begin{framed}
+      \centering
+      \Large\bfseries Work package description (\theWP)
+    \end{framed}
+    \par
+    \bigskip\bigskip\bigskip
+    \begin{minipage}{\textwidth}%
+      \begin{tabular*}{\textwidth}{|l|p{1.4cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1cm}p{0.0cm}|}%
+        \hline
+        \textbf{Work package number}           & \multicolumn{2}{l|}{\theWP}      &
+        \multicolumn{3}{l|}{\textbf{Start date or starting event:}} & \multicolumn{3}{l|}{\theWPStart} \\[1ex]\cline{1-9}%
+        \textbf{Work package title}            & \multicolumn{8}{l|}{\textbf{\theWPTitle}}                  \\[1ex]\hline % \cline{1-1}
+        \textbf{Participant number}            & \global\let\do\PrintWPPartNumbers \theWPParticipants\theWPPartCols \\ \hline
+        \textbf{Participant short name}        & \global\let\do\PrintWPParticipants\theWPParticipants\theWPPartCols \\ \hline
+        \textbf{Person-months per participant:}& \global\let\do\PrintWPPersonMonths\theWPParticipants\theWPPartCols \\ \hline
+      \end{tabular*}
+    \end{minipage}
+    \par
+    \bigskip\bigskip
+    % create Objectives:
+    \begin{framed}%
+    \textbf{Objectives:}\ \ignorespaces\smallskip}{%
+    \smallskip
+    \end{framed}%
+    \ignorespacesafterend}%
+  \newenvironment{WPDescription}{%
+    \par
+    \bigskip\smallskip
+    \begin{framed}%
+    \textbf{Description of work:}\ \ignorespaces\medskip\\}{%
+    \bigskip
+    \end{framed}%
+    \ignorespacesafterend\bigskip}%
+  \newenvironment{Task}{%
+  }{%
+    \end{description}%
+    \end{framed}%
+    \bigskip
+    \WPResetTask
+    \ignorespacesafterend}%
+  \newenvironment{WPDeliverables}{%
+    \par
+    \bigskip\bigskip
+    \begin{framed}
+    \textbf{Deliverables:}\ \ignorespaces}{%
+    \end{framed}
+    \ignorespacesafterend}%
+  \ignorespaces}{%
+  \ignorespacesafterend}
+
+\endinput
+
+\newenvironment{Workpackagexl}[1]{%
+  % numbering
+  \setcounter{WP}{#1}% for now
+  \addtocounter{WP}{-1}%
+  \refstepcounter{WP}%
+  \setcounter{Task}{0}%
+  % local commands
+  \def\WPTitle##1{\def\theWPTitle{##1}}%
+  \def\WPStart##1{\def\theWPStart{##1}}%
+%  \def\WPActivityType##1{\def\theWPActivityType{##1}}%
+ \def\WPParticipant##1##2{%
+   \expandafter\def\expandafter\theWPParticipants\expandafter{%
+     \theWPParticipants\do{##1}{##2}}%
+   \WPReduce\theWPPartCols}%
+ \def\WPParticipantx##1##2{%
+   \expandafter\def\expandafter\theWPParticipantsx\expandafter{%
+     \theWPParticipantsx\do{##1}{##2}}%
+   \WPReduce\theWPPartColsx}%
+  \def\TaskTitle##1{\def\theTaskTitle{##1}}%
+  \def\TaskStart##1{\def\theTaskStart{##1}}%
+  \def\TaskEnd##1{\def\theTaskEnd{##1}}%
+   \def\TaskParticipant##1##2{%
+     \expandafter\def\expandafter\theTaskParticipants\expandafter{%
+       \theTaskParticipants\do{##1}{##2}}}%
+   \def\TaskResults##1{\def\theTaskResults{##1}}%
+  % reset
+  \let\theWPTitle\undefined
+  \let\theWPStart\undefined
+%  \let\theWPActivityType\undefined
+  \def\theWPParticipants{}%
+  \def\theWPParticipantsx{}%
+  \def\theWPPartCols{&&&&&&}%
+  \def\theWPPartColsx{&&&&&&}%
+  \def\WPResetTask{%
+    \refstepcounter{Task}%
+    \global\let\theTaskTitle\undefined
+    \global\let\theTaskStart{??}
+    \global\let\theTaskEnd{??}
+    \gdef\theTaskParticipants{}%
+    \global\let\theTaskResults\undefined}
+  \WPResetTask
+  \newenvironment{WPObjectives}{%
+    % create WP header
+    \newpage
+%    \addcontentsline{toc}{subsubsection}{\hspace{0.6in}Work package description (\theWP)}%
+    \addcontentsline{toc}{subsubsection}{\hspace{0.6in}\theWP{}: \theWPTitle{}}%
+    \begin{framed}
+      \centering
+      \Large\bfseries Work package description (\theWP)
+    \end{framed}
+    \par
+    \bigskip\bigskip\bigskip
+    \begin{minipage}{\textwidth}%
+%      \begin{tabular*}{\textwidth}{|l|p{0.96cm}|p{0.92cm}|p{0.92cm}|p{0.92cm}|p{0.92cm}|p{0.92cm}|p{1cm}|p{0.96cm}|}%
+      \begin{tabular*}{\textwidth}{|l|p{1.4cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}p{0.0cm}|}%
+%      \begin{tabular*}{\textwidth}{|l|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{0.7cm}}%
+        \hline
+%        \textbf{Work package number}           & \multicolumn{4}{l|}{\theWP}      & \multicolumn{4}{l|}{\ } \\[1ex]%
+%        \textbf{Start date or starting event:} & \multicolumn{4}{l|}{\theWPStart} & \multicolumn{4}{l|}{\ } \\ \cline{1-5}
+        \textbf{Work package number}           & \multicolumn{2}{l|}{\theWP}      &
+        \multicolumn{3}{l|}{\textbf{Start date or starting event:}} & \multicolumn{2}{l|}{\theWPStart} \\[1ex]\cline{1-8}%
+%        & \multicolumn{8}{l|}{\ }                                                                           \\
+        \textbf{Work package title}            & \multicolumn{7}{l|}{\textbf{\theWPTitle}}                  \\[1ex]\cline{1-1}
+%        \textbf{Activity type}                 & \multicolumn{7}{l|}{\textbf{}}           \\[1ex]\hline
+        \textbf{Participant number}            & \global\let\do\PrintWPPartNumbers \theWPParticipants\theWPPartCols \\ \hline
+        \textbf{Participant short name}        & \global\let\do\PrintWPParticipants\theWPParticipants\theWPPartCols \\ \hline
+        \textbf{Person-months per participant:}& \global\let\do\PrintWPPersonMonths\theWPParticipants\theWPPartCols \\ \hline
+\multicolumn{8}{l}{\ }\\\hline
+        \textbf{Participant number}            & \global\let\do\PrintWPPartNumbers \theWPParticipantsx\theWPPartColsx \\ \hline
+        \textbf{Participant short name}        & \global\let\do\PrintWPParticipants\theWPParticipantsx\theWPPartColsx \\ \hline
+        \textbf{Person-months per participant:}& \global\let\do\PrintWPPersonMonths\theWPParticipantsx\theWPPartColsx \\ \hline
+      \end{tabular*}
+    \end{minipage}
+    \par
+    \bigskip\bigskip
+    % create Objectives:
+    \begin{framed}%
+    \textbf{Objectives:}\ \ignorespaces\smallskip}{%
+    \smallskip
+    \end{framed}%
+    \ignorespacesafterend}%
+  \newenvironment{WPDescription}{%
+    \par
+    \bigskip\bigskip
+    \begin{framed}%
+    \textbf{Description of work:}\ \ignorespaces\medskip\\}{%
+    \bigskip
+    \end{framed}%
+    \ignorespacesafterend\bigskip}%
+  \newenvironment{Task}{%
+  }{%
+    \end{description}%
+    \end{framed}%
+    \WPResetTask
+    \ignorespacesafterend}%
+  \newenvironment{WPDeliverables}{%
+    \par
+    \bigskip\bigskip
+    \begin{framed}
+    \textbf{Deliverables:}\ \ignorespaces}{%
+    \end{framed}
+    \ignorespacesafterend}%
+  \ignorespaces}{%
+  \ignorespacesafterend}
+\newenvironment{Workpackagexxl}[1]{%
+  % numbering
+  \setcounter{WP}{#1}% for now
+  \addtocounter{WP}{-1}%
+  \refstepcounter{WP}%
+  \setcounter{Task}{0}%
+  % local commands
+  \def\WPTitle##1{\def\theWPTitle{##1}}%
+  \def\WPStart##1{\def\theWPStart{##1}}%
+%  \def\WPActivityType##1{\def\theWPActivityType{##1}}%
+ \def\WPParticipant##1##2{%
+   \expandafter\def\expandafter\theWPParticipants\expandafter{%
+     \theWPParticipants\do{##1}{##2}}%
+   \WPReduce\theWPPartCols}%
+ \def\WPParticipantx##1##2{%
+   \expandafter\def\expandafter\theWPParticipantsx\expandafter{%
+     \theWPParticipantsx\do{##1}{##2}}%
+   \WPReduce\theWPPartColsx}%
+ \def\WPParticipantxx##1##2{%
+   \expandafter\def\expandafter\theWPParticipantsxx\expandafter{%
+     \theWPParticipantsxx\do{##1}{##2}}%
+   \WPReduce\theWPPartColsxx}%
+  \def\TaskTitle##1{\def\theTaskTitle{##1}}%
+  \def\TaskStart##1{\def\theTaskStart{##1}}%
+  \def\TaskEnd##1{\def\theTaskEnd{##1}}%
+   \def\TaskParticipant##1##2{%
+     \expandafter\def\expandafter\theTaskParticipants\expandafter{%
+       \theTaskParticipants\do{##1}{##2}}}%
+   \def\TaskResults##1{\def\theTaskResults{##1}}%
+  % reset
+  \let\theWPTitle\undefined
+  \let\theWPStart\undefined
+%  \let\theWPActivityType\undefined
+  \def\theWPParticipants{}%
+  \def\theWPParticipantsx{}%
+  \def\theWPParticipantsxx{}%
+  \def\theWPPartCols{&&&&&&}%
+  \def\theWPPartColsx{&&&&&&}%
+  \def\theWPPartColsxx{&&&&&&}%
+  \def\WPResetTask{%
+    \refstepcounter{Task}%
+    \global\let\theTaskTitle\undefined
+    \global\let\theTaskStart{??}
+    \global\let\theTaskEnd{??}
+    \gdef\theTaskParticipants{}%
+    \global\let\theTaskResults\undefined}
+  \WPResetTask
+  \newenvironment{WPObjectives}{%
+    % create WP header
+    \newpage
+%    \addcontentsline{toc}{subsubsection}{\hspace{0.6in}Work package description (\theWP)}%
+    \addcontentsline{toc}{subsubsection}{\hspace{0.6in}\theWP{}: \theWPTitle{}}%
+    \begin{framed}
+      \centering
+      \Large\bfseries Work package description (\theWP)
+    \end{framed}
+    \par
+    \bigskip\bigskip\bigskip
+    \begin{minipage}{\textwidth}%
+%      \begin{tabular*}{\textwidth}{|l|p{0.96cm}|p{0.92cm}|p{0.92cm}|p{0.92cm}|p{0.92cm}|p{0.92cm}|p{1cm}|p{0.96cm}|}%
+      \begin{tabular*}{\textwidth}{|l|p{1.4cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}p{0.0cm}|}%
+%      \begin{tabular*}{\textwidth}{|l|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{1.2cm}|p{0.7cm}}%
+        \hline
+%        \textbf{Work package number}           & \multicolumn{4}{l|}{\theWP}      & \multicolumn{4}{l|}{\ } \\[1ex]%
+%        \textbf{Start date or starting event:} & \multicolumn{4}{l|}{\theWPStart} & \multicolumn{4}{l|}{\ } \\ \cline{1-5}
+        \textbf{Work package number}           & \multicolumn{2}{l|}{\theWP}      &
+        \multicolumn{3}{l|}{\textbf{Start date or starting event:}} & \multicolumn{2}{l|}{\theWPStart} \\[1ex]\cline{1-8}%
+%        & \multicolumn{8}{l|}{\ }                                                                           \\
+        \textbf{Work package title}            & \multicolumn{7}{l|}{\textbf{\theWPTitle}}                  \\[1ex]\cline{1-1}
+%        \textbf{Activity type}                 & \multicolumn{7}{l|}{\textbf{}}           \\[1ex]\hline
+        \textbf{Participant number}            & \global\let\do\PrintWPPartNumbers \theWPParticipants\theWPPartCols \\ \hline
+        \textbf{Participant short name}        & \global\let\do\PrintWPParticipants\theWPParticipants\theWPPartCols \\ \hline
+        \textbf{Person-months per participant:}& \global\let\do\PrintWPPersonMonths\theWPParticipants\theWPPartCols \\ \hline
+\multicolumn{8}{l}{\ }\\\hline
+        \textbf{Participant number}            & \global\let\do\PrintWPPartNumbers \theWPParticipantsx\theWPPartColsx \\ \hline
+        \textbf{Participant short name}        & \global\let\do\PrintWPParticipants\theWPParticipantsx\theWPPartColsx \\ \hline
+        \textbf{Person-months per participant:}& \global\let\do\PrintWPPersonMonths\theWPParticipantsx\theWPPartColsx \\ \hline
+\multicolumn{8}{l}{\ }\\\hline
+        \textbf{Participant number}            & \global\let\do\PrintWPPartNumbers \theWPParticipantsxx\theWPPartColsxx \\ \hline
+        \textbf{Participant short name}        & \global\let\do\PrintWPParticipants\theWPParticipantsxx\theWPPartColsxx \\ \hline
+        \textbf{Person-months per participant:}& \global\let\do\PrintWPPersonMonths\theWPParticipantsxx\theWPPartColsxx \\ \hline
+      \end{tabular*}
+    \end{minipage}
+    \par
+    \bigskip\bigskip
+    % create Objectives:
+    \begin{framed}%
+    \textbf{Objectives:}\ \ignorespaces\smallskip}{%
+    \smallskip
+    \end{framed}%
+    \ignorespacesafterend}%
+  \newenvironment{WPDescription}{%
+    \par
+    \bigskip\bigskip
+    \begin{framed}%
+    \textbf{Description of work:}\ \ignorespaces\medskip\\}{%
+    \bigskip
+    \end{framed}%
+    \ignorespacesafterend\bigskip}%
+  \newenvironment{Task}{%
+  }{%
+    \end{description}%
+    \end{framed}%
+    \WPResetTask
+    \ignorespacesafterend}%
+  \newenvironment{WPDeliverables}{%
+    \par
+    \bigskip\bigskip
+    \begin{framed}
+    \textbf{Deliverables:}\ \ignorespaces}{%
+    \end{framed}
+    \ignorespacesafterend}%
+  \ignorespaces}{%
+  \ignorespacesafterend}
