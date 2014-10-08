@@ -6,23 +6,6 @@ relevant prior art, techniques from other communities, etc. into which
 a wide range of components can be plugged to develop flexible bespoke
 VREs for particular communities and projects.
 
-
-Emerging Technology
--------------------
-
-Produce periodic reviews of relevant developments elsewhere and
-implications for our plans, including negotiating access or shared
-development if appropriate
-
-Community Building & Engagement
--------------------------------
-
-- Reports on community needs
-- Open workshops (Sage Days, Pari Days, summer schools, etc.)
-- Both for development and training
-- General travel budget
-- Large demonstrators
-
 Component Architecture
 ----------------------
 
