@@ -6,43 +6,6 @@ relevant prior art, techniques from other communities, etc. into which
 a wide range of components can be plugged to develop flexible bespoke
 VREs for particular communities and projects.
 
-Component Architecture
-----------------------
-
-Develop and demonstrate a set of APIs enabling components such as
-database interfaces, computational modules, separate systems such as
-GAP, Sage to be flexibly combined and run smoothly across a range of
-environments (cloud, local, server, ...).
-
-Pick up standard components/service for storage and sharing,
-computational resources, authentication etc. Recomputation connection
-belongs here?
-
-Need to dig into what Jupyter have done
-
-Collaboration with unreliable (or restricted!) networking connections
-(peer-to-peer, opportunistic syncing, 3rd world). This is technically
-interesting, and gets in support for non-networked working. Not sure
-if it belongs here or not.
-
-- Self adaptation to the environment, better schemes for automatically
-  selecting appropriate algorithms / components for a given task.
-
-- Modularisation:
-  - common architecture for module maintenance and distribution
-    (related to point 1 above)
-  - sharing experience and best practices
-  - modularization of Sage
-  - refactorization of GAP's package mechanism; namespaces?
-
-- Portability
-  Port to windows (GAP, Sage, Singular)
-  Multiplatform test infrastructure
-
-- Security concerns
-
-- Parallelism
-
 Standardisation
 ---------------
 
@@ -53,20 +16,6 @@ Either as a package by itself, or subpackage of the previous one.
 - Notebook formats
 - Virtualization
 
-User Interfaces
----------------
-
-A modern, robust and flexible interface for computation, supporting
-real-time sharing, integration with collaborative problem-solving,
-multilingual documents, paper writing and publication, links to
-databases etc.
-
-.. TODO:: include here everything about this topic in Needs.rst
-
-Deliverable and demonstrators:
-
-- IPython integration with GAP, Sage, Singular, ...
-- Improvements to IPython, ...
 
 Supporting the Mathematical Process
 -----------------------------------
@@ -116,7 +65,5 @@ Other Possible Packages
 
 Management, dissemination etc.
 
-
-Points that will need to be argued
-==================================
-
+Dissemination
+-------------
