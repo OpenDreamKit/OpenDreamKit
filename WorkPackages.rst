@@ -40,17 +40,6 @@ has social and technical aspects
 Next Generation Mathematical Databases
 --------------------------------------
 
-Design interfaces that can be used for a wide range of mathematical
-data, facilities for accepting contributions while tracking provenance
-and credit, standard metadata allowing database discovery versioning
-allowing stable references, citability, recomputation without copying
-entire database into VM.
-
-- Warwick, Paul Oliver Dehaye, Logilab? (SME in Paris)
-- Databases of polytopes in Polymake
-- Database of finite groups (Max)
-- Database of lattices
-
 Social Aspects
 --------------
 
