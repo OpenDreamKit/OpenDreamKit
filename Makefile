@@ -3,7 +3,7 @@ TARGETPDF = ${TARGET}.pdf
 EXPORT = ../proposal-export
 
 TEXFILES = ${TARGET}.tex  outline.tex resources.tex deliverables.tex milestones.tex preamble.tex participants.tex
-WPFILES =  $(wildcard WPs/*.tex)
+WPFILES =  $(wildcard WorkPackages/*.tex)
 STYLEFILES = $(wildcard *.sty)
 BIBFILES = bibliography.bib
 PDFFILES = 
