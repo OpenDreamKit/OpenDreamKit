@@ -16,7 +16,7 @@ As a participant:
 As leader of a workpackage
 --------------------------
 
-Create a file WPs/<WorkPackageName>.tex, starting from WPs/WP-template.tex.
+Edit the file WorkPackages/<WorkPackageName>.tex.
 
 As leader of a participating institution:
 -----------------------------------------
