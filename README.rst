@@ -11,6 +11,7 @@ As a participant:
 #.  Read the whole proposal.pdf file. Fix typos directly. Look for
     WRITE HERE comments with your initials, and implement them.
     Comment on the mailing list for other suggestions.
+    math-vre-h2020-grant-europe@services.cnrs.fr
 
 As leader of a workpackage
 --------------------------
@@ -20,5 +21,11 @@ Create a file WPs/<WorkPackageName>.tex, starting from WPs/WP-template.tex.
 As leader of a participating institution:
 -----------------------------------------
 
-Create a file Participants/<Institution>.tex, starting from Participants/template.tex
+#. Send Nicolas the PIC for your institution:
+   http://ec.europa.eu/research/participants/portal/desktop/en/orga
 
+#. Create a file Participants/<Institution>.tex, starting from Participants/template.tex
+
+#. Check that the file is included in participants.tex, section Members of the Consortium
+
+#. Double check the file participants.tex
