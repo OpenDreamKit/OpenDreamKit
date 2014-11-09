@@ -22,7 +22,8 @@ As leader of a participating institution:
 -----------------------------------------
 
 #. Send Nicolas the PIC for your institution:
-   http://ec.europa.eu/research/participants/portal/desktop/en/orga
+
+   http://ec.europa.eu/research/participants/portal/desktop/en/organisations/
 
 #. Create a file Participants/<Institution>.tex, starting from Participants/template.tex
 
