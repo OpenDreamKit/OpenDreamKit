@@ -67,9 +67,6 @@ Issues in Sage:
   that can be replaced by that provided by the operating system
 - Python 3
 
-Adding semantic to handles to objects stored in other systems (adapter
-infrastructure to propagate category/ontologies information)
-
 Analysis with large data in computational physics
 
 Steve:
@@ -78,11 +75,6 @@ Steve:
 GAP:
 - Managing the package library (dependencies, consistency, review,
   licensing, testing, ...)
-
-
-
-
-
 
 To be discussed: articulation with SageMathCloud, NSF funding,
 UWashington, ...

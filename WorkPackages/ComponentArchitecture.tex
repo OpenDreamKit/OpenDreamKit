@@ -49,22 +49,24 @@
     \item Shared multiplatform test infrastructure.
     \end{itemize}
 
-  \item Interfaces between systems
+  \item Interfaces between systems:
     \begin{itemize}
     \item Self adaptation to the environment, better schemes for
       automatically selecting appropriate algorithms / components for
       a given task.
-    \item Semantic-enabled handles (NT):\\
+    \item Semantic-enabled handles to objects stored in other systems (NT):\\
+
       Handles are a popular design pattern for interfaces between two
       systems A and B; instead of exchanging objects back and forth,
       only handles to those objects are exchanged, letting e.g. A
       manipulate an object which actually resides in B. Typical
       features include remote method calls, introspection, or
       documentation queries. The next step would be for A to be aware
-      of the semantic of the object. For example, we would want GAP's
-      categories to be mapped to Sage's categories, so that a handle
-      to a GAP group would automatically appear within Sage like a
-      native Sage group.
+      of the semantic of the object, using an adapter infrastructure
+      to propagate category/ontologies information. For example, we
+      would want GAP's categories to be mapped to Sage's categories,
+      so that a handle to a GAP group would automatically appear
+      within Sage like a native Sage group.
     \end{itemize}
 
   \item Modularization
@@ -77,6 +79,7 @@
     \end{itemize}
 
   \item Deployment and distribution
+
   \item High Performance Computing and Parallelism:\\
     As in all other areas of science, properly supporting of massively
     parallel architecture is a major challenge.
@@ -95,25 +98,51 @@
       combinatorics.
     \item Investigate and implement HPC-friendly ways of combining
       components together, so that calling components can benefit from
-      the HPC-features of called components, with self-adaptation to
+      the HPC features of called components, with self-adaptation to
       the environment and cooperative sharing of resources.
+    \item Support work on HPC-enabling more components (Linbox)
+    \item Investigate 
     \end{itemize}
   \end{itemize}
 \end{WPDescription}
 
 \begin{WPDeliverables}
 \begin{itemize}
-\item \ref{del:virtual_machines} (Month 12): Creation, deployment, and
-  distribution of preconfigured virtual machines for Pari, Sage as a
-  cloud service, in particular within the StratusLab infrastructure.
-\item \ref{del:sage_cygwin} (Month 12): Fully functional one-click
-  install Sage distribution for Windows using a 32bits version of Cygwin.
-  % Jean-Pierre: this should take a few months of work
+% Portability and distribution
+\item \ref{del:distribution} Make sure that Sage and therefore all the
+  components it depends on (including GAP, Linbox, Pari, Singular,
+  ...)  have standard packages in the main Linux distributions:
+  Debian/Ubuntu, Redhat, Gentoo, ...
 
-  This 32bits version would work on Windows 64 bits, but more work
-  would be required for a version working on a 64 bits of Cygwin.
-  \TODO{Make this a second deliverable?}
+  \TODO{Get feedback from our experts, and make this precise; what can
+    we actually promise to achieve? how much work is this? Do we have
+    personnel for this?  There is strong expertise in Logilab with a
+    Debian developer working there; he could advise someone on
+    this. Logilab is interested in this because it's meeting similar
+    issues with some of its clients software like Salomé.}
+
+x\item \ref{del:virtual_machines} (Month 12): Creation, deployment, and
+  distribution of preconfigured virtual machines for Pari, Sage,
+  ... as a cloud service, in particular within the StratusLab
+  infrastructure. This includes build bots and test bots for
+  continuous integration over a variety of operating systems.
+  % Requires: licenses
+
+\item \ref{del:portability_cygwin} (Month 12, Month 24): Fully
+  functional one-click install Sage distribution for Windows using a
+  32bits version of Cygwin.
+  % JPF: this should take a few months of work
+
+  This 32bits version would work right away on Windows 64 bits with
+  Cygwin 32 bits; more work would be required for a version working on
+  a 64 bits of Cygwin.
   % JPF: I agree.
+
+  In both cases, this includes complete port of Singular, GAP, Pari,
+  ...  to cygwin.
+
+  % Participants involved: Paris Sud, Kaiserslautern, Saint Andrews, Bordeaux
+
 
   % Comments on this by Bill Hart
   % The big problems you will have on Windows 64 on Cygwin include:
@@ -166,15 +195,60 @@
   % what we actually really need is patch/build bots to test on Cygwin 32/64!
   % * upstream cooperation: I agree Windows is often a low priority issue, but
   % most teams have welcomed my Cygwin patches
-\item \ref{del:scscp_sage} Add support in Sage for the SCSCP interface
-  protocol.
+
+\item \ref{del:modularization} Modularization of the Sage distribution
+
+  Separation of the different components of Sage (communication with
+  third-party softwares, build system, Sage native code). This is a
+  prerequisite for easier packaging and integration in standard Linux
+  distributions and lmonade, native integration within the IPython
+  notebook and other interfaces (larchenv, Spyder, ...) and
+  collaboration with sister projects.
+
+%\TODO{lmonade has very similar objectives but uses the gentoo prefix whereas Linux distributions use very different packaging systems:
+%\begin{itemize}
+%\item gentoo prefix (gentoo)
+%\item pacman (arch),
+%\item yum (redhat),
+%\item apt (debian),
+%\item easy\_install
+%\item Python index packaging (pip)
+%\end{itemize}}
+
+\item \ref{del:scscp_sage} Add support for the
+  \href{http://www.symbolic-computing.org/}{SCSCP} interface protocol
+  to all relevant components (e.g. Sage, ...).
+  \TOWRITE{SL/AK}{Brief description of what SCSCP is, reference to
+    previous grant, relevance to the goals of this grant; maybe this
+    should go in the work package description}
+
 \item Some IPython/Jupyter deliverables here.
   \TODO{review what it can already do in term of choice of
     computational resource and storage back-end.}
-\item \ref{del:hpc_configure} Configure the components of Sage's
-  distribution (e.g. Atlas, Linbox, GAP, Singular, ...) to be
-  systematically HPC-enabled, and make sure that, Sage's calls to such
-  components indeed enables HPC.
+
+\item \ref{del:hpc_configure} (Month ...) Configure the components of
+  Sage's distribution (e.g. Atlas, Linbox, GAP, Singular, ...) to be
+  systematically HPC-enabled, and make sure that Sage's calls to such
+  components indeed enable HPC.
+
+\item contribution by Kaiserslautern: libSingular, pySingular?,
+  GAP-Singular, Singular-Sage.
+
+\item \ref{del:hpc_linbox} \TOWRITE{JGD}{Deliverable for Linbox}
+
+\item Transparent integration of Ipython capabilities for cluster computing.
+\item Implementation of a transparent abstraction over mpi.
+\item Develop or integrate existing solutions for MapReduce operations
+  over big data.
+
+
+\item FLINT development (key component for several systems)?
+
+\item Moving code from Sage into Singular when relevant
+\item \ref{del:singular} Singular
+\item Some demonstrators of cross-disciplinary/cross-software calculations
+
+
 \end{itemize}
 \end{WPDeliverables}
 \begin{verbatim}
@@ -197,7 +271,10 @@ Goal: Fostering collaborations/integration between components in an open source 
 
 - How to make systems "cooperate" rather than "predate each other".
 - E.g. reduce the version issues
-- Pushing Python bindings upstream
+
+- Foster collaboration with upstream libraries by sharing the
+  development and maintenance of the interfaces, typically as
+  standalone upstream Python bindings (e.g. py-Singular).
 
 - How to make it easy to develop simultaneously two interdependent
   components (e.g. Sage+Singular)
@@ -205,8 +282,7 @@ Goal: Fostering collaborations/integration between components in an open source 
 - Foster communication
 
 - Social aspect:
-  Credit, Citations, Recognition
-  Funding
+  Credit, Citations, Recognition, Funding
 
 Documentation system
 ====================
