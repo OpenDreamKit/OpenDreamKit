@@ -35,7 +35,7 @@
     open source development happens in POSIX environments (usually
     Linux or OSX), and almost exclusively on x86 platforms.  The vast
     majority of the developers of mathematical software does not have
-    the expertise, nor the access to the hardware/software, to insure
+    the expertise, nor the access to appropriate hardware and software, to insure
     appropriate testing and porting of components.  The best
     incarnation of this issue is the involved installation procedure
     for Sage on Windows, a major adoption barrier and common source of
@@ -46,10 +46,13 @@
 
     \begin{itemize}
     \item Best practices adopted by the larger open source community
-      will be investigated and leveraged.
+      will be investigated and leveraged, and existing expertise will
+      be shared between the component developers.
     \item Windows being largely dominant in the desktop/laptop market,
-      a specific focus will be placed on the ports of the main
-      components (GAP, Sage, Singular) to this platform.
+      a specific focus will be placed on the port of \Sage, and
+      therefore all the components included in its distribution (in
+      particular \Pari, \GAP, \Singular, \Linbox) to this platform
+      (D~\ref{del:portability_cygwin32}, D~\ref{del:portability_cygwin64}).
     \item The deployment of a common infrastructure for multi-platform
       continuous integration (testing, building and distribution) will
       be addressed.
@@ -153,77 +156,32 @@
     \TODO{NT: what did you have in mind?}
   \end{task}
 
-  \begin{task}{High Performance Computing and Parallelism}
-    As in all other areas of science, properly supporting of massively
-    parallel architecture is a major challenge.
+  \begin{task}{Component architecture for High Performance Computing and Parallelism}
+    As in all other areas of science, properly supporting massively
+    parallel architecture is a major challenge. Many of the
+    computational components have already gone a long way in this
+    direction, and further work will happen there within
+    WorkPackage~\ref{wp:hpc}.
 
-    Many of the computational components have already gone a long way
-    in this direction. For example, grant \TODO{...} founded the
-    GAP-HPC project which adapted the GAP kernel to support HPC. The
-    expertise gained there was then transferred to the ongoing
-    Singular-HPC project.
-
-    In this task we will \TODO{...}
-
-    % Building on this, this project will:
-    % \begin{itemize}
-    % \item Foster further sharing of HPC expertise and best practices
-    %   between computational components.
-    % \item Develop novel infrastructure for HPC in the context of
-    %   combinatorics.
-    % \item Investigate and implement HPC-friendly ways of combining
-    %   components together, so that calling components can benefit from
-    %   the HPC features of called components, with self-adaptation to
-    %   the environment and cooperative sharing of resources.
-    % \item Support work on HPC-enabling more components (Linbox)
-    % \item Investigate 
-    % \end{itemize}
+    In this task we will investigate and implement
+    parallelism-friendly ways of combining components together, so
+    that calling components can benefit from the parallelism features
+    of called components, with self-adaptation to the environment and
+    cooperative sharing of resources.
+    \TODO{deliverables}
   \end{task}
 
   \begin{WPDeliverables}
-    \begin{itemize}
-
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-      % Deliverables: portability and distribution
-
-      % \WPdeliverable{del:ipython_kernels_basic}{12}{Basic Jupyter
-      % interface for GAP, Pari, Sage, Singular}
-
-    \item \ref{del:distribution} Make sure that Sage and therefore all the
-      components it depends on (including GAP, Linbox, Pari, Singular,
-      ...)  have standard packages in the main Linux distributions:
-      Debian/Ubuntu, Redhat, Gentoo, ...
-
-      \TODO{Get feedback from our experts, and make this precise; what can
-        we actually promise to achieve? how much work is this? Do we have
-        personnel for this?  There is strong expertise in Logilab with a
-        Debian developer working there; he could advise someone on
-        this. Logilab is interested in this because it's meeting similar
-        issues with some of its clients software like Salomé.}
-
-    \item \ref{del:virtual_machines} (Month 12): Creation, deployment, and
-      distribution of preconfigured virtual machines for Pari, Sage,
-      ... as a cloud service, in particular within the StratusLab
-      infrastructure. This includes build bots and test bots for
-      continuous integration over a variety of operating systems.
-      % Requires: licenses
-
-    \item \ref{del:portability_cygwin} (Month 12, Month 24): Fully
-      functional one-click install Sage distribution for Windows using a
-      32bits version of Cygwin.
+    \WPDeliverable{12}{del:portability_cygwin32}{one-click install Sage distribution for Windows with Cygwin 32bits}%
       % JPF: this should take a few months of work
-
-      This 32bits version would work right away on Windows 64 bits with
-      Cygwin 32 bits; more work would be required for a version working on
-      a 64 bits of Cygwin.
+      % This 32bits version would work right away on Windows 64 bits with
+      % Cygwin 32 bits; more work would be required for a version working on
+      % a 64 bits of Cygwin.
       % JPF: I agree.
 
-      In both cases, this includes complete port of Singular, GAP, Pari,
-      ...  to cygwin.
+    \WPDeliverable{24}{del:portability_cygwin64}{one-click install Sage distribution for Windows with Cygwin 64bits}%
 
       % Participants involved: Paris Sud, Kaiserslautern, Saint Andrews, Bordeaux
-
-
       % Comments on this by Bill Hart
       % The big problems you will have on Windows 64 on Cygwin include:
       % 
@@ -276,6 +234,38 @@
       % * upstream cooperation: I agree Windows is often a low priority issue, but
       % most teams have welcomed my Cygwin patches
 
+
+
+    \TODO{Make all those deliverables one-liners, and move the
+      material to the task descriptions}
+    \begin{itemize}
+
+
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+      % Deliverables: portability and distribution
+
+      % \WPDeliverable{del:ipython_kernels_basic}{12}{Basic Jupyter
+      % interface for GAP, Pari, Sage, Singular}
+
+    \item \ref{del:distribution} Make sure that Sage and therefore all the
+      components it depends on (including GAP, Linbox, Pari, Singular,
+      ...)  have standard packages in the main Linux distributions:
+      Debian/Ubuntu, Redhat, Gentoo, ...
+
+      \TODO{Get feedback from our experts, and make this precise; what can
+        we actually promise to achieve? how much work is this? Do we have
+        personnel for this?  There is strong expertise in Logilab with a
+        Debian developer working there; he could advise someone on
+        this. Logilab is interested in this because it's meeting similar
+        issues with some of its clients software like Salomé.}
+
+    \item \ref{del:virtual_machines} (Month 12): Creation, deployment, and
+      distribution of preconfigured virtual machines for Pari, Sage,
+      ... as a cloud service, in particular within the StratusLab
+      infrastructure. This includes build bots and test bots for
+      continuous integration over a variety of operating systems.
+      % Requires: licenses
+
     \item \ref{del:modularization} Modularization of the Sage distribution
 
       Separation of the different components of Sage (communication with
@@ -321,13 +311,6 @@
       Sage's distribution (e.g. Atlas, Linbox, GAP, Singular, ...) to be
       systematically HPC-enabled, and make sure that Sage's calls to such
       components indeed enable HPC.
-
-    \item \ref{del:hpc_components}
-      Develop HPC features in components
-      \begin{itemize}
-      \item \TOWRITE{JGD}{Linbox}
-      \item \TOWRITE{WD}{Singular}
-      \end{itemize}
 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
       % Deliverables: to be sorted ...
@@ -390,3 +373,8 @@ as much as possible (e.g. parallel compilation).
 \end{verbatim}
 
 \end{Workpackage}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../proposal"
+%%% End: 
