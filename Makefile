@@ -34,10 +34,15 @@ all: $(TARGETPDF)
 #	pdflatex ${TARGET}
 #	pdflatex ${TARGET}
 
+proposal.pdf: Pictures/TheBigPicture.pdf
+
 # the core build command, mapping tex -> pdf files
 # with all SOURCES as dependencies
 %.pdf: %.tex ${SOURCES}
 	$(LATEX) $(LATEXBUILDARGS) $<
+
+%.pdf: %.svg
+	rsvg-convert -f pdf -o $@ $<
 
 export: $(TARGETPDF)
 	-mkdir ${EXPORT}
