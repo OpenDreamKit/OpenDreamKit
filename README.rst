@@ -21,7 +21,7 @@ Edit the file WorkPackages/<WorkPackageName>.tex.
 As leader of a participating institution:
 -----------------------------------------
 
-#. Send Nicolas the PIC for your institution:
+#. Send Nicolas & Eugenia the PIC for your institution:
 
    http://ec.europa.eu/research/participants/portal/desktop/en/organisations/
 
