@@ -88,7 +88,7 @@
 
   \begin{task}{Interfaces between systems}
     In this task we will investigate patterns to share data,
-    ontologies and semantics across computational systems, possibly
+    ontologies, and semantics across computational systems, possibly
     connected remotely.  We will leverage the well established
     semantics used in mathematics (categories, type systems, \dots) to
     give powerful abstractions on computational objects.
@@ -100,15 +100,45 @@
     computation, as well as clearly and intuitively present the
     available choices to the expert user.
 
-    As a concrete example, we would want GAP's categories to be mapped
-    to Sage's categories, so that a handle to a GAP group would
-    automatically appear within Sage like a native Sage group. GAP's
-    documentation for the group shall be accessible through Sage, and
-    the user interface shall be able to automatically map Sage methods
-    to GAP routines whenever this makes sense. When different
-    algorithms are available, some of them coded in Sage, some of them
-    in GAP, the interface shall offer an easily navigable interface
-    for the expert user to choose among them.
+    As a first concrete test bed, we will consider the \Sage interface
+    to \GAP, or more precisely \libGAP
+    (Deliverable~\ref{del:semantic_interface_sage_gap}). Like most
+    \Sage interfaces, this uses the now classical \emph{handle} design
+    pattern, whereby one can manipulate from \Sage an object created
+    and stored in \GAP, through a \emph{handle} (a.k.a. \emph{remote
+      objects}). By introspection, one can discover available \GAP
+    functions on this object and access the related \GAP
+    documentation. In a few cases, for example when the object is a
+    group, one can further wrap the handle with an adapter that makes
+    it behave like a native \Sage group.
+
+    By mapping \GAP's categories to \Sage's categories (as a rough
+    approximation, both can be thought of as hierarchies of abstract
+    classes), we will:
+    \begin{itemize}
+    \item Implement a modular infrastructure for adapters, based on
+      the category hierarchy, in order to let the implementation of
+      adapters scale to a large variety of objects.
+    \item Refactor the existing adapters, using this infrastructure to
+      generalize their features. This step by itself will provide
+      adapters for larger categories like semigroups or monoids.
+    \item Merge the adapters into the handles, so that a handle to a
+      \GAP group will \emph{automatically} behave like a native \Sage
+      group.
+      % This will remove much back-conversion burden from the
+      % delagating methods
+    \end{itemize}
+    A specific challenge will be performance; indeed low level method
+    adapters, e.g. for arithmetic, need to be compiled when most of
+    the interface infrastructure is dynamic by nature.
+
+    % When different algorithms are available, some of them coded in
+    % \Sage, some of them in \GAP, the interface shall offer an easily
+    % navigable interface for the expert user to choose among them.
+
+    \TODO{Other deliverables: generalization to other interfaces,
+      factorization of the adapter code through standardized API's,
+      semantic-enabled remote objects in SCSCP, reports, ...}
   \end{task}
 
   \begin{task}{Modularization and packaging}
@@ -234,7 +264,8 @@
       % * upstream cooperation: I agree Windows is often a low priority issue, but
       % most teams have welcomed my Cygwin patches
 
-
+    \WPDeliverable{12}{del:semantic_interface_sage_gap}{Semantic-aware
+      Sage interface to GAP.}
 
     \TODO{Make all those deliverables one-liners, and move the
       material to the task descriptions}
