@@ -55,3 +55,7 @@ January 10th:
 
 January 14th:
 - submission
+
+Collaborative tool
+------------------
+We use `https://appear.in/vre-math` to chat
