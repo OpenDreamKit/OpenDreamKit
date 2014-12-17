@@ -5,8 +5,7 @@
 \WPStart{Month 1}
 \WPParticipant{ZH}{1}
 
-% Clumsy title, change it
-% Dissemination : online textbook by Breezer has knowls
+
 
 \begin{WPObjectives}
 The objectives of \theWP{} are: to design and implement interfaces that can be used for a wide range of mathematical data and to standardise metadata allowing for interoperability, searching, documentation, versioning and visualisation.
@@ -37,8 +36,6 @@ Many mathematical databases now exist, but their internal structure does not rev
 \item the Monstrous Moonshine conjecture finds its origin in a numerical co\"incidence between dimensions of representations of the Monster group and coefficients of the $j$-function, and its conclusion eventually led to Borcherds' Fields medal.
 \end{itemize}
 
-%This explains the need for infrastructure that could be used uniformly over wide ranges of mathematics, certainly poses additional challenges compared to existing solutions, but also allows for potentially groundbreaking improvements. 
-
 Therefore to facilitate future advances, we need ways to represent DKS in the same systems, and -- since current computational/experimental mathematics involve extensive DKS -- we need a new kind of "database", which we will call Mathematical Data/Knowledge/Software-bases.
 
 This complexity is on vivid display in the \emph{L-functions and Modular Forms database} project (\LMFDB): while the general shape of the functional equation of an $L$-function is dependent on a lot of theoretical knowledge, it also requires parameter data and the coefficients of the associated Dirichlet series. Once this is obtained, highly optimised (and heavily parallelizable) algorithms can be run to compute values of this function. 
@@ -53,9 +50,9 @@ All the systems considered in this proposal (\GAP, \Sage, \Pari, \Singular) incl
 
 \begin{task}{Design of new infrastructure, formulation of requirements}
 \label{task:data_design}
-Ontologies are the canonical method used to implement databases that require significant data interchange. However, because of extreme reification in mathematics, this is not entirely suitable for our goals. We will design a new infrastructure for \TheProject, drawing on existing emerging standards . 
+Ontologies are the canonical method used to implement databases that require significant data interchange. However, because of extreme reification in mathematics, this is not entirely suitable for our goals. We will design a new infrastructure for \TheProject, drawing on existing emerging standards. 
 
-Workshop
+We will organise a workshop associated to this task.
 \end{task}
 
 \begin{task}{Triform Theories in OMDoc/MMT}
@@ -73,28 +70,39 @@ In the OMDoc/MMT world a foundation is a logical base language that gives the fo
 \end{itemize}
 \end{task}
 
-
-\begin{task}{LMFDB Case study (Triformal Theories)}
-\label{task:data_LMFDB}
-In this task we would develop triformal theories for an exemplary part of the LFMDB to test the design from K6.5.  We wil identify a fragment of the LFMDB that we want to model and design the model. Then we will perform cross-validation of the three model parts against each other (essentially model-based testing of software and inference). Finally, we will pick an algorithm from the LFMDB and verify it against its specification and the computational foundation developed in K6.4. (decrease importance of verification as opposed to interoperability)
-
-This Task will be co-developed with K6.4, it will validate the design of triformal theories and be iterated to test the design changes.
-\end{task}
-
-
-\begin{task}{OEIS Case Study (Coverage and automated Import)}
+\begin{task}{OEIS Case Study (Coverage and automated import)}
 \label{task:data_OEIS}
 In this case study we test the practical coverage of the trifunctional modules, by transforming an existing, high-profile database (the Online Sequence of Integer Sequences http://www.oeis.org) into OMDoc/MMT. The OEIS has about 250 thousand sequences, with formulae, descriptions, definitions, references, software, etc. in a structured text file (but no standardized format for formulae and references), so we expect to get 250 k theories. Having the OEIS in OMDoc/MMT form allows to do Knowledge Management services (presentation, definition lookup, formula search, ...) in MathHub.info (see WP4.?). The OEIS is a good case study, since the DKM  are licensed under a CC license which allows derived works. The large size will allow statistically significant semantic cross-validation of the heuristic transformation process and thus achieve a significant DKS community resource.
 \end{task}
 
-\begin{task}{Findstat Case Study ???}
-\label{task:data_findstat}
+% Michael, I think triformal theories would be easier to start with findstat.org
+% Thrre are many reasons: more consistent structure in the mathematical data, more established research patterns, more consistent database storage, tighter integration of the code with sage code (in fact copy paste), etc
 
+\begin{task}{FindStat Case Study (triformal theories)}
+\label{task:data_findstat}
+In this task we would develop triformal theories for the FindStat project to test the design from \rel{task:data_foundationCAS}.  
+Similarly to the previous task, in this case study, we first develop a thorough OMDoc/MMT model, which should only involve a handful of MMT theories (combinatorial collections, maps, statistics,...), each with a few hundred realisations. Together with \TOWRITE{POD}{WP4}, this will again allow for easier knowledge management services, and in particular improved search services. 
+
+This Task will be co-developed with \rel{task:data_foundationCAS}, it will validate the design of triformal theories and be iterated to test the design changes.
 \end{task}
 
-\begin{task}{Memoization}
-\label{task:data_memo}
+\begin{task}{LMFDB Case study (triformal theories)}
+\label{task:data_LMFDB}
+In this task we would develop triformal theories for an exemplary part of the \LMFDB project to test the design from \rel{task:data_foundationCAS}.  
+We will identify a fragment of the \LFMDB that we want to model and design the model. Then we will perform cross-validation of the three model parts against each other (essentially model-based testing of software and inference). Finally, we will pick an algorithm from the LFMDB and verify it against its specification and the computational foundation developed in \rel{task:data_foundationCAS}. (decrease importance of verification as opposed to interoperability)
+\end{task}
 
+
+
+\begin{task}{Memoization and production of new data}
+\label{task:data_memo}
+Many CAS users run large and intensive computations, for which they want to collect the results while simultaneously working on software improvements. \Sage currently has a limited \lstinline{cached_method}, that is not persistent across sessions and does not enable to publish the result or share it with a smaller group of collaborators. We propose to use, extend and contribute back to some established persistent memoization infrastructure, such as \textt{python-joblib}, \textt{redis-simple-cache} or \texttt{dogpile.cache}. The caching should apply recursively to lower level functions, and should be trivial to setup and configure for the end user: in a single line, the user only needs to select an existing function and maybe provide some additional semantic information, and has the option to change the defaults for a few parameters, such as the backend (shared dropbox folder, remote directory, database, git repository, ...). The interface could be through a \Python decorator. 
+Additionally, it should be easy to launch a data-bot to populate the database, all the versioning and provenance tracking should be handled (user, algorithm, software version, ...), and the system should have useful data properties (atomicity, merging, and error detection). 
+%Mock code:
+%    \begin{lstlisting}
+%       mycloud = storage("ssh:xxx@yyy/zzz")
+%       memoize(sage.combinat...., storage=mycloud, input=ZZ, output=Posets(), key="catalan")
+%    \end{lstlisting}
 \end{task}
 
 \begin{WPDeliverables}
@@ -103,8 +111,6 @@ In this case study we test the practical coverage of the trifunctional modules, 
   \begin{itemize}
   \item Polytopes in Polymake
   \item graphs, graph properties
-  \item LMFDB data
-  \item FindStat data
   \item Finite groups (Max)
   \item Lattices
   \end{itemize}
@@ -112,50 +118,7 @@ In this case study we test the practical coverage of the trifunctional modules, 
 \item \TODO{Make this a task}
 
   \ref{del:persistent_memoization} (Month X): Shared persistent
-  memoization library for Python/Sage.  Typical use case: A group of
-  collaborators is using intensively a given function (in Sage, or in
-  their private code). They want to memoize the results, as with
-  e.g. Sage's \lstinline{cached_method}, but across sessions.  They
-  further want to share the underlying growing database between
-  themselves, and maybe eventually publish it.
-
-  Features:
-  \begin{itemize}
-  \item Use, further extend, and contribute back to some established
-    (Python?) persistent memoization infrastructure. E.g.
-    \begin{itemize}
-    \item \url{https://pythonhosted.org/joblib/memory.html}
-    \item \url{github.com/vivekn/redis-simple-cache}
-    \item \url{bitbucket.org/zzzeek/dogpile.cache}
-    \end{itemize}
-  \item Apply not only to user-level functions, but also to lower
-    level functions, e.g. in the Sage library, so that indirect calls
-    to the function also get memoized.
-  \item Trivial to setup and configure for the end user: in a single
-    line, the user selects an existing function, a backend (with a
-    default value), maybe provide some semantic information, and
-    voila. \\
-    Typical interface: a decorator to be set on appropriate functions.
-    Mock code:
-    \begin{lstlisting}
-       mycloud = storage("ssh:xxx@yyy/zzz")
-       memoize(sage.combinat...., storage=mycloud, input=ZZ, output=Posets(), key="catalan")
-    \end{lstlisting}
-     \item Trivial to setup and configure for groups of researchers, with
-    a wide range of storage backends (e.g. shared dropbox folder,
-    remote directory, database, git repository, ...).
-  \item Easy to setup data-bot: e.g. launching a virtual machine that
-    systematically fills up the shared database.
-  \item Analog infrastructure for other computational components
-    (e.g. \GAP, \Singular).
-  \item Compatibility between the databases created by different
-    computational components?
-  \item Versioning and provenance tracking (user, algorithm, software
-    version, ...), for quality certification, credit, ...
-  \item Usual database properties: atomicity, merging (easy since the
-    results are supposed to be immutable: just need to merge the
-    tracking info), alerts in case of divergence.
-  \item Recomputation?
+  memoization library for Python/Sage.   \item Recomputation?
   \item Ease of publishing, importing, ...
   \end{itemize}
 \end{itemize}
@@ -170,10 +133,10 @@ In this case study we test the practical coverage of the trifunctional modules, 
 \item D6.4.2: Python/Sage Computational Foundation Module in OMDoc/MMT
 \item D6.4.3: Python/Sage Declarative Semantics in OMDoc/MMT
 
-\item D6.5.1: LFMDB deep modelling: Fragment Identification \& Initial Model Design              \# 12PM
-\item D6.5.2: LFMDB Data vs. Knowledge vs. Software Validation
-\item D6.5.3: LFMDB Algorithm verification wrt. a Triformal theory
-\item D.6.5.4: LMFDB full integration of algorithms, data and presentation (not so much verification)
+\item D6.5.1: \LMFDB deep modelling: Fragment Identification \& Initial Model Design              \# 12PM
+\item D6.5.2: \LMFDB Data vs. Knowledge vs. Software Validation
+\item D6.5.3: \LMFDB Algorithm verification wrt. a Triformal theory
+\item D.6.5.4: \LMFDB full integration of algorithms, data and presentation (not so much verification)
 
 \item D6.6.1: Heuristic Parser for the OEIS
 \item D6.6.2: Cross-Validation for OEIS DKS-Theories.
@@ -196,13 +159,13 @@ more correct than the literature because it's *tested*.
 
 
 
-We may also think of providing an interface to LMFDB via SCSCP
+We may also think of providing an interface to \LMFDB via SCSCP
 protocol (http://www.symbolic-computing.org/scscp) so it may
 be accessed by a variety of other systems (see their current
 list at http://www.symbolic-computing.org/scscp)
 
 
-database access to LMFDB as a python library
+database access to \LMFDB as a python library
 
 
 \end{verbatim}
