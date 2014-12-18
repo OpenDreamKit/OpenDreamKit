@@ -304,7 +304,7 @@
 {\textbf\deliv@legend@delivs:\\[-3ex]\begin{wp@delivs}}
 {\end{wp@delivs}}
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
-\newcommand\deliv@label[1]{M{#1}}
+\newcommand\deliv@label[1]{D{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}

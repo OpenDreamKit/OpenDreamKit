@@ -91,7 +91,7 @@
 \newmdenv[frametitle=Objectives]{wpobjectives}
 \newmdenv[frametitle=Description]{wpdescription}
 \renewenvironment{workpackage}[1][]
-{\begin{work@package}[#1]\subsubsection*{\wptitle}
+{\begin{work@package}[#1]\medskip\wpheadertable%
 \addcontentsline{toc}{subsubsection}{\wp@label\wp@num: \pdataref{wp}\wp@id{title}}}
 {\end{work@package}}
 \newcounter{@sitespo}\newcounter{@sitespt}
@@ -107,6 +107,7 @@
 \wp@sites@line\\\hline%
 \wp@efforts@line\\\hline%
 \end{tabular}\smallskip\par\noindent\ignorespaces}
+\surroundwithmdframed{wpdelivs}
 \newenvironment{risk}[3]
 {\paragraph{Risk: #1}\hfill\emph{probability}: #2, \emph{gravity}: #3\par\noindent\ignorespaces}
 {}
