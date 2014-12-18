@@ -3,20 +3,24 @@
 \wplabel{wp:x}
 \WPTitle{\wpname{\thewpno}}
 \WPStart{Month 1}
-\WPParticipant{SA}{1}
+\WPParticipant{PS}{1}
+\WPParticipant{LL}{1} % IPython
+\WPParticipant{SA}{1} % GAP
+\WPParticipant{UK}{1} % Singular
+\WPParticipant{UB}{1} % Pari
 
 \begin{WPObjectives}
   The objective of this work package is to provide a modern, robust,
-  and flexible interface for computation, supporting real-time
+  and flexible user interface for computation, supporting real-time
   sharing, integration with collaborative problem-solving,
   multilingual documents, paper writing and publication, links to
-  databases etc.
+  databases, etc.
 \end{WPObjectives}
 
 \begin{WPDescription}
   \TODO{What is a notebook interface}
 
-  \TOWRITE{IPython people}{improve this draft presentation of }
+  \TOWRITE{IPython}{improve this draft presentation of IPython}
 
   IPython is a leading notebook interface in the world of interactive
   computations, and use massively by biologists, physicists, \TODO{and
@@ -24,99 +28,79 @@
   language agnostic, and can communicate through a standardized
   interface to various computation kernels \TODO{cite a few}. It can
   transparently run kernels locally or remotely (e.g. on the cloud),
-  and has built in support for HPC.
-
-
-  .. TODO:: include here everything about this topic in Needs.rst
+  and has built in support for parallel computing and HPC.
 \end{WPDescription}
 
-\TODO{Wherever relevant, create tickets with details, and refer to
-  them here.}
+\begin{task}{Uniform notebook interface for all interactive components}
+  \label{task.ipython_kernels}
+  In this task, we will implement Jupyter interfaces for the
+  interactive computation components of \TheProject, including GAP,
+  Pari, Sage, and Singular. A first release
+  D~\ref{del:ipython_kernels_basic} will focus on basic functionality,
+  and a second release D~\ref{del:ipython_kernels} will cover advanced
+  features like 3D graphics or transparent documentation browsing (as
+  live worksheets whenever relevant).
 
-\begin{WPDeliverables}
-  \TODO{Merge the four first items into a single deliverable ``IPython
-    interfaces to GAP, Singular, Pari, Sage''}
+  % Note from William: my student Andrew Ohana just mostly did
+  % something like that for IPython, but then stopped.  Anyway, it's
+  % very do-able based on a summer project from another student and a
+  % bunch of work I did with THREE.js for SMC.
+
+  Sage itself will require a specific treatment as it already has a
+  notebook interface. Its development started about at the same time
+  as the IPython notebook, with similar target features but a
+  different agenda: the Sage notebook had to be available very quickly
+  to solve pressing needs of the Sage community; instead the IPython
+  notebook was to take its time and build robust foundations from the
+  ground up. The two projects have exchanged a lot, and the IPython
+  notebook, which benefits from a much larger user base and thus
+  developer pool, has mostly caught up with the Sage notebook in terms
+  of functionality. It's thus time for the Sage community to outsource
+  this key but non disciplinary component and phase out the Sage
+  notebook in favor of the IPython notebook.
+
+  % In charge: IPython dev + dev in Orsay + community?
+  The Sage and IPython convergence D~\ref{del:ipython_kernel_sage} will
+  require:
   \begin{itemize}
-  \item \ref{del:ipython_GAP} (Month ???) IPython notebook interface for GAP.
-    % In charge: IPython dev + GAP dev
-  \item \ref{del:ipython_GAP} (Month ???) IPython notebook interface for Singular.
-    % In charge: IPython dev + Singular dev
-  \item \ref{del:ipython_GAP} (Month ???) IPython notebook interface for Pari.
-    % In charge: IPython dev + Pari dev
-  \item \ref{del:ipython_sage} (Month 24\TODO{earlier?}): Sage
-    notebook / IPython notebook convergence:\\
-    The development of the Sage and IPython notebooks started about at
-    the same time in 200? with similar target features but a different
-    agenda: the Sage notebook had to be available very quickly to
-    solve pressing needs of the Sage community; instead the IPython
-    notebook was to take its time and build robust foundations from
-    the ground up. The two projects have exchanged a lot, and the
-    IPython notebook, which benefits from a much larger user base and
-    thus developer pool, has mostly caught up with the Sage notebook
-    in terms of functionality. It's thus time for the Sage community
-    to outsource this key but non disciplinary architecture element
-    and phase out the Sage notebook in favor of the IPython notebook.
+  \item Robust migration path and tools for Sage worksheets,
+  \item Support for math, 2D, and interactive 3D output.,
+    % \item Bundling of the IPython notebook and its dependencies within
+    %   the Sage distribution. DONE
+  \item Import (and export?) of ReST documents, with full support for
+    Sage's specific roles (math, ...),
+  \item Support for remote Sage kernel, typically on the cloud, or
+    running with a different Python version (Sage as a library),
+  \item A migration path for interactive widgets implemented with
+    Sage's \texttt{@interact} functionality.
+  \end{itemize}
 
-    \begin{enumerate}
-    \item Complete support for using the IPython notebook as a user
-      interface for Sage, including:
-      \begin{itemize}
-      \item Support for Math, 2D, and 3D output.
-      \item Bundling of the IPython notebook and its dependencies within
-        the Sage distribution.
-      \item Support for remote Sage kernel, typically on the cloud, or
-        running with a different Python version (Sage as a library).
-      \item One click access to the Sage documentation, as live
-        worksheets.
-      \end{itemize}
-    \item Robust migration tools for Sage worksheets.
-    \item Import (and export?)  of ReST documents, with full support for
-      Sage's specific roles (math, ...)
-    \item Support for interactive widgets implemented with Sage's
-      \texttt{@interact} functionality.
-    \end{enumerate}
-    % In charge: IPython dev + dev in Orsay + community?
-  \item \ref{del:ipython_usability} (Month 24) IPython usability
-    \begin{itemize}
-    \item Multilingual notebooks?
-    \item Improved 2D/3D graphics: maybe architecture for integrating
-      VPython, vispy, ...? 3D visualization of algebraic surfaces (in
-      collaboration with Singular)
+  Joint meetings and visits between the developers of Jupyter and of
+  the computing components will be a key asset for this task.
 
-    \end{itemize}
-    % In charge: IPython dev
+  \TODO{convergence with TeXmacs?}
+\end{task}
 
-  \item \ref{del:ipython_collaborative} Collaborative interactive
-    tools: e.g. embedding live shared IPython sessions in
-    voice-over-IP or teleconference calls or reciprocally.
-    % Eugen Dedu:
-    % I think such a module can be thought of as a screen-capturing
-    % module, i.e. allow Ekiga to capture the screen of a Sage user (this
-    % is currently not possible).  This is not a difficult task to do.
-    % Julien Puydt: ekiga can do that since something like 2008 with my
-    % experimental gstreamer plugin, and I shall be able to present
-    % interesting sample code to the ekiga-devel mailing-list in something
-    % like two-three weeks (after I'm done with my students), which will
-    % hopefully be part of the next version.
-    %
-    % But as Nicolas noted in his answer, some kind of interative session
-    % where people can share a sage session would be better.
-    %
-    % I think the feature decomposes in the following pieces:
-    % - IPython should have a way to share sessions between several
-    %   participants using an open and standard protocol ;
-    % - ekiga should implement it.
-    %
-    % In my opinion ekiga, because of its dependency on ptlib and opal
-    % libraries and the use of complex protocols like SIP and H323, needs
-    % highly technical people.  Students cannot help much, but engineers
-    % are appropriate.
+\begin{task}{Notebook interface usability}
+  In this task, we will further improve Jupyter as a uniform user
+  interface for interactive computation and database query.
 
-  \item \ref{del:ipython_advanced_interacts} (Month 36) Exploratory
-    support for interactive widgets as demonstrated in the \texttt{Larch
-      Environment} project (see demo vidéo on
-    \url{http://www.larchenvironment.com/})
-    % In charge: IPython dev
+  \TOWRITE{IPython}{Split off the work into an appropriate list of deliverables}
+
+  \begin{itemize}
+  \item Collaborative and shared worksheets,
+  \item Multilingual notebooks?
+  \item Improved 2D/3D graphics: maybe architecture for integrating
+    VPython, vispy, ...? 3D visualization of algebraic surfaces (in
+    collaboration with Singular)
+  \item Native folding support for sections and the like, with mouse
+    and keyboard commands.
+  \item Version control
+  \item Reproducibility: \ref{del:ipython_test} Support for tested
+    notebooks. The writer specifies the expected outputs, e.g. in text
+    format, and can check at any point that the full execution of the
+    notebook yields exactly the expected output, as can be done with
+    e.g. ReST files in Sage: \lstinline{sage -t notebook.rst}
   \item \ref{del:ipython_docking} (Month ???) Heavyweight (e.g. QT
     based and not web based) user interface with docking support in
     the style of \texttt{Spyder}
@@ -124,39 +108,175 @@
     implemented by extending the QT IPython console, or by letting
     \texttt{Spyder} use the IPython protocol (\TODO{If that's not yet
       the case}).
-
-  \item \ref{del:ipython_dynamic_doc} (Month ???) Dynamic
-    documentation system: java API style documentation, allowing
-    e.g. the exploration of the class hierarchy, generated on the fly
-    by introspection.  If possible this should be implemented
-    generically for any computation kernel by extending the IPython
-    protocol with introspection and documentation queries.
-
-    Rationale: in Sage, large parts of the class hierarchy is built
-    dynamically, hence static documentation builders like Sphinx can't
-    render all the available information.
-    % In charge: IPython dev + dev in Orsay + NT?
-  \item \ref{del:ipython_test} (Month ???) Support for tested
-    notebooks.\\
-    The writer specifies the expected outputs, e.g. in text format,
-    and can check at any point that the full execution of the notebook
-    yields exactly the expected output, as can be done with e.g. ReST
-    files in Sage: \lstinline{sage -t notebook.rst}
-  \item \ref{del:ipython_structured_documents} (Month ???) Support for writing
-    interactive structured documents, and in particular papers, books,
-    experimentation log books and reports, presentations, course
-    notes, etc, with the following features:
-    \begin{itemize}
-    \item Static printed/PDF/HTML version and interactive version.\\
-      Achieved by either importing or exporting document files in some
-      standard format (LaTeX, ReST, Markdown, ...).
-    \item Tests (see above).
-    \item Native folding support for sections and the like, with mouse
-      and keyboard commands.
-    \item Collaborative edition.
-    \item Version control.
-    \end{itemize}
   \end{itemize}
-  % TODO: logilab: inclusion of database queries and views
+\end{task}
+
+\begin{task}{Dynamic documentation and exploration system}
+  % \item \ref{del:ipython_dynamic_doc} (Month ???)
+
+  Introspection has become a critical tool in interactive computation,
+  allowing user to explore on the fly the properties and capabilities
+  of the objects under manipulation. This becomes particularly acute
+  in systems like Sage where large parts of the class hierarchy is
+  built dynamically, and static documentation builders like Sphinx
+  cannot anymore render all the available information.
+
+  In this task, we will investigate how to further enhance the user
+  experience. This will include:
+
+  \begin{itemize}
+  \item On the fly generation of Javadoc style documentation, through
+    introspection, allowing e.g. the exploration of the class
+    hierarchy, available methods, etc.
+  \item \TOWRITE{Logilab}{Inclusion of database queries and views}
+  \item \ref{del:ipython_advanced_interacts} (Month 36) Exploratory
+    support for semantic-aware interactive widgets providing views on
+    objects represented and or in databases
+
+    Preliminary steps are demonstrated in the \texttt{Larch
+      Environment} project (see demo vidéo on
+    \url{http://www.larchenvironment.com/}) and sage-explorer.
+
+    Ultimate goal: automatically generated LMFDB-style interfaces.
+    Mention Knowls, as dynamic context-free items of knowledge
+  \end{itemize}
+
+
+
+
+  Whenever possible, those features will be implemented generically
+  for any computation kernel by extending the Jupyter protocol with
+  introspection and documentation queries.
+
+  % In charge: IPython dev + dev in Orsay + NT?
+
+  \item .
+  \item     % In charge: IPython dev
+
+\end{task}
+
+\begin{task}{Structured documents}
+  % \item \ref{del:ipython_structured_documents} (Month ???) 
+  Support for writing interactive structured documents, and in
+  particular papers, books, experimentation log books and reports,
+  presentations, course notes, etc, with the following features:
+  \begin{itemize}
+  \item Static printed/PDF/HTML version and interactive version.\\
+    Achieved by either importing or exporting document files in some
+    standard format (LaTeX, ReST, Markdown, ...).
+  \item Tests (see above).
+  \item Collaborative edition.
+  \item Version control.
+  \end{itemize}
+\end{task}
+
+
+\TODO{include here everything about this topic in Needs.rst}
+
+\TODO{Wherever relevant, create tickets with details, and refer to
+  them here.}
+
+\begin{WPDeliverables}
+  \WPDeliverable{12}{del:ipython_kernels_basic}{Basic Jupyter
+    interface for GAP, Pari, Sage, Singular}
+  \WPDeliverable{12}{del:ipython_kernels}{Full featured Jupyter
+    interface for GAP, Pari, Singular}
+  \WPDeliverable{12}{del:ipython_kernel_sage}{Sage notebook / IPython
+    notebook convergence}
+
+  % Shared Jupyter sessions embedded in voice-over-IP or
+  % teleconference calls or reciprocally.
+  %
+  % NOTE: This task is probably outdated by appear.in which makes
+  % video-conferencing in the browser trivial
+  %
+  % \ref{del:ipython_collaborative}
+  % Eugen Dedu:
+  % I think such a module can be thought of as a screen-capturing
+  % module, i.e. allow Ekiga to capture the screen of a Sage user (this
+  % is currently not possible).  This is not a difficult task to do.
+  % Julien Puydt: ekiga can do that since something like 2008 with my
+  % experimental gstreamer plugin, and I shall be able to present
+  % interesting sample code to the ekiga-devel mailing-list in something
+  % like two-three weeks (after I'm done with my students), which will
+  % hopefully be part of the next version.
+  % 
+  % But as Nicolas noted in his answer, some kind of interative session
+  % where people can share a sage session would be better.
+  % 
+  % I think the feature decomposes in the following pieces:
+  % - IPython should have a way to share sessions between several
+  % participants using an open and standard protocol ;
+  % - ekiga should implement it.
+  % 
+  % In my opinion ekiga, because of its dependency on ptlib and opal
+  % libraries and the use of complex protocols like SIP and H323, needs
+  % highly technical people.  Students cannot help much, but engineers
+  % are appropriate.
+
 \end{WPDeliverables}
 \end{Workpackage}
+
+\begin{verbatim}
+
+About the availability of people to hire, I have a full-time,
+experienced developer whose contract runs out in fall 2015, he would be
+ideal for the project. I also have a doctoral student who needs
+employment after the MathSearch project (until 10/2015) runs out. So I
+do have people who would directly be available.
+
+Michael
+
+===================8<---------------------------------
+
+Task 4.10. Structured Documents (12 PM total, 3 PM per deliverable)
+   -> This existing task we could just take over based on our MathHub.info
+         system, which would need to be adapted to the task.
+Deliverables:
+   D1: Active Documents based on sTeX
+   D2: Distributed, Collaborative, Versioned Editing of Active Documents
+in MathHub.info
+   D3: Notebook Import into MathHub.info (interactive display)
+   D4: in-place computation in active documents (context/computation).
+Comments:
+  MathHub.info is a portal for reading and interacting with "active
+documents"
+  (i.e. documents that have an additional semantic layer that supports
+semantic services like
+   - definition lookup, type-inference, unit conversion, ...)
+  Notebooks are essentially "programs with documentation", whereas
+active documents are
+  documents with a semantic knowledge layer. Regular publications are an
+important
+  boundary case: Active Documents look like papers, but are
+web-standards compatible
+  and interactive.
+  sTeX is a semantic variant of LaTeX that we can transform into OMDoc/MMT,
+  which is the native knowledge representation format for active documents
+  and machine-actionable knowledge about math and symbolic programs.
+
+===================8<---------------------------------
+
+Task K-4.11 Math Search Engine (10 PM total; 2 each for D1/2, 3 each for
+D3/4)
+   D1: Full-text search (formulae + Keywords) over LaTeX-based documents
+         (e.g. arXiv subset)
+   D2: Full-text search (F+K) over Notebooks (in the format determined
+in task 4.7)
+   D3: Formula search in CAS programs and Software Modules
+   D4: Search from Notebooks/Active Documents (for local context to
+inform search)
+Comments:
+   We already have a search engine, therefore we only need to build
+harvesters for D1/2;
+   D3/4 are more speculative.
+
+I am going to get some sushi now, I have 2 or 3 tasks for WP6 in mind,
+but not written up.
+
+\end{verbatim}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../proposal.tex"
+%%% End: 

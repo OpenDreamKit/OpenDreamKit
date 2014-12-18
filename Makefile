@@ -4,6 +4,7 @@ EXPORT = ../proposal-export
 
 TEXFILES = ${TARGET}.tex  outline.tex resources.tex deliverables.tex milestones.tex preamble.tex participants.tex
 WPFILES =  $(wildcard WorkPackages/*.tex)
+PARTICIPANTS =  $(wildcard Participants/*.tex)
 STYLEFILES = $(wildcard *.sty)
 BIBFILES = bibliography.bib
 PDFFILES = 
@@ -19,7 +20,7 @@ REVISION := $(shell git rev-parse --short HEAD)
 LATEX=latexmk
 LATEXBUILDARGS=-pdf -pdflatex="pdflatex --interact=nonstopmode --shell-escape -synctex=1 %O %S"
 
-SOURCES = ${TEXFILES} ${WPFILES} ${BIBFILES} ${PDFFILES} ${PSFILES}  ${GRAPHICSFILES} ${STYLEFILES}
+SOURCES = ${TEXFILES} ${WPFILES} ${BIBFILES} ${PDFFILES} ${PSFILES}  ${GRAPHICSFILES} ${STYLEFILES} ${PARTICIPANTS}
 COPIES = ${TEXFILES} ${BIBFILES} ${STYLEFILES} WPs Makefile
 
 .PHONY=clean distclean all export show dist
@@ -34,10 +35,15 @@ all: $(TARGETPDF)
 #	pdflatex ${TARGET}
 #	pdflatex ${TARGET}
 
+proposal.pdf: Pictures/TheBigPicture.pdf
+
 # the core build command, mapping tex -> pdf files
 # with all SOURCES as dependencies
 %.pdf: %.tex ${SOURCES}
 	$(LATEX) $(LATEXBUILDARGS) $<
+
+%.pdf: %.svg
+	rsvg-convert -f pdf -o $@ $<
 
 export: $(TARGETPDF)
 	-mkdir ${EXPORT}
@@ -68,3 +74,5 @@ cont:
 dist: $(TARGETPDF)
 	cp $(TARGETPDF) $(TARGET)-$(REVISION).pdf
 
+TOWRITE: *.tex */*.tex
+	grep TOWRITE *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE

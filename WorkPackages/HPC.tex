@@ -1,0 +1,193 @@
+\addtocounter{wpno}{1}
+\begin{Workpackage}{\thewpno}
+\label{wp:hpc}
+\wplabel{wp:x}
+\WPTitle{\wpname{\thewpno}}
+\WPStart{Month 1}
+\WPParticipant{PS}{1} % HPC for Combinatorics
+\WPParticipant{LL}{12} % Pythran
+\WPParticipant{SA}{1} % GAP
+\WPParticipant{UK}{1} % Singular
+\WPParticipant{UB}{1} % Pari
+\WPParticipant{UJF}{12} % Linbox / Pythran
+
+\begin{WPObjectives}
+  The objective of this work package is to improve the performance of
+  the computational components of \TheProject, in particular on
+  massively parallel architectures. This includes notably:
+  \begin{itemize}
+  \item Fine grained High Performance Computing on many-cores
+    architectures.
+  \item Coarse grained or embarrassingly parallel computing on grids
+    or on the cloud.
+  \item Compilation of high level interpreted code to optimized
+    parallel native code.
+  \item Develop novel HPC infrastructure in the context of
+    combinatorics.
+  \end{itemize}
+  A key aspect will be to foster further sharing expertise and best
+  practices between computational components.
+\end{WPObjectives}
+
+\begin{WPDescription}
+  As in all other areas of science, properly supporting massively
+  parallel architecture is a major challenge. Many of the
+  computational components in \TheProject have already gone a long way
+  in this direction. For example, an adaptation of the \GAP kernel for
+  HPC was developed during the 2009-2013 EPSRC project. The expertise
+  gained there was then transferred to the ongoing \Singular-HPC
+  project, in particular through the rehiring of one of the developers
+  of \GAP-HPC. The French ANR HPAC project (2012-2015) has also widely contributed to design
+  parallel exact linear algebra kernels  which is a core component for most HPC
+  applications. The \texttt{LinBox} library, used in sage, has benefited from this
+  experience on the multi-core processing aspects. 
+
+  In this work package, we will build on this momentum to further
+  implement HPC support in the components Tasks~\ref{task:hpc_pari},
+  \ref{task:hpc_linbox}, and \ref{task:hpc_singular}.
+
+  \TODO{transition}
+
+  Many of the computational components of \TheProject use a high level
+  interpreted language for their library. This is notably the case of
+  \Sage. Performance is achieved by compiling critical sections using
+  the \Cython \Python-to-C compiler, to the expense of a lower level
+  implementation. In Tasks~\ref{task:pythran_cython}
+  and~\ref{task:pythran_sage}, we will also boost performance by
+  further developing and applying such compilation tools, while
+  keeping a high-level approach.
+
+\end{WPDescription}
+
+\begin{task}{PARI}
+  \label{task:hpc_pari}
+  \Pari is a C library mainly oriented toward arithmetic and number theory.
+  
+  It currently lacks interfaces for parallelism (POSIX threads or
+  MPI). More precisely, it should be possible from an external package
+  or software (e.g. Sage) to better exploit \Pari parallel features.
+
+  On the other hand, many basic algorithms in PARI (e.g. integer
+  factorization) are currently implemented using only one core. One can
+  take better use of multi-core architecture and more generally parallel
+  architectures.
+\end{task}
+
+\begin{task}{GAP}
+  \label{task:hpc_gap}
+  \TOWRITE{SL/AK}{Task around HPC/parallelism/perf in GAP}
+
+  \TODO{deliverable}
+\end{task}
+
+\begin{task}{Linbox}
+  \label{task:hpc_linbox}
+  \TOWRITE{JGD/CP}{Task around HPC/parallelism/perf in Linbox}
+
+  \TODO{deliverable}
+\end{task}
+
+\begin{task}{Singular}
+  \label{task:hpc_singular}
+  \TOWRITE{WD}{Task around HPC/parallelism/perf in Singular}
+
+  \TODO{deliverable}
+\end{task}
+
+
+\begin{task}{HPC infrastructure for combinatorics}
+  \TOWRITE{FH}{Task around HPC infrastructure for combinatorics}
+  \TODO{deliverable}
+\end{task}
+
+\begin{task}{Pythran-Cython convergence}
+  \label{task:pythran_cython}
+
+  \Pythran is a \Python to C++ compiler for a subset of the \Python
+  language. It is meant to efficiently compile scientific programs,
+  and takes advantage of multi-cores and SIMD instruction units.
+  Thanks to type inference, it requires little annotations. Its rutime
+  supports a subset of the \Numpy package.
+
+  \Cython is a \Python to C compiler that was originally developed for
+  \Sage and is now a thriving project of its own. It can handle
+  essentially any \Python code, and in particular classes, but relies
+  heavily on annotations for producing optimized code.
+
+  Therefore, \Pythran and \Cython are similar in spirit but have
+  complementary feature sets: \Pythran can heavily optimize high level
+  \Numpy constructs and \Cython has broader \Python support. In this
+  task, we will investigate the opportunity and feasibility of a
+  convergence between \Cython and \Pythran: depending on the code at
+  hand, one strategy or the other would be automatically selected,
+  eventually using \Pythran generated called from \Cython when
+  relevant D~\ref{del:pythran_cython}. This would result in compiler-runtime
+  cooperation driven by the \Cython compiler thanks to part of the
+  \Pythran-runtime and the extra typing information provided by \Cython. An
+  effort will be made to improve more and more the parallelism in the
+  \Pythran runtime D~\ref{del:pythran_runtime}.
+
+  This work will be achieved through a close collaboration between the \Pythran
+  developers hired for \TheProject and \Cython developers involved in the \Sage
+  project. It should quicken \Sage execution time at least on \Numpy centric
+  codes, while not putting an extra burden on the developers.  Preleminary
+  dicussions with the \Cython community have already taken place and received a
+  very favorable feedback.
+
+
+\end{task}
+
+\begin{task}{\Pythran for \Sage and \Sage Users}
+  \label{task:pythran_sage}
+
+  Currently, \Sage doesn't provide facilities to improve user written
+  \Python code without the modifications implied by the use of the \Cython
+  compiler. As \Pythran doesn't need these codes to be rewriten, a notebook
+  interface to compile \Pythran compliant code will he added in \Sage to
+  improve user kernels using the \Pythran compiler D~\ref{del:pythran_sage}.
+
+  In a similar perspective, testing and improving the integeration between
+  \software{mpi4py} and \Pythran could provide an efficient toolchain for HPC
+  while keeping full backward compatibility with pure \Python code. This will
+  required a continuous integration of \Pythran to ensure its capabilities
+  D~\ref{del:pythran}.
+
+  Internally, \Sage uses \Cython for compiling the critical sections of
+  its libraries. In this task, we will explore opportunities to
+  benefit from \Pythran compilation within the \Sage library, in
+  particular toward better support for parallelism. A specific
+  challenge is that the \Sage library uses quite heavily
+  object-oriented programming.
+
+  This task will strongly benefit from Task~\ref{task:pythran_cython},
+  while providing in return a real life large-scale use case for it.
+
+  A first step to support object-oriented programming will be to make
+  \Pythran type inference more accurate, which will also improve error
+  feedback provided for the user D~\ref{del:pythran_typing}.
+\end{task}
+
+\begin{task}{Explorative task: Add support for classes in \Pythran.}
+  Classes support is a real challenge for \Pythran as it requires a more
+  accurate typing information but also invalidates some compiler optimisations.
+
+  As it will need a full rework of the aliases analysis in \Pythran, which is
+  the keystone of \Pythran, we are not sure it could really
+  be integrated but it would be a proof of scalability for \Pythran.
+  Thanks to this typing and this better aliaing analysis, we could add more
+  optimizations like the ones from \Cython enabled with decorator annotation.
+\end{task}
+
+\begin{WPDeliverables}
+  \WPDeliverable{6}{del:pythran_cython}{Implement \Pythran runtime support in
+\Cython when they are implemented instead of using default implementation.}
+  \WPDeliverable{3}{del:pythran_runtime}{Improve \Pythran runtime support to
+automatically take advantage of multi-cores and SIMD instruction units.}
+  \WPDeliverable{2}{del:pythran_sage}{Facility to compile \Pythran compliant
+user kernels.}
+  \WPDeliverable{1}{del:pythran}{Ensure inteoperability of \Pythran with \Python
+and its packages.}
+  \WPDeliverable{12}{del:pythran_typing}{Make \Pythran typing better to improve
+error information.}
+\end{WPDeliverables}
+\end{Workpackage}
