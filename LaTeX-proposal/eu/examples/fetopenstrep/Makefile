@@ -1,7 +1,7 @@
 # possibly customize the following variables to your setting
-PROPOSAL = proposal.tex 		# the proposal
-BIB = bibliography.bib	        # bibTeX databases
-PROP.dir = LaTeX-proposal
+PROPOSAL = propB.tex 		# the proposal
+BIB = ../lib/dummy.bib	        # bibTeX databases
+PROP.dir = ../../..
 ###########################################################################
 # the following are computed
 TSIMP = 			                  # pdflatex Targets without bibTeX
@@ -14,7 +14,7 @@ PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
 SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
 PDFLATEX = pdflatex -interaction batchmode -file-line-error
 BBL.base = 1 2 3 4
-BBL = $(PROPOSAL:%.tex=%.bbl) $(BBL.base:%=$(PROPOSAL:%.tex=%)%-blx.bbl)
+BBL = propB.bbl $(BBL.base:%=propB%-blx.bbl)
 PROPCLS.dir = $(PROP.dir)/base
 PROPETC.dir = $(PROP.dir)/etc
 EUPROPCLS.dir = $(PROP.dir)/eu

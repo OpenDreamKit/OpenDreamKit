@@ -1,0 +1,67 @@
+# make a zip for CTAN submission including the TeX directory structure
+SVNEXP 		= svn export --quiet
+TDSCOLL 	?= $(shell basename $$PWD)
+EXPORTED	= /tmp/$(TDSCOLL)
+TDSDIR 		= /tmp/$(TDSCOLL).tds
+TDSZIP 		= /tmp/$(TDSCOLL).tds.zip
+CTANDIR 	= /tmp/$(TDSCOLL).ctan
+CTANZIP 	= /tmp/$(TDSCOLL).ctan.zip
+
+# this target makes the file CTANZIP by creating and populating the directory 
+# CTANDIR and zipping it. To be current, we first make all, and update 
+# the filedates and the checksums. To get rid of all the junk we commit and 
+# export a clean copy EXPORTED, on which we run the target ctanexp below,  
+# which generates a directory CTANDIR, which we zip and move into place. 
+ctan: all filedate checksum
+	svn ci -m'draining just to be sure for CTAN distribution'
+	rm -Rf $(EXPORTED)
+	@echo "exporting a clean copy to $(EXPORTED)"
+	$(SVNEXP) $(TDSURL) $(EXPORTED)
+	find $(EXPORTED) -name ".svn" -type d -exec rm -Rf {} \;
+	cd $(EXPORTED);	$(MAKE) -$(MAKEFLAGS) ctanext
+	@echo "zipping the result to $(TDSCOLL).ctan.zip"
+	cd $(CTANDIR); zip -r -q $(CTANZIP) .; cd -; cp $(CTANZIP) .
+	rm -Rf $(EXPORTED) $(CTANDIR) $(CTANZIP)
+
+# this target is run on EXPORTED. It first makes the target tdsext below, 
+# and then copies all necessary stuff into CTANDIR. 
+ctanext: tdsext
+	rm -Rf $(CTANDIR) $(CTANZIP)
+	@echo "  preparing a copy $(CTANDIR) from $(EXPORTED)"
+	mkdir -p $(CTANDIR) 
+	cp $(TDSZIP) $(CTANDIR)
+	@for d in $(DTXDIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) lctan) done
+	@for d in $(SRCDIRS) $(DOCDIRS); do (cp -R $$d $(CTANDIR)) done; 
+	cp $(TDSZIP) README Makefile $(CTANDIR)
+	rm -Rf  $(TDSZIP)
+
+# this target makes the file TDSZIP by creating and populating the directory 
+# TDSDIR and zipping it. 
+tdsext: 
+	@echo "making a TDS compliant archive"
+	rm -Rf $(TDSDIR) $(TDSZIP)
+	@echo "  enabling checksums"
+	$(MAKE) -$(MAKEFLAGS) enablechecksum
+	@echo "  copying over stuff to $(TDSDIR)"
+	@for d in $(DTXDIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) ltds) done
+	@for d in $(SRCDIRS); do (cp -R $$d $(TDSDIR)/source/latex/$(TDSCOLL)) done; 
+	@for d in $(DOCDIRS); do (cp -R $$d $(TDSDIR)/doc/latex/$(TDSCOLL)) done; 
+	cp $(TDS.doc) $(TDSDIR)/doc/latex/$(TDSCOLL)
+	@echo "zipping the result to $(TDSCOLL).tds.zip"
+	cd $(TDSDIR); zip -r -q $(TDSZIP) .; cd -
+	rm -Rf $(TDSDIR)
+
+# copy stuff around for the TDS in the DTX dirs
+ltds: 
+	@echo "copying stuff for the subdirs"
+	@for d in $(DISTDIRS); do (cd $$d; $(MAKE) -$(MAKEFLAGS) $@) done
+	cp $(TDS.tex) $(TDSDIR)/tex/latex/$(TDSCOLL)
+	cp $(TDS.doc) $(TDSDIR)/doc/latex/$(TDSCOLL)
+
+# copy stuff around for a CTAN submission in the DTX dirs
+CTANDIR = /tmp/$(TDSCOLL).ctan
+lctan: 
+	mkdir -p $(CTANDIR)/sty;
+	@for d in $(DISTDIRS); do (cp -R $$d $(CTANDIR)/sty) done
+	cp $(TDS.tex) $(TDS.doc) Makefile $(CTANDIR)/sty
+
