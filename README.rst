@@ -18,6 +18,13 @@ As leader of a workpackage
 
 Edit the file WorkPackages/<WorkPackageName>.tex.
 
+- Objectives: 5-10 lines typically itemized
+- Description: as appropriate; typically 10 lines to half a page
+  depending on the variety and number of tasks
+- Number of tasks: as appropriate; typically 3-5?
+- Each task: 5-15 lines, 1-3 deliverables
+
+
 As leader of a participating institution:
 -----------------------------------------
 
