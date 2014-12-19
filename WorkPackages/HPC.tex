@@ -89,9 +89,67 @@
 
 \begin{task}{Singular}
   \label{task:hpc_singular}
-  \TOWRITE{WD}{Task around HPC/parallelism/perf in Singular}
+The unique challenge of parallelizing Singular has been that it is a decades-old project, with a codebase exceeding 300,000 lines of code and an enormous existing investment of development effort. This makes a wholesale manual rewrite or reengineering approach infeasible.
 
-  \TODO{deliverable}
+We therefore use a multi-pronged approach: First, we have created automated source-to-source translation tools that take existing C/C++ code as input and generate threadsafe code as output. Secondly we are also adding facilities to the C/C++ code and the Singular interpreter to safely access shared memory. These facilities ensure in particular that common pitfalls of concurrent programming, such as data races and deadlocks, cannot occur. For this, we leverage approaches that have already been successfully used for HPC-GAP and whose principles are well-understood.
+
+To supplement the above existing work, we propose to add very fine-grained parallelism to some key components of Singular. These include writing a multi-threaded implementation of the Singular multivariate polynomial arithmetic, of the main quadratic sieve implementation for integer factoring and parallelisation of the FFT based integer and dense polynomial multiplication algorithm. These key components are used extensively for Singular's overall workload, including in the Groebner basis engine and polynomial subsystems. Performance increases through fine-grained parallelisation of key components such as these will provide extensive benefits to virtually all users of Singular on multi-core machines.
+  
+\begin{WPDeliverables}
+  \WPDeliverable{3}{del:QS_sieving}{Parallelise the relation sieveing component
+of the Quadratic Sieve}
+  \WPDeliverable{9}{del:QS_linalg}{Implement a parallel version of 
+Block-Wiederman linear algebra over GF2 and the triple large prime variant.}
+  \WPDeliverable{12}{del:FFT}{Take advantage of multiple cores in the matrix
+Fourier Algorithm component of the FFT for integer and polynomial arithmetic,
+and include assembly primitives for SIMD processor instructions (AVX, Knight's
+Bridge, etc.), especially in the FFT butterflies}
+  \WPDeliverable{12}{del:singular_polymul}{Parallelise the Singular sparse
+polynomial multiplication algorithms}
+  \WPDeliverable{12}{del:singular_polyarith}{Parallel versions of the Singular
+sparse polynomial division and GCD algorithms.}
+\end{WPDeliverables}
+\end{task}
+
+\begin{task}{MPIR}
+  \label{task:hpc_singular}
+MPIR (Multiple Precision Integers and Rationals) is the core library in Sage
+for bignum arithmetic. It is used extensively by a majority of the core C/C++
+libraries in Sage, and by Sage directly via Cython. MPIR is a fork of the 
+GMP (Gnu Multi-precision) library, with many independent implementations of the
+core algorithms (including a faster FFT and division code, better 
+superoptimisation on some common 64 bit processors and native MSVC support). 
+It consists of around 250,000 lines of code, much of which is assembly 
+primitives and very low level, highly optimised C code.
+
+Maintainence of MPIR is not merely a matter of updating the build system.
+Rather, every time a new processor is released by AMD, Intel, Sparc or ARM,
+significant development has to be invested in hand-optimising and then
+superoptimising assembly code for the new processors. This gives up to a 12x
+performance increase over optimised C code, due to the specialised nature of
+bignum arithmetic, which is in some sense a worst case for C compilers. Indeed
+without continuous effort, MPIR would not even run on new operating systems and
+processors, let alone run fast. This is a unique problem that assembly libraries
+have.
+
+As a successful and key component of Sage, we believe it is time to invest in
+maintenance and improvement of MPIR by hiring an assembly expert who can work
+full time on the project after MPIR's lead assembly expert sadly passed
+away recently. Significant challenges exist, such as
+optimising for SIMD instruction sets. Without investment into maintenance,
+assembly superoptimisation, processor support, fat binary support, etc. this key
+component of Sage will fall behind, to the detriment of Sage as a whole and the
+numerous other standalone libraries that make use of MPIR.
+
+\begin{WPDeliverables}
+  \WPDeliverable{12}{del:MPIR_superoptimiser}{Extend the existing assembly
+superoptimiser for AVX and upcoming Intel processor extensions}
+  \WPDeliverable{24}{del:MPIR_processors}{Ongoing support of Intel, AMD, ARM, 
+Sparc processors and new Operating System versions}
+  \WPDeliverable{12}{del:MPIR_fat}{Provide FAT binary support for all new
+x86_64 processors, build system maintenance and improvements to tuning,
+profiling and testing subsystems}
+\end{WPDeliverables}
 \end{task}
 
 
