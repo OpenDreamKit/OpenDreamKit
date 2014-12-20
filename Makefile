@@ -2,7 +2,7 @@ TARGET = proposal
 TARGETPDF = ${TARGET}.pdf
 EXPORT = ../proposal-export
 
-TEXFILES = ${TARGET}.tex  outline.tex resources.tex deliverables.tex milestones.tex preamble.tex participants.tex
+TEXFILES = ${TARGET}.tex  outline.tex resources.tex deliverables.tex milestones.tex preamble.tex participants.tex ambition.tex
 WPFILES =  $(wildcard WorkPackages/*.tex)
 PARTICIPANTS =  $(wildcard Participants/*.tex)
 STYLEFILES = $(wildcard *.sty)

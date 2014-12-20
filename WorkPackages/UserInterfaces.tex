@@ -8,6 +8,7 @@
 \WPParticipant{SA}{1} % GAP
 \WPParticipant{UK}{1} % Singular
 \WPParticipant{UB}{1} % Pari
+\WPParticipant{USO}{25} % Southampton, OOMMF-NB
 
 \begin{WPObjectives}
   The objective of this work package is to provide a modern, robust,
@@ -29,6 +30,21 @@
   interface to various computation kernels \TODO{cite a few}. It can
   transparently run kernels locally or remotely (e.g. on the cloud),
   and has built in support for parallel computing and HPC.
+
+  The last tasks in this work package is focused on an
+  \emph{application of the IPython Notebook technology to a simulation
+    package} that is actively used in materials research by a wide
+  range of scientists and engineers, in academia and industry. We will
+  develop a state-of-the art IPython Notebook interface and fronend
+  and demonstrate the power that this approach delivers to accelerate
+  computational science, deliver better value for money and make
+  computational science more robust.  We have chosen the Object
+  Oriented MicroMagnetic Framework (OOMMF) simulation package
+  \cite{OOMMF-url} as the target tool which is used to simulate
+  magnetic nanostructures in over 1800 publications
+  \cite{OOMMF-citations-url}. We use \OOMMFNB{} (for OOMMF NoteBook) as
+  an identifier for this case study.
+
 \end{WPDescription}
 
 \begin{task}{Uniform notebook interface for all interactive components}
@@ -96,11 +112,6 @@
   \item Native folding support for sections and the like, with mouse
     and keyboard commands.
   \item Version control
-  \item Reproducibility: \ref{del:ipython_test} Support for tested
-    notebooks. The writer specifies the expected outputs, e.g. in text
-    format, and can check at any point that the full execution of the
-    notebook yields exactly the expected output, as can be done with
-    e.g. ReST files in Sage: \lstinline{sage -t notebook.rst}
   \item \ref{del:ipython_docking} (Month ???) Heavyweight (e.g. QT
     based and not web based) user interface with docking support in
     the style of \texttt{Spyder}
@@ -108,6 +119,23 @@
     implemented by extending the QT IPython console, or by letting
     \texttt{Spyder} use the IPython protocol (\TODO{If that's not yet
       the case}).
+  \end{itemize}
+\end{task}
+
+
+\begin{task}{Using Notebooks for verification tests}
+  \label{task:notebook-verification}
+  In this task, we will develop tools that allow to re-execute stored
+  notebooks. The computed output will be compared against the stored
+  output, and deviations reported as assertion errors. This allows to
+  use any notebook for automated regression testing.
+
+  \begin{itemize}
+  \item Reproducibility: \ref{del:ipython_test} Support for tested
+    notebooks. The writer specifies the expected outputs, e.g. in text
+    format, and can check at any point that the full execution of the
+    notebook yields exactly the expected output, as can be done with
+    e.g. ReST files in Sage: \lstinline{sage -t notebook.rst}
   \end{itemize}
 \end{task}
 
@@ -215,7 +243,246 @@
   % are appropriate.
 
 \end{WPDeliverables}
+
+
+\begin{task}{OOMMF case study: Create Python interface to OOMMF code}
+  \label{task:oommf-python-interface}
+  % 6 person months
+
+  We split creation of the Python interface to OOMMF into two
+  different layers of abstraction and corresponding tasks:
+
+  \textbf{Task A}: Select and implement appropriate Python-C++ interface
+
+  We will identify best option for interfacing from Python to OOMMF
+  core routines. The technical options include CTypes, Cython, Swig,
+  and Boost-Python, all with particular
+  advantages/disadvantages. Following analysis of the current OOMMF
+  code layout and compilation model, we will use the most suitable
+  tool, bearing in mind our ambition not to modify the OOMMF code so
+  that the python interface we create remains functional and
+  maintainable with minimal effort while the OOMMF core code is
+  developed further by the OOMMF authors.
+
+  The interface will expose the raw C++ objects in Python, and for
+  clarity we will refer to this interface as \texttt{OOMMF-py-raw}, to
+  annotate that this gives access to OOMMF from PYthon but in a RAW
+  way. Creation of this \texttt{OOMMF-py-raw} is technically doable as
+  OOMMF had been written allowing to do this from Tcl.
+
+  \textbf{Task B}: The \texttt{OOMMF-py-raw} library for Python
+  provides access to the OOMMF functionality but requires some care
+  from the user. In this second task, we will create a user friendly
+  Python library that combines the OOMMF-RAW capabilities we expect to
+  become the main user interface to OOMMF in the medium term
+  future. This will make use of object orientation to assist users in
+  efficient and safe exploitation of the available facilities,
+  following the design of the well-received Nmag simulation package
+  \cite{Nmag-url}.
+
+
+  Once this is completed, several new features will be available to
+  OOMMF users: (i) ability to drive OOMMF from Python, (ii)
+  computational steering, and (iii) combination of OOMMF simulation
+  with the existing Python eco-system of computational tools.
+
+  %Can remove the next paragraph if we are pushed for space.
+
+  We illustrate the advantage of (iii) through an example: to solve
+  the micromagnetic standard problem 3
+  \cite{Micromagnetic-Standardproblem-3}, traditionally multiple OOMMF
+  simulation runs would have to be conducted, and for each of those a
+  new configuration file as to be written. Between these the size of
+  the simulated geometry needs to be modified until two particular
+  values of energy are the same. Given the new interface developed in
+  this work package, this whole process can be replaced by one Python
+  script that creates multiple OOMMF simulations, combined with a root
+  finding method for the automatic iterative determination of the
+  required simulation geometry.
+
+  Parallel in developing this, a set of unit tests is created that can
+  be run periodicly as regression tests. For all tasks relating to
+  OOMMF-NB, documentation and tests are created simultaneously with
+  the code.
+
+  We anticipate to start this task \ref{task:oommf-python-interface}
+  in month 4.
+\end{task}
+
+\begin{WPDeliverables}
+  \WPDeliverable{9}{del:oommf-py-raw}{Basic Python Interface to OOMMF}
+\end{WPDeliverables}
+
+
+
+\begin{task}{OOMMF case study: Extend \texttt{OOMMF-py} with IPython
+    notebook attributes and GUI templates}
+  % 6 person months
+
+  The web server based Notebook environment (Jupyter) allows to host,
+  execute and document the Python-based OOMMF simulation in an
+  executable document. In this interactive environment, the
+  representation of objects can be overloaded, and can include
+  representation of objects as text, as bitmaps or svg files. We will
+  create this functionality so that magnetisation vector field objects
+  can be presented as a rendered 3d and 2d-view of the magnetisation
+  field, and similar features for scalar fields such as field
+  components and energies. This allows the interactive exploration and
+  computational steering of the behaviour of magnetic
+  nanostructures. Depending on the development of 3d packages such as
+  vispy, it may be possible to provide interactive data objects in the
+  notebook.
+
+  Beyond that, the Jupyter Widgets allow the creation of graphical
+  user interface (GUI) like elements, and we will generate code to
+  display these widgets on demand to (i) set up micromagnetic
+  simulation using a GUI, and (ii) assist in post-processing
+  simulation results. Not all OOMMF users are keen on using GUIs for
+  simulation set up or post processing, but in particular new or
+  infrequent users benefit significantly from this. Recent pilot work
+  has shown that it is possible to make IPython Widgets interact with
+  the python interpreter session and this allows to activate a
+  GUI-like (widget based) interface when desired but to quickly return
+  to the interpreter prompt, taking forward the results (data) from
+  the GUI session \cite{IPython-widget-GUI-demo-youtube-2014} and
+  providing a continuous path from scripting to GUI. We
+  believe that having the ability to mix and match GUI-based and
+  command driven analysis combines the best of both approaches and
+  provides significant additional value.
+
+
+\end{task}
+
+\begin{WPDeliverables}
+  \WPDeliverable{15}{del:oommf-nb}{IPython Notebook Interface
+    for OOMMF (\OOMMFNB{})}
+\end{WPDeliverables}
+
+
+
+\begin{task}{OOMMF case study: \OOMMFNB{} tutorial and documentation}
+  % 6 person months
+
+  We will create documentation and a new tutorial on usage of OOMMF
+  that introduces micromagnetic modelling in the new framework of
+  \OOMMFNB{}, combined with complete documentation of the
+  \texttt{OOMMF-Py} library. The documentation will be provided in
+  form of executable IPython notebooks.
+
+  The tutorial, in terms of content, will take guidance from the
+  tutorial provided for Nmag \cite{Nmag-tutorial-url} but tailored for the
+  special simulation capabilities of OOMMF, and will introduce the
+  special capabilities of the new IPython interface for OOMMF.
+
+  The output of this activity will provide multiple benefits:
+  providing a systematic introduction to \texttt{OOMMF-py} suitable for both
+  those users (i) new to micromagnetic modelling and those (ii) new to
+  the \texttt{OOMMF-py} interface. Because the documentation is developed in an
+  IPython notebook, the documents are executable. For new learners
+  this is a great simplification because they can skip through the
+  given document and execute the given examples there and then: at the
+  moment, this is a process of manually writing a script, or locating
+  it in the directory structure of files, then executing this,
+  subsequently opening and processing the data files, etc. In the new
+  model, this end-to-end simulation will start from specifying the
+  material parameters in the notebook (all of this is given in the
+  tutorial), to running the simulation in the notebook to processing
+  of computed data while the simulation runs (or subsequently) in the
+  notebook; thus providing one virtual research environment, with all
+  the associated benefits of making best use of the scientist's time
+  using the tool and environment.
+
+  The documentation and tutorial will include a number of typical
+  micromagnetic case studies that (i) demonstrate the correctness of
+  the code by executing some of the micromagnetic standard problems
+  and (ii) demonstrate the additional power gained by the
+  IPython-based OOMMF interface.
+
+\end{task}
+
+\begin{WPDeliverables}
+  \WPDeliverable{21}{del:oommf-nb-documentation}{\OOMMFNB{}
+    executable tutorial and documentation}
+\end{WPDeliverables}
+
+
+\begin{task}{OOMMF case study: \OOMMFNB{} virtual environments}
+  \label{task:oommf-nb-ve}
+  % 3 person months
+  Recently, a TeMPorary ipython NoteBook has been made available at
+  \href{http://tmpnb.org}{http://tmpnb.org}, that allows anybody to go
+  to this URL and use their very own IPython Notebook for quick
+  calculations and tests online. We will provide similar functionality
+  but for a server that provides the \OOMMFNB{} software and \OOMMFNB{}
+  documentation and tutorials so that the tutorial can be executed
+  immediately on that web server; thus removing the barrier of having
+  to install code before being able to interactively drive and test a
+  simulation system.
+
+  We will further provide as open source the scripts that allow
+  creation of virtual environments (such as vagrant scripts to
+  generate VirtualBox images, and Docker containers). These virtual
+  environments underpin the web hosted temporary \OOMMFNB{}
+  service but are also of use to those users who want to download a
+  complete virtual machine to run their simulations within that
+  machine.
+
+  % XXX HF Financial details should probably go elsewhere.
+  We request 3100 EUR (ex VAT) to purchase a machine to provide these
+  services (shared memory, 16 cores, 64GB RAM, small solid state drive
+  to make the system more responsive). This machine will also provide
+  the regression testing and continuous integration (see task
+  \ref{task:dissemination-of-oommf-nb-virtual-environment}). Setup and
+  maintenance of the machine is part of this work task.
+
+\end{task}
+
+\begin{WPDeliverables}
+  \WPDeliverable{24}{del:oommf-nb-tmp}{\OOMMFNB{}
+dynamic web service available}
+  \WPDeliverable{24}{del:oommf-nb-virtual}{\OOMMFNB{}
+virtualmachine images available for download}
+\end{WPDeliverables}
+
+
+\begin{task}{OOMMF case study: Evaluation and refinement}
+  % 4 person months
+  We will make the \OOMMFNB{} open source code available to
+  micromagnetic research groups as early as possible to gather
+  feedback over a period as long as achievable. A questionnaire will
+  be developed and used to gather user feedback on usefulness of the
+  provided capibilities, with particular focus on (i) where
+  \OOMMFNB{} enables new and better science, (ii) where it
+  allows to do work more effectively, (iii) more reproducibly. We will
+  further gather suggestions for improvements, and this feedback will
+  be evaluated continuously. Time permitting, additional features and
+  changes can be implemented, based on the user feedback. We will
+  \texttt{target OOMMF-NB} users that attend workshops (see task
+  XXX). Towards the end of the project, all results and insights will
+  be summarised in a report to share the lessons learned from this user
+  interface application example, and be made publicly available. Where
+  possible, we will report our findings at relevant
+  workshops/conferences.
+\end{task}
+
+\begin{WPDeliverables}
+  \WPDeliverable{48}{del:oommf-nb-evaluation}{\OOMMFNB{}
+evaluation report}
+\end{WPDeliverables}
+
+
+
+
+
+
+
+
+
 \end{Workpackage}
+
+
+
+
 
 \begin{verbatim}
 
