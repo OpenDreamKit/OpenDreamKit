@@ -70,6 +70,8 @@ Join workshops
 
 IPython-Sage, year ????
 
+Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
+
 
 Women in OpenDreams / Scientific development
 ============================================
