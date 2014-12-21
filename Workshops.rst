@@ -21,6 +21,7 @@ Themes:
 - Get to know each other
 - Start working together on the user interface side (one way or the
   other, basically everyone is involved in this ).
+- Technichal introduction to different projects (Sage, HPC, SMC, IPython...)
 
 Participants: about 20 people (project participants + people from IPython / SMC / ...)
 
@@ -52,6 +53,9 @@ HPC / Performance
 Grenoble, year 1?
 Bordeaux, year ???
 
+SMS days
+--------
+
 Pari-* Days
 -----------
 
@@ -61,8 +65,16 @@ Singular-* Days
 IPython-* Days
 --------------
 
-Women in OpenDreams
-===================
+Join workshops
+--------------
+
+IPython-Sage, year ????
+
+Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
+
+
+Women in OpenDreams / Scientific development
+============================================
 
 Analogs of the Women in Sage series (http://wiki.sagemath.org/days62)
 
@@ -70,7 +82,7 @@ One per year?
 
 Opportunities to be explored:
 - combined event with "Femmes et Mathématiques"?
-- ...
+- thematics: Sage, SMC, linear algebra
 
 Localization: Orsay, Oxford?, ???
 
@@ -84,4 +96,4 @@ Typically 40 people
 
 Opportunities:
 - Graduate student training program of GDR-IM in France
-- CIRM, Oberwolfach, ...
+- CIRM, Oberwolfach, RISC, ...

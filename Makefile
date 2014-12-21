@@ -1,78 +1,68 @@
-TARGET = proposal
-TARGETPDF = ${TARGET}.pdf
-EXPORT = ../proposal-export
+# possibly customize the following variables to your setting
+PROPOSAL = proposal.tex 		# the proposal
+BIB = bibliography.bib	        # bibTeX databases
+PROP.dir = LaTeX-proposal
+###########################################################################
+# the following are computed
+TSIMP = 			                  # pdflatex Targets without bibTeX
+TSIMP.pdf 	= $(TSIMP:%.tex=%.pdf)            # PDFs to be produced
+TBIB = $(PROPOSAL) 		  	  	  # pdflatex Targets with bibTeX
+TARGET = $(TSIMP) $(TBIB)                         # all pdflatex targets
+TBIB.pdf 	= $(TBIB:%.tex=%.pdf)         	  # PDFs to be produced
+TBIB.aux 	= $(TBIB:%.tex=%.aux)             # their aux files.
+PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
+SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
+PDFLATEX = pdflatex -interaction batchmode -file-line-error
+BBL.base = 1 2 3 4
+BBL = $(PROPOSAL:%.tex=%.bbl) $(BBL.base:%=$(PROPOSAL:%.tex=%)%-blx.bbl)
+PROPCLS.dir = $(PROP.dir)/base
+PROPETC.dir = $(PROP.dir)/etc
+EUPROPCLS.dir = $(PROP.dir)/eu
+TEXINPUTS := .//:$(PROPCLS.dir)//:$(EUPROPCLS.dir)//:$(PROPETC.dir)//:
+BIBINPUTS := ../lib:$(BIBINPUTS)
+PROPCLS.clssty = proposal.cls pdata.sty
+PROPETC.sty = workaddress.sty metakeys.sty sref.sty
+EUPROPCLS.clssty = euproposal.cls
+PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.dir)/%) $(PROPETC.sty:%=$(PROPETC.dir)/%)
 
-TEXFILES = ${TARGET}.tex  outline.tex resources.tex deliverables.tex milestones.tex preamble.tex participants.tex ambition.tex
-WPFILES =  $(wildcard WorkPackages/*.tex)
-PARTICIPANTS =  $(wildcard Participants/*.tex)
-STYLEFILES = $(wildcard *.sty)
-BIBFILES = bibliography.bib
-PDFFILES = 
-PSFILES =
-GRAPHICSFILES =
-REVISION := $(shell git rev-parse --short HEAD)
+all: $(TBIB.pdf) $(TSIMP.pdf)
 
-# the latex build command. it is based on latexmk,
-# set to produce PDFs (-pdf) and adding some parameters to work well
-# with SMC via "-pdflatex=..."
-# --shell-escape allows one to run python/bash code from within the
-# document, which could be a security risk (but we trust each other ;-)
-LATEX=latexmk
-LATEXBUILDARGS=-pdf -pdflatex="pdflatex --interact=nonstopmode --shell-escape -synctex=1 %O %S"
+cd: 	                                           # make cd will prepare CD for burning
+	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
 
-SOURCES = ${TEXFILES} ${WPFILES} ${BIBFILES} ${PDFFILES} ${PSFILES}  ${GRAPHICSFILES} ${STYLEFILES} ${PARTICIPANTS}
-COPIES = ${TEXFILES} ${BIBFILES} ${STYLEFILES} WPs Makefile
+bbl:	$(BBL)
+$(BBL): %.bbl: %.aux
+	bibtex -min-crossrefs=100 -terse $<
 
-.PHONY=clean distclean all export show dist
+$(TSIMP.pdf): %.pdf: %.tex $(PROPCLS) $(PDATA)
+	$(PDFLATEX) $< || $(RM) $@
 
-# Only make pdf file by default (default is the first make rule)
-all: $(TARGETPDF)
+$(PDATA): %.pdata: %.tex
+	$(PDFLATEX) $<
 
-# make .pdf file from sources using pdflatex
-#${TARGET}.pdf: ${SOURCES}
-#	pdflatex ${TARGET}
-#	bibtex ${TARGET}
-#	pdflatex ${TARGET}
-#	pdflatex ${TARGET}
+$(TBIB.aux): %.aux: %.tex
+	$(PDFLATEX) $<
 
-proposal.pdf: Pictures/TheBigPicture.pdf
+$(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS) 
+	$(PDFLATEX) $<  || $(RM) $@
+	sort $(PROPOSAL:%.tex=%.delivs) > $(PROPOSAL:%.tex=%.deliverables)
+	@if (test -e $(patsubst %.tex, %.idx,  $<));\
+	    then makeindex $(patsubst %.tex, %.idx,  $<); fi
+	$(MAKE) -$(MAKEFLAGS) $(BBL)
+	@if (grep "(re)run BibTeX" $(patsubst %.tex, %.log,  $<)> /dev/null);\
+	    then $(MAKE) -B $(BBL); fi
+	$(PDFLATEX)  $< || $(RM) $@
+	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
+	   then $(PDFLATEX)  $<  || $(RM) $@; fi
+	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
+	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
-# the core build command, mapping tex -> pdf files
-# with all SOURCES as dependencies
-%.pdf: %.tex ${SOURCES}
-	$(LATEX) $(LATEXBUILDARGS) $<
+clean: 
+	rm -f *.log *.blg *~ *.synctex.gz *.cut
 
-%.pdf: %.svg
-	rsvg-convert -f pdf -o $@ $<
+distclean: clean
+	rm -f *.aux *.out *.run.xml *.bbl *.toc *.deliv* *.pdata
+	rm -Rf auto
 
-export: $(TARGETPDF)
-	-mkdir ${EXPORT}
-	-cp -a ${COPIES} Makefile ${EXPORT}
-
-clean:
-	$(LATEX) -c
-
-# this cleans up more (uppercase -C) and also gets rid of
-# auxillary files
-distclean:
-	$(LATEX) -C
-	-$(RM) ${TARGET}.{pdf,aux,blg,toc,bbl,log,dvi,out}
-	-$(RM) $(TARGET).synctex.gz
-
-# xdg-open opens the default associated application in Linux
-show:
-	xdg-open $(TARGETPDF)
-
-# continuous mode re-builds the PDF file when one of the
-# dependency files are modified. This works great in conjunction
-# with a PDF viewer, which reloads automatically the PDF on changes
-# e.g. "evince" in Linux
-cont:
-	latexmk $(LATEXBUILDARGS) -pvc $(TARGET)
-
-# target "dist" just copies the PDF and includes the GIT revision
-dist: $(TARGETPDF)
-	cp $(TARGETPDF) $(TARGET)-$(REVISION).pdf
-
-TOWRITE: *.tex */*.tex
-	grep TOWRITE *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
+echo:
+	echo $(BBL)

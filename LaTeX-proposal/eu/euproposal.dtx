@@ -1,0 +1,448 @@
+% \iffalse meta-comment
+% A class for preparing FP7 proposals for collaborative projects
+%
+% Copyright (c) 2011 Michael Kohlhase, all rights reserved
+%
+% This file is distributed under the terms of the LaTeX Project Public
+% License from CTAN archives in directory  macros/latex/base/lppl.txt.
+% Either version 1.0 or, at your option, any later version.
+%
+% The development version of this file can be found at
+% https://github.com/KWARC/LaTeX-proposal
+% \fi
+% 
+% \iffalse
+%<cls|pdata|reporting>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+%<cls>\ProvidesClass{euproposal}[2013/01/13 v1.4 EU Proposal]
+%<pdata>\ProvidesPackage{eudata}[2013/01/13 v1.4 EU Project Data]
+%<reporting>\ProvidesPackage{eureporting}[2013/01/13 v1.4 EU Project Reporting]
+%<*driver>
+\documentclass[twoside]{ltxdoc}
+\DoNotIndex{\def,\long,\edef,\xdef,\gdef,\let,\global}
+\DoNotIndex{\begin,\AtEndDocument,\newcommand,\newcounter,\stepcounter}
+\DoNotIndex{\immediate,\openout,\closeout,\message,\typeout}
+\DoNotIndex{\section,\scshape,\arabic}
+\EnableCrossrefs
+%\CodelineIndex
+%\OnlyDescription
+\RecordChanges
+\usepackage{textcomp,url,paralist,a4wide,xspace}
+\usepackage[show]{ed}
+\usepackage[maxnames=6,hyperref=auto,style=alphabetic]{biblatex}
+\bibliography{kwarc}
+\usepackage[bookmarks=true,linkcolor=blue,
+ citecolor=blue,urlcolor=blue,colorlinks=true,
+ breaklinks=true, bookmarksopen=true]{hyperref}
+\makeindex
+\newcommand\subversion{\textsc{Subversion}\xspace}
+\begin{document}
+\DocInput{euproposal.dtx}
+\end{document}
+%</driver>
+% \fi
+% 
+%\iffalse\CheckSum{365}\fi
+% 
+% \changes{v0.1}{2007/05/07}{used in the SciML proposal}
+% \changes{v0.2}{2007/05/09}{First Version with Documentation}
+% \changes{v0.3}{2007/06/04}{staff effort table finally works, released}
+% \changes{v0.3a}{2008/01/18}{error corrections and more documentation}
+% \changes{v1.3}{2011/05/18}{basing this on proposal.cls}
+% \changes{v1.4}{2012/01/18}{various tweaks for the Jan 2012 proposal deadline}
+% 
+% \GetFileInfo{euproposal.cls}
+% 
+% \MakeShortVerb{\|}
+% \title{Preparing FP7 EU Proposals and Reports in {\LaTeX} with \texttt{euproposal.cls}}
+%    \author{Michael Kohlhase\\
+%      Computer Science, Jacobs University Bremen\\
+%      \url{http://kwarc.info/kohlhase}}
+% \maketitle
+%
+% \begin{abstract}
+%   The |euproposal| class supports many of the specific elements of a Framework 7
+%   Proposal. It is optimized towards collaborative projects. The package comes with an
+%   extensive example (a fake EU proposal) that shows all elements in action. 
+% \end{abstract}
+% 
+% \tableofcontents\newpage
+%
+% \section{Introduction}\label{sec:intro}
+%
+%   Writing grant proposals is a collaborative effort that requires the integration of
+%   contributions from many individuals. The use of an ASCII-based format like {\LaTeX}
+%   allows to coordinate the process via a source code control system like
+%   \subversion, allowing the proposal writing team to concentrate on the contents
+%   rather than the mechanics of wrangling with text fragments and revisions. 
+% 
+%   The |euproposal| class extends the |proposal| class~\cite{Kohlhase:pplp:svn} and
+%   supports many of the specific elements of Part B of a Framework 7 Proposal. The
+%   package documentation is still preliminary, fragmented and incomplete and only dwells
+%   on the particulars of DFG proposals, so we treat~\cite{Kohlhase:pplp:svn} as a
+%   prerequisite. Please consult the example proposal |propB.tex|, which comes with the
+%   package and shows the usage of the class in action. It is intended as a template for
+%   your proposal, but please bear in mind that the EU guidelines may change from call to
+%   call, if in doubt, please consult the FP7 guide for proposers.\ednote{say something
+%   about the proposers guide.}
+%
+%   The |eureporting| class supports most of the specific elements of the project reports
+%   to the EC. The example report |dfg/report.tex| is intended as a template for your
+%   final report\ednote{say something about reporting}.
+%
+%   The |euproposal| and |eureporting| classes and the |eupdata| package are distributed
+%   under the terms of the LaTeX Project Public License from CTAN archives in directory
+%   macros/latex/base/lppl.txt.  Either version 1.0 or, at your option, any later
+%   version. The CTAN archive always contains the latest stable version, the development
+%   version can be found at \url{https://github.com/KWARC/LaTeX-proposal}. For bug reports
+%   please use the sTeX trac at \url{https://github.com/KWARC/LaTeX-proposal/issues}.
+%   
+% \section{The User Interface}\label{sec:user-interface}
+% 
+% In this section we will describe the functionality offered by the |euproposal| class
+% along the lines of the macros and environments the class provides. Much of the
+% functionality can better be understood by studying the functional example |proposal.tex|
+% (and its dependents) that comes with the |euproposal| package in conjunction with the
+% proposer's EU proposer's guidelines (we have included it as |***| for convenience into
+% the package distribution).\ednote{MK@MK do that and talk about reporting as well.}
+% 
+% \subsection{Package Options}\label{sec:user:options}
+%
+% As usual in {\LaTeX}, the package is loaded by
+% |\documentclass[|\meta{options}|]{euproposal}|, where |[|\meta{options}|]| is optional
+% and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:svn}.
+% 
+% \subsection{Proposal Metadata and Title page}\label{sec:user:metadata}
+% 
+% The metadata of the proposal is specified in the \DescribeEnv{proposal}|proposal|
+% environment, which also generates the title page and the first section of the proposal
+% as well as the last pages of the proposal with the signatures, enclosures, and
+% references. The |proposal| environment should contain all the mandatory parts of the
+% proposal text. The |proposal| environment uses the following EU-specific keys to
+% specify metadata.
+% \begin{compactitem}
+% \item \DescribeMacro{callname}|callname| specifies the call the proposal addresses. It is
+%   usually a string of the form |ICT Call 1|, \DescribeMacro{callid}|callid| is the
+%   corresponding identifier, usually a string of the form |FP7-???-200?-?|. An overview
+%   over open calls can be found at \url{http://cordis.europa.eu/fp7/dc/index.cfm}
+% \item The \DescribeMacro{challenge}|challenge|, \DescribeMacro{objective}|objective|,
+%   and \DescribeMacro{outcome}|outcome| keys specifies the specific parts in the call
+%   this proposal addresses. These are specified in the ``call fiche'' that can be
+%   obtained from the URL above. All of these have an identifier, which can be specified
+%   via the \DescribeMacro{challengeid}|challengeid|,
+%   \DescribeMacro{objectiveid}|objectiveid|, and \DescribeMacro{outcomeid}|outcomeid|
+%   keys.\ednote{MK@MK: the outcomeid should key should be a list key, I am not
+%   implementing this right now, since it comes more natural when we change the class to
+%   metakeys support.}
+% \item \DescribeMacro{topicsaddressed}|topicsaddressed| allows to enter free-form text
+%   instead of specifying the |challenge*|, |objective*|, and |outcome*| keys.
+% \item The \DescribeMacro{coordinator}|coordinator| key gives the identifier of the
+%   proposal coordinator. The |euproposal| package uses the |workaddress| package for
+%   representation of personal metadata, see~\cite{Kohlhase:workaddress:ctan} for details.
+% \item If given, the \DescribeMacro{iconrowheight}|iconrowheight| key instructs the
+%   |euproposal| class to make a line with the logos of the participants at the bottom of
+%   the title page, and specify their heights; |1.5cm| is often a good value.
+% \end{compactitem}
+% 
+% \subsection{Work Packages and Work Areas}\label{sec:wpwa}
+% 
+% \DescribeMacro{type} The |type| key specifies the activity type of the work package:
+% |RTD| = Research and technological development (including any activities to prepare for
+% the dissemination and/or exploitation of project results, and coordination activities);
+% |DEM| = Demonstration; |MGT| = Management of the consortium; |OTHER| = Other specific
+% activities, if applicable in this call.
+%
+% \begin{newpart}{MK@MK: This is new, and only partially implemented}
+% \subsection{Reporting Infrastructure}\label{sec:user:report}
+% 
+% The |eureporting| class gives an infrastructure for writing final reports of completed
+% projects (see the file |finalreport.tex| in the package distribution). The
+% \DescribeEnv{report}|report| environment has functionality analogous to the |proposal|
+% environment. It takes the same metadata keys --- making it easy to generate by
+% copy/paste from the proposal --- but adds the keys \DescribeMacro{key}|key| can be used
+% to specify the reference key (something like \texttt{KO 2428 47-11}) given to the
+% project by EU. Note that in the case of multiple proposers, you can use multiple
+% instances of |key| to specify more than one reference key.
+% \end{newpart}
+% 
+% \section{Limitations and Enhancements}\label{sec:limitations}
+% 
+% The |euproposal| is relatively early in its development, and many enhancements are
+% conceivable. We will list them here.
+% \begin{enumerate}
+% \item none reported yet. 
+% \end{enumerate}
+% If you have other enhancements to propose or feel you can alleviate some limitation,
+% please feel free to contact the author. 
+%
+% \StopEventually{\newpage\PrintIndex\newpage\PrintChanges\newpage\printbibliography}\newpage
+%
+% \section{The Implementation}\label{sec:implementation}
+%
+% In this section we describe the implementation of the functionality of the |euproposal|
+% and |eureporting| classes and the |eupdata| package. 
+%
+% \subsection{Package Options and Format Initialization}\label{sec:impl:options}
+% 
+% We first set up the options for the package. 
+% 
+%    \begin{macrocode}
+%<cls>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
+%<reporting>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{reporting}}
+%<cls|reporting>\ProcessOptions
+%    \end{macrocode}
+%
+%    Then we load the packages we make use of
+% 
+%    \begin{macrocode}
+%<cls>\LoadClass[report,noRAM]{proposal}
+%<reporting>\LoadClass[report,noRAM]{reporting}
+%<*cls|reporting>
+\RequirePackage{longtable}
+\RequirePackage{eurosym}
+\RequirePackage{wrapfig}
+\RequirePackage{eupdata}
+%</cls|reporting>
+%    \end{macrocode}
+%    
+% \subsection{Proposal Metadata and Title Page}\label{sec:impl:metadata}
+%  
+% We extend the metadata keys from the |proposal| class.
+%    \begin{macrocode}
+%<*pdata>
+\define@key{prop@gen}{coordinator}{\def\prop@gen@coordinator{#1}\pdata@def{prop}{gen}{coordinator}{#1}}
+\def\prop@gen@challenge{??}\def\prop@gen@challengeid{??}
+\define@key{prop@gen}{challenge}{\def\prop@gen@challenge{#1}\pdata@def{prop}{gen}{challenge}{#1}}
+\define@key{prop@gen}{challengeid}{\def\prop@gen@challengeid{#1}\pdata@def{prop}{gen}{challengeid}{#1}}
+\def\prop@gen@objective{??}\def\prop@gen@objectiveid{??}
+\define@key{prop@gen}{objective}{\def\prop@gen@objective{#1}\pdata@def{prop}{gen}{objective}{#1}}
+\define@key{prop@gen}{objectiveid}{\def\prop@gen@objectiveid{#1}\pdata@def{prop}{gen}{objectiveid}{#1}}
+\def\prop@gen@outcome{??}\def\prop@gen@outcomeid{??}
+\define@key{prop@gen}{outcome}{\def\prop@gen@outcome{#1}\pdata@def{prop}{gen}{outcome}{#1}}
+\define@key{prop@gen}{outcomeid}{\def\prop@gen@outcomeid{#1}\pdata@def{prop}{gen}{outcomeid}{#1}}
+\define@key{prop@gen}{callname}{\def\prop@gen@call{#1}\pdata@def{prop}{gen}{callname}{#1}}
+\define@key{prop@gen}{callid}{\def\prop@gen@call{#1}\pdata@def{prop}{gen}{callid}{#1}}
+\define@key{prop@gen}{iconrowheight}{\def\prop@gen@iconrowheight{#1}}
+\define@key{prop@gen}{topicsaddressed}{\def\prop@gen@topicsaddressed{#1}}
+%</pdata>
+%    \end{macrocode}
+%
+% and now the ones for the final report 
+%    \begin{macrocode}
+%<*reporting>
+\define@key{prop@gen}{reportperiod}{\def\prop@gen@reportperiod{#1}}
+\define@key{prop@gen}{key}{\@dmp{key=#1}%
+\@ifundefined{prop@gen@keys}{\xdef\prop@gen@keys{#1}}{\xdef\prop@gen@keys{\prop@gen@keys,#1}}}
+\define@key{prop@gen}{projpapers}{\def\prop@gen@projpapers{#1}}
+%</reporting>
+%    \end{macrocode}
+% 
+% and the default values, these will be used, if the author does not specify something
+% better.
+%
+% We need to redefine some of the internal counters and table of contents mechanisms to
+% adapt to the fact that the proposal text is just Part B. 
+%
+%    \begin{macrocode}
+%<*cls>
+\def\thepart{\Alph{part}}
+\setcounter{part}{2}
+\def\thechapter{\thepart.\arabic{chapter}}
+\def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
+%    \end{macrocode}
+% 
+% \begin{macro}{\prop@sites@table}
+%    \begin{macrocode}
+\newcommand\prop@sites@table{\def\@@table{}
+{\let\tabularnewline\relax\let\hline\relax
+\@for\@I:=\prop@gen@sites\do{\xdef\@@table{\@@table\pdataref{site}\@I{number}}
+\xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @name}}
+\xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @acronym}}
+\xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @countryshort}\tabularnewline\hline}}}
+\begin{tabular}{|l|p{8cm}|l|l|}\hline%|
+\# & Participant organisation name & Short name &  Country\\\hline\hline
+\@@table
+\end{tabular}}
+%    \end{macrocode}
+% \end{macro}
+% 
+% \begin{environment}{prop@proposal}
+%    \begin{macrocode}
+\renewenvironment{prop@proposal}
+{\thispagestyle{empty}\begin{center}
+  {\Large \prop@gen@instrument}\\[.2cm]
+  {\LARGE\textbf\prop@gen@callname}\\[.4cm]
+  {\Large \prop@gen@callid}\\[.4cm]
+  {\LARGE\textbf\prop@gen@title}\\[.3cm]
+  {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+\end{center}
+{\large\prop@gen@instrument}\\
+{\large\textbf{Date of Preparation: \today}}
+\ifsubmit\else\\
+{\large\textbf{Revision}: 
+\if@svninfo\svnInfoRevision\fi\if@gitinfo\gitAbbrevHash\fi
+ of 
+\if@svninfo\svnInfoDate\fi\if@gitinfo\gitAuthorDate\fi}
+\fi\\[1em]
+{\large}
+\begin{large}
+ \begin{description}
+  \item[Work program topics addressed by \pn:]
+    \@ifundefined{prop@gen@topicsaddressed}
+    {\textbf{Challenge \prop@gen@challengeid}: \prop@gen@challenge,
+    \textbf{Objective \prop@gen@objectiveid}: \prop@gen@objective,
+    \textbf{target outcome \prop@gen@outcomeid}) \prop@gen@outcome.}
+    {\prop@gen@topicsaddressed}\\[1em]
+  \item[Coordinator:] \wa@ref{person}\prop@gen@coordinator{name}
+  \item[e-mail:] \wa@ref{person}\prop@gen@coordinator{email}
+  \item[tel/fax:] \wa@ref{person}\prop@gen@coordinator{worktelfax}
+  \end{description}
+\end{large}
+\vspace*{1em}
+\begin{center}
+\prop@sites@table\vfill
+\@ifundefined{prop@gen@iconrowheight}{}
+{\@for\@site:=\prop@gen@sites\do{\wa@institution@logo[height=\prop@gen@iconrowheight]\@site\qquad}}
+\end{center}
+\newpage
+\setcounter{tocdepth}{2}\setcounter{part}{2}}
+{\newpage\printbibliography[heading=warnpubs,maxnames=999]}
+%    \end{macrocode}
+% \end{environment}
+% 
+%    \begin{macrocode}
+\def\prop@gen@instrument{Proposal Instrument (e.g. IP)}
+%    \end{macrocode}
+%
+% \begin{environment}{sitedescription}
+%    \ednote{this code should probably be refactored into proposal.dtx}
+%    \begin{macrocode}
+\newenvironment{sitedescription}[2][]{\def\@test{#1}%
+\begin{wrapfigure}{r}{5.4cm}\vspace{-2.5ex}%
+\begin{tabular}{|p{5cm}|}\hline\vspace{1mm}%
+\ifx\@test\@empty%
+\wa@institution@logo[height=1.3cm]{#2}\else%
+\wa@institution@logo[#1]{#2}\fi\\[1ex]%
+\textbf{\wa@ref{institution}{#2}{type}.\hfill \wa@ref{institution}{#2}{country}}\\%
+\small\wa@ref{institution}{#2}{streetaddress}, \wa@ref{institution}{#2}{townzip}\\\hline%
+\end{tabular}\vspace{-2.5ex}%
+\end{wrapfigure}%
+\pdata@target{site}{#2}%
+{\subsection{\wa@ref{institution}{#2}{acronym}:%
+{\textsc{\wa@ref{institution}{#2}{name}}  (\wa@ref{institution}{#2}{countryshort})}}}%
+\small%
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                    {0.25ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\normalfont\normalsize\bfseries}}}
+{}
+%    \end{macrocode}
+% \end{environment}
+% 
+% \subsection{Work Packages, Work Areas, and Deliverables}\label{sec:wpwa}
+%
+% \begin{environment}{wp*}
+%    \begin{macrocode}
+\newmdenv[frametitle=Objectives]{wpobjectives}
+\newmdenv[frametitle=Description]{wpdescription}
+%    \end{macrocode}
+% \end{environment}
+%
+% \begin{environment}{workpackage}
+%    
+%    \begin{macrocode}
+\renewenvironment{workpackage}[1][]
+{\begin{work@package}[#1]\medskip\wpheadertable%
+\addcontentsline{toc}{subsubsection}{\wp@label\wp@num: \pdataref{wp}\wp@id{title}}}
+{\end{work@package}}
+%    \end{macrocode}
+% \end{environment}
+% 
+% \begin{macro}{\wpheadertable}
+%   We redefine the macro that computes the default work package header table, since there
+%   are more sites in a EU proposal
+%    \begin{macrocode}
+\newcounter{@sitespo}\newcounter{@sitespt}
+\renewcommand\wpheadertable{%
+\wp@sites@efforts@lines%
+\setcounter{@sitespo}{\thewp@sites@num}\addtocounter{@sitespo}{1}%
+\setcounter{@sitespt}{\thewp@sites@num}\addtocounter{@sitespt}{2}%
+\par\noindent\begin{tabular}{|l|*{\thewp@sites@num}{c|}c|}\hline%
+\multicolumn{\the@sitespt}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
+\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}\\\hline%
+\textbf{Start: }\pdataref{wp}\wp@id{start}&%
+\multicolumn{\the@sitespo}{l|}{\textbf{Activity Type: }\pdataref{wp}\wp@id{type}}\\\hline%
+\wp@sites@line\\\hline%
+\wp@efforts@line\\\hline%
+\end{tabular}\smallskip\par\noindent\ignorespaces}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{environment}{wpdelivs}
+% \ednote{MK: boxing compactdesc does not seem to work any more}
+%    \begin{macrocode}
+\surroundwithmdframed{wpdelivs}
+%    \end{macrocode}
+% \end{environment}
+% 
+% \subsection{Risks}\label{sec:impl:risks}
+% 
+% \begin{environment}{risk}
+%    \begin{macrocode}
+\newenvironment{risk}[3]
+{\paragraph{Risk: #1}\hfill\emph{probability}: #2, \emph{gravity}: #3\par\noindent\ignorespaces}
+{}
+%    \end{macrocode}
+% \end{environment}
+%
+% \begin{environment}{riskcont}
+%    \begin{macrocode}
+\newenvironment{riskcont}[3]
+{\begin{risk}{#1}{#2}{#3}\textbf{Contingency:} }
+{\end{risk}}
+%    \end{macrocode}
+% \end{environment}
+%
+% \subsection{Risks}\label{sec:impl:risks}
+%
+% In some EU proposals (e.g. FET), we need to identify risks and contingency and specify
+% mitigation plans for them. In the |euproposal| we use two environments to mark them up.
+% 
+% \DescribeMacro{risk}|\begin{risk}{|\meta{title}|}{|\meta{prob}|}{|\meta{grav}|}|\ldots|\end{risk}|
+% makes a paragraph no a rist \meta{title} with gravity \meta{grav} and probability
+% \meta{prob}, where the body of the environment contains a desription of the risk. The
+% \DescribeMacro{riskcont}|riskcont| is a variant, where \meta{title} names a risk and the
+% body is a description of the contingency plan.
+%
+% \subsection{Relevant Papers}\label{sec:impl:papers}
+% 
+% \begin{macro}{\keypubs}
+% \ednote{MK: the baselinestretch manipulation does not work here, since
+% \texttt{prop@paperslist} makes its own provisions. We should provide a way of
+% manipulating sizes here.}
+%    \begin{macrocode}
+\newcommand\keypubs[1]{%
+\paragraph{Key publications relevant to the project}%
+{\renewcommand{\baselinestretch}{.9}\prop@paperlist{#1}}}
+%</cls>
+%    \end{macrocode}
+% \end{macro}
+%
+% \Finale
+\endinput
+% LocalWords:  iffalse cls euproposal euproposal.dtx tt maketitle newpage wpwa
+% LocalWords:  tableofcontents ednote euproposal DescribeEnv compactitem impl
+% LocalWords:  longtable eurosym pdata thepart setcounter env vfill qquad
+% LocalWords:  thechapter newcommand tabularnewline hline xdef pdataref nameuse
+% LocalWords:  countryshort rpoposal clange wrapfig wrapfigure vspace bfseries
+% LocalWords:  startsection normalfont normalsize baselinestretch callname hb
+% LocalWords:  countryshort rpoposal clange wrapfig renewenvironment worktelfax
+% LocalWords:  tocdepth wpobjectives newenvironment noindent boxedminipage fbox
+% LocalWords:  textwidth textbf wpdescription sitedescription pgfdeclareimage
+% LocalWords:  wrapfigure vspace pgfuseimage streetaddress townzip textsc xt wa
+% LocalWords:  renewcommand startsection normalfont normalsize bfseries wptitle
+% LocalWords:  workpackage subsubsection wpheadertable newcounter sitespo hfil
+% LocalWords:  newcounter sitespt addtocounter textsf smallskip ignorespaces pn
+% LocalWords:  cellcolor lightgray keypubs paperlist callname callid callid ifx
+% LocalWords:  challengeid challengeid objectiveid objectiveid outcomeid hfill
+% LocalWords:  outcomeid metakeys workaddress numberline tempdima ifsubmit
+% LocalWords:  proposal.dtx texttt paperslist workaddress.dtx
