@@ -1,3 +1,15 @@
+Compiling the proposal
+======================
+
+Go in this H2020/ directory, and run:
+
+    make
+
+You can also just compile by hand as a usual LaTeX file:
+
+    pdflatex proposal.tex
+
+
 What you need to do
 ===================
 
