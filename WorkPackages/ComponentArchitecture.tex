@@ -1,34 +1,41 @@
-\addtocounter{wpno}{1}
-\begin{Workpackage}{\thewpno}
-  \wplabel{wp:component-architecture}
-  \WPTitle{\wpname{\thewpno}}
-  \WPStart{Month 1}
-  \WPParticipant{PS}{24}
-  \WPParticipant{UV}{1}
-  \WPParticipant{SA}{1}
+\begin{workpackage}[id=component-architecture,wphases=3-24!.5,
+  title=Component Architecture,
+  PSRM=24,UVRM=1,SARM=1]
 
-  \begin{WPObjectives}
+  \begin{wpobjectives}
     The objective of this work package is to develop and demonstrate a
     set of API's enabling components such as database interfaces,
-    computational modules, separate systems such as GAP or Sage to be
-    flexibly combined and run smoothly across a wide range of
+    computational modules, separate systems such as \GAP or \Sage to
+    be flexibly combined and run smoothly across a wide range of
     environments (cloud, local, server, ...).
-  \end{WPObjectives}
+  \end{wpobjectives}
 
-  \begin{WPDescription}
-    % This work package includes work on:
-    % \begin{itemize}
-    % \item Portability:
-    %   \begin{itemize}
-    %   \item Sharing experience and best practices.
-    %   \item Port to Windows (GAP, Sage, Singular).
-    %   \item Shared multiplatform test infrastructure.
-    %   \end{itemize}
-    % \end{itemize}
-  \end{WPDescription}
+  \begin{wpdescription}
+    This package focuses on the structure of the components that make
+    up a mathematical software and their interactions. Such components
+    can be separate modules inside a unique software, or separate
+    softwares interacting through library calls and/or through APIs
+    (e.g.: web APIs). When combined together, they make up a full VRE.
 
+    The architecture of these software components must be:
+    \begin{itemize}
+    \item \textbf{Portable}, to support a wide range of platforms
+      (mobile, destops, cloud, \dots).
+    \item \textbf{Modular}, so to ease installing, building, testing,
+      and remixing.
+    \item \textbf{Flexible}, so to adapt to different use cases:
+      personal computation, HPC, parallel platforms, \dots
+    \item \textbf{Open}, in the sense of \emph{open source}, but also
+      more importantly in the sense of clearly documented and open to
+      the user who wants to understand its underpinnings and/or
+      contribute to it. Indeed we must not forget that the working
+      mathematicians needs to know what algorithms the software is
+      going to run to solve a given problem.
+    \end{itemize}
+  \end{wpdescription}
 
-  \begin{task}{Portability}
+  \begin{tasklist}
+  \begin{task}[id=portability,title=Portability]
     In order to achieve maximum availability and accessibility,
     mathematical software must be developed and tested for a wide range
     of computer architectures and operating systems.  However most of
@@ -38,7 +45,7 @@
     the expertise, nor the access to appropriate hardware and software, to insure
     appropriate testing and porting of components.  The best
     incarnation of this issue is the involved installation procedure
-    for Sage on Windows, a major adoption barrier and common source of
+    for \Sage on Windows, a major adoption barrier and common source of
     complaints by end-user.
 
     In this task we will address the common needs of the community in
@@ -52,7 +59,7 @@
       a specific focus will be placed on the port of \Sage, and
       therefore all the components included in its distribution (in
       particular \PariGP, \GAP, \Singular, \Linbox) to this platform
-      (D~\ref{del:portability_cygwin32}, D~\ref{del:portability_cygwin64}).
+      (\delivref{portability_cygwin32}, \delivref{portability_cygwin64}).
     \item The deployment of a common infrastructure for multi-platform
       continuous integration (testing, building and distribution) will
       be addressed.
@@ -86,134 +93,18 @@
       % * try to use MSVC
   \end{task}
 
-  \begin{task}{Interfaces between systems}
-    In this task we will investigate patterns to share data,
-    ontologies, and semantics across computational systems, possibly
-    connected remotely.  We will leverage the well established
-    semantics used in mathematics (categories, type systems, \dots) to
-    give powerful abstractions on computational objects.
-    
-    Through well defined APIs, we will enable discovery of subsystems,
-    functionality, documentation and computational resources. The user
-    interfaces shall be enabled to automatically choose the best
-    available algorithms and resources to perform a required
-    computation, as well as clearly and intuitively present the
-    available choices to the expert user.
-
-    As a first concrete test bed, we will consider the \Sage interface
-    to \GAP, or more precisely \libGAP
-    (Deliverable~\ref{del:semantic_interface_sage_gap}). Like most
-    \Sage interfaces, this uses the now classical \emph{handle} design
-    pattern, whereby one can manipulate from \Sage an object created
-    and stored in \GAP, through a \emph{handle} (a.k.a. \emph{remote
-      objects}). By introspection, one can discover available \GAP
-    functions on this object and access the related \GAP
-    documentation. In a few cases, for example when the object is a
-    group, one can further wrap the handle with an adapter that makes
-    it behave like a native \Sage group.
-
-    By mapping \GAP's categories to \Sage's categories (as a rough
-    approximation, both can be thought of as hierarchies of abstract
-    classes), we will:
-    \begin{itemize}
-    \item Implement a modular infrastructure for adapters, based on
-      the category hierarchy, in order to let the implementation of
-      adapters scale to a large variety of objects.
-    \item Refactor the existing adapters, using this infrastructure to
-      generalize their features. This step by itself will provide
-      adapters for larger categories like semigroups or monoids.
-    \item Merge the adapters into the handles, so that a handle to a
-      \GAP group will \emph{automatically} behave like a native \Sage
-      group.
-      % This will remove much back-conversion burden from the
-      % delagating methods
-    \end{itemize}
-    A specific challenge will be performance; indeed low level method
-    adapters, e.g. for arithmetic, need to be compiled when most of
-    the interface infrastructure is dynamic by nature.
-
-    % When different algorithms are available, some of them coded in
-    % \Sage, some of them in \GAP, the interface shall offer an easily
-    % navigable interface for the expert user to choose among them.
-
-    \TODO{Other deliverables: generalization to other interfaces,
-      factorization of the adapter code through standardized API's,
-      semantic-enabled remote objects in SCSCP, reports, ...}
-  \end{task}
-
-  \begin{task}{Modularization and packaging}
-    In this task we will investigate best practices for composing,
-    sharing and interfacing computational components and data for
-    connected mathematical systems.
-
-    We will start with a comparative study of the practices adopted in
-    various open source projects, both inside and outside of this
-    project. This will include reviewing non-mathematical systems,
-    e.g.: operating systems, platforms, web frameworks, cloud and HPC
-    infrastructures.
-
-    We will address the current shortcomings to promote a new
-    generation of mathematical software that is capable of scaling to
-    large code bases, large datasets, and massively distributed
-    infrastructures. This task also needs to consider the results of
-    work package~\ref{wp:social-aspects} on social issues regarding
-    distributed development, community management, acknowledging
-    contributions, etc.
-
-    As an example, Sage has a long history of integrating and
-    distributing large mathematical libraries/software as a whole,
-    with relatively few attention given to defining and exposing
-    interfaces. Component re-usability is not a main focus for the
-    Sage community, at the same time the non-standard and relatively
-    underused package system discourages writing and maintaining
-    autonomous libraries. These factors have contributed to make the
-    Sage distribution what is usually described as a ``monolith''
-    (Sage library code alone, not counting included libraries, makes
-    up for 1.5M lines of code and documentation), hard to distribute,
-    to maintain, to port, and to develop with.
-
-    On the opposite side, GAP has been distributing
-    community-developed ``GAP packages'' for a long time, but faces
-    now fragmentation issues, at the code and at the community
-    level. The rudimentary package system adds more technical
-    difficulties to GAP's development model.
-
-    Both models reach the limits of their scalability, and a synthesis
-    is very much needed.
-  \end{task}
-  
-  \begin{task}{Deployment and distribution}
-    \TODO{NT: what did you have in mind?}
-  \end{task}
-
-  \begin{task}{Component architecture for High Performance Computing and Parallelism}
-    As in all other areas of science, properly supporting massively
-    parallel architecture is a major challenge. Many of the
-    computational components have already gone a long way in this
-    direction, and further work will happen there within
-    WorkPackage~\ref{wp:hpc}.
-
-    In this task we will investigate and implement
-    parallelism-friendly ways of combining components together, so
-    that calling components can benefit from the parallelism features
-    of called components, with self-adaptation to the environment and
-    cooperative sharing of resources.
-    \TODO{details+deliverables}
-  \end{task}
-
-  \begin{task}{Improving the development workflow, in Sage and elsewhere.}
-    \TODO{}
-  \end{task}
-
-  \begin{WPDeliverables}
-    \WPDeliverable{12}{del:portability_cygwin32}{one-click install Sage distribution for Windows with Cygwin 32bits}%
+  \begin{wpdelivs}
+    \begin{wpdeliv}[due=12,id=portability_cygwin32,dissem=PU,nature=D]
+      {One-click install \Sage distribution for Windows with Cygwin 32bits}
       % JPF: this should take a few months of work
       % This 32bits version would work right away on Windows 64 bits with
       % Cygwin 32 bits; more work would be required for a version working on
       % a 64 bits of Cygwin.
       % JPF: I agree.
+    \end{wpdeliv}%
 
-    \WPDeliverable{24}{del:portability_cygwin64}{one-click install Sage distribution for Windows with Cygwin 64bits}%
+    \begin{wpdeliv}[due=24,id=portability_cygwin64,dissem=PU,nature=D]
+      {One-click install \Sage distribution for Windows with Cygwin 64bits}
 
       % Participants involved: Paris Sud, Kaiserslautern, Saint Andrews, Bordeaux
       % Comments on this by Bill Hart
@@ -267,177 +158,274 @@
       % what we actually really need is patch/build bots to test on Cygwin 32/64!
       % * upstream cooperation: I agree Windows is often a low priority issue, but
       % most teams have welcomed my Cygwin patches
+    \end{wpdeliv}
 
-    \WPDeliverable{12}{del:semantic_interface_sage_gap}{Semantic-aware
-      Sage interface to GAP.}
+    \begin{wpdeliv}[due=36,id=multiplatform_buildbot,dissem=PP,nature=P]
+      {Continuous integration platform for multi-platform build/test.}
 
-    \TODO{Make all those deliverables one-liners, and move the
-      material to the task descriptions}
+      \Sage's \emph{buildbot} is a x86\_64/Linux specific platform for
+      continuous building and testing. We will investigate the
+      possibility of evolving it towards a multi-platform tool, and
+      opening it to other mathematical software.
+    \end{wpdeliv}%
+  \end{wpdelivs}
+
+  \begin{task}[title=Interfaces between systems,id=interface_systems]
+    In this task we will investigate patterns to share data,
+    ontologies, and semantics across computational systems, possibly
+    connected remotely.  We will leverage the well established
+    semantics used in mathematics (categories, type systems, \dots) to
+    give powerful abstractions on computational objects.
+    
+    We will build upon the work already done in the EU FP6 project
+    26133 ``SCIEnce -- Symbolic Computation Infrastructure for
+    Europe'' \TODO{fix and insert URL} on the Symbolic Computation
+    Software Composability Protocol (SCSCP). SCSCP is a remote
+    procedure call protocol by which a computer algebra system (CAS)
+    may offer services to a variety of possible clients, including
+    e.g.  another CAS running on the same computer system or remotely;
+    another instance of the same CAS (in a parallel computing
+    context); a simplistic SCSCP client
+    (e.g. C/C++/Python/etc. program) with a minimal SCSCP support
+    needed for a particular application; a Web server which passes on
+    the same services as Web services, etc.  A distinctive feature of
+    the protocol is that both instructions and data are represented in
+    the OpenMath format (\url{http://www.openmath.org/}; previously
+    supported by the EU JEM Thematic Network; EU project 24969
+    ``ESPRIT'' and other projects); moreover, OpenMath support is not
+    limited by existing official OpenMath content dictionaries --
+    private encodings may be easily embedded into SCSCP messages.
+    
+    SCSCP is already supported by a number of computer algebra
+    systems, including \GAP, Macaulay2, Maple, TRIP and others. We will
+    extend support for SCSCP to other relevant systems involved in
+    \TheProject.  Through its API, we will enable discovery of
+    subsystems, functionality, documentation and computational
+    resources. The user interfaces shall be enabled to automatically
+    choose the best available algorithms and resources to perform a
+    required computation, as well as clearly and intuitively present
+    the available choices to the expert user.
+
+    As a first concrete test bed, we will consider the \Sage interface
+    to \GAP, or more precisely \libGAP.  Like most \Sage interfaces,
+    this uses the now classical \emph{handle} design pattern, whereby
+    one can manipulate from \Sage an object created and stored in
+    \GAP, through a \emph{handle} (a.k.a. \emph{remote objects}).  By
+    mapping \GAP's categories to \Sage's categories, we will:
     \begin{itemize}
-
-
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-      % Deliverables: portability and distribution
-
-      % \WPDeliverable{del:ipython_kernels_basic}{12}{Basic Jupyter
-      % interface for GAP, Pari, Sage, Singular}
-
-    \item \ref{del:distribution} Make sure that Sage and therefore all the
-      components it depends on (including GAP, Linbox, \PariGP, Singular,
-      ...)  have standard packages in the main Linux distributions:
-      Debian/Ubuntu, Redhat, Gentoo, ...
-
-      \TODO{Get feedback from our experts, and make this precise; what can
-        we actually promise to achieve? how much work is this? Do we have
-        personnel for this?  There is strong expertise in Logilab with a
-        Debian developer working there; he could advise someone on
-        this. Logilab is interested in this because it's meeting similar
-        issues with some of its clients software like Salomé.}
-
-    \item \ref{del:virtual_machines} (Month 12): Creation, deployment,
-      and distribution of preconfigured virtual machines (and/or
-      Docker images) for \PariGP, \Sage, ... as a cloud service, in
-      particular within the StratusLab infrastructure. This includes
-      build bots and test bots for continuous integration over a
-      variety of operating systems.
-      % Requires: licenses
-
-    \item \ref{del:modularization} Modularization of the Sage distribution
-
-      Separation of the different components of Sage (communication with
-      third-party softwares, build system, Sage native code). This is a
-      prerequisite for easier packaging and integration in standard Linux
-      distributions and lmonade, native integration within the IPython
-      notebook and other interfaces (larchenv, Spyder, ...) and
-      collaboration with sister projects.
-
-      % \TODO{lmonade has very similar objectives but uses the gentoo prefix whereas Linux distributions use very different packaging systems:
-      % \begin{itemize}
-      % \item gentoo prefix (gentoo)
-      % \item pacman (arch),
-      % \item yum (redhat),
-      % \item apt (debian),
-      % \item easy\_install
-      % \item Python index packaging (pip)
-      % \end{itemize}}
-
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-      % Deliverables: Interfaces
-
-    \item \ref{del:scscp_sage} Add support for the
-      \href{http://www.symbolic-computing.org/}{SCSCP} interface protocol
-      to all relevant components (e.g. Sage, ...).
-      \TOWRITE{SL/AK}{Brief description of what SCSCP is, reference to
-        previous grant, relevance to the goals of this grant; maybe this
-        should go in the work package description}
-        
-        SCSCP (Symbolic Computation Software Composability Protocol) is a 
-        remote procedure call protocol by which a computer algebra system (CAS) 
-        may offer services to a variety of possible clients, including e.g. 
-        another CAS running on the same computer system or remotely; 
-        another instance of the same CAS (in a parallel computing context);
-        a simplistic SCSCP client (e.g. C/C++/Python/etc. program) with a 
-        minimal SCSCP support needed for a particular application; 
-        a Web server which passes on the same services as Web services, etc.
-        A distinctive feature of the protocol is that both instructions and data
-        are represented in the OpenMath format (\url{http://www.openmath.org/};
-        previously supported by the EU JEM Thematic Network; EU project 24969 ``ESPRIT''
-        and other projects); moreover, OpenMath support is not limited by 
-        existing official OpenMath content dictionaries - private encodings may 
-        be easily embedded into SCSCP messages.
-        
-        SCSCP has been developed in the EU FP6 project 26133 ``SCIEnce -- Symbolic
-        Computation Infrastructure for Europe'' (TODO: fix and insert URL) and by 
-        now is supported by a number of computer algebra systems, including GAP, 
-        Macaulay2, Maple, TRIP and others. To facilitate SCSCP implementations, 
-        there are also APIs for Java, C and C++, and a simple Python SCSCP client
-        (for a full overview, see SCIEnce website).
-        
-        TODO: more on the relevance to to the goals of this grant. This is useful 
-        to exchange information between systems for problems that can not be solved
-        within any single system; for storing and retrieving information (in databases)
-        immediately into the CAS session; for organising distributed computations.
-
-
-    \item Some IPython/Jupyter deliverables here.
-      \TODO{review what it can already do in term of choice of
-        computational resource and storage back-end.}
-      \TODO{cross link to Task~\ref{task.ipython_kernels}}
-
-    \item Contribution by Kaiserslautern: libSingular, pySingular?,
-      GAP-Singular, Singular-Sage.
-
-      Moving code from Sage into Singular when relevant
-
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-      % Deliverables: HPC
-
-    \item \ref{del:hpc_configure} (Month ...) Configure the components of
-      Sage's distribution (e.g. Atlas, Linbox, GAP, Singular, ...) to be
-      systematically HPC-enabled, and make sure that Sage's calls to such
-      components indeed enable HPC.
-
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-      % Deliverables: to be sorted ...
-
-    \item Transparent integration of Ipython capabilities for cluster computing.
-    \item Implementation of a transparent abstraction over mpi.
-    \item Develop or integrate existing solutions for MapReduce operations
-      over big data.
-
-    \item FLINT development (key component for several systems)?
-
-    \item Some demonstrators of cross-disciplinary/cross-software calculations
-
+    \item Implement a modular infrastructure for adapters, based on
+      SCSCP, in order to let the implementation of adapters scale to a
+      large variety of objects.
+    \item Refactor the existing adapters, using this infrastructure to
+      generalize their features. This step by itself will provide
+      adapters for larger categories like semigroups or monoids.
+    \item Merge the adapters into the handles, so that a handle to a
+      \GAP group will \emph{automatically} behave like a native \Sage
+      group.
+      % This will remove much back-conversion burden from the
+      % delagating methods
     \end{itemize}
-  \end{WPDeliverables}
-\begin{verbatim}
-Raw material:
+    A specific challenge will be performance; indeed low level method
+    adapters, e.g. for arithmetic, need to be compiled when most of
+    the interface infrastructure is dynamic by nature.
 
-Component Architecture
-----------------------
+    % When different algorithms are available, some of them coded in
+    % \Sage, some of them in \GAP, the interface shall offer an easily
+    % navigable interface for the expert user to choose among them.
 
-Recomputation connection belongs here?
+    % TODO: more on the relevance to to the goals of this grant. This is useful 
+    % to exchange information between systems for problems that can not be solved
+    % within any single system; for storing and retrieving information (in databases)
+    % immediately into the CAS session; for organising distributed computations.
+  \end{task}
 
-Collaboration with unreliable (or restricted!) networking connections
-(peer-to-peer, opportunistic syncing, 3rd world). This is technically
-interesting, and gets in support for non-networked working. Not sure
-if it belongs here or not.
+  \begin{wpdelivs}
+    \begin{wpdeliv}[due=24,id=scscp_sage,dissem=PU,nature=D]
+      {Support for the
+        \href{http://www.symbolic-computing.org/}{SCSCP} interface
+        protocol in all relevant components (\Sage, \GAP,
+        etc.).}distribution
+    \end{wpdeliv}
 
-- Security concerns
+    \begin{wpdeliv}[due=48,id=semantic_interface_sage_gap,dissem=PU,nature=P]
+      {Semantic-aware \Sage interface to \GAP.}
+    \end{wpdeliv}
+  \end{wpdelivs}
 
-Goal: Fostering collaborations/integration between components in an open source ecosystem
-=============================================================================
+  \begin{task}[title=Modularization and packaging,id=mod_packaging]
+    In this task we will investigate best practices for composing,
+    sharing and interfacing computational components and data for
+    connected mathematical systems.
 
-- How to make systems "cooperate" rather than "predate each other".
-- E.g. reduce the version issues
+    We will start with a comparative study of the practices adopted in
+    various open source projects, both inside and outside of
+    \TheProject. This will include reviewing non-mathematical systems,
+    e.g.: operating systems, platforms, web frameworks, cloud and HPC
+    infrastructures.
 
-- Foster collaboration with upstream libraries by sharing the
-  development and maintenance of the interfaces, typically as
-  standalone upstream Python bindings (e.g. py-Singular).
+    We will address the current shortcomings to promote a new
+    generation of mathematical software that is capable of scaling to
+    large code bases, large datasets, and massively distributed
+    infrastructures. This task also needs to consider the results of
+    work package~\WPref{social-aspects} on social issues regarding
+    distributed development, community management, acknowledging
+    contributions, etc.
 
-- How to make it easy to develop simultaneously two interdependent
-  components (e.g. Sage+Singular)
+    As an example, \Sage has a long history of integrating and
+    distributing large mathematical libraries/software as a whole,
+    with relatively few attention given to defining and exposing
+    interfaces. Component re-usability is not a main focus for the
+    \Sage community, at the same time the non-standard and relatively
+    underused package system discourages writing and maintaining
+    autonomous libraries. These factors have contributed to make the
+    \Sage distribution what is usually described as a ``monolith''
+    (\Sage library code alone, not counting included libraries, makes
+    up for 1.5M lines of code and documentation), hard to distribute,
+    to maintain, to port, and to develop with.
 
-- Foster communication
+    On the opposite side, \GAP has been distributing
+    community-developed ``\GAP packages'' for a long time, but faces
+    now fragmentation issues, at the code and at the community
+    level. The rudimentary package system adds more technical
+    difficulties to \GAP's development model.
 
-- Social aspect:
-  Credit, Citations, Recognition, Funding
+    Both models reach the limits of their scalability, and a synthesis
+    is very much needed.
+  \end{task}
 
-Documentation system
-====================
+  \begin{wpdelivs}
+    \begin{wpdeliv}[due=12,id=virtual_machines,dissem=PU,nature=O]
+      {Virtual images and containers} Creation and distribution of
+      preconfigured cloud oriented virtual machines/containers
+      (e.g. Docker images) for \PariGP, \Sage, \dots
+      % Requires: licenses
+    \end{wpdeliv}
 
-In which package?
+    \begin{wpdeliv}[due=24,id=sage_modularization,dissem=PU,nature=O]
+      {Modularization of the \Sage distribution}
 
-Improvements to Sphinx
+      Separation of the different components of \Sage (communication
+      with third-party softwares, build system, \Sage native
+      code). This is a prerequisite for \delivref{sage_distribution}.
+    \end{wpdeliv}
 
-Sage heavily customizes the Sphinx documentation system, hacking deep
-in it in some cases, with quite some duplication in some cases.
-Refactor the whole thing, generalizing and contributing back upstream
-as much as possible (e.g. parallel compilation).
-\end{verbatim}
+    \begin{wpdeliv}[due=48,id=sage_distribution,dissem=PU,nature=O]
+      {Packaging for major Linux distributions} Make sure that \Sage and
+      all the components it depends on (including \GAP,
+      Linbox, \PariGP, Singular, \dots) have standard packages in the
+      main Linux distributions.
+    \end{wpdeliv}
 
-\end{Workpackage}
+
+    % \TODO{lmonade has very similar objectives but uses the gentoo prefix whereas Linux distributions use very different packaging systems:
+    % \begin{itemize}
+    % \item gentoo prefix (gentoo)
+    % \item pacman (arch),
+    % \item yum (redhat),
+    % \item apt (debian),
+    % \item easy\_install
+    % \item Python index packaging (pip)
+    % \end{itemize}}
+  \end{wpdelivs}
+
+  % \begin{task}[title=Deployment and distribution,id=deployment_distrib]
+  %   \TODO{NT: what did you have in mind?}
+  % \end{task}
+
+  \begin{task}[title=Component architecture for High Performance Computing and Parallelism,id=component_for_HPC]
+    As in all other areas of science, properly supporting massively
+    parallel architecture is a major challenge. Many of the
+    computational components have already gone a long way in this
+    direction, and further work will happen there within
+    WorkPackage~\WPref{hpc}.
+
+    In this task we will investigate and implement
+    parallelism-friendly ways of combining components together, so
+    that calling components can benefit from the parallelism features
+    of called components, with self-adaptation to the environment and
+    cooperative sharing of resources.
+  \end{task}
+
+  \begin{wpdelivs}
+    \begin{wpdeliv}[due=48,id=hpc_configure,dissem=PU,nature=P]
+      {HPC enabled \Sage distribution}
+    \end{wpdeliv}
+  \end{wpdelivs}
+  
+  \begin{task}[title=Improving the development workflow in mathematical software.]
+    Truly open software must enable any actor to easily contribute his
+    work to the community. Be it an experienced developer, or a
+    student. Be it for a major software component, or for a piece of
+    translation. All the systems involved in \TheProject have
+    developed their own workflows for contributing back, but those are
+    almost exclusively geared toward experienced developers working on
+    large components. When these workflows eventually reach their
+    scalability limits, software development stagnates and major
+    features are delayed. A well known example is given by \Sage's Trac
+    server, where tickets can stay in ``needs review'' state for a
+    long time before entering the code base.  \emph{Upstream} bug
+    reporting and fixing is another major factor of slow development.
+
+    This task will seek new ways of accepting contributions to
+    mathematical software in a scalable way. For example we will
+    experiment with integrating bug reporting and contributing
+    features right in the VRE (e.g., in \SMC).
+  \end{task}
+
+  \begin{wpdelivs}
+    \begin{wpdeliv}[due=24,id=smc_trac,dissem=PU,nature=D]
+      {Integration between \SMC and \Sage's Trac server}
+    \end{wpdeliv}
+  \end{wpdelivs}
+\end{tasklist}
+
+% \begin{verbatim}
+% Raw material:
+
+% Component Architecture
+% ----------------------
+
+% Recomputation connection belongs here?
+
+% Collaboration with unreliable (or restricted!) networking connections
+% (peer-to-peer, opportunistic syncing, 3rd world). This is technically
+% interesting, and gets in support for non-networked working. Not sure
+% if it belongs here or not.
+
+% - Security concerns
+
+% Goal: Fostering collaborations/integration between components in an open source ecosystem
+% =============================================================================
+
+% - How to make systems "cooperate" rather than "predate each other".
+% - E.g. reduce the version issues
+
+% - Foster collaboration with upstream libraries by sharing the
+%   development and maintenance of the interfaces, typically as
+%   standalone upstream Python bindings (e.g. py-Singular).
+
+% - How to make it easy to develop simultaneously two interdependent
+%   components (e.g. Sage+Singular)
+
+% - Foster communication
+
+% - Social aspect:
+%   Credit, Citations, Recognition, Funding
+
+% Documentation system
+% ====================
+
+% In which package?
+
+% Improvements to Sphinx
+
+% Sage heavily customizes the Sphinx documentation system, hacking deep
+% in it in some cases, with quite some duplication in some cases.
+% Refactor the whole thing, generalizing and contributing back upstream
+% as much as possible (e.g. parallel compilation).
+% \end{verbatim}
+
+\end{workpackage}
 
 %%% Local Variables: 
 %%% mode: latex
