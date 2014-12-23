@@ -35,9 +35,9 @@ Sites for general project meetings:
 - Oxford
 - Warwick
 - Simula
-- Zürich
+- Zürich?
 - Bremen
-- Grenoble? Bordeaux?
+- Grenoble? Bordeaux? University of Silesia?
 
 - Project meeting 2, April 2016
 - Project meeting 3, October 2016
