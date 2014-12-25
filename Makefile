@@ -31,7 +31,11 @@ cd: 	                                           # make cd will prepare CD for bu
 	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
 
 bbl:	$(BBL)
+
 $(BBL): %.bbl: %.aux
+	bibtex -min-crossrefs=100 -terse $<
+
+$(TBIB.bbl): %.bbl: %.aux
 	bibtex -min-crossrefs=100 -terse $<
 
 $(TSIMP.pdf): %.pdf: %.tex $(PROPCLS) $(PDATA)
@@ -41,6 +45,9 @@ $(PDATA): %.pdata: %.tex
 	$(PDFLATEX) $<
 
 $(TBIB.aux): %.aux: %.tex
+	$(PDFLATEX) $<
+
+$(BBL.aux): %.aux: %.tex
 	$(PDFLATEX) $<
 
 $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS) 
