@@ -117,3 +117,10 @@ codes::
     PP = Restricted to other programme participants (including the Commission Services).
     RE = Restricted to a group specified by the consortium (including the Commission Services).
     CO = Confidential, only for members of the consortium (including the Commission Services).
+
+Bibliography
+------------
+
+If you need to add a bibTeX data base foo.bib, please commit it, and
+add a line \addbibresource{foo.bib} near the other ones at the top of
+proposal.tex. We are using biblatex.sty because it is more versatile.
