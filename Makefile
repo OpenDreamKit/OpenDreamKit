@@ -13,7 +13,7 @@ TBIB.aux 	= $(TBIB:%.tex=%.aux)             # their aux files.
 PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
 SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
 PDFLATEX = pdflatex -interaction batchmode -file-line-error
-BBL.base = 1 2 3 4
+BBL.base =# 1 2 3 4
 BBL = $(PROPOSAL:%.tex=%.bbl) $(BBL.base:%=$(PROPOSAL:%.tex=%)%-blx.bbl)
 PROPCLS.dir = $(PROP.dir)/base
 PROPETC.dir = $(PROP.dir)/etc
