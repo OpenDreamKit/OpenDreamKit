@@ -93,6 +93,155 @@
       % * try to use MSVC
   \end{task}
 
+  \begin{task}[title=Interfaces between systems,id=interface_systems]
+    In this task we will investigate patterns to share data,
+    ontologies, and semantics across computational systems, possibly
+    connected remotely.  We will leverage the well established
+    semantics used in mathematics (categories, type systems, \dots) to
+    give powerful abstractions on computational objects.
+    
+    We will build upon the work already done in the EU FP6 project
+    26133 ``SCIEnce -- Symbolic Computation Infrastructure for
+    Europe'' \TODO{fix and insert URL} on the Symbolic Computation
+    Software Composability Protocol (SCSCP). SCSCP is a remote
+    procedure call protocol by which a computer algebra system (CAS)
+    may offer services to a variety of possible clients, including
+    e.g.  another CAS running on the same computer system or remotely;
+    another instance of the same CAS (in a parallel computing
+    context); a simplistic SCSCP client
+    (e.g. C/C++/Python/etc. program) with a minimal SCSCP support
+    needed for a particular application; a Web server which passes on
+    the same services as Web services, etc.  A distinctive feature of
+    the protocol is that both instructions and data are represented in
+    the OpenMath format (\url{http://www.openmath.org/}; previously
+    supported by the EU JEM Thematic Network; EU project 24969
+    ``ESPRIT'' and other projects); moreover, OpenMath support is not
+    limited by existing official OpenMath content dictionaries --
+    private encodings may be easily embedded into SCSCP messages.
+    
+    SCSCP is already supported by a number of computer algebra
+    systems, including \GAP, Macaulay2, Maple, TRIP and others. We will
+    extend support for SCSCP to other relevant systems involved in
+    \TheProject.  Through its API, we will enable discovery of
+    subsystems, functionality, documentation and computational
+    resources. The user interfaces shall be enabled to automatically
+    choose the best available algorithms and resources to perform a
+    required computation, as well as clearly and intuitively present
+    the available choices to the expert user.
+
+    As a first concrete test bed, we will consider the \Sage interface
+    to \GAP, or more precisely \libGAP.  Like most \Sage interfaces,
+    this uses the now classical \emph{handle} design pattern, whereby
+    one can manipulate from \Sage an object created and stored in
+    \GAP, through a \emph{handle} (a.k.a. \emph{remote objects}).  By
+    mapping \GAP's categories to \Sage's categories, we will:
+    \begin{itemize}
+    \item Implement a modular infrastructure for adapters, based on
+      SCSCP, in order to let the implementation of adapters scale to a
+      large variety of objects.
+    \item Refactor the existing adapters, using this infrastructure to
+      generalize their features. This step by itself will provide
+      adapters for larger categories like semigroups or monoids.
+    \item Merge the adapters into the handles, so that a handle to a
+      \GAP group will \emph{automatically} behave like a native \Sage
+      group.
+      % This will remove much back-conversion burden from the
+      % delagating methods
+    \end{itemize}
+    A specific challenge will be performance; indeed low level method
+    adapters, e.g. for arithmetic, need to be compiled when most of
+    the interface infrastructure is dynamic by nature.
+
+    % When different algorithms are available, some of them coded in
+    % \Sage, some of them in \GAP, the interface shall offer an easily
+    % navigable interface for the expert user to choose among them.
+
+    % TODO: more on the relevance to to the goals of this grant. This is useful 
+    % to exchange information between systems for problems that can not be solved
+    % within any single system; for storing and retrieving information (in databases)
+    % immediately into the CAS session; for organising distributed computations.
+  \end{task}
+
+  \begin{task}[title=Modularization and packaging,id=mod_packaging]
+    In this task we will investigate best practices for composing,
+    sharing and interfacing computational components and data for
+    connected mathematical systems.
+
+    We will start with a comparative study of the practices adopted in
+    various open source projects, both inside and outside of
+    \TheProject. This will include reviewing non-mathematical systems,
+    e.g.: operating systems, platforms, web frameworks, cloud and HPC
+    infrastructures.
+
+    We will address the current shortcomings to promote a new
+    generation of mathematical software that is capable of scaling to
+    large code bases, large datasets, and massively distributed
+    infrastructures. This task also needs to consider the results of
+    work package~\WPref{social-aspects} on social issues regarding
+    distributed development, community management, acknowledging
+    contributions, etc.
+
+    As an example, \Sage has a long history of integrating and
+    distributing large mathematical libraries/software as a whole,
+    with relatively few attention given to defining and exposing
+    interfaces. Component re-usability is not a main focus for the
+    \Sage community, at the same time the non-standard and relatively
+    underused package system discourages writing and maintaining
+    autonomous libraries. These factors have contributed to make the
+    \Sage distribution what is usually described as a ``monolith''
+    (\Sage library code alone, not counting included libraries, makes
+    up for 1.5M lines of code and documentation), hard to distribute,
+    to maintain, to port, and to develop with.
+
+    On the opposite side, \GAP has been distributing
+    community-developed ``\GAP packages'' for a long time, but faces
+    now fragmentation issues, at the code and at the community
+    level. The rudimentary package system adds more technical
+    difficulties to \GAP's development model.
+
+    Both models reach the limits of their scalability, and a synthesis
+    is very much needed.
+  \end{task}
+
+  % \begin{task}[title=Deployment and distribution,id=deployment_distrib]
+  %   \TODO{NT: what did you have in mind?}
+  % \end{task}
+
+  \begin{task}[title=Component architecture for High Performance Computing and Parallelism,id=component_for_HPC]
+    As in all other areas of science, properly supporting massively
+    parallel architecture is a major challenge. Many of the
+    computational components have already gone a long way in this
+    direction, and further work will happen there within
+    WorkPackage~\WPref{hpc}.
+
+    In this task we will investigate and implement
+    parallelism-friendly ways of combining components together, so
+    that calling components can benefit from the parallelism features
+    of called components, with self-adaptation to the environment and
+    cooperative sharing of resources.
+  \end{task}
+
+  \begin{task}[title=Improving the development workflow in mathematical software.]
+    Truly open software must enable any actor to easily contribute his
+    work to the community. Be it an experienced developer, or a
+    student. Be it for a major software component, or for a piece of
+    translation. All the systems involved in \TheProject have
+    developed their own workflows for contributing back, but those are
+    almost exclusively geared toward experienced developers working on
+    large components. When these workflows eventually reach their
+    scalability limits, software development stagnates and major
+    features are delayed. A well known example is given by \Sage's Trac
+    server, where tickets can stay in ``needs review'' state for a
+    long time before entering the code base.  \emph{Upstream} bug
+    reporting and fixing is another major factor of slow development.
+
+    This task will seek new ways of accepting contributions to
+    mathematical software in a scalable way. For example we will
+    experiment with integrating bug reporting and contributing
+    features right in the VRE (e.g., in \SMC).
+  \end{task}
+\end{tasklist}
+
   \begin{wpdelivs}
     \begin{wpdeliv}[due=12,id=portability_cygwin32,dissem=PU,nature=D]
       {One-click install \Sage distribution for Windows with Cygwin 32bits}
@@ -168,78 +317,6 @@
       possibility of evolving it towards a multi-platform tool, and
       opening it to other mathematical software.
     \end{wpdeliv}%
-  \end{wpdelivs}
-
-  \begin{task}[title=Interfaces between systems,id=interface_systems]
-    In this task we will investigate patterns to share data,
-    ontologies, and semantics across computational systems, possibly
-    connected remotely.  We will leverage the well established
-    semantics used in mathematics (categories, type systems, \dots) to
-    give powerful abstractions on computational objects.
-    
-    We will build upon the work already done in the EU FP6 project
-    26133 ``SCIEnce -- Symbolic Computation Infrastructure for
-    Europe'' \TODO{fix and insert URL} on the Symbolic Computation
-    Software Composability Protocol (SCSCP). SCSCP is a remote
-    procedure call protocol by which a computer algebra system (CAS)
-    may offer services to a variety of possible clients, including
-    e.g.  another CAS running on the same computer system or remotely;
-    another instance of the same CAS (in a parallel computing
-    context); a simplistic SCSCP client
-    (e.g. C/C++/Python/etc. program) with a minimal SCSCP support
-    needed for a particular application; a Web server which passes on
-    the same services as Web services, etc.  A distinctive feature of
-    the protocol is that both instructions and data are represented in
-    the OpenMath format (\url{http://www.openmath.org/}; previously
-    supported by the EU JEM Thematic Network; EU project 24969
-    ``ESPRIT'' and other projects); moreover, OpenMath support is not
-    limited by existing official OpenMath content dictionaries --
-    private encodings may be easily embedded into SCSCP messages.
-    
-    SCSCP is already supported by a number of computer algebra
-    systems, including \GAP, Macaulay2, Maple, TRIP and others. We will
-    extend support for SCSCP to other relevant systems involved in
-    \TheProject.  Through its API, we will enable discovery of
-    subsystems, functionality, documentation and computational
-    resources. The user interfaces shall be enabled to automatically
-    choose the best available algorithms and resources to perform a
-    required computation, as well as clearly and intuitively present
-    the available choices to the expert user.
-
-    As a first concrete test bed, we will consider the \Sage interface
-    to \GAP, or more precisely \libGAP.  Like most \Sage interfaces,
-    this uses the now classical \emph{handle} design pattern, whereby
-    one can manipulate from \Sage an object created and stored in
-    \GAP, through a \emph{handle} (a.k.a. \emph{remote objects}).  By
-    mapping \GAP's categories to \Sage's categories, we will:
-    \begin{itemize}
-    \item Implement a modular infrastructure for adapters, based on
-      SCSCP, in order to let the implementation of adapters scale to a
-      large variety of objects.
-    \item Refactor the existing adapters, using this infrastructure to
-      generalize their features. This step by itself will provide
-      adapters for larger categories like semigroups or monoids.
-    \item Merge the adapters into the handles, so that a handle to a
-      \GAP group will \emph{automatically} behave like a native \Sage
-      group.
-      % This will remove much back-conversion burden from the
-      % delagating methods
-    \end{itemize}
-    A specific challenge will be performance; indeed low level method
-    adapters, e.g. for arithmetic, need to be compiled when most of
-    the interface infrastructure is dynamic by nature.
-
-    % When different algorithms are available, some of them coded in
-    % \Sage, some of them in \GAP, the interface shall offer an easily
-    % navigable interface for the expert user to choose among them.
-
-    % TODO: more on the relevance to to the goals of this grant. This is useful 
-    % to exchange information between systems for problems that can not be solved
-    % within any single system; for storing and retrieving information (in databases)
-    % immediately into the CAS session; for organising distributed computations.
-  \end{task}
-
-  \begin{wpdelivs}
     \begin{wpdeliv}[due=24,id=scscp_sage,dissem=PU,nature=D]
       {Support for the
         \href{http://www.symbolic-computing.org/}{SCSCP} interface
@@ -250,50 +327,6 @@
     \begin{wpdeliv}[due=48,id=semantic_interface_sage_gap,dissem=PU,nature=P]
       {Semantic-aware \Sage interface to \GAP.}
     \end{wpdeliv}
-  \end{wpdelivs}
-
-  \begin{task}[title=Modularization and packaging,id=mod_packaging]
-    In this task we will investigate best practices for composing,
-    sharing and interfacing computational components and data for
-    connected mathematical systems.
-
-    We will start with a comparative study of the practices adopted in
-    various open source projects, both inside and outside of
-    \TheProject. This will include reviewing non-mathematical systems,
-    e.g.: operating systems, platforms, web frameworks, cloud and HPC
-    infrastructures.
-
-    We will address the current shortcomings to promote a new
-    generation of mathematical software that is capable of scaling to
-    large code bases, large datasets, and massively distributed
-    infrastructures. This task also needs to consider the results of
-    work package~\WPref{social-aspects} on social issues regarding
-    distributed development, community management, acknowledging
-    contributions, etc.
-
-    As an example, \Sage has a long history of integrating and
-    distributing large mathematical libraries/software as a whole,
-    with relatively few attention given to defining and exposing
-    interfaces. Component re-usability is not a main focus for the
-    \Sage community, at the same time the non-standard and relatively
-    underused package system discourages writing and maintaining
-    autonomous libraries. These factors have contributed to make the
-    \Sage distribution what is usually described as a ``monolith''
-    (\Sage library code alone, not counting included libraries, makes
-    up for 1.5M lines of code and documentation), hard to distribute,
-    to maintain, to port, and to develop with.
-
-    On the opposite side, \GAP has been distributing
-    community-developed ``\GAP packages'' for a long time, but faces
-    now fragmentation issues, at the code and at the community
-    level. The rudimentary package system adds more technical
-    difficulties to \GAP's development model.
-
-    Both models reach the limits of their scalability, and a synthesis
-    is very much needed.
-  \end{task}
-
-  \begin{wpdelivs}
     \begin{wpdeliv}[due=12,id=virtual_machines,dissem=PU,nature=O]
       {Virtual images and containers} Creation and distribution of
       preconfigured cloud oriented virtual machines/containers
@@ -326,58 +359,14 @@
     % \item easy\_install
     % \item Python index packaging (pip)
     % \end{itemize}}
-  \end{wpdelivs}
-
-  % \begin{task}[title=Deployment and distribution,id=deployment_distrib]
-  %   \TODO{NT: what did you have in mind?}
-  % \end{task}
-
-  \begin{task}[title=Component architecture for High Performance Computing and Parallelism,id=component_for_HPC]
-    As in all other areas of science, properly supporting massively
-    parallel architecture is a major challenge. Many of the
-    computational components have already gone a long way in this
-    direction, and further work will happen there within
-    WorkPackage~\WPref{hpc}.
-
-    In this task we will investigate and implement
-    parallelism-friendly ways of combining components together, so
-    that calling components can benefit from the parallelism features
-    of called components, with self-adaptation to the environment and
-    cooperative sharing of resources.
-  \end{task}
-
-  \begin{wpdelivs}
     \begin{wpdeliv}[due=48,id=hpc_configure,dissem=PU,nature=P]
       {HPC enabled \Sage distribution}
     \end{wpdeliv}
-  \end{wpdelivs}
-  
-  \begin{task}[title=Improving the development workflow in mathematical software.]
-    Truly open software must enable any actor to easily contribute his
-    work to the community. Be it an experienced developer, or a
-    student. Be it for a major software component, or for a piece of
-    translation. All the systems involved in \TheProject have
-    developed their own workflows for contributing back, but those are
-    almost exclusively geared toward experienced developers working on
-    large components. When these workflows eventually reach their
-    scalability limits, software development stagnates and major
-    features are delayed. A well known example is given by \Sage's Trac
-    server, where tickets can stay in ``needs review'' state for a
-    long time before entering the code base.  \emph{Upstream} bug
-    reporting and fixing is another major factor of slow development.
 
-    This task will seek new ways of accepting contributions to
-    mathematical software in a scalable way. For example we will
-    experiment with integrating bug reporting and contributing
-    features right in the VRE (e.g., in \SMC).
-  \end{task}
-
-  \begin{wpdelivs}
     \begin{wpdeliv}[due=24,id=smc_trac,dissem=PU,nature=D]
       {Integration between \SMC and \Sage's Trac server}
     \end{wpdeliv}
   \end{wpdelivs}
-\end{tasklist}
 
 % \begin{verbatim}
 % Raw material:
