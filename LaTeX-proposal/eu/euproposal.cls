@@ -105,14 +105,15 @@
                                     {-1em}%
                                     {\normalfont\normalsize\bfseries}}}
 {\pdata@def{site}{\@site}{PM}{\value{site@\@site @PM}}}
-\define@key{site@res}{type}{\def\site@res@type{#1}\@dmp{type=#1}}
-\define@key{site@res}{PM}{\def\site@res@PM{#1}\@dmp{PM=#1}}
-\define@key{site@res}{salary}{\def\site@res@salary{#1}\@dmp{\euro=#1}}
-\newenvironment{picv}[2][]%
-{\def\site@res@type{}\def\site@res@PM{}\def\site@res@salary{}%
-\setkeys{site@res}{#1}%
-\ifx\site@res@PM\@empty\else\addtocounter{site@\@site @PM}{\site@res@PM}\fi%
-\paragraph*{#2 \ifx\site@res@type\@empty\else(\site@res@type)\fi}}
+\define@key{site@part}{type}{\def\site@part@type{#1}\@dmp{type=#1}}
+\define@key{site@part}{PM}{\def\site@part@PM{#1}\@dmp{PM=#1}}
+\define@key{site@part}{salary}{\def\site@part@salary{#1}\@dmp{\euro=#1}}
+\newenvironment{participant}[2][]%
+{\def\site@part@type{}\def\site@part@PM{}\def\site@part@salary{}%
+\setkeys{site@part}{#1}%
+\ifx\site@part@PM\@empty\else\addtocounter{site@\@site @PM}{\site@part@PM}\fi%
+\paragraph*{#2 \ifx\site@part@type\@empty\else(\site@part@type)\fi}%
+\ignorespaces}
 {\par\medskip}
 \newmdenv[frametitle=Objectives]{wpobjectives}
 \newmdenv[frametitle=Description]{wpdescription}
