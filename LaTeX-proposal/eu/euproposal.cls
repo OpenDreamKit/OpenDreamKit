@@ -77,7 +77,9 @@
 \pdata@def{sitedesc}{\@site}{width}{#1}\@dmp{wd=#1}}
 \define@key{site@desc}{height}{\def\site@desc@height{#1}%
 \pdata@def{sitedesc}{\@site}{height}{#1}\@dmp{ht=#1}}
-\newenvironment{sitedescription}[2][]{\def\@site{#2}% remember the site ID
+\newenvironment{sitedescription}[2][]%
+{\def\@site{#2}% remember the site ID
+\newcounter{site@#2@PM} % for the site PM
 \def\site@desc@box{false}% not box unless requested
 \def\site@desc@logo{false}% not logo unless requested
 \def\site@desc@height{1.3cm}% default height
@@ -102,7 +104,16 @@
                                     {0.25ex \@plus1ex \@minus.2ex}%
                                     {-1em}%
                                     {\normalfont\normalsize\bfseries}}}
-{}
+{\pdata@def{site}{\@site}{PM}{\value{site@\@site @PM}}}
+\define@key{site@res}{type}{\def\site@res@type{#1}\@dmp{type=#1}}
+\define@key{site@res}{PM}{\def\site@res@PM{#1}\@dmp{PM=#1}}
+\define@key{site@res}{salary}{\def\site@res@salary{#1}\@dmp{\euro=#1}}
+\newenvironment{picv}[2][]%
+{\def\site@res@type{}\def\site@res@PM{}\def\site@res@salary{}%
+\setkeys{site@res}{#1}%
+\ifx\site@res@PM\@empty\else\addtocounter{site@\@site @PM}{\site@res@PM}\fi%
+\paragraph*{#2 \ifx\site@res@type\@empty\else(\site@res@type)\fi}}
+{\par\medskip}
 \newmdenv[frametitle=Objectives]{wpobjectives}
 \newmdenv[frametitle=Description]{wpdescription}
 \renewenvironment{workpackage}[1][]

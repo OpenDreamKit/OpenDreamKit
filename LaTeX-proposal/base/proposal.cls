@@ -304,7 +304,7 @@
 {\textbf\deliv@legend@delivs:\\[-3ex]\begin{wp@delivs}}
 {\end{wp@delivs}}
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
-\newcommand\deliv@label[1]{D{#1}}
+\newcommand\deliv@label[1]{M{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
@@ -417,7 +417,7 @@
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
-\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}\@dmp{title=#1}}
+\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
 \define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}\@dmp{lead=#1}}
 \define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}\@dmp{partners=#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
