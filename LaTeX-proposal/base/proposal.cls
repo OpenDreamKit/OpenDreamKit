@@ -693,12 +693,16 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \xdef\@totals{&\the\@@@RM\if@RAM &\the\@@@RAM\fi}
 \fi% if@sites
 \fi
-\gdef\intended@totals{}
+\gdef\intended@totals{}\gdef\requested@totals{}
 \if@sites
 \@for\@site:=\prop@gen@sites\do{
 \xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{site}\@site{intendedRM}}}
+\xdef\requested@totals{\requested@totals&\pdataref@safe{site}\@site{reqPM}}
 \if@RAM\xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{site}\@site{intendedRAM}}}\fi}
-\if@RAM\xdef\intended@totals{\intended@totals&&}\else\xdef\intended@totals{\intended@totals&}\fi
+\if@RAM\xdef\intended@totals{\intended@totals&&}\else%
+\xdef\intended@totals{\intended@totals&}%
+\xdef\requested@totals{\requested@totals&}%
+\fi
 \else% if@sites
 \xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{all}{intended}{RM}}}
 \if@RAM\xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{all}{intended}{RAM}}}\fi
@@ -707,11 +711,14 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \begin{wp@figure}
 \@wp@lines\hline%
 \multicolumn{\the\local@count}{|c|}{\prop@legend@totals}\@totals\\\hline%
-\ifsubmit\else\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}%
-\intended@totals\\\hline\fi
+\ifsubmit\else%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline
+\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline
+\fi
 \end{wp@figure}}
 \newcommand\prop@legend@totals{\textbf{totals}}
 \newcommand\prop@legend@intendedtotals{\textbf{intended totals}}
+\newcommand\prop@legend@requestedtotals{\textbf{requested totals}}
 \newif\ifgantt@draft\gantt@draftfalse
 \define@key{gantt}{xscale}{\def\gantt@xscale{#1}}
 \define@key{gantt}{yscale}{\def\gantt@yscale{#1}}

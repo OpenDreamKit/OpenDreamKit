@@ -104,7 +104,7 @@
                                     {0.25ex \@plus1ex \@minus.2ex}%
                                     {-1em}%
                                     {\normalfont\normalsize\bfseries}}}
-{\pdata@def{site}{\@site}{PM}{\value{site@\@site @PM}}}
+{\pdata@def{site}{\@site}{reqPM}{\csname thesite@\@site @PM\endcsname}}
 \define@key{site@part}{type}{\def\site@part@type{#1}\@dmp{type=#1}}
 \define@key{site@part}{PM}{\def\site@part@PM{#1}\@dmp{PM=#1}}
 \define@key{site@part}{salary}{\def\site@part@salary{#1}\@dmp{\euro=#1}}
