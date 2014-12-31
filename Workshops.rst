@@ -64,7 +64,7 @@ HPC / Performance
 Grenoble, year 1?
 Bordeaux, year ???
 
-SMS days
+SMC days
 --------
 
 Pari-* Days
