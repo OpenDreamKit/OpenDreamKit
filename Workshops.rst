@@ -113,3 +113,9 @@ Typically 40 people
 Opportunities:
 - Graduate student training program of GDR-IM in France
 - CIRM, Oberwolfach, RISC, ...
+
+Notes from Neil on the IPython Workshops
+========================================
+
+For IPython ones we could also do them with a bit more of a data science flavour. In Sheffield we already run courses in methodologies that use the IPython notebook. But we would like to start running short courses on *interactive research* with the IPython notebook. This would be very appropriate for this grant.
+
