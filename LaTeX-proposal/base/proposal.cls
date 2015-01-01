@@ -304,7 +304,7 @@
 {\textbf\deliv@legend@delivs:\\[-3ex]\begin{wp@delivs}}
 {\end{wp@delivs}}
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
-\newcommand\deliv@label[1]{D{#1}}
+\newcommand\deliv@label[1]{M{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
@@ -417,7 +417,7 @@
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
-\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}\@dmp{title=#1}}
+\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
 \define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}\@dmp{lead=#1}}
 \define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}\@dmp{partners=#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
@@ -693,12 +693,16 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \xdef\@totals{&\the\@@@RM\if@RAM &\the\@@@RAM\fi}
 \fi% if@sites
 \fi
-\gdef\intended@totals{}
+\gdef\intended@totals{}\gdef\requested@totals{}
 \if@sites
 \@for\@site:=\prop@gen@sites\do{
 \xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{site}\@site{intendedRM}}}
+\xdef\requested@totals{\requested@totals&\pdataref@safe{site}\@site{reqPM}}
 \if@RAM\xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{site}\@site{intendedRAM}}}\fi}
-\if@RAM\xdef\intended@totals{\intended@totals&&}\else\xdef\intended@totals{\intended@totals&}\fi
+\if@RAM\xdef\intended@totals{\intended@totals&&}\else%
+\xdef\intended@totals{\intended@totals&}%
+\xdef\requested@totals{\requested@totals&}%
+\fi
 \else% if@sites
 \xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{all}{intended}{RM}}}
 \if@RAM\xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{all}{intended}{RAM}}}\fi
@@ -707,11 +711,14 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \begin{wp@figure}
 \@wp@lines\hline%
 \multicolumn{\the\local@count}{|c|}{\prop@legend@totals}\@totals\\\hline%
-\ifsubmit\else\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}%
-\intended@totals\\\hline\fi
+\ifsubmit\else%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline
+\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline
+\fi
 \end{wp@figure}}
 \newcommand\prop@legend@totals{\textbf{totals}}
 \newcommand\prop@legend@intendedtotals{\textbf{intended totals}}
+\newcommand\prop@legend@requestedtotals{\textbf{requested totals}}
 \newif\ifgantt@draft\gantt@draftfalse
 \define@key{gantt}{xscale}{\def\gantt@xscale{#1}}
 \define@key{gantt}{yscale}{\def\gantt@yscale{#1}}

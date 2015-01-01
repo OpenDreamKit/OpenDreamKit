@@ -64,11 +64,14 @@ HPC / Performance
 Grenoble, year 1?
 Bordeaux, year ???
 
-SMS days
+SMC days
 --------
 
-Pari-* Days
------------
+Ateliers Pari
+-------------
+
+One per year around January, usually in Bordeaux
+~30 participants
 
 Singular-* Days
 ---------------
@@ -80,6 +83,8 @@ Join workshops
 --------------
 
 IPython-Sage, year ????
+
+LMFDB-Sage, year 2016
 
 Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
 
