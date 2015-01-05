@@ -45,9 +45,10 @@ are all aiming for good science and are likely to help each other out
 to achieve this together. For now, we need to maximise the chances of
 getting the funding.
 
-See below for recommended frequency of these events. 
+See below for recommended frequency of these events.
 
-
+(rule in Orsay: no more than 143 euro per day in local expenses for a
+trip in Europe; somewhat less in France).
 
 Max frequency of events
 -----------------------
