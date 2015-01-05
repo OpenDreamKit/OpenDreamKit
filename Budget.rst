@@ -76,8 +76,8 @@ keep in touch with the state-of-the-art developments and needs.
 
 As a guideline we suggest:
 
-- 1 international conferences, and 2 european ones, for each FTE per
- year
+- 1 international conferences, and 2 european conferences, per year for each person
+  working full time on the project 
 - 1 international conference and 1 european meeting for each
   investigator per year
 
@@ -93,14 +93,14 @@ Partner visits and workshop attendance
 One-to-One partner site visits: For every partner, expect 3-4 visits per
 year for one person to other partner sites. (i.e. 2 x 750EUR per
 year). This is also used to attend workshops, so that the visit
-coincides with the workshop.
+coincides with the workshop where possible.
 
 
 Visitors
 ~~~~~~~~
 
 Inviting visitors from outside the consortium, also to host interns or
-other that contribute value to the project
+others that contribute value to the project
 
 - Allowing the equivalent of about 3 weeks (2000 EUR) per year per site
 
@@ -154,7 +154,7 @@ buying a hardware refresh half way through the project.
 Travel expenses example
 -----------------------
 
-Assume you have one investigator (I) and one Fulltime equivalent person
+Assume you have one investigator (I) and one FullTime Equivalent person
 (FTE) on the project for four years.
 
 The annual (!) travel costs following the guidelines above would be:
@@ -172,7 +172,11 @@ Over 4 years, that is
 (2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
 
 
-
+While the total amount request needs to be specified via the portal
+and spreadsheets (the EU support offices/ finance teams should know),
+it is not clear where exactly in the submission we need to explain how the travel cost
+is budgeted, i.e. on what basis we request that money [which is
+basically what is described above]. Does anybody know?
 
 
 

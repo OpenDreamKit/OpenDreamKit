@@ -67,8 +67,11 @@ Bordeaux, year ???
 SMC days
 --------
 
-Pari-* Days
------------
+Ateliers Pari
+-------------
+
+One per year around January, usually in Bordeaux
+~30 participants
 
 Singular-* Days
 ---------------
@@ -80,6 +83,8 @@ Join workshops
 --------------
 
 IPython-Sage, year ????
+
+LMFDB-Sage, year 2016
 
 Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
 
@@ -108,3 +113,29 @@ Typically 40 people
 Opportunities:
 - Graduate student training program of GDR-IM in France
 - CIRM, Oberwolfach, RISC, ...
+
+Notes from Neil on the IPython Workshops
+========================================
+
+For IPython ones we could also do them with a bit more of a data science flavour. In Sheffield we already run courses in methodologies that use the IPython notebook. But we would like to start running short courses on *interactive research* with the IPython notebook. This would be very appropriate for this grant.
+
+IPython - OOMMF Workshops
+=========================
+
+Workshops to run at the biggest 4 international meetings on magnetism
+(each attracting around 1500 attendees) to disseminate the OOMMF-NB
+work (from User Interface packages). We expect to teach (i) the
+OOMMF-NB interface and (ii) basics of open source technology to help
+the community to contribute in future. We will run the workshop(s) in
+the evening of the conference when there are no other events and it is
+easy to all interested attendees to come to that. Given sufficient
+demand, we can run multiple versions of this workshop. We shoul count
+this as 4 workshops (although it may end up to be 8 or 12 due to large
+numbers of participants). We are probably looking at a 3h event; maybe
+6 (if we split open source basics and application training into two
+evenings, each being 3h).
+
+These workshops are listed in the Disemmination work package.
+
+ 
+
