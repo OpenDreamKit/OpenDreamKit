@@ -91,7 +91,7 @@ Partner visits and workshop attendance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One-to-One partner site visits: For every partner, expect 3-4 visits per
-year for one person to other partner sites. (i.e. 2 x 750EUR per
+year for one person to other partner sites. (i.e. 3 to 4 x 750EUR per
 year). This is also used to attend workshops, so that the visit
 coincides with the workshop where possible.
 
