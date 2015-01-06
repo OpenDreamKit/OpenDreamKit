@@ -175,9 +175,7 @@ Over 4 years, that is
 
 While the total amount request needs to be specified via the portal
 and spreadsheets (the EU support offices/ finance teams should know),
-it is not clear where exactly in the submission we need to explain how the travel cost
-is budgeted, i.e. on what basis we request that money [which is
-basically what is described above]. Does anybody know?
+we should also explain in the proposal what costs we expect and why. We are putting a general item for this in H2020/resources.tex (reflecting what is written above). Furthermore, each partner for which the non-staff expenses (that's travel and equipment, for example) exceed 15% of the total cost, needs to complete a small table explaining why these costs are necessary. It seems likely that this applies to many partners.
 
 
 
