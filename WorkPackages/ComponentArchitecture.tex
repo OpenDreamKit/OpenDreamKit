@@ -1,6 +1,6 @@
-\begin{workpackage}[id=component-architecture,wphases=3-24!.5,
+\begin{workpackage}[id=component-architecture,wphases=1-48!.5,
   title=Component Architecture,lead=UV,
-  PSRM=24,UVRM=1,SARM=1, USHRM=4]
+  PSRM=24,UVRM=10,SARM=1, USHRM=4]
 
   \begin{wpobjectives}
     The objective of this work package is to develop and demonstrate a
@@ -59,10 +59,12 @@
       a specific focus will be placed on the port of \Sage, and
       therefore all the components included in its distribution (in
       particular \PariGP, \GAP, \Singular, \Linbox) to this platform
-      (\delivref{portability-cygwin32}, \delivref{portability-cygwin64}).
+      (\delivref{component-architecture}{portability-cygwin32},
+      \delivref{component-architecture}{portability-cygwin64}).
     \item The deployment of a common infrastructure for multi-platform
       continuous integration (testing, building and distribution) will
-      be addressed.
+      be addressed
+      (\delivref{component-architecture}{multiplatform-buildbot}).
     \end{compactitem}
 
       % Jean-Pierre:
@@ -120,21 +122,24 @@
     private encodings may be easily embedded into SCSCP messages.
     
     SCSCP is already supported by a number of computer algebra
-    systems, including \GAP, Macaulay2, Maple, TRIP and others. We will
-    extend support for SCSCP to other relevant systems involved in
-    \TheProject.  Through its API, we will enable discovery of
-    subsystems, functionality, documentation and computational
-    resources. The user interfaces shall be enabled to automatically
-    choose the best available algorithms and resources to perform a
-    required computation, as well as clearly and intuitively present
-    the available choices to the expert user.
+    systems, including \GAP, Macaulay2, Maple, TRIP and others. We
+    will extend support for SCSCP to other relevant systems involved
+    in \TheProject (\delivref{component-architecture}{scscp-sage}).
+    Through its API, we will enable discovery of subsystems,
+    functionality, documentation and computational resources. The user
+    interfaces shall be enabled to automatically choose the best
+    available algorithms and resources to perform a required
+    computation, as well as clearly and intuitively present the
+    available choices to the expert user.
 
     As a first concrete test bed, we will consider the \Sage interface
     to \GAP, or more precisely \libGAP.  Like most \Sage interfaces,
     this uses the now classical \emph{handle} design pattern, whereby
     one can manipulate from \Sage an object created and stored in
     \GAP, through a \emph{handle} (a.k.a. \emph{remote objects}).  By
-    mapping \GAP's categories to \Sage's categories, we will:
+    mapping \GAP's categories to \Sage's categories, in
+    \delivref{component-architecture}{semantic-interface-sage-gap} we
+    will:
     \begin{compactitem}
     \item Implement a modular infrastructure for adapters, based on
       SCSCP, in order to let the implementation of adapters scale to a
@@ -171,13 +176,20 @@
     various open source projects, both inside and outside of
     \TheProject. This will include reviewing non-mathematical systems,
     e.g.: operating systems, platforms, web frameworks, cloud and HPC
-    infrastructures.
+    infrastructures.  In particular, pushed by cloud computing,
+    containerization and virtualization have become a major trend for
+    distributing complex software, thanks to their ease of
+    installation and configuration. We shall experiment with these
+    technologies by building and distributing virtual appliances for
+    the major components of \TheProject
+    (\delivref{component-architecture}{virtual-machines}).
 
-    We will address the current shortcomings to promote a new
-    generation of mathematical software that is capable of scaling to
-    large code bases, large datasets, and massively distributed
-    infrastructures. This task also needs to consider the results of
-    work package~\WPref{social-aspects} on social issues regarding
+    Once the initial study will have identified the present
+    shortcomings, we will promote a new generation of mathematical
+    software that is capable of scaling to large code bases, large
+    datasets, and massively distributed infrastructures. This task
+    also needs to consider the results of work
+    package~\WPref{social-aspects} on social issues regarding
     distributed development, community management, acknowledging
     contributions, etc.
 
@@ -200,12 +212,18 @@
     difficulties to \GAP's development model.
 
     Both models reach the limits of their scalability, and a synthesis
-    is very much needed.
+    is very much needed.  Our first experiment will be to enhance
+    \Sage's package system
+    (\delivref{component-architecture}{sage-repository}), enough to
+    support an open repository of user-contributed code, in the same
+    spirit of modern systems such as Julia
+    (\url{http://pkg.julialang.org/}) or PyPI
+    (\url{https://pypi.python.org/}).  Once \emph{internal} packaging
+    has been dealt with, the route will be paved to further modularize
+    the \Sage distribution, and make sure that the major Linux
+    distributions have standard packages for it
+    (\delivref{component-architecture}{sage-distribution}).
   \end{task}
-
-  % \begin{task}[title=Deployment and distribution,id=deployment-distrib]
-  %   \TODO{NT: what did you have in mind?}
-  % \end{task}
 
   \begin{task}[title=Component architecture for High Performance Computing and Parallelism,id=component-for-HPC]
     As in all other areas of science, properly supporting massively
@@ -218,7 +236,31 @@
     parallelism-friendly ways of combining components together, so
     that calling components can benefit from the parallelism features
     of called components, with self-adaptation to the environment and
-    cooperative sharing of resources.
+    cooperative sharing of resources. We will use \Sage and its
+    components as a test-bed, by producing an HPC-enabled distribution
+    (\delivref{component-architecture}{hpc-configure}).
+  \end{task}
+
+  \begin{task}[title=Document and modularize \SMC's codebase,id=extract-smc]
+    From its inception in 2013, \SMC has quickly developed to a full
+    featured VRE.  Because of the tight, partly closed source
+    development cycles, \SMC's codebase has quickly grown in size,
+    with its documentation not always keeping the pace. As a result,
+    it is at the moment very hard for a newcomer to setup a clone
+    service of \SMC just from its sources.
+
+    Now that \SMC is
+    \href{https://twitter.com/sagemath/status/544939872294014977}{fully
+      open source}, we need to go through its codebase, understand and
+    document it
+    (\delivref{component-architecture}{smc-documentation}), isolate
+    components that might be reused by other software (e.g.:
+    \Jupyter), and make it as portable as possible.
+
+    The ultimate goal of this task is to produce a \emph{personal}
+    version of \SMC, to be shipped along with \Sage, that a user can
+    run on his own personal computer
+    (\delivref{component-architecture}{personal-smc}).
   \end{task}
 
   \begin{task}[title=Improving the development workflow in mathematical software.]
@@ -238,7 +280,8 @@
     This task will seek new ways of accepting contributions to
     mathematical software in a scalable way. For example we will
     experiment with integrating bug reporting and contributing
-    features right in the VRE (e.g., in \SMC).
+    features right in the VRE (e.g., in \SMC:
+    \delivref{component-architecture}{smc-trac}).).
   \end{task}
 \end{tasklist}
 
@@ -328,16 +371,14 @@
     \begin{wpdeliv}[due=12,id=virtual-machines,dissem=PU,nature=O]
       {Virtual images and containers} Creation and distribution of
       preconfigured cloud oriented virtual machines/containers
-      (e.g. Docker images) for \PariGP, \Sage, \dots
+      (e.g. Docker images) for \PariGP, \Sage, \SMC, \dots
       % Requires: licenses
     \end{wpdeliv}
 
-    \begin{wpdeliv}[due=24,id=sage-modularization,dissem=PU,nature=O]
-      {Modularization of the \Sage distribution}
-
-      Separation of the different components of \Sage (communication
-      with third-party softwares, build system, \Sage native
-      code). This is a prerequisite for \delivref{sage-distribution}.
+    \begin{wpdeliv}[due=24,id=sage-repository,dissem=PU,nature=O]
+      {Open package repository for \Sage} Refactor \Sage package and
+      build system to support community-contributed packages
+      installable via the web.
     \end{wpdeliv}
 
     \begin{wpdeliv}[due=48,id=sage-distribution,dissem=PU,nature=O]
@@ -360,6 +401,15 @@
     \begin{wpdeliv}[due=48,id=hpc-configure,dissem=PU,nature=O]
       {HPC enabled \Sage distribution}
     \end{wpdeliv}
+
+    \begin{wpdeliv}[due=6,id=smc-documentation,dissem=PU,nature=O]
+      {Understand and document \SMC backend code.}
+    \end{wpdeliv}%
+
+    \begin{wpdeliv}[due=24,id=personal-smc,dissem=PU,nature=DEM]
+      {\emph{Personal} \SMC: single user version of \SMC distributed
+        with \Sage.}
+    \end{wpdeliv}%
 
     \begin{wpdeliv}[due=24,id=smc-trac,dissem=PU,nature=O]
       {Integration between \SMC and \Sage's TRAC server}
