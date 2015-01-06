@@ -32,7 +32,7 @@ Conference attendance: we split these into EU conferences and overseas
 - 750 EUR for a visit to a EU partner per week, such as for coding
   sprints, one-to-one visits for particular research.
 
-- 750 EUR per week to invite people from outside the project.
+- 750 EUR per week to invite people from outside the project (although we request a flat 2000 EUR per site per year here)
 
 The actual expenses will vary: for example, we expect that it is more
 expensive to travel from Oslo (distance) or the UK (island) to
@@ -158,19 +158,20 @@ Travel expenses example
 Assume you have one investigator (I) and one FullTime Equivalent person
 (FTE) on the project for four years.
 
-The annual (!) travel costs following the guidelines above would be:
+The annual (!) travel costs following the guidelines above would be::
 
-1 international conferences (FTE) + 1 international conference (I)-> 2*2200 EUR
-2 EU conferences (FTE) + 1 EU conference (I) -> 3*1200 EUR
-4 weeks of visiting other sites -> 4*750 EUR
-2 project meetings (FTE) + 2 project meetings (I) -> 4*400
-Money to host visitors -> 2000
+  1 international conferences (FTE) + 1 international conference (I)-> 2*2200 EUR
+  2 EU conferences (FTE) + 1 EU conference (I) -> 3*1200 EUR
+  4 weeks of visiting other sites -> 4*750 EUR
+  2 project meetings (FTE) + 2 project meetings (I) -> 4*400
 
-Totals (2*2200 + 3*1200 + 4*750 + 4*400 + 2000)  = 14600
+  Money to host visitors -> 2000
 
-Over 4 years, that is 
+  Totals (2*2200 + 3*1200 + 4*750 + 4*400 + 2000)  = 14600
 
-(2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
+  Over 4 years, that is 
+
+  (2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
 
 
 While the total amount request needs to be specified via the portal
