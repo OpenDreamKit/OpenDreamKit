@@ -32,7 +32,8 @@ Conference attendance: we split these into EU conferences and overseas
 - 750 EUR for a visit to a EU partner per week, such as for coding
   sprints, one-to-one visits for particular research.
 
-- 750 EUR per week to invite people from outside the project (although we request a flat 2000 EUR per site per year here)
+- 750 EUR per week to invite people from outside the project (although
+  we request a flat 2000 EUR per site per year here)
 
 The actual expenses will vary: for example, we expect that it is more
 expensive to travel from Oslo (distance) or the UK (island) to
@@ -84,7 +85,7 @@ As a guideline we suggest:
 
 
 Where we have multiple investigators per site, the 'investigator'
-money may have to be shared between the investigators to avoid
+money has to be shared between the investigators to avoid
 unreasonable total costs.
 
 
@@ -169,14 +170,35 @@ The annual (!) travel costs following the guidelines above would be::
 
   Totals (2*2200 + 3*1200 + 4*750 + 4*400 + 2000)  = 14600
 
-  Over 4 years, that is 
+Over 4 years, that is::
 
   (2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
 
+This includes 8 project meetings, and is appropriate for sites that
+host a project meeting. If your site is not hosting a project meeting,
+you will need to attend 9 meetings (2 per year, plus initial kick-off
+or plus final end-of-project meeting - depending on where you start to
+count), which increases the cost for the example to 58400 + 2*400 =
+59200.
 
-While the total amount request needs to be specified via the portal
+
+Where a researcher is not employed for the full 48 months of the
+project, the travel costs should be reduced accordingly. Where more
+than one full time research is employed, we may increase the costs
+accordingly. Use common sense, but we must be prepared to explain the
+logic behind it.
+
+
+While the total amount requested needs to be specified via the portal
 and spreadsheets (the EU support offices/ finance teams should know),
-we should also explain in the proposal what costs we expect and why. We are putting a general item for this in H2020/resources.tex (reflecting what is written above). Furthermore, each partner for which the non-staff expenses (that's travel and equipment, for example) exceed 15% of the total cost, needs to complete a small table explaining why these costs are necessary. It seems likely that this applies to many partners.
+we should also explain in the proposal what costs we expect and
+why. We are putting a general item for this in ``H2020/resources.tex``
+(reflecting what is written above). 
+
+Furthermore, each partner for which the non-staff expenses (that's
+travel and equipment, for example) exceed 15% of the total cost, needs
+to complete a small table explaining why these costs are necessary. It
+seems likely that this applies to many partners.
 
 
 
