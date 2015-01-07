@@ -10,15 +10,15 @@
 \ProvidesClass{euproposal}[2013/01/13 v1.4 EU Proposal]
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
 \ProcessOptions
-\LoadClass[report,noRAM]{proposal}
+\LoadClass[noRAM]{proposal}
 \RequirePackage{longtable}
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
-\def\thepart{\Alph{part}}
-\setcounter{part}{2}
-\def\thechapter{\thepart.\arabic{chapter}}
-\def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
+%\def\thepart{\Alph{part}}
+%\setcounter{part}{2}
+%\def\thechapter{\thepart.\arabic{chapter}}
+%\def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
 \newcommand\prop@sites@table{\def\@@table{}
 {\let\tabularnewline\relax\let\hline\relax
 \@for\@I:=\prop@gen@sites\do{\xdef\@@table{\@@table\pdataref{site}\@I{number}}

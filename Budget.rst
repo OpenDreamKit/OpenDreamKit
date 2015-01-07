@@ -32,7 +32,8 @@ Conference attendance: we split these into EU conferences and overseas
 - 750 EUR for a visit to a EU partner per week, such as for coding
   sprints, one-to-one visits for particular research.
 
-- 750 EUR per week to invite people from outside the project.
+- 750 EUR per week to invite people from outside the project (although
+  we request a flat 2000 EUR per site per year here)
 
 The actual expenses will vary: for example, we expect that it is more
 expensive to travel from Oslo (distance) or the UK (island) to
@@ -45,9 +46,10 @@ are all aiming for good science and are likely to help each other out
 to achieve this together. For now, we need to maximise the chances of
 getting the funding.
 
-See below for recommended frequency of these events. 
+See below for recommended frequency of these events.
 
-
+(rule in Orsay: no more than 143 euro per day in local expenses for a
+trip in Europe; somewhat less in France).
 
 Max frequency of events
 -----------------------
@@ -83,7 +85,7 @@ As a guideline we suggest:
 
 
 Where we have multiple investigators per site, the 'investigator'
-money may have to be shared between the investigators to avoid
+money has to be shared between the investigators to avoid
 unreasonable total costs.
 
 
@@ -91,7 +93,7 @@ Partner visits and workshop attendance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One-to-One partner site visits: For every partner, expect 3-4 visits per
-year for one person to other partner sites. (i.e. 2 x 750EUR per
+year for one person to other partner sites. (i.e. 3 to 4 x 750EUR per
 year). This is also used to attend workshops, so that the visit
 coincides with the workshop where possible.
 
@@ -157,26 +159,46 @@ Travel expenses example
 Assume you have one investigator (I) and one FullTime Equivalent person
 (FTE) on the project for four years.
 
-The annual (!) travel costs following the guidelines above would be:
+The annual (!) travel costs following the guidelines above would be::
 
-1 international conferences (FTE) + 1 international conference (I)-> 2*2200 EUR
-2 EU conferences (FTE) + 1 EU conference (I) -> 3*1200 EUR
-4 weeks of visiting other sites -> 4*750 EUR
-2 project meetings (FTE) + 2 project meetings (I) -> 4*400
-Money to host visitors -> 2000
+  1 international conferences (FTE) + 1 international conference (I)-> 2*2200 EUR
+  2 EU conferences (FTE) + 1 EU conference (I) -> 3*1200 EUR
+  4 weeks of visiting other sites -> 4*750 EUR
+  2 project meetings (FTE) + 2 project meetings (I) -> 4*400
 
-Totals (2*2200 + 3*1200 + 4*750 + 4*400 + 2000)  = 14600
+  Money to host visitors -> 2000
 
-Over 4 years, that is 
+  Totals (2*2200 + 3*1200 + 4*750 + 4*400 + 2000)  = 14600
 
-(2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
+Over 4 years, that is::
+
+  (2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
+
+This includes 8 project meetings, and is appropriate for sites that
+host a project meeting. If your site is not hosting a project meeting,
+you will need to attend 9 meetings (2 per year, plus initial kick-off
+or plus final end-of-project meeting - depending on where you start to
+count), which increases the cost for the example to 58400 + 2*400 =
+59200.
 
 
-While the total amount request needs to be specified via the portal
+Where a researcher is not employed for the full 48 months of the
+project, the travel costs should be reduced accordingly. Where more
+than one full time research is employed, we may increase the costs
+accordingly. Use common sense, but we must be prepared to explain the
+logic behind it.
+
+
+While the total amount requested needs to be specified via the portal
 and spreadsheets (the EU support offices/ finance teams should know),
-it is not clear where exactly in the submission we need to explain how the travel cost
-is budgeted, i.e. on what basis we request that money [which is
-basically what is described above]. Does anybody know?
+we should also explain in the proposal what costs we expect and
+why. We are putting a general item for this in ``H2020/resources.tex``
+(reflecting what is written above). 
+
+Furthermore, each partner for which the non-staff expenses (that's
+travel and equipment, for example) exceed 15% of the total cost, needs
+to complete a small table explaining why these costs are necessary. It
+seems likely that this applies to many partners.
 
 
 

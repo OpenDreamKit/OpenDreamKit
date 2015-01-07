@@ -76,21 +76,24 @@ One per year around January, usually in Bordeaux
 Singular-* Days
 ---------------
 
-IPython-* Days
+Jupyter-* Days
 --------------
 
-Join workshops
+Joint workshops
 --------------
 
-IPython-Sage, year ????
+Sage-Sphinx documentation days, Spring 2016, Orsay; organizer: Thiéry
+This could be one of the workshops at Cernay.
+
+Jupyter-Sage, year ????
 
 LMFDB-Sage, year 2016
 
 Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
 
 
-Women in OpenDreams / Scientific development
-============================================
+Women in OpenDreamsKit / Scientific development
+===============================================
 
 Analogs of the Women in Sage series (http://wiki.sagemath.org/days62)
 

@@ -67,5 +67,8 @@ distclean: clean
 echo:
 	echo $(BBL)
 
+singlerun:
+	pdflatex proposal.tex
+
 TOWRITE: *.tex */*.tex
 	grep TOWRITE *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
