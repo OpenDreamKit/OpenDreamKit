@@ -109,7 +109,10 @@
 %
 % As usual in {\LaTeX}, the package is loaded by
 % |\documentclass[|\meta{options}|]{euproposal}|, where |[|\meta{options}|]| is optional
-% and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:svn}.
+% and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:svn}.  Some
+% versions EU proposals want non-standard numbering schemes (e.g. starting with
+% \textbf{B...} since we are writing Part B.), this can be reached by giving the |propB|
+% option.
 % 
 % \subsection{Proposal Metadata and Title page}\label{sec:user:metadata}
 % 
@@ -186,7 +189,11 @@
 % We first set up the options for the package. 
 % 
 %    \begin{macrocode}
-%<cls>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
+%<*cls>
+\newif\ifpartB\partBfalse
+\DeclareOption{partB}{\partBtrue}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
+%</cls>
 %<reporting>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{reporting}}
 %<cls|reporting>\ProcessOptions
 %    \end{macrocode}
@@ -194,7 +201,7 @@
 %    Then we load the packages we make use of
 % 
 %    \begin{macrocode}
-%<cls>\LoadClass[report,noRAM]{proposal}
+%<cls>\ifpartB\LoadClass[report,noRAM]{proposal}\else\LoadClass[noRAM]{proposal}\fi
 %<reporting>\LoadClass[report,noRAM]{reporting}
 %<*cls|reporting>
 \RequirePackage{longtable}
@@ -239,15 +246,17 @@
 % and the default values, these will be used, if the author does not specify something
 % better.
 %
-% We need to redefine some of the internal counters and table of contents mechanisms to
-% adapt to the fact that the proposal text is just Part B. 
+% If the |propB| option is given, wwe need to redefine some of the internal counters and
+% table of contents mechanisms to adapt to the fact that the proposal text is just Part B.
 %
 %    \begin{macrocode}
 %<*cls>
+\ifpartB
 \def\thepart{\Alph{part}}
 \setcounter{part}{2}
 \def\thechapter{\thepart.\arabic{chapter}}
 \def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
+\fi
 %    \end{macrocode}
 % 
 % \begin{macro}{\prop@sites@table}
@@ -404,18 +413,17 @@
 % 
 % \begin{macro}{\wpheadertable}
 %   We redefine the macro that computes the default work package header table, since there
-%   are more sites in a EU proposal
+%   are more sites in a EU proposal, we do this in a tabular form as asked for in the
+%   template. We use the internal counter |@sites@po| (sites plus one) for convenience.
 %    \begin{macrocode}
 \newcounter{@sitespo}\newcounter{@sitespt}
 \renewcommand\wpheadertable{%
 \wp@sites@efforts@lines%
 \setcounter{@sitespo}{\thewp@sites@num}\addtocounter{@sitespo}{1}%
-\setcounter{@sitespt}{\thewp@sites@num}\addtocounter{@sitespt}{2}%
 \par\noindent\begin{tabular}{|l|*{\thewp@sites@num}{c|}c|}\hline%
-\multicolumn{\the@sitespt}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
-\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}\\\hline%
-\textbf{Start: }\pdataref{wp}\wp@id{start}&%
-\multicolumn{\the@sitespo}{l|}{\textbf{Activity Type: }\pdataref{wp}\wp@id{type}}\\\hline%
+\multicolumn{\the@sitespo}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
+\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}
+&\textbf{Start: }\pdataref{wp}\wp@id{start}\\\hline%
 \wp@sites@line\\\hline%
 \wp@efforts@line\\\hline%
 \end{tabular}\smallskip\par\noindent\ignorespaces}
