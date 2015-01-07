@@ -1,3 +1,33 @@
+=============================
+Meetings per organizing sites
+=============================
+
+Orsay
+-----
+
+On site (or Cernay): Project meetings x 2 + 4 times Cernay + 1 Jupyter-Sage + 2 Women in Sage
+External: CIRM ?
+
+Université Joseph Fourier (Grenoble)
+------------------------------------
+HPC meeting
+
+Université de Bordeaux
+----------------------
+HPC meeting
+4 x Ateliers PARI
+
+Warwick
+-------
+LMFDB-Sage
+
+Saint Andrews
+-------------
+ICMS: Gap-Sage-Singular + user reaching meeting
+
+
+
+
 ================
 Project meetings
 ================
