@@ -8,17 +8,21 @@
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{euproposal}[2013/01/13 v1.4 EU Proposal]
+\newif\ifpartB\partBfalse
+\DeclareOption{partB}{\partBtrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
 \ProcessOptions
-\LoadClass[noRAM]{proposal}
+\ifpartB\LoadClass[report,noRAM]{proposal}\else\LoadClass[noRAM]{proposal}\fi
 \RequirePackage{longtable}
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
-%\def\thepart{\Alph{part}}
-%\setcounter{part}{2}
-%\def\thechapter{\thepart.\arabic{chapter}}
-%\def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
+\ifpartB
+\def\thepart{\Alph{part}}
+\setcounter{part}{2}
+\def\thechapter{\thepart.\arabic{chapter}}
+\def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
+\fi
 \newcommand\prop@sites@table{\def\@@table{}
 {\let\tabularnewline\relax\let\hline\relax
 \@for\@I:=\prop@gen@sites\do{\xdef\@@table{\@@table\pdataref{site}\@I{number}}
@@ -125,12 +129,10 @@
 \renewcommand\wpheadertable{%
 \wp@sites@efforts@lines%
 \setcounter{@sitespo}{\thewp@sites@num}\addtocounter{@sitespo}{1}%
-\setcounter{@sitespt}{\thewp@sites@num}\addtocounter{@sitespt}{2}%
 \par\noindent\begin{tabular}{|l|*{\thewp@sites@num}{c|}c|}\hline%
-\multicolumn{\the@sitespt}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
-\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}\\\hline%
-\textbf{Start: }\pdataref{wp}\wp@id{start}&%
-\multicolumn{\the@sitespo}{l|}{\textbf{Activity Type: }\pdataref{wp}\wp@id{type}}\\\hline%
+\multicolumn{\the@sitespo}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
+\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}
+&\textbf{Start: }\pdataref{wp}\wp@id{start}\\\hline%
 \wp@sites@line\\\hline%
 \wp@efforts@line\\\hline%
 \end{tabular}\smallskip\par\noindent\ignorespaces}
