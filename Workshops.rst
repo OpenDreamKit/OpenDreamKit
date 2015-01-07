@@ -117,6 +117,15 @@ Opportunities:
 - Graduate student training program of GDR-IM in France
 - CIRM, Oberwolfach, RISC, ...
 
+One training workshop organized by Orsay (Loïc) in France, with
+lectures by Neil/Hans/... 3 jours / 40 personnes. 16k euros
+
+Action JDev 2017 et 2019: 2 x 2500 euros
+
+Two local (for onsite persons, so no local expenses) workshop
+organized by Orsay (in Orsay and Grenoble?) by Loïc on code
+optimization with Python/Cythran/... 3 jours 3-4000 euros.
+
 Notes from Neil on the IPython Workshops
 ========================================
 
