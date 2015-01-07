@@ -5,8 +5,10 @@ Meetings per organizing sites
 Orsay
 -----
 
-On site (or Cernay): Project meetings x 2 + 4 times Cernay + 1 Jupyter-Sage + 2 Women in Sage
+In Orsay (or Cernay): Project meetings x 2 + 4 times Cernay + 1 Jupyter-Sage + 2 Women in Sage
+Training for locals: 2 (~3 days, 3-4000 euros each)
 External: CIRM ?
+
 
 Université Joseph Fourier (Grenoble)
 ------------------------------------
