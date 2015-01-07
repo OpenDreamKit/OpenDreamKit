@@ -3,7 +3,7 @@ PACKAGE = eu
 TDSCOLL = proposal
 DTX.cls.base = euproposal
 TDS.tex = eureporting.cls eupdata.sty
-EXDIRS = examples
+#EXDIRS = examples
 
 all: package doc
 	@for d in $(EXDIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) $@); done;

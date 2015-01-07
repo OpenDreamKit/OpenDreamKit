@@ -18,12 +18,7 @@ As leader of a workpackage
 
 Edit the file WorkPackages/<WorkPackageName>.tex.
 
-- Objectives: 5-10 lines typically itemized
-- Description: as appropriate; typically 10 lines to half a page
-  depending on the variety and number of tasks
-- Number of tasks: as appropriate; typically 3-5?
-- Each task: 5-15 lines, 1-3 deliverables
-
+See WorkPackages/template.tex for further instructions.
 
 As leader of a participating institution:
 -----------------------------------------
@@ -57,11 +52,44 @@ Over the Christmas break:
 - proofreading and wording improvement
 - collect feedback from the community
 
-January 10th:
-- final version
+Wednesday 7-th:
 
-January 14th:
-- submission
+- Tentative list of workshops at each site
+
+  We don't actually need a complete list; just to have an approximate
+  number of workshops run at each site to prepare the budget
+  accordingly.
+
+  When relevant, workshops can be mentioned in tasks (in particular
+  for dissemination tasks!), and and workshop reports can be
+  deliverables. Such reports, especially for a "training workshop" can
+  be quite short (1-2 pages).
+
+Thursday 8-th:
+- Finalized budget
+  Eugenia will make a call tomorrow morning with details. In short
+  this means that the following information needs to be essentially
+  set in stone for each site:
+  - Involvement (in Person-Months + salary) of each participating person
+  - Hiring budget (in Person-Months + salary)
+  - Travel budget  (see H2020/Budget.rst for guidelines)
+  - Workshop budget
+  - Other direct costs
+
+- Mostly final involvement (in Person-Month) of each participating
+  institution in each work package.
+
+Once this is done, there "just" remains to finalize the pdf document.
+
+Sunday 11-th:
+- I would like to see all the text completely written so that we can
+  focus on final proofreading and little formulation improvements.
+
+Tuesday 13-th:
+- Presubmission of a completely acceptable version
+
+Wednesday 14th:
+- Final submission (last typo fixes, ...)
 
 Collaborative tool
 ------------------
@@ -117,3 +145,10 @@ codes::
     PP = Restricted to other programme participants (including the Commission Services).
     RE = Restricted to a group specified by the consortium (including the Commission Services).
     CO = Confidential, only for members of the consortium (including the Commission Services).
+
+Bibliography
+------------
+
+If you need to add a bibTeX data base foo.bib, please commit it, and
+add a line \addbibresource{foo.bib} near the other ones at the top of
+proposal.tex. We are using biblatex.sty because it is more versatile.

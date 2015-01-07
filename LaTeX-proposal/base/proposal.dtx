@@ -296,8 +296,11 @@
 % In the work packages we can list tasks that need to be undertaken with the
 % \DescribeEnv{tasklist}|tasklist| environment. The individual tasks are marked up with
 % the \DescribeEnv{task}|task| environment.  This takes a keyval argument with the keys
-% |id| for identification, |title| for a title, and the workphase keys (see
-% Section~\ref{sec:user:workphase}).
+% |id| for identification, |title| for a title, and the workphase keys |wphrases|,
+% |start|, |end|, and |force| (see Section~\ref{sec:user:workphase}). For planning
+% involvement we can specify the overall person months via the |PM| key, the task lead via
+% |lead|, and the partners involved via the |partners| key. Finally task dependencies can
+% be specified via the |requires| key. 
 % 
 % Tasks can be referenced by the \DescribeMacro{\taskref}|\taskref| macro that takes two
 % arguments: the work package identifier and the task identifier. As for work packages and
@@ -1227,7 +1230,7 @@
 % 
 % \begin{macro}{\deliv@label}
 %    \begin{macrocode}
-\newcommand\deliv@label[1]{M{#1}}
+\newcommand\deliv@label[1]{D{#1}}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -1455,9 +1458,10 @@
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
-\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}\@dmp{title=#1}}
+\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
 \define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}\@dmp{lead=#1}}
 \define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}\@dmp{partners=#1}}
+\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}\@dmp{PM=#1}}
 %    \end{macrocode}
 % then we define an auxiliary function that gives them sensible defaults and sets the
 % internal macros.
@@ -1924,12 +1928,16 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 %    \end{macrocode}
 % And we finally have a line for the intended totals which we use in draft mode. 
 %    \begin{macrocode}
-\gdef\intended@totals{}
+\gdef\intended@totals{}\gdef\requested@totals{}
 \if@sites
 \@for\@site:=\prop@gen@sites\do{
 \xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{site}\@site{intendedRM}}}
+\xdef\requested@totals{\requested@totals&\pdataref@safe{site}\@site{reqPM}}
 \if@RAM\xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{site}\@site{intendedRAM}}}\fi}
-\if@RAM\xdef\intended@totals{\intended@totals&&}\else\xdef\intended@totals{\intended@totals&}\fi
+\if@RAM\xdef\intended@totals{\intended@totals&&}\else%
+\xdef\intended@totals{\intended@totals&}%
+\xdef\requested@totals{\requested@totals&}%
+\fi
 \else% if@sites
 \xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{all}{intended}{RM}}}
 \if@RAM\xdef\intended@totals{\intended@totals&\textbf{\pdataref@safe{all}{intended}{RAM}}}\fi
@@ -1942,14 +1950,17 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \begin{wp@figure}
 \@wp@lines\hline%
 \multicolumn{\the\local@count}{|c|}{\prop@legend@totals}\@totals\\\hline%
-\ifsubmit\else\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}%
-\intended@totals\\\hline\fi
+\ifsubmit\else%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline
+\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline
+\fi
 \end{wp@figure}}
 %    \end{macrocode}
 % and now multilinguality support 
 %    \begin{macrocode}
 \newcommand\prop@legend@totals{\textbf{totals}}
 \newcommand\prop@legend@intendedtotals{\textbf{intended totals}}
+\newcommand\prop@legend@requestedtotals{\textbf{requested totals}}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -2330,6 +2341,8 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % 
 % 
 % \begin{macro}{\@dmp}
+%   The |\@dmp| macro shows metadata information about the keys in the margin if
+%   |\keystrue| is specified. This is a debugging tool.
 %    \begin{macrocode}
 \def\@dmp#1{\ifkeys\marginpar{#1}\fi}
 %    \end{macrocode}
@@ -2353,12 +2366,12 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  workaddress atabline workfax Privatanschrift privaddress privtel ifgitinfo
 % LocalWords:  dt Kennwort Fachgebiet und Arbeitsrichtung Voraussichtliche wa fancyfoot
 % LocalWords:  Gesamtdauer Antragszeitraum Zusammenfassung workarea wp wps num prop@gen
-% LocalWords:  refundefinedtrue lightgray gantt xstep Unterschriften Id areas acro
+% LocalWords:  refundefinedtrue lightgray gantt xstep Unterschriften Id areas acro Lutz
 % LocalWords:  submit hide ed public article paper today array comment wide RE tweakable
 % LocalWords:  babel true bookmarks blue LO LE page of prop sites key site RM hypertarget
 % LocalWords:  def id title acronym discipline start months Proposal Erg by cls endinput
-% LocalWords:  empty em name affiliation Applicants Work Address email The pn
-% LocalWords:  curriculum vita the applicants are enclosed appendix reference
+% LocalWords:  empty em name affiliation Applicants Work Address email The pn Hartenstein
+% LocalWords:  curriculum vita the applicants are enclosed appendix reference Schr
 % LocalWords:  Research area and field work Scientific Fields Anticipated write
 % LocalWords:  duration Application period Summary short lead Package label task
 % LocalWords:  tasks deps number line Effort target ids count warning at pdata
@@ -2416,3 +2429,9 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  wpfigstyle colspan keyvals gantttaskchart baselinestretch NeedsTeXFormat
 % LocalWords:  mileref mileref miletref backref firstinits wissenschaftlicher
 %  LocalWords:  wissenschaftliche startend@wphases addtocategory
+
+% \endinput
+% Local Variables:
+% mode: doctex
+% TeX-master: t
+% End:

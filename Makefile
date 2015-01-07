@@ -12,8 +12,8 @@ TBIB.pdf 	= $(TBIB:%.tex=%.pdf)         	  # PDFs to be produced
 TBIB.aux 	= $(TBIB:%.tex=%.aux)             # their aux files.
 PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
 SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
-PDFLATEX = pdflatex -interaction batchmode -file-line-error
-BBL.base = 1 2 3 4
+PDFLATEX = pdflatex -interaction scrollmode -file-line-error
+BBL.base =# 1 2 3 4
 BBL = $(PROPOSAL:%.tex=%.bbl) $(BBL.base:%=$(PROPOSAL:%.tex=%)%-blx.bbl)
 PROPCLS.dir = $(PROP.dir)/base
 PROPETC.dir = $(PROP.dir)/etc
@@ -63,6 +63,12 @@ clean:
 distclean: clean
 	rm -f *.aux *.out *.run.xml *.bbl *.toc *.deliv* *.pdata
 	rm -Rf auto
-
+	rm -f proposal.fls
 echo:
 	echo $(BBL)
+
+singlerun:
+	pdflatex proposal.tex
+
+TOWRITE: *.tex */*.tex
+	grep TOWRITE *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE

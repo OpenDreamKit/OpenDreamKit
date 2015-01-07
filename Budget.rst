@@ -11,6 +11,14 @@ Common activities include
 - project meetings
 - coding sprints
 - visits at partner sites
+- inviting visitors from outside the project.
+
+
+Cost guidelines per activity
+----------------------------
+
+Conferences, visits
+~~~~~~~~~~~~~~~~~~~
 
 Suggested costs for these categories:
 
@@ -24,6 +32,9 @@ Conference attendance: we split these into EU conferences and overseas
 - 750 EUR for a visit to a EU partner per week, such as for coding
   sprints, one-to-one visits for particular research.
 
+- 750 EUR per week to invite people from outside the project (although
+  we request a flat 2000 EUR per site per year here)
+
 The actual expenses will vary: for example, we expect that it is more
 expensive to travel from Oslo (distance) or the UK (island) to
 Karlsruhe than it is from France, but once partners from Germany or
@@ -35,11 +46,73 @@ are all aiming for good science and are likely to help each other out
 to achieve this together. For now, we need to maximise the chances of
 getting the funding.
 
-Training and developer workshops
---------------------------------
+See below for recommended frequency of these events.
+
+(rule in Orsay: no more than 143 euro per day in local expenses for a
+trip in Europe; somewhat less in France).
+
+Max frequency of events
+-----------------------
+
+Project meetings
+~~~~~~~~~~~~~~~~
+
+- Allow 400 EUR per person per project to attend 6-monthly project
+  meetings (i.e. 800 EUR per year).
+
+  [Those organising the project meetings should budget money to
+  provide accommodation to attendees.]
+
+
+Conference attendance frequency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We generally engage with two communities: (i) the tools/open source
+(Python, PyCon, EuroPython, SciPy), and (ii) discipline specific
+(Maths, science, engineering, etc). It is important to engage with
+the tools/open source community to network, collaborate,
+contribute and exploit latest trends and important to stay in touch
+with the application domain to disseminate the MathVRE project and to
+keep in touch with the state-of-the-art developments and needs.
+
+
+As a guideline we suggest:
+
+- 1 international conferences, and 2 european conferences, per year for each person
+  working full time on the project 
+- 1 international conference and 1 european meeting for each
+  investigator per year
+
+
+Where we have multiple investigators per site, the 'investigator'
+money has to be shared between the investigators to avoid
+unreasonable total costs.
+
+
+Partner visits and workshop attendance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+One-to-One partner site visits: For every partner, expect 3-4 visits per
+year for one person to other partner sites. (i.e. 3 to 4 x 750EUR per
+year). This is also used to attend workshops, so that the visit
+coincides with the workshop where possible.
+
+
+Visitors
+~~~~~~~~
+
+Inviting visitors from outside the consortium, also to host interns or
+others that contribute value to the project
+
+- Allowing the equivalent of about 3 weeks (2000 EUR) per year per site
+
+
+
+Organising training and development workshops (including sprints)
+-----------------------------------------------------------------
 
 Training workshops are more difficult: they engage different
-communities, and will have different requiremens. Some data from the
+communities, and will have different requirements. Some data from the
 past Sage days:
 
 The usual, quite successful, format of Sage days is 5 days, 2-3 with
@@ -48,7 +121,7 @@ days of coding.
 
        http://wiki.sagemath.org/Workshops
 
-Budget for our yearly developers meeting in Orsay: roughly 4k euros
+The budget for our yearly developers meeting in Orsay: roughly 4k euros
 for the local expenses for 12 people, that's about 350EUR per person
 to accommodate them and provide food. We achieve this by renting a big
 house and cooking ourselves (which also has strong community building
@@ -63,54 +136,74 @@ and accommodation of some good proportion of the participants, with a
 priority on invited people and graduate students, i.e. 400 EUR per
 attendee.
 
+The recommendation is that work shop organisers ask for money to host
+the work shop (some guidance numbers above in this section) but take
+into account what is realistic: what does it cost to host 10 / 20 / 30
+/ 40 people for a week in your area, etc.
 
-Frequency of events
--------------------
-
-Depend a little on purpose. Suggestions are:
-
-One-to-One partner site visits: For every partner, expect 2 visits per
-year for one person to other partner sites. (i.e. 2 x 750EUR per
-year).
-
-Conference attendance: One overseas and one EU-conference for each
-post-doc and one investigator per site per year.
+Expect that attendees will pay their own travel, but rely on
+accommodation and catering from you.
 
 
+Hardware 
+--------
 
-Training and developer workshops
---------------------------------
+If you can't recover this from the indirect cost this: add note on
+needing a high-end laptop 2000 EUR per person per site. This may include
+buying a hardware refresh half way through the project.
 
-The usual, quite successful, format of Sage days is 5 days, 2-3 with
-presentations, and the rest just working hard. Or sometimes just 5
-days of coding.
 
-       http://wiki.sagemath.org/Workshops
+Travel expenses example
+-----------------------
 
-Budget for our yearly developpers meeting in Orsay: roughly 3-4k euros
-for the local expenses for 12 people. We achieve this by renting a big
-house and cooking ourselves (which also has strong community building
-virtues):
+Assume you have one investigator (I) and one FullTime Equivalent person
+(FTE) on the project for four years.
 
-       http://wiki.sagemath.org/days57
+The annual (!) travel costs following the guidelines above would be::
 
-Budgeting for project partners
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  1 international conferences (FTE) + 1 international conference (I)-> 2*2200 EUR
+  2 EU conferences (FTE) + 1 EU conference (I) -> 3*1200 EUR
+  4 weeks of visiting other sites -> 4*750 EUR
+  2 project meetings (FTE) + 2 project meetings (I) -> 4*400
 
-4000 for 12 means 333 per person. That is accommodation and
-food. Attendees will need to budget travel expenses themselves in
-their project budget. Alternatively, we can budget 750 EUR per
-attendee to cover all costs (inline with our numbers for other
-activities) to keep things simple.
+  Money to host visitors -> 2000
 
-Budgeting to engage people from outside the project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Totals (2*2200 + 3*1200 + 4*750 + 4*400 + 2000)  = 14600
 
-Financial support for outreach: For traditional Sage days,
-we typically budget 16k euros for about 40 people, which allows to pay
-for the travel and accommodation of some good proportion of the
-participants, with a priority on invited people and graduate
-students. That means we are asking to subsidise attendance of
-workshops by 400 EUR per person on average.
+Over 4 years, that is::
+
+  (2*2200 + 3*1200 + 4*750 + 4*400 + 2000) * 4 = 58400 
+
+This includes 8 project meetings, and is appropriate for sites that
+host a project meeting. If your site is not hosting a project meeting,
+you will need to attend 9 meetings (2 per year, plus initial kick-off
+or plus final end-of-project meeting - depending on where you start to
+count), which increases the cost for the example to 58400 + 2*400 =
+59200.
+
+
+Where a researcher is not employed for the full 48 months of the
+project, the travel costs should be reduced accordingly. Where more
+than one full time research is employed, we may increase the costs
+accordingly. Use common sense, but we must be prepared to explain the
+logic behind it.
+
+
+While the total amount requested needs to be specified via the portal
+and spreadsheets (the EU support offices/ finance teams should know),
+we should also explain in the proposal what costs we expect and
+why. We are putting a general item for this in ``H2020/resources.tex``
+(reflecting what is written above). 
+
+Furthermore, each partner for which the non-staff expenses (that's
+travel and equipment, for example) exceed 15% of the total cost, needs
+to complete a small table explaining why these costs are necessary. It
+seems likely that this applies to many partners.
+
+
+
+
+
+
 
 

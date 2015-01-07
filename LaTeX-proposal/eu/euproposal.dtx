@@ -94,7 +94,7 @@
 %   macros/latex/base/lppl.txt.  Either version 1.0 or, at your option, any later
 %   version. The CTAN archive always contains the latest stable version, the development
 %   version can be found at \url{https://github.com/KWARC/LaTeX-proposal}. For bug reports
-%   please use the sTeX trac at \url{https://github.com/KWARC/LaTeX-proposal/issues}.
+%   please use the sTeX TRAC at \url{https://github.com/KWARC/LaTeX-proposal/issues}.
 %   
 % \section{The User Interface}\label{sec:user-interface}
 % 
@@ -109,7 +109,10 @@
 %
 % As usual in {\LaTeX}, the package is loaded by
 % |\documentclass[|\meta{options}|]{euproposal}|, where |[|\meta{options}|]| is optional
-% and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:svn}.
+% and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:svn}.  Some
+% versions EU proposals want non-standard numbering schemes (e.g. starting with
+% \textbf{B...} since we are writing Part B.), this can be reached by giving the |propB|
+% option.
 % 
 % \subsection{Proposal Metadata and Title page}\label{sec:user:metadata}
 % 
@@ -186,7 +189,11 @@
 % We first set up the options for the package. 
 % 
 %    \begin{macrocode}
-%<cls>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
+%<*cls>
+\newif\ifpartB\partBfalse
+\DeclareOption{partB}{\partBtrue}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
+%</cls>
 %<reporting>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{reporting}}
 %<cls|reporting>\ProcessOptions
 %    \end{macrocode}
@@ -194,7 +201,7 @@
 %    Then we load the packages we make use of
 % 
 %    \begin{macrocode}
-%<cls>\LoadClass[report,noRAM]{proposal}
+%<cls>\ifpartB\LoadClass[report,noRAM]{proposal}\else\LoadClass[noRAM]{proposal}\fi
 %<reporting>\LoadClass[report,noRAM]{reporting}
 %<*cls|reporting>
 \RequirePackage{longtable}
@@ -239,15 +246,17 @@
 % and the default values, these will be used, if the author does not specify something
 % better.
 %
-% We need to redefine some of the internal counters and table of contents mechanisms to
-% adapt to the fact that the proposal text is just Part B. 
+% If the |propB| option is given, wwe need to redefine some of the internal counters and
+% table of contents mechanisms to adapt to the fact that the proposal text is just Part B.
 %
 %    \begin{macrocode}
 %<*cls>
+\ifpartB
 \def\thepart{\Alph{part}}
 \setcounter{part}{2}
 \def\thechapter{\thepart.\arabic{chapter}}
 \def\numberline#1{\hb@xt@\@tempdima{#1\hfil} }
+\fi
 %    \end{macrocode}
 % 
 % \begin{macro}{\prop@sites@table}
@@ -313,28 +322,73 @@
 \def\prop@gen@instrument{Proposal Instrument (e.g. IP)}
 %    \end{macrocode}
 %
+% \subsection{Site Descriptions}\label{sec:sitedesc}
+% \ednote {this functionality should probably be refactored into proposal.dtx}
+%
 % \begin{environment}{sitedescription}
-%    \ednote{this code should probably be refactored into proposal.dtx}
+%   \ednote{document this above} |\begin{sitedescritpion}[|\meta{opt}|]{\meta{site}}|
+%     marks up the description for the site \meta{site}. It looks up the relevant metadata
+%     from the respective |\WAinstitution| declarations.  The options argument \meta{opt}
+%     is a key-value list for the keys \DescribeMacro{logo}|logo| (add the logo from
+%     |\WAinstitution| to the site description), \DescribeMacro{width}|width|,
+%     \DescribeMacro{height}|height| (intended dimensions of the logo), \ednote{more?}.
 %    \begin{macrocode}
-\newenvironment{sitedescription}[2][]{\def\@test{#1}%
-\begin{wrapfigure}{r}{5.4cm}\vspace{-2.5ex}%
-\begin{tabular}{|p{5cm}|}\hline\vspace{1mm}%
-\ifx\@test\@empty%
-\wa@institution@logo[height=1.3cm]{#2}\else%
-\wa@institution@logo[#1]{#2}\fi\\[1ex]%
+\define@key{site@desc}{box}[true]{\def\site@desc@box{#1}%
+\pdata@def{sitedesc}{\@site}{box}{#1}}
+\define@key{site@desc}{logo}[true]{\def\site@desc@logo{#1}%
+\pdata@def{sitedesc}{\@site}{logo}{#1}}
+\define@key{site@desc}{width}{\def\site@desc@width{#1}%
+\pdata@def{sitedesc}{\@site}{width}{#1}\@dmp{wd=#1}}
+\define@key{site@desc}{height}{\def\site@desc@height{#1}%
+\pdata@def{sitedesc}{\@site}{height}{#1}\@dmp{ht=#1}}
+\newenvironment{sitedescription}[2][]%
+{\def\@site{#2}% remember the site ID
+\newcounter{site@#2@PM} % for the site PM
+\def\site@desc@box{false}% not box unless requested
+\def\site@desc@logo{false}% not logo unless requested
+\def\site@desc@height{1.3cm}% default height
+\def\site@desc@width{5cm}% default width
+\setkeys{site@desc}{#1}% read the keys to overwrite the defaults
+\ifx\@site@desc@box\@true% if we want a logo 
+\begin{wrapfigure}{r}{\site@desc@width}\vspace{-2.5ex}%
+\begin{tabular}{|p{\site@desc@width}|}\hline\vspace{1mm}%
+\ifx\@site@desc@logo\@true% if we want a logo 
+\wa@institution@logo[height=\site@desc@width]{#2}\\[1ex]%
+\fi% end logo 
 \textbf{\wa@ref{institution}{#2}{type}.\hfill \wa@ref{institution}{#2}{country}}\\%
 \small\wa@ref{institution}{#2}{streetaddress}, \wa@ref{institution}{#2}{townzip}\\\hline%
 \end{tabular}\vspace{-2.5ex}%
 \end{wrapfigure}%
+\fi% end box
 \pdata@target{site}{#2}%
-{\subsection{\wa@ref{institution}{#2}{acronym}:%
+{\subsection{\wa@ref{institution}{#2}{acronym}: % space here
 {\textsc{\wa@ref{institution}{#2}{name}}  (\wa@ref{institution}{#2}{countryshort})}}}%
 \small%
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
                                     {0.25ex \@plus1ex \@minus.2ex}%
                                     {-1em}%
                                     {\normalfont\normalsize\bfseries}}}
-{}
+{\pdata@def{site}{\@site}{reqPM}{\csname thesite@\@site @PM\endcsname}}
+%    \end{macrocode}
+% \end{environment}
+% 
+% \begin{environment}{participant}
+%   \ednote{document this above} |\begin{picv}[|\meta{PM}|]{\meta{name}}| marks up the CV
+%     and metadata about a principal investigator of a site (it can only be use inside a
+%     |sitedescription| environment). The first argument \meta{PM} specifies the
+%     involvement in person months: a fair estimation this PI will spend on this specific
+%     project over its whole duration.
+%    \begin{macrocode}
+\define@key{site@part}{type}{\def\site@part@type{#1}\@dmp{type=#1}}
+\define@key{site@part}{PM}{\def\site@part@PM{#1}\@dmp{PM=#1}}
+\define@key{site@part}{salary}{\def\site@part@salary{#1}}%\@dmp{\euro=#1}}
+\newenvironment{participant}[2][]%
+{\def\site@part@type{}\def\site@part@PM{}\def\site@part@salary{}%
+\setkeys{site@part}{#1}%
+\ifx\site@part@PM\@empty\else\addtocounter{site@\@site @PM}{\site@part@PM}\fi%
+\paragraph*{#2 \ifx\site@part@type\@empty\else(\site@part@type)\fi}%
+\ignorespaces}
+{\par\medskip}
 %    \end{macrocode}
 % \end{environment}
 % 
@@ -359,18 +413,17 @@
 % 
 % \begin{macro}{\wpheadertable}
 %   We redefine the macro that computes the default work package header table, since there
-%   are more sites in a EU proposal
+%   are more sites in a EU proposal, we do this in a tabular form as asked for in the
+%   template. We use the internal counter |@sites@po| (sites plus one) for convenience.
 %    \begin{macrocode}
 \newcounter{@sitespo}\newcounter{@sitespt}
 \renewcommand\wpheadertable{%
 \wp@sites@efforts@lines%
 \setcounter{@sitespo}{\thewp@sites@num}\addtocounter{@sitespo}{1}%
-\setcounter{@sitespt}{\thewp@sites@num}\addtocounter{@sitespt}{2}%
 \par\noindent\begin{tabular}{|l|*{\thewp@sites@num}{c|}c|}\hline%
-\multicolumn{\the@sitespt}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
-\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}\\\hline%
-\textbf{Start: }\pdataref{wp}\wp@id{start}&%
-\multicolumn{\the@sitespo}{l|}{\textbf{Activity Type: }\pdataref{wp}\wp@id{type}}\\\hline%
+\multicolumn{\the@sitespo}{|l|}{\textbf{\wp@mk@title{\wp@num}: }%
+\textsf{\pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}}
+&\textbf{Start: }\pdataref{wp}\wp@id{start}\\\hline%
 \wp@sites@line\\\hline%
 \wp@efforts@line\\\hline%
 \end{tabular}\smallskip\par\noindent\ignorespaces}
@@ -378,7 +431,7 @@
 % \end{macro}
 %
 % \begin{environment}{wpdelivs}
-% \ednote{MK: boxing compactdesc does not seem to work any more}
+%  We make the deliverables boxed, this is simple with |mdframed.sty|. 
 %    \begin{macrocode}
 \surroundwithmdframed{wpdelivs}
 %    \end{macrocode}
@@ -408,8 +461,8 @@
 % mitigation plans for them. In the |euproposal| we use two environments to mark them up.
 % 
 % \DescribeMacro{risk}|\begin{risk}{|\meta{title}|}{|\meta{prob}|}{|\meta{grav}|}|\ldots|\end{risk}|
-% makes a paragraph no a rist \meta{title} with gravity \meta{grav} and probability
-% \meta{prob}, where the body of the environment contains a desription of the risk. The
+% makes a paragraph no a risk \meta{title} with gravity \meta{grav} and probability
+% \meta{prob}, where the body of the environment contains a description of the risk. The
 % \DescribeMacro{riskcont}|riskcont| is a variant, where \meta{title} names a risk and the
 % body is a description of the contingency plan.
 %
@@ -429,20 +482,24 @@
 %
 % \Finale
 \endinput
-% LocalWords:  iffalse cls euproposal euproposal.dtx tt maketitle newpage wpwa
-% LocalWords:  tableofcontents ednote euproposal DescribeEnv compactitem impl
-% LocalWords:  longtable eurosym pdata thepart setcounter env vfill qquad
-% LocalWords:  thechapter newcommand tabularnewline hline xdef pdataref nameuse
-% LocalWords:  countryshort rpoposal clange wrapfig wrapfigure vspace bfseries
-% LocalWords:  startsection normalfont normalsize baselinestretch callname hb
-% LocalWords:  countryshort rpoposal clange wrapfig renewenvironment worktelfax
-% LocalWords:  tocdepth wpobjectives newenvironment noindent boxedminipage fbox
-% LocalWords:  textwidth textbf wpdescription sitedescription pgfdeclareimage
-% LocalWords:  wrapfigure vspace pgfuseimage streetaddress townzip textsc xt wa
-% LocalWords:  renewcommand startsection normalfont normalsize bfseries wptitle
-% LocalWords:  workpackage subsubsection wpheadertable newcounter sitespo hfil
-% LocalWords:  newcounter sitespt addtocounter textsf smallskip ignorespaces pn
-% LocalWords:  cellcolor lightgray keypubs paperlist callname callid callid ifx
-% LocalWords:  challengeid challengeid objectiveid objectiveid outcomeid hfill
-% LocalWords:  outcomeid metakeys workaddress numberline tempdima ifsubmit
-% LocalWords:  proposal.dtx texttt paperslist workaddress.dtx
+% LocalWords:  iffalse cls euproposal euproposal.dtx tt maketitle newpage wpwa eudata dfg
+% LocalWords:  tableofcontents ednote euproposal DescribeEnv compactitem impl eureporting
+% LocalWords:  longtable eurosym pdata thepart setcounter env vfill qquad NeedsTeXFormat
+% LocalWords:  thechapter newcommand tabularnewline hline xdef pdataref nameuse SciML gen
+% LocalWords:  countryshort rpoposal clange wrapfig wrapfigure vspace bfseries eupdata wd
+% LocalWords:  startsection normalfont normalsize baselinestretch callname hb newpart wp
+% LocalWords:  countryshort rpoposal clange wrapfig renewenvironment worktelfax prop@gen
+% LocalWords:  tocdepth wpobjectives newenvironment noindent boxedminipage fbox warnpubs
+% LocalWords:  textwidth textbf wpdescription sitedescription pgfdeclareimage projpapers
+% LocalWords:  wrapfigure vspace pgfuseimage streetaddress townzip textsc xt wa maxnames
+% LocalWords:  renewcommand startsection normalfont normalsize bfseries wptitle sitedesc
+% LocalWords:  workpackage subsubsection wpheadertable newcounter sitespo hfil if@svninfo
+% LocalWords:  newcounter sitespt addtocounter textsf smallskip ignorespaces pn setkeys
+% LocalWords:  cellcolor lightgray keypubs paperlist callname callid callid ifx csname
+% LocalWords:  challengeid challengeid objectiveid objectiveid outcomeid hfill if@gitinfo
+% LocalWords:  outcomeid metakeys workaddress numberline tempdima ifsubmit iconrowheight
+% LocalWords:  proposal.dtx texttt paperslist workaddress.dtx topicsaddressed thesite
+%  LocalWords:  topicsaddressed iconrowheight finalreport.tex printbibliography endcsname
+%  LocalWords:  reportperiod organisation thispagestyle gitAbbrevHash sitedescritpion
+%  LocalWords:  WAinstitution picv medskip newmdenv frametitle wpdelivs mdframed.sty emph
+%  LocalWords:  surroundwithmdframed emph riskcont prob grav ldots endinput
