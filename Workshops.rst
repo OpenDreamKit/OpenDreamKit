@@ -1,3 +1,35 @@
+=============================
+Meetings per organizing sites
+=============================
+
+Orsay
+-----
+
+In Orsay (or Cernay): Project meetings x 2 + 4 times Cernay + 1 Jupyter-Sage + 2 Women in Sage
+Training for locals: 2 (~3 days, 3-4000 euros each)
+External: CIRM ?
+
+
+Université Joseph Fourier (Grenoble)
+------------------------------------
+HPC meeting
+
+Université de Bordeaux
+----------------------
+HPC meeting
+4 x Ateliers PARI
+
+Warwick
+-------
+LMFDB-Sage
+
+Saint Andrews
+-------------
+ICMS: Gap-Sage-Singular + user reaching meeting
+
+
+
+
 ================
 Project meetings
 ================
@@ -85,11 +117,14 @@ Joint workshops
 Sage-Sphinx documentation days, Spring 2016, Orsay; organizer: Thiéry
 This could be one of the workshops at Cernay.
 
-Jupyter-Sage, year ????
+Jupyter-Sage, year ????, Orsay
 
-LMFDB-Sage, year 2016
+LMFDB-Sage, year 2016, Warwick, organize: JC
+
+Gap-Sage-Singular, ICMS ?, AK
 
 Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
+
 
 
 Women in OpenDreamsKit / Scientific development
@@ -97,7 +132,7 @@ Women in OpenDreamsKit / Scientific development
 
 Analogs of the Women in Sage series (http://wiki.sagemath.org/days62)
 
-One per year?
+2, 2016 & 2018, Orsay, VP
 
 Opportunities to be explored:
 - combined event with "Femmes et Mathématiques"?
@@ -125,6 +160,9 @@ Action JDev 2017 et 2019: 2 x 2500 euros
 Two local (for onsite persons, so no local expenses) workshop
 organized by Orsay (in Orsay and Grenoble?) by Loïc on code
 optimization with Python/Cythran/... 3 jours 3-4000 euros.
+
+
+planned: CIRM (organize by Orsay), ICMS (AK)
 
 Notes from Neil on the IPython Workshops
 ========================================
