@@ -85,11 +85,14 @@ Joint workshops
 Sage-Sphinx documentation days, Spring 2016, Orsay; organizer: Thiéry
 This could be one of the workshops at Cernay.
 
-Jupyter-Sage, year ????
+Jupyter-Sage, year ????, Orsay
 
-LMFDB-Sage, year 2016
+LMFDB-Sage, year 2016, Warwick, organize: JC
+
+Gap-Sage-Singular, ICMS ?, AK
 
 Join / parrallel events with PyCon, EuroPyCon, SciPy, EuroScipy... 
+
 
 
 Women in OpenDreamsKit / Scientific development
@@ -97,7 +100,7 @@ Women in OpenDreamsKit / Scientific development
 
 Analogs of the Women in Sage series (http://wiki.sagemath.org/days62)
 
-One per year?
+2, 2016 & 2018, Orsay, VP
 
 Opportunities to be explored:
 - combined event with "Femmes et Mathématiques"?
@@ -116,6 +119,8 @@ Typically 40 people
 Opportunities:
 - Graduate student training program of GDR-IM in France
 - CIRM, Oberwolfach, RISC, ...
+
+planned: CIRM (organize by Orsay), ICMS (AK)
 
 Notes from Neil on the IPython Workshops
 ========================================
