@@ -316,6 +316,7 @@
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
 \newcommand\deliv@label[1]{D{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
+\newcommand\localdelivref[1]{\pdataRef{deliv}{\wp@id #1}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
 \define@key{deliv}{due}{\def\deliv@due{#1}}
@@ -323,6 +324,7 @@
 \define@key{deliv}{nature}{\def\deliv@nature{#1}}
 \define@key{deliv}{miles}{\def\deliv@miles{#1}}
 \define@key{deliv}{short}{\def\deliv@short{#1}}
+\define@key{deliv}{lead}{\def\deliv@lead{#1}}
 \newcounter{deliverable}
 \newcommand{\wpg@deliv}[3]{% keys, title, type
 \stepcounter{deliverable}
@@ -332,27 +334,38 @@
 \setkeys{deliv}{#1}\stepcounter{deliv}% set state
 \ifx\@type\@wp\def\current@label{\deliv@label{\ifwork@areas\thewa.\fi\thewp.\thedeliv}}
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
+
 \pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
 \pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
 \@ifundefined{deliv@short}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
-\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}
-\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}
+\@ifundefined{deliv@nature}
+{\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv #1 undefined}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}}
+\@ifundefined{deliv@dissem}
+{\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for Deliv #1 undefined}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}}
+\@ifundefined{deliv@lead}
+{\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv #1  undefined}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{lead}{\deliv@lead}}
 \@ifundefined{deliv@due}{}{%
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
 {\current@label}% label
-{\@ifundefined{deliv@id}{\protect\G@refundefinedtrue\@latex@warning{key 'id' for Deliv #1
-      undefined}??}{\wpg@id\deliv@id}}% id
-{\@ifundefined{deliv@dissem}{\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for
-      Deliv #1 undefined}??}{\deliv@dissem}}% dissemination level
-{\@ifundefined{deliv@nature}{\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv
-      #1 undefined}??}{\deliv@nature}}% nature
+{\@ifundefined{deliv@id}{??}{\wpg@id\deliv@id}}% id
+{\@ifundefined{deliv@dissem}{??}{\deliv@dissem}}% dissemination level
+{\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
-{\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}}}}%WP
-\item[\current@label: (Month \deliv@due; nature: \deliv@nature, dissem.: \deliv@dissem)] \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
+{\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
+{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
+\item[\current@label\ (%
+\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
+\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
+\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
+\delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\deliv@lead})]
+ \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
 \let\m@sep=\relax% do not print the separator the first time round
 \lec{\@for\@I:=\deliv@miles\do{% Iterate over the milestones mentioned
@@ -405,16 +418,18 @@
 \newcommand\prop@milesfor[1]{\edef\@delivs{\pdataref@safe{mile}{#1}{delivs}}%
 \let\m@sep=\relax\def\new@sep{,\ }%
 \@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
-\newcommand{\deliverable}[8]{\pdataRef{deliv}{#4}{label}&#7&#8&#6&#5&#2\\\hline}%sortkey,due,label,id,title,type,level
-\newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|}\hline
-\#&\delivs@legend@name&\delivs@legend@wp&\delivs@legend@nature&
+\newcommand{\deliverable}[9]{\pdataRef{deliv}{#4}{label}&#7&#8&#9&#6&#5&#2\\\hline}%sortkey,due,label,id,title,type,level,lead
+\newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|l|}\hline
+\#&\delivs@legend@name&\delivs@legend@wp&\delivs@legend@lead&\delivs@legend@nature&
 \delivs@legend@level&\delivs@legend@due\\\hline\hline\else\deliv@error\fi}
 {\ifdelivs\end{longtable}\fi}
 \newcommand\delivs@legend@name{Deliverable name}
 \newcommand\delivs@legend@wp{WP}
-\newcommand\delivs@legend@nature{Nature}
+\newcommand\delivs@legend@nature{Type}
 \newcommand\delivs@legend@level{Level}
 \newcommand\delivs@legend@due{Due}
+\newcommand\delivs@legend@dissem{Dissem.}
+\newcommand\delivs@legend@lead{Lead}
 \newcommand{\inputdelivs}[1]{%
 \begin{deliverables}{#1}%
 \IfFileExists{\jobname.deliverables}%
@@ -423,29 +438,34 @@
 \end{deliverables}}
 \newenvironment{tasklist}
 {\begin{compactenum}}{\end{compactenum}}
-\newcommand\task@label[1]{T#1}
+\newcommand\task@label[2]{\textbf{T#1.#2}}
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
 \define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
-\define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}\@dmp{lead=#1}}
-\define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}\@dmp{partners=#1}}
-\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}\@dmp{PM=#1}}
+\define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}}
+\define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}}
+\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
-\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}
+\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
 \def\task@post@title@space{\quad}
 \newcounter{alltasks}
 \def\task@post@title@space{\quad}
+\newcommand\task@legend@partners{Sites: }
+\newcommand\task@legend@PM{PM}
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}
-\@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label{\thetask@wp}}]%
+\@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
 \@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
-\ (\let\@@sep=\relax\@for\@I:=\task@wphases%
+\let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I\@@sep\show@wphase\wphase@start\wphase@end\wphase@force\let\@@sep=\sep@wphases}%
-\ifx\task@lead\@empty\else; \task@legend@partners: \site\task@lead~(\legend@lead)\fi%
-\ifx\task@partners\@empty\else\@for \@I:=\task@partners\do{, \site\@I}\fi)\\\fi}
+\fi% initial
+\hfill%
+\ifx\task@PM\@empty\else\task@PM\ \task@legend@PM;\fi%
+\ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
+\@for\@I:=\task@partners\do{, \site\@I}\\}
 {\ignorespaces}
 \newcommand\month@label[1]{M#1}
 \newcommand\show@wphase[3]{\def\@test{#3}\month@label{#1}-\month@label{#2}%
@@ -459,7 +479,7 @@
 \def\@task#1{\stepcounter{task@all}\stepcounter{task@wp}%
 \task@set{#1}%
 \pdata@def{task}{\taskin\task@id\wp@id}{wphases}\task@wphases
-\pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thetask@wp}%
+\pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{page}{\thepage}%
 \update@tasks{\taskin\task@id\wp@id}}
