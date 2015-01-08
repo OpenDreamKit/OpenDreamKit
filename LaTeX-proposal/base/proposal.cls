@@ -145,6 +145,7 @@
 \define@key{workpackage}{short}{\pdata@def{wp}\wp@id{short}{#1}}
 \define@key{workpackage}{type}{\def\wp@type{#1}\pdata@def{wp}\wp@id{type}{#1}}
 \define@key{workpackage}{wphases}{\def\wp@wphases{#1}\pdata@def{wp}\wp@id{wphases}{#1}}
+\define@key{workpackage}{swsites}[true]{\def\wp@swsites{#1}}
 \newcommand\wp@mk@title[1]{Work Package {#1}}
 \newcommand\wp@label[1]{WP{#1}}
 \ifwork@areas
@@ -174,6 +175,7 @@
 \if@RAM\newcounter{wp@RAM}\fi
 \newenvironment{work@package}[1][]%
 {\def\wp@wphases{0-0}% default values
+\def\wp@swsites{false}
 \setkeys{workpackage}{#1}\stepcounter{wp}\stepcounter{allwp}%
 \startend@wphases\wp@wphases%
 \pdata@def{wp}\wp@id{start}\wphase@start\pdata@def{wp}\wp@id{end}\wphase@end%
@@ -213,15 +215,23 @@
 \newcounter{wp@sites@num}
 \newcommand\wp@sites@efforts@lines{%
 \setcounter{wp@sites@num}{0}
-{\let\G@refundefinedtrue=\relax\let\@latex@warning=\relax%
+{\let\G@refundefinedtrue=\relax\let\@latex@warning=\relax\let\@sw\relax%
 \let\site\relax\let\textbf\relax\let\sum@style\relax\let\lead@style\relax%
 \let\pn\relax\let\sys\relax%
 \xdef\wp@sites@line{\wp@legend@site}\xdef\wp@efforts@line{\wp@legend@effort}%initialize lines
 \@for\@site:=\prop@gen@sites\do{\if@site@contributes\@site{\stepcounter{wp@sites@num}}%
 \xdef\wp@sites@line{\wp@sites@line%
-\if@site@contributes\@site{&\ifx\@site\wp@lead\lead@style{\site{\@site}}\else\site{\@site}\fi}}%
+\if@site@contributes\@site{&%
+\ifx\wp@swsites\@true%
+\@sw{\ifx\@site\wp@lead\lead@style{\site{\@site}}\else\site{\@site}\fi}%
+\else\ifx\@site\wp@lead\lead@style{\site{\@site}}\else\site{\@site}\fi%
+\fi}}%
 \xdef\wp@efforts@line{\wp@efforts@line%
-\if@site@contributes\@site{&\pdataref@safe\wp@id\@site{RM}\if@RAM+\pdataref@safe\wp@id\@site{RAM}\fi}}}%
+\if@site@contributes\@site{&%
+\ifx\@site\wp@lead%
+\lead@style{\pdataref@safe\wp@id\@site{RM}\if@RAM+\pdataref@safe\wp@id\@site{RAM}\fi}
+\else\pdataref@safe\wp@id\@site{RM}\if@RAM+\pdataref@safe\wp@id\@site{RAM}\fi\fi}}%
+}% do
 \xdef\wp@sites@line{\wp@sites@line&\sum@style{\wp@legend@all}}%
 \xdef\wp@efforts@line{\wp@efforts@line&
 \sum@style{\textbf{\pdataref{wp}\wp@id{RM}\if@RAM+\pdataref{wp}\wp@id{RAM}\fi}}}}}
@@ -713,9 +723,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \@wp@lines\hline%
 \multicolumn{\the\local@count}{|c|}{\prop@legend@totals}\@totals\\\hline%
 \ifsubmit\else%
-\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline
-\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline
-\fi
+\ifx\prop@gen@topdownPM\@true%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline%
+\fi% topdownPM
+\ifx\prop@gen@botupPM\@true%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline%
+\fi% botupPM
+\fi% submit
 \end{wp@figure}}
 \newcommand\prop@legend@totals{\textbf{totals}}
 \newcommand\prop@legend@intendedtotals{\textbf{intended totals}}
