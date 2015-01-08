@@ -437,6 +437,7 @@
 \def\task@post@title@space{\quad}
 \newcounter{alltasks}
 \def\task@post@title@space{\quad}
+\newcommand\task@legend@partners{+}
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
@@ -444,8 +445,9 @@
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
 \ (\let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I\@@sep\show@wphase\wphase@start\wphase@end\wphase@force\let\@@sep=\sep@wphases}%
+\fi% initial
 \ifx\task@lead\@empty\else; \task@legend@partners: \site\task@lead~(\legend@lead)\fi%
-\ifx\task@partners\@empty\else\@for \@I:=\task@partners\do{, \site\@I}\fi)\\\fi}
+\ifx\task@partners\@empty\else\@for \@I:=\task@partners\do{, \site\@I}\fi)\\}
 {\ignorespaces}
 \newcommand\month@label[1]{M#1}
 \newcommand\show@wphase[3]{\def\@test{#3}\month@label{#1}-\month@label{#2}%
