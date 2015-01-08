@@ -360,7 +360,12 @@
 {#2}
 {\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
 {\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
-\item[\current@label: (Month \deliv@due; nature: \deliv@nature, dissem.: \deliv@dissem)] \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
+\item[\current@label\ (%
+\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
+\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
+\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
+\delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\deliv@lead})]
+ \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
 \let\m@sep=\relax% do not print the separator the first time round
 \lec{\@for\@I:=\deliv@miles\do{% Iterate over the milestones mentioned
@@ -420,9 +425,10 @@
 {\ifdelivs\end{longtable}\fi}
 \newcommand\delivs@legend@name{Deliverable name}
 \newcommand\delivs@legend@wp{WP}
-\newcommand\delivs@legend@nature{Nature}
+\newcommand\delivs@legend@nature{Type}
 \newcommand\delivs@legend@level{Level}
 \newcommand\delivs@legend@due{Due}
+\newcommand\delivs@legend@dissem{Dissem.}
 \newcommand\delivs@legend@lead{Lead}
 \newcommand{\inputdelivs}[1]{%
 \begin{deliverables}{#1}%
@@ -437,9 +443,9 @@
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
 \define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
-\define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}\@dmp{lead=#1}}
-\define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}\@dmp{partners=#1}}
-\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}\@dmp{PM=#1}}
+\define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}}
+\define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}}
+\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
