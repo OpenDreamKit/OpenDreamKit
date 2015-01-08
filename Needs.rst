@@ -15,7 +15,6 @@ Full time developers/engineers for technical points like:
 - Collaborative development tools, 
 - Continuous integration, hardware for testing on many platforms
 
-- Externalize as much stuff as possible
 - HPC infrastructure:
   - For running many independent calculations at once (e.g. notebook server)
   - For parallel calculations
@@ -32,10 +31,6 @@ Full time developers/engineers for technical points like:
   - Interactive books
   - Independent on the "backend": UWashington's cloud / cloud of my
     university / my local machine
-
-- Repository of training material (outreach: teaching)
-
-
 
 - Marcin: Guided simplification of formula
 

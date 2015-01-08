@@ -60,6 +60,8 @@ Participants: about 20 people (project participants + people from IPython / SMC 
 Potential future meetings
 -------------------------
 
+<<<<<<< HEAD
+=======
 Sites for general project meetings:
 - Orsay x 2
 - Saint Andrews
@@ -71,6 +73,7 @@ Sites for general project meetings:
 - Bremen
 - Grenoble? Bordeaux? University of Silesia?
 
+>>>>>>> 49bf61679b1387c43cc935b88018cc9bb22ad185
 - Project meeting 2, April 2016
 - Project meeting 3, October 2016
 - Project meeting 4, April 2017
