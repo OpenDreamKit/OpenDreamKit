@@ -316,6 +316,7 @@
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
 \newcommand\deliv@label[1]{D{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
+\newcommand\localdelivref[1]{\pdataRef{deliv}{\wp@id #1}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
 \define@key{deliv}{due}{\def\deliv@due{#1}}
