@@ -27,6 +27,10 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
+final:
+	echo $(MAKEFLAGS)
+	$(MAKE) -w PROPOSAL=final.tex all
+
 cd: 	                                           # make cd will prepare CD for burning
 	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
 
@@ -57,7 +61,7 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
-clean: 
+clean:
 	rm -f *.log *.blg *~ *.synctex.gz *.cut
 
 distclean: clean
