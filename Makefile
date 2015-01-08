@@ -31,6 +31,11 @@ final:
 	echo $(MAKEFLAGS)
 	$(MAKE) -w PROPOSAL=final.tex all
 
+install: final
+	cp final.pdf proposal-www.pdf
+	git commit -m "Updated pdf" proposal-www.pdf
+	git push
+
 cd: 	                                           # make cd will prepare CD for burning
 	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
 
@@ -72,7 +77,7 @@ echo:
 	echo $(BBL)
 
 singlerun:
-	pdflatex proposal.tex
+	pdflatex $(PROPOSAL)
 
 TOWRITE: *.tex */*.tex
 	grep TOWRITE *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
