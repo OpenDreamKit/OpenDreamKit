@@ -196,6 +196,15 @@
 % text. Note that these macros use |\xspace| internallly, so they do not have to be
 % enclosed in curly braces.
 % 
+% There are two ways of organizing the distribution of personnel resources when developing
+% a proposal. Either the coordinator takes a \emph{top-down approach} where she assigns
+% person months (PM) to the respective site, of she takes a \emph{bottom-up approach},
+% where the sites ``request'' personnel resources by marking them up in the CVs of the
+% researchers in the site descriptions. |proposal.cls| supports both of these. Support
+% for the first is configured via the \DescribeMacro{topdownPM}|topdownPM| key and for the
+% other via the \DescribeMacro{botupPM}|botupPM| key. They add respective lines for
+% planning in the WA/WP figure (see~\ref{sec:user:wpwa}).
+% 
 % \subsection{Proposal Appearance}\label{sec:user:appearance}
 % 
 % The |proposal| environment takes a second set of keyval arguments that allow to
@@ -279,8 +288,8 @@
 % \item In multi-site proposals the \DescribeMacro{lead} |lead| key specifies the work
 %   package or work group lead, the value of this feature should be the short name of the
 %   respective partner.
-% \item For work packages with many propsers the \DescribeMacro{swsites}|swsites| key
-%   can be given (no value needed) to turn the participnts names sideways to conserve
+% \item For work packages with many prospers the \DescribeMacro{swsites}|swsites| key
+%   can be given (no value needed) to turn the site names sideways to conserve
 %   (horizontal) space. 
 % \end{compactitem}
 % 
@@ -708,6 +717,8 @@
 \pdata@def{prop}{gen}{totalduration}{#1}}
 \define@key{prop@gen}{fundsuntil}{\def\prop@gen@fundsuntil{#1}%
 \pdata@def{prop}{gen}{fundsuntil}{#1}}
+\define@key{prop@gen}{topdownPM}[true]{\def\prop@gen@topdownPM{#1}}
+\define@key{prop@gen}{botupPM}[true]{\def\prop@gen@botupPM{#1}}
 %    \end{macrocode}
 % and the default values, these will be used, if the author does not specify something
 % better.
@@ -1964,9 +1975,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \@wp@lines\hline%
 \multicolumn{\the\local@count}{|c|}{\prop@legend@totals}\@totals\\\hline%
 \ifsubmit\else%
-\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline
-\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline
-\fi
+\ifx\prop@gen@topdownPM\@true%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline%
+\fi% topdownPM
+\ifx\prop@gen@botupPM\@true%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline%
+\fi% botupPM
+\fi% submit
 \end{wp@figure}}
 %    \end{macrocode}
 % and now multilinguality support 
@@ -2385,11 +2400,11 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  def id title acronym discipline start months Proposal Erg by cls endinput
 % LocalWords:  empty em name affiliation Applicants Work Address email The pn Hartenstein
 % LocalWords:  curriculum vita the applicants are enclosed appendix reference Schr
-% LocalWords:  Research area and field work Scientific Fields Anticipated write
-% LocalWords:  duration Application period Summary short lead Package label task
-% LocalWords:  tasks deps number line Effort target ids count warning at pdata
-% LocalWords:  for undefined safe zero one two three four five six seven eight
-% LocalWords:  nine ten eleven twelve style lines totals Packages xscale yscale
+% LocalWords:  Research area and field work Scientific Fields Anticipated write botupPM
+% LocalWords:  duration Application period Summary short lead Package label task botupMP
+% LocalWords:  tasks deps number line Effort target ids count warning at pdata swsites
+% LocalWords:  for undefined safe zero one two three four five six seven eight swsites
+% LocalWords:  nine ten eleven twelve style lines totals Packages xscale yscale wphrases
 % LocalWords:  step set gray very thin grid workphase len force phase length to
 % LocalWords:  taskdep from rectangle left right width pt color red above dep
 % LocalWords:  Overview Activities Signatures Date paralist ymonths ymid yinc

@@ -723,9 +723,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \@wp@lines\hline%
 \multicolumn{\the\local@count}{|c|}{\prop@legend@totals}\@totals\\\hline%
 \ifsubmit\else%
-\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline
-\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline
-\fi
+\ifx\prop@gen@topdownPM\@true%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@intendedtotals}\intended@totals\\\hline%
+\fi% topdownPM
+\ifx\prop@gen@botupPM\@true%
+\multicolumn{\the\local@count}{|c|}{\prop@legend@requestedtotals}\requested@totals\\\hline%
+\fi% botupPM
+\fi% submit
 \end{wp@figure}}
 \newcommand\prop@legend@totals{\textbf{totals}}
 \newcommand\prop@legend@intendedtotals{\textbf{intended totals}}
