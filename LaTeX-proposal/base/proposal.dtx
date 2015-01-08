@@ -1278,6 +1278,7 @@
 \define@key{deliv}{nature}{\def\deliv@nature{#1}}
 \define@key{deliv}{miles}{\def\deliv@miles{#1}}
 \define@key{deliv}{short}{\def\deliv@short{#1}}
+\define@key{deliv}{lead}{\def\deliv@lead{#1}}
 %    \end{macrocode}
 % The |\wpdeliv| macro cycles over the due dates and generates the relevant entries into
 % the deliverables file. The first step is to write the general metadata to the pdata
@@ -1292,13 +1293,21 @@
 \setkeys{deliv}{#1}\stepcounter{deliv}% set state
 \ifx\@type\@wp\def\current@label{\deliv@label{\ifwork@areas\thewa.\fi\thewp.\thedeliv}}
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
+
 \pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
 \pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
 \@ifundefined{deliv@short}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
-\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}
-\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}
+\@ifundefined{deliv@nature}
+{\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv #1 undefined}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}}
+\@ifundefined{deliv@dissem}
+{\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for Deliv #1 undefined}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}}
+\@ifundefined{deliv@lead}
+{\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv #1  undefined}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{lead}{\deliv@lead}}
 %    \end{macrocode}
 % Then we iterate over the due dates and generate an entry for teach of them.
 %    \begin{macrocode}
@@ -1307,14 +1316,12 @@
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
 {\current@label}% label
-{\@ifundefined{deliv@id}{\protect\G@refundefinedtrue\@latex@warning{key 'id' for Deliv #1
-      undefined}??}{\wpg@id\deliv@id}}% id
-{\@ifundefined{deliv@dissem}{\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for
-      Deliv #1 undefined}??}{\deliv@dissem}}% dissemination level
-{\@ifundefined{deliv@nature}{\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv
-      #1 undefined}??}{\deliv@nature}}% nature
+{\@ifundefined{deliv@id}{??}{\wpg@id\deliv@id}}% id
+{\@ifundefined{deliv@dissem}{??}{\deliv@dissem}}% dissemination level
+{\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
-{\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}}}}%WP
+{\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
+{\@ifundefined{deliv@lead}{??}{\deliv@lead}}}}}% lead
 %    \end{macrocode}
 % And finally, we generate the entry into the deliverables table. 
 %    \begin{macrocode}
@@ -1433,15 +1440,15 @@
 % \begin{macro}{\deliverable}
 %    the first argument is an extended due date to facilitate sorting. 
 %    \begin{macrocode}
-\newcommand{\deliverable}[8]{\pdataRef{deliv}{#4}{label}&#7&#8&#6&#5&#2\\\hline}%sortkey,due,label,id,title,type,level
+\newcommand{\deliverable}[9]{\pdataRef{deliv}{#4}{label}&#7&#8&#9&#6&#5&#2\\\hline}%sortkey,due,label,id,title,type,level,lead
 %    \end{macrocode}
 % \end{macro}
 % 
 % \begin{environment}{deliverables}
 %    
 %    \begin{macrocode}
-\newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|}\hline
-\#&\delivs@legend@name&\delivs@legend@wp&\delivs@legend@nature&
+\newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|l|}\hline
+\#&\delivs@legend@name&\delivs@legend@wp&\delivs@legend@lead&\delivs@legend@nature&
 \delivs@legend@level&\delivs@legend@due\\\hline\hline\else\deliv@error\fi}
 {\ifdelivs\end{longtable}\fi}
 %    \end{macrocode}
@@ -1452,6 +1459,7 @@
 \newcommand\delivs@legend@nature{Nature}
 \newcommand\delivs@legend@level{Level}
 \newcommand\delivs@legend@due{Due}
+\newcommand\delivs@legend@lead{Lead}
 %    \end{macrocode}
 % \end{environment}
 % 
