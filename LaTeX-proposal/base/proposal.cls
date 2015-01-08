@@ -145,7 +145,7 @@
 \define@key{workpackage}{short}{\pdata@def{wp}\wp@id{short}{#1}}
 \define@key{workpackage}{type}{\def\wp@type{#1}\pdata@def{wp}\wp@id{type}{#1}}
 \define@key{workpackage}{wphases}{\def\wp@wphases{#1}\pdata@def{wp}\wp@id{wphases}{#1}}
-\define@key{workpackage}{rotate}[true]{\def\wp@rotate{#1}}
+\define@key{workpackage}{swsites}[true]{\def\wp@swsites{#1}}
 \newcommand\wp@mk@title[1]{Work Package {#1}}
 \newcommand\wp@label[1]{WP{#1}}
 \ifwork@areas
@@ -175,7 +175,7 @@
 \if@RAM\newcounter{wp@RAM}\fi
 \newenvironment{work@package}[1][]%
 {\def\wp@wphases{0-0}% default values
-\def\wp@rotate{false}
+\def\wp@swsites{false}
 \setkeys{workpackage}{#1}\stepcounter{wp}\stepcounter{allwp}%
 \startend@wphases\wp@wphases%
 \pdata@def{wp}\wp@id{start}\wphase@start\pdata@def{wp}\wp@id{end}\wphase@end%
@@ -222,7 +222,7 @@
 \@for\@site:=\prop@gen@sites\do{\if@site@contributes\@site{\stepcounter{wp@sites@num}}%
 \xdef\wp@sites@line{\wp@sites@line%
 \if@site@contributes\@site{&%
-\ifx\wp@rotate\@true%
+\ifx\wp@swsites\@true%
 \@sw{\ifx\@site\wp@lead\lead@style{\site{\@site}}\else\site{\@site}\fi}%
 \else\ifx\@site\wp@lead\lead@style{\site{\@site}}\else\site{\@site}\fi%
 \fi}}%
