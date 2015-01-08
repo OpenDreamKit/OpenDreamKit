@@ -82,7 +82,7 @@
 \define@key{site@desc}{height}{\def\site@desc@height{#1}%
 \pdata@def{sitedesc}{\@site}{height}{#1}\@dmp{ht=#1}}
 \newenvironment{sitedescription}[2][]%
-{\def\@site{#2}% remember the site ID
+{\def\c@site{#2}% remember the site ID
 \newcounter{site@#2@PM} % for the site PM
 \def\site@desc@box{false}% not box unless requested
 \def\site@desc@logo{false}% not logo unless requested
@@ -101,14 +101,14 @@
 \end{wrapfigure}%
 \fi% end box
 \pdata@target{site}{#2}%
-{\subsection{\wa@ref{institution}{#2}{acronym}: % space here
+{\subsubsection{\wa@ref{institution}{#2}{acronym}: % space here
 {\textsc{\wa@ref{institution}{#2}{name}}  (\wa@ref{institution}{#2}{countryshort})}}}%
 \small%
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
                                     {0.25ex \@plus1ex \@minus.2ex}%
                                     {-1em}%
                                     {\normalfont\normalsize\bfseries}}}
-{\pdata@def{site}{\@site}{reqPM}{\csname thesite@\@site @PM\endcsname}}
+{\pdata@def{site}{\c@site}{reqPM}{\csname thesite@\c@site @PM\endcsname}}
 \define@key{site@part}{type}{\def\site@part@type{#1}\@dmp{type=#1}}
 \define@key{site@part}{PM}{\def\site@part@PM{#1}\@dmp{PM=#1}}
 \define@key{site@part}{salary}{\def\site@part@salary{#1}}%\@dmp{\euro=#1}}
@@ -116,8 +116,12 @@
 \newenvironment{participant}[2][]%
 {\def\site@part@type{}\def\site@part@PM{}\def\site@part@salary{}\def\site@part@gender{}%
 \setkeys{site@part}{#1}%
-\ifx\site@part@PM\@empty\else\addtocounter{site@\@site @PM}{\site@part@PM}\fi%
-\paragraph*{#2 \ifx\site@part@type\@empty\else(\site@part@type\ifx\site@part@type\@empty\else,\site@part@gender\fi)\fi}%
+\ifx\site@part@PM\@empty\else\addtocounter{site@\c@site @PM}{\site@part@PM}\fi%
+\paragraph*{#2%
+(\ifx\site@part@type\@empty\else\site@part@type\fi%
+\ifx\site@part@gender\@empty\else, \site@part@gender\fi%
+\ifx\site@part@PM\@empty\else, \site@part@PM PM\fi%
+)}%
 \ignorespaces}
 {\par\medskip}
 \newmdenv[frametitle=Objectives]{wpobjectives}
