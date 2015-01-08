@@ -423,7 +423,7 @@
 \end{deliverables}}
 \newenvironment{tasklist}
 {\begin{compactenum}}{\end{compactenum}}
-\newcommand\task@label[1]{T#1}
+\newcommand\task@label[2]{\textbf{T#1.#2}}
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
@@ -439,7 +439,7 @@
 \def\task@post@title@space{\quad}
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}
-\@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label{\thetask@wp}}]%
+\@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
 \@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
 \ (\let\@@sep=\relax\@for\@I:=\task@wphases%
@@ -459,7 +459,7 @@
 \def\@task#1{\stepcounter{task@all}\stepcounter{task@wp}%
 \task@set{#1}%
 \pdata@def{task}{\taskin\task@id\wp@id}{wphases}\task@wphases
-\pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thetask@wp}%
+\pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{page}{\thepage}%
 \update@tasks{\taskin\task@id\wp@id}}
