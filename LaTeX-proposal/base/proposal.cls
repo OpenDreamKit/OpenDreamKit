@@ -316,6 +316,7 @@
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
 \newcommand\deliv@label[1]{D{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
+\newcommand\localdelivref[1]{\pdataRef{deliv}{\wp@id #1}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
 \define@key{deliv}{due}{\def\deliv@due{#1}}
@@ -423,7 +424,7 @@
 \end{deliverables}}
 \newenvironment{tasklist}
 {\begin{compactenum}}{\end{compactenum}}
-\newcommand\task@label[1]{T#1}
+\newcommand\task@label[2]{\textbf{T#1.#2}}
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
@@ -432,20 +433,25 @@
 \define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}\@dmp{partners=#1}}
 \define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}\@dmp{PM=#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
-\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}
+\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
 \def\task@post@title@space{\quad}
 \newcounter{alltasks}
 \def\task@post@title@space{\quad}
+\newcommand\task@legend@partners{Sites: }
+\newcommand\task@legend@PM{PM}
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}
-\@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label{\thetask@wp}}]%
+\@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
 \@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
-\ (\let\@@sep=\relax\@for\@I:=\task@wphases%
+\let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I\@@sep\show@wphase\wphase@start\wphase@end\wphase@force\let\@@sep=\sep@wphases}%
-\ifx\task@lead\@empty\else; \task@legend@partners: \site\task@lead~(\legend@lead)\fi%
-\ifx\task@partners\@empty\else\@for \@I:=\task@partners\do{, \site\@I}\fi)\\\fi}
+\fi% initial
+\hfill%
+\ifx\task@PM\@empty\else\task@PM\ \task@legend@PM;\fi%
+\ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
+\@for\@I:=\task@partners\do{, \site\@I}\\}
 {\ignorespaces}
 \newcommand\month@label[1]{M#1}
 \newcommand\show@wphase[3]{\def\@test{#3}\month@label{#1}-\month@label{#2}%
@@ -459,7 +465,7 @@
 \def\@task#1{\stepcounter{task@all}\stepcounter{task@wp}%
 \task@set{#1}%
 \pdata@def{task}{\taskin\task@id\wp@id}{wphases}\task@wphases
-\pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thetask@wp}%
+\pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{page}{\thepage}%
 \update@tasks{\taskin\task@id\wp@id}}
