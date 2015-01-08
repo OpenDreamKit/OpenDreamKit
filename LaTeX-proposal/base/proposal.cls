@@ -419,9 +419,15 @@
 \let\m@sep=\relax\def\new@sep{,\ }%
 \@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
 \newcommand{\deliverable}[9]{\pdataRef{deliv}{#4}{label}&#7&#8&#9&#6&#5&#2\\\hline}%sortkey,due,label,id,title,type,level,lead
-\newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|l|}\hline
-\#&\delivs@legend@name&\delivs@legend@wp&\delivs@legend@lead&\delivs@legend@nature&
-\delivs@legend@level&\delivs@legend@due\\\hline\hline\else\deliv@error\fi}
+\newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|l|}\hline%
+\#&\textbf{\delivs@legend@name}&%
+\textbf{\delivs@legend@wp}&%
+\textbf{\delivs@legend@lead}&%
+\textbf{\delivs@legend@nature}&%
+\textbf{\delivs@legend@level}&%
+\textbf{\delivs@legend@due}\\\hline\hline%
+\endhead%
+\else\deliv@error\fi}
 {\ifdelivs\end{longtable}\fi}
 \newcommand\delivs@legend@name{Deliverable name}
 \newcommand\delivs@legend@wp{WP}
