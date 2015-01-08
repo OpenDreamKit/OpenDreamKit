@@ -359,7 +359,7 @@
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
 {\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
-{\@ifundefined{deliv@lead}{??}{\deliv@lead}}}}}% lead
+{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
 \item[\current@label: (Month \deliv@due; nature: \deliv@nature, dissem.: \deliv@dissem)] \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
 \let\m@sep=\relax% do not print the separator the first time round
