@@ -393,9 +393,10 @@
 % \DescribeMacro{\delivref}|\delivref{|\meta{wp}|}{|\meta{id}|}| where \meta{wp} is the
 % work package identifier and \meta{id} that if the deliverable and
 % \DescribeMacro{\delivtref}|\delivtref{|\meta{wp}|}{|\meta{id}|}| for a reference with
-% title. |\pdatacount{|\meta{wp}|}{delivs}| gives the number of milestones of the work
-% package \meta{wp} |\pdatacount{all}{delivs}| that of all deliverables (aggregating over
-% all work packages).
+% title. \DescribeMacro{\localdelivref}|\localdelivref| can be used to reference
+% deliverables in the same work package. |\pdatacount{|\meta{wp}|}{delivs}| gives the
+% number of milestones of the work package \meta{wp} |\pdatacount{all}{delivs}| that of
+% all deliverables (aggregating over all work packages).
 % 
 % Some proposal templates ask for an overview table of the deliverables which aggregates
 % the deliverables of the respective work packages and areas ordered by due date. This can
@@ -1258,11 +1259,12 @@
 %    \end{macrocode}
 % \end{macro}
 % 
-% \begin{macro}{\delivref}
+% \begin{macro}{\*deliv*ref}
 %   This macro is generally useful to put a comment at the end of the line, possibly
 %   making a new one if there is not enough space.
 %    \begin{macrocode}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
+\newcommand\localdelivref[1]{\pdataRef{deliv}{\wp@id #1}{label}}
 \newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
 %    \end{macrocode}
 % \end{macro}
@@ -1491,7 +1493,7 @@
 % internal macros.
 %    \begin{macrocode}
 \def\task@set#1{\edef\task@id{task\thetask@all}
-\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}
+\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
 %    \end{macrocode}
 % 
@@ -1507,6 +1509,7 @@
 \newcounter{alltasks}
 \def\task@post@title@space{\quad}
 \newcommand\task@legend@partners{Sites: }
+\newcommand\task@legend@PM{PM}
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
@@ -1515,7 +1518,9 @@
 \let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I\@@sep\show@wphase\wphase@start\wphase@end\wphase@force\let\@@sep=\sep@wphases}%
 \fi% initial
-\ifx\task@lead\@empty\else\hfill\task@legend@partners\site\task@lead~(\legend@lead)\fi%
+\hfill%
+\ifx\task@PM\@empty\else\task@PM\ \task@legend@PM;\fi%
+\ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
 \@for\@I:=\task@partners\do{, \site\@I}\\}
 {\ignorespaces}
 %    \end{macrocode}
