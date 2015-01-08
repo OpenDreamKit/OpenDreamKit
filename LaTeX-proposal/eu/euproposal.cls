@@ -112,11 +112,12 @@
 \define@key{site@part}{type}{\def\site@part@type{#1}\@dmp{type=#1}}
 \define@key{site@part}{PM}{\def\site@part@PM{#1}\@dmp{PM=#1}}
 \define@key{site@part}{salary}{\def\site@part@salary{#1}}%\@dmp{\euro=#1}}
+\define@key{site@part}{gender}{\def\site@part@gender{#1}}%\@dmp{\euro=#1}}
 \newenvironment{participant}[2][]%
-{\def\site@part@type{}\def\site@part@PM{}\def\site@part@salary{}%
+{\def\site@part@type{}\def\site@part@PM{}\def\site@part@salary{}\def\site@part@gender{}%
 \setkeys{site@part}{#1}%
 \ifx\site@part@PM\@empty\else\addtocounter{site@\@site @PM}{\site@part@PM}\fi%
-\paragraph*{#2 \ifx\site@part@type\@empty\else(\site@part@type)\fi}%
+\paragraph*{#2 \ifx\site@part@type\@empty\else(\site@part@type\ifx\site@part@type\@empty\else,\site@part@gender\fi)\fi}%
 \ignorespaces}
 {\par\medskip}
 \newmdenv[frametitle=Objectives]{wpobjectives}
