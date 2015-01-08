@@ -221,24 +221,20 @@ numerous other standalone libraries that make use of MPIR.
   interface smoothly \Pythran, \Cython and \texttt{Cilk++}.
 \end{task}
 
-\begin{task}[title=Pythran-Cython convergence,id=pythran-cython]
-  \Cython is a \Python to C compiler that was originally developed for
-  \Sage and is now a thriving project of its own. It can handle
-  essentially any \Python code, and in particular classes, but relies
-  heavily on annotations for producing optimized code.
+\begin{task}[title=Pythran,id=pythran]
+  \Cython is a extended-\Python to C compiler that was originally developed for
+  \Sage and is now a thriving project of its own.
 
-  Therefore, \Pythran and \Cython are similar in spirit but have
-  complementary feature sets: \Pythran can heavily optimize high level
-  \Numpy constructs and \Cython has broader \Python support. In this
-  task, we will investigate the opportunity and feasibility of a
-  convergence between \Cython and \Pythran: depending on the code at
-  hand, one strategy or the other would be automatically selected,
-  eventually using \Pythran generated called from \Cython when
-  relevant \localdelivref{pythran-cython}. This would result in compiler-runtime
-  cooperation driven by the \Cython compiler thanks to part of the
-  \Pythran-runtime and the extra typing information provided by \Cython. An
-  effort will be made to improve more and more the parallelism in the
-  \Pythran runtime \localdelivref{pythran-runtime}.
+  \Pythran and \Cython are similar in spirit but have complementary feature
+  sets: \Pythran can heavily optimize high level \Numpy constructs and \Cython
+  has broader \Python support. In this task, we will investigate the
+  opportunity and feasibility of a convergence between \Cython and \Pythran.
+  \begin{itemize}
+    \item depending on the code at hand, one strategy or the other would be automatically selected.
+    \item The optimized runtime of \Pythran can be used throught \Cython.
+  \end{itemize}
+  An effort will be made to improve more and more the parallelism in the
+  \Pythran runtime \localdelivref{pythran-cython}.
 
   This work will be achieved through a close collaboration between the \Pythran
   developers hired for \TheProject and \Cython developers involved in the \Sage
@@ -246,28 +242,22 @@ numerous other standalone libraries that make use of MPIR.
   codes, while not putting an extra burden on the developers.  Preliminary
   discussions with the \Cython community have already taken place and received a
   very favorable feedback.
-\end{task}
 
-\begin{task}[title=\Pythran for \Sage and \Sage Users,id=pythran-sage]
+  Adding \Pythran support in \Sage will be done not only for \Sage code but also
+  for \sage users code thanks to compilation facilities in the notebook interface.
+  \localdelivref{pythran-sage}
 
-  Currently, \Sage doesn't provide facilities to improve user written
-  \Python code without the modifications implied by the use of the \Cython
-  compiler. As \Pythran doesn't need these codes to be rewritten, a notebook
-  interface to compile \Pythran compliant code will he added in \Sage to
-  improve user kernels using the \Pythran compiler \localdelivref{pythran-sage}.
-
-  In a similar perspective, testing and improving the integration between
-  \software{mpi4py} and \Pythran could provide an efficient toolchain for HPC
-  while keeping full backward compatibility with pure \Python code. This will
-  required a continuous integration of \Pythran to ensure its capabilities
-  \localdelivref{pythran}.
+%  In a similar perspective, testing and improving the integration between
+%  \software{mpi4py} and \Pythran could provide an efficient toolchain for HPC
+%  while keeping full backward compatibility with pure \Python code. This will
+%  required a continuous integration of \Pythran to ensure its capabilities
+%  \localdelivref{pythran}.
 
   Internally, \Sage uses \Cython for compiling the critical sections of
   its libraries. In this task, we will explore opportunities to
-  benefit from \Pythran compilation within the \Sage library, in
-  particular toward better support for parallelism. A specific
-  challenge is that the \Sage library uses quite heavily
-  object-oriented programming.
+  benefit from \Pythran compilation within the \Sage library to benefit
+  \Pythran compile time optimisation. A specific challenge is that the \Sage
+  library uses quite heavily object-oriented programming.
 
   This task will strongly benefit from Task~\localtaskref{pythran-cython},
   while providing in return a real life large-scale use case for it.
@@ -277,17 +267,6 @@ numerous other standalone libraries that make use of MPIR.
   feedback provided for the user \localdelivref{pythran-typing}.
 \end{task}
 
-\begin{task}[title=Explorative task: Add support for classes in \Pythran.]
-  Classes support is a real challenge for \Pythran as it requires a more
-  accurate typing information but also invalidates some compiler optimisations.
-
-  As it will need a full rework of the aliases analysis in \Pythran, which is
-  the keystone of \Pythran, we are not sure it could really
-  be integrated but it would be a proof of scalability for \Pythran.
-  Thanks to this typing and this better aliasing analysis, we could add more
-  optimizations like the ones from \Cython enabled with decorator annotation.
-\end{task}
-
 %Stuart Mumford, Neil Lawrence and Mike Croucher, Sheffield
 \begin{task}[title=Sun Grid Engine Integration in Project Jupyter Hub]
 The Sun Grid Engine is a commonly used High Performance Computing scheduler. It is used, for example, on the institutional HPC systems in both Sheffield and Manchester Universities as well as the regional N8 HPC facility, a system shared by the 8 most research intensive universities in the North of England. In this task, we will develop and demonstrate a Sun Grid Engine notebook spawner for Project Jupyter, allowing users to access Jupyter notebooks on the HPC cluster. This will enable the interactive analysis of output data products on the cluster where they were generated and are stored, via a user-friendly web interface.
@@ -295,31 +274,25 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
 
 \end{tasklist}
 \begin{wpdelivs}
-  \begin{wpdeliv}[due=1,id=pythran,dissem=PU,nature=R]
-      {Ensure interoperability of \Pythran with \Python and its packages.}
-\end{wpdeliv}
-  \begin{wpdeliv}[due=2,id=pythran-sage,dissem=PU,nature=DEM]
-      {Facility to compile \Pythran compliant user kernels.}
-\end{wpdeliv}
+  \begin{wpdeliv}[due=3,id=pythran-sage,dissem=PU,nature=DEM]
+      {Facility to compile \Pythran compliant user kernels and sage code.}
+  \end{wpdeliv}
   \begin{wpdeliv}[due=3,id=QS-sieving,dissem=PU,nature=DEM]
       {Parallelise the relation sieving component of the Quadratic Sieve}
-\end{wpdeliv}
-  \begin{wpdeliv}[due=3,id=pythran-runtime,dissem=PU,nature=DEM]
-      {Improve \Pythran runtime support to automatically take advantage of multi-cores and SIMD instruction units.}
-\end{wpdeliv}
+  \end{wpdeliv}
   \begin{wpdeliv}[due=3,id=HPCcombi,dissem=PU,nature=DEM]
       {Turn the Python prototypes for tree exploration into    production code, integrate to \Sage.}
 \end{wpdeliv}
-  \begin{wpdeliv}[due=6,id=pythran-cython,dissem=PU,nature=DEM]
-      {Implement \Pythran runtime support in \Cython when they are implemented instead of using default implementation.}
-\end{wpdeliv}
+  \begin{wpdeliv}[due=9,id=pythran-cython,dissem=PU,nature=DEM]
+      {Improve \Pythran runtime support to automatically take advantage of multi-cores and SIMD instruction units and use it in \Cython.}
+  \end{wpdeliv}
   \begin{wpdeliv}[due=9,id=QS-linalg,dissem=PU,nature=DEM]
       {Implement a parallel version of Block-Wiederman linear algebra over GF2 and the triple large prime variant.}
 \end{wpdeliv}
 
   \begin{wpdeliv}[due=12,id=pythran-typing,dissem=PU,nature=DEM]
       {Make \Pythran typing better to improve error information.}
-\end{wpdeliv}
+  \end{wpdeliv}
 
 
   \begin{wpdeliv}[due=12,id=FFT,dissem=PU,nature=DEM]
