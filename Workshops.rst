@@ -22,6 +22,7 @@ Université de Bordeaux
 ----------------------
 HPC meeting
 4 x Ateliers PARI
+5 x developing countries workshops
 
 Warwick
 -------
