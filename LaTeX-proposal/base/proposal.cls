@@ -341,13 +341,13 @@
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
 \@ifundefined{deliv@nature}
-{\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv #1 undefined}}
+{\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv \wpg@id undefined}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}}
 \@ifundefined{deliv@dissem}
-{\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for Deliv #1 undefined}}
+{\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for Deliv \wpg@id undefined}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}}
 \@ifundefined{deliv@lead}
-{\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv #1  undefined}}
+{\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv \wpg@id  undefined}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{lead}{\deliv@lead}}
 \@ifundefined{deliv@due}{}{%
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
