@@ -27,6 +27,15 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
+final:
+	echo $(MAKEFLAGS)
+	$(MAKE) -w PROPOSAL=final.tex all
+
+install: final
+	cp final.pdf proposal-www.pdf
+	git commit -m "Updated pdf" proposal-www.pdf
+	git push
+
 cd: 	                                           # make cd will prepare CD for burning
 	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
 
@@ -57,7 +66,7 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
-clean: 
+clean:
 	rm -f *.log *.blg *~ *.synctex.gz *.cut
 
 distclean: clean
@@ -68,7 +77,7 @@ echo:
 	echo $(BBL)
 
 singlerun:
-	pdflatex proposal.tex
+	pdflatex $(PROPOSAL)
 
 TOWRITE: *.tex */*.tex
 	grep TOWRITE *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
