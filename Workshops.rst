@@ -9,6 +9,10 @@ In Orsay (or Cernay): Project meetings x 2 + 4 times Cernay + 1 Jupyter-Sage + 2
 Training for locals: 2 (~3 days, 3-4000 euros each)
 External: CIRM ?
 
+Oxford
+------
+Women in CS
+
 
 Université Joseph Fourier (Grenoble)
 ------------------------------------
@@ -18,6 +22,7 @@ Université de Bordeaux
 ----------------------
 HPC meeting
 4 x Ateliers PARI
+5 x developing countries workshops
 
 Warwick
 -------
@@ -26,6 +31,10 @@ LMFDB-Sage
 Saint Andrews
 -------------
 ICMS: Gap-Sage-Singular + user reaching meeting
+
+Kaiserslautern
+--------------
+2 x Sigular days + 2 x GAP days
 
 
 
@@ -101,6 +110,7 @@ Bordeaux, year ???
 
 SMC days
 --------
+Jupyter-SMC-Simula, Norvège ?
 
 Ateliers Pari
 -------------
@@ -110,6 +120,8 @@ One per year around January, usually in Bordeaux
 
 Singular-* Days
 ---------------
+2 x Sigular days, year 2016, 2018
+2 X Gap days, year 2017, 2019
 
 Jupyter-* Days
 --------------
