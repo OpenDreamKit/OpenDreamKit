@@ -334,7 +334,6 @@
 \setkeys{deliv}{#1}\stepcounter{deliv}% set state
 \ifx\@type\@wp\def\current@label{\deliv@label{\ifwork@areas\thewa.\fi\thewp.\thedeliv}}
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
-
 \pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
 \pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
 \@ifundefined{deliv@short}
@@ -364,7 +363,7 @@
 \delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
 \delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
 \delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
-\delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\deliv@lead})]
+\delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\site{\deliv@lead}})]
  \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
 \let\m@sep=\relax% do not print the separator the first time round
