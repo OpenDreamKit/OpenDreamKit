@@ -31,9 +31,9 @@ final:
 	echo $(MAKEFLAGS)
 	$(MAKE) -w PROPOSAL=final.tex all
 
-install: final
+install: final proposal.pdf
 	cp final.pdf proposal-www.pdf
-	git commit -m "Updated pdf" proposal-www.pdf
+	git commit -m "Updated pdf" proposal-www.pdf proposal.pdf
 	git push
 
 cd: 	                                           # make cd will prepare CD for burning
