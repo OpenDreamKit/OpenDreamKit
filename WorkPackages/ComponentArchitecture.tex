@@ -9,7 +9,8 @@ once completed)}
 
 \begin{workpackage}[id=component-architecture,wphases=0-48!.5,
   title=Component Architecture,lead=UV,
-  PSRM=24,UVRM=8,SARM=16, USHRM=4, USORM=6]
+  PSRM=64,UVRM=8,SARM=16, USHRM=4, USORM=6]
+  % PS: Full time dev: 48 PM, NT: 4 PM
 
   \begin{wpobjectives}
     The objective of this work package is to develop and demonstrate a
@@ -330,61 +331,72 @@ once completed)}
 
 
 \begin{task}[lead=USO,id=oommf-python-interface,title=Python interface
-  for OOMMF micromagneticc simulation library,PM=6]
+  for OOMMF micromagnetic simulation library,PM=6]
   % 6 person months
+  In this task, we create a Python interface
+  (\delivref{component-architecture}{oommf-py}) for the open source Object
+  Oriented MicroMagnetic Framework (OOMMF \cite{OOMMF-url}).
+  %which is the most widely used micromagnetic simulation package
+  %\cite{OOMMF-citations-url}. 
+  As a result, the OOMMF library will be
+  fully accessible and usable from a Python interface and become a
+  component in the Python/\Jupyter eco system of computational
+  tools and in \TheProject. We make use of this component architecture in
+  \taskref{UI}{oommf-py-ipython-attributes}.
 
-  First, we will identify best option for interfacing from Python to OOMMF
-  core (C++) routines. The technical options include CTypes, Cython, Swig,
-  and Boost-Python, all with particular
+  In more detail, we will first identify the best option for interfacing
+  from Python to OOMMF core (C++) routines. The technical options
+  include CTypes, Cython, Swig, and Boost-Python, all with particular
   advantages/disadvantages. Following analysis of the current OOMMF
   code layout and compilation model, we will use the most suitable
   tool, bearing in mind our ambition not to modify the OOMMF code so
   that the python interface we create remains functional and
   maintainable with minimal effort while the OOMMF core code is
-  developed further by the OOMMF authors.
+  developed further by the OOMMF authors. 
+  The interface will expose the C++ objects in Python, providing
+  an architecture component that provides full access to OOMMF's
+  raw capabilities. For clarity, we will refer to this interface as
+  \texttt{OOMMF-py-raw}. %Creation of this \texttt{OOMMF-py-raw} is
+  %technically doable as OOMMF had been written allowing to do this
+  %from Tcl. The \texttt{OOMMF-py-raw} library for Python provides
+  %access to the OOMMF functionality but requires some care when being
+  %used.
 
-  The interface will expose the raw C++ objects in Python, and for
-  clarity we will refer to this interface as \texttt{OOMMF-py-raw}, to
-  annotate that this gives access to OOMMF from Python but in a RAW
-  way. Creation of this \texttt{OOMMF-py-raw} is technically doable as
-  OOMMF had been written allowing to do this from Tcl. The
-  \texttt{OOMMF-py-raw} library for Python provides access to the
-  OOMMF functionality but requires some care when being used.
+  Secondly, we will create a user friendly Python library
+  \texttt{OOMMF-py} that combines the \texttt{OOMMF-py-raw}
+  capabilities in an object orientated and safe-to-use Python library
+  targetting researchers in the magnetic materials community. We will
+  follow the design of the well-received high level Python interface
+  in the Nmag micromagnetic simulation package \cite{Fischbacher2007a}
+  interface \cite{Nmag-url}. Unit and regression tests for both
+  component interfaces \texttt{OOMMF-py-raw} and \texttt{OOMMF-py} are
+  simultanously developed.
 
-  Secondly, we will create a user friendly Python library that
-  combines the OOMMF-RAW capabilities we expect to become the main
-  user interface to OOMMF in the medium term future. This will make
-  use of object orientation to assist users in efficient and safe
-  exploitation of the available facilities, following the design of
-  the well-received high level Nmag simulation package
-  \cite{Fischbacher2007a} interface \cite{Nmag-url}.
-
-  Once this is completed, several new features will be available to
-  OOMMF users: (i) ability to drive OOMMF from Python, (ii)
-  computational steering, and (iii) combination of OOMMF simulation
-  with the existing Python eco-system of computational tools.
+  %Once this is completed, several new features will be available to
+  %OOMMF users: (i) ability to drive OOMMF from Python, (ii)
+  %computational steering, and (iii) combination of OOMMF simulation
+  %with the existing Python eco-system of computational tools.
 
   %Can remove the next paragraph if we are pushed for space.
 
-  We illustrate the advantage of (iii) through an example: to solve
-  the micromagnetic standard problem 3
-  \cite{Micromagnetic-Standardproblem-3}, traditionally multiple OOMMF
-  simulation runs would have to be conducted, and for each of those a
-  new configuration file as to be written. Between these the size of
-  the simulated geometry needs to be modified until two particular
-  values of energy are the same. Given the new interface developed in
-  this work package, this whole process can be replaced by one Python
-  script that creates multiple OOMMF simulations, combined with a root
-  finding method for the automatic iterative determination of the
-  required simulation geometry.
+  %We illustrate the advantage of (iii) through an example: to solve
+  %the micromagnetic standard problem 3
+  %\cite{Micromagnetic-Standardproblem-3}, traditionally multiple OOMMF
+  %simulation runs would have to be conducted, and for each of those a
+  %new configuration file as to be written. Between these the size of
+  %the simulated geometry needs to be modified until two particular
+  %values of energy are the same. Given the new interface developed in
+  %this work package, this whole process can be replaced by one Python
+  %script that creates multiple OOMMF simulations, combined with a root
+  %finding method for the automatic iterative determination of the
+  %required simulation geometry.
 
-  Parallel in developing this, a set of unit tests is created that can
-  be run periodically as regression tests. For all tasks relating to
-  \OOMMFNB, documentation and tests are created simultaneously with
-  the code. All codes, tests and documentation will be made available as open source.
+  %For all tasks relating to
+  %\OOMMFNB, documentation and tests are created simultaneously with
+  %the code. All codes, tests and documentation will be made available as open source.
 
-  We anticipate to start this task \localtaskref{oommf-python-interface}
-  in month 4, leading to deliverable \delivref{UI}{oommf-py}.
+  %We anticipate to start this task \localtaskref{oommf-python-interface}
+  %in month 4, leading to deliverable \delivref{UI}{oommf-py}.
 \end{task}
 
 
@@ -403,7 +415,13 @@ once completed)}
       % JPF: I agree.
     \end{wpdeliv}%
 
-    \begin{wpdeliv}[due=24,id=portability-cygwin64,dissem=PU,nature=OTHER]
+
+    \begin{wpdeliv}[due=9,id=oommf-py,dissem=PU,nature=OTHER,lead=USO]
+      {Python Interface to micromagnetic OOMMF package completed}
+    \end{wpdeliv}
+
+
+    \begin{wpdeliv}[due=24,id=portability-cygwin64,dissem=PU,nature=OTHER,lead=PS]
       {One-click install \Sage distribution for Windows with Cygwin 64bits}
 
       % Participants involved: Paris Sud, Kaiserslautern, Saint Andrews, Bordeaux
@@ -468,12 +486,12 @@ once completed)}
       possibility of evolving it towards a multi-platform tool, and
       opening it to other mathematical software.
     \end{wpdeliv}%
-    \begin{wpdeliv}[due=12,id=scscp-sage,dissem=PU,nature=OTHER]
+    \begin{wpdeliv}[due=12,id=scscp-sage,dissem=PU,nature=OTHER,lead=SA]
       {Support for the \href{http://www.symbolic-computing.org/}{SCSCP} interface protocol
         in all relevant components (\Sage, \GAP, etc.) distribution}
     \end{wpdeliv}
 
-    \begin{wpdeliv}[due=36,id=semantic-interface-sage-gap,dissem=PU,nature=OTHER]
+    \begin{wpdeliv}[due=36,id=semantic-interface-sage-gap,dissem=PU,nature=OTHER,lead=UO]
       {Semantic-aware \Sage interface to \GAP.}
     \end{wpdeliv}
 

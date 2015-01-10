@@ -11,7 +11,7 @@ once completed)}
 \begin{workpackage}[id=UI,wphases=0-48,
   title=User Interfaces,
   lead=SR,
-  PSRM=12, % Sage-Jupyter interface, sphinx documentation dynamic documentation and exploration system
+  PSRM=30, % Sage-Jupyter interface, sphinx documentation dynamic documentation and exploration system
   UVRM=2, % Sage-Jupyter interface
   JURM=22, % Jacobs: active documents
   USHRM=12, % Supporting reproducible data science and sharing of models
@@ -19,7 +19,7 @@ once completed)}
   SARM=18, % GAP
   UKRM=1, % Singular
   UBRM=1, % Pari
-  USORM=16, % Southampton, \OOMMFNB
+  USORM=16, % Southampton, micromagnetic VRE some contribution (1 month) to 3d visualisation
   SRRM=23]
 
 \begin{wpobjectives}
@@ -57,7 +57,7 @@ once completed)}
   Notebook that fosters excellence in computational science and
   research. In particular, we will push towards reproducible and
   effective science by allowing to create structured documents (such
-  as reports, books, thesis) from Notebooks, and by allowing those
+  as reports, books, theses) from Notebooks, and by allowing those
   notebooks to be re-executed as self-contained regression tests. We
   will also unify the notebook infrastructure used in \Sage with
   \Jupyter, push forward dynamic documentation exploration
@@ -71,17 +71,19 @@ once completed)}
 \TOWRITE{Hans-Petter / Marcin?}{Say something about notebook for
   education and planned demonstrators [notebooks]?}
 
-  To demonstrate the power of the \Jupyter \TODO{or \TheProject?} environment to
-  accelerate computational science, deliver better value for money and
-  make computational science more robust, we will develop a
-  state-of-the art \Jupyter notebook interface and front end for a
-  simulation package that is actively used in materials research by a
-  wide range of scientists and engineers, in academia and industry. We
-  have chosen the Object Oriented MicroMagnetic Framework (OOMMF)
-  simulation package \cite{OOMMF-url} as the target tool which is used
-  to simulate magnetic nanostructures in over 1800 publications
-  \cite{OOMMF-citations-url}. We use \OOMMFNB{} (for OOMMF NoteBook)
-  as an identifier for this case study.
+To demonstrate the power of the \TheProject environment to accelerate
+computational science, deliver better value for money and make
+computational science more robust, we will put together a micromagnetic
+Virtual Research Environment (micromagnetic VRE) for a simulation
+package that is actively used in materials research by a wide range of
+scientists and engineers, in academia and industry. We have chosen the
+Object Oriented MicroMagnetic Framework (OOMMF) simulation package
+\cite{OOMMF-url} as the target tool which is used to simulate magnetic
+nanostructures in over 1800 publications \cite{OOMMF-citations-url} as
+there is a wide community to benefit from it.
+\label{page:description-of-micromagnetic-vre}
+
+\TODO{POD: Somewhere in this package there needs to be a mention of the experience acquired with Knowls, developed for LMFDB. -- POD}
 \end{wpdescription}
 
 \begin{tasklist}
@@ -273,114 +275,133 @@ once completed)}
 \end{task}
 
 
-\begin{task}[lead=USO,title=OOMMF case study: Extend \texttt{OOMMF-py} with \Jupyter
-    notebook attributes and GUI templates,id=oommf-py-ipython-attributes,PM=6]
+\begin{task}[lead=USO,title=Case study: micromagnetic VRE built from
+  \TheProject,id=oommf-py-ipython-attributes,PM=6]
   % 6 person months
 
-  The web server based Notebook environment (\Jupyter) allows to host,
+%refer to deliverable:
+  In this task, we use the \TheProject architecture to assemble a
+  virtual research environment software tailored for the large
+  community of researchers in magnetic materials that use simulation
+  studies for their work (see introduction in description on page
+  \pageref{page:description-of-micromagnetic-vre}). These researchers in
+  academia and industry are typically not computationalists and use
+  simulation to support their experiments and analytical work.
+
+  The micromagnetic VRE will be based on the \Jupyter Notebook, the
+  Python interface to the micromagnetic simulation library OOMMF
+  (\taskref{component-architecture}{oommf-python-interface}),
+  and the additional features added to \Jupyter in this work
+  package. The pool of several thousand OOMMF users are the direct
+  beneficiaries of this demonstrator, but we will extract further and
+  more generic lessons and insight from it (for example
+  \taskref{social-aspects}{oommf-nb-evaluation}).
+
+  The \Jupyter Notebook environment allows to host,
   execute and document the Python-based OOMMF simulation in an
-  executable document. In this interactive environment, the
-  representation of objects can be overloaded, and can include
-  representation of objects as text, as bitmaps or SVG files. We will
-  create this functionality so that magnetisation vector field objects
-  can be presented as a rendered 3d and 2d-view of the magnetisation
-  field, and similar features for scalar fields such as field
-  components and energies. This allows the interactive exploration and
-  computational steering of the behavior of magnetic
-  nanostructures. Depending on the development of 3d packages such as
-  vispy, it may be possible to provide interactive data objects in the
-  notebook.
+  executable document. In this interactive environment, objects can be
+  displayed using various representations, including, for example,
+  textual representation (i.e. strings), bitmap images and SVG (vector
+  graphics) files. We will create functionality so that magnetisation vector
+  field objects can be presented as a rendered 3d and 2d-view of the
+  magnetisation field, and similar features for scalar fields such as
+  field components and energies (linking to
+  \localtaskref{cfd-vis}). This allows computational steering and the
+  interactive exploration of the behavior of magnetic
+  nanostructures.
 
   Beyond that, the \Jupyter Widgets allow the creation of graphical
-  user interface (GUI) like elements, and we will generate code to
+  user interface (GUI) elements, and we will generate code to
   display these widgets on demand to (i) set up micromagnetic
-  simulation using a GUI, and (ii) assist in post-processing
-  simulation results (deliverable \delivref{UI}{oommf-nb}).
-  Not all OOMMF users are keen on using GUIs for
-  simulation set up or post processing, but in particular new or
-  infrequent users benefit significantly from this. Recent pilot work
-  has shown that it is possible to make \Jupyter Widgets interact with
-  the python interpreter session and this allows to activate a
-  GUI-like (widget based) interface when desired but to quickly return
-  to the interpreter prompt, taking forward the results (data) from
-  the GUI session \cite{IPython-widget-GUI-demo-youtube-2014} and
-  providing a continuous path from scripting to GUI. We
-  believe that having the ability to mix and match GUI-based and
-  command driven analysis combines the best of both approaches and
-  provides significant additional value.
+  simulations using a GUI, and (ii) assist in common post-processing
+  simulation results. Recent pilot work has shown that it is possible
+  to make \Jupyter Widgets interact with the Python interpreter
+  session and this allows to activate a GUI-like (widget based)
+  interface when desired but to quickly return to the interpreter
+  prompt, taking forward the results (data) from the GUI session
+  \cite{IPython-widget-GUI-demo-youtube-2014} and providing a
+  continuous path from scripting to GUI. We believe that having the
+  ability to mix and match GUI-based and command driven analysis
+  combines the best of both approaches, caters for users' preferences,
+  and provides significant additional value.
+
+  The deliverable for this task is the open source micromagnetic VRE
+  software (\delivref{UI}{oommf-nb}).
 \end{task}
 
-\begin{task}[lead=USO,title=\OOMMFNB{} demonstrator: executable tutorial and
-  documentation, id=oommf-tutorial-and-documentation, PM=7]
-  % 6 person months + 1 month co-investigator [Ian Hawke's experience]
+\begin{task}[lead=USO,title=Demonstrator: micromagnetic VRE notebooks,
+  id=oommf-tutorial-and-documentation, PM=6]
+  % 5 person months + 1 month co-investigator [Ian Hawke's experience]
 
-  We will create documentation and a new tutorial on usage of OOMMF
-  that introduces micromagnetic modeling in the new framework of
-  \OOMMFNB{}, combined with complete documentation of the
-  \texttt{OOMMF-Py} library. The documentation will be provided in
-  form of executable \Jupyter notebooks (deliverable \delivref{UI}{oommf-nb-documentation}).
+  The purpose of the micromagnetic VRE
+  (\localtaskref{oommf-py-ipython-attributes}) is to enable excellent
+  computational research. To maximise the value of this grant's investment for the
+  community, we will not carry out micromagnetic research but instead
+  produce a set of executable notebooks using the micromagnetic VRE
+  to demonstrate its power and applicability.
 
-  The tutorial, in terms of content, will take guidance from the
-  tutorial provided for Nmag \cite{Nmag-tutorial-url} but tailored for the
-  special simulation capabilities of OOMMF, and will introduce the
-  special capabilities of the new IPython interface for OOMMF.
+  We will create executable notebook documents (\delivref{UI}{oommf-nb-documentation}) within the micromagnetic VRE
+  including (i) a new tutorial on usage of OOMMF, (ii) the complete
+  documentation of the \texttt{OOMMF-Py} library, and (iii) a set of
+  typical micromagnetic case studies. The tutorial, in terms of
+  content, will take guidance from the tutorial provided for Nmag
+  \cite{Nmag-tutorial-url} but is tailored for the special simulation
+  capabilities of underlying micromagnetic OOMMF library, and will
+  introduce the additional features of the \Jupyter-driven
+  micromagnetic VRE. We expect this substantial and executable
+  documentation of the micromagnetic VRE to become the standard
+  resource that introduces researchers to computational
+  micromagnetics, in particular through the online portal (\localtaskref{oommf-nb-ve}).
 
-  The output of this activity will deliver multiple benefits:
-  providing a systematic introduction to \texttt{OOMMF-py} suitable for both
-  those users (i) new to micromagnetic modelling and those (ii) new to
-  the \texttt{OOMMF-py} interface. Because the documentation is developed in an
-  \Jupyter notebook, the documents are executable. For new learners
-  this is a great simplification because they can skip through the
-  given document and execute the given examples there and then: at the
-  moment, this is a process of manually writing a script, or locating
-  it in the directory structure of files, then executing this,
-  subsequently opening and processing the data files, etc. In the new
-  model, this end-to-end simulation will start from specifying the
-  material parameters in the notebook (all of this is given in the
-  tutorial), to running the simulation in the notebook to processing
-  of computed data while the simulation runs (or subsequently) in the
-  notebook; thus providing one virtual research environment, with all
-  the associated benefits of making best use of the scientist's time
-  using the tool and environment.
+  %% This block is about the benefits of using the notebook. It should
+  %% go somewhere eles in more geneci form:
+  %The output of this activity will deliver multiple benefits:
+  %providing a systematic introduction to \texttt{OOMMF-py} suitable for both
+  %those users (i) new to micromagnetic modelling and those (ii) new to
+  %the \texttt{OOMMF-py} interface. Because the documentation is developed in an
+  %\Jupyter notebook, the documents are executable. For new learners
+  %this is a great simplification because they can skip through the
+  %given document and execute the given examples there and then: at the
+  %moment, this is a process of manually writing a script, or locating
+  %it in the directory structure of files, then executing this,
+  %subsequently opening and processing the data files, etc. In the new
+  %model, this end-to-end simulation will start from specifying the
+  %material parameters in the notebook (all of this is given in the
+  %tutorial), to running the simulation in the notebook to processing
+  %of computed data while the simulation runs (or subsequently) in the
+  %notebook; thus providing one virtual research environment, with all
+  %the associated benefits of making best use of the scientist's time
+  %using the tool and environment.
 
-  The documentation and tutorial will include a number of typical
-  micromagnetic case studies that (i) demonstrate the correctness of
-  the code by executing some of the micromagnetic standard problems
-  and (ii) demonstrate the additional power gained by the
-  IPython-based OOMMF interface. We expect this substantial, executable
-  documentation to become the standard resource that introduces
-  researchers to computational micromagnetics.
 \end{task}
 
-\begin{task}[lead=USO,id=oommf-nb-ve,title=\OOMMFNB{} online and downloadable virtual environments,PM=3]
+\begin{task}[lead=USO,id=oommf-nb-ve,title=Online portal for
+  micromagnetic VRE demonstrator,PM=3]
+
   % 3 person months
-  Recently, a TeMPorary \Jupyter NoteBook (TMPNB) has been made available (at
-  \href{http://tmpnb.org}{http://tmpnb.org}) that allows anybody to
-  open this URL and use their very own \Jupyter notebook for quick
-  calculations and tests online. We will provide similar functionality
-  but for a server that provides the \OOMMFNB{} software and \OOMMFNB{}
-  documentation and tutorials so that the tutorial can be executed
-  immediately on that web server; thus removing the barrier of having
-  to install (the OOMMF and \Jupyter notebook) code before being able to interactively drive and test a
-  simulation system (deliverable \delivref{UI}{oommf-nb-tmp}).
-
-  We will further provide as open source the scripts as deliverable
-  \delivref{UI}{oommf-nb-virtual} that allow
-  creation of virtual environments (such as vagrant scripts to
-  generate VirtualBox \cite{Virtualbox} images, and Docker
-  \cite{Docker} containers). These virtual environments underpin the
-  web hosted temporary \OOMMFNB{} service (we anticipate to use Docker
-  on the web hosted service) but are also of use to those users who
-  want to download a complete virtual machine (such as a virtualbox
-  image) to run their simulations within that machine. The same
-  virtual machine images can also be used for Cloudhosted computing services.
+  Recently, a TeMPorary \Jupyter NoteBook (TMPNB) has been made
+  available (at \href{http://tmpnb.org}{http://tmpnb.org}) that allows
+  anybody to open this URL and use their very own \Jupyter notebook
+  for quick calculations and tests online. We will provide such a
+  portal (\delivref{UI}{oommf-nb-tmp}) which provides the micromagnetic VRE for anonymous use. This
+  service allows users to execute the demonstrator tutorial and
+  documentation notebooks
+  (\localtaskref{oommf-tutorial-and-documentation}) and run the
+  calculations in real time on the web server, without having to
+  install any software on their own machine.  This webservice will be
+  based on Docker \cite{Docker} virtualisation technology and we will
+  make available the scripts to create VirtualBox \cite{Virtualbox}
+  images, and Docker containers. The same virtual machine images can
+  also be used for Cloudhosted computing services.
 
   We request 6000 EUR to purchase a machine to provide these
-  services (shared memory, 64 cores, 128GB RAM, Solid state drive
-  to make the system more responsive). This machine will also support
-  the regression testing and continuous integration (see task
-  \taskref{dissem}{dissemination-of-oommf-nb-virtual-environment}). Setup and
-  maintenance of the machine is part of this work task.
+  services (shared memory, 64 cores, 128GB RAM, Solid-state drive (SDD)
+  to make the system more responsive). 
+  %This machine will also support
+  %the regression testing and continuous integration (see task
+  %\taskref{dissem}{dissemination-of-oommf-nb-virtual-environment}).
+  %Setup and
+  %maintenance of the machine is part of this work task.
 \end{task}
 
 
@@ -403,7 +424,7 @@ predefined frequency will mostly suffice.
 We propose to let computational fluid dynamics (CFD) be a driving
 application for the development of 3d visualization in \Jupyter
 notebooks since CFD is one of the most demanding cases of scientific
-visualization. Successful handling CFD makes the tool immediately
+visualization. Successfully handling CFD makes the tool immediately
 applicable to a range of other fields such as heat transfer,
 electromagnetics, material science, and 3d algebraic structures in
 mathematics. Simulations are started inside the notebook and executed
@@ -415,23 +436,22 @@ notebook concept throughout science and engineering.
 
 As example code for a 3d live web notebook with fluid dynamics
 simulations, we will use the Lattice Boltzmann solver which is under
-development at the University of Silesia: Sailfish
-[http://sailfish.us.edu.pl/].  Sailfish is an advanced Lattice
-Boltzmann solver designed from the ground up for distributed system of
-GPU compute clusters. It is implemented predominantly in Python, and
-it uses run-time code generation techniques to automatically build
-optimized code for CUDA and OpenCL devices. Since running Sailfish
-requires specialized hardware, it is reasonable to use it on dedicated
-HPC installations.
+development at the University of Silesia:
+\href{http://sailfish.us.edu.pl/}{Sailfish}.  This code is an advanced
+Lattice Boltzmann solver designed from the ground up for distributed
+system of GPU compute clusters. It is implemented predominantly in
+Python, and it uses run-time code generation techniques to
+automatically build optimized code for CUDA and OpenCL devices. Since
+running Sailfish requires specialized hardware, it is reasonable to
+use it on dedicated HPC installations.
 
 The project must first investigate available technologies for fast
-in-browser visualization (WebGL-based JavaScript libraries) and then
+in-browser visualization via \href{http://vispy.org}{Vispy} and then
 determine the most appropriate visualization techniques for the
 typical structures to be displayed (isosurfaces, streamlines, flow
 sheets, etc.).  After a proof of concept is established by
 researchers, a precise description of the visualization tool can be
 subcontracted to professional IT developers.
-
 \end{task}
 
 
@@ -453,9 +473,6 @@ subcontracted to professional IT developers.
   \begin{wpdeliv}[id=adstex,due=6,nature=R,dissem=PU,lead=JU]
     {Active Documents based on sTeX}
   \end{wpdeliv}
-  \begin{wpdeliv}[due=9,id=oommf-py,dissem=PU,nature=OTHER,lead=USO]
-      {Python Interface to OOMMF}
-    \end{wpdeliv}
     \begin{wpdeliv}[id=mws,due=9,nature=OTHER,dissem=PU,lead=JU]
       {Full-text search (formulae + Keywords) over LaTeX-based documents
         (e.g. the arXiv subset)}
@@ -475,7 +492,7 @@ subcontracted to professional IT developers.
   \end{wpdeliv}
 
     \begin{wpdeliv}[due=15,id=oommf-nb,dissem=PU,nature=DEM,lead=USO]
-      {\Jupyter notebook Interface for OOMMF (\OOMMFNB{})}
+      {Micromagnetic VRE software completed}
     \end{wpdeliv}
 
     \begin{wpdeliv}[id=notebooksearch,due=18,nature=OTHER,dissem=PU,lead=JU]
@@ -495,21 +512,18 @@ subcontracted to professional IT developers.
       {Tools for collaborating on notebooks via version-control}
   \end{wpdeliv}
     \begin{wpdeliv}[due=21,id=oommf-nb-documentation,dissem=PU,nature=DEC,lead=USO]
-      {\OOMMFNB{} executable tutorial and documentation}
+      {Micromagnetic VRE tutorial and documentation notebooks}
     \end{wpdeliv}
     \begin{wpdeliv}[id=jupyter-import,due=24,nature=DEM,dissem=PU,lead=JU]
       {Notebook Import into MathHub.info (interactive display)}
     \end{wpdeliv}
     \begin{wpdeliv}[due=24,id=oommf-nb-tmp,dissem=PU,nature=DEC,lead=USO]
-      {\OOMMFNB{} web computation service available}
+      {Demonstrator online portal available}
     \end{wpdeliv}
   \begin{wpdeliv}[due=24,id=cfd-vis,dissem=PU,nature=OTHER]
       {\Jupyter extension for 3d CFD visualization}
   \end{wpdeliv}
-    \begin{wpdeliv}[due=24,id=oommf-nb-virtual,dissem=PU,nature=OTHER, lead=USO]
-      {\OOMMFNB{} virtual machine images available for download}
-    \end{wpdeliv}
-    \begin{wpdeliv}[id=cassearch,due=30,nature=OTHER,dissem=PU,lead=JU]
+   \begin{wpdeliv}[id=cassearch,due=30,nature=OTHER,dissem=PU,lead=JU]
       {Formula search in CAS programs and Software Modules}
     \end{wpdeliv}
   \begin{wpdeliv}[due=36,id=jupyter-live-collab,dissem=PU,nature=OTHER,lead=SR]
