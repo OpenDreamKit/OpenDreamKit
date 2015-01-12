@@ -493,8 +493,8 @@
     use the attributes wphase on the workpackage environment instead!}}
 \newcommand\localtaskref[1]{\pdataRef{task}{\wp@id @#1}{label}}
 \newcommand\taskin[2]{#2@#1}
-\newcommand\taskref[2]{\WPref{#1}.\pdataRef{task}{#1@#2}{label}}
-\newcommand\taskreflong[2]{\WPref{#1}.\pdataRef{task}{#2}{label}}
+\newcommand\taskref[2]{\pdataRef{task}{#1@#2}{label}}
+\newcommand\taskreflong[2]{\pdataRef{task}{#2}{label}}
 \newcommand\tasktref[2]{\WPref{#1} (\task@label@long \pdataRef{task}{#1@#2}{number})}
 \newcounter{gantt@deps}
 \def\@requires#1#2{\stepcounter{gantt@deps}%
@@ -893,7 +893,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
      \@for\@@task:=\@@tasks\do{% iterate over the tasks
        \stepcounter{gantt@tasks}
        \@@line=\gantt@tasks\advance\@@line by -\thegantt@tasks
-       \node at (-1/\gantt@xscale,\@@line) [above=-2pt] {\taskreflong\@@wp\@@task};
+       \node at (-.5/\gantt@xscale,\@@line) [above=-2pt] {{\footnotesize\taskreflong\@@wp\@@task}};
        \edef\@@wphases{\pdataref@safe{task}\@@task{wphases}}
        \@for\@@ft:=\@@wphases\do{%iterate over the task-level work phases
          \decode@wphase\@@ft
