@@ -6,7 +6,7 @@ once completed)}
 \begin{verbatim}
 - [X] have all deliverables in the WP a lead institution?
 - [X] do all tasks list all sites involved in them? 
-- [ ] does the table of sites and their PM efforts match lists of sites for each task?
+- [X] does the table of sites and their PM efforts match lists of sites for each task?
       (each site from the table is listed in all relevant tasks, and no site is listed
       only in the table or only at some task)
 \end{verbatim}
@@ -22,7 +22,7 @@ once completed)}
   PSRM=6,   % HPC for Combinatorics 
   LLRM=12,  % Pythran
   SARM=18, % GAP
-  UKRM=96, % Singular
+  UKRM=94, % Singular
   UBRM=40,  % Pari + HPC for Combinatorics + Sage integration
   UJFRM=52] % Linbox / Pythran
   
@@ -57,8 +57,9 @@ once completed)}
   experience on the multi-core processing aspects. 
 
   In this work package, we will build on this momentum to further implement HPC support in
-  the component Tasks~\localtaskref{hpc-pari},\localtaskref{hpc-gap},
-  \localtaskref{hpc-linbox}, \localtaskref{hpc-mpir} and \localtaskref{hpc-singular}.
+  the component Tasks~\localtaskref{hpc-pari} (\Pari),\localtaskref{hpc-gap} (\GAP),
+  \localtaskref{hpc-linbox} (\Linbox), \localtaskref{hpc-mpir}(\MPIR) and
+  \localtaskref{hpc-singular} (\Singular).
   
   Many of the computational components of \TheProject, notably \Sage
   and \GAP use a high level
@@ -66,9 +67,7 @@ once completed)}
   rewriting or compiling critical sections into a lower-level
   language. \Sage uses
   the \Cython \Python-to-C compiler; \GAP has some more basic support.
-  In Tasks~\localtaskref{hpc-gap}, and \localtaskref{pythran} (deliverables 
-\delivref{hpc}{pythran-cython}
-  and~\delivref{hpc}{pythran-sage}), we will also boost performance by
+  In Tasks~\localtaskref{hpc-gap} and \localtaskref{pythran}, we will also boost performance by
   further developing and applying such compilation tools, allowing the
   application programmer to retain their high level approach.
 
@@ -124,7 +123,7 @@ developments in the system
 \end{itemize}
 \end{task}
 
-\begin{task}[title=Linbox,PM=40,id=hpc-linbox, lead=UJF, partners=UJF]
+\begin{task}[title=Linbox,PM=40,id=hpc-linbox, lead=UJF, partners=UJF,wphases=3-48]
 Most intensive mathematical computations rely heavily on exact linear kernels
 and their ability to harness parallel computers, grids or clusters. The \Linbox
 library, already delivers high sequential efficiency for mathematical software
@@ -136,10 +135,13 @@ kernels through a general audience mathematical software, such as \Sage.
 A first aspect focuses on code design and domain specific languages allowing to
 expose an abstraction of the parallel infrastructure and the parallel features
 of the code through the stack of libraries, and support the
-composition of parallel routines.  More generally the second aspect concerns the
+composition of parallel routines. This will be addressed in
+deliverable~\localdelivref{LinBox-DSL}. More generally the second aspect, addressed
+in deliverable~\localdelivref{LinBox-algo} concerns the 
 development of new parallel algorithms and implementations, that are still
 barriers in the development of High performance mathematical
-applications. Lastly, the third part addresses the specificities of  distributed
+applications. Lastly, the third part, in
+deliverable~\localdelivref{LinBox-distributed}, addresses the specificities of  distributed
 computing, with a close focus on communications and heterogeneous infrastructures.
 
   % \begin{compactitem}
@@ -158,7 +160,7 @@ computing, with a close focus on communications and heterogeneous infrastructure
 
 \end{task}
 
-\begin{task}[title=Singular,lead=UK, PM=84, id=hpc-singular,partners={SA,UK} ]
+\begin{task}[title=Singular,lead=UK, PM=82, id=hpc-singular,partners={UK} ]
 %  \label{task:hpc-singular}
   The unique challenge of parallelizing Singular has been that it is a decades-old
   project, with a codebase exceeding 300,000 lines of code and an enormous existing
@@ -316,23 +318,38 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
   \begin{wpdeliv}[due=3,id=pythran-sage,dissem=PU,nature=DEM,lead=UJF]
       {Facility to compile \Pythran compliant user kernels and sage code.}
   \end{wpdeliv}
-  \begin{wpdeliv}[due=6,id=QS-sieving,dissem=PU,nature=DEM,lead=UK]
-      {Parallelise the relation sieving component of the Quadratic Sieve}
-  \end{wpdeliv}
   \begin{wpdeliv}[due=3,id=HPCcombi,dissem=PU,nature=DEM,lead=PS]
       {Turn the Python prototypes for tree exploration into production code, integrate to \Sage.}
 \end{wpdeliv}
+  \begin{wpdeliv}[due=6,id=QS-sieving,dissem=PU,nature=DEM,lead=UK]
+      {Parallelise the relation sieving component of the Quadratic Sieve}
+  \end{wpdeliv}
   \begin{wpdeliv}[due=9,id=pythran-cython,dissem=PU,nature=DEM,lead=LL]
       {Improve \Pythran runtime support to automatically take advantage of multi-cores and SIMD instruction units and use it in \Cython.}
   \end{wpdeliv}
-  \begin{wpdeliv}[due=18,id=QS-linalg,dissem=PU,nature=DEM,lead=UK]
-      {Implement a parallel version of Block-Wiederman linear algebra over GF2 and the triple large prime variant.}
-  \end{wpdeliv}
   \begin{wpdeliv}[due=12,id=SGE-jupyter,dissem=PU,nature=OTHER,lead=USH]
-      {Add Sun Grid Engine support to Project Jupyter Hub}
+      {Sun Grid Engine support for Project Jupyter Hub}
   \end{wpdeliv}
   \begin{wpdeliv}[due=12,id=pythran-typing,dissem=PU,nature=DEM, lead=UJF]
       {Make \Pythran typing better to improve error information.}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=24,id=HPCcombi,dissem=PU,nature=DEM,lead=PS]
+      {Explore the possibility to interface smoothly \Pythran, \Cython and \texttt{Cilk++}.}
+\end{wpdeliv}
+  \begin{wpdeliv}[due=12,id=MPIRsuperoptimiser,dissem=PU,nature=DEM,lead=UK]
+      {Extend the existing assembly superoptimiser for AVX and upcoming Intel
+        processor extensions for the \MPIR library.}
+\end{wpdeliv}
+  \begin{wpdeliv}[due=18,id=QS-linalg,dissem=PU,nature=DEM,lead=UK]
+      {Implement a parallel version of Block-Wiederman linear algebra over GF2 and the triple large prime variant.}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=18,id=GAP-hpc-report,dissem=PU,nature=R,lead=SA]
+    {Report on development of designs for the \GAP developments --
+      parallel library, interacts to standard infrastructure and
+      \Cython-like extensions }
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=24,id=LinBox-DSL,dissem=PU,nature=R,lead=UJF]
+    {Library design and domain specific language exposing \Linbox parallel features to \Sage}
   \end{wpdeliv}
   \begin{wpdeliv}[due=24,id=FFT,dissem=PU,nature=DEM, lead=UK]
     {Take advantage of multiple cores in the matrix Fourier Algorithm component of the FFT
@@ -340,50 +357,34 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
       processor instructions (AVX, Knight's Bridge, etc.), especially in the FFT
       butterflies}
 \end{wpdeliv}
+  \begin{wpdeliv}[due=36,id=HPCcombi,dissem=PU,nature=DEM,lead=PS]
+      {Refactor the existing combinatorics \Sage code using the new developed \Pythran and \Cython features.}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=24,id=MPIRfat,dissem=PU,nature=DEM,lead=UK]
+      {Provide FAT binary support for all new x86\_64 processors, build system
+        maintenance and improvements to tuning, profiling and testing subsystems
+      for the \MPIR library.}
+\end{wpdeliv}
   \begin{wpdeliv}[due=36,id=singular-polymul,dissem=PU,nature=DEM,lead=UK]
       {Parallelise the Singular sparse polynomial multiplication algorithms}
 \end{wpdeliv}
   \begin{wpdeliv}[due=48,id=singular-polyarith,dissem=PU,nature=DEM, lead=UK]
       {Parallel versions of the Singular sparse polynomial division and GCD algorithms.}
 \end{wpdeliv}
-  \begin{wpdeliv}[due=12,id=MPIRsuperoptimiser,dissem=PU,nature=DEM,lead=UK]
-      {Extend the existing assembly superoptimiser for AVX and upcoming Intel
-        processor extensions for the \MPIR library.}
-\end{wpdeliv}
-  \begin{wpdeliv}[due=24,id=MPIRfat,dissem=PU,nature=DEM,lead=UK]
-      {Provide FAT binary support for all new x86\_64 processors, build system
-        maintenance and improvements to tuning, profiling and testing subsystems
-      for the \MPIR library.}
-\end{wpdeliv}
-  \begin{wpdeliv}[due=24,id=HPCcombi,dissem=PU,nature=DEM,lead=PS]
-      {Explore the possibility to interface smoothly \Pythran, \Cython and \texttt{Cilk++}.}
-\end{wpdeliv}
-
-  \begin{wpdeliv}[due=12,id=LinBox-DSL,dissem=PU,nature=R,lead=UJF]
-    {Library design and domain specific language exposing \Linbox parallel features to \Sage}
-  \end{wpdeliv}
-  \begin{wpdeliv}[due=18,id=GAP-hpc-report,dissem=PU,nature=R,lead=SA]
-    {Report on development of designs for the \GAP developments --
-      parallel library, interacts to standard infrastructure and
-      \Cython-like extensions }
-  \end{wpdeliv}
   \begin{wpdeliv}[due=48,id=MPIRprocessors,dissem=PU,nature=DEM,lead=UK]
       {Ongoing support of Intel, AMD, ARM, Sparc processors and new Operating System versions}
   \end{wpdeliv}
-  \begin{wpdeliv}[due=36,id=HPCcombi,dissem=PU,nature=DEM,lead=PS]
-      {Refactor the existing combinatorics \Sage code using the new developed \Pythran and \Cython features.}
-  \end{wpdeliv}
-  \begin{wpdeliv}[due=24,id=LinBox-algo,dissem=PU,nature=DEM, lead=UJF]
+  \begin{wpdeliv}[due=36,id=LinBox-algo,dissem=PU,nature=DEM, lead=UJF]
     {Exact linear algebra algorithms and implementations. Library maintenance and close integration
       in mathematical software for \Linbox library}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=47,id=GAP-software-final,dissem=PU,nature=OTHER,lead=SA]
+      {Implementations of the \GAP developments, ready for release}
   \end{wpdeliv}
   \begin{wpdeliv}[due=48,id=LinBox-distributed,dissem=PU,nature=DEM, lead=UJF]
     {Implementations of exact linear algebra algorithms on distributed memory et heterogenous
       architectures: clusters and accelerators. Solving large linear systems
       over the rationals is the target application.} 
-  \end{wpdeliv}
-  \begin{wpdeliv}[due=47,id=GAP-software-final,dissem=PU,nature=OTHER,lead=SA]
-      {Implementations of the \GAP developments, ready for release}
   \end{wpdeliv}
   \begin{wpdeliv}[due=48,id=GAP-APIs-report,dissem=PU,nature=R,lead=SA]
       {final report and evaluation of the \GAP developments}

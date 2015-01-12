@@ -493,7 +493,7 @@
     use the attributes wphase on the workpackage environment instead!}}
 \newcommand\localtaskref[1]{\pdataRef{task}{\wp@id @#1}{label}}
 \newcommand\taskin[2]{#2@#1}
-\newcommand\taskref[2]{\WPref{#1}.\pdataRef{task}{#1@#2}{label}}
+\newcommand\taskref[2]{\pdataRef{task}{#1@#2}{label}}
 \newcommand\taskreflong[2]{\pdataRef{task}{#2}{label}}
 \newcommand\tasktref[2]{\WPref{#1} (\task@label@long \pdataRef{task}{#1@#2}{number})}
 \newcounter{gantt@deps}
