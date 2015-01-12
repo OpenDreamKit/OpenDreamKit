@@ -22,7 +22,7 @@ once completed)}
   PSRM=6,   % HPC for Combinatorics 
   LLRM=12,  % Pythran
   SARM=18, % GAP
-  UKRM=94, % Singular
+  UKRM=60, % Singular
   UBRM=40,  % Pari + HPC for Combinatorics + Sage integration
   UJFRM=52] % Linbox / Pythran
   
@@ -73,7 +73,7 @@ once completed)}
 
 \end{wpdescription}
 \begin{tasklist}
-\begin{task}[title=PARI,id=hpc-pari,PM=20, lead=UB, partners=UB]
+\begin{task}[title=PARI,id=hpc-pari,PM=20, lead=UB]
   \Pari is a C library mainly oriented toward arithmetic and number theory.
   
   It currently supports both POSIX threads or MPI but lacks interfaces for
@@ -92,7 +92,7 @@ once completed)}
 \end{task}
 
 
-\begin{task}[title=GAP,id=hpc-gap,PM=18, lead=SA, partners=SA]
+\begin{task}[title=GAP,id=hpc-gap,PM=18, lead=SA]
   Thanks to the HPCGAP project, almost the full functionality of \GAP
   can be safely run on multicore architectures, and there is support for
   simple but effective parallel programming, with protection from most
@@ -123,7 +123,7 @@ developments in the system
 \end{itemize}
 \end{task}
 
-\begin{task}[title=Linbox,PM=40,id=hpc-linbox, lead=UJF, partners=UJF,wphases=3-48]
+\begin{task}[title=Linbox,PM=40,id=hpc-linbox, lead=UJF,wphases=3-48]
 Most intensive mathematical computations rely heavily on exact linear kernels
 and their ability to harness parallel computers, grids or clusters. The \Linbox
 library, already delivers high sequential efficiency for mathematical software
@@ -160,7 +160,7 @@ computing, with a close focus on communications and heterogeneous infrastructure
 
 \end{task}
 
-\begin{task}[title=Singular,lead=UK, PM=82, id=hpc-singular,partners={UK} ]
+\begin{task}[title=Singular,lead=UK, PM=48, id=hpc-singular]
 %  \label{task:hpc-singular}
   The unique challenge of parallelizing Singular has been that it is a decades-old
   project, with a codebase exceeding 300,000 lines of code and an enormous existing
@@ -186,7 +186,7 @@ computing, with a close focus on communications and heterogeneous infrastructure
   multi-core machines.
 \end{task}
 
-\begin{task}[title=\MPIR,id=hpc-mpir, lead=UK,PM=12, partners=UK]
+\begin{task}[title=\MPIR,id=hpc-mpir, lead=UK,PM=12]
 \MPIR (Multiple Precision Integers and Rationals) is the core library in \Sage
 for bignum arithmetic. It is used extensively by a majority of the core C/C++
 libraries in \Sage, and by \Sage directly via \Cython. \MPIR is a fork of the 
@@ -216,7 +216,7 @@ component of \Sage will fall behind, to the detriment of \Sage as a whole and th
 numerous other standalone libraries that make use of \MPIR.
 \end{task}
 
-\begin{task}[title=HPC infrastructure for combinatorics,id=hpc-combi,PM=26,lead=PS,partners={PS,UB}]
+\begin{task}[title=HPC infrastructure for combinatorics,id=hpc-combi,PM=26,lead=PS,partners={UB}]
 
   Several members of the projects are experts in combinatorics a field where
   Sage is clearly a world leader~\cite{Sage-Combinat}. This particular research
@@ -248,7 +248,9 @@ numerous other standalone libraries that make use of \MPIR.
   \taskref{component-architecture}{mod-packaging}, and
   \taskref{component-architecture}{component-for-HPC}.
   In particular, we will provide a mixed C/Python implementation that
-  will be integrated within Sage and replace most of the Sage-combinat code.
+  will be integrated within Sage and replace most of the Sage-combinat
+  code~(deliverable~\localdelivref{sage-paral-tree} 
+  and \localdelivref{sage-HPCcombi}).
 
   In a second and more exploratory direction, some
   experiments~\cite{FromentinHivert} shows that the large tree exploration
@@ -258,10 +260,10 @@ numerous other standalone libraries that make use of \MPIR.
   and
   \href{https://github.com/hivert/IVMPG}{https://github.com/hivert/IVMPG}). We
   would like to explore the possibility to interface smoothly \Pythran,
-  \Cython, and \texttt{Cilk++}.
+  \Cython, and \texttt{Cilk++} (deliverable~\localdelivref{cython-pythran-cilk}).
 \end{task}
 
-\begin{task}[title=Pythran,id=pythran,lead=LL,partners={UJF,LL},PM=24]
+\begin{task}[title=Pythran,id=pythran,lead=LL,partners={UJF},PM=24, wphases=0-48]
   \Cython (a fork of \texttt{Pyrex}) is an extended-\Python to C
   compiler that has received significant contributions from \Sage
   developers, and is a thriving project of its own.
@@ -275,7 +277,7 @@ numerous other standalone libraries that make use of \MPIR.
     \item The optimized runtime of \Pythran can be used through \Cython.
   \end{itemize}
   An effort will be made to improve more and more the parallelism in the
-  \Pythran runtime \localdelivref{pythran-cython}.
+  \Pythran runtime. Output is \localdelivref{pythran-cython}.
 
   This work will be achieved through a close collaboration between the \Pythran
   developers hired for \TheProject and \Cython developers involved in the \Sage
@@ -286,7 +288,7 @@ numerous other standalone libraries that make use of \MPIR.
 
   Adding \Pythran support in \Sage will be done not only for \Sage code but also
   for \Sage users code thanks to compilation facilities in the notebook interface.
-  \localdelivref{pythran-sage}
+  Output is \localdelivref{pythran-sage}
 
 %  In a similar perspective, testing and improving the integration between
 %  \software{mpi4py} and \Pythran could provide an efficient toolchain for HPC
@@ -305,11 +307,11 @@ numerous other standalone libraries that make use of \MPIR.
 
   A first step to support object-oriented programming will be to make
   \Pythran type inference more accurate, which will also improve error
-  feedback provided for the user \localdelivref{pythran-typing}.
+  feedback provided for the user. Output is \localdelivref{pythran-typing}.
 \end{task}
 
 %Stuart Mumford, Neil Lawrence and Mike Croucher, Sheffield
-\begin{task}[title=Sun Grid Engine Integration in Project Jupyter Hub, lead=USH,id=hpc-jupyter,PM=12,partners=USH]
+\begin{task}[title=Sun Grid Engine Integration in Project Jupyter Hub, lead=USH,id=hpc-jupyter,PM=12]
 The Sun Grid Engine is a commonly used High Performance Computing scheduler. It is used, for example, on the institutional HPC systems in both Sheffield and Manchester Universities as well as the regional N8 HPC facility, a system shared by the 8 most research intensive universities in the North of England. In this task, we will develop and demonstrate a Sun Grid Engine notebook spawner for Project Jupyter, allowing users to access Jupyter notebooks on the HPC cluster. This will enable the interactive analysis of output data products on the cluster where they were generated and are stored, via a user-friendly web interface \localdelivref{SGE-jupyter}.
 \end{task}
 \end{tasklist}
@@ -318,7 +320,7 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
   \begin{wpdeliv}[due=3,id=pythran-sage,dissem=PU,nature=DEM,lead=UJF]
       {Facility to compile \Pythran compliant user kernels and sage code.}
   \end{wpdeliv}
-  \begin{wpdeliv}[due=3,id=HPCcombi,dissem=PU,nature=DEM,lead=PS]
+  \begin{wpdeliv}[due=3,id=sage-paral-tree,dissem=PU,nature=DEM,lead=PS]
       {Turn the Python prototypes for tree exploration into production code, integrate to \Sage.}
 \end{wpdeliv}
   \begin{wpdeliv}[due=6,id=QS-sieving,dissem=PU,nature=DEM,lead=UK]
@@ -333,7 +335,7 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
   \begin{wpdeliv}[due=12,id=pythran-typing,dissem=PU,nature=DEM, lead=UJF]
       {Make \Pythran typing better to improve error information.}
   \end{wpdeliv}
-  \begin{wpdeliv}[due=12,id=HPCcombi,dissem=PU,nature=DEM,lead=LL]
+  \begin{wpdeliv}[due=24,id=cython-pythran-cilk,dissem=PU,nature=DEM,lead=PS]
       {Explore the possibility to interface smoothly \Pythran, \Cython and \texttt{Cilk++}.}
 \end{wpdeliv}
   \begin{wpdeliv}[due=12,id=MPIRsuperoptimiser,dissem=PU,nature=DEM,lead=UK]
@@ -357,7 +359,7 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
       processor instructions (AVX, Knight's Bridge, etc.), especially in the FFT
       butterflies}
 \end{wpdeliv}
-  \begin{wpdeliv}[due=24,id=HPCcombi,dissem=PU,nature=DEM,lead=LL]
+  \begin{wpdeliv}[due=36,id=sage-HPCcombi,dissem=PU,nature=DEM,lead=PS]
       {Refactor the existing combinatorics \Sage code using the new developed \Pythran and \Cython features.}
   \end{wpdeliv}
   \begin{wpdeliv}[due=24,id=MPIRfat,dissem=PU,nature=DEM,lead=UK]
@@ -405,4 +407,4 @@ The Sun Grid Engine is a commonly used High Performance Computing scheduler. It 
 %  LocalWords:  Block-Wiederman singular-polymul singular-polyarith MPIRsuperoptimiser
 %  LocalWords:  superoptimiser MPIRprocessors MPIRfat HPCcombi compactitem taskref
 %  LocalWords:  localdelivref optimisation Jupyter hpc-mpir Sage-Combinat FromentinHivert
-%  LocalWords:  CilkRefman
+%  LocalWords:  CilkRefman sage-paral-tree
