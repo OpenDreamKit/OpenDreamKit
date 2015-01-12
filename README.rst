@@ -104,12 +104,16 @@ Compiling the proposal
 
 Go in this H2020/ directory, and run:
 
-    make
+    make -B draft
 
-You can also just compile by hand as a usual LaTeX file:
+or
+
+    make -B final
+
+And you will get a draft.pdf resp. final.pdf file. You can also just
+compile the proposal by hand as a usual LaTeX file:
 
     pdflatex proposal.tex
-
 
 LaTeX syntax
 ------------

@@ -20,6 +20,8 @@ PROPETC.dir = $(PROP.dir)/etc
 EUPROPCLS.dir = $(PROP.dir)/eu
 TEXINPUTS := .//:$(PROPCLS.dir)//:$(EUPROPCLS.dir)//:$(PROPETC.dir)//:
 BIBINPUTS := ../lib:$(BIBINPUTS)
+export TEXINPUTS
+export BIBINPUTS
 PROPCLS.clssty = proposal.cls pdata.sty
 PROPETC.sty = workaddress.sty metakeys.sty sref.sty
 EUPROPCLS.clssty = euproposal.cls
@@ -28,8 +30,10 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
 final:
-	echo $(MAKEFLAGS)
 	$(MAKE) -w PROPOSAL=final.tex all
+
+draft:
+	$(MAKE) -w PROPOSAL=draft.tex all
 
 install: final proposal.pdf
 	cp final.pdf proposal-www.pdf
