@@ -20,6 +20,8 @@ PROPETC.dir = $(PROP.dir)/etc
 EUPROPCLS.dir = $(PROP.dir)/eu
 TEXINPUTS := .//:$(PROPCLS.dir)//:$(EUPROPCLS.dir)//:$(PROPETC.dir)//:
 BIBINPUTS := ../lib:$(BIBINPUTS)
+export TEXINPUTS
+export BIBINPUTS
 PROPCLS.clssty = proposal.cls pdata.sty
 PROPETC.sty = workaddress.sty metakeys.sty sref.sty
 EUPROPCLS.clssty = euproposal.cls
@@ -83,5 +85,5 @@ singlerun:
 
 TOWRITE: *.tex */*.tex
 	fgrep 'TOWRITE{' *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
-	git commit -m "Updated TOWRITE" TOWRITE
-	git push
+	#git commit -m "Updated TOWRITE" TOWRITE
+	#git push
