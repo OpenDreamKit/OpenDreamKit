@@ -28,8 +28,10 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
 final:
-	echo $(MAKEFLAGS)
 	$(MAKE) -w PROPOSAL=final.tex all
+
+draft:
+	$(MAKE) -w PROPOSAL=draft.tex all
 
 install: final proposal.pdf
 	cp final.pdf proposal-www.pdf
