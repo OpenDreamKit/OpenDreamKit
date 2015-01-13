@@ -469,17 +469,20 @@
 % 
 % Many proposals require ways to show coherence between the partners. The |proposal| class
 % offers the macro \DescribeMacro{\coherencematrix}|\coherencematrix| for this which
-% generates a matrix of symbols specifying joint publications and joint projects by the
-% project partners that have been declared by the \DescribeMacro{\jointpub}|\jointpub|,
-% \DescribeMacro{\jointproj}|\jointproj|, and \DescribeMacro{\jointorga}|\jointorga|
-% macros before. These macros all take a comma-separated list of site identifiers as an
+% generates a matrix of symbols specifying joint publications, projects organization,
+% software/resource development, and supervision of students by the project partners that
+% have been declared by the \DescribeMacro{\jointpub}|\jointpub|,
+% \DescribeMacro{\jointsub}|\jointproj|, \DescribeMacro{\jointorga}|\jointorga|
+% \DescribeMacro{\jointsoft}|\jointsoft|, and \DescribeMacro{\jointsup}|\jointsup| macros
+% before. These macros all take a comma-separated list of site identifiers as an
 % argument. Use for instance |\jointproj{a,b,c}| to specify that the sites with the
 % identifiers |a|, |b| and |c| have a joint
 % project. \DescribeMacro{\coherencetable}|\coherencetable| is a variant which packages
 % the coherence table in a table figure with label |tab:collaboration|.
 % 
 % The symbols used an be configured by redefining \DescribeMacro{\jpub}|\jpub|,
-% \DescribeMacro{\jproj}|\jproj|, and \DescribeMacro{\jorga}|\jorga|.
+% \DescribeMacro{\jproj}|\jproj|, and \DescribeMacro{\jorga}|\jorga|,
+% \DescribeMacro{\jsoft}|\jsoft|, and \DescribeMacro{\jsup}|\jsup|.
 %
 % \subsection{Localization}\label{sec:use:localization}
 %
@@ -566,6 +569,7 @@
 %    \begin{macrocode}
 \LoadClass[a4paper,twoside]{\proposal@class}
 \RequirePackage{amssymb}
+\RequirePackage{wasysym}
 \RequirePackage{url}
 \RequirePackage{graphicx}
 \RequirePackage{colortbl}
@@ -2259,7 +2263,9 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 %    \begin{macrocode}
 \newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\large{$\star$}}}}
 \newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\large{$\bullet$}}}}
+\newcommand\jsoft{\textcolor{\prop@link@color}{\textbf{@}}}
 \newcommand\jorga{\textcolor{\prop@link@color}{\textbf{\large{$\circ$}}}}
+\newcommand\jsup{\textcolor{\prop@link@color}{\textbf{\smiley}}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2288,6 +2294,8 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \newcommand\jointproj[1]{\prop@joint\jpro{#1}}
 \newcommand\jointpub[1]{\prop@joint\jpub{#1}}
 \newcommand\jointorga[1]{\prop@joint\jorga{#1}}
+\newcommand\jointsoft[1]{\prop@joint\jsoft{#1}}
+\newcommand\jointsup[1]{\prop@joint\jsup{#1}}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -2295,19 +2303,20 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 %    \begin{macrocode}
 \newcommand{\coherencematrix}{
 {\let\tabularnewline\relax\let\hline\relax\let\site\relax% so they do
- \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother us
+ \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother
+ \let\jsoft\relax\let\jsup\relax\let\cellcolor\relax% us
 \gdef\@ct@head{}
 \@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head &\site{\@site}}}
 \gdef\@ct@lines{\@ct@head\tabularnewline\hline\hline} %initialize with head line
 \@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}
   \@for\@@site:=\prop@gen@sites\do{
-    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{X}\fi
+    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{\cellcolor{wagray}{}}\fi
       \@ifundefined{coherence@\@site @\@@site}{}{\@nameuse{coherence@\@site @\@@site}}}}
   \xdef\@ct@lines{\@ct@lines\@ct@line\tabularnewline\hline}}}
 \begin{tabular}{|l||*{\the@site}{c|}}\hline
 \@ct@lines\hline
 joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ project,
-  \jorga $\hat=$ organization}\\\hline
+  \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev, \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
 %    \end{macrocode}
 % \end{macro}
