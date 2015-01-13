@@ -44,7 +44,7 @@
 \AtBeginDocument{\ifpublic\excludecomment{private}\fi}
 \RequirePackage{tikz}
 \RequirePackage{paralist}
-\RequirePackage{a4wide}
+\RequirePacage[a4paper,margin=20mm]{geometry}
 \RequirePackage{boxedminipage}
 \renewcommand{\thempfootnote}{\roman{mpfootnote}}
 \renewcommand{\familydefault}{\sfdefault}
