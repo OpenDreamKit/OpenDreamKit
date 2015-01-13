@@ -40,9 +40,6 @@ install: final proposal.pdf
 	git commit -m "Updated pdf" proposal-www.pdf proposal.pdf
 	git push
 
-cd: 	                                           # make cd will prepare CD for burning
-	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
-
 bbl:	$(BBL)
 $(BBL): %.bbl: %.aux
 	bibtex -min-crossrefs=100 -terse $<
