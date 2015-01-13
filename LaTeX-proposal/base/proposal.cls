@@ -908,10 +908,10 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
     \end{gantt}
     \caption{\gantt@caption@main}\label{fig:gantt}
 \end{figure}}
-\newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\large{$\star$}}}}
-\newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\large{$\bullet$}}}}
+\newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\Large{$\star$}}}}
+\newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\Large{$\bullet$}}}}
 \newcommand\jsoft{\textcolor{\prop@link@color}{\textbf{@}}}
-\newcommand\jorga{\textcolor{\prop@link@color}{\textbf{\large{$\circ$}}}}
+\newcommand\jorga{\textcolor{\prop@link@color}{\textbf{\Large{$\circ$}}}}
 \newcommand\jsup{\textcolor{\prop@link@color}{\textbf{\smiley}}}
 \newcommand\add@joint[3]{\@ifundefined{coherence@#1@#2}%
 {\@namedef{coherence@#1@#2}{#3}}%

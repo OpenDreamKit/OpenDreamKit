@@ -34,7 +34,6 @@ final:
 	pdftk final.pdf cat 1-68   output final-123.pdf
 	pdftk final.pdf cat 69-end output final-45.pdf
 
-
 draft:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
 
