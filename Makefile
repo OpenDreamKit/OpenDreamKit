@@ -30,7 +30,7 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
 final:
-	$(MAKE) $(MAKEFAGS) -w PROPOSAL=final.tex singlerun
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=final.tex all
 
 draft:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
