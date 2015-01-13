@@ -916,7 +916,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \newcommand\prop@joint[2]{\@for\@first:=#2\do{%
 \@for\@second:=#2\do{\ifx\@first\@second\else\add@joint\@first\@second{#1}\fi}}}
 \newcommand\jointproj[1]{\prop@joint\jpro{#1}}
-\newcommand\jointpub[1]{\prop@joint\jpro{#1}}
+\newcommand\jointpub[1]{\prop@joint\jpub{#1}}
 \newcommand\jointorga[1]{\prop@joint\jorga{#1}}
 \newcommand{\coherencematrix}{
 {\let\tabularnewline\relax\let\hline\relax\let\site\relax% so they do
