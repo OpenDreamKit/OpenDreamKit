@@ -496,8 +496,8 @@
 \newcommand\taskref[2]{\pdataRef{task}{#1@#2}{label}}
 \newcommand\taskreflong[2]{\pdataRef{task}{#2}{label}}
 \newcommand\tasktref[2]{\taskref{#1}{#2}: \pdataRefFB{task}{#1@#2}{short}{title}}
-\newcommand\localtaskref[1]{\taskref{\wp@id}#1}
-\newcommand\localtasktref[1]{\tasktref{\wp@id}#1}
+\newcommand\localtaskref[1]{\taskref{\wp@id}{#1}}
+\newcommand\localtasktref[1]{\tasktref{\wp@id}{#1}}
 \newcounter{gantt@deps}
 \def\@requires#1#2{\stepcounter{gantt@deps}%
 \edef\dep@id{taskdep\thegantt@deps}%
