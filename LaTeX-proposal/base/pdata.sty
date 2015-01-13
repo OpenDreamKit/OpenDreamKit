@@ -91,8 +91,18 @@
 \newcommand\pdataref@aux[3]{\@ifundefined{#1@#2@#3}{??}{\csname #1@#2@#3\endcsname}}%
 \newcommand\pdataref@num[3]{\@ifundefined{#1@#2@#3}{0}{\csname #1@#2@#3\endcsname}}%
 \newcommand\pdataref@safe[3]{\@ifundefined{#1@#2@#3}{}{\csname #1@#2@#3\endcsname}}%
+\newcommand\pdatarefFB[4]{\@ifundefined{#1@#2@#3}%
+{\@ifundefined{#1@#2@#4}%
+{\protect\G@refundefinedtrue\@latex@warning{both #3 and its fallback #4 undefined for #1 #2}??}%
+{\csname #1@#2@#4\endcsname}}
+{\csname #1@#2@#3\endcsname}}
 \newcommand\pdataRef[3]{\@ifundefined{#1@#2@#3}%
 {\protect\G@refundefinedtrue\@latex@warning{#3 for #1 #2 undefined}??}%
+{\hyperlink{#1@#2@target}{\csname #1@#2@#3\endcsname}}}
+\newcommand\pdataRefFB[4]{\@ifundefined{#1@#2@#3}%
+{\@ifundefined{#1@#2@#4}%
+{\protect\G@refundefinedtrue\@latex@warning{both #3 and its fallback #4 undefined for #1 #2}??}%
+{\hyperlink{#1@#2@target}{\csname #1@#2@#4\endcsname}}}
 {\hyperlink{#1@#2@target}{\csname #1@#2@#3\endcsname}}}
 \newcommand\prop@count[1]{\ifcase #1 zero\or one\or two\or three\or four\or five\or six\or seven \or
   eight\or nine\or ten\or eleven \or twelve\else#1\fi}
@@ -100,10 +110,10 @@
 \newcommand\pn{\pdataref{prop}{gen}{acronym}\xspace}
 \newcommand\pnlong{\pdataref{prop}{gen}{acrolong}\xspace}
 \newcommand\WPref[1]{\pdataRef{wp}{#1}{label}}
-\newcommand\WPtref[1]{\pdataRef{wp}{#1}{label}: \pdataRef{wp}{#1}{short}}
+\newcommand\WPtref[1]{\WPref{#1}: \pdataRefFB{wp}{#1}{short}{title}}
 \ifwork@areas
 \newcommand\WAref[1]{\pdataRef{wa}{#1}{label}}
-\newcommand\WAtref[1]{\pdataRef{wa}{#1}{label}: \pdataRef{wa}{#1}{title}}
+\newcommand\WAtref[1]{\WAref{#1}: \pdataRefFB{wa}{#1}{short}{title}}
 \fi
 \newcommand{\signatures}[1]{\section{#1}
 \qquad\number\day. \number\month. \number\year\\[6ex]

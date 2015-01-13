@@ -420,26 +420,28 @@
 % includes to work packages, work groups, \ldots. Whenever these are defined using the
 % |proposal| infrastructure, the class saves the relevant information in the auxiliary
 % file \meta{proposal}|.aux|. This information can be referenced via the
-% \DescribeMacro{\pdataref}|\pdataref| macro, which takes three arguments.
+% \DescribeMacro  {\pdataref}|\pdataref| macro, which takes three arguments.
 % 
 % In a reference |\pdataref{|\meta{type}|}{|\meta{id}|}{|\meta{aspect}|}| the first argument
 % \meta{type} specifies the type of the object (currently one of |wp|, |wa|, and
 % |partner|) to be referenced, \meta{id} specifies the identifier of the referenced object
 % (it matches the identifier given in the |id| key of the object), and \meta{aspect}
 % specifies the aspect of the saved information that is referenced. 
-% 
-% For a partner \meta{aspect} can be one of |number| (partner number), |short| (partner
-% acronym), |long| (official partner name), |nationality| (partner nationality). 
+%
+% \DescribeMacro{\pdatarefFB}|\pdatarefFB{|\meta{type}|}{|\meta{id}|}{|\meta{a1}|}{|\meta{a2}|}|
+% tries first |\pdataref{|\meta{type}|}{|\meta{id}|}{|\meta{a1}|}| and if that is not
+% given |\pdataref{|\meta{type}|}{|\meta{id}|}{|\meta{a2}|}|. 
 % 
 % For a work package \meta{aspect} can be |number|, (the work package number), |label|
 % (the label {\bf{WP$n$}} where $n$ is the work package number for referencing), |title|
 % (the work package title), |lead| the work package leader, |short| (a short version of
 % the WP title for tables). For work groups we have the same aspects with analogous
 % meanings. In all cases, the referenced information carries a hyperlink to the referenced
-% object.
+% object.  
 % 
-% The \DescribeMacro{\pdataRef}|\pdataRef| macro is a variant of |\pdataref| that also carries a
-% hyperlink (if the |hyperref| package is loaded).
+% The \DescribeMacro{\pdataRef}|\pdataRef| and \DescribeMacro{\pdataRefFB}|\pdataRefFB|
+% macros are variant of |\pdataref| and |\pdataRef| that also carry a hyperlink (if the
+% |hyperref| package is loaded).
 %
 % The \DescribeMacro{\pdatacount}|\pdatacount| macro gives access to the numbers of
 % certain aspects. For instance, the number of work packages in the proposal can be cited
@@ -910,7 +912,7 @@
 % \begin{macro}{\OBJref}
 %    \begin{macrocode}
 \newcommand\OBJref[1]{\pdataRef{obj}{#1}{label}}
-\newcommand\OBJtref[1]{\pdataRef{obj}{#1}{label}: \pdataRef{obj}{#1}{title}}
+\newcommand\OBJtref[1]{\OBJref{#1}: \pdataRefFB{obj}{#1}{short}{title}}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -929,8 +931,8 @@
 %    \begin{macrocode}
 \define@key{workpackage}{id}{\def\wp@id{#1}\@dmp{id=#1}}
 \define@key{workpackage}{title}{\pdata@def{wp}\wp@id{title}{#1}}
-\define@key{workpackage}{lead}{\pdata@def{wp}\wp@id{lead}{#1}\def\wp@lead{#1}\@dmp{lead=#1}}
 \define@key{workpackage}{short}{\pdata@def{wp}\wp@id{short}{#1}}
+\define@key{workpackage}{lead}{\pdata@def{wp}\wp@id{lead}{#1}\def\wp@lead{#1}\@dmp{lead=#1}}
 \define@key{workpackage}{type}{\def\wp@type{#1}\pdata@def{wp}\wp@id{type}{#1}}
 \define@key{workpackage}{wphases}{\def\wp@wphases{#1}\pdata@def{wp}\wp@id{wphases}{#1}}
 \define@key{workpackage}{swsites}[true]{\def\wp@swsites{#1}}
@@ -1264,8 +1266,9 @@
 %   making a new one if there is not enough space.
 %    \begin{macrocode}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
-\newcommand\localdelivref[1]{\pdataRef{deliv}{\wp@id #1}{label}}
-\newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
+\newcommand\localdelivref[1]{\delivref{\wp@id}{#1}}
+\newcommand\delivtref[2]{\delivref{#1}{#2}: \pdataRefFB{deliv}{#1#2}{short}{title}}
+\newcommand\localdelivtref[1]{\delivtref{\wp@id}{#1}}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -1369,7 +1372,7 @@
 %   making a new one if there is not enough space.
 %    \begin{macrocode}
 \newcommand\mileref[1]{\pdataRef{mile}{#1}{label}}
-\newcommand\miletref[1]{\pdataRef{mile}{#1}{label}: \pdataRef{mile}{#1}{short}}
+\newcommand\miletref[1]{\mileref{#1}: \pdataRefFB{mile}{#1}{short}{title}}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -1579,18 +1582,18 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\localtaskref}
-%    \begin{macrocode}
-\newcommand\localtaskref[1]{\pdataRef{task}{\wp@id @#1}{label}}
-%    \end{macrocode}
-% \end{macro}
-% 
-% \begin{macro}{\taskref}
+% \begin{macro}{\*task*ref}
 %    \begin{macrocode}
 \newcommand\taskin[2]{#2@#1}
 \newcommand\taskref[2]{\pdataRef{task}{#1@#2}{label}}
 \newcommand\taskreflong[2]{\pdataRef{task}{#2}{label}}
-\newcommand\tasktref[2]{\WPref{#1} (\task@label@long \pdataRef{task}{#1@#2}{number})}
+\newcommand\tasktref[2]{\taskref{#1}{#2}: \pdataRefFB{task}{#1@#2}{short}{title}}
+\newcommand\localtaskref[1]{\taskref{\wp@id}{#1}}
+\newcommand\localtasktref[1]{\tasktref{\wp@id}{#1}}
+%    \end{macrocode}
+% \end{macro}
+% now we initialize experimental infrastructure for task dependencies (not very well used/tested)
+%    \begin{macrocode}
 \newcounter{gantt@deps}
 \def\@requires#1#2{\stepcounter{gantt@deps}%
 \edef\dep@id{taskdep\thegantt@deps}%
@@ -1599,7 +1602,6 @@
 \update@deps\dep@id}
 %</cls>
 %    \end{macrocode}
-% \end{macro}
 %
 % \subsection{Project Data,  Referencing \& Hyperlinking}\label{sec:impl:hyperlinking} 
 % 
@@ -1662,10 +1664,32 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\pdatarefFB}
+% a variant with fallback field,
+%    \begin{macrocode}
+\newcommand\pdatarefFB[4]{\@ifundefined{#1@#2@#3}%
+{\@ifundefined{#1@#2@#4}%
+{\protect\G@refundefinedtrue\@latex@warning{both #3 and its fallback #4 undefined for #1 #2}??}%
+{\csname #1@#2@#4\endcsname}}
+{\csname #1@#2@#3\endcsname}}
+%    \end{macrocode}
+% \end{macro}
+% 
 % \begin{macro}{\pdataRef}
 %    \begin{macrocode}
 \newcommand\pdataRef[3]{\@ifundefined{#1@#2@#3}%
 {\protect\G@refundefinedtrue\@latex@warning{#3 for #1 #2 undefined}??}%
+{\hyperlink{#1@#2@target}{\csname #1@#2@#3\endcsname}}}
+%    \end{macrocode}
+% \end{macro}
+% 
+% \begin{macro}{\pdataRefFB}
+% a variant with fallback field,
+%    \begin{macrocode}
+\newcommand\pdataRefFB[4]{\@ifundefined{#1@#2@#3}%
+{\@ifundefined{#1@#2@#4}%
+{\protect\G@refundefinedtrue\@latex@warning{both #3 and its fallback #4 undefined for #1 #2}??}%
+{\hyperlink{#1@#2@target}{\csname #1@#2@#4\endcsname}}}
 {\hyperlink{#1@#2@target}{\csname #1@#2@#3\endcsname}}}
 %    \end{macrocode}
 % \end{macro}
@@ -1688,10 +1712,10 @@
 % \begin{macro}{\W*ref}
 %    \begin{macrocode}
 \newcommand\WPref[1]{\pdataRef{wp}{#1}{label}}
-\newcommand\WPtref[1]{\pdataRef{wp}{#1}{label}: \pdataRef{wp}{#1}{short}}
+\newcommand\WPtref[1]{\WPref{#1}: \pdataRefFB{wp}{#1}{short}{title}}
 \ifwork@areas
 \newcommand\WAref[1]{\pdataRef{wa}{#1}{label}}
-\newcommand\WAtref[1]{\pdataRef{wa}{#1}{label}: \pdataRef{wa}{#1}{title}}
+\newcommand\WAtref[1]{\WAref{#1}: \pdataRefFB{wa}{#1}{short}{title}}
 \fi
 %</pdata>
 %    \end{macrocode}

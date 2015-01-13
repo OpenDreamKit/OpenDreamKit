@@ -132,7 +132,7 @@
 \@ifundefined{obj@short}{}{\pdata@def{obj}\obj@id{short}\obj@short}}
 {}
 \newcommand\OBJref[1]{\pdataRef{obj}{#1}{label}}
-\newcommand\OBJtref[1]{\pdataRef{obj}{#1}{label}: \pdataRef{obj}{#1}{title}}
+\newcommand\OBJtref[1]{\OBJref{#1}: \pdataRefFB{obj}{#1}{short}{title}}
 \ifwork@areas
 \define@key{workarea}{id}{\def\wa@id{#1}\@dmp{id=#1}}
 \define@key{workarea}{title}{\pdata@def{wa}\wa@id{title}{#1}}
@@ -141,8 +141,8 @@
 \fi
 \define@key{workpackage}{id}{\def\wp@id{#1}\@dmp{id=#1}}
 \define@key{workpackage}{title}{\pdata@def{wp}\wp@id{title}{#1}}
-\define@key{workpackage}{lead}{\pdata@def{wp}\wp@id{lead}{#1}\def\wp@lead{#1}\@dmp{lead=#1}}
 \define@key{workpackage}{short}{\pdata@def{wp}\wp@id{short}{#1}}
+\define@key{workpackage}{lead}{\pdata@def{wp}\wp@id{lead}{#1}\def\wp@lead{#1}\@dmp{lead=#1}}
 \define@key{workpackage}{type}{\def\wp@type{#1}\pdata@def{wp}\wp@id{type}{#1}}
 \define@key{workpackage}{wphases}{\def\wp@wphases{#1}\pdata@def{wp}\wp@id{wphases}{#1}}
 \define@key{workpackage}{swsites}[true]{\def\wp@swsites{#1}}
@@ -316,8 +316,9 @@
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
 \newcommand\deliv@label[1]{D{#1}}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
-\newcommand\localdelivref[1]{\pdataRef{deliv}{\wp@id #1}{label}}
-\newcommand\delivtref[2]{\pdataRef{deliv}{#1#2}{label}: \pdataRef{deliv}{#1#2}{short}}
+\newcommand\localdelivref[1]{\delivref{\wp@id}{#1}}
+\newcommand\delivtref[2]{\delivref{#1}{#2}: \pdataRefFB{deliv}{#1#2}{short}{title}}
+\newcommand\localdelivtref[1]{\delivtref{\wp@id}{#1}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
 \define@key{deliv}{due}{\def\deliv@due{#1}}
 \define@key{deliv}{dissem}{\def\deliv@dissem{#1}}
@@ -380,7 +381,7 @@
 \newenvironment{wpdeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wp}\else\deliv@error\fi}{}
 \newcommand\milestone@label[1]{M{#1}}
 \newcommand\mileref[1]{\pdataRef{mile}{#1}{label}}
-\newcommand\miletref[1]{\pdataRef{mile}{#1}{label}: \pdataRef{mile}{#1}{short}}
+\newcommand\miletref[1]{\mileref{#1}: \pdataRefFB{mile}{#1}{short}{title}}
 \newcounter{milestone}
 \define@key{milestone}{id}{\gdef\mile@id{#1}}
 \define@key{milestone}{month}{\gdef\mile@month{#1}}
@@ -491,11 +492,12 @@
 \newcommand\workphase[1]{\PackageError{proposal}
   {The \protect\workphase macro is deprecated,\MessageBreak
     use the attributes wphase on the workpackage environment instead!}}
-\newcommand\localtaskref[1]{\pdataRef{task}{\wp@id @#1}{label}}
 \newcommand\taskin[2]{#2@#1}
 \newcommand\taskref[2]{\pdataRef{task}{#1@#2}{label}}
 \newcommand\taskreflong[2]{\pdataRef{task}{#2}{label}}
-\newcommand\tasktref[2]{\WPref{#1} (\task@label@long \pdataRef{task}{#1@#2}{number})}
+\newcommand\tasktref[2]{\taskref{#1}{#2}: \pdataRefFB{task}{#1@#2}{short}{title}}
+\newcommand\localtaskref[1]{\taskref{\wp@id}{#1}}
+\newcommand\localtasktref[1]{\tasktref{\wp@id}{#1}}
 \newcounter{gantt@deps}
 \def\@requires#1#2{\stepcounter{gantt@deps}%
 \edef\dep@id{taskdep\thegantt@deps}%
