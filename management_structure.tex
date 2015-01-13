@@ -1,0 +1,42 @@
+\begin{figure}[ht]\centering
+\fbox{%
+\setlength{\unitlength}{1cm}
+\begin{tikzpicture}[node distance=\unitlength]
+\def\nnode#1#2{\begin{tabular}{c}#1\\#2\end{tabular}}
+\def\nnnode#1#2#3{\begin{tabular}{c}#1\\#2\\#3\end{tabular}}
+\tikzstyle{rect} = [rectangle,draw,rounded corners]
+\tikzstyle{labeledrect} = [rect,text centered]
+\tikzstyle{wp} = [rect,minimum height=2cm,minimum width=2cm]
+% Work Packages
+\node[wp] (wp1) {\nnode{}{WP1}};
+\node[wp] (wp2) [right=of wp1] {\nnode{}{WP2}};
+\node[wp] (wp8) [right=2\unitlength of wp2] {\nnode{}{WP8}};
+\node (wpdots) at ($(wp2)!.5!(wp8)$) {\nnode{}{\ldots}};
+\node[labeledrect] (wp1l) [above=10pt of wp1.center] {WP leader};
+\node[labeledrect] (wp2l) [above=10pt of wp2.center] {WP leader};
+\node[labeledrect] (wp8l) [above=10pt of wp8.center] {WP leader};
+\node[inner sep=.3cm,rect,dashed,fit=(wp1l) (wp2l) (wp8l)] (dboard) {};
+% Management
+\node[labeledrect] (pc) [above=of wp1l] {\nnode{Project}{Coordinator}};
+\node[labeledrect] (board) [right=of pc] {\nnode{Scientific}{Board}};
+\node[labeledrect] (sd) [right=of board] {\nnode{Scientific}{Director}};
+\coordinate (midheight) at ($(pc)!.5!(wp1l)$);
+\node[labeledrect] (adman) [left=2\unitlength of midheight] {\nnode{Admin}{Manager}};
+\node[labeledrect] (ec) [above=of pc] {\nnode{European}{Commission}};
+\node[labeledrect] (seboard) [above=of sd] {\nnnode{Scientific \&}{Exploitation}{Board}};
+\node[rect,dashed,inner sep=.15cm,fit=(pc) (sd)] (eboard) {};
+\draw[semithick,double] (dboard) -- (board);
+\draw[semithick,<->] (adman) -- (dboard.west);
+\draw[semithick,<->] (sd) -- (board);
+\draw[semithick,<->] (adman) -- (eboard.west);
+\draw[semithick,<->] (pc) -- (ec);
+\draw[semithick,<->] (board) -- (pc);
+\draw[semithick,<->] (sd) -- (seboard);
+\end{tikzpicture}}
+\caption{The Management Structure}\label{fig:management}
+\end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "proposal"
+%%% End:
