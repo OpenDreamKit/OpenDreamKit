@@ -43,20 +43,14 @@
   {\LARGE Acronym: {\prop@gen@acronym}}\\[2cm]
 \end{center}
 {\large\textbf{Date of Preparation: \today}}
-\ifsubmit\else\if@svninfo\if@gitinfo\\
-{\large\textbf{Revision}:
-\if@svninfo\svnInfoRevision\fi\if@gitinfo\gitAbbrevHash\fi
- of
-\if@svninfo\svnInfoDate\fi\if@gitinfo\gitAuthorDate\fi}
-\fi\fi\fi\\[1em]
-{\large}
+\\[1em]
 \begin{large}
  \begin{description}
   % \item[Work program topics addressed by \pn:]
   %   \@ifundefined{prop@gen@topicsaddressed}
   %   {\textbf{Challenge \prop@gen@challengeid}: \prop@gen@challenge,
   %   \textbf{Objective \prop@gen@objectiveid}: \prop@gen@objective,
-  %   \textbf{target outcome \prop@gen@outcomeid}) \prop@gen@outcome.}
+  %   \textbf{target outcome \prop@gen@outcomeid}) \prop@gen@outcome.
   %   {\prop@gen@topicsaddressed}\\[1em]
   \item[Coordinator:] \wa@ref{person}\prop@gen@coordinator{name}
   \item[e-mail:] \wa@ref{person}\prop@gen@coordinator{email}
