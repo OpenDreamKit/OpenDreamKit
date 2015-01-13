@@ -30,7 +30,7 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
 final:
-	$(MAKE) -w PROPOSAL=final.tex all
+	$(MAKE) -w PROPOSAL=final.tex singlerun
 
 draft:
 	$(MAKE) -w PROPOSAL=draft.tex all
@@ -84,3 +84,6 @@ TOWRITE: *.tex */*.tex
 	fgrep 'TOWRITE{' *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
 	#git commit -m "Updated TOWRITE" TOWRITE
 	#git push
+
+TAGS: *.tex */*.tex
+	etags *.tex */*.tex
