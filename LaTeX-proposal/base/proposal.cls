@@ -912,7 +912,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\large{$\bullet$}}}}
 \newcommand\jsoft{\textcolor{\prop@link@color}{\textbf{@}}}
 \newcommand\jorga{\textcolor{\prop@link@color}{\textbf{\large{$\circ$}}}}
-\newcommand\jsup{\textcolor{\prop@link@color}{\textbf{\large{\smiley}}}}
+\newcommand\jsup{\textcolor{\prop@link@color}{\textbf{\smiley}}}
 \newcommand\add@joint[3]{\@ifundefined{coherence@#1@#2}%
 {\@namedef{coherence@#1@#2}{#3}}%
 {\expandafter\g@addto@macro\csname coherence@#1@#2\endcsname{#3}}}
@@ -941,10 +941,9 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
   \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev, \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
 \newcommand\coherencetable{%
-\begin{table}[ht]
-\begin{center}\small\setlength{\tabcolsep}{.5em}
-\renewcommand{\arraystretch}{.9}\coherencematrix
-\end{center}
+\begin{table}[ht]\centering%
+\small\setlength{\tabcolsep}{.5em}%
+\renewcommand{\arraystretch}{.9}\coherencematrix%
 \caption{\coherence@caption}\label{tab:collaboration}
 \end{table}}
 \newcommand\coherence@caption{Previous Collaboration between {\pn} members}
