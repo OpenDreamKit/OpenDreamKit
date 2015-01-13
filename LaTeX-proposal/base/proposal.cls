@@ -528,6 +528,8 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \define@key{wpfig}{length}[true]{\def\wpfig@length{#1}\stepcounter{wpfig@options}}
 \def\wpfig@end{false}
 \define@key{wpfig}{end}[true]{\def\wpfig@end{#1}\stepcounter{wpfig@options}}
+\define@key{wpfig}{label}{\def\wpfig@label{#1}}
+\define@key{wpfig}{caption}{\def\wpfig@caption{#1}}
 \def\@sw#1{\begin{sideways}#1\end{sideways}}
 \newenvironment{wp@figure}{\begin{figure}[ht]\wpfig@style\begin{center}
 {\let\@sw\relax\let\textbf\relax\let\site\relax\let\pn\relax\let\sys\relax%
@@ -552,7 +554,8 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 {\end{tabular}\smallskip\\
 \wpfig@legend@RAM@expl
 \if@sites; \wpfig@legend@lead@expl\fi
-\caption{\wpfig@legend@caption}\label{fig:wplist}
+\@ifundefined{wpfig@label}{\caption{\wpfig@legend@caption}}{\caption{\wpfig@caption}}
+\@ifundefined{wpfig@label}{\label{fig:wplist}}{\label{\wpfig@label}}
 \end{center}\end{figure}}
 \newcommand\wpfig@legend@wap{\textbf{\ifwork@areas{WA/P}\else{WP}\fi}}
 \newcommand\wpfig@legend@title{\textbf{Title}}
