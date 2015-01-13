@@ -32,6 +32,7 @@
 \ProcessOptions
 \LoadClass[a4paper,twoside]{\proposal@class}
 \RequirePackage{amssymb}
+\RequirePackage{wasysym}
 \RequirePackage{url}
 \RequirePackage{graphicx}
 \RequirePackage{colortbl}
@@ -909,7 +910,9 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \end{figure}}
 \newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\large{$\star$}}}}
 \newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\large{$\bullet$}}}}
+\newcommand\jsoft{\textcolor{\prop@link@color}{\textbf{@}}}
 \newcommand\jorga{\textcolor{\prop@link@color}{\textbf{\large{$\circ$}}}}
+\newcommand\jsup{\textcolor{\prop@link@color}{\textbf{\large{\smiley}}}}
 \newcommand\add@joint[3]{\@ifundefined{coherence@#1@#2}%
 {\@namedef{coherence@#1@#2}{#3}}%
 {\expandafter\g@addto@macro\csname coherence@#1@#2\endcsname{#3}}}
@@ -918,21 +921,24 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \newcommand\jointproj[1]{\prop@joint\jpro{#1}}
 \newcommand\jointpub[1]{\prop@joint\jpub{#1}}
 \newcommand\jointorga[1]{\prop@joint\jorga{#1}}
+\newcommand\jointsoft[1]{\prop@joint\jsoft{#1}}
+\newcommand\jointsup[1]{\prop@joint\jsup{#1}}
 \newcommand{\coherencematrix}{
 {\let\tabularnewline\relax\let\hline\relax\let\site\relax% so they do
- \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother us
+ \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother
+ \let\jsoft\relax\let\jsup\relax\let\cellcolor\relax% us
 \gdef\@ct@head{}
 \@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head &\site{\@site}}}
 \gdef\@ct@lines{\@ct@head\tabularnewline\hline\hline} %initialize with head line
 \@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}
   \@for\@@site:=\prop@gen@sites\do{
-    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{X}\fi
+    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{\cellcolor{wagray}{}}\fi
       \@ifundefined{coherence@\@site @\@@site}{}{\@nameuse{coherence@\@site @\@@site}}}}
   \xdef\@ct@lines{\@ct@lines\@ct@line\tabularnewline\hline}}}
 \begin{tabular}{|l||*{\the@site}{c|}}\hline
 \@ct@lines\hline
 joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ project,
-  \jorga $\hat=$ organization}\\\hline
+  \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev, \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
 \newcommand\coherencetable{%
 \begin{table}[ht]

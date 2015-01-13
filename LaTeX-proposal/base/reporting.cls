@@ -32,6 +32,7 @@
 \ProcessOptions
 \LoadClass[a4paper,twoside]{\proposal@class}
 \RequirePackage{amssymb}
+\RequirePackage{wasysym}
 \RequirePackage{url}
 \RequirePackage{graphicx}
 \RequirePackage{colortbl}
