@@ -26,7 +26,8 @@
 \newcommand\prop@sites@table{\def\@@table{}
 {\let\tabularnewline\relax\let\hline\relax
 \@for\@I:=\prop@gen@sites\do{\xdef\@@table{\@@table\pdataref{site}\@I{number}}
-\xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @name}}
+\xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @name}
+\ifx\@I\prop@gen@coordinatorsite (coordinator)\fi}
 \xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @acronym}}
 \xdef\@@table{\@@table&\@nameuse{wa@institution@\@I @countryshort}\tabularnewline\hline}}}
 \begin{tabular}{|l|p{8cm}|l|l|}\hline%|
