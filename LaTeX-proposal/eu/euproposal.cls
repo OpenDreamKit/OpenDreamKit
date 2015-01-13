@@ -43,14 +43,12 @@
   {\LARGE Acronym: {\prop@gen@acronym}}\\[2cm]
 \end{center}
 {\large\textbf{Date of Preparation: \today}}
-\ifsubmit\else\\
-\if@svninfo\if@gitinfo
+\ifsubmit\else\if@svninfo\if@gitinfo\\
 {\large\textbf{Revision}:
 \if@svninfo\svnInfoRevision\fi\if@gitinfo\gitAbbrevHash\fi
  of
 \if@svninfo\svnInfoDate\fi\if@gitinfo\gitAuthorDate\fi}
-\fi\\[1em]
-\fi\fi
+\fi\fi\fi\\[1em]
 {\large}
 \begin{large}
  \begin{description}
