@@ -30,10 +30,10 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
 final:
-	$(MAKE) -w PROPOSAL=final.tex singlerun
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=final.tex singlerun
 
 draft:
-	$(MAKE) -w PROPOSAL=draft.tex all
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
 
 install: final proposal.pdf
 	cp final.pdf proposal-www.pdf
