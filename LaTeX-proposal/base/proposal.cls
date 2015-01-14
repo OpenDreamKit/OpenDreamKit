@@ -487,9 +487,6 @@
 \newcommand\show@wphase[3]{\edef\@test{#3}\def\@one{1}%
 \month@label{#1}-\month@label{#2}%
 \ifx\@test\@empty\else\ifx\@test\@one\else @#3\fi\fi}
-\newcommand\show@wphase[3]{\edef\@test{#3}\def\@one{1}%
-\month@label{#1}-\month@label{#2}%
-\ifx\@test\@empty\else\ifx\@test\@one\else @#3\fi\fi}
 \newcommand\sep@wphases{; }
 \newcommand\legend@partners{Partners}
 \newcommand\legend@lead{lead}
