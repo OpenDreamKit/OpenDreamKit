@@ -410,7 +410,7 @@
 \pdata@def{all}{mile}{count}{\themilestone}%
 \end{@milestones}\fi}
 \newenvironment{@milestones}
-{\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+{\begin{longtable}{|l|p{2cm}|p{8cm}|l|p{4cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
