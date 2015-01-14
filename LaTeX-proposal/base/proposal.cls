@@ -811,13 +811,14 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \fi %gantt@miles
 \end{tikzpicture}}
 \newdimen\gantt@ymid\newdimen\gantt@yinc\newdimen\gantt@xend
-\newcommand{\@action}[5]{%
-\gantt@ymid=#2 cm\gantt@yinc=\gantt@yscale cm
-\gantt@xend=#3 cm\advance\gantt@xend by #4 cm
+\newcommand{\@action}[6][]{\def\@test{#1}%
+\ifx\@test\@empty\def\@@color{ganttgray}\else\def\@@color{#1}\fi
+\gantt@ymid=#3 cm\gantt@yinc=\gantt@yscale cm
+\gantt@xend=#4 cm\advance\gantt@xend by #5 cm
 \advance\gantt@ymid by \gantt@yinc
-\fill[ganttgray] (#3,#2) rectangle +(#4,#5);
-\node (#1@left) at (#3,\gantt@ymid) {};
-\node (#1@right) at (\gantt@xend,\gantt@ymid) {};}
+\fill[\@@color] (#4,#3) rectangle +(#5,#6);
+\node (#2@left) at (#4,\gantt@ymid) {};
+\node (#2@right) at (\gantt@xend,\gantt@ymid) {};}
 \def\@dependency#1#2{\draw[->,line width=2pt,color=red] (#1@right) -- (#2@left);}
 \newcommand\gantt@compute@effort[3]{% start, len, force
   \@@e=#1\advance\@@e by #2

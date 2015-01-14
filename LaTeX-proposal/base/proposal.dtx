@@ -2130,13 +2130,14 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 %   \meta{month} with length \meta{len} that is \meta{force} thick.
 %    \begin{macrocode}
 \newdimen\gantt@ymid\newdimen\gantt@yinc\newdimen\gantt@xend
-\newcommand{\@action}[5]{%
-\gantt@ymid=#2 cm\gantt@yinc=\gantt@yscale cm
-\gantt@xend=#3 cm\advance\gantt@xend by #4 cm
+\newcommand{\@action}[6][]{\def\@test{#1}%
+\ifx\@test\@empty\def\@@color{ganttgray}\else\def\@@color{#1}\fi
+\gantt@ymid=#3 cm\gantt@yinc=\gantt@yscale cm
+\gantt@xend=#4 cm\advance\gantt@xend by #5 cm
 \advance\gantt@ymid by \gantt@yinc
-\fill[ganttgray] (#3,#2) rectangle +(#4,#5);
-\node (#1@left) at (#3,\gantt@ymid) {};
-\node (#1@right) at (\gantt@xend,\gantt@ymid) {};}
+\fill[\@@color] (#4,#3) rectangle +(#5,#6);
+\node (#2@left) at (#4,\gantt@ymid) {};
+\node (#2@right) at (\gantt@xend,\gantt@ymid) {};}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -2275,6 +2276,7 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
   \edef\@@wps{\pdataref@safe{all}{wp}{ids}}
    \@for\@@wp:=\@@wps\do{% iterate over work packages
      \stepcounter{gantt@tasks}
+%     \@action[white]{}\@@line0{48}1
      \edef\@@tasks{\pdataref@safe\@@wp{task}{ids}}
      \@for\@@task:=\@@tasks\do{% iterate over the tasks
        \stepcounter{gantt@tasks}
