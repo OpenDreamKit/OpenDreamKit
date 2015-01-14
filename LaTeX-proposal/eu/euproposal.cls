@@ -17,6 +17,9 @@
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
+\RequirePackage{chngcntr}
+\counterwithin{figure}{subsection}
+\counterwithin{table}{subsection}
 \ifpartB
 \def\thepart{\Alph{part}}
 \setcounter{part}{2}

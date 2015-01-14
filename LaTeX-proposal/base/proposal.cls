@@ -410,7 +410,7 @@
 \pdata@def{all}{mile}{count}{\themilestone}%
 \end{@milestones}\fi}
 \newenvironment{@milestones}
-{\begin{longtable}{|l|p{2cm}|p{8cm}|l|p{4cm}|}\hline
+{\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{3cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
@@ -541,7 +541,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \define@key{wpfig}{label}{\def\wpfig@label{#1}}
 \define@key{wpfig}{caption}{\def\wpfig@caption{#1}}
 \def\@sw#1{\begin{sideways}#1\end{sideways}}
-\newenvironment{wp@figure}{\begin{figure}[ht]\wpfig@style\begin{center}
+\newenvironment{wp@figure}{\begin{table}[ht]\wpfig@style\begin{center}
 {\let\@sw\relax\let\textbf\relax\let\site\relax\let\pn\relax\let\sys\relax%
 \gdef\wpfig@headline{\wpfig@legend@wap&\wpfig@legend@title%
 \ifx\wpfig@type\@true&\wpfig@legend@type\fi%
@@ -566,7 +566,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \if@sites; \wpfig@legend@lead@expl\fi
 \@ifundefined{wpfig@label}{\caption{\wpfig@legend@caption}}{\caption{\wpfig@caption}}
 \@ifundefined{wpfig@label}{\label{fig:wplist}}{\label{\wpfig@label}}
-\end{center}\end{figure}}
+\end{center}\end{table}}
 \newcommand\wpfig@legend@wap{\textbf{\ifwork@areas{WA/P}\else{WP}\fi}}
 \newcommand\wpfig@legend@title{\textbf{Title}}
 \newcommand\wpfig@legend@type{\textbf{type}}
