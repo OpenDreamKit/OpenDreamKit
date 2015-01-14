@@ -968,9 +968,10 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
        \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
 \define@key{coherencetable}{swsites}[true]{\def\cht@swsites{#1}}
-\define@key{coherencetable}{stretch}[1]{\def\cht@stretch{#1}}
+\define@key{coherencetable}{stretch}{\def\cht@stretch{#1}}
 \newcommand\coherencetable[1][]{%
 \def\cht@swsites{false}%
+\def\cht@stretch{1}%
 \setkeys{coherencetable}{#1}%
 \begin{table}[ht]\centering%
 \small\setlength{\tabcolsep}{.5em}%
