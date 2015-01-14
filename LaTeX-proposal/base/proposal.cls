@@ -406,8 +406,11 @@
 \multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
 \newenvironment{milestones}{\begin{@milestones}}{\end{@milestones}}
 \newenvironment{@milestones}
-{\ifdelivs\begin{longtable}{|l|p{4cm}|p{5cm}|l|p{2.5cm}|}\hline
-\#&\miles@legend@name&\miles@legend@involved&\miles@legend@month&\miles@legend@verif\\\hline\hline%
+{\ifdelivs\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+\#&\textbf{\miles@legend@name}
+&\textbf{\miles@legend@involved}
+&\textbf{\miles@legend@month}
+&\textbf{\miles@legend@verif}\\\hline\hline%
 \else\deliv@error\fi}
 {\ifdelivs\end{longtable}%
 \footnotetext\miles@legend@footnote\fi}
