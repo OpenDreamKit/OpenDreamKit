@@ -1398,7 +1398,7 @@
 \pdata@def{mile}\mile@id{title}{#2}%
 \pdata@def{mile}\mile@id{description}{#3}%
 \@ifundefined{mile@stones}{\xdef\mile@stones{\mile@id}}{\xdef\mile@stones{\mile@stones,\mile@id}}%
-\@milestone{#1}{#2}{#3}% presentation
+\@milestone{\mile@id}{#2}{#3}% presentation
 \else\deliv@error\fi}
 %    \end{macrocode}
 % \end{macro}
@@ -1406,8 +1406,8 @@
 % \begin{macro}{\@milestone}
 %   the corresponding presentation macro.
 %    \begin{macrocode}
-\newcommand\@milestone[3]{%
-\paragraph{\pdata@target{mile}\mile@id{Milestone \milestone@label\themilestone} (Month \pdataref{mile}\mile@id{month})
+\newcommand\@milestone[3]{% id, title, description
+\item \textbf{Milestone \pdataref{mile}{#1}{label} (Month \pdataref{mile}\mile@id{month})
 \textbf{#2}} #3}
 %    \end{macrocode}
 % \end{macro}
@@ -1428,27 +1428,40 @@
 % \begin{environment}{@milestones}
 % here we do the work. 
 %    \begin{macrocode}
-\newenvironment{@milestones}{}{}
+\newenvironment{@milestones}{\begin{enumerate}}{\end{enumerate}}
 %    \end{macrocode}
 % \end{environment}
 %
 % \begin{macro}{milestonetable}
 % here we do the work. 
 %    \begin{macrocode}
-\newcommand\milestonetable%
-{\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{3cm}|}\hline
+\newcommand\milestonetable{%
+{\gdef\mst@lines{}%initialize
+\let\tabularnewline\relax\let\hline\relax% so they 
+\let\textbf\relax\let\emph\relax% do not bother us
+\edef\@@miles{\pdataref{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{
+\edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
+\def\@@delivs{}
+\@for\@J:=\@delivs\do{\xdef\@@delivs{\@@delivs\ \pdataref{deliv}\@J{label}}}
+\def\@@line{
+\textbf{\pdataref{mile}\@I{label}}&
+\emph{\pdataref{mile}{\@I}{title}} &
+\@@delivs&
+\pdataref{mile}\@I{month} &
+\pdataref{mile}\@I{verif}}
+\xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
+\begin{table}[ht]
+\begin{tabular}{|l|p{2.5cm}|p{7cm}|l|p{4cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
 &\textbf{\miles@legend@verif}\\\hline\hline
-\edef\@@miles{\pdata@ref{all}{mile}{ids}}
-\@for\@I:=\@@miles\do{
-\textbf{\milestone@label\@I}&
-\emph{\pdataref{mile}{\@I}{title}} &
-\prop@milesfor\mile@id &
-\pdataref{mile}\mile@id{month} &
-\pdataref{mile}\mile@id{verif}\\\hline}
-\end{longtable}\footnotetext\miles@legend@footnote}
+\mst@lines
+\end{tabular}
+\caption{Milestones, Deliverables, and Verification}\label{tab:milestonetable}
+\end{table}
+\footnotetext\miles@legend@footnote}
 %    \end{macrocode}
 % now the multilinguality support 
 %    \begin{macrocode}
@@ -1458,7 +1471,7 @@
 \newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
 \newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
 %    \end{macrocode}
-% \end{environment}
+% \end{macro}
 %
 % \begin{macro}{\prop@milesfor}
 %    the due date is the first argument to facilitate sorting
