@@ -13,9 +13,9 @@
 %
 % \iffalse 
 %<cls|pdata|reporting>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
-%<cls>\ProvidesClass{proposal}[2013/02/19 v1.4 Project Proposal]
-%<pdata>\ProvidesPackage{pdata}[2013/02/19 v1.4 Project Data]
-%<reporting>\ProvidesPackage{reporting}[2013/02/19 v1.4 Project Reporting]
+%<cls>\ProvidesClass{proposal}[2015/01/14 v1.5 Project Proposal]
+%<pdata>\ProvidesPackage{pdata}[2015/01/14 v1.5 Project Data]
+%<reporting>\ProvidesPackage{reporting}[2015/01/14 v1.5 Project Reporting]
 %<*driver>
 \documentclass{ltxdoc}
 \DoNotIndex{\def,\long,\edef,\xdef,\gdef,\let,\global}
@@ -63,6 +63,7 @@
 % \changes{v1.4}{2012/01/18}{various extensions for the Jan 2012 EU proposals}
 % \changes{v1.4}{2012/01/28}{some localization support}
 % \changes{v1.4}{2013/01/12}{more documentation of milestones}
+% \changes{v1.5}{2014/01/14}{many layout tweaks support for CVs, milestones in gantt}
 % 
 % \GetFileInfo{proposal.cls}
 % 
@@ -726,6 +727,7 @@
 \pdata@def{prop}{gen}{fundsuntil}{#1}}
 \define@key{prop@gen}{topdownPM}[true]{\def\prop@gen@topdownPM{#1}}
 \define@key{prop@gen}{botupPM}[true]{\def\prop@gen@botupPM{#1}}
+\define@key{prop@gen}{keywords}{\def\prop@gen@keywords{#1}}
 %    \end{macrocode}
 % and the default values, these will be used, if the author does not specify something
 % better.
@@ -794,7 +796,7 @@
 \@for\@I:=\prop@gen@PIs\do{%
 \item Curriculum Vitae and list of publications for
   \wa@ref{person}\@I{personaltitle} \wa@ref{person}\@I{name}
-\end{itemize}}\newpage 
+\end{itemize}}\newpage
 \printbibliography[heading=warnpubs]}
 %    \end{macrocode}
 % \end{environment}
@@ -1332,9 +1334,9 @@
 % And finally, we generate the entry into the deliverables table. 
 %    \begin{macrocode}
 \item[\current@label\ (%
-\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due}, 
-\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature}, 
-\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem}, 
+\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
+\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
+\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
 \delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\site{\deliv@lead}})]
  \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
@@ -1415,16 +1417,27 @@
 % \end{macro}
 % 
 % \begin{environment}{milestones}
+%   This does the metadata bookkeeping, the layout is delegated to the presentation
+%   environment |@milestones| and the legend macros that can be customized for specific
+%   proposals.
 %    \begin{macrocode}
-\newenvironment{milestones}{\begin{@milestones}}{\end{@milestones}}
+\newenvironment{milestones}%
+{\begin{@milestones}}
+{\pdata@def{all}{mile}{ids}{\mile@stones}%
+\pdata@def{all}{mile}{count}{\themilestone}%
+\end{@milestones}}
 %    \end{macrocode}
 % \end{environment}
 %
 % \begin{environment}{@milestones}
+% here we do the work. 
 %    \begin{macrocode}
 \newenvironment{@milestones}
-{\ifdelivs\begin{longtable}{|l|p{4cm}|p{5cm}|l|p{2.5cm}|}\hline
-\#&\miles@legend@name&\miles@legend@involved&\miles@legend@month&\miles@legend@verif\\\hline\hline%
+{\ifdelivs\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+\#&\textbf{\miles@legend@name}
+&\textbf{\miles@legend@involved}
+&\textbf{\miles@legend@month}
+&\textbf{\miles@legend@verif}\\\hline\hline%
 \else\deliv@error\fi}
 {\ifdelivs\end{longtable}%
 \footnotetext\miles@legend@footnote\fi}
@@ -2058,11 +2071,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 % We define the keys for Gantt tables
 %    \begin{macrocode}
 \newif\ifgantt@draft\gantt@draftfalse
+\newif\ifgantt@miles\gantt@milesfalse
 \define@key{gantt}{xscale}{\def\gantt@xscale{#1}}
 \define@key{gantt}{yscale}{\def\gantt@yscale{#1}}
 \define@key{gantt}{step}{\def\gantt@step{#1}}
 \define@key{gantt}{size}{\def\gantt@size{#1}}
 \define@key{gantt}{draft}[true]{\ifsubmit\else\gantt@drafttrue\fi}
+\define@key{gantt}{milestones}[true]{\gantt@milestrue}
 %    \end{macrocode}
 % Then we define an auxiliary function that provides defaults for these keys and sets the
 % internal macros.
@@ -2086,11 +2101,22 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
     \protect\begin{proposal}[...,months=??,...] to fix}\fi
 \@ifundefined{gantt@size}{}{\csname\gantt@size\endcsname}
 \newdimen\gantt@ymonths
-\gantt@ymonths=#2 cm
+\gantt@ymonths=#2cm
 \advance\gantt@ymonths by .5cm
 \begin{tikzpicture}[xscale=\gantt@xscale,yscale=\gantt@yscale]
 \draw[xstep=\gantt@step,gray,very thin] (0,0) grid (\prop@gen@months,#2);
-\foreach \x in {0,\gantt@step,...,\prop@gen@months} \node at (\x,\gantt@ymonths) {\x};}
+\foreach \x in {0,\gantt@step,...,\prop@gen@months} \node at (\x,\gantt@ymonths) {\x};
+\ifgantt@miles
+\newdimen\gantt@ymiles\gantt@ymiles=#2cm
+\advance\gantt@ymiles by 2cm
+\newdimen\gantt@ymiles@top\gantt@ymiles@top=#2.5cm
+\advance\gantt@ymiles@top by 2cm
+\edef\@@miles{\pdataref@safe{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{%
+\edef\@@month{\pdataref@safe{mile}{\@I}{month}}
+\draw[very thick] (\@@month,\gantt@ymiles@top) -- (\@@month,-1);
+\node at (\@@month,\gantt@ymiles) {\pdataref{mile}{\@I}{label}};}
+\fi} %gantt@miles
 {\end{tikzpicture}}
 %    \end{macrocode}
 % \end{environment}
@@ -2106,7 +2132,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \gantt@ymid=#2 cm\gantt@yinc=\gantt@yscale cm
 \gantt@xend=#3 cm\advance\gantt@xend by #4 cm
 \advance\gantt@ymid by \gantt@yinc
-\fill (#3,#2) rectangle +(#4,#5);
+\fill[wagray] (#3,#2) rectangle +(#4,#5);
 \node (#1@left) at (#3,\gantt@ymid) {};
 \node (#1@right) at (\gantt@xend,\gantt@ymid) {};}
 %    \end{macrocode}
@@ -2467,14 +2493,14 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  for undefined safe zero one two three four five six seven eight swsites
 % LocalWords:  nine ten eleven twelve style lines totals Packages xscale yscale wphrases
 % LocalWords:  step set gray very thin grid workphase len force phase length to endhead
-% LocalWords:  taskdep from rectangle left right width pt color red above dep
-% LocalWords:  Overview Activities Signatures Date paralist ymonths ymid yinc
-% LocalWords:  xend effort month iffalse eustrep.dtx fileversion maketitle Antr
-% LocalWords:  tableofcontents DescribeEnv ifpublic ifpublic compactitem wpfig
-% LocalWords:  wpfig workplan workplan bookeeping wissenchaftliche tasklist dmp
-% LocalWords:  tasklist taskin taskref taskref tasktref tasktref localtaskref
-% LocalWords:  localtaskref ganttchart biblatex ifx dfgproposal.dtx newpage pn
-% LocalWords:  bibtex proposal1-blx.aux pdataref WPtref WPtref WAref WAref WAtref
+% LocalWords:  taskdep from rectangle left right width pt color red above dep jointsub
+% LocalWords:  Overview Activities Signatures Date paralist ymonths ymid yinc jointsoft
+% LocalWords:  xend effort month iffalse eustrep.dtx fileversion maketitle Antr jointsoft
+% LocalWords:  tableofcontents DescribeEnv ifpublic ifpublic compactitem wpfig jointsup
+% LocalWords:  wpfig workplan workplan bookeeping wissenchaftliche tasklist dmp jointsup
+% LocalWords:  tasklist taskin taskref taskref tasktref tasktref localtaskref jsoft jsoft
+% LocalWords:  localtaskref ganttchart biblatex ifx dfgproposal.dtx newpage pn jsup jsup
+% LocalWords:  bibtex proposal1-blx.aux pdataref WPtref WPtref WAref WAref WAtref wasysym
 % LocalWords:  WAtref protectmacro thebibliography bibitem newblock newif inst
 % LocalWords:  ifsubmit submitfalse publicfalse ifkeys keysfalse ifwork RAMtrue
 % LocalWords:  submittrue publictrue excludecomment RAMfalse keystrue sfdefault
@@ -2524,4 +2550,5 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % mode: doctex
 % TeX-master: t
 % End:
-%  LocalWords:  localdelivtref localtasktref
+%  LocalWords:  localdelivtref localtasktref gantt@milesfalse gantt@milestrue
+%  LocalWords:  gantt@ymiles gantt@ymiles

@@ -7,7 +7,7 @@
 %% proposal.dtx  (with options: `cls')
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
-\ProvidesClass{proposal}[2013/02/19 v1.4 Project Proposal]
+\ProvidesClass{proposal}[2015/01/14 v1.5 Project Proposal]
 \newif\if@wpsubsection\@wpsubsectionfalse
 \newif\ifsubmit\submitfalse
 \newif\ifpublic\publicfalse
@@ -404,10 +404,17 @@
 \pdataref{mile}\mile@id{month} &
 \pdataref{mile}\mile@id{verif}\\\hline
 \multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
-\newenvironment{milestones}{\begin{@milestones}}{\end{@milestones}}
+\newenvironment{milestones}%
+{\begin{@milestones}}
+{\pdata@def{all}{mile}{ids}{\mile@stones}%
+\pdata@def{all}{mile}{count}{\themilestone}%
+\end{@milestones}}
 \newenvironment{@milestones}
-{\ifdelivs\begin{longtable}{|l|p{4cm}|p{5cm}|l|p{2.5cm}|}\hline
-\#&\miles@legend@name&\miles@legend@involved&\miles@legend@month&\miles@legend@verif\\\hline\hline%
+{\ifdelivs\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+\#&\textbf{\miles@legend@name}
+&\textbf{\miles@legend@involved}
+&\textbf{\miles@legend@month}
+&\textbf{\miles@legend@verif}\\\hline\hline%
 \else\deliv@error\fi}
 {\ifdelivs\end{longtable}%
 \footnotetext\miles@legend@footnote\fi}
@@ -766,11 +773,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \newcommand\prop@legend@intendedtotals{\textbf{intended totals}}
 \newcommand\prop@legend@requestedtotals{\textbf{requested totals}}
 \newif\ifgantt@draft\gantt@draftfalse
+\newif\ifgantt@miles\gantt@milesfalse
 \define@key{gantt}{xscale}{\def\gantt@xscale{#1}}
 \define@key{gantt}{yscale}{\def\gantt@yscale{#1}}
 \define@key{gantt}{step}{\def\gantt@step{#1}}
 \define@key{gantt}{size}{\def\gantt@size{#1}}
 \define@key{gantt}{draft}[true]{\ifsubmit\else\gantt@drafttrue\fi}
+\define@key{gantt}{milestones}[true]{\gantt@milestrue}
 \def\gantt@set#1{\gantt@draftfalse\def\gantt@xscale{1}\def\gantt@yscale{.35}\def\gantt@step{3}
 \setkeys{gantt}{#1}}
 \newenvironment{gantt}[2][]
@@ -782,18 +791,29 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
     \protect\begin{proposal}[...,months=??,...] to fix}\fi
 \@ifundefined{gantt@size}{}{\csname\gantt@size\endcsname}
 \newdimen\gantt@ymonths
-\gantt@ymonths=#2 cm
+\gantt@ymonths=#2cm
 \advance\gantt@ymonths by .5cm
 \begin{tikzpicture}[xscale=\gantt@xscale,yscale=\gantt@yscale]
 \draw[xstep=\gantt@step,gray,very thin] (0,0) grid (\prop@gen@months,#2);
-\foreach \x in {0,\gantt@step,...,\prop@gen@months} \node at (\x,\gantt@ymonths) {\x};}
+\foreach \x in {0,\gantt@step,...,\prop@gen@months} \node at (\x,\gantt@ymonths) {\x};
+\ifgantt@miles
+\newdimen\gantt@ymiles\gantt@ymiles=#2cm
+\advance\gantt@ymiles by 2cm
+\newdimen\gantt@ymiles@top\gantt@ymiles@top=#2.5cm
+\advance\gantt@ymiles@top by 2cm
+\edef\@@miles{\pdataref@safe{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{%
+\edef\@@month{\pdataref@safe{mile}{\@I}{month}}
+\draw[very thick] (\@@month,\gantt@ymiles@top) -- (\@@month,-1);
+\node at (\@@month,\gantt@ymiles) {\pdataref{mile}{\@I}{label}};}
+\fi} %gantt@miles
 {\end{tikzpicture}}
 \newdimen\gantt@ymid\newdimen\gantt@yinc\newdimen\gantt@xend
 \newcommand{\@action}[5]{%
 \gantt@ymid=#2 cm\gantt@yinc=\gantt@yscale cm
 \gantt@xend=#3 cm\advance\gantt@xend by #4 cm
 \advance\gantt@ymid by \gantt@yinc
-\fill (#3,#2) rectangle +(#4,#5);
+\fill[wagray] (#3,#2) rectangle +(#4,#5);
 \node (#1@left) at (#3,\gantt@ymid) {};
 \node (#1@right) at (\gantt@xend,\gantt@ymid) {};}
 \def\@dependency#1#2{\draw[->,line width=2pt,color=red] (#1@right) -- (#2@left);}
