@@ -463,13 +463,13 @@
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
-\def\task@post@title@space{\quad}
+\def\task@post@title@space{\;}
 \newcounter{alltasks}
 \def\task@post@title@space{\quad}
 \newcommand\task@legend@partners{Sites: }
 \newcommand\task@legend@PM{PM}
 \newenvironment{task}[1][]%
-{\stepcounter{alltasks}
+{\stepcounter{alltasks}%
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
 \@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
@@ -479,7 +479,7 @@
 \let\@@sep=\sep@wphases}%
 \fi% initial
 \hfill%
-\ifsubmit\else\ifx\task@PM\@empty\else\task@PM\ \task@legend@PM;\fi\fi%
+\ifsubmit\else\ifx\task@PM\@empty\else\task@PM~\task@legend@PM;\fi\fi%
 \ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
 \@for\@I:=\task@partners\do{, \site\@I}\\}
 {\ignorespaces}
