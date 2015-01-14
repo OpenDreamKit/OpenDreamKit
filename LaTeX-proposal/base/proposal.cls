@@ -412,6 +412,7 @@
 \let\tabularnewline\relax\let\hline\relax% so they 
 \let\textbf\relax\let\emph\relax% do not bother us
 \edef\@@miles{\pdataref{all}{mile}{ids}}
+\message{XXXX \@@miles}
 \@for\@I:=\@@miles\do{
 \edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
 \def\@@delivs{}
@@ -423,13 +424,17 @@
 \pdataref{mile}\@I{month} &
 \pdataref{mile}\@I{verif}}
 \xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
-\begin{longtable}{|l|p{2.5cm}|p{7cm}|l|p{4cm}|}\hline
+\begin{table}[ht]
+\begin{tabular}{|l|p{2.5cm}|p{7cm}|l|p{4cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
 &\textbf{\miles@legend@verif}\\\hline\hline
 \mst@lines
-\end{longtable}\footnotetext\miles@legend@footnote}
+\end{tabular}
+\caption{Milestones, Deliverables, and Verification}\label{tab:milestonetable}
+\end{table}
+\footnotetext\miles@legend@footnote}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@month{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
