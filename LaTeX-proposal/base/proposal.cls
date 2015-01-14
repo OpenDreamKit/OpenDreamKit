@@ -394,28 +394,42 @@
 \pdata@def{mile}\mile@id{month}{\mile@month}%
 \pdata@def{mile}\mile@id{verif}{\mile@verif}%
 \pdata@def{mile}\mile@id{title}{#2}%
+\pdata@def{mile}\mile@id{description}{#3}%
 \@ifundefined{mile@stones}{\xdef\mile@stones{\mile@id}}{\xdef\mile@stones{\mile@stones,\mile@id}}%
-\@milestone{#1}{#2}{#3}% presentation
+\@milestone{\mile@id}{#2}{#3}% presentation
 \else\deliv@error\fi}
-\newcommand\@milestone[3]{%
-\pdata@target{mile}\mile@id{\textbf{\milestone@label\themilestone}}&
-\textbf{#2} &
-\prop@milesfor\mile@id &
-\pdataref{mile}\mile@id{month} &
-\pdataref{mile}\mile@id{verif}\\\hline
-\multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
+\newcommand\@milestone[3]{% id, title, description
+\item \textbf{Milestone \pdataref{mile}{#1}{label} (Month \pdataref{mile}\mile@id{month})
+\textbf{#2}} #3}
 \newenvironment{milestones}%
 {\ifdelivs\begin{@milestones}\else\deliv@error\fi}
 {\ifdelivs\pdata@def{all}{mile}{ids}{\mile@stones}%
 \pdata@def{all}{mile}{count}{\themilestone}%
 \end{@milestones}\fi}
-\newenvironment{@milestones}
-{\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{3cm}|}\hline
+\newenvironment{@milestones}{\begin{enumerate}}{\end{enumerate}}
+\newcommand\milestonetable{%
+{\gdef\mst@lines{}%initialize
+\let\tabularnewline\relax\let\hline\relax% so they 
+\let\textbf\relax\let\emph\relax% do not bother us
+\edef\@@miles{\pdataref{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{
+\edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
+\def\@@delivs{}
+\@for\@J:=\@delivs\do{\xdef\@@delivs{\@@delivs\ \pdataref{deliv}\@J{label}}}
+\def\@@line{
+\textbf{\pdataref{mile}\@I{label}}&
+\emph{\pdataref{mile}{\@I}{title}} &
+\@@delivs&
+\pdataref{mile}\@I{month} &
+\pdataref{mile}\@I{verif}}
+\xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
+\begin{longtable}{|l|p{2.5cm}|p{7cm}|l|p{4cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline}
-{\end{longtable}\footnotetext\miles@legend@footnote}
+&\textbf{\miles@legend@verif}\\\hline\hline
+\mst@lines
+\end{longtable}\footnotetext\miles@legend@footnote}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@month{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
@@ -1024,3 +1038,7 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 \endinput
 %%
 %% End of file `proposal.cls'.
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../proposal"
+%%% End:

@@ -1396,6 +1396,7 @@
 \pdata@def{mile}\mile@id{month}{\mile@month}%
 \pdata@def{mile}\mile@id{verif}{\mile@verif}%
 \pdata@def{mile}\mile@id{title}{#2}%
+\pdata@def{mile}\mile@id{description}{#3}%
 \@ifundefined{mile@stones}{\xdef\mile@stones{\mile@id}}{\xdef\mile@stones{\mile@stones,\mile@id}}%
 \@milestone{#1}{#2}{#3}% presentation
 \else\deliv@error\fi}
@@ -1406,12 +1407,8 @@
 %   the corresponding presentation macro.
 %    \begin{macrocode}
 \newcommand\@milestone[3]{%
-\pdata@target{mile}\mile@id{\textbf{\milestone@label\themilestone}}&
-\textbf{#2} &
-\prop@milesfor\mile@id &
-\pdataref{mile}\mile@id{month} &
-\pdataref{mile}\mile@id{verif}\\\hline
-\multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
+\paragraph{\pdata@target{mile}\mile@id{Milestone \milestone@label\themilestone} (Month \pdataref{mile}\mile@id{month})
+\textbf{#2}} #3}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -1431,13 +1428,27 @@
 % \begin{environment}{@milestones}
 % here we do the work. 
 %    \begin{macrocode}
-\newenvironment{@milestones}
+\newenvironment{@milestones}{}{}
+%    \end{macrocode}
+% \end{environment}
+%
+% \begin{macro}{milestonetable}
+% here we do the work. 
+%    \begin{macrocode}
+\newcommand\milestonetable%
 {\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{3cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline}
-{\end{longtable}\footnotetext\miles@legend@footnote}
+&\textbf{\miles@legend@verif}\\\hline\hline
+\edef\@@miles{\pdata@ref{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{
+\textbf{\milestone@label\@I}&
+\emph{\pdataref{mile}{\@I}{title}} &
+\prop@milesfor\mile@id &
+\pdataref{mile}\mile@id{month} &
+\pdataref{mile}\mile@id{verif}\\\hline}
+\end{longtable}\footnotetext\miles@legend@footnote}
 %    \end{macrocode}
 % now the multilinguality support 
 %    \begin{macrocode}
