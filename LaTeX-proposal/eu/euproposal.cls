@@ -55,6 +55,7 @@
   \item[Coordinator:] \wa@ref{person}\prop@gen@coordinator{name}
   \item[e-mail:] \wa@ref{person}\prop@gen@coordinator{email}
   \item[tel/fax:] \wa@ref{person}\prop@gen@coordinator{worktelfax}
+    \@ifundefined{prop@gen@keywords}{}{\item[Keywords:]  \prop@gen@keywords}
   \end{description}
 \end{large}
 \vspace*{1em}
