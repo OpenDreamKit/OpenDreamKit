@@ -474,7 +474,9 @@
 \@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
-\do{\decode@wphase\@I\@@sep\show@wphase\wphase@start\wphase@end\wphase@force\let\@@sep=\sep@wphases}%
+\do{\decode@wphase\@I%
+\@@sep\show@wphase\wphase@start\wphase@end\wphase@force%
+\let\@@sep=\sep@wphases}%
 \fi% initial
 \hfill%
 \ifsubmit\else\ifx\task@PM\@empty\else\task@PM\ \task@legend@PM;\fi\fi%
@@ -482,8 +484,9 @@
 \@for\@I:=\task@partners\do{, \site\@I}\\}
 {\ignorespaces}
 \newcommand\month@label[1]{M#1}
-\newcommand\show@wphase[3]{\def\@test{#3}\month@label{#1}-\month@label{#2}%
-\ifx\@test\@empty\@ #3}
+\newcommand\show@wphase[3]{\edef\@test{#3}\def\@one{1}%
+\month@label{#1}-\month@label{#2}%
+\ifx\@test\@empty\else\ifx\@test\@one\else @#3\fi\fi}
 \newcommand\sep@wphases{; }
 \newcommand\legend@partners{Partners}
 \newcommand\legend@lead{lead}
