@@ -519,7 +519,8 @@
 {\csname wp@#1@lead\endcsname}}
 \definecolorset{gray/rgb/hsb/cmyk}{}{}%
 {leadgray,.90/.90,.90,.90/0,0,.90/0,0,0,.10;%
-wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
+wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30;%
+ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \newcommand\sum@style[1]{\cellcolor{wagray}{\textbf{#1}}}
 \newcommand\wa@style[1]{\cellcolor{wagray}{\textbf{#1}}}
 \newcommand\wp@style[1]{#1}
@@ -785,7 +786,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \def\gantt@set#1{\gantt@draftfalse\def\gantt@xscale{1}\def\gantt@yscale{.35}\def\gantt@step{3}
 \setkeys{gantt}{#1}}
 \newenvironment{gantt}[2][]
-{\gantt@set{#1}
+{\gantt@set{#1}\gdef\gantt@height{#2}
 \def\@test{\prop@gen@months@default}
 \ifx\@test\prop@gen@months
 \ClassError{proposal}{Need overall project months to draw gantt
@@ -793,31 +794,31 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
     \protect\begin{proposal}[...,months=??,...] to fix}\fi
 \@ifundefined{gantt@size}{}{\csname\gantt@size\endcsname}
 \newdimen\gantt@ymonths
-\gantt@ymonths=#2cm
-\advance\gantt@ymonths by .5cm
-\begin{tikzpicture}[xscale=\gantt@xscale,yscale=\gantt@yscale]
-\draw[xstep=\gantt@step,gray,very thin] (0,0) grid (\prop@gen@months,#2);
+\gantt@ymonths=\gantt@height cm
+\advance\gantt@ymonths by .8cm
+\begin{tikzpicture}[xscale=\gantt@xscale,yscale=\gantt@yscale]}
+{\draw[xstep=\gantt@step,very thin] (0,0) grid (\prop@gen@months,\gantt@height);
 \foreach \x in {0,\gantt@step,...,\prop@gen@months} \node at (\x,\gantt@ymonths) {\x};
 \ifgantt@miles
-\newdimen\gantt@ymiles\gantt@ymiles=#2cm
+\newdimen\gantt@ymiles\gantt@ymiles=\gantt@height cm
 \advance\gantt@ymiles by 2cm
-\newdimen\gantt@ymiles@top\gantt@ymiles@top=#2.5cm
-\advance\gantt@ymiles@top by 2cm
+\newdimen\gantt@ymiles@top\gantt@ymiles@top=\gantt@height cm
 \edef\@@miles{\pdataref@safe{all}{mile}{ids}}
 \@for\@I:=\@@miles\do{%
 \edef\@@month{\pdataref@safe{mile}{\@I}{month}}
-\draw[very thick] (\@@month,\gantt@ymiles@top) -- (\@@month,-1);
-\node at (\@@month,\gantt@ymiles) {\pdataref{mile}{\@I}{label}};}
-\fi} %gantt@miles
-{\end{tikzpicture}}
+\draw[very thick,blue] (\@@month,\gantt@ymiles@top) -- (\@@month,0);
+\node[blue] at (\@@month,\gantt@ymiles) {\pdataref{mile}{\@I}{label}};}
+\fi %gantt@miles
+\end{tikzpicture}}
 \newdimen\gantt@ymid\newdimen\gantt@yinc\newdimen\gantt@xend
-\newcommand{\@action}[5]{%
-\gantt@ymid=#2 cm\gantt@yinc=\gantt@yscale cm
-\gantt@xend=#3 cm\advance\gantt@xend by #4 cm
+\newcommand{\@action}[6][]{\def\@test{#1}%
+\ifx\@test\@empty\def\@@color{ganttgray}\else\def\@@color{#1}\fi
+\gantt@ymid=#3 cm\gantt@yinc=\gantt@yscale cm
+\gantt@xend=#4 cm\advance\gantt@xend by #5 cm
 \advance\gantt@ymid by \gantt@yinc
-\fill[wagray] (#3,#2) rectangle +(#4,#5);
-\node (#1@left) at (#3,\gantt@ymid) {};
-\node (#1@right) at (\gantt@xend,\gantt@ymid) {};}
+\fill[\@@color] (#4,#3) rectangle +(#5,#6);
+\node (#2@left) at (#4,\gantt@ymid) {};
+\node (#2@right) at (\gantt@xend,\gantt@ymid) {};}
 \def\@dependency#1#2{\draw[->,line width=2pt,color=red] (#1@right) -- (#2@left);}
 \newcommand\gantt@compute@effort[3]{% start, len, force
   \@@e=#1\advance\@@e by #2
@@ -887,7 +888,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
           \@for\@@ft:=\@@wphases\do{%iterate over the wp-level work phases
             \decode@wphase\@@ft
             \gantt@compute@effort\wphase@start\wphase@len\wphase@force}}}}
-      \fill  (\thegantt@month,-5) rectangle +(1,\gantt@effort);
+      \fill[ganttgray]  (\thegantt@month,-5) rectangle +(1,\gantt@effort);
       \else% ifwork@areas
       \edef\@@wps{\pdataref@safe{all}{wp}{ids}}
       \@for\@@wp:=\@@wps\do{% iterate over work packages
@@ -901,7 +902,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
           \@for\@@ft:=\@@wphases\do{%iterate over the wp-level work phases
             \decode@wphase\@@ft
             \gantt@compute@effort\wphase@start\wphase@len\wphase@force}}}
-      \fill  (\thegantt@month,-5) rectangle +(1,\gantt@effort);
+      \fill[ganttgray]  (\thegantt@month,-5) rectangle +(1,\gantt@effort);
       \fi% ifwork@areas
       \stepcounter{gantt@month}}
    \fi% ifgantt@draft
@@ -914,16 +915,19 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
   (\gantt@caption@lower)\fi}
 \newcommand\gantt@footnote{Bars shown at reduced height (e.g. 50\%) indicate reduced
   intensity during  that work phase  (e.g. to 50\%).}
-\newcommand{\gantttaskchart}[1][]{\begin{figure}[ht]\centering\gantt@set{#1}
-\def\gantt@tasks{\pdataref@num{all}{task}{count}}
-\begin{gantt}[#1]{\gantt@tasks}
+\newcommand{\gantttaskchart}[1][]{\begin{figure}[hbtp]\centering\gantt@set{#1}
+\newcounter{gantt@all@tasks}%
+\setcounter{gantt@all@tasks}{\pdataref@num{all}{task}{count}}
+\addtocounter{gantt@all@tasks}{\pdataref@num{all}{wp}{count}}
+\begin{gantt}[#1]{\thegantt@all@tasks}
   \newcounter{gantt@tasks}\newcount\@@line
   \edef\@@wps{\pdataref@safe{all}{wp}{ids}}
    \@for\@@wp:=\@@wps\do{% iterate over work packages
+     \stepcounter{gantt@tasks}
      \edef\@@tasks{\pdataref@safe\@@wp{task}{ids}}
      \@for\@@task:=\@@tasks\do{% iterate over the tasks
        \stepcounter{gantt@tasks}
-       \@@line=\gantt@tasks\advance\@@line by -\thegantt@tasks
+       \@@line=\thegantt@all@tasks\advance\@@line by -\thegantt@tasks
        \node at (-.5/\gantt@xscale,\@@line) [above=-2pt] {{\footnotesize\taskreflong\@@wp\@@task}};
        \edef\@@wphases{\pdataref@safe{task}\@@task{wphases}}
        \@for\@@ft:=\@@wphases\do{%iterate over the task-level work phases
