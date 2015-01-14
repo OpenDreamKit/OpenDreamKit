@@ -405,19 +405,17 @@
 \pdataref{mile}\mile@id{verif}\\\hline
 \multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
 \newenvironment{milestones}%
-{\begin{@milestones}}
-{\pdata@def{all}{mile}{ids}{\mile@stones}%
+{\ifdelivs\begin{@milestones}\else\deliv@error\fi}
+{\ifdelivs\pdata@def{all}{mile}{ids}{\mile@stones}%
 \pdata@def{all}{mile}{count}{\themilestone}%
-\end{@milestones}}
+\end{@milestones}\fi}
 \newenvironment{@milestones}
-{\ifdelivs\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+{\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline%
-\else\deliv@error\fi}
-{\ifdelivs\end{longtable}%
-\footnotetext\miles@legend@footnote\fi}
+&\textbf{\miles@legend@verif}\\\hline\hline}
+{\end{longtable}\footnotetext\miles@legend@footnote}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@month{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
