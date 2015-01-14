@@ -405,19 +405,17 @@
 \pdataref{mile}\mile@id{verif}\\\hline
 \multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
 \newenvironment{milestones}%
-{\begin{@milestones}}
-{\pdata@def{all}{mile}{ids}{\mile@stones}%
+{\ifdelivs\begin{@milestones}\else\deliv@error\fi}
+{\ifdelivs\pdata@def{all}{mile}{ids}{\mile@stones}%
 \pdata@def{all}{mile}{count}{\themilestone}%
-\end{@milestones}}
+\end{@milestones}\fi}
 \newenvironment{@milestones}
-{\ifdelivs\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+{\begin{longtable}{|l|p{2cm}|p{8cm}|l|p{4cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline%
-\else\deliv@error\fi}
-{\ifdelivs\end{longtable}%
-\footnotetext\miles@legend@footnote\fi}
+&\textbf{\miles@legend@verif}\\\hline\hline}
+{\end{longtable}\footnotetext\miles@legend@footnote}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@month{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
@@ -463,13 +461,13 @@
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
-\def\task@post@title@space{\quad}
+\def\task@post@title@space{\;}
 \newcounter{alltasks}
 \def\task@post@title@space{\quad}
 \newcommand\task@legend@partners{Sites: }
 \newcommand\task@legend@PM{PM}
 \newenvironment{task}[1][]%
-{\stepcounter{alltasks}
+{\stepcounter{alltasks}%
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
 \@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
@@ -479,10 +477,11 @@
 \let\@@sep=\sep@wphases}%
 \fi% initial
 \hfill%
-\ifsubmit\else\ifx\task@PM\@empty\else\task@PM\ \task@legend@PM;\fi\fi%
+\ifsubmit\else\ifx\task@PM\@empty\else\task@PM~\task@legend@PM;\fi\fi%
 \ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
-\@for\@I:=\task@partners\do{, \site\@I}\\}
-{\ignorespaces}
+\@for\@I:=\task@partners\do{, \site\@I}\\%
+\ignorespaces}
+{\medskip}
 \newcommand\month@label[1]{M#1}
 \newcommand\show@wphase[3]{\edef\@test{#3}\def\@one{1}%
 \month@label{#1}-\month@label{#2}%
@@ -908,10 +907,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
    \fi% ifgantt@draft
   \end{gantt}
   \caption{\gantt@caption}\label{fig:gantt}
-\end{figure}}
-\newcommand\gantt@caption@main{Overview Work Package Activities}
+\end{figure}\footnotetext\gantt@footnote}
+\newcommand\gantt@caption@main{Gantt Chart: Overview Work Package Activities}
 \newcommand\gantt@caption@lower{lower bar shows the overall effort \if@RAM (RAM only)\fi per month}
-\newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace (\gantt@caption@lower)\fi}
+\newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace
+  (\gantt@caption@lower)\fi}
+\newcommand\gantt@footnote{Bars shown at reduced height (e.g. 50\%) indicate reduced
+  intensity during  that work phase  (e.g. to 50\%).}
 \newcommand{\gantttaskchart}[1][]{\begin{figure}[ht]\centering\gantt@set{#1}
 \def\gantt@tasks{\pdataref@num{all}{task}{count}}
 \begin{gantt}[#1]{\gantt@tasks}
@@ -929,7 +931,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
          \@action\@@task\@@line\wphase@start\wphase@len\wphase@force
       }}}% end all iterations
     \end{gantt}
-    \caption{\gantt@caption@main}\label{fig:gantt}
+    \caption{\gantt@caption@main{} -- \emph{\gantt@footnote}}\label{fig:gantt}
 \end{figure}}
 \newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\Large{$\star$}}}}
 \newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\Large{$\bullet$}}}}
