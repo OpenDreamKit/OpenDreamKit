@@ -409,10 +409,9 @@
 \newenvironment{@milestones}{\begin{enumerate}}{\end{enumerate}}
 \newcommand\milestonetable{%
 {\gdef\mst@lines{}%initialize
-\let\tabularnewline\relax\let\hline\relax% so they 
+\let\tabularnewline\relax\let\hline\relax% so they
 \let\textbf\relax\let\emph\relax% do not bother us
 \edef\@@miles{\pdataref{all}{mile}{ids}}
-\message{XXXX \@@miles}
 \@for\@I:=\@@miles\do{
 \edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
 \def\@@delivs{}
@@ -1043,7 +1042,3 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 \endinput
 %%
 %% End of file `proposal.cls'.
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: "../../proposal"
-%%% End:
