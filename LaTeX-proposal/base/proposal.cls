@@ -479,8 +479,9 @@
 \hfill%
 \ifsubmit\else\ifx\task@PM\@empty\else\task@PM~\task@legend@PM;\fi\fi%
 \ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
-\@for\@I:=\task@partners\do{, \site\@I}\\}
-{\ignorespaces}
+\@for\@I:=\task@partners\do{, \site\@I}\\%
+\ignorespaces}
+{\medskip}
 \newcommand\month@label[1]{M#1}
 \newcommand\show@wphase[3]{\edef\@test{#3}\def\@one{1}%
 \month@label{#1}-\month@label{#2}%
