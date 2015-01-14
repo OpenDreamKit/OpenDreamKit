@@ -15,6 +15,9 @@
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
+\RequirePackage{chngcntr}
+\counterwithin{figure}{subsection}
+\counterwithin{table}{subsection}
 \define@key{prop@gen}{reportperiod}{\def\prop@gen@reportperiod{#1}}
 \define@key{prop@gen}{key}{\@dmp{key=#1}%
 \@ifundefined{prop@gen@keys}{\xdef\prop@gen@keys{#1}}{\xdef\prop@gen@keys{\prop@gen@keys,#1}}}

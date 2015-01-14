@@ -405,19 +405,17 @@
 \pdataref{mile}\mile@id{verif}\\\hline
 \multicolumn{5}{|p{14cm}|}{#3}\\\hline\hline}
 \newenvironment{milestones}%
-{\begin{@milestones}}
-{\pdata@def{all}{mile}{ids}{\mile@stones}%
+{\ifdelivs\begin{@milestones}\else\deliv@error\fi}
+{\ifdelivs\pdata@def{all}{mile}{ids}{\mile@stones}%
 \pdata@def{all}{mile}{count}{\themilestone}%
-\end{@milestones}}
+\end{@milestones}\fi}
 \newenvironment{@milestones}
-{\ifdelivs\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{2.5cm}|}\hline
+{\begin{longtable}{|l|p{3.5cm}|p{7cm}|l|p{3cm}|}\hline
 \#&\textbf{\miles@legend@name}
 &\textbf{\miles@legend@involved}
 &\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline%
-\else\deliv@error\fi}
-{\ifdelivs\end{longtable}%
-\footnotetext\miles@legend@footnote\fi}
+&\textbf{\miles@legend@verif}\\\hline\hline}
+{\end{longtable}\footnotetext\miles@legend@footnote}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@month{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
@@ -481,8 +479,9 @@
 \hfill%
 \ifsubmit\else\ifx\task@PM\@empty\else\task@PM~\task@legend@PM;\fi\fi%
 \ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)\fi%
-\@for\@I:=\task@partners\do{, \site\@I}\\}
-{\ignorespaces}
+\@for\@I:=\task@partners\do{, \site\@I}\\%
+\ignorespaces}
+{\medskip}
 \newcommand\month@label[1]{M#1}
 \newcommand\show@wphase[3]{\edef\@test{#3}\def\@one{1}%
 \month@label{#1}-\month@label{#2}%
@@ -542,7 +541,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \define@key{wpfig}{label}{\def\wpfig@label{#1}}
 \define@key{wpfig}{caption}{\def\wpfig@caption{#1}}
 \def\@sw#1{\begin{sideways}#1\end{sideways}}
-\newenvironment{wp@figure}{\begin{figure}[ht]\wpfig@style\begin{center}
+\newenvironment{wp@figure}{\begin{table}[ht]\wpfig@style\begin{center}
 {\let\@sw\relax\let\textbf\relax\let\site\relax\let\pn\relax\let\sys\relax%
 \gdef\wpfig@headline{\wpfig@legend@wap&\wpfig@legend@title%
 \ifx\wpfig@type\@true&\wpfig@legend@type\fi%
@@ -567,7 +566,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 \if@sites; \wpfig@legend@lead@expl\fi
 \@ifundefined{wpfig@label}{\caption{\wpfig@legend@caption}}{\caption{\wpfig@caption}}
 \@ifundefined{wpfig@label}{\label{fig:wplist}}{\label{\wpfig@label}}
-\end{center}\end{figure}}
+\end{center}\end{table}}
 \newcommand\wpfig@legend@wap{\textbf{\ifwork@areas{WA/P}\else{WP}\fi}}
 \newcommand\wpfig@legend@title{\textbf{Title}}
 \newcommand\wpfig@legend@type{\textbf{type}}
@@ -908,10 +907,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
    \fi% ifgantt@draft
   \end{gantt}
   \caption{\gantt@caption}\label{fig:gantt}
-\end{figure}}
-\newcommand\gantt@caption@main{Overview Work Package Activities}
+\end{figure}\footnotetext\gantt@footnote}
+\newcommand\gantt@caption@main{Gantt Chart: Overview Work Package Activities}
 \newcommand\gantt@caption@lower{lower bar shows the overall effort \if@RAM (RAM only)\fi per month}
-\newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace (\gantt@caption@lower)\fi}
+\newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace
+  (\gantt@caption@lower)\fi}
+\newcommand\gantt@footnote{Bars shown at reduced height (e.g. 50\%) indicate reduced
+  intensity during  that work phase  (e.g. to 50\%).}
 \newcommand{\gantttaskchart}[1][]{\begin{figure}[ht]\centering\gantt@set{#1}
 \def\gantt@tasks{\pdataref@num{all}{task}{count}}
 \begin{gantt}[#1]{\gantt@tasks}
@@ -929,7 +931,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
          \@action\@@task\@@line\wphase@start\wphase@len\wphase@force
       }}}% end all iterations
     \end{gantt}
-    \caption{\gantt@caption@main}\label{fig:gantt}
+    \caption{\gantt@caption@main{} -- \emph{\gantt@footnote}}\label{fig:gantt}
 \end{figure}}
 \newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\Large{$\star$}}}}
 \newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\Large{$\bullet$}}}}
@@ -950,23 +952,30 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 {\let\tabularnewline\relax\let\hline\relax\let\site\relax% so they do
  \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother
  \let\jsoft\relax\let\jsup\relax\let\cellcolor\relax% us
-\gdef\@ct@head{}
-\@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head &\site{\@site}}}
+\gdef\@ct@head{}%
+\@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head%
+&\ifx\cht@swsites\@true\@sw{\site{\@site}}\else\site{\@site}\fi}}%
 \gdef\@ct@lines{\@ct@head\tabularnewline\hline\hline} %initialize with head line
-\@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}
-  \@for\@@site:=\prop@gen@sites\do{
-    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{\cellcolor{wagray}{}}\fi
-      \@ifundefined{coherence@\@site @\@@site}{}{\@nameuse{coherence@\@site @\@@site}}}}
-  \xdef\@ct@lines{\@ct@lines\@ct@line\tabularnewline\hline}}}
-\begin{tabular}{|l||*{\the@site}{c|}}\hline
-\@ct@lines\hline
+\@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}%
+  \@for\@@site:=\prop@gen@sites\do{%
+    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{\cellcolor{wagray}{}}\fi%
+      \@ifundefined{coherence@\@site @\@@site}{}{\@nameuse{coherence@\@site @\@@site}}}}%
+  \xdef\@ct@lines{\@ct@lines\@ct@line\tabularnewline\hline}}}%
+\begin{tabular}{|l||*{\the@site}{c|}}\hline%
+\@ct@lines\hline%
 joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ project,
-  \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev, \jsup $\hat=$ supervision}\\\hline
+      \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev,
+       \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
-\newcommand\coherencetable{%
+\define@key{coherencetable}{swsites}[true]{\def\cht@swsites{#1}}
+\define@key{coherencetable}{stretch}[1]{\def\cht@stretch{#1}}
+\newcommand\coherencetable[1][]{%
+\def\cht@swsites{false}%
+\setkeys{coherencetable}{#1}%
 \begin{table}[ht]\centering%
 \small\setlength{\tabcolsep}{.5em}%
-\renewcommand{\arraystretch}{.9}\coherencematrix%
+\renewcommand{\arraystretch}{\cht@stretch}%
+\coherencematrix%
 \caption{\coherence@caption}\label{tab:collaboration}
 \end{table}}
 \newcommand\coherence@caption{Previous Collaboration between {\pn} members}
