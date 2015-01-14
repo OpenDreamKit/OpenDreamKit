@@ -906,10 +906,13 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
    \fi% ifgantt@draft
   \end{gantt}
   \caption{\gantt@caption}\label{fig:gantt}
-\end{figure}}
-\newcommand\gantt@caption@main{Overview Work Package Activities}
+\end{figure}\footnotetext\gantt@footnote}
+\newcommand\gantt@caption@main{Gantt Chart: Overview Work Package Activities}
 \newcommand\gantt@caption@lower{lower bar shows the overall effort \if@RAM (RAM only)\fi per month}
-\newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace (\gantt@caption@lower)\fi}
+\newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace
+  (\gantt@caption@lower)\fi}
+\newcommand\gantt@footnote{Bars shown at reduced height (e.g. 50\%) indicate reduced
+  intensity during  that work phase  (e.g. to 50\%).}
 \newcommand{\gantttaskchart}[1][]{\begin{figure}[ht]\centering\gantt@set{#1}
 \def\gantt@tasks{\pdataref@num{all}{task}{count}}
 \begin{gantt}[#1]{\gantt@tasks}
@@ -927,7 +930,7 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
          \@action\@@task\@@line\wphase@start\wphase@len\wphase@force
       }}}% end all iterations
     \end{gantt}
-    \caption{\gantt@caption@main}\label{fig:gantt}
+    \caption{\gantt@caption@main{} -- \emph{\gantt@footnote}}\label{fig:gantt}
 \end{figure}}
 \newcommand\jpub{\textcolor{\prop@link@color}{\textbf{\Large{$\star$}}}}
 \newcommand\jpro{\textcolor{\prop@link@color}{\textbf{\Large{$\bullet$}}}}
