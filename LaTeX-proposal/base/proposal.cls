@@ -952,23 +952,30 @@ wagray,.70/.70,.70,.70/0,0,.70/0,0,0,.30}
 {\let\tabularnewline\relax\let\hline\relax\let\site\relax% so they do
  \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother
  \let\jsoft\relax\let\jsup\relax\let\cellcolor\relax% us
-\gdef\@ct@head{}
-\@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head &\site{\@site}}}
+\gdef\@ct@head{}%
+\@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head%
+&\ifx\cht@swsites\@true\@sw{\site{\@site}}\else\site{\@site}\fi}}%
 \gdef\@ct@lines{\@ct@head\tabularnewline\hline\hline} %initialize with head line
-\@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}
-  \@for\@@site:=\prop@gen@sites\do{
-    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{\cellcolor{wagray}{}}\fi
-      \@ifundefined{coherence@\@site @\@@site}{}{\@nameuse{coherence@\@site @\@@site}}}}
-  \xdef\@ct@lines{\@ct@lines\@ct@line\tabularnewline\hline}}}
-\begin{tabular}{|l||*{\the@site}{c|}}\hline
-\@ct@lines\hline
+\@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}%
+  \@for\@@site:=\prop@gen@sites\do{%
+    \xdef\@ct@line{\@ct@line&\ifx\@site\@@site{\cellcolor{wagray}{}}\fi%
+      \@ifundefined{coherence@\@site @\@@site}{}{\@nameuse{coherence@\@site @\@@site}}}}%
+  \xdef\@ct@lines{\@ct@lines\@ct@line\tabularnewline\hline}}}%
+\begin{tabular}{|l||*{\the@site}{c|}}\hline%
+\@ct@lines\hline%
 joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ project,
-  \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev, \jsup $\hat=$ supervision}\\\hline
+      \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev,
+       \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
-\newcommand\coherencetable{%
+\define@key{coherencetable}{swsites}[true]{\def\cht@swsites{#1}}
+\define@key{coherencetable}{stretch}[1]{\def\cht@stretch{#1}}
+\newcommand\coherencetable[1][]{%
+\def\cht@swsites{false}%
+\setkeys{coherencetable}{#1}%
 \begin{table}[ht]\centering%
 \small\setlength{\tabcolsep}{.5em}%
-\renewcommand{\arraystretch}{.9}\coherencematrix%
+\renewcommand{\arraystretch}{\cht@stretch}%
+\coherencematrix%
 \caption{\coherence@caption}\label{tab:collaboration}
 \end{table}}
 \newcommand\coherence@caption{Previous Collaboration between {\pn} members}
