@@ -39,9 +39,9 @@ final-split: final
 draft:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
 
-install: final proposal.pdf
+install: final
 	cp final.pdf proposal-www.pdf
-	git commit -m "Updated pdf" proposal-www.pdf proposal.pdf
+	git commit -m "Updated pdf" proposal-www.pdf
 	git push
 
 bbl:	$(BBL)
