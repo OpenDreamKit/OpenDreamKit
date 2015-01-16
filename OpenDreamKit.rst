@@ -8,7 +8,7 @@ years, starting in September of 2015.
 For details, see the `proposal <proposal-www.pdf?raw=True>`_. It was
 written collaboratively by a diverse team across Europe and
 science. Have fun watching this `video
-<https://www.youtube.com/watch?v=kM9zcfRtOqo>`_, produced with Gource,
+<https://www.youtube.com/watch?v=kM9zcfRtOqo>`_, produced with `Gource <https://code.google.com/p/gource/>`_,
 of the activity on our collaborative work space on github. A
 pretty good illustration -- especially during the final sprint -- of
 how a dispersed but dedicated team can collaborate efficiently with
