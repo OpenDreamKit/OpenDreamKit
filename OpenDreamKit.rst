@@ -5,9 +5,7 @@ OpenDreamKit is a European H2020 proposal that we submitted on the
 14th of January of 2015. If it gets accepted (answer around June), it
 will run for four years, starting in September of 2015.
 
-- `Proposal <proposal-www.pdf?raw=True>`
-
-For details, see the `proposal <proposal-www.pdf?raw=True>`_.
+- `Proposal <proposal-www.pdf?raw=True>`_
 
 Motivation
 ==========
@@ -84,7 +82,7 @@ how a dispersed but dedicated team can collaborate efficiently with
 modern tools!
 
 You may enjoy as well reading this fun
-`blog post http://inverseprobability.com/2015/01/14/open-collaborative-grant-writing/`_.
+`blog post <http://inverseprobability.com/2015/01/14/open-collaborative-grant-writing/>`_.
 
 For participants
 ================
