@@ -39,8 +39,8 @@ entry barrier:
   reciprocally.
 
 - Bring together the developers communities to promote tighter
-  collaboration, accelerate joint development, and share best
-  practices.
+  collaboration and symbiosis, accelerate joint development, and share
+  best practices.
 
 - Outsource as much of the development as possible to larger
   communities to focus the work forces on their core specialty: the
