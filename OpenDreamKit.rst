@@ -7,6 +7,9 @@ will run for four years, starting in September of 2015.
 
 - `Proposal <proposal-www.pdf?raw=True>`_
 
+Note: the above pdf is the officially submitted one, up to the fixing
+of a couple typos we noticed since then.
+
 Motivation
 ==========
 
@@ -26,10 +29,11 @@ technical side, are in order to boost the productivity and lower the
 entry barrier:
 
 - Streamline access, distribution, portability on a wide range of
-  platform, include High Performance Computers or cloud services.
+  platforms, including High Performance Computers or cloud services.
 
 - Improve user interfaces, in particular in the promising area of
-  collaborative workspaces as those provided by SageMathCloud.
+  collaborative workspaces as those provided by `SageMathCloud
+  <http://cloud.sagemath.org>`_.
 
 - Lower barriers between research communities and promote
   dissemination. For example make it easy for a specialist of
@@ -44,9 +48,14 @@ entry barrier:
   communities to focus the work forces on their core specialty: the
   implementation of mathematical algorithms and databases.
 
-The European H2020 call `EINFRA-9: e-Infrastructure for Virtual Research Environment
+Many people in the community have been working really hard on the
+above items but lack crucially manpower or funding; the purpose is to
+supply them with such.
+
+The European H2020 call `EINFRA-9: e-Infrastructure for Virtual
+Research Environment
 <http://ec.europa.eu/research/participants/portal/desktop/en/opportunities/h2020/topics/2144-einfra-9-2015.html>`_
-was a natural fit: indeed putting the focus on Virtual Research
+is a natural fit: putting the emphasis on Virtual Research
 Environments nicely wraps up all the above needs in a single aim.
 
 A great opportunity is the rapid emergence of key technologies, and in
@@ -58,6 +67,10 @@ We built the consortium by gathering core European developers of the
 aforementioned systems for pure mathematics, and reaching toward the
 numerical community, and in particular the Jupyter community, to work
 together on joint needs.
+
+By definition this proposal, if accepted, will be mostly funding
+actions in Europe; however those actions will be carried out, as
+usual, in close collaborations with the worldwide community.
 
 Potential job offers
 ====================
