@@ -1,3 +1,7 @@
+===========================
+README for the participants
+===========================
+
 What you need to do
 ===================
 
