@@ -1,3 +1,4 @@
+============================================================================
 Open Digital Research Environment Toolkit for the Advancement of Mathematics
 ============================================================================
 
@@ -8,10 +9,12 @@ will run for four years, starting in September of 2015.
 - `Proposal <proposal-www.pdf?raw=True>`_
 
 Note: the above pdf is the officially submitted one, up to the fixing
-of a couple typos we noticed since then.
+of a couple unfortunate typos we noticed since then.
 
-Motivation
-==========
+ .. contents::
+
+Motivations
+===========
 
 This proposal grew out of a reflection on the needs of the (pure)
 mathematics community in terms of computational software and
@@ -96,6 +99,10 @@ modern tools!
 
 You may enjoy as well reading this fun
 `blog post <http://inverseprobability.com/2015/01/14/open-collaborative-grant-writing/>`_.
+
+Finally, here is some `debriefing rant about the writing process
+<ProposalWriting.rst>`_.
+
 
 For participants
 ================
