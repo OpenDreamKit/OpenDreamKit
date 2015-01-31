@@ -5,7 +5,7 @@ Ranting on open proposal writing
 Here is some debriefing about the writing of this proposal, mostly as
 a memo for myself for future occasions.
 
-.. contents:: :depth: 2
+.. contents:: :depth: 1
 
 Stand by your dreams
 ====================
