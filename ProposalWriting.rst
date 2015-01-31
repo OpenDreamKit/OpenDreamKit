@@ -2,8 +2,8 @@
 Ranting on open proposal writing
 ================================
 
-Here is some debriefing about the writing of this proposal, mostly as
-a memo for myself for future occasions.
+Here is some debriefing notes about the writing of this proposal,
+mostly as a memo for myself for future occasions.
 
 .. contents:: :depth: 1
 
@@ -252,7 +252,7 @@ Something like::
     H2020: Site leaders: ...
     H2020: All participants: ...
 
-Or maybe use something else than e-mail.
+Or maybe use some other communication media than mailing lists.
 
 TODO list
 ---------

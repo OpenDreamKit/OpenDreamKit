@@ -11,9 +11,7 @@ will run for four years, starting in September of 2015.
 Note: the above pdf is the officially submitted one, up to the fixing
 of a couple unfortunate typos we noticed since then.
 
-.. contents::
-
-    :depth: 1
+.. contents:: :depth: 1
 
 Motivations
 ===========
