@@ -7,6 +7,8 @@ a memo for myself for future occasions.
 
 .. contents::
 
+    :depth: 1
+
 Stand by your dreams
 ====================
 
@@ -129,8 +131,9 @@ LaTeX and the `proposal
 style file is a good technical option.
 
 Choose such an infrastructure, make the compilation procedure
-completely automatic, get an expert on board to help, and push it to
-its limits.
+completely automatic (``make``, with typically two variants to build
+either the draft version with comment or the final version). Get an
+expert on board to help, and push the infrastructure to its limits.
 
 We went quite far in this direction. Next time I would want to go even
 further and also build the external budget files automatically from
@@ -202,9 +205,9 @@ work package descriptions, ...), for getting to know each other, and
 for fast distribution of tasks at the end. Use them early on and
 regularly.
 
-We used intensively http://appear.in for this. It can't get simpler: just
-share a URL (we used http://appear.in/vre-math) with your
-collaborators and you are up and running. It worked for us with
+We used intensively `appear.in <http://appear.in>`_ for this. It can't
+get simpler: just share a URL (we used http://appear.in/vre-math) with
+your collaborators and you are up and running. It worked for us with
 chrome, safari, firefox. It's peer to peer, so in term of privacy it
 should be alright.
 
