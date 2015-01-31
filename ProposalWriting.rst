@@ -1,18 +1,24 @@
+================================
 Ranting on open proposal writing
 ================================
 
 Here is some debriefing about the writing of this proposal, mostly as
 a memo for myself for future occasions.
 
- .. contents::
+.. contents::
 
 Stand by your dreams
 ====================
 
 Write a proposal that you and all participants believe is right.
 
-- Go open. Then you won't have a choice than being proud of what you
-  write.
+- Go open.
+
+  Then you won't have a choice than being proud of what you write :-)
+
+  What we kept private: personal info like salary, the mailing list
+  for discussions (see below), the nity grity details of the budget
+  that are not so relevant anyway, some TODO lists.
 
 - Use a bottom up approach.
 
@@ -21,8 +27,8 @@ Write a proposal that you and all participants believe is right.
   story that will make the call and the needs match naturally
   together.
 
-- Encourage the participants to base all their decisions upon what
-  they believe in.
+- Encourage the participants to shape the proposal to feel included,
+  and to base all their decisions upon what they believe in.
 
 Engage the community
 ====================
@@ -32,13 +38,13 @@ feedback from the community. This allowed for example to rework early
 on some phrasing that could have been misinterpreted.
 
 Yet we did not get as much feedback as I was hoping for. This is
-because a proposal is a massive amount of information.  So it's hard
-for an outsider to make one's way through it. In particular since
-quite some of the information is not directly relevant to the
-community, and the overall structure will remain messy for a long
-time. Here are some tips that might help next time.
+probably because a proposal is a massive amount of information.  So
+it's hard for an outsider to make one's way through it. In particular
+because quite some of the information is not directly relevant to the
+community, and because the overall structure will tend to remain messy
+for a long time. Here are some tips that might help next time.
 
-- Build a shared vision
+- Build a shared vision:
 
   Write early on -- and keep updating -- a short introduction page on
   the web site with tentative answers to the following questions:
@@ -50,11 +56,11 @@ time. Here are some tips that might help next time.
   - How do we connect or differ from other projects?
   - Why are we excellent?
 
-- Add links to the main tasks.
+  Furthermore, add direct links to the main tasks.
 
-- Whenever relevant, write a draft of those tasks as independent
-  tickets (typically, for us, on trac.sagemath.org). People will then
-  stumble naturally on those that are of interest to them, and
+- Whenever relevant, write a draft of the tasks as independent tickets
+  (typically, for us, on trac.sagemath.org). People will then stumble
+  naturally on those that are of interest to them, and
   react. Encourage them to take an active role to shape the tasks in
   the most useful way for the community.
 
@@ -71,13 +77,6 @@ gave me an interesting perspective from the participant side. The key
 thing is that it's both hard and intimidating to get involved.
 
 For the technical side, see the next section.
-
-Finding a nice acronym
-======================
-
-There are many acronym generators online that can be quite helpful in
-the process. But at the end of the day it's all about creativity; get
-everyone involved!
 
 Collaborative tools
 ===================
@@ -141,8 +140,10 @@ There is one difficulty here: building the budget files requires to
 store some information that is private, like the salary of the
 participants. A good approach would be to have a secondary private git
 repository with read-write access granted only to, e.g., site leaders
-and staff. The infrastructure shall allow to build the proposal itself
-with or without the private info.
+and staff. The private info probably could take the form of a single
+table like latex file associating info like salary to
+participants. The infrastructure shall allow to build the proposal
+itself with or without the private info.
 
 Document building and version control
 -------------------------------------
@@ -154,8 +155,17 @@ Exception: if you use like us the web repository browser as web site
 for the proposal, you may want to commit from time to time the
 proposal's pdf to make it accessible to everybody. That's alright, but
 do it under a specific name, so that people don't conflict with it
-when they build the pdf locally. See e.g. the =final= dependency
-in our `Makefile`_.
+when they build the pdf locally. See e.g. the ``final`` dependency
+in our `<Makefile>`_.
+
+Finding a nice acronym
+======================
+
+There are many acronym generators online that can be quite helpful in
+the process. But at the end of the day it's all about creativity; get
+everyone involved. In our case we were rather stuck until Paul came up
+with the serendipitous idea to use "Digital" rather than "Virtual"
+(Dream sounds better than Vream :-) ).
 
 Communication
 =============
@@ -192,8 +202,8 @@ work package descriptions, ...), for getting to know each other, and
 for fast distribution of tasks at the end. Use them early on and
 regularly.
 
-We used intensively `appear.in`_ for this. It can't get simpler: just
-share a URL (we used `http://appear.in/vre-math`_) with your
+We used intensively http://appear.in for this. It can't get simpler: just
+share a URL (we used http://appear.in/vre-math) with your
 collaborators and you are up and running. It worked for us with
 chrome, safari, firefox. It's peer to peer, so in term of privacy it
 should be alright.
@@ -234,7 +244,7 @@ I don't have a good solution. I was trying to make it clear at the top
 of each e-mail who was directly involved (dear XXX); however this was
 clearly not sufficient. A step could be to setup some official keyword
 conventions for the subject line, to let people sort them efficiently.
-Something like:
+Something like::
 
     H2020: WP leaders: ...
     H2020: WP HPC: ...
