@@ -19,10 +19,11 @@ project. Altogether the project involves about 50 persons spread over
 15 sites. For some more details, see Section 3.4 Resources to be
 committed.
 
-.. contents:: :depth: 1
+.. contents:: Content of this page
+   :depth: 1
 
-Abstract
-========
+Abstract of the project
+=======================
 
 OpenDreamKit will deliver a flexible toolkit enabling research groups
 to set up Virtual Research Environments, customised to meet the varied
@@ -132,8 +133,8 @@ open source development, innovative technologies, architectural
 challenges, autonomy, get in touch with us. Loving math is a plus but
 not a necessity.
 
-Open collaborative proposal writing
-===================================
+On open collaborative proposal writing
+======================================
 
 This proposal itself was written collaboratively by a diverse team
 across Europe and science. Have fun watching this `video
