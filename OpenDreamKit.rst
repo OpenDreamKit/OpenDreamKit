@@ -21,6 +21,45 @@ committed.
 
 .. contents:: :depth: 1
 
+Abstract
+========
+
+OpenDreamKit will deliver a flexible toolkit enabling research groups
+to set up Virtual Research Environments, customised to meet the varied
+needs of research projects in pure mathematics and applications, and
+supporting the full research life-cycle from exploration, through
+proof and publication, to archival and sharing of data and code.
+
+OpenDreamKit will be built out of a sustainable ecosystem of
+community-developed open software, databases, and services, including
+popular tools such as LinBox, MPIR, Sage(sagemath.org), GAP, PariGP,
+LMFDB, and Singular. We will extend the Jupyter Notebook environment
+to provide a flexible UI. By improving and unifying existing building
+blocks, OpenDreamKit will maximise both sustainability and impact,
+with beneficiaries extending to scientific computing, physics,
+chemistry, biology and more, and including researchers, teachers, and
+industrial practitioners.
+
+We will define a novel component-based VRE architecture and adapt
+existing mathematical software, databases, and UI components to work
+well within it on varied platforms.  Interfaces to standard HPC and
+grid services will be built in.  Our architecture will be informed by
+recent research into the sociology of mathematical collaboration, so
+as to properly support actual research practice. The ease of set up,
+adaptability and global impact will be demonstrated in a variety of
+demonstrator VREs.
+
+We will ourselves study the social challenges associated with
+large-scale open source code development and publications based on
+executable documents, to ensure sustainability.
+
+OpenDreamKit will be conducted by a Europe-wide steered by demand
+collaboration, including leading mathematicians, computational
+researchers, and software developers with a long track record of
+delivering innovative open source software solutions for their
+respective communities. All produced code and tools will be open
+source.
+
 Motivations
 ===========
 
