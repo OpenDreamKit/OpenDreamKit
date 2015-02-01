@@ -11,6 +11,14 @@ will run for four years, starting in September of 2015.
 Note: the above pdf is the officially submitted one, up to the fixing
 of a couple unfortunate typos we noticed since then.
 
+The total budget is of about 7.6 million euros. Its largest portion is
+devoted to the hiring of an average of 11 developers working full time
+on the project. The participants are planned to provide in addition
+the equivalent of six other persons working full time on the
+project. Altogether the project involves about 50 persons spread over
+15 sites. For some more details, see Section 3.4 Resources to be
+committed.
+
 .. contents:: :depth: 1
 
 Motivations
