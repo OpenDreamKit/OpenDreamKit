@@ -2,6 +2,6 @@
 Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
-- Website: http://www.OpenDreamKit.org/
-- Proposal files: `<Proposal/>`
-- Proposal evaluation: `<ProposalEvaluation/>`
+- Website: `OpenDreamKit.org <http://www.OpenDreamKit.org/>`_
+- Proposal files: `Proposal/`_
+- Proposal evaluation: `<ProposalEvaluation/>`_
