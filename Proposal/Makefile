@@ -39,6 +39,12 @@ final-split: final
 draft:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
 
+grantagreement:
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W proposal.tex all
+	pdftk grantagreement.pdf cat 1-30 55-end output grantagreement-striped.pdf
+	mv grantagreement-striped.pdf grantagreement.pdf
+
+
 install: final
 	cp final.pdf proposal-www.pdf
 	git commit -m "Updated pdf" proposal-www.pdf

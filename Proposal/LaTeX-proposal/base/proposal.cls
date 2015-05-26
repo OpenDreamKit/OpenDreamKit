@@ -10,6 +10,7 @@
 \ProvidesClass{proposal}[2015/01/14 v1.5 Project Proposal]
 \newif\if@wpsubsection\@wpsubsectionfalse
 \newif\ifsubmit\submitfalse
+\newif\ifgrantagreement\grantagreementfalse
 \newif\ifpublic\publicfalse
 \newif\ifkeys\keysfalse
 \newif\ifdelivs\delivsfalse
@@ -20,6 +21,7 @@
 \def\proposal@class{article}
 \DeclareOption{wpsubsection}{\@wpsubsectiontrue}
 \DeclareOption{submit}{\submittrue}
+\DeclareOption{grantagreement}{\grantagreementtrue}
 \DeclareOption{gitinfo}{\@gitinfotrue}
 \DeclareOption{svninfo}{\@svninfotrue}
 \DeclareOption{public}{\publictrue}
@@ -72,11 +74,22 @@
 \ifpublic\excludecomment{private}\else\includecomment{private}\fi
 \setcounter{secnumdepth}{3}
 \newif\ifofpage\ofpagefalse
+\ifgrantagreement
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\else
 \fancyhead[RE,LO]{\prop@gen@acronym}
-\fancyhfoffset{0pt}
+\fi
 \fancyfoot[C]{}
+\fancyhfoffset{0pt}
 \newcommand\prop@of@pages[2]{page~#1\ifofpage~of~#2\fi}
+\ifgrantagreement
+\fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym\quad --\quad Part B}
+\fancyfoot[R]{\thepage}
+\else
 \fancyhead[LE,RO]{\prop@of@pages\thepage{\pdataref@num{prop}{page}{last}}}
+\fi
 \pagestyle{fancyplain}
 \newmdenv[settings=\large]{emphbox}
 \newenvironment{prop@proposal}
@@ -200,10 +213,13 @@
 {\@ifundefined{@tasks}{}{\pdata@def{\wp@id}{task}{ids}\@tasks}}
 \newenvironment{workpackage}[1][]%
 {\begin{work@package}[#1]%
+\ifgrantagreement\else
 \if@sites\goodbreak\medskip\wpheadertable%
 \else\subsubsection*{{\wptitle} (\wprm)}\fi%
 \addcontentsline{toc}{paragraph}{{\wp@mk@title\thewp}: \pdataref{wp}\wp@id{title}}%
-\noindent\ignorespaces}
+\noindent\ignorespaces
+\fi
+}
 {\end{work@package}}
 \newcommand\wptitle{\wp@mk@title{\wp@num}: \pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}
 \newcommand\wprm{\pdataref@safe{wp}\wp@id{RM}\if@RAM\ RM+\pdataref{wp}\wp@id{RAM} RAM\fi}
