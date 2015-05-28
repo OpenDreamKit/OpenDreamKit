@@ -11,7 +11,7 @@ TARGET = $(TSIMP) $(TBIB)                         # all pdflatex targets
 TBIB.pdf 	= $(TBIB:%.tex=%.pdf)         	  # PDFs to be produced
 TBIB.aux 	= $(TBIB:%.tex=%.aux)             # their aux files.
 PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
-SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
+SRC = $(filter-out $(TARGET),$(shell ls *.tex */*.tex))   # included files
 PDFLATEX = pdflatex -interaction scrollmode -file-line-error
 BBL.base =# 1 2 3 4
 BBL = $(PROPOSAL:%.tex=%.bbl) $(BBL.base:%=$(PROPOSAL:%.tex=%)%-blx.bbl)
@@ -36,7 +36,7 @@ final-split: final
 	pdftk final.pdf cat 1-69   output final-123.pdf
 	pdftk final.pdf cat 70-end output final-45.pdf
 
-draft:
+draft:  $(SRC)
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
 
 grantagreement:
