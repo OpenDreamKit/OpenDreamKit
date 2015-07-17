@@ -100,3 +100,7 @@ TAGS: *.tex */*.tex
 
 CollaborativeWritingOfTheOpenDreamKitProposal.mp4:
 	gource -s .4 -1280x720 --auto-skip-seconds .4 --multi-sampling --stop-at-end --highlight-users --hide mouse,progress --file-idle-time 0 --max-files 80 --background-colour 111111 --font-size 20 --title "Collaborative writing of the OpenDreamKit European H2020 proposal" --output-ppm-stream - --output-framerate 60 | avconv -y -r 60 -f image2pipe -vcodec ppm -i - -b 8192K $@
+
+proposal.html:
+	latexmlc --includestyles --log proposal.ltxlog --destination $@ --path LaTeX-proposal/base --path LaTeX-proposal/eu proposal.tex 
+
