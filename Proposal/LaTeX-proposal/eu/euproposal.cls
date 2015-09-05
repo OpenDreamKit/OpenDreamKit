@@ -38,8 +38,7 @@
 \@@table
 \end{tabular}}
 \renewenvironment{prop@proposal}
-{\ifgrantagreement\else
-\thispagestyle{empty}\begin{center}
+{\thispagestyle{empty}\begin{center}
   {\Large \prop@gen@instrument}\\[.2cm]
   {\Large\textbf\prop@gen@callname}\\[.4cm]
   {\LARGE \prop@gen@callid}\\[.8cm]
@@ -68,7 +67,7 @@
 \@ifundefined{prop@gen@iconrowheight}{}
 {\@for\@site:=\prop@gen@sites\do{\wa@institution@logo[height=\prop@gen@iconrowheight]\@site\qquad}}
 \end{center}
-\newpage\fi
+\newpage
 \setcounter{tocdepth}{2}\setcounter{part}{2}}
 {\newpage\printbibliography[heading=warnpubs,maxnames=999]}
 \def\prop@gen@instrument{Proposal Instrument (e.g. IP)}
