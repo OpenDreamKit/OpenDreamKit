@@ -92,8 +92,8 @@ singlerun:
 
 TOWRITE: *.tex */*.tex
 	fgrep 'TOWRITE{' *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
-	#git commit -m "Updated TOWRITE" TOWRITE
-	#git push
+#	git commit -m "Updated TOWRITE" TOWRITE
+#	git push
 
 TAGS: *.tex */*.tex
 	etags *.tex */*.tex
