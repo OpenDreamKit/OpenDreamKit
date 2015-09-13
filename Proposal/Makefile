@@ -41,7 +41,7 @@ draft:  $(SRC)
 
 grantagreement:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W proposal.tex all
-	pdftk grantagreement.pdf cat 1-30 55-end output grantagreement-striped.pdf
+	pdftk grantagreement.pdf cat 1-31 57-end output grantagreement-striped.pdf
 	mv grantagreement-striped.pdf grantagreement.pdf
 
 
@@ -92,8 +92,8 @@ singlerun:
 
 TOWRITE: *.tex */*.tex
 	fgrep 'TOWRITE{' *.tex */*.tex | perl -p -e 's/^(.*):.*TOWRITE\{(.*?)\}(.*)$$/$$2\t$$1: $$3/' - | grep -v XXX | sort > TOWRITE
-	#git commit -m "Updated TOWRITE" TOWRITE
-	#git push
+#	git commit -m "Updated TOWRITE" TOWRITE
+#	git push
 
 TAGS: *.tex */*.tex
 	etags *.tex */*.tex

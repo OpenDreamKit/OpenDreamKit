@@ -80,9 +80,9 @@
 \renewcommand{\footrulewidth}{0.4pt}
 \else
 \fancyhead[RE,LO]{\prop@gen@acronym}
+\fancyhfoffset{0pt}
 \fi
 \fancyfoot[C]{}
-\fancyhfoffset{0pt}
 \newcommand\prop@of@pages[2]{page~#1\ifofpage~of~#2\fi}
 \ifgrantagreement
 \fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym\quad --\quad Part B}
@@ -217,9 +217,8 @@
 \if@sites\goodbreak\medskip\wpheadertable%
 \else\subsubsection*{{\wptitle} (\wprm)}\fi%
 \addcontentsline{toc}{paragraph}{{\wp@mk@title\thewp}: \pdataref{wp}\wp@id{title}}%
-\noindent\ignorespaces
-\fi
-}
+\noindent\ignorespaces%
+\fi}
 {\end{work@package}}
 \newcommand\wptitle{\wp@mk@title{\wp@num}: \pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}
 \newcommand\wprm{\pdataref@safe{wp}\wp@id{RM}\if@RAM\ RM+\pdataref{wp}\wp@id{RAM} RAM\fi}
@@ -354,6 +353,7 @@
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
 \pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
 \pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
+\pdata@def{deliv}{\wpg@id\deliv@id}{page}{\thepage}%
 \@ifundefined{deliv@short}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
@@ -415,8 +415,9 @@
 \@milestone{\mile@id}{#2}{#3}% presentation
 \else\deliv@error\fi}
 \newcommand\@milestone[3]{% id, title, description
-\item \textbf{Milestone \pdataref{mile}{#1}{label} (Month \pdataref{mile}\mile@id{month})
+\item \textbf{\miles@legend@milestone \pdataref{mile}{#1}{label} (\miles@legend@month \pdataref{mile}\mile@id{month})
 \textbf{#2}} #3}
+\newcommand\miles@legend@milestone{Milestone}
 \newenvironment{milestones}%
 {\ifdelivs\begin{@milestones}\else\deliv@error\fi}
 {\ifdelivs\pdata@def{all}{mile}{ids}{\mile@stones}%

@@ -27,8 +27,26 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
-cd: 	                                           # make cd will prepare CD for burning
-	mkdir CD;make $(TARGET.pdf); cp $(TARGET.pdf) CD
+final:
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=final.tex all
+
+final-split: final
+	pdftk final.pdf cat 1-69   output final-123.pdf
+	pdftk final.pdf cat 70-end output final-45.pdf
+
+draft:  $(SRC)
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
+
+grantagreement:
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W proposal.tex all
+	pdftk grantagreement.pdf cat 1-30 55-end output grantagreement-striped.pdf
+	mv grantagreement-striped.pdf grantagreement.pdf
+
+
+install: final
+	cp final.pdf proposal-www.pdf
+	git commit -m "Updated pdf" proposal-www.pdf
+	git push
 
 bbl:	$(BBL)
 $(BBL): %.bbl: %.aux

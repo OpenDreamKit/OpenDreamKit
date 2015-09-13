@@ -368,11 +368,9 @@
 % descriptions via the \DescribeMacro{\milestone}|\milestone| macro which is invoked as
 % |\milestone[|\meta{keys}|]{|\meta{title}|}{|\meta{desc}|}|, where \meta{keys} supports
 % the keys |id| for identification |month| for specifying the milestone date (in months of
-% the project duration), and |verif| for specifying a means of
-% verification\footnote{Arguably, this set of keys is inspired by EU proposals, but can be
-% extended in class instances.} Milestones are numbered with labels whose shape can be
-% customized by redefining \DescribeMacro{\milestone@label}|\milestone@label| and
-% referenced by the \DescribeMacro{\mileref}|\mileref{|\meta{id}|}| and
+% the project duration). Milestones are numbered with labels whose shape can be customized
+% by redefining \DescribeMacro{\milestone@label}|\milestone@label| and referenced by the
+% \DescribeMacro{\mileref}|\mileref{|\meta{id}|}| and
 % \DescribeMacro{\miletref}|\miletref{|\meta{id}|}| for a reference with milestone
 % title. |\pdatacount{all}{miles}| gives the number of milestones.
 % 
@@ -470,7 +468,7 @@
 % 
 % Many proposals require ways to show coherence between the partners. The |proposal| class
 % offers the macro \DescribeMacro{\coherencematrix}|\coherencematrix| for this which
-% generates a matrix of symbols specifying joint publications, projects organization,
+% generates a matrix of symbols specifying joint publications, project organization,
 % software/resource development, and supervision of students by the project partners that
 % have been declared by the \DescribeMacro{\jointpub}|\jointpub|,
 % \DescribeMacro{\jointsub}|\jointproj|, \DescribeMacro{\jointorga}|\jointorga|
@@ -543,6 +541,7 @@
 %<*cls|reporting>
 \newif\if@wpsubsection\@wpsubsectionfalse
 \newif\ifsubmit\submitfalse
+\newif\ifgrantagreement\grantagreementfalse
 \newif\ifpublic\publicfalse
 \newif\ifkeys\keysfalse
 \newif\ifdelivs\delivsfalse
@@ -553,6 +552,7 @@
 \def\proposal@class{article}
 \DeclareOption{wpsubsection}{\@wpsubsectiontrue}
 \DeclareOption{submit}{\submittrue}
+\DeclareOption{grantagreement}{\grantagreementtrue}
 \DeclareOption{gitinfo}{\@gitinfotrue}
 \DeclareOption{svninfo}{\@svninfotrue}
 \DeclareOption{public}{\publictrue}
@@ -603,6 +603,7 @@
  citecolor=\prop@link@color,urlcolor=\prop@link@color,colorlinks=true,
  breaklinks=true, bookmarksopen=true]{hyperref}
 %    \end{macrocode}
+% 
 % the |ed| package~\cite{Kohlhase:ed:ctan} is very useful for collaborative writing and
 % passing messages between collaborators or simply reminding yourself of editing tasks, so
 % we preload it in the class. However, we only want to show the information in draft
@@ -635,11 +636,22 @@
 % We specify the page headings. 
 %    \begin{macrocode}
 \newif\ifofpage\ofpagefalse
+\ifgrantagreement
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\else
 \fancyhead[RE,LO]{\prop@gen@acronym}
 \fancyhfoffset{0pt}
+\fi
 \fancyfoot[C]{}
 \newcommand\prop@of@pages[2]{page~#1\ifofpage~of~#2\fi}
+\ifgrantagreement
+\fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym\quad --\quad Part B}
+\fancyfoot[R]{\thepage}
+\else
 \fancyhead[LE,RO]{\prop@of@pages\thepage{\pdataref@num{prop}{page}{last}}}
+\fi
 \pagestyle{fancyplain}
 %</cls|reporting>
 %    \end{macrocode}
@@ -710,6 +722,8 @@
 \pdata@def{prop}{gen}{acronym}{#1}\@dmp{acro=#1}}
 \define@key{prop@gen}{acrolong}{\def\prop@gen@acrolong{#1}%
 \pdata@def{prop}{gen}{acrolong}{#1}}
+\define@key{prop@gen}{proposalnumber}{\def\prop@gen@proposalnumber{#1}%
+\pdata@def{prop}{gen}{proposalnumber}{#1}}
 \define@key{prop@gen}{discipline}{\def\prop@gen@discipline{#1}%
 \pdata@def{prop}{gen}{discipline}{#1}}
 \define@key{prop@gen}{areas}{\def\prop@gen@areas{#1}%
@@ -795,7 +809,7 @@
 \@for\@I:=\prop@gen@PIs\do{%
 \item Curriculum Vitae and list of publications for
   \wa@ref{person}\@I{personaltitle} \wa@ref{person}\@I{name}
-\end{itemize}}\newpage
+\end{itemize}}\newpage 
 \printbibliography[heading=warnpubs]}
 %    \end{macrocode}
 % \end{environment}
@@ -1051,11 +1065,13 @@
 %    \begin{macrocode}
 \newenvironment{workpackage}[1][]%
 {\begin{work@package}[#1]%
+\ifgrantagreement\else 
 %\if@wpsubsection\subsubsection*{{\wp@mk@title\thewp}: \pdataref{wp}\wp@id{title}}\fi
 \if@sites\goodbreak\medskip\wpheadertable%
 \else\subsubsection*{{\wptitle} (\wprm)}\fi%
 \addcontentsline{toc}{paragraph}{{\wp@mk@title\thewp}: \pdataref{wp}\wp@id{title}}%
-\noindent\ignorespaces}
+\noindent\ignorespaces%
+\fi}
 {\end{work@package}}
 %    \end{macrocode}
 %  \end{environment}
@@ -1303,6 +1319,7 @@
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
 \pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
 \pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
+\pdata@def{deliv}{\wpg@id\deliv@id}{page}{\thepage}%
 \@ifundefined{deliv@short}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
@@ -1333,9 +1350,9 @@
 % And finally, we generate the entry into the deliverables table. 
 %    \begin{macrocode}
 \item[\current@label\ (%
-\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
-\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
-\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
+\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due}, 
+\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature}, 
+\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem}, 
 \delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\site{\deliv@lead}})]
  \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
@@ -1407,8 +1424,9 @@
 %   the corresponding presentation macro.
 %    \begin{macrocode}
 \newcommand\@milestone[3]{% id, title, description
-\item \textbf{Milestone \pdataref{mile}{#1}{label} (Month \pdataref{mile}\mile@id{month})
+\item \textbf{\miles@legend@milestone \pdataref{mile}{#1}{label} (\miles@legend@month \pdataref{mile}\mile@id{month})
 \textbf{#2}} #3}
+\newcommand\miles@legend@milestone{Milestone}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -2592,5 +2610,3 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % mode: doctex
 % TeX-master: t
 % End:
-%  LocalWords:  localdelivtref localtasktref gantt@milesfalse gantt@milestrue
-%  LocalWords:  gantt@ymiles gantt@ymiles

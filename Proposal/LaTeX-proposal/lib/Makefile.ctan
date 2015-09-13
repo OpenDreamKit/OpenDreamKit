@@ -1,11 +1,12 @@
 # make a zip for CTAN submission including the TeX directory structure
-SVNEXP 		= svn export --quiet
-TDSCOLL 	?= $(shell basename $$PWD)
-EXPORTED	= /tmp/$(TDSCOLL)
-TDSDIR 		= /tmp/$(TDSCOLL).tds
-TDSZIP 		= /tmp/$(TDSCOLL).tds.zip
-CTANDIR 	= /tmp/$(TDSCOLL).ctan
-CTANZIP 	= /tmp/$(TDSCOLL).ctan.zip
+HERE   	        = $(shell pwd)
+TMP    	        = /tmp
+TDSCOLL 	= proposal
+EXPORTED	= $(TMP)/$(TDSCOLL).exp
+TDSDIR 		= $(TMP)/$(TDSCOLL).tds
+TDSZIP 		= $(TMP)/$(TDSCOLL).tds.zip
+CTANDIR 	= $(TMP)/$(TDSCOLL)
+CTANZIP		= $(TMP)/$(TDSCOLL).ctan.zip
 
 # this target makes the file CTANZIP by creating and populating the directory 
 # CTANDIR and zipping it. To be current, we first make all, and update 
@@ -13,14 +14,16 @@ CTANZIP 	= /tmp/$(TDSCOLL).ctan.zip
 # export a clean copy EXPORTED, on which we run the target ctanexp below,  
 # which generates a directory CTANDIR, which we zip and move into place. 
 ctan: all filedate checksum
-	svn ci -m'draining just to be sure for CTAN distribution'
+	git commit -am'draining just to be sure for CTAN distribution'
+	git push
 	rm -Rf $(EXPORTED)
 	@echo "exporting a clean copy to $(EXPORTED)"
-	$(SVNEXP) $(TDSURL) $(EXPORTED)
-	find $(EXPORTED) -name ".svn" -type d -exec rm -Rf {} \;
-	cd $(EXPORTED);	$(MAKE) -$(MAKEFLAGS) ctanext
+	cd $(TMP); git clone $(HERE); mv LaTeX-proposal $(EXPORTED)
+	rm -Rf $(EXPORTED)/.git
+	rm $(EXPORTED)/.gitignore
+	cd $(EXPORTED); $(MAKE) -$(MAKEFLAGS) ctanext
 	@echo "zipping the result to $(TDSCOLL).ctan.zip"
-	cd $(CTANDIR); zip -r -q $(CTANZIP) .; cd -; cp $(CTANZIP) .
+	cd $(TMP); zip -r -q $(CTANZIP) $(TDSCOLL); cp $(CTANZIP) $(HERE)
 	rm -Rf $(EXPORTED) $(CTANDIR) $(CTANZIP)
 
 # this target is run on EXPORTED. It first makes the target tdsext below, 
@@ -32,7 +35,8 @@ ctanext: tdsext
 	cp $(TDSZIP) $(CTANDIR)
 	@for d in $(DTXDIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) lctan) done
 	@for d in $(SRCDIRS) $(DOCDIRS); do (cp -R $$d $(CTANDIR)) done; 
-	cp $(TDSZIP) README Makefile $(CTANDIR)
+	cp $(TDSZIP) Makefile $(CTANDIR)
+	cp $(TDS.doc) $(CTANDIR)/README
 	rm -Rf  $(TDSZIP)
 
 # this target makes the file TDSZIP by creating and populating the directory 
@@ -59,7 +63,6 @@ ltds:
 	cp $(TDS.doc) $(TDSDIR)/doc/latex/$(TDSCOLL)
 
 # copy stuff around for a CTAN submission in the DTX dirs
-CTANDIR = /tmp/$(TDSCOLL).ctan
 lctan: 
 	mkdir -p $(CTANDIR)/sty;
 	@for d in $(DISTDIRS); do (cp -R $$d $(CTANDIR)/sty) done
