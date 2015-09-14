@@ -2,13 +2,6 @@
 Year 1 2015 -- 2016
 ===================
 
-GAP -- Sage -- Singular ?
--------------------------
-
-Organizers: St Andrews
-Location: ICMS ?
-Dates: January 2016 ?
-
 Sage Dev days
 -------------
 
@@ -101,6 +94,13 @@ Women in Sage
 Organizers: Orsay
 Location: Cernay
 Dates: august / september 2016
+
+GAP -- Sage -- Singular ?
+-------------------------
+
+Organizers: St Andrews
+Location: ICMS ?
+Dates: 
 
 Data Science ?
 -------------
