@@ -1,5 +1,7 @@
 Suggested members for Quality Review Board
 
+| Name                 | Institute                  |
+| -------------------- | -------------------------- |
 | Hans Fangohr (chair) | University of Southampton  |
 | Mike Croucher        | University of Sheffield    |
 | Alexander Konovalov  | University of St Andrews   |
