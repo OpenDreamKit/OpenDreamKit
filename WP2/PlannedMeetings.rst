@@ -14,8 +14,9 @@ Atelier PARI
 ------------
 
 Organizers: Bordeaux
-Location: Bordeaux ?
-Dates: ??
+Location: Grenoble
+Dates: 11th-15th January
+Website: http://pari.math.u-bordeaux.fr/Events/PARI2016/
 
 Singular / GAP-Singular
 ----------------------
