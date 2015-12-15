@@ -12,8 +12,7 @@ integrate to SAGE.
 - Some
   [slide](https://github.com/OpenDreamKit/OpenDreamKit/blob/master/WP5/T5.6/HPC-Combi.pdf)
   of a presentation for the
-  "[journée du groupe de travail
-  LaMHA](http://tesson.julien.free.fr/LaMHA/2015/automne.php]",
+  "[journée du groupe de travail LaMHA](http://tesson.julien.free.fr/LaMHA/2015/automne.php]",
    Automne 2015, Université Pierre et Marie Curie - 2015, November the 26.
 
 - A [snapshot of the documentation](https://github.com/OpenDreamKit/OpenDreamKit/blob/master/WP5/T5.6/documentation.pdf).
