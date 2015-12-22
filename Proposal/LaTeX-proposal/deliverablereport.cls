@@ -22,13 +22,12 @@
 \newcommand{\issue}[1]{\def\@issue{#1}}
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
-\newcommand{\deliverable}[1]{
-  \edef\deliv@label{\csname deliv@management#1@label\endcsname}
-  \edef\deliv@title{\csname deliv@management#1@title\endcsname}
-  \edef\deliv@lead{\csname deliv@management#1@lead\endcsname}
-  \def\@title{Report on \deliv@label{} (lead: \deliv@lead):\\\deliv@title}%
+\newcommand{\deliverable}[2]{
+  \gdef\deliv@label{\csname deliv@#1#2@label\endcsname}
+  \gdef\deliv@title{\csname deliv@#1#2@title\endcsname}
+  \gdef\deliv@lead{\csname deliv@#1#2@lead\endcsname}
+  \def\@title{{Report on \deliv@label{} (lead: \deliv@lead)\\\deliv@title}}%
   \def\shorttitle{Report on \deliv@label}}
-
 
 \RequirePackage{fancyhdr}
 \pagestyle{fancyplain}
