@@ -24,7 +24,9 @@ Main repository for the OpenDreamKit H2020 European project
 
 ## Advertise ODK's activities
 
-  Add a post in the [news](http://opendreamkit.org/news/) or [activities](http://opendreamkit.org/activities/) pages of the website or an entry in the [events](http://opendreamkit.org//) section.
+Add a post in the [news](http://opendreamkit.org/news/) or [activities](http://opendreamkit.org/activities/) pages of the website or an entry in the [events](http://opendreamkit.org//) section.
+
+Typically a talk at a conference goes in the activities section while an ODK workshop (or related workshop) goes in the events section.
 
 ## Project discussions
 
