@@ -6,8 +6,7 @@ Main repository for the OpenDreamKit H2020 European project
 - Proposal files: [Proposal/]()
 - Proposal evaluation: [ProposalEvaluation/]()
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/]()
-
-[![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+- [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Instructions for participants
 
@@ -18,6 +17,14 @@ Main repository for the OpenDreamKit H2020 European project
 
 - Use ODK's github organisation for most public ODK specific
   infrastructure.
+
+## Acknowledge ODK's funding
+
+  See http://opendreamkit.org/acknowledge/
+
+## Advertise ODK's activities
+
+  Add a post in the [news](http://opendreamkit.org/news/) or [activities](http://opendreamkit.org/activities/) pages of the website or an entry in the [events](http://opendreamkit.org//) section.
 
 ## Project discussions
 
@@ -130,7 +137,7 @@ Send a second mail when the date is fixed.
 Use the repository [http://OpenDreamKit.github.io/meetings/]()
 to host the web page and public documents about each meeting.
 
-## Collaboration software recommendations
+## Recommendations of Collaborative software
 
 - Chat: [http://gitter.im]()
 - Video conferences: [http://appear.in](), [http://hubl.in](), or [https://rendez-vous.renater.fr/]()
