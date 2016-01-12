@@ -3,9 +3,9 @@ Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
 - Website: [OpenDreamKit.org](http://www.OpenDreamKit.org)
-- Proposal files: [Proposal/]()
-- Proposal evaluation: [ProposalEvaluation/]()
-- E-Concertation with other H2020 E-infrastructure projects: [EConcertation/]()
+- Proposal files] [Proposal/](Proposal/)
+- Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
+- E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Instructions for participants
@@ -115,7 +115,7 @@ For deliverables that are not reports by themselves, and assuming the
 status and tracking information is properly written on the github
 issue, it's appropriate to have a very short report containing just a
 link to that issue. The style file makes this trivial. See
-[WP1/D1.1/report.tex]() for an example.
+[WP1/D1.1/report.tex](WP1/D1.1/report.tex]) for an example.
 
 To submit, login on the [EU portal](http://ec.europa.eu/research/participants/portal/)
 and go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
