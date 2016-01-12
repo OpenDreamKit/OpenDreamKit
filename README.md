@@ -136,15 +136,15 @@ workshop.
 
 Send a second mail when the date is fixed.
 
-Use the repository [http://OpenDreamKit.github.io/meetings/]()
+Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
 to host the web page and public documents about each meeting.
 
 ## Recommendations of Collaborative software
 
-- Chat: [http://gitter.im]()
-- Video conferences: [http://appear.in](), [http://hubl.in](), or [https://rendez-vous.renater.fr/]()
-- Temporary collaborative text editing: [framapad.org]()
-- Polls: [http://framadate.org]()
-- Anonymous votes: [http://adoodle.org]()
-- Surveys: [http://limesurvey.org]()
+- Chat: [http://gitter.im](http://gitter.im)
+- Video conferences: [http://appear.in](http://appear.in), [http://hubl.in](http://hubl.in), or [https://rendez-vous.renater.fr/](https://rendez-vous.renater.fr/)
+- Temporary collaborative text editing: [framapad.org](framapad.org)
+- Polls: [http://framadate.org](http://framadate.org)
+- Anonymous votes: [http://adoodle.org](http://adoodle.org)
+- Surveys: [http://limesurvey.org](http://limesurvey.org)
 - Whiteboard?
