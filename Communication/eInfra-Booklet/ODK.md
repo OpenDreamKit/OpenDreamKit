@@ -58,7 +58,7 @@ students, and professionals, in mathematics and beyond.
 
 OpenDreamKit works in close collaboration with SageMathCloud, a cloud
 based Virtual Research Environment for Mathematics whose primary
-instance is based in Seattle.
+instance is based in Seattle, and with the US-based Jupyter team.
 
 ## National and regional e-infrastructure
 
