@@ -4,7 +4,7 @@ OpenDreamKit: Open Digital Research Environment Toolkit for the Advancement of M
 
 # Project URL
 
-opendreamkit.org
+http://opendreamkit.org
 
 # HiRes Logo URL
 
@@ -36,9 +36,12 @@ OpenDreamKit contributes to the development of
   software systems;
 
 -  Protocols for accessing such systems as a service;
+
 -  Interactive computational environments (Jupyter);
+
 -  Web-based databases (LMFDB, Findstat, ...) with a semantic
-  API for remote queries; 
+  API for remote queries;
+
 -  Full VREs based on the above.
 
 
