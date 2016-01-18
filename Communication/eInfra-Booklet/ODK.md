@@ -19,7 +19,7 @@ applications, and supporting the full research life-cycle from
 exploration, through proof and publication, to archival and sharing of
 data and code.
 
-To reach that aim, OpenDreamKit fosters and builds on a
+To reach that aim, OpenDreamKit builds on and fosters a
 sustainable ecosystem of community-developed open software,
 databases, and services, including popular tools such as Linbox,
 MPIR, Sage, GAP, PariGP, LMFDB, Singular, and the interactive
