@@ -49,8 +49,8 @@ OpenDreamKit contributes to the development of
 
 ## For other communities of users
 
-Most of the tools codeveloped by OpenDreamKit are of use for teachers,
-students, and so on, in mathematics and beyond.
+Most of the tools co-developed by OpenDreamKit are of use for teachers,
+students, and professionals, in mathematics and beyond.
 
 # Project positioning with respect to
 
