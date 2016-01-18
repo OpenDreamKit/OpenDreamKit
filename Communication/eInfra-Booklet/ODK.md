@@ -12,7 +12,7 @@ TODO
 
 # Project focus:
 
-OpenDreamKit aims to deliver a flexible toolkit enabling research
+OpenDreamKit aims to deliver flexible toolkits enabling research
 groups to set up Virtual Research Environments, customised to meet the
 varied needs of research projects in pure mathematics and
 applications, and supporting the full research life-cycle from
