@@ -62,10 +62,4 @@ instance is based in Seattle, and with the US-based Jupyter team.
 
 ## National and regional e-infrastructure
 
-OpenDreamKit is not an infrastructure provider per se. Instead,
-researchers will use its toolkit to setup VRE's on top of existing
-infrastructure (local, cloud based, ...) which will provide storage,
-computational power, etc.
-
-OpenDreamKit is reaching toward the major regional and national
-infrastructures to test and ease the setup process on top of those.
+OpenDreamKit is not a hardware infrastructure nor a service provider. OpenDreamKit is developing and improving software that will be used locally and on regional, national and cloud based infrastructures.
