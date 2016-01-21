@@ -12,7 +12,7 @@ TODO
 
 # Project focus:
 
-OpenDreamKit aims to deliver flexible toolkits enabling research
+OpenDreamKit aims to deliver a flexible toolkit enabling research
 groups to set up Virtual Research Environments, customised to meet the
 varied needs of research projects in pure mathematics and
 applications, and supporting the full research life-cycle from
@@ -58,7 +58,7 @@ students, and professionals, in mathematics and beyond.
 
 OpenDreamKit works in close collaboration with SageMathCloud, a cloud
 based Virtual Research Environment for Mathematics whose primary
-instance is based in Seattle, and with the US-based Jupyter team.
+instance is based in Seattle.
 
 ## National and regional e-infrastructure
 
