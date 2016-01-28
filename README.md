@@ -18,15 +18,15 @@ Main repository for the OpenDreamKit H2020 European project
 - Use ODK's github organisation for most public ODK specific
   infrastructure.
 
-## Acknowledge ODK's funding
-
-  See http://opendreamkit.org/acknowledge/
-
 ## Advertise ODK's activities
 
 Add a post in the [news](http://opendreamkit.org/news/) or [activities](http://opendreamkit.org/activities/) pages of the website or an entry in the [events](http://opendreamkit.org//) section.
 
 Typically a talk at a conference goes in the activities section while an ODK workshop (or related workshop) goes in the events section.
+
+## Acknowledge ODK's support
+
+See our [Acknowledgement web page](http://opendreamkit.org/acknowledge/)
 
 ## Project discussions
 
@@ -119,7 +119,8 @@ link to that issue. The style file makes this trivial. See
 
 To submit, login on the [EU portal](http://ec.europa.eu/research/participants/portal/)
 and go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
-Note that this failed for me (Nicolas) with firefox; I had to use chromium.
+Uploading a pdf failed for me with firefox (Nicolas); it worked with
+chromium, or with firefox by wrapping the pdf in a zip file.
 I haven't checked yet whether any participant can submit a deliverable
 or if it has to go through the coordinator.
 
