@@ -128,17 +128,16 @@ Then send a notice to participants@opendreamkit.org.
 
 ## Organizing a workshop
 
-Create an issue to discuss the organization of the workshop (choosing
-the date, ...).
+- 1 Create an issue to discuss the organization of the workshop (choosing the date, ...)
+- 2 Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
+- 3 Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
+- 4 Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
+- 5 Send the agenda and an invitation to the event to all participants
 
-Send a first mail to participants@opendreamkit.org /
-communit@opendreamkit.org announcing the plan to organize the
-workshop.
+- 6 Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
+to host the web page and public documents about each meeting
 
-Send a second mail when the date is fixed.
 
-Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
-to host the web page and public documents about each meeting.
 
 ## Recommendations of Collaborative software
 
