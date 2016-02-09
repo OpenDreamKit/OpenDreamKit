@@ -128,17 +128,16 @@ Then send a notice to participants@opendreamkit.org.
 
 ## Organizing a workshop
 
-Create an issue to discuss the organization of the workshop (choosing
-the date, ...).
+- 1 Create an issue to discuss the organization of the workshop (choosing the date, ...)
+- 2 Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
+- 3 Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
+- 4 Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
+- 5 Send the agenda and an invitation to the event to all participants
 
-Send a first mail to participants@opendreamkit.org /
-communit@opendreamkit.org announcing the plan to organize the
-workshop.
+- 6 Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
+to host the web page and public documents about each meeting
 
-Send a second mail when the date is fixed.
 
-Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
-to host the web page and public documents about each meeting.
 
 ## Recommendations of Collaborative software
 
@@ -149,3 +148,44 @@ to host the web page and public documents about each meeting.
 - Anonymous votes: [http://adoodle.org](http://adoodle.org)
 - Surveys: [http://limesurvey.org](http://limesurvey.org)
 - Whiteboard?
+
+## Recommendations for organizing official meetings
+
+Send official e-mail invitations XXX days to all the meeting
+participants, with the agenda. Those e-mails are to be kept for later
+audits (proving that the attendance was necessary).
+
+For meetings of 4-5 people, RPC-based video conferences as above can
+possibly do the job. For a larger number of people, this does not seem
+to scale. Here are some recommendations:
+
+- Prepare a signature sheet to collect attendance
+
+- Run a test, e.g. the day before, with the exact same setup as on the
+  day of the meeting, asking all remote participants to join briefly.
+
+- Request all participants to have a wired access (not wifi).
+
+- Plan for a backup solution so that participants can join by plain
+  phone.
+
+- Make sure that all the support material (e.g. slides of status
+  reports, ...) is available in advance (e.g. posted online), linked
+  from the agenda, and read by all participants before the
+  meeting. This way one can just scan through them quickly during the
+  meeting, and focus on discussions.
+
+- Set up a pad (e.g. on framapad) for collaborative editing of the
+  minutes during the meeting. Initialize it with the agenda, and links
+  to all supporting material.
+
+- Set up a chat room (e.g. gitter) to let remote participants
+  interact. Explore if the framapad's chat is good enough for that.
+
+- Explore webcast solutions as an alternative to peer-to-peer video
+  conference, so that at least remote participants can follow what's
+  going on.
+
+- After the meeting, move the content of the pad into a file in the
+  relevant git repository for later editing. Whenever appropriate,
+  make this file accessible online.
