@@ -115,7 +115,7 @@ For deliverables that are not reports by themselves, and assuming the
 status and tracking information is properly written on the github
 issue, it's appropriate to have a very short report containing just a
 link to that issue. The style file makes this trivial. See
-[WP1/D1.1/report.tex](WP1/D1.1/report.tex]) for an example.
+[WP1/D1.1/report.tex](WP1/D1.1/report.tex) for an example.
 
 To submit, login on the [EU portal](http://ec.europa.eu/research/participants/portal/)
 and go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
