@@ -29,7 +29,7 @@ Typically a talk at a conference goes in the activities section while an ODK wor
 See our [Acknowledgement web page](http://opendreamkit.org/acknowledge/)
 
 ## Finance  best practice
-For the full version delivered by the Commission, click [here](OpenDreamKit/avoid-finance-errors_en.pdf)
+For the full version delivered by the Commission, click [here](avoid-finance-errors_en.pdf)
 
 ## Project discussions
 
