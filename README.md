@@ -64,12 +64,12 @@ Partners must be keeping in mind the Commission asks not to accept more than 6 m
 - Warn the Coordinator so that they keep list of publication of OpenDreamKit publications updated on the project website
 
 
-### Data related to open access publications
+#### Data related to open access publications
 
 The lead partner of a publication will send to the Project Manager all the data related to the peer-reviewed publication once it is given full openaccess. Data related to a publication are all the data needed to reexamine the research leading to the publication.
 The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications. 
 
-### Openaire
+#### Openaire
 
 Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
 https://www.openaire.eu/search/project?projectId=corda__h2020::1930bdaa9032dd5b34f25841ebf3e8d1
