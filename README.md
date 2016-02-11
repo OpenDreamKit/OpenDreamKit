@@ -57,21 +57,21 @@ Partners will be following the process explained below. The lead partner of the 
 
 Partners must be keeping in mind the Commission asks not to accept more than 6 month embargo (to check the publishers’ policies use http://www.sherpa.ac.uk/romeo/)
 
-#### Give openaccess to all peer-reviewed publications, with a maximum.of 6 months embargo.
+#### Give openaccess to all peer-reviewed publications, with a max. of 6 months embargo.
 
 - Partners upload publications on http://arxiv.org/, or on another openaccess platform of their choice
 
-- Warn the Coordinator so that they keep list of publication of MAGicSky publiations updated on the project website
+- Warn the Coordinator so that they keep list of publication of OpenDreamKit publications updated on the project website
 
 
 ### Data related to open access publications
 
 The lead partner of a publication will send to the Project Manager all the data related to the peer-reviewed publication once it is given full openaccess. Data related to a publication are all the data needed to reexamine the research leading to the publication.
-The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications.
+The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications. 
 
 ### Openaire
 
-Once publications are published on Hal and their data published on Zenodo, the OpenAire website will be linkage between them. All MAGiSky published work will be present on this webpage: 
+Once publications are published on Hal and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
 https://www.openaire.eu/search/project?projectId=corda__h2020::1930bdaa9032dd5b34f25841ebf3e8d1
 
 In order for publications and data to appear on this website, one must state when completing forms on the Hal and Zenodo websites that the concerned work is being financed by Horizon 2020 project number 676541.
