@@ -3,7 +3,7 @@ Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
 - Website: [OpenDreamKit.org](http://www.OpenDreamKit.org)
-- Proposal files] [Proposal/](Proposal/)
+- Proposal files: [Proposal/](Proposal/)
 - Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
