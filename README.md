@@ -28,6 +28,9 @@ Typically a talk at a conference goes in the activities section while an ODK wor
 
 See our [Acknowledgement web page](http://opendreamkit.org/acknowledge/)
 
+## Finance  best practice
+For the full version delivered by the Commission, click [here](http://opendreamkit/avoid-finance-errors_en.pdf)
+
 ## Project discussions
 
 - The few private discussions (that involve for example nominative
