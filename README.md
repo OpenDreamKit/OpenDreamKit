@@ -71,10 +71,10 @@ The Project Manager will publish the data linked to publications on http://zenod
 
 ### Openaire
 
-Once publications are published on Hal and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
+Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
 https://www.openaire.eu/search/project?projectId=corda__h2020::1930bdaa9032dd5b34f25841ebf3e8d1
 
-In order for publications and data to appear on this website, one must state when completing forms on the Hal and Zenodo websites that the concerned work is being financed by Horizon 2020 project number 676541.
+In order for publications and data to appear on this website, one must state when completing forms on the openaccess paltform (such as ArXiv) and Zenodo websites that the concerned work is being financed by Horizon 2020 project number 676541.
 
 ## Project discussions
 
