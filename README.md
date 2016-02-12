@@ -170,22 +170,31 @@ to scale. Here are some recommendations:
 - Plan for a backup solution so that participants can join by plain
   phone.
 
-- Make sure that all the support material (e.g. slides of status
-  reports, ...) is available in advance (e.g. posted online), linked
-  from the agenda, and read by all participants before the
-  meeting. This way one can just scan through them quickly during the
-  meeting, and focus on discussions.
-
-- Set up a pad (e.g. on framapad) for collaborative editing of the
-  minutes during the meeting. Initialize it with the agenda, and links
-  to all supporting material.
-
-- Set up a chat room (e.g. gitter) to let remote participants
-  interact. Explore if the framapad's chat is good enough for that.
+- [Renater's Rendez Vous](https://rendez-vous.renater.fr/) might be a
+  good option as it is supposed to provide a bridge with phone
+  lines. However, at this point (February 2016), only the latest
+  development version of firefox is supported.
 
 - Explore webcast solutions as an alternative to peer-to-peer video
   conference, so that at least remote participants can follow what's
   going on.
+
+- Steering committee meetings: in the appropriate git repository,
+  prepare for each site, a template file for the progress report, and
+  request all partners to fill in the file in advance.
+
+- Make sure that all the support material (e.g. slides of progress
+  reports, ...) is available in advance (e.g. posted online), linked
+  from the agenda, and read by all participants before the
+  meeting. This way it is sufficient to scan quickly through them
+  during the meeting, stopping only if some point raises a discussion.
+
+- Set up a pad (e.g. on framapad) for collaborative editing of the
+  minutes during the meeting. Initialize the pad with the agenda, and
+  links to all supporting material.
+
+- Set up a chat room (e.g. gitter) to let remote participants
+  interact. Explore if the framapad's chat is good enough for that.
 
 - After the meeting, move the content of the pad into a file in the
   relevant git repository for later editing. Whenever appropriate,
