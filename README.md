@@ -3,7 +3,7 @@ Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
 - Website: [OpenDreamKit.org](http://www.OpenDreamKit.org)
-- Proposal files] [Proposal/](Proposal/)
+- Proposal files: [Proposal/](Proposal/)
 - Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -27,6 +27,54 @@ Typically a talk at a conference goes in the activities section while an ODK wor
 ## Acknowledge ODK's support
 
 See our [Acknowledgement web page](http://opendreamkit.org/acknowledge/)
+
+## Finance  best practice
+
+The Commission attracts our attention to the most common errors identified in cost claims:
+
+- Costs claimed that are not substantiated or are not linked to the project
+- Third parties and sub-contracting
+- Depreciation
+- Indirect cost models
+- Indirect costs - Ineligible costs included in the pool of indirect costs
+- Personnel costs - Calculation of productive hours
+- Personnel costs - Charging of hours worked on the project
+- Personnel costs - Use of average personnel costs
+- Payment of salaries to owner/managers of SMEs
+- VAT (VAT IS INELIGIBLE!)
+
+For the full version delivered by the Commission, click [here](avoid-finance-errors_en.pdf)
+
+## OpenAccess process
+
+The Université Paris-Sud published an information sheet on openaccess best practices. You can find the information, in French, [here](Horizon2020_et_OpenAccess_french.pdf).
+
+However an internal process has been set up (cf Data management Plan)
+
+Partners will be following the process explained below. The lead partner of the publication takes responsibility for the openaccess process for peer-reviewed publications.
+
+#### Publication in the journal of their choice:
+
+Partners must be keeping in mind the Commission asks not to accept more than 6 month embargo (to check the publishers’ policies use http://www.sherpa.ac.uk/romeo/)
+
+#### Give openaccess to all peer-reviewed publications, with a max. of 6 months embargo.
+
+- Partners upload publications on http://arxiv.org/, or on another openaccess platform of their choice
+
+- Warn the Coordinator so that they keep list of publication of OpenDreamKit publications updated on the project website
+
+
+#### Data related to open access publications
+
+The lead partner of a publication will send to the Project Manager all the data related to the peer-reviewed publication once it is given full openaccess. Data related to a publication are all the data needed to reexamine the research leading to the publication.
+The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications. 
+
+#### Openaire
+
+Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
+https://www.openaire.eu/search/project?projectId=corda__h2020::1930bdaa9032dd5b34f25841ebf3e8d1
+
+In order for publications and data to appear on this website, one must state when completing forms on the openaccess paltform (such as ArXiv) and Zenodo websites that the concerned work is being financed by Horizon 2020 project number 676541.
 
 ## Project discussions
 
@@ -115,7 +163,7 @@ For deliverables that are not reports by themselves, and assuming the
 status and tracking information is properly written on the github
 issue, it's appropriate to have a very short report containing just a
 link to that issue. The style file makes this trivial. See
-[WP1/D1.1/report.tex](WP1/D1.1/report.tex]) for an example.
+[WP1/D1.1/report.tex](WP1/D1.1/report.tex) for an example.
 
 To submit, login on the [EU portal](http://ec.europa.eu/research/participants/portal/)
 and go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
@@ -128,17 +176,16 @@ Then send a notice to participants@opendreamkit.org.
 
 ## Organizing a workshop
 
-Create an issue to discuss the organization of the workshop (choosing
-the date, ...).
+- 1 Create an issue to discuss the organization of the workshop (choosing the date, ...)
+- 2 Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
+- 3 Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
+- 4 Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
+- 5 Send the agenda and an invitation to the event to all participants
 
-Send a first mail to participants@opendreamkit.org /
-communit@opendreamkit.org announcing the plan to organize the
-workshop.
+- 6 Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
+to host the web page and public documents about each meeting
 
-Send a second mail when the date is fixed.
 
-Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
-to host the web page and public documents about each meeting.
 
 ## Recommendations of Collaborative software
 
