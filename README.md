@@ -176,16 +176,28 @@ Then send a notice to participants@opendreamkit.org.
 
 ## Organizing a workshop
 
-- 1 Create an issue to discuss the organization of the workshop (choosing the date, ...)
-- 2 Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
-- 3 Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
-- 4 Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
-- 5 Send the agenda and an invitation to the event to all participants
+- Create an issue to discuss the organization of the workshop (choosing the date, ...)
+- Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
+- Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
+- Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
+- Send the agenda and an invitation to the event to all participants
+- Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
+  to host the web page and public documents about each meeting
+- Run regular oral status reports
+- Prepare a written report
 
-- 6 Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
-to host the web page and public documents about each meeting
+For ODK, but also for all of those that are watching with hope over
+our shoulders, it's important to write useful reports on our work
+during the workshops. To be productive, we should write those reports
+collaboratively and on the fly.
 
-
+Suggested approach: initialize the report with the list of projects,
+and put it on a collaborative pad (e.g. framapad). Then, during each
+status report, display the report on the screen, and ask everybody to
+take lives notes both on the plan and what's done, directly in a
+synthetic project-by-project form. The goal is to have a couple
+paragraphs per projects, with links to the end results. And an overall
+debriefing.
 
 ## Recommendations of Collaborative software
 
