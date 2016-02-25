@@ -1,4 +1,4 @@
-\ProvidesClass{odkreport}
+\ProvidesClass{deliverablereport}
 
 % Specific to ODK
 \newcommand{\prop@gen@proposalnumber}{676541}
