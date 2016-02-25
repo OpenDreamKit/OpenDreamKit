@@ -52,6 +52,7 @@
   Progress on and finalization of this deliverable has been tracked
   publicly on:\\
   \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}  
+  \bigskip
   \thispagestyle{fancyplain}
 }
 
