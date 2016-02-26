@@ -47,7 +47,7 @@
   \centerline{Delivered on: \@deliverydate}
   \bigskip
   \bigskip
-  \centerline{\includegraphics[height=20ex]{\prop@gen@logo}}
+  \centerline{\includegraphics[height=30ex]{\prop@gen@logo}}
   Progress on and finalization of this deliverable has been tracked
   publicly on:\\
   \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}  
