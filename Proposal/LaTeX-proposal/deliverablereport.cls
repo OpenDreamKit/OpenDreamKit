@@ -4,7 +4,7 @@
 \newcommand{\prop@gen@proposalnumber}{676541}
 \newcommand{\prop@gen@acronym}{\href{http://opendreamkit.org}{OpenDreamKit}}
 \newcommand{\prop@gen@instrument}{H2020-EINFRA-2015-1}
-%\newcommand{\prop@gen@logo}{../../media/logos/Flag_of_Europe.png}
+\newcommand{\prop@gen@logo}{../../media/logos/Flag_of_Europe.png}
 \newcommand{\prop@gen@logo}{../../media/ODK_elected_logo.png}
 
 \LoadClass[a4paper,twoside,12pt]{amsart}
