@@ -5,6 +5,7 @@
 \newcommand{\prop@gen@acronym}{\href{http://opendreamkit.org}{OpenDreamKit}}
 \newcommand{\prop@gen@instrument}{H2020-EINFRA-2015-1}
 \newcommand{\prop@gen@logo}{../../media/ODK_elected_logo.png}
+\newcommand{\prop@gen@image}{../../media/logos/Flag_of_Europe.png}
 
 \LoadClass[a4paper,twoside,12pt]{amsart}
 \RequirePackage{hyperref}
@@ -32,13 +33,13 @@
 \RequirePackage{fancyhdr}
 \pagestyle{fancyplain}
 %\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.001pt}
 
 \fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym}
 \fancyfoot[C]{}
 \fancyfoot[R]{\thepage}
 
-\fancyhead[RE,LO]{\includegraphics[height=2ex]{\prop@gen@logo} \prop@gen@instrument }
+\fancyhead[RE,LO]{\includegraphics[height=2ex]{\prop@gen@image} \prop@gen@instrument }
 
 \let\oldmaketitle=\maketitle
 \renewcommand{\maketitle}{
