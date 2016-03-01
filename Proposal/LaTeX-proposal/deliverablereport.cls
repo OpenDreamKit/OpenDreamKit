@@ -11,8 +11,7 @@
 \RequirePackage{hyperref}
 \RequirePackage[utf8]{inputenc}
 \RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
-\RequirePackage[francais]{babel}
-\frenchbsetup{og=«, fg=»}
+\RequirePackage[french]{babel}
 \RequirePackage{times}
 \RequirePackage[babel=true,kerning=true]{microtype}
 \RequirePackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
