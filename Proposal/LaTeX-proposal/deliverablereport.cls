@@ -18,15 +18,22 @@
 \RequirePackage{graphicx}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
 \input{../../Proposal/final.pdata}
+\input{../../Proposal/WApersons}
 
 \newcommand{\issue}[1]{\def\@issue{#1}}
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
+
+% Same as in eu/proposal.cls, but without an hyperlink (since it would
+% point to a different document)
+\newcommand\site[1]{\wa@ref{institution}{#1}{acronym}}
+\newcommand\sitename[1]{\wa@ref{institution}{#1}{name}}
+
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1#2@label\endcsname}
   \gdef\deliv@title{\csname deliv@#1#2@title\endcsname}
   \gdef\deliv@lead{\csname deliv@#1#2@lead\endcsname}
-  \def\@title{{Report on \deliv@label{} (lead: \deliv@lead)\\\deliv@title}}%
+  \def\@title{{Report on \deliv@label{},\\lead by \sitename{\deliv@lead} (\site{\deliv@lead}):\\\deliv@title}}%
   \def\shorttitle{Report on \deliv@label}}
 
 \RequirePackage{fancyhdr}
