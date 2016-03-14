@@ -40,6 +40,7 @@
 \pagestyle{fancyplain}
 %\renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0.001pt}
+\addtolength{\footskip}{\baselineskip}
 
 \fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym}
 \fancyfoot[C]{}
