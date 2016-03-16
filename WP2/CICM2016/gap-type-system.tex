@@ -1,6 +1,6 @@
 \subsection{Exploring GAP types}
 
-\subsubsection{Brief introduction to GAP type system}\label{gap-types-intro}
+\subsubsection{Brief introduction to the GAP type system.}\label{gap-types-intro}
 
 \ednote{TODO: This is just the citation from \url{http://www.gap-system.org/Manuals/doc/ref/chap13.html}}
 
@@ -36,50 +36,98 @@ testers and properties. Each of these is described in more detail below.
 A discussion of the type system can be found in \cite{breuer-linton}
 (\url{http://dl.acm.org/citation.cfm?id=281540})''
 
+For example, in GAP \texttt{IsGroup} is a filter defined as 
+\texttt{IsMagmaWithInverses and IsAssociative}. Out of these
+two, \texttt{IsMagmaWithInverses} is a category defined as an intersection
+of categories \texttt{IsMagmaWithInversesIfNonzero} and
+\texttt{IsMultiplicativeElementWithInverseCollection}, 
+and \texttt{IsAssociative} is a property defined for objects
+in the category \texttt{IsMagma}. Furthermore, \texttt{IsMagma} is
+an intersection of categories \texttt{IsDomain} and 
+\texttt{IsMultiplicativeElementCollection}.
+
+As another example, \texttt{IsSet} is a synonym for a property \texttt{IsSSortedList} 
+defined for objects in the category \texttt{IsList}, and \texttt{IsFinite} 
+is a property defined for objects in the category \texttt{IsCollection} 
+
+%GAP example:
+%gap> IsGroup;
+%<Filter "(IsMagmaWithInverses and IsAssociative)">
+%gap> IsMagmaWithInverses;
+%<Category "IsMagmaWithInverses">
+%gap> IsAssociative;
+%<Property "IsAssociative">
+%gap> IsSet;
+%<Property "IsSSortedList">
+%gap> IsFinite;
+%<Property "IsFinite">
+%gap> IsSet=IsSSortedList;
+%true
+
+\ednote{NT: It could be informative to add an example of category and 
+property. For example Magma and Associative. Or Set and Finite. Ideally, 
+we would use the same example in the GAP and Sage section.}
+
 \ednote{TODO (???) Compare and contrast it with the Sage type system}
 
-\subsubsection{Exporting GAP types}\label{gap-types-export}
+\subsubsection{Tentative approaches to exporting GAP types.}\label{gap-types-export}
 
-Information about types of all objects in the GAP workspace after the system
-is loaded may be accessed programmatically. It may be helpful for GAP developers,
-package authors and users, who may have questions like 
-``How can I get all methods installed for a particular operation'' or 
+GAP allows to accessed programmatically information about types of all 
+objects that are defined in the GAP workspace after the system is loaded.
+Having a clear picture of the relations between different objects is 
+very helpful to GAP developers, package authors and users, who may be 
+interested in questions like, for example, 
+``Which methods are installed for this particular operation'' or 
 ``Which attributes a group may have?''. 
 
-We are developing tools to export this information in several possible ways:
+We are developing tools to access and export this information in several possible ways:
 \begin{itemize}
-\item accessible in the GAP session
-\item exported to a JSON file to be used by external software such as MMT or
-SageMath
-\item exported for visualisation (examples may be seen at 
-\url{https://github.com/OpenDreamKit/OpenDreamKit/issues/165})
+\item presented immediately in the GAP session
+\item exported to a JSON file to be used by other software systems 
+such as, for example, MMT or SageMath
+\item visualised for better understanding and exploration
 \end{itemize}
+\ednote{picture based on \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/165}?}
 
-Prototypes were produced during GAP-Sage Days in St Andrews in January
-\ednote{Supported by OpenDreamKit and CoDiMa projects - check that both are acknowledged}
-and now were are going to incorporate the necessary functionality into
-the next major release of GAP. We hope to enhance these tools with the 
-GAP Jupyter interface developed in \url{https://github.com/gap-packages/jupyter-gap}.
+At this stage, during GAP-SageMath Days and OpenDreamKit workshop in St Andrews 
+in January 2016 we have produced prototype implementations. We plan to make them
+more user-friendly to be ready for the inclusion in the next major release of GAP. 
+We hope that they will be also enhanced by the GAP Jupyter interface developed in 
+\url{https://github.com/gap-packages/jupyter-gap}.
 
-\subsubsection{Consistency checker for GAP manuals}\label{gap-types}
+\ednote{NT: Do you have anything to say about the GAP-MMT formalization? 
+E.g. hints on potential ways this formalization may be written?}
 
-Looking at the GAP type system and GAP manuals, we got some extra immediate benefits
-helping us to improve the quality of GAP documentation. The main GAP manuals are using
-the GAPDoc format, provided by the GAP package with the same name \cite{gapdoc}. It 
-allows to specify the type of the documented object (function, operation, attribute,
-property, etc.). However, due to the limitations of the semi-automated conversion from 
-the GAP manuals in a different format used in GAP 4.4.12 and earlier, types were not
-correctly stated for a number of objects. 
+\subsubsection{An application: consistency checker for the GAP documentation.}\label{gap-types}
 
-During GAP-Sage Days in January 2016 we implemented a manual 
-consistency checker which checks and reports incorrect type specifications 
-(see \url{https://github.com/gap-system/gap/pull/538}). 
-It immediately reported almost 400 errors. The cleanup is ongoing 
-(see e.g. \url{https://github.com/gap-system/gap/pull/675}) and by now it
-remains less than a hundred of them.
+One of the immediate outcomes of the development of the tools described in the
+previous section is the consistency checker for the GAP documentation. 
 
-This tool also performs other useful checks, for example, produces a list of
-manual sections having no examples. 
+GAP uses special format for its main manuals. It is called GAPDoc and is 
+provided by the GAP package with the same name \cite{gapdoc}. Besides main 
+manuals, it is adopted by 97 out of 130 packages currently redistributed 
+with GAP. Using GAPDoc, one builds text, PDF and HTML versions of the manual
+from a common source given in XML.
+
+GAPDoc defines XML constructions to specify the type of the documented object 
+(function, operation, attribute, property, etc.). However, due to the 
+limitations of the semi-automated conversion of GAP manuals from the \TeX-based
+manuals used in GAP 4.4.12 and earlier, a number of objects had their types
+stated incorrectly. 
+
+We developed the consistency checker for the GAP documentation, which extracts
+type annotations from the documented GAP objects and compares them with their
+actual types. It immediately reported almost 400 inconsistencies out of 3674 
+manual entries. In the subsequent cleanup, we by now have eliminated about 
+75\% of them. The  consistency checker will appear in the next release of
+GAP 4.8.3, and will be available via \texttt{make check-manuals}.
+It also performs other useful checks: for example, it produces a list of
+manual sections having no examples. Thus, the new tool helps to improve
+the quality of GAP documentation, and may be useful for the similar checks
+of those GAP packages which use GAPDoc-based manuals.
+
+% \url{https://github.com/gap-system/gap/pull/675}
+% \url{https://github.com/gap-system/gap/pull/538}
 
 %%% Local Variables:
 %%% mode: latex
