@@ -1,5 +1,4 @@
 \subsection{Presenting LMFDB data}
-Paul: Not currently finished. Need to take break until this evening.
 \subsubsection{Short description of LMFDB's goals and implementation}
 The \emph{$L$-functions and modular forms database} is a project involving dozens of  mathematicians, who assemble computational data about $L$-functions, modular  forms and related number theoretic objects. The main output of the project is a website, hosted at \url{http://www.lmfdb.org}, that presents this data in a way that could serve as a reference for research efforts and should be accessible at the graduate student level.  The mathematical concepts underlying the \LMFDB are extremely complex and varied, so part of the effort has been focused on how to relay mathematical definitions and their relationships to data and software. For this purpose, the \LMFDB has developed so-called \emph{knowls}, which are a technical solution to present \LaTeX-encoded information interactively, heavily exploiting the concept of transclusion. The end result there is a very modular and highly interlinked set of definitions in mathematical natural language. 
  
@@ -10,11 +9,89 @@ Since the LMFDB spans the whole "vertical", from writing software, to producing 
 
 In practice, our first step was to integrate into the MMT system the mathematical knowledge that had already been made explicit in the knowls. For this, we used the \stex interpreter, which was able to crudely type-check the definitions, avoiding circularity and ensuring some level of consistency in their scope. Knowledge in this format immediately became browsable through \textsf{MathHub.info}, a project developed in parallel to MMT to host such formalisations. 
 
+\begin{verbatim}
+\begin{mhmodnl}[creators=pdehaye]{elliptic-curve}{en}
+  \begin{definition}[id=ec.q.def]
+    An \defii{elliptic}{curve} over a \trefi[field]{field} $K$ is a smooth projective
+    curve\ednote{needs definition} $E$ defined over $K$ of genus $1$ together with a
+    (distinguished) $K$-rational point $O$ (called the \defii{base}{point}) of $E$.
+  \end{definition}
+  
+  \begin{assertion}[type=remark]
+    The most commonly used model for \trefis{elliptic}{curve} is a plane cubic defined by
+    a \trefi[Weierstrass-model]{Weierstrass}{equation}, with the \trefii{base}{point}
+    being the unique point at infinity\ednote{reference}.
+  \end{assertion}
+  
+  \begin{assertion}[type=remark]
+    \guse{minimal-Weierstrass-model} Note that such an equation is not unique over
+    $\RationalNumbers$. $E$ has a unique reduced\ednote{needs definition}
+    \trefiii[minimal-Weierstrass-model]{minimal}{Weierstrass}{model}.
+  \end{assertion}
+\end{mhmodnl}
+
+\begin{mhmodnl}[creators=pdehaye]{minimal-Weierstrass-model}{en}
+  \begin{definition}[id=ec.q.minimal-Weierstrass-model.def, title=Minimal Weierstrass
+    model of an elliptic curve of the $\RationalNumbers$]
+    Every \trefii[elliptic-curve]{elliptic}{curve} over $\RationalNumbers$ has an integral
+    Weierstrass model (or equation) of the form
+    \[\minwe xy{\livar{a}1}{\livar{a}2}{\livar{a}3}{\livar{a}4}{\livar{a}6}\]
+    where $\livar{a}1,\livar{a}2,\livar{a}3,\livar{a}4,\livar{a}6$ are integers.  Each
+    such equation has a \trefi[discriminant-weierstrass-equation]{discriminant}
+    $\wediscriminantOp$.
+
+    A \defiii{minimal}{Weierstrass}{model} is one for which
+    $\absolutevalue\wediscriminantOp$ is minimal among all Weierstrass models for the same
+    curve.  For elliptic curves over $\RationalNumbers$, minimal models exist, and there
+    is a unique minimal model which satisfies the additional constraints
+    $\minset{\livar{a}1,\livar{a}3}{\set{0,1}}$, and
+    $\inset{\livar{a}2}{\set{-1,0,1}}$. This is defined as the reduced\ednote{needs to be
+      flexiformalized} minimal Weierstrass model of the elliptic curve.
+  \end{definition}
+\end{mhmodnl}
+\end{verbatim}
+
 The second step consisted of translating these informal natural language definitions into progressively more exhaustive MMT formalisations of mathematical concepts. This is possibly the hardest step, as that layer will have to eventually interoperate with the informal \stex definitions, the data that has been previously computed, the software to compute more, and the software needed to view all this information. We found that the best approach was to push for "small theories", again emphasizing modularity. 
+
+
+
+
+
+
+
+
+
+\begin{alltt}
+\textcolor{cyan}{namespace} http://www.opendreamkit.org/elliptic_curves \RS
+\textcolor{cyan}{theory} Weierstrass_model : odk:?Math = 
+  Weierstrass_model : tp \RS
+  polynomial_equation : tm Weierstrass_model \(\rightarrow\) tm polynomial \RS
+  polynomial_equation_injectivity : {A, B} \(\vdash\) polynomial_equation A \(\doteq\)  polynomial_equation B \(\rightarrow\) \(\vdash\) A \(\doteq\)  B \RS
+  discriminant : tm Weierstrass_model \(\rightarrow\) tm int \RS
+  a_invariants : tm Weierstrass_model \(\rightarrow\) tm (vector int 5) \RS
+  a_invariants_factors_injectivity : {A,B} \(\vdash\) a_invariants A \(\doteq\) a_invariants B \(\rightarrow\)\(\vdash\) A \(\doteq\) B \RS
+\GS
+\textcolor{cyan}{theory} minimal_Weierstrass_model : odk:?Math =
+  \textcolor{cyan}{include} ?elliptic_curve \RS
+  minimal : tm Weierstrass_model  \(\rightarrow\)  tm Weierstrass_model \RS
+  is_minimal : tm Weierstrass_model  \(\rightarrow\)  prop \US = [A] (minimal A) \(\doteq\) A \RS
+  minimality_idempotence : {A} \(\vdash\) minimal (minimal A) \(\doteq\) minimal A \RS
+  minimality_of_minimal_Weierstrass_model : {A} \(\vdash\) is_minimal (minimal_Weierstrass_model A)  \RS
+  injective_minimal_Weierstrass_model : {A,B} ? minimal_Weierstrass_model A ? minimal_Weierstrass_model B ? ? A \(\doteq\) B  \RS
+\GS
+\textcolor{cyan}{theory} elliptic_curve : odk:?Math = 
+  \textcolor{cyan}{include} ?Weierstrass_model  \RS
+  elliptic_curve : tp  \RS
+  base_field : tm elliptic_curve ? field \RS
+  Weierstrass_model_construction : tm Weierstrass_model ? tm elliptic_curve \RS
+  minimal_Weierstrass_model : tm elliptic_curve ? tm Weierstrass_model \RS
+  construction_surjective: {A} ? Weierstrass_model_construction (minimal_Weierstrass_model A) ? A  \RS
+\GS
+\end{alltt}
+
 
 The next step was in integrating computational data into MMT. We first needed to expand the capabilities of MMT with respect to literals. For this purpose, the MMT core team constructed an MMT interface with the \LMFDB API, which delivered data in JSON format. This is probably the least satisfactory, and a more generic solution could be found, interfacing for instance directly with the \Mongo database. 
 Once JSON  documents were obtained, we still needed to define explicit specifications for them. There are recent ongoing efforts \cite{lmfdb-formats} to document in natural language the formats used by the \LMFDB, and this provided an easy starting point. Actually, the scope of those specifications had to be extended, as they were not focused only on the format used to store the data fields (string \emph{vs.} float \emph{vs.} integer tuple, for instance), but also the types these data fields were meant to represent (rational \emph{vs.} polynomial, for instance). It turns out that many patterns exist there: often different people will encode the same semantic type with the same data format, following the same conventions. Therefore, to maximize reusability, we again emphasized modularity and developed \emph{MMT codecs}. Codecs integrate \emph{some} information about semantics and some about data formats, and are composable. For instance,  one could compose two MMT codecs, say \emph{polynomial-as-reversed-list} and \emph{rational-as-tuple-of-int}, to signify that the data $[(2,3),(0,1),(4,1)]$ is meant to represent the polynomial $4x^2+2/3$. Of course, these codecs could be further decomposed (signalling which variable name to use, for instance). The initial costs of developing these codecs are high, but the clarity gained in documentation is valuable, they are highly reusable, and they drastically expand the range of tooling that can be built around data management. Our efforts also fit neatly alongside similar efforts underway across the sciences to standardize metadata formats (for instance through the Research Data Alliance's Typing Registry Working Group\cite{rda-typing}). 
-
 
 % emphasis on typing systems, which make sense in each individual context and come with associated goals and processes for maintenance.  
 % MMT as above that, by necessity
