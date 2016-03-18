@@ -1,0 +1,30 @@
+namespace http://www.opendreamkit.org/elliptic_curves $\RS$
+theory Weierstrass_model : odk:?Math = 
+  Ws_model : tp $\RS$
+  polynomial_equation : tm Ws_model $\rightarrow$ tm polynomial $\RS$
+  polynomial_equation_injectivity : 
+    {A, B} $\vdash$ polynomial_equation A $\doteq$  polynomial_equation B $\rightarrow$ $\vdash$ A $\doteq$  B $\RS$
+  discriminant : tm Ws_model $\rightarrow$ tm int $\RS$
+  a_invariants : tm Ws_model $\rightarrow$ tm (vector int 5) $\RS$
+  a_invariants_factors_injectivity : 
+    {A,B} $\vdash$ a_invariants A $\doteq$ a_invariants B $\rightarrow$$\vdash$ A $\doteq$ B $\RS$
+$\GS$
+theory elliptic_curve : odk:?Math = 
+  include ?Weierstrass_model  $\RS$
+  elliptic_curve : tp  $\RS$
+  base_field : tm elliptic_curve $\rightarrow$ field $\RS$
+  Ws_model_construction : tm Ws_model $\rightarrow$ tm elliptic_curve $\RS$
+  minimal_Ws_model : tm elliptic_curve $\rightarrow$ tm Ws_model $\RS$
+  construction_surjective: 
+    {A} $\vdash$ Ws_model_construction (minimal_Ws_model A) $\doteq$ A  $\RS$
+$\GS$
+theory minimal_Weierstrass_model : odk:?Math =
+  include ?elliptic_curve $\RS$
+  minimal : tm Ws_model  $\rightarrow$  tm Ws_model $\RS$
+  is_minimal : tm Ws_model  $\rightarrow$  prop \US = [A] (minimal A) $\doteq$ A $\RS$
+  minimality_idempotence : {A} $\vdash$ minimal (minimal A) $\doteq$ minimal A $\RS$
+  minimality_of_minimal_Ws_model : 
+    {A} $\vdash$ is_minimal (minimal_Ws_model A)  $\RS$
+  injective_minimal_Ws_model : 
+    {A,B} $\vdash$ minimal_Ws_model A $\doteq$ minimal_Ws_model B  $\rightarrow$ $\vdash$ A $\doteq$ B  $\RS$
+$\GS$
