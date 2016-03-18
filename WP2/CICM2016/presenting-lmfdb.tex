@@ -50,9 +50,8 @@ In practice, our first step was to integrate into the MMT system the mathematica
   \end{definition}
 \end{mhmodnl}
 \end{verbatim}
-\begin{caption} Sample \stex implementation of \LMFDB knowl content for elliptic curves and their Weierstrass models.
+\caption{Sample \protect\stex implementation of \LMFDB knowl content for elliptic curves and their Weierstrass models.}
 \label{stex-ec}
-\end{caption}
 \end{figure}
 
 The second step consisted of translating these informal natural language definitions into progressively more exhaustive MMT formalisations of mathematical concepts (see Fig.~\ref{mmt-ec}). This is possibly the hardest step, as that layer will have to eventually interoperate with the informal \stex definitions, the data that has been previously computed, the software to compute more, and the software needed to view all this information. We found that the best approach was to push for "small theories", again emphasizing modularity. 
@@ -98,19 +97,23 @@ The second step consisted of translating these informal natural language definit
 \GS
 \end{alltt}
 \end{small}
-\begin{caption}
-Sample MMT formalisation of elliptic curves and their Weierstrass models.
+\caption{Sample MMT formalisation of elliptic curves and their Weierstrass models.}
 \label{mmt-ec}
-\end{caption}
 \end{figure}
 
 The next step was in integrating computational data into MMT. We first needed to expand the capabilities of MMT with respect to literals. For this purpose, the MMT core team constructed an MMT interface with the \LMFDB API, which delivered data in JSON format. This is not fully satisfactory, and a more generic solution could be found, interfacing for instance directly with the \Mongo database. 
 Once JSON  documents were obtained, we still needed to define explicit specifications for them. There are recent ongoing efforts \cite{lmfdb-formats} to document in natural language the formats used by the \LMFDB, and this provided an easy starting point. Actually, the scope of those specifications had to be extended, as they were not focused only on the format used to store the data fields (string \emph{vs.} float \emph{vs.} integer tuple, for instance), but also the types these data fields were meant to represent (rational \emph{vs.} polynomial, for instance). It turns out that many patterns exist there: often different people will encode the same semantic type with the same data format, following the same conventions. Therefore, to maximize reusability, we again emphasized modularity and developed \emph{MMT codecs}. Codecs integrate \emph{some} information about semantics and some about data formats, and are composable. For instance,  one could compose two MMT codecs, say \emph{polynomial-as-reversed-list} and \emph{rational-as-tuple-of-int}, to signify that the data $[(2,3),(0,1),(4,1)]$ is meant to represent the polynomial $4x^2+2/3$. Of course, these codecs could be further decomposed (signalling which variable name to use, for instance). The initial costs of developing these codecs are high, but the clarity gained in documentation is valuable, they are highly reusable, and they drastically expand the range of tooling that can be built around data management. Our efforts also fit neatly alongside similar efforts underway across the sciences to standardize metadata formats (for instance through the Research Data Alliance's Typing Registry Working Group\cite{rda-typing}). 
 
-% emphasis on typing systems, which make sense in each individual context and come with associated goals and processes for maintenance.  
-% MMT as above that, by necessity
+% emphasis on typing systems, which make sense in each individual context and come with
+% associated goals and processes for maintenance.  MMT as above that, by necessity
+
 %  LocalWords:  subsubsection emph knowls textsf lmfdb-repo stex-ec stex knowl mmt-ec odk
 %  LocalWords:  Weierstrass emphasizing alltt tp rightarrow vdash doteq vdash doteq
 %  LocalWords:  polynomial_equation_injectivity a_invariants_factors_injectivity
 %  LocalWords:  minimality_idempotence lmfdb-formats emphasized composable standardize
 %  LocalWords:  rda-typing
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:
