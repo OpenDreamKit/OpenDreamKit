@@ -2,12 +2,12 @@
 \begin{newpart}{MK@MK: completely rewrite from a high-level perspective the material that
     is now in \texttt{deleted-scenes.tex} and should be extended to a technical paper}
 Another aspect of interoperability in a mathematical VRE is the possibility of distributed
-computation, where one the systems delegates a sub-computation to a specialist system or
-multiple system share components of a larger computation or reasoning task.
+multisystem computations, where e.g. a given system may decide to delegate
+certain subcomputations or reasoning tasks to other systems.
 
-There are already a variety of peer-to-peer integrations (see Figure~\ref{fig:interop})
-based on the ``handle paradigm'' between systems in the \ODK project, e.g. between \Sage a
-the master and \GAP, \Singular, and \Pari. 
+There are already a variety of peer-to-peer interfaces (see Figure~\ref{fig:interop})
+based on the ``handle paradigm'' between systems in the \ODK project;
+for example \Sage includes interfaces for \GAP, \Singular, or \Pari.
 
 In the ``handle paradigm'', when a system $A$ delegates a calculation to a system $B$, the
 result $r$ of the calculation is not converted to a native $A$ object; instead $B$ just
@@ -34,8 +34,8 @@ Listing~\ref{lst:adaptor} below. But for scaling this up to a mathematical VRE w
 dozen systems, we want to use the MitM paradigm.
  
 \begin{lstlisting}[language=Python,label=lst:adaptor,
-  caption=A Semantic Adaptor Mehthod in \Sage]
-class Sets: # Everything about sets in Sage
+  caption=A Semantic Adaptor Method in \Sage]
+class Sets: # Everything generic about sets in Sage
     class GAP: # The adapter methods relevant to Sets in the Sage-Gap interface
          class ParentMethods: # Adapter methods for sets
              def cardinality(self): # The adapter for the cardinality method
@@ -45,27 +45,37 @@ class Sets: # Everything about sets in Sage
          class MorphismMethods: # Adapter methods for set morphisms
              ...
 \end{lstlisting}
-The main problem now becomes in generating interface theories and interviews into the core
-MitM ontology so that the adaptor pattern above still applies, but can be made generic in
-terms of the MitM ontology structure instead of the concrete structure of the respective
-type systems. In our example, the correspondence between \texttt{cardinality} and
-\texttt{Size} still holds, if the MitM interviews link the \texttt{cardinality} function
-in the \Sage interface theory on sets with the \texttt{Size} function in the corresponding
-interface theory for \GAP.
 
-We will now show first results of our experiments of generating interface theories that
-support distributed computation for \Sage and \GAP. 
+This peer-to-peer approach however does not scale up to a dozen of
+systems. This is where the MitM paradigm comes to the rescue. With it,
+the task is reduced to building interface theories and interviews into
+the core MitM ontology, in such a way that the adaptor pattern can be
+made generic in terms of the MitM ontology structure, without relying
+on the concrete structure of the respective type systems. Then the
+adapter methods for each peer-to-peer interface can be automatically
+generated.
+
+In our example, the correspondence between \texttt{cardinality} and
+\texttt{Size} still holds if the MitM interviews link the
+\texttt{cardinality} function in the \Sage interface theory on sets
+with the \texttt{Size} function in the corresponding interface theory
+for \GAP.
+
+We will now show first results of our experiments with interface
+theories and interviews, including several applications beyond the
+generation of interface theories that support distributed computation
+for \Sage and \GAP.
 \end{newpart}
 
 \subsection{Semantics in the \Sage Category System}
 
-The \Sage library includes 40k functions and allows for manipulating thousands of
-different kinds of objects. As usual in such large systems, it’s critical for taming code
-bloat to
+The \Sage library includes 40k functions and allows for manipulating
+thousands of different kinds of objects. As usual in such large
+systems, it’s critical for taming code bloat to
 \begin{inparaenum}[\em i\rm)]
-\item identify the core concepts describing common behavior among the objects; 
+\item identify the core concepts describing common behavior among the objects;
 \item exploit this to implement generic operations that apply on all object having a given
-  behavior, with appropriate specializations when performance calls for it.  
+  behavior, with appropriate specializations when performance calls for it.
 \item design or choose a process for selecting the best implementation available when
   calling an operation on one or several objects.
 \end{inparaenum}
@@ -76,12 +86,24 @@ taxonomic knowledge from mathematics explicitly and uses it to support genericit
 the method selection process, structure the code and documentation, enforce consistency,
 and provide generic tests.
 
+Following mathematical tradition and the precedent of the \Axiom,
+\Fricas, or \MuPAD systems, \Sage has developed a
+category-theory-inspired ``category system'', and found a way to
+implement it on top of the underlying \Python object
+system~\cite{Sage.Categories}.
+%
+This category system models taxonomic knowledge from mathematics
+explicitly and uses it to support genericity, control the method
+selection process, structure the code and documentation, enforce
+consistency, and provide generic tests.
+
+\ednote{NT: how is ``cardinality'' called in MMT?}
 \begin{wrapfigure}r{7cm}\vspace*{-2.5em}
 \begin{lstlisting}[language=Python]
 @semantic(mmt="sets")
 class Sets:
     class ParentMethods:
-         @semantic(mmt="o", gap="Size")
+         @semantic(mmt="?????", gap="Size")
          @abstractmethod
          def cardinality(self):
              r"""
@@ -93,14 +115,14 @@ class Sets:
 \end{wrapfigure}
 To generate interface theories from the \Sage category system, we are experimenting with a
 system of annotations in the \Sage source files. Consider for instance the situtation in
-Figure~\ref{fig:anncat} where we have annotated the \texttt{Magmas()} category in \Sage
+Figure~\ref{fig:anncat} where we have annotated the \texttt{Sets()} category in \Sage
 with \texttt{@semantic} lines that state correspondences to other interface theories. From
 these the \Sage-to-MMT exporter can generate the respective interface theories and views.
 
-Several variants of the annotations exist to allow for adding annotations on existing
-categories without touching their file, and also for specifying directly the corresponding
+Several variants of the annotations are experimented with to allow for adding annotations on existing
+categories without touching their source file, and also for specifying directly the corresponding
 method names in other systems when this has not yet been formalized elsewhere. Similarly,
-one could provide directly the signature information in case that is not yet modelled in
+one can provide directly the signature information in case that is not yet modelled in
 MMT.
 
 \subsection{Exporting the \GAP Knowledge: Type System Documentation}
