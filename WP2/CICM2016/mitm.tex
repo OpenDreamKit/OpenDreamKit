@@ -5,17 +5,31 @@
 % proofs); or software that computes with these mathematical objects. All this data is
 % really a common resource, and should be maintained as such
 
+\ednote{NT: I don't know how much highlight we want to put on VREs or
+  ODK here. Of course, we are doing our experimentations with the ODK
+  components. But it's about large scale integration of math software
+  components in general, not necessarily just in the context of VREs.}
 
 To achieve the goal of assembling the ecosystem of mathematical software systems in the
 \ODK project into a coherent mathematical VRE, we have to make the systems interoperable at
 a mathematical level. In particular, we have to establish a common meaning space that
 allows to share computation, visualization of the mathematical concepts, objects, and
 models (COMs) between the respective systems. Building on this we can build a VRE with
-classical IDE techniques. 
+classical IDE techniques.
+
+\ednote{NT: IDE?}
 
 \subsection{A Common Meaning Space for Interoperability}
+
+
 Concretely, the problem is that the software systems in \ODK have their own
-representations of and functionalities for the COMs involved. This starts with simple
+representations of and functionalities for the COMs involved.
+%
+\ednote{NT: not only that, but we also want to be able to manipulate
+  from system A objects of system B that don't even have a
+  representation in A.}
+%
+This starts with simple
 naming issues (\emph{e.g.}\ elliptic curves are named \lstinline|ec| in the \LMFDB, and as
 \lstinline|EllipticCurve| in \Sage), persists through the underlying data structures
 (permutations are represented as products of cycles in \GAP, in list form in \Sage, and in
@@ -33,6 +47,12 @@ Figure~\ref{fig:interop}.
   \end{tabular}
   \caption{Approaches for Safe Distributed Computation/Storage/UIs}\label{fig:interop}
 \end{figure}
+    \ednote{NT: about the figure caption: I am not sure whether the reader
+      will have a clear understanding, especially as early as now in the
+      paper, of what we mean by ``Safe Distributed
+      Computation/Storage/UI''; could we phrase that using simpler words;
+      maybe ``Approaches for many-systems interoperability''.}
+
 The first does not scale to a project with about a dozen systems, for the third there is
 no obvious contender in the \ODK ecosystem. Fortunately, we already have a ``standard'' for
 expressing the meaning of COMs -- \defemph{mathematical vernacular}: the language of
@@ -44,11 +64,19 @@ The obvious problem is that mathematical vernacular is too
 \item \emph{ambiguous}: we need a human to understand structure, words, and symbols
 \item \emph{redundant}: every paper introduces slightly different notions. 
 \end{inparaenum}
+
+\ednote{``We explore the approach'' maybe? At this stage, we are not
+  defending the thesis that this really is the unique right thing to
+  do; instead we are making a case study to evaluate the value of this
+  approach.}
+
+
 Therefore we adopt an approach, where we partially formalize (\defemph{flexiformalize};
 see~\cite{Kohlhase:tffm13}) mathematical vernacular to obtain a flexiformal ontology of
 mathematics that can serve as an open communication vocabulary. We call the approach the
-\defemph{Math-in-the-Middle} (MitM) Strategy for integration and the ontology the MitM
-ontology.
+\defemph{Math-in-the-Middle} (MitM) Strategy for integration and the ontology the \defemph{MitM
+ontology}.
+
 \begin{wrapfigure}r{4cm}\vspace*{-1.5em}
   \input{tikz/mistargraph}\vspace*{-.5em}
   \caption{Interface theories}\label{fig:interface-theories}\vspace*{-1em}
@@ -71,9 +99,15 @@ conceptual essence of the mathematical VRE.
 
 \subsection{Realizing and Utilizing a MitM Ontology}
 
+\ednote{NT: shall we phrase this as ``in our case study, we use the
+  OMDoc/MMT'' format? This is one of the possible formats, and it's a
+  natural pick; yet we are not at the stage of defending the thesis
+  that this is the only way to go.}
+
 \begin{wrapfigure}r{6cm}\centering\vspace*{-2em}
   \input{tikz/metalogics}\vspace*{-.5em}
-  \caption{OMDoc/MMT Theory Graphs}\label{fig:mmt}\vspace*{-1em}
+  \caption{Sample OMDoc/MMT Theory Graph}\label{fig:mmt}\vspace*{-1em}
+  \label{figure.omdoc.example}
 \end{wrapfigure}
 We use the OMDoc/MMT format~\cite{Kohlhase:OMDoc1.2,MMTSVN:on} to represent the MitM
 ontology. OMDoc/MMT is an ontology format specialized to representing mathematical
@@ -83,10 +117,10 @@ called \defemph{theory morphisms}. The latter come in two forms: \defemph{inclus
 \defemph{structures} that essentially correspond to object-oriented inheritance, and
 \defemph{view} that connect pre-existing theories -- in these all axioms of the source
 theory have be to proven in the target theory. See ~\cite{RabKoh:WSMSML13} for a full
-account. Figure~\ref{fig:mmt} shows an example theory graph. It has three layers:
+account. Figure~\ref{fig:mmt} shows an example of theory graph. It has three layers:
 \begin{compactenum}[\em i\rm)]
 \item the (bottom) \defemph{domain level}, which specifies mathematical domains as theories; here
-  parts of elementary algebra. The hooked arrows are inclusions for inheritance the
+  parts of elementary algebra. The hooked arrows are inclusions for inheritance, while the
   regular arrows are named structures that induce the additive and multiplicative
   structures of a ring.
 \item the \defemph{logic level} represents the languages we use for talking about the
@@ -105,22 +139,32 @@ but equivalent conceptualizations and views at the logic level can be used to br
 different foundations of the various systems. The top level is only indirectly used in in
 the MitM framework: it induces the joint meaning space via the meta-relation.
 
+\ednote{NT: about the figure: could we afford to use full names, e.g.
+  Algorithms / Knowledge / Database / Abstract Classes; this would
+  make the figure easier to understand at once, without having yet
+  been through the text; other than that, SAGE -> Sage.}
+
 \begin{figure}[ht]\centering
   \input{tikz/kf-paradigm}
   \caption{The MitM Paradigm in Details}\label{fig:mitm}
 \end{figure}
 If we apply OMDoc/MMT to the MitM architecture, we arrive at the situation in
 Figure~\ref{fig:mitm}, where we drill into the MitM information architecture from
-Figure~\ref{fig:interface-theories}, but restrict to three systems from the \ODK
+Figure~\ref{fig:interface-theories}, but restrict at this stage to three systems from the \ODK
 project. In the middle we see the core MitM ontology (the blue cloud) as an OMDoc/MMT
 theory graph connected to the interface theories (the purple clouds) via MitM
 interviews. Conceptually, the systems in \ODK consist of three main components:
+\ednote{NT: probably a compactenum would be nicer, especially since
+  this illustrates a typical instance of DKS architecture}
 \begin{inparaenum}[\em i\rm)]
-\item a \emph{knowledge representation subsystem} that provides data structures for the COMs and
+\item a \emph{Knowledge Representation subsystem} that provides data structures for the COMs and
   their properties.
-\item a \emph{database component} that provides mass storage for objects, and 
+\item a \emph{DataBase component} that provides mass storage for objects, and 
 \item a \emph{library of algorithms} that operate on these.
 \end{inparaenum}
+\ednote{NT: let's choose between ``subsystem'' or ``component'', and
+  use the same for both knowledge representation and database; if we
+  don't use KR elsewhere, let's not use this shorthand here.}
 To connect a system to an MitM-based VRE, the KR subsystem is either refactored so that it
 can generate interface theories, or a schema-like description of the underlying data
 structures is created manually from which abstract data structures for the system can be
