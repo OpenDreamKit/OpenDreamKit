@@ -1,4 +1,6 @@
 \section{Distributed Collaboration with GAP/Sage}\label{sec:gapsage}
+\label{sec:handles}
+
 \begin{newpart}{MK@MK: completely rewrite from a high-level perspective the material that
     is now in \texttt{deleted-scenes.tex} and should be extended to a technical paper}
 Another aspect of interoperability in a mathematical VRE is the possibility of distributed
@@ -84,7 +86,8 @@ Following mathematical tradition and the precedent of the \Axiom,
 \Fricas, or \MuPAD systems, \Sage has developed a
 category-theory-inspired ``category system'', and found a way to
 implement it on top of the underlying \Python object
-system~\cite{Sage.Categories}.
+system~\cite{Sage.Categories}. In short, a \defemph{category} specifies
+the available \defemph{operations} and the \defemph{axioms} they satisfy.
 %
 This category system models taxonomic knowledge from mathematics
 explicitly and uses it to support genericity, control the method
@@ -108,7 +111,7 @@ class Sets:
              """
 \end{lstlisting}
 \vspace*{-.5em}
-\caption{An annotated Category in \Sage}\label{fig:anncat}\vspace*{-1.5em}
+\caption{An annotated category in \Sage}\label{fig:anncat}\vspace*{-1.5em}
 \end{wrapfigure}
 To generate interface theories from the \Sage category system, we are experimenting with a
 system of annotations in the \Sage source files. Consider for instance the situtation in
@@ -124,14 +127,23 @@ MMT.
 \ednote{POD: Would it be interesting to add a line about the constraints that are taken into consideration? For instance, the versioning of systems in parallel might become more problematic if it becomes so heavily interdependent}
 
 \subsection{Exporting the \GAP Knowledge: Type System Documentation}
+\label{sec:gaptypes}
 
-While the \Sage type system is object-oriented, the \GAP type system puts more of an
-emphasis on \emph{operations} on and between objects, their \emph{properties}, and
-attributes. Breuer and Linton describe the \GAP type system in \cite{breuer-linton} and
+As in \Sage, the \GAP type system encodes a wealth of mathematical
+knowledge, which can influence method selection. For example
+establishing that a group is nilpotent will allow for more efficient
+methods to be run for finding its centre. The main difference lies in
+the method selection process \emph{iii)}. In \Sage the operations
+implemented for an object and the axioms they satisfy are specified by
+its class which, together with its super classes, groups syntactically
+all the methods applicable in this context. In \GAP, this information
+is instead specified by the truth-values of a collection of
+independent \defemph{filters}, while the context of applicability is
+specified independently for each method.
+%
+Breuer and Linton describe the \GAP type system in \cite{breuer-linton} and
 the \GAP documentation \cite{GAP4} also contains extensive information on the types
-themselves. The \GAP type system encodes a wealth of mathematical knowledge,
-which can influence method selection. For example establishing that a group
-is nilpotent will allow for more efficient methods to be run for finding its centre.
+themselves.
 
 \GAP allows some introspection of this knowledge after the system is loaded: the values of
 attributes and properties can be unknown on creation, can be computed on demand, and their
