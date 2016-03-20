@@ -1,19 +1,65 @@
 \section{Semantics in Sage}
 
-The \Sage library includes 40k functions and allows for manipulating thousands of
-different kinds of objects. As typical in a large system, there are common behaviors that
-are shared by many objects, which allows for writing generic functions that apply to a
-large variety of kind of objects to avoid code duplication.
+The \Sage library includes 40k functions and allows for manipulating
+thousands of different kinds of objects. As usual in such large
+systems, it's critical for taming code bloat to
+\begin{enumerate}[(i)]
+\item identify the core concepts describing common behavior among the
+  objects;
+\item exploit this to implement generic operations that apply on all
+  object having a given behavior, with appropriate specializations
+  when performance calls for it.
+\item design or choose a process for selecting the best implementation
+  available when calling an operation on one or several objects.
+\end{enumerate}
 
-Furthermore, most of those behaviors have been identified over the centuries, in
-particular in the context of abstract algebra.
+Fortunately in mathematics a lot of (i) has already been taken care
+off over the centuries, in particular in the context of abstract
+algebra. Our running examples of concepts in this paper will be that
+of (multiplicative) \emph{magma}: a set $S$ endowed with a binary
+operation $\dot: S\times S \mapsto S$ and of \emph{semigroup}: a magma
+such that the binary operation is associative. Thanks to
+associativity, a semigroup comes endowed with the powering operation
+which can be implemented generically from the binary operation.
 
-requires a method selection process. In \Sage, it was decided to follow the standard
-object orientation practices of the underlying language (\Python), and base the selection
-process upon a hierarchy of classes.  which models the hierarchy o
+\ednote{NT: include here the MMT theory for magmas / semigroups}
 
+In general, the concepts involve sets endowed with a certain number of
+basic operations (addition, product, coproduct, ...) which satisfying
+certain axioms (associativity, commutativity, ...). Typical concepts
+include \emph{fields}, \emph{rings}, \emph{groups}, which are
+naturally organized into a hierarchy according to the available
+operations and axioms (a field is a ring, etc).
 
+In practice, one wants to compute either with the elements of the
+sets, with the sets themselves (called \emph{parents} in \Sage,
+following the \Magma tradition), or with morphisms. Category theory
+provides a convenient language, so we speak of the category of groups,
+the category of fields, ...
 
+Many selection processes for (iii) are available, including object
+oriented programming with methods and/or multimethods, modular
+programming and traits, composition, etc. As early as \ednote{NT: find
+  the date}, the \Axiom system has based its selection process upon a
+hierarchy of classes which models the hierarchy of categories, with
+operations implemented as methods. Followers include the \MuPAD, or
+\Fricas systems. \Sage builds on the same tradition, though using a
+general purpose object oriented language (\Python). \GAP uses a custom
+selection process described in Section~\ref{...}.
+
+\ednote{NT: Could say more here about the fact that the mathematical
+  categories are modeled explicitly in Sage, and not only through a
+  hierarchy of classes}
+
+Those design choices are largely motivated by another specific aspect
+of mathematics: the number of fundamental concepts is actually fairly
+small, and all the richness comes from the many ways the concepts can
+be combined together.
+
+To summarize, \emph{mathematical knowledge} from abstract algebra is
+modeled explicitly in \Sage, and used to support genericity, control
+the method selection process, structure the code and documentation,
+enforce consistency, and provide generic tests.
 
 
 %%% Local Variables:
