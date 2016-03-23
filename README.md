@@ -1,4 +1,4 @@
-===========================================================
+﻿===========================================================
 Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
@@ -185,6 +185,7 @@ Then send a notice to participants@opendreamkit.org.
   to host the web page and public documents about each meeting
 - Run regular oral status reports
 - Prepare a written report
+- Set up a survey at the end of each workshop to know how the next ones can be improved
 
 For ODK, but also for all of those that are watching with hope over
 our shoulders, it's important to write useful reports on our work
