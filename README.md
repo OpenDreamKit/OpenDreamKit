@@ -119,9 +119,9 @@ relevant body:
 ## Progress tracking
 
 Each ODK task and deliverable is modelled by a public github
-issue. They are accessible from the sidebar our our web
-page. Furthermore each deliverable has an associated milestone for
-tracking its deadline.
+issue. They are accessible from the sidebar of our web
+page. Furthermore each deliverable is attached to a milestone for
+tracking its deadline (Month xxx of the project).
 
 The purpose of those issues is:
 
