@@ -186,7 +186,7 @@ Then send a notice to participants@opendreamkit.org.
 - Run regular oral status reports
 - Prepare a written report
 - Set up a survey at the end of each workshop to know how the next ones can be improved
-- Refer the workshop on the website (http://opendreamkit.org/follow/reports) and create a link the reference to your workshop minutes
+- Refer the workshop on the website (http://opendreamkit.org/follow/  -> reports) and create a link the reference to your workshop minutes
 
 For ODK, but also for all of those that are watching with hope over
 our shoulders, it's important to write useful reports on our work
