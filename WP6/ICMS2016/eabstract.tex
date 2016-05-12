@@ -1,3 +1,96 @@
+\documentclass[runningheads,a4paper]{llncs}
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+\noindent\keywordname\enspace\ignorespaces#1}
+
+\usepackage[hide]{ed}
+\usepackage[utf8]{inputenc}
+\usepackage{lststex}
+\usepackage{paralist}
+\lstset{basicstyle=\sf,columns=fullflexible,showstringspaces=false}
+% \usepackage{url}
+% \usepackage{wrapfig}
+\usepackage{tikz,standalone}
+\usetikzlibrary{backgrounds,shapes,fit,shadows}
+\makeatletter\input{../tikz/pgflibrarytikzmmt.code.tex}\makeatother
+\usepackage{wrapfig}
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage{stex-logo}
+\usepackage{../CICM2016/odksystems}
+\usepackage[style=alphabetic,backend=bibtex]{biblatex}
+\addbibresource{kwarc.bib}% do not change
+\addbibresource{../CICM2016/rest.bib}% add bibs here!
+\renewbibmacro*{event+venue+date}{}
+\renewbibmacro*{doi+eprint+url}{%
+  \iftoggle{bbx:doi}
+    {\printfield{doi}\iffieldundef{doi}{}{\clearfield{url}}}
+    {}%
+  \newunit\newblock
+  \iftoggle{bbx:eprint}
+    {\usebibmacro{eprint}}
+    {}%
+  \newunit\newblock
+  \iftoggle{bbx:url}
+    {\usebibmacro{url+urldate}}
+    {}}
+\title{Interoperability in the \ODK Project:\\
+The Math-in-the-Middle Approach}
+\author{Paul-Olivier Dehaye\inst{3} Michael Kohlhase\inst{2} Alexander
+  Konovalov\inst{4} Samuel Lelièvre\inst{1} Markus
+  Pfeiffer\inst{4} Nicolas M. Thiéry\inst{1}}
+\institute{
+  Universit\'e Paris-Sud\and
+Jacobs University \and 
+  University of Z\"urich \and
+  University of St~Andrews
+}
+\providecommand\ifprefchar[2]{}% fix biblatex
+\newcommand\defemph[1]{\textbf{#1}}
+%\renewcommand{\ednote}[1]{}
+
+\begin{document}
+\maketitle
+
+\ednote{NT: fix the over-capitalization of section titles (matter of taste)}
+\ednote{NT: explain how this relates to other efforts in the same direction, in particular OpenMath}
+\ednote{R3: (WP6 in the abstract) seems slightly too specific for outside world to care about}
+\ednote{R3: "This information architecture..." - Are you sure that Math-in-the-Middle is an information architecture?}
+
+\section{Introduction}
+
+\ednote{NT: wondering if the next three paragraph would not fit better
+  in the odk section; the reader more interested by the MitM part may
+  be put off by this long discussion}
+
+From their earliest days, computers have been used in pure mathematics, either to make
+tables, to prove theorems (famously the four colour theorem) or, as with the astronomer's
+telescope, to explore new theories. Computer-aided experiments, and the use of databases
+relying on computer calculations such as the Small Groups Library in GAP, the Modular
+Atlas in group and representation theory, or the $L$-functions and Modular Forms Database (\LMFDB, see later), are part of the standard
+toolbox of the pure mathematician, and certain areas of mathematics completely depend on
+it. Computers are also increasingly used to support collaborative work and education.
+
+The last decades witnessed the emergence of a wide ecosystem of open-source tools to
+support research in pure mathematics. This ranges from specialized to general purpose
+computational tools such as \GAP, \PariGP, \Linbox, \MPIR, \Sage, or \Singular, via online
+databases like the \LMFDB and does not count online services like Wikipedia, \Arxiv, or
+MathOverflow. A great opportunity is the rapid emergence of key technologies, and in
+particular the \Jupyter (previously \IPython) platform for interactive and exploratory
+computing which targets all areas of science.  \ednote{R3: "does not count online services
+  like Wikipedia" - why not, specifically?}
+
+This has proven the viability and power of collaborative open-source development models,
+by users and for users, even for delivering general purpose systems targeting a large
+public (researchers, teachers, engineers, amateurs, \ldots). Yet we are still missing
+\emph{Virtual Research Environments} (VRE), that combine these tools and present a uniform
+work environment to the user, and enable groups of researchers, typically widely
+dispersed, to work collaboratively on a per project basis. This is exactly where the \ODK
+project kicks in.  \ednote{R3: "These can be subsumed by the goal of Virtual Research
+  Environments" - I'm not sure I totally believe this claim, vis a vis the
+  long-term/large-scale outreach items.}
+
 \section{Integrating Mathematical Software Systems via the Math-in-the-Middle Approach}\label{sec:mitm}
 
 % Mathematics has a rich notion of data: it can be either numeric or symbolic data;
@@ -108,58 +201,18 @@ mathematical VRE." - interesting.}
 
 \subsection{Realizing and Utilizing a MitM Ontology}
 
-\begin{wrapfigure}r{6.2cm}\centering\vspace*{-2em}
-  \input{../tikz/metalogics}\vspace*{-.5em}
-  \caption{A OMDoc/MMT Theory Graph}\label{fig:mmt}\vspace*{-1em}
-  \label{figure.omdoc.example}
-\end{wrapfigure}
-\ednote{R3: "views (the squiggly arrows)" - - what's going on with the 
-upwards-pointing arrow in Figure 3, mod? (i.e. why is this one not dotted?)}
-Our current candidate for representing the MitM ontology is the OMDoc/MMT
-format~\cite{Kohlhase:OMDoc1.2,MMTSVN:on}. OMDoc/MMT is an ontology format specialized to
-representing mathematical knowledge modularly in a theory graph: \defemph{theories} are
-collections of declarations of concepts, objects, and their properties that are connected
-by truth-preserving mappings called \defemph{theory morphisms}. The latter come in two
-forms: \defemph{inclusions} and \defemph{structures} that essentially correspond to
-object-oriented inheritance, and \defemph{view} that connect pre-existing theories -- in
-these all axioms of the source theory have be to proven in the target theory. See
-~\cite{RabKoh:WSMSML13} for a full account. Figure~\ref{fig:mmt} shows an example of
-theory graph. It has three layers:
-\ednote{R3: "latter come in two forms" - maybe say a bit more about the difference 
-between inclusion and structure in this terminology?}
-\begin{compactenum}[\em i\rm)]
-\item the (bottom) \defemph{domain level}, which specifies mathematical domains as theories; here
-  parts of elementary algebra. The hooked arrows are inclusions for inheritance, while the
-  regular arrows are named structures that induce the additive and multiplicative
-  structures of a ring.
-\item the \defemph{logic level} represents the languages we use for talking about the
-  properties of the objects at the domain level -- again as theories: the meta-theories of
-  the domain-level ones -- the dotted arrows signify the meta-relation. At this level, we
-  also have inclusions and views (the squiggly arrows) which correspond to logic
-  translations (\cn{f2h}) and interpretations into \defemph{foundational theories} like
-  set theory (here \cn{ZFC}). Incidentally models can be represented as views into
-  foundations.
-\item The top layer contains theories that act as metalogics, \emph{e.g.}\ the Logical Framework
-  \cn{LF} and extensions which can be used to specify logics and their translations.
-\end{compactenum}
-The theory graph structure is very well-suited to represent heterogeneous collections of
-mathematical knowledge, because views at the domain level can be used to connect differing
-but equivalent conceptualizations and views at the logic level can be used to bridge the
-different foundations of the various systems. The top level is only indirectly used in
-the MitM framework: it induces the joint meaning space via the meta-relation.
-
 \begin{figure}[ht]\centering
   \input{../tikz/kf-paradigm}
   \caption{The MitM Paradigm in Detail}\label{fig:mitm}
 \end{figure}
-\ednote{R3: The text should say what LEC SEC and GEC, as well as PyF, C++F, and so on are.}
-If we apply OMDoc/MMT to the MitM architecture, we arrive at the situation in
-Figure~\ref{fig:mitm}, where we drill into the MitM information architecture from
-Figure~\ref{fig:interface-theories}, but restrict at this stage to three systems from the \ODK
-project. In the middle we see the core MitM ontology (the blue cloud) as an OMDoc/MMT
-theory graph connected to the interface theories (the purple clouds) via MitM
-interviews. Conceptually, the systems in \ODK consist of three main components:
-\ednote{R3: "MitM interviews" - are these the same as the "views" described before?}
+\ednote{R3: The text should say what LEC SEC and GEC, as well as PyF, C++F, and so on
+  are.}  For the MitM Ontology, we arrive at the situation in Figure~\ref{fig:mitm}, where
+we drill into the MitM information architecture from Figure~\ref{fig:interface-theories},
+but restrict at this stage to three systems from the \ODK project. In the middle we see
+the core MitM ontology (the blue cloud) as an OMDoc/MMT theory graph connected to the
+interface theories (the purple clouds) via MitM interviews. Conceptually, the systems in
+\ODK consist of three main components: \ednote{R3: "MitM interviews" - are these the same
+  as the "views" described before?}
 \begin{compactenum}[\em i\rm)]
 \item a \emph{Knowledge Representation component} that provides data structures for the
   COMs and their properties.
@@ -180,34 +233,78 @@ project aims to explore both: either
 \item flexiformalizing the available literature for a core MitM ontology.
 \end{inparaenum}
 For \emph{i}), the MitM interviews emerge as refinements that add system-specific details
-to the general mathematical concepts\footnote{We use the word ``interface theory'' with a
-  slightly different intention when compared to the original use
-  in~\cite{KohRabSac:fvip11}: There the core MitM ontology would be an interface between
-  the more specific implementations in the systems, whereas here we use the ``interface
-  theories'' as interfaces between systems and the core MitM ontology. Technically the
-  same issues apply.} For \emph{ii}), we have to give the interviews directly. 
+to the general mathematical concepts For \emph{ii}), we have to give the interviews
+directly.
 
 To see that this architecture indeed gives us a uniform meaning space, we observe that the
 core MitM ontology uses a mathematical foundation (presumably some form of set theory),
 whereas the interface theories also use system-specific foundations that describe aspects
 of the computational primitives of the respective systems. We have good formalizations of
 the mathematical foundations already; first steps towards a computational ones have been
-taken in~\cite{KohManRab:aumftg13}.
+taken as well.
 
 Our efforts also fit neatly alongside similar efforts underway across the sciences to
-standardize metadata formats (for instance through the Research Data Alliance's Typing
-Registry Working Group\cite{rda-typing}), except that the typing taking place here tends
-to have much higher complexity since our objects of study are sometimes seen as types and
-sometimes as instances (think of groups for instance). 
+standardize metadata formats, except that the typing taking place here tends to have much
+higher complexity since our objects of study are sometimes seen as types and sometimes as
+instances (think of groups for instance).
 
+\section{Conclusion}\label{sec:concl}
+In this paper we have presented the \ODK project and the ``Math-in-the-Middle'' approach
+it explores for mitigating the system integration problems inherent in combining an ecosystem
+of open source software systems into a coherent mathematical virtual research environment.
+The MitM approach relies on a central, curated, flexiformal ontology of the mathematical
+domains to be covered by the VRE together with system-near interface theories and
+interviews to the core ontology that liaise with the respective systems. We have reported
+on two case studies that were used to evaluate the approach: an interface for the \LMFDB,
+and a more semantic handle interface between \GAP and \Sage.
+\ednote{R3: I'd definitely suggest to shorten the OpenDreamKit description and make that 
+more high-level, and use the resulting space to add details on the technical and formal work 
+already carried out.}
+
+Even though the development of the MitM is still at a formative stage, these case studies
+show the potential of the approach. We hope that the nontrivial cost of curating an
+ontology of mathematical knowledge and interviews to the interface theories will be offset
+by its utility as a resource, which we are currently exploring; the unification of the
+knowledge representation components
+\begin{compactitem}
+\item enables VRE-wide domain-centered (rather than system-centered) documentation;
+\item can be leveraged for distributed computation via uniform protocols like the
+  SCSCP~\cite{HorRoz:ossp09} and MONET-style service
+  matching~\cite{CaprottiEtAl:MathServiceMatching04:tr} (the absence of content
+  dictionaries -- MitM theories -- was the main hurdle that kept these from gaining more
+  traction);
+\item will lead to the wider adoption of best practices in
+  mathematical knowledge management in the systems involved -- in
+  fact, this is already happening.
+\end{compactitem}
+Whether in the end the investment into the MitM will pay off also depends on the quality
+and usability of the tools for mathematical knowledge management. Therefore we invite the
+CICM community to interact with and contribute to the \ODK project, on
+this work package and the others.
+\ednote{R3: possibly list some specific questions/ideas/dreams?}
+
+\subsubsection*{Acknowledgements}
+
+The authors gratefully acknowledge the other participants of the St~Andrews workshop, in
+particular John Cremona, Luca de Feo, Mihnea Iancu, Steve Linton, Dennis M\"uller, Viviane
+Pons, Florian Rabe, and Tom Wiesing, for discussions and experimentation which clarified
+the ideas behind the math-in-the-middle approach.
+
+We acknowledge financial support from the OpenDreamKit Horizon 2020 European Research
+Infrastructures project (\#676541), from the EPSRC Collaborative Computational Project
+CoDiMa (EP/M022641/1) and from the Swiss National Science Foundation grant PP00P2\_138906.
+
+\printbibliography
+\end{document}
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "paper"
+%%% TeX-master: t
 %%% End:
 
-%  LocalWords:  pn visualization lstinline ec lstinline Weierstrass ednote interop hline
-%  LocalWords:  centering tikz fullgraph tikz mstargraph tikz stargraph defemph emph mmt
-%  LocalWords:  inparaenum flexiformalize flexiformal wrapfigure vspace mistargraph cn
-%  LocalWords:  KohRabSac fvip11 Realizing Utilizing metalogics specialized RabKoh mitm
-%  LocalWords:  compactenum conceptualizations kf-paradigm standardizing flexiformalizing
-%  LocalWords:  formalizations KohManRab aumftg13 tffm13 standardize rda-typing
+%  LocalWords:  maketitle endeavor ednote ODKproposal printbibliography subsubsection pn
+%  LocalWords:  IPython Jupyter emph itemize specialized Arxiv oldpart organization ec
+%  LocalWords:  citability github Swinnerton-Dyer resentation desingularisation Hironaka
+%  LocalWords:  Hironaka algorithmisation Villamayor visualization lstinline omtext lec
+%  LocalWords:  multisystem-semantic-handle-interfaces.tex presenting-lmfdb.tex Dehaye
+%  LocalWords:  Mihnea Iancu Konovalov Leli evre Wiesing odk mitm presenting-lmfdb concl
+%  LocalWords:  multisystem-semantic-handle-interfaces
