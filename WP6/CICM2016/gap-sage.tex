@@ -17,7 +17,7 @@ approach include that we can avoid the overhead of back and forth conversions be
 and $B$ and that we can manipulate objects of $B$ from $A$ even if they have no native
 representation in $A$.
 
-Given a mapping of corresponding methods in the systems, we can use the adaptor pattern to
+Given a mapping of corresponding methods in the systems, we can use the adapter pattern to
 implement this. For example, calling the method \texttt{h.cardinality()} on a \Sage handle
 \texttt{h} to a \GAP object \texttt{G}, triggers in \GAP a call to \texttt{Size(G)} if
 \texttt{cardinality} and \texttt{Size} are marked as corresponding. But this dispatch
@@ -27,14 +27,13 @@ computed by \texttt{Size(S)} in \GAP if \texttt{S} is a group; in fact if \textt
 been constructed through the \texttt{PermutationGroup} or \texttt{MatrixGroup}
 constructors. Whereas we would want this method to be available as soon as \texttt{S} is a
 set.
-\ednote{R3: "adaptor pattern" - which is?}
 \ednote{R3:"h.cardinality()" - margin overflow}
 
-To get around this problem we have worked on a more semantic integration, where adaptor
+To get around this problem we have worked on a more semantic integration, where adapter
 methods are made aware of the type hierarchies of the respective other system, see
-Listing~\ref{lst:adaptor} below. 
-\begin{lstlisting}[language=Python,label=lst:adaptor,
-  caption=A Semantic Adaptor Method in \Sage]
+Listing~\ref{lst:adapter} below. 
+\begin{lstlisting}[language=Python,label=lst:adapter,
+  caption=A semantic adapter method in \Sage]
 class Sets: # Everything generic about sets in Sage
     class GAP: # The adapter methods relevant to Sets in the Sage-Gap interface
          class ParentMethods: # Adapter methods for sets
@@ -49,7 +48,7 @@ class Sets: # Everything generic about sets in Sage
 This peer-to-peer approach however does not scale up to a dozen of
 systems. This is where the MitM paradigm comes to the rescue. With it,
 the task is reduced to building interface theories and interviews into
-the core MitM ontology, in such a way that the adaptor pattern can be
+the core MitM ontology, in such a way that the adapter pattern can be
 made generic in terms of the MitM ontology structure, without relying
 on the concrete structure of the respective type systems. Then the
 adapter methods for each peer-to-peer interface can be automatically
@@ -116,13 +115,11 @@ Figure~\ref{fig:anncat} where we have annotated the \texttt{Sets()} category in 
 with \texttt{@semantic} lines that state correspondences to other interface theories. From
 these the \Sage-to-MMT exporter can generate the respective interface theories and views.
 
-Several variants of the annotations are experimented with to allow for adding annotations on existing
+In ongoing experiments, several variants of the annotations are tested to allow for adding annotations on existing
 categories without touching their source file, and also for specifying directly the corresponding
 method names in other systems when this has not yet been formalized elsewhere. Similarly,
-one can provide directly the signature information in case that is not yet modelled in
-MMT.
+one can provide directly the signature information in case that is not yet modelled in MMT.
 % \ednote{POD: Would it be interesting to add a line about the constraints that are taken into consideration? For instance, the versioning of systems in parallel might become more problematic if it becomes so heavily interdependent}
-\ednote{R3: This paragraph seems a bit vague, a pointer to more details would be nice}
 
 
 \subsection{Exporting the \GAP knowledge: type system documentation}
