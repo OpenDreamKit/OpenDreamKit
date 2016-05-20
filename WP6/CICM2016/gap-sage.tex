@@ -5,37 +5,44 @@ Another aspect of interoperability in a mathematical VRE is the possibility of d
 multisystem computations, where \emph{e.g.}\ a given system may decide to delegate
 certain subcomputations or reasoning tasks to other systems.
 
-There are already a variety of peer-to-peer interfaces (see Figure~\ref{fig:interop})
-based on the ``handle paradigm'' between systems in the \ODK project;
-for example \Sage includes interfaces for \GAP, \Singular, or \Pari.
-
-In the ``handle paradigm'', when a system $A$ delegates a calculation to a system $B$, the
+There are already a variety of peer-to-peer interfaces between systems
+in the \ODK project (see Figure~\ref{fig:interop}), which are based on
+the \emph{handle paradigm}; for example \Sage includes, among others,
+interfaces for \GAP, \Singular, and \Pari.
+%
+In this paradigm, when a system $A$ delegates a calculation to a system $B$, the
 result $r$ of the calculation is not converted to a native $A$ object; instead $B$ just
-returns a handle (or reference) to the object $r$. Later $A$ can run further calculations
-with $r$ by passing it as argument to $B$ functions or methods. The advantages of this
+returns a \emph{handle} $h$ (or reference) to the object $r$. Later $A$ can run further calculations
+with $r$ by passing it as argument to functions or methods of $B$. The advantages of this
 approach include that we can avoid the overhead of back and forth conversions between $A$
 and $B$ and that we can manipulate objects of $B$ from $A$ even if they have no native
 representation in $A$.
 
-Given a mapping of corresponding methods in the systems, we can use the adapter pattern to
-implement this. For example, calling the method \texttt{h.cardinality()} on a \Sage handle
-\texttt{h} to a \GAP object \texttt{G}, triggers in \GAP a call to \texttt{Size(G)} if
-\texttt{cardinality} and \texttt{Size} are marked as corresponding. But this dispatch
-depends on an alignment of the type systems in \Sage and \GAP. For example, if \texttt{h}
-is a handle to a set \texttt{S}, \Sage only knows that \texttt{h.cardinality()} can be
-computed by \texttt{Size(S)} in \GAP if \texttt{S} is a group; in fact if \texttt{h} has
-been constructed through the \texttt{PermutationGroup} or \texttt{MatrixGroup}
-constructors. Whereas we would want this method to be available as soon as \texttt{S} is a
-set.
-\ednote{R3:"h.cardinality()" - margin overflow}
+The next desirable feature is for the handle $h$ to behave in $A$ as
+it was a native $A$ object; in other words, one wants to adapt the API
+satisfied by $r$ in $B$ to mach the API for the same kind of objects
+in $A$. For example, the method call \texttt{h.cardinality()} on a
+\Sage handle \texttt{h} to a \GAP object \texttt{G} should trigger in
+\GAP the corresponding function call \texttt{Size(G)}.
 
-To get around this problem we have worked on a more semantic integration, where adapter
-methods are made aware of the type hierarchies of the respective other system, see
-Listing~\ref{lst:adapter} below. 
+This can be implemented using the classical \emph{adapter
+  pattern}, mapping calls to \Sage's method to corresponding \GAP
+methods. \emph{Adapter classes} have already been implemented for
+certain types of objects, like \Sage's \texttt{PermutationGroup} or
+\texttt{MatrixGroup}. However this implementation lacks modularity:
+for example, if \texttt{h} is just a handle to a set \texttt{S}, \Sage
+cannot use the \emph{adapter method} that maps
+\texttt{h.cardinality()} to \texttt{Size(S)}, because this adapter
+method is only available in the above two adapter classes.
+
+To get around this problem we have worked on a more semantic
+integration, where adapter methods are made aware of the type
+hierarchies of the respective systems, and defined at the highest
+available level of generality, as in the Listing~\ref{lst:adapter}.
 \begin{lstlisting}[language=Python,label=lst:adapter,
   caption=A semantic adapter method in \Sage]
 class Sets: # Everything generic about sets in Sage
-    class GAP: # The adapter methods relevant to Sets in the Sage-Gap interface
+    class GAP: # Adapter methods relevant to Sets in the Sage-Gap interface
          class ParentMethods: # Adapter methods for sets
              def cardinality(self): # The adapter for the cardinality method
                  return self.gap().Size().sage()
@@ -43,6 +50,8 @@ class Sets: # Everything generic about sets in Sage
              ...
          class MorphismMethods: # Adapter methods for set morphisms
              ...
+class Groups: # Everything generic about groups in Sage
+     # This automatically includes features defined at a more general level
 \end{lstlisting}
 
 This peer-to-peer approach however does not scale up to a dozen of
@@ -53,10 +62,10 @@ made generic in terms of the MitM ontology structure, without relying
 on the concrete structure of the respective type systems. Then the
 adapter methods for each peer-to-peer interface can be automatically
 generated.
-
-In our example, the correspondence between \texttt{cardinality} and
-\texttt{Size} still holds if the MitM inter-views link the
-\texttt{cardinality} function in the \Sage interface theory on sets
+%
+In our example, the adapter method for \texttt{cardinality} can be
+constructed automatically as soon as the MitM inter-views link the
+\texttt{cardinality} function in the \Sage interface theory on Sets
 with the \texttt{Size} function in the corresponding interface theory
 for \GAP.
 
@@ -94,11 +103,11 @@ consistency, and provide generic tests.
 \ednote{NT: it would be nice to include here the MMT formalization of
   Size/cardinality}
 \begin{wrapfigure}r{8cm}\vspace*{-2.5em}
-\begin{lstlisting}[language=Python]
-@semantic(mmt="sets")
+\begin{lstlisting}[language=Python,escapechar=!]
+!\color{red}{@semantic(mmt="sets")}!
 class Sets:
     class ParentMethods:
-         @semantic(mmt="card?card", gap="Size")
+         !\color{red}{@semantic(mmt="card?card", gap="Size")}!
          @abstractmethod
          def cardinality(self):
              "Return the cardinality of ``self``"
@@ -106,15 +115,15 @@ class Sets:
 \vspace*{-.5em}
 \caption{An annotated category in \Sage}\label{fig:anncat}\vspace*{-1.5em}
 \end{wrapfigure}
-\ednote{R3: possibly use color-coding in the listing to highlight the @semantic() annotations}
 To generate interface theories from the \Sage category system, we are experimenting with a
 system of annotations in the \Sage source files. Consider for instance the situtation in
 Figure~\ref{fig:anncat} where we have annotated the \texttt{Sets()} category in \Sage
 with \texttt{@semantic} lines that state correspondences to other interface theories. From
 these the \Sage-to-MMT exporter can generate the respective interface theories and views.
 
-In ongoing experiments, several variants of the annotations are tested to allow for adding annotations on existing
-categories without touching their source file, and also for specifying directly the corresponding
+In ongoing experiments, several variants of the annotations are tested
+for annotating existing
+categories without touching their source file or specifying directly the corresponding
 method names in other systems when this has not yet been formalized elsewhere. Similarly,
 one can provide directly the signature information in case that is not yet modelled in MMT.
 % \ednote{POD: Would it be interesting to add a line about the constraints that are taken into consideration? For instance, the versioning of systems in parallel might become more problematic if it becomes so heavily interdependent}
