@@ -1,4 +1,4 @@
-\section{LMFDB Knowledge and Interoperability}\label{sec:lmfdb}
+\section{LMFDB knowledge and interoperability}\label{sec:lmfdb}
 %\subsection{Short description of LMFDB's goals and implementation}
 The \emph{$L$-functions and modular forms database} is a project involving dozens of
 mathematicians, who assemble computational data about $L$-functions, modular forms, and
@@ -10,17 +10,14 @@ of the effort has been focused on how to relay knowledge (mathematical definitio
 relationships) to data and software. For this purpose, the \LMFDB has developed so-called
 \emph{knowls}, which are a technical solution to present \LaTeX-encoded information
 interactively, heavily exploiting the concept of transclusion. The end result is a
-very modular and highly interlinked set of definitions in mathematical vernacular.
-\ednote{R3: "the concept of transclusion" - some readers might not be familiar; a pointer 
-to the LMFDB implementation of this protocol would be useful}
+very modular and highly interlinked set of definitions in mathematical vernacular, which can be easily anchored in vastly different contexts, such as an interface to a database, to browsable data or as constituents of an encyclopedia \cite{lmfdb-definitions}.
 
 The \LMFDB code is primarily written in \Python, with some reliance on \Sage for
-the business logic. The frontend is written in the web framework Flask, while the backend
+the business logic. The backend
 uses the NoSQL document database system \Mongo \cite{lmfdb-repo}. Again, due to the
 complexity of the objects considered, many idiosyncratic encodings are used for the
 data. This makes the whole data management lifecycle particularly tricky, and dependent on
 different select groups of individuals for each component.
-\ednote{R3: "The frontend is written in the web framework Flask" - relevant here?}
 
 %\subsection{Tentative approach to MMT semantic layers for the LMFDB}
 As the LMFDB spans the whole ``vertical'' workflow, from writing software, to producing new
@@ -45,7 +42,7 @@ and ensuring some level of consistency in their scope and make it browsable thro
 \textsf{MathHub.info}, a project developed in parallel to MMT to host such formalisations.
 
 \lstinputlisting[language={[sTeX]TeX},label={stex-ec},firstline=31,
-   caption= {\protect\stex flexiformalization of an \LMFDB knowl}]
+   caption= {\protect\stex flexiformalization of an \LMFDB knowl (original: \cite{lmfdb-mwm})}]
    {examples/elliptic-curve.tex}
 
    The second step consisted of translating these informal definitions into progressively
@@ -58,27 +55,26 @@ and ensuring some level of consistency in their scope and make it browsable thro
 firstline=21,
 caption= {MMT formalisation of elliptic curves and their Weierstrass models},
 label=lst:mmt-ec]{examples/elliptic-curve.mmt}
-\ednote{R3: "STEX flexiformalization of an LMFDB knowl" - pointer to the original for comparison?}
+
 
 Finally, we have to integrate computational data into the interface theories. Based on
 recent ongoing efforts \cite{lmfdb-formats} to document the \LMFDB ``data schemata'' we
-established OMDoc/MMT theories that linked the database fields to their data types (string
+established OMDoc/MMT theories that link the database fields to their data types (string
 \emph{vs.} float \emph{vs.} integer tuple, for instance) and mathematical types (elliptic
 curves or polynomials) -- the latter based on the vocabulary in the interface theories
 generated from the \LMFDB knowls. This schema theory is complemented by a theory on
-composable \emph{MMT codecs}, which in turn acts as a specification for a collection of
+functorial hence composable \emph{MMT codecs}, which in turn acts as a specification for a collection of
 implementations in various programming languages (currently \Python, Scala, and
 C\textsuperscript{++} for \Sage, MMT, and \GAP respectively) which are first instances of
-a computational foundation (see Section~\ref{sec:mitm}).  For instance, one could compose
+a computational foundation (see Section~\ref{sec:mitm}).  For instance, one can compose
 two MMT codecs, say \emph{polynomial-as-reversed-list} and
 \emph{rational-as-tuple-of-int}, to signify that the data $[(2,3),(0,1),(4,1)]$ is meant
 to represent the polynomial $4x^2+2/3$. Of course, these codecs could be further
-decomposed (signalling which variable name to use, for instance). The initial cost of
+decomposed (e.g. for signaling which variable name to use). The initial cost of
 developing these codecs is high, but the clarity gained in documentation is valuable, they
 are highly reusable, and they drastically expand the range of tooling that can be built
 around data management.
-\ednote{R3: "composable MMT codecs" - do these satisfy any category-theoretic properties 
-other than being composable?}
+
 
 \paragraph{A typical application}
 Based on these MitM interface theories we can generate I/O interfaces that translate
