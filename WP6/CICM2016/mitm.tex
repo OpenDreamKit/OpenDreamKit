@@ -5,8 +5,16 @@
 % proofs); or software that computes with these mathematical objects. All this data is
 % really a common resource, and should be maintained as such
 
-As discussed before, we aim to make our components interoperable at a mathematical level. In particular, we have to establish a common meaning space that will 
-allow us to share computation, visualization of the mathematical concepts, objects, and models between the respective systems. This mediation problem is well understood in information systems \cite{mediator}, and has for instance been applied to natural language translation via a hub language \cite{kanayama}. Here, our hub is mathematics itself, and the vocabulary (or even language) admits further formalisation that translates into direct gains in interoperability. For this reason, neither OpenMath \cite{openmath} or MathML \cite{mathml} have the practical expressivity needed for our intended applications. 
+As discussed before, we aim to make our components interoperable at a mathematical level.
+In particular, we have to establish a common meaning space that will 
+allow us to share computation, visualization of the mathematical concepts, objects, and models
+between the respective systems. This mediation problem is well understood in information systems
+\cite{mediator}, and has for instance been applied to natural language translation via a hub
+language \cite{kanayama}.
+Here, our hub is mathematics itself, and the vocabulary (or even language) admits further
+formalisation that translates into direct gains in interoperability. For this reason, neither
+OpenMath \cite{openmath} nor MathML \cite{mathml} have the practical expressivity needed for
+our intended applications. 
 
 % \ednote{POD: This is an attempt to federate many comments of reviewers asking to put the work in context, and add references to existing systems. I think the references are relevant, but MK should definitely review this paragraph. }
 
@@ -29,12 +37,15 @@ allow us to share computation, visualization of the mathematical concepts, objec
 
 \subsection{A common meaning space for interoperability}
 
-Concretely, the problem is that the software systems in \ODK have different coverage of mathematical concepts, and
-where these overlap their models for them differ and the implementing objects have different functionalities.
+One problem is that the software systems in \ODK cover different mathematical concepts, and
+if there are overlaps, their models for them differ, and the implementing objects have
+different functionalities.
 This starts with simple naming issues (\emph{e.g.}\ elliptic curves are named
 \lstinline|ec| in the \LMFDB, and as \lstinline|EllipticCurve| in \Sage), persists through
-the underlying data structures (permutations are represented as products of cycles in
-\GAP, in list form in \Sage, and in differing representations in the various tables of the
+the underlying data structures
+%(mpf) this is wrong, so I'll comment it out (permutations are represented as products of cycles in
+%\GAP, in list form in \Sage
+and in differing representations in the various tables of the
 \LMFDB), and becomes virulent at the level of algorithms, their parameters, and domains of
 applicability.
 
@@ -64,8 +75,8 @@ The obvious problem is that mathematical vernacular is too
 \item \emph{redundant}: every paper introduces slightly different notions. 
 \end{inparaenum}
 
-Therefore we explore an approach, where we \defemph{flexiformalize} (i.e. partially formalize;
-see~\cite{Kohlhase:tffm13}) mathematical vernacular to obtain a flexiformal ontology of
+Therefore we explore an approach where we \defemph{flexiformalize}, i.e. partially formalize;
+see~\cite{Kohlhase:tffm13} mathematical vernacular to obtain a flexiformal ontology of
 mathematics that can serve as an open communication vocabulary. We call the approach the
 \defemph{Math-in-the-Middle} (MitM) Strategy for integration and the ontology the \defemph{MitM
 ontology}.
@@ -74,7 +85,7 @@ ontology}.
   \input{../tikz/mistargraph}\vspace*{-.5em}
   \caption{Interface theories}\label{fig:interface-theories}\vspace*{-1em}
 \end{wrapfigure}
-Before we go into any detail about how this ontology looks and how it induces a uniform
+Before we go into any detail on this ontology, and how it induces a uniform
 meaning space -- see Section~\ref{sec:lmfdb} for an example -- we have to address another
 problem: the descriptions in the MitM ontology must simultaneously be system-near to make
 interfacing easy for systems, and serve as an interoperability standard -- \emph{i.e.}\ be
@@ -99,7 +110,7 @@ conceptual essence of the mathematical VRE.
   \label{figure.omdoc.example}
 \end{wrapfigure}
 Our current candidate for representing the MitM ontology is the OMDoc/MMT
-format~\cite{Kohlhase:OMDoc1.2,MMTSVN:on}. OMDoc/MMT is an ontology format specialized to
+format~\cite{Kohlhase:OMDoc1.2,MMTSVN:on}. OMDoc/MMT is an ontology format specialized for
 representing mathematical knowledge modularly in a theory graph: \defemph{theories} are
 collections of declarations of concepts, objects, and their properties that are connected
 by truth-preserving mappings called \defemph{theory morphisms}. The latter come in two
@@ -107,10 +118,10 @@ forms: \defemph{inclusions} and \defemph{structures} that essentially correspond
 object-oriented inheritance (direct inheritance and and inheritance modulo renaming and
 identification of symbols), and \defemph{view} that connect pre-existing theories -- in
 these all axioms of the source theory have be to proven in the target theory. See
-\cite{RabKoh:WSMSML13} for a full account. Figure~\ref{fig:mmt} shows an example of theory
-graph. It has three layers:
+\cite{RabKoh:WSMSML13} for a full account. Figure~\ref{fig:mmt} shows an example of a
+theory graph. It has three layers:
 \begin{compactenum}[\em i\rm)]
-\item the (bottom) \defemph{domain level}, which specifies mathematical domains as theories; here
+\item the (bottom) \defemph{domain level} which specifies mathematical domains as theories; here
   parts of elementary algebra. The hooked arrows are inclusions for inheritance, while the
   regular arrows are named structures that induce the additive and multiplicative
   structures of a ring.
@@ -144,7 +155,8 @@ project. In the middle we see the core MitM ontology (the blue cloud) as an OMDo
 theory graph connected to the interface theories (the purple clouds) via MitM
 interface views. Conceptually, the systems in \ODK consist of three main components:
 \begin{compactenum}[\em i\rm)]
-\item a \emph{Knowledge Representation component} that provides data structures for the objects modeling mathematical concepts and their properties.
+\item a \emph{Knowledge Representation component} that provides data structures for the
+      objects modeling mathematical concepts and their properties.
 \item a \emph{DataBase component} that provides mass storage for objects, and 
 \item a \emph{library of algorithms} that operate on these.
 \end{compactenum}
@@ -163,11 +175,11 @@ project aims to explore both: either
 \end{inparaenum}
 For \emph{i}), the MitM interface views emerge as refinements that add system-specific details
 to the general mathematical concepts\footnote{We use the word ``interface theory'' with a
-  slightly different intention when compared to the original use
-  in~\cite{KohRabSac:fvip11}: There the core MitM ontology would be an interface between
-  the more specific implementations in the systems, whereas here we use the ``interface
-  theories'' as interfaces between systems and the core MitM ontology. Technically the
-  same issues apply.} For \emph{ii}), we have to give the interface views directly. 
+slightly different intention when compared to the original use
+in~\cite{KohRabSac:fvip11}: There the core MitM ontology would be an interface between
+the more specific implementations in the systems, whereas here we use the ``interface
+theories'' as interfaces between systems and the core MitM ontology. Technically the
+same issues apply.} For \emph{ii}), we have to give the interface views directly. 
 
 To see that this architecture indeed gives us a uniform meaning space, we observe that the
 core MitM ontology uses a mathematical foundation (presumably some form of set theory),
