@@ -85,13 +85,18 @@ Operations may also carry an optional return type, which defaults to $\isobj$ if
 The concrete syntax is
  \lstinline|DeclareOperation(name: String, inputfilters: Filter*, outputfilter: Filter?)|.
 
-An \textbf{property} declaration can be seen as a special case of a unary operation that returns a boolean.
+An \textbf{attribute} declaration can be seen as a special case of an operation that is unary.
+The special treatment of attributes is important only for efficiency reasons: The values of attributes are cached with each object.
+The concrete syntax is \lstinline|DeclareAttribute(name: String, inputfilter: Filter, outputfilter: Filter?)|.
+
+A \textbf{property} declaration can be seen as a special case of an attribute that returns a boolean.
+The special treatment of properties is important only because properties can be used as filters.
 The concrete syntax is \lstinline|DeclareProperty(name: String, inputfilter: Filter)|.
 
 An \textbf{constructor} declaration can be seen as a special case of an operation that returns an object of a given category.
 The concrete syntax is \lstinline|DeclareConstructor(name: String, inputfilters: Filter*, outputfilter: Filter?)|.
 \footnote{The return argument is not implemented yet.}
-\footnote{The current implementation of constructors is somewhat awkward and may be subject to change. Currently, a constructors first argument is special: It must be the expected return filter (rather than an object). This is used to allow method dispatch to choose a different method for different special cases.
+\footnote{The current implementation of constructors is somewhat awkward and may be subject to change. Currently, a constructor's first argument is special: It must be the expected return filter (rather than an object). This is used to allow method selection to choose a different method for different special cases.
 A more elegant solution would be to allow every operation to declare that some of its arguments must be filters.
 This would yield a very nice untyped version of bounded polymorphism, which is routine in typed programming languages.}
 
