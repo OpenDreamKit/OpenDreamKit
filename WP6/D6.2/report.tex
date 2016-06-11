@@ -62,7 +62,7 @@ The software is licensed under the GNU General Public License version 3.
 Mathematics-aware information retrieval (MIR) has often been touted as one of the “killer
 applications” of computer support in STEM (Science, Technology, Engineering, and
 Mathematics). Indeed, the yearly production of published research in mathematics exceeds
-120 thousand journal articles a year alone; the amount of internal technical documents in
+120 thousand journal articles a year alone ~\cite{KohProHam:ntcir11}; the amount of internal technical documents in
 company archives certainly exceeds this quantity by far; being able to access the
 knowledge locked up in them will become a determining factor for commercial success.
 
@@ -75,7 +75,7 @@ querying tasks – web-based formula search engines or editing support services.
 queries over content MathML expressions form the basis of an expressive query language
 with welldefined semantics. As substitution instances of the original query, MWS results
 are highly significant, if the encoding of data set and search query are adequate –
-i.e. do not drop or spuriously introduce salient semantic features.
+i.e. do not drop or spuriously introduce salient semantic features. ~\cite{KohProHam:ntcir11}
 
 At its core, the MathWebSearch system is a content-based search engine for mathematical
 formulae. It indexes MathML formulae, using a technique derived from automated theorem
@@ -85,7 +85,7 @@ serving text queries is Elasticsearch 2.3. From now on, in order to avoid confus
 will refer to the core system (providing just formula query capability) as MWS and to the
 complete service (MWS + Elasticsearch) as TeMaSearch (Text + Math Search).
 
-The overall workflow of TeMaSearch is the following: 
+The overall workflow of TeMaSearch is the following ~\cite{Ham:bcs15}: 
 
 \begin{enumerate}
 \item HTML5 documents representing mathematical articles are crawled to generate MWS
@@ -114,7 +114,7 @@ separate LevelDB database.
 
 MwsHarvests is the format that the MathWebSearch accepts as crawled data. It is an
 extension of MathML which introduces a few tags and attributes to specify meta-information
-about the crawled Content MathML data.
+about the crawled Content MathML data. ~\cite{MWSH}
 
 The introduced tags are \textbf{\texttt{harvest}}, \textbf{\texttt{expr}} and
 \textbf{\texttt{data}}, all defined in the mws namespace. The root element of a MwsHarvest
@@ -189,7 +189,7 @@ An overwhelming majority of the digital scientific content is written using LATE
 due to its usability and popularity among STEM researchers. However, formulae in these
 formats are not good candidates for searching because they do not display the mathematical
 structure of the underlying idea. For this purpose, conversion engines have been developed
-to convert LATEX expressions to more organized formats such as MathML.
+to convert LATEX expressions to more organized formats such as MathML. ~\cite{Ham:bcs15}
 
 An open source example of such a conversion engine is LATEXML. The MathWebSearch project
 relies heavily on it, to convert arXiv documents from LATEX to XHTML which is later
@@ -225,7 +225,7 @@ terms. This allows us to use a technique from automated reasoning called term
 indexing. This is the process by which a set of terms is stored in a special purpose data
 structure (the index, normally stored in memory) where common parts of the terms are
 potentially shared, so as to minimize access time and storage. The indexing technique we
-work with is a form of tree-based indexing called substitution-tree indexing. A
+work with is a form of tree-based indexing called substitution-tree indexing ~\cite{KohSuc:asemf06}. A
 substitution tree, as the name suggests, is simply a tree where substitutions are the
 nodes. A term is constructed by successively applying substitutions along a path in the
 tree, the leaves represent the terms stored in the index. Internal nodes of the tree are
@@ -264,7 +264,7 @@ subterms are shared among larger terms and they are only added once.
 
 \section{Elastic Search}\label{sec:elastic}
 Elasticsearch is a powerful and efficient full text search and analytics engine, built on
-top of Lucene. It can scale massively, because it partitions data in shards and is also
+top of Lucene ~\cite{Elastic}. It can scale massively, because it partitions data in shards and is also
 fault tolerant, because it replicates data. It indexes schema-free JSON documents and the
 search engine exposes a REST-ful web interface. The query is also structured as JSON and
 supports a multitude of features via its domain specific language: nested queries,
@@ -352,7 +352,7 @@ Upon receiving a query, it sends the formula to the formula indexer service and 
 Internally, we can configure what is considered a hit by manipulating the query we present to ElasticSearch. It understands an expressive language, allowing us to define a match as any document containing the formula, and (or) at least n or a percentage of words. In the current configuration, a document is considered a hit if it contains a formula matching the formula query and at least one of the words in the text query. 
 
 \section{Distribution of Indexing and Querying}\label{distribution}
-As presented above, the main indexing data structure is a DFS substitution tree. To represent the tree in a manner which supports cross-machine links, we use three types of index nodes:
+As presented above, the main indexing data structure is a DFS substitution tree. To represent the tree in a manner which supports cross-machine links, we use three types of index nodes: ~\cite{ProKoh:mwsofse11}
  
 \begin{enumerate}
 \item \textbf{Internal Index Nodes} They are used to navigate through most parts of the tree. Their data stores mappings from token ID to the corresponding index node.
@@ -372,14 +372,14 @@ In Figure 4, we present an example of term insertion which causes a tree split. 
  \caption{Tree Distribution across Memory Sectors}
 \end{figure}
 
-The advantage of the new data structures is that indexes can be distributed over multiple computers: when the memory usage on one machine goes above a specific threshold, a percentage of the memory sectors are migrated to other machines. As the tree uses only relative pointers and the sectors are represented as memory mapped files, it is enough to flush the memory sector to the file, send it across the network, and re-map it into the new system’s memory (of course, we assume endian-compatible machines). All operations on memory sectors (splits, migrations) are coordinated by a master node, which keeps track of their locations, as well as cross-sector links. 
+The advantage of the new data structures is that indexes can be distributed over multiple computers: when the memory usage on one machine goes above a specific threshold, a percentage of the memory sectors are migrated to other machines ~\cite{ProKoh:mwsofse11}. As the tree uses only relative pointers and the sectors are represented as memory mapped files, it is enough to flush the memory sector to the file, send it across the network, and re-map it into the new system’s memory (of course, we assume endian-compatible machines). All operations on memory sectors (splits, migrations) are coordinated by a master node, which keeps track of their locations, as well as cross-sector links. 
 
 For a distributed instance of MathWebSearch we have the following setup: All nodes in the network of MathWebSearch machines run mwsd (with the index and the URI database). MathWebSearch has only one restd, which resides on the master node. Upon receiving Q restd passes it to mwsd on the master node, which start DFS search on its substitution tree index fragment. Whenever mwsd hits a remote index node whose target sector is on a different machine, it forwards the respective subquery Q0 to the mwsd on the remote machine, while continuing processing on the current machine. 
 
 In result-unlimited queries, the master mwsd will just wait for the slave mwsd to return the results and aggregate that with its own result set. In result-limited cases, some of the slave’s results may be irrelevant, since the result limit has already been reached. The tradeoffs and efficiency issues involved in such effects will still need to be investigated. Similarly, the top of the index tree (which resides on the master node) will receive much higher processing loads, possibly becoming a bottleneck to the overall system. 
 
 \section{arXiv}\label{arxiv}
-Begun on August 14, 1991, created by Paul Ginsparg, arXiv.org is a repository of scientific papers and electronic preprints in fields of mathematics, computer science, physics, astronomy, biology and statistics or finance written in TeX for an optimized transfer over the internet and an easily rendered client-side. In present the project is hosted by Cornell University and includes over a million articles and increases with around 8000 per month. MWS indexes over 8.3 million paragraphs totalling 176 GB.
+Begun on August 14, 1991, created by Paul Ginsparg, arXiv.org is a repository of scientific papers and electronic preprints in fields of mathematics, computer science, physics, astronomy, biology and statistics or finance written in TeX for an optimized transfer over the internet and an easily rendered client-side. In present the project is hosted by Cornell University and includes over a million articles and increases with around 8000 per month. MWS indexes over 8.3 million paragraphs totalling 176 GB. ~\cite{ArXiv}
 
 \section{Frontend}\label{frontend}
 For exampling the functionality of MWS we will continue by presenting two frontends based
@@ -390,7 +390,7 @@ direct application of the Schematizer into a Math Search Engine which is capable
 mathematical faceted search.~\cite{HamKoh:fsfm15}
 
 \subsection{SchemaSearch}\label{shcemasearch}
-The SchemaSearch front-end provides just a textual search input field. It is intended for users who want an overview of the formulae contained in a corpus. As shown in figure 5, the user can enter a set of keywords for the query, as well as a schema depth, which defaults to 3. The maximum result size is not accessible to the user, to prevent abuses and reduce server load. There is also an “R” checkbox which specifies if the cutoff depth should be absolute or relative. If relative, the depth should be given in percentages. 
+The SchemaSearch front-end provides just a textual search input field. It is intended for users who want an overview of the formulae contained in a corpus. As shown in figure 5, the user can enter a set of keywords for the query, as well as a schema depth, which defaults to 3. The maximum result size is not accessible to the user, to prevent abuses and reduce server load. There is also an “R” checkbox which specifies if the cutoff depth should be absolute or relative. If relative, the depth should be given in percentages. ~\cite{Ham:bcs15}
 
 \begin{figure}[h]
 \centering
@@ -416,7 +416,7 @@ Figure 7 shows the expansion of a formula class. There are 22 formulae in the cl
 
 \subsection{TemaV2 frontend}\label{v2}
 
-The TemaV2 front-end extends TeMaSearch to be able to perform mathematical faceted search. It is intended for users who want to filter query results based on a given facet (formula schema in this case). The look and feel is similar to the previous version of TeMaSearch, as shown in Figure 8, where the first input field is used to specify keywords and the second one is used to specify LATEX-style formulae for the query. When returning results, a “Math Facets” menu will be presented to the user. 
+The TemaV2 front-end extends TeMaSearch to be able to perform mathematical faceted search. It is intended for users who want to filter query results based on a given facet (formula schema in this case). The look and feel is similar to the previous version of TeMaSearch, as shown in Figure 8, where the first input field is used to specify keywords and the second one is used to specify LATEX-style formulae for the query. When returning results, a “Math Facets” menu will be presented to the user. ~\cite{Ham:bcs15} 
 
 \begin{figure}[H]
 \centering
