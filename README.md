@@ -5,9 +5,8 @@ The best way of using this repo is as a git subtree, this is rather simple:
 1.  add it as a remote: ```git remote add kbibs git@github.com:KWARC/bibs.git```
 2.  go to the top of your repository
 3.  add it as a subtree: ```git subtree add --prefix=lib/kbibs kbibs master --squash```
-
-(here under the path ```lib/kbibs```). The ```--squash``` reduces history noise. 
-When you want to update it to the newest version,
+  (here under the path ```lib/kbibs```). The ```--squash``` reduces history noise. 
+  When you want to update it to the newest version,
 
 1.  go to the top of your repository
 2.  subtree-pull: ```git subtree pull --prefix=lib/kbibs kbibs master --squash```
@@ -34,6 +33,7 @@ For making citations in your documents, you can simply continue to use the
 all-in-one kwarc.bib (but keep in mind that it is not editable!), or
 alternatively you can use the individual files. In the latter case, use the
 following order:
+
 1. preamble.bib
 2. *pubs.bib
 3. *crossrefs.bib
