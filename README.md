@@ -41,7 +41,7 @@ variables.
 export BIBINPUTS=".:${HOME}/kwarc/doc/bibs"
 export BSTINPUTS=".:${HOME}/tex/lib/bibs"
 
---EDITING--,
+## EDITING
 This file does not have any particular order.                    
                                                                  
 Do not use any graphical frontend for editing, but use a text    
@@ -53,7 +53,7 @@ Do not touch anything that you don't understand.
 It is easiest to create new entries by copying and modifying     
 existing ones.                                                   
 
---ONLINE-PUBLICATIONS--,
+## ONLINE-PUBLICATIONS
 For online publications, it is strongly recommended to use       
 BibLaTeX's @online{foo:on} entries; see                                  
 http://trac.kwarc.info/KWARC/wiki/BibLaTeX                      
@@ -69,7 +69,7 @@ The naming scheme is:
 * @misc{entry:base} -- crossref'd by the others above, contains  
   common fields, not suitable for citation                       
 
---PUBLICATION-LIST-GENERATION--,
+## PUBLICATION-LIST-GENERATION
 The publication lists on the KWARC homepage are generated from   
 this file; see                                                   
 http://trac.kwarc.info/wsml/wiki/PublicationLists               
