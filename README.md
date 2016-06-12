@@ -1,14 +1,17 @@
 # Using this repo in a git repos
 
 The best way of using this repo is as a git subtree, this is rather simple:
+
 1.  add it as a remote: ```git remote add kbibs git@github.com:KWARC/bibs.git```
 2.  go to the top of your repository
 3.  add it as a subtree: ```git subtree add --prefix=lib/kbibs kbibs master --squash```
+
 (here under the path ```lib/kbibs```). The ```--squash``` reduces history noise. 
 When you want to update it to the newest version,
+
 1.  go to the top of your repository
-2.  subtree-pull: ```git subtree pull --prefix=lib/kbibs kbibs master --squash``` this is a
-bit inconvenient, but works well.
+2.  subtree-pull: ```git subtree pull --prefix=lib/kbibs kbibs master --squash```
+  this is a bit inconvenient, but works well.
 
 # Files
 
