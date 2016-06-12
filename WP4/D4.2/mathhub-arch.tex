@@ -1,0 +1,49 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,shapes.geometric,docicon,arrows}
+\def\omdoc{OMDoc}
+\begin{document}
+\providecommand\myxscale{1}
+\providecommand\myyscale{1}
+\providecommand\imgdir[1]{#1}
+\providecommand\myfontsize{\normalsize}
+\begin{tikzpicture}[xscale=\myxscale,yscale=\myyscale]\myfontsize\sf
+  \pgfdeclareimage[width=1cm]{user}{user}
+  \pgfdeclareimage[width=1cm]{author}{author}
+  \tikzstyle{system} = [rectangle, draw, fill=blue!20, text width=1.1cm, text centered,
+                                    rounded corners, minimum height=.8cm,shade, 
+                                    top color=white, bottom color=blue!20]
+   \tikzstyle{database} = [cylinder,cylinder uses custom fill,
+      cylinder body fill=yellow!50,cylinder end fill=yellow!50,
+      shape border rotate=90,
+      aspect=0.25,draw]
+\node (user) {\pgfuseimage{user}}; 
+\node[system,right=1.2cm of user] (browser) {Browser}; 
+\node[system,right=1.1cm of browser] (drupal) {Drupal};
+\node[system,above right=0cm and 1.4cm of drupal] (mmt) 
+            {\hspace*{-.5em}\begin{tabular}{c}MMT\\System\end{tabular}};
+\node[system,below right=0cm and 1.4cm of drupal] (gl) {GitLab};
+\node[database,below right=.3cm and .7cm of gl] (lib) {library};
+\node[right=1.6cm of gl] (author) {\pgfuseimage{author}}; 
+\node[below right=-.5cm and .6cm of mmt] (conv) 
+            {\begin{tabular}{l}\footnotesize convert source to\\ \omdoc/MMT\end{tabular}};
+\node[system,below=.8cm of drupal] (mws) {MWS};
+\draw[->,thick] (mws) -- node[above] {harvest} (gl);
+\draw[->,thick] (drupal) -- node[left] {query} (mws);
+\draw[<-,thick] (mmt) -- node[left]{load} (gl);
+\draw[<->,dotted] (user) -- node[above]{casual} node[below]{user} (browser);
+\draw[->,thick] (browser) -- node[above]{REST} (drupal);
+\draw[->,thick] (browser) to[loop above] node [above] (jobad) {JOBAD} (browser); 
+\draw[->,thick] (gl) to[loop left,out=20,in=45,looseness=14] (gl); 
+\draw[<->,dashed] (jobad) -- (mmt);
+\draw[<->,dashed] (conv) -- (mmt);
+\draw[<-,thick] (drupal) -- node[above=.1cm]{semantics}(mmt); 
+\draw[->,thick] (drupal) -- node[above]{edit}(gl); 
+\draw[<->,dotted] (author) -- node[above]{power} node[below]{user} (gl);
+\draw[->,dotted] (lib) -- node[left]{import} (gl);
+\end{tikzpicture}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
