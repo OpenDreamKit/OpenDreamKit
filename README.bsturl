@@ -1,0 +1,283 @@
+                                     Urlbst
+
+   A script to add a webpage BibTeX entry type, and add support for
+   general url and lastchecked fields, to (most) BibTeX .bst files.
+   Optionally adds basic support for eprint and doi fields, and
+   hypertex/hyperref support, too.
+
+   The Persistent URL for this page is http://purl.org/nxg/dist/urlbst.
+
+   Version 0.6-1, 2008 June 16.
+
+   Contents
+     * Usage
+     * For example...
+     * Download and installation
+     * Further Information
+     * Version history
+
+   The standard BibTeX styles have no explicit support for the web, in
+   that they include no `webpage' type, and have no support for adding
+   URLs to references. There are rumours that such support might appear in
+   BibTeX 1.0, but there is no estimate of when that is likely to arrive.
+
+   The Perl script urlbst can be used to add this support to an arbitrary
+   .bst file which has a reasonably `conventional' structure. The result
+   is meant to be robust rather than pretty.
+
+   It has a different goal from Patrick Daly's `custom-bib' package --
+   that is intended to create a BibTeX style .bst file from scratch, and
+   supports `url' and `eprint' fields. This package, on the other hand, is
+   intended for the case where you already have a style file that works
+   (or at least, which you cannot or will not change), and edits it to add
+   the new webpage entry type, plus the url, lastchecked and eprint
+   fields. Fuller details are in the manual.
+
+Usage
+
+urlbst [--eprint] [--doi]
+           [--inlinelinks] [--nohyperlinks] [--hypertex] [--hyperref]
+           [input-file [output-file]]
+
+   if either the input-file or the output-file is omitted, they default to
+   stdin and stdout respectively. If the input file already has a URL
+   entry type, then the script objects.
+
+   If the option --eprint is present, then include support for a eprint
+   field in the modified .bst file, with a citation format matching that
+   recommended in the arXiv documentation. Similarly, if the option --doi
+   is present, then include support for a doi field, referring to a DOI
+   for the bibliographic item.
+
+   If either of the --hypertex or --hyperref options is present, then the
+   generated .bst file includes support for hyperlinks in the generated
+   eprint entries in the bibliography, with the format being either
+   HyperTeX (see arXiv, again), supported by xdvi, dvips and others, or
+   using the support available from the hyperref package. These options
+   have no effect unless one of the --eprint or --doi options is given:
+   when URLs are included in the bibliography, they are written out using
+   the \url{...} command, and hyperref automatically processes that in the
+   correct way to include a hyperlink.
+
+   The --inlinelinks option tells urlbst not to write out the URL as text
+   within the bibliography entry. Instead, urlbst will produce a more
+   conventional-looking and compact bibliography entry, but the entry's
+   title will now be a hyperlink to that URL. This hyperlink may be useful
+   to anyone who reads your document online (this option can only be used
+   with --hyperref or --hypertex). Any DOI or eprint text which would be
+   produced as a result of the appropriate option will still appear in
+   this mode.
+
+   The distribution includes preconverted versions of the four standard
+   BibTeX .bst style files.
+
+   Only the style files which result from conversion of the standard
+   styles are checked in the regression tests. Other style files which are
+   known to work include
+
+     acm.bst, amsalpha.bst, amsplain.bst, apalike.bst, gerabbrv.bst,
+     geralpha.bst, gerapali.bst, gerplain.bst, gerunsrt.bst, ieeetr.bst,
+     siam.bst, mla.bst
+
+   Style files which are known to fail:
+     * Currently (v0.5), there exists a style achicago.bst which seems to
+       fox urlbst; it turns out that there's a simpler but almost
+       equivalent style chicago.bst which works.
+     * Some APA-like styles, including at least apager.bst, seem to be
+       sufficiently different from the most common styles, that they
+       confuse urlbst completely.
+     * The koma-script styles and the refer styles are not designed to
+       produce conventional .bbl files, and urlbst does not aim to produce
+       anything useful from these.
+
+   This might be a good time for me to revisit the rather convoluted logic
+   within the script, to make it a little more robust in the face of
+   variants like these, but don't hold your breath...
+
+   The natbib and revtex style files already have URL fields. If you have
+   a BibTeX style file which you think ought to work, but with which the
+   script fails, send it to me, and I'll try to work out what I've missed
+   (no promises, though).
+
+   Note that the command to invoke the script changed from `urlbst.pl' to
+   plain `urlbst' between versions 0.3 and 0.4.
+
+For example...
+
+   To add URL support to the standard siam.bst file, you can give the
+   command
+% urlbst /path/to/original/siam.bst siamurl.bst
+
+   Your TeX installation will likely have some way of helping you find
+   where the original .bst files are. On teTeX-based systems, for example,
+   the command kpsewhich siam.bst returns the full path of the siam.bst
+   file which BibTeX would find.
+
+   The distributed files abbrvurl.bst, alphaurl.bst, plainurl.bst and
+   unsrturl.bst are versions of the standard style files which have been
+   pre-converted.
+
+   There is more general discussion of including URLs in bibliographies in
+   the UK TeX FAQ.
+
+Download and installation
+
+   Download the file urlbst-0.6-1.tar.gz and unpack it.
+
+   To install, you should simply copy the distributed urlbst script to
+   someplace on the path (such as /usr/local/bin, or ~/local/bin,
+   depending on your privileges and tastes).
+
+   If you (might) want to use the pre-converted standard .bst files, then
+   you'll need to copy these to somewhere in the BibTeX search path. Type
+   kpsepath bst on Unix to find out the list of places BibTeX searches,
+   and pick either one of the user-local locations, or a system-wide one.
+   If you're installing in a system-wide location, you'll need admin
+   privileges, obviously, and you will probably need to use texhash,
+   mktexlsr or its equivalent, to update LaTeX's filename cache. For
+   further hints here, see the TeX FAQ entries on installing a package and
+   where LaTeX puts files.
+
+   That should be all you have to do.
+
+   The urlbst script is distributed with a path which should just work, as
+   long as the Perl binary is in your path, but if you have problems here,
+   then you might want to change the first line to something like
+#! /usr/local/bin/perl
+
+   if that's where your Perl binary is.
+
+   You can also use the conventional ./configure; make; make install to
+   configure and install the package (as root, or using sudo if you're
+   installing it in a system location), though you still have to install
+   the .bst files by hand. This is rather heavyweight for the trivial
+   amount of configuration required, so it's almost always simpler just to
+   do things by hand.
+
+   If you need to change some of the urlbst defaults, however, or if your
+   fingers type ./configure spontaneously, then you can be reassured that
+   the configure script supports the standard --prefix option, plus the
+   following options setting defaults:
+
+   --with-eprints=url, --without-eprints
+          This makes the --eprints option to urlbst available by default,
+          and allows you to optionally specify a prefix for creating URLs
+          from eprint numbers. The default for this URL is
+          http://arxiv.org/abs/ -- this is appropriate for arXiv,
+          obviously, but there are now a variety of other preprint
+          archives appearing, for which this might be inappropriate. If
+          you have comments on this default, or alternatives, please let
+          me know. This option is enabled by default; if you have some
+          reason for disabling the --eprints option for urlbst, the give
+          the configure option --without-eprints
+
+   --with-doi=url, --without-doi
+          This makes available the --doi option to urlbst and, as with the
+          --with-eprints option, allows you to customise the DOI resolver
+          URL. The --doi option to urlbst is on by default.
+
+   --with-href=0/1/2
+          This allows you to specify the type of hyperlinks which are
+          inserted in the bibliography. Values 0, 1 and 2, indicating no
+          hyperlinks, hypertex-style links, and hyperref-style links,
+          respectively. The default is --with-href=0. The hyperref-style
+          option is intended to complement the increasingly standard
+          hyperref package.
+
+   The first two options simply change defaults, and if you never use the
+   new eprints or doi fields, then the defaults don't matter to you.
+
+   Since the modified style generates URLs wrapped in the \url{} macro, it
+   is useful to use the resulting bibliography style alongside the url
+   package. Since this tends to work with hyperref anyway, where possible,
+   you don't get any extra goodness by changing the --with-href default at
+   configuration time.
+
+  Documentation
+
+   Basic documentation is in the file urlbst.tex. This is distributed as a
+   PDF file, but if you want to regenerate it, use
+% latex urlbst
+% bibtex urlbst
+% latex urlbst
+% latex urlbst
+
+Further Information
+
+   urlbst is archived on CTAN at biblio/bibtex/contrib/urlbst/, and
+   discussed in the TeX FAQ.
+
+   The home page of urlbst might possibly have more recent versions than
+   the one you're looking at now.
+
+   Copyright 2002-8, Norman Gray. Released under the terms of the GNU
+   General Public Licence.
+
+Version history
+
+   0.6-1, 2008 June 16
+          Fixed some broken links to the various citation standards (I
+          think in this context this should probably not be happening,
+          yes?). The distributed *url.bst no longer have the --inlinelinks
+          option turned on by default.
+
+   0.6, 2007 March 26
+          Added the option --inlinelinks, which adds inline hyperlinks to
+          any bibliography entries which have URLs, but does so inline,
+          rather than printing the URL explicitly in the bibliography.
+          This is (primarily) useful if you're preparing a version of a
+          document which will be read on-screen. Thanks to Jason Eisner
+          for the suggestion, and much testing.
+
+          Incorporate hyperref bugfixes from Pawel/ Widera.
+
+        0.6b3
+                Further reworkings of the inlinelinks support, so that
+                it's now fired by a format.title (or format.btitle) line,
+                with a fallback in fin.entry. This should be more robust,
+                and allows me to delete some of the previous version's
+                gymnastics.
+
+        0.6b2
+                Reworked inlinelinks support; should now be more robust.
+                Incorporate hyperref bugfixes from Pawel/ Widera.
+
+        0.6b1
+                Added the option inlinelinks, which adds inline hyperlinks
+                to any bibliography entries which have URLs, but does so
+                inline, rather than printing the URL explicitly in the
+                bibliography. This is (only) useful if you're preparing a
+                version of a document which will be read on-screen.
+
+   0.5.2, 2006 September 6
+          Another set of documentation-only changes, hopefully clarifying
+          installation.
+
+   0.5.1, 2006 January 10
+          No functionality changes. Documentation and webpage changes
+          only, hopefully clarifying usage and configuration
+
+   0.5, 2005 June 3
+          Added support for Digital Object Identifiers (DOI) fields in
+          bibliographies.
+
+   0.4-1, 2005 April 12
+          Documentation improvements -- there are now examples in the help
+          text!
+
+   0.4, 2004 December 1
+          Bug fixes: now compatible with mla.bst and friends. Now uses
+          ./configure (optionally). Assorted reorganisation.
+
+   0.3, 2003 June 4
+          Added --eprint, --hypertex and --hyperref options.
+
+   0.2, 2002 October 23
+          The `editor' field is now supported in the webpage entry type.
+          Basic documentation added.
+
+   0.1, 2002 April
+          Initial version
+
+   Norman Gray
+   2008 June 16
