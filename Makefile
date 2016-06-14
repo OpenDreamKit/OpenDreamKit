@@ -1,3 +1,4 @@
+
 KWARC.bib = kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
 KWARC.xml = $(KWARC.bib:%=%.xml)
 KWARCEXT.bib = $(KWARC.bib) extpubs.bib
