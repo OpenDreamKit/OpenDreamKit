@@ -57,7 +57,7 @@
 \maketitle\vfill
 \begin{abstract}
   A virtual research environment (VRE) contains extensive data (D), representations of
-  knowledge (K), and software (S). This only becomse accessible to users, if the VRE
+  knowledge (K), and software (S). This only becomes accessible to users, if the VRE
   provides a unified search facility for D/K/S structures. In the mathematical VRE under
   development in the \pn project, we have mathematical D/K/S, so that conventional search
   engines only partially apply. 
@@ -87,7 +87,7 @@
 \section{Introduction: Search in \pn}
 
 A virtual research environment (VRE) contains extensive data (D), representations of
-knowledge (K), and software (S). This only becomse accessible to users, if the VRE
+knowledge (K), and software (S). This only becomes accessible to users, if the VRE
 provides a unified search facility for D/K/S structures. In the mathematical VRE under
 development in the \pn project, we have mathematical D/K/S, so that conventional search
 engines only partially apply. 
@@ -126,7 +126,7 @@ unification and combines the results with keyword results from a text search eng
 modular architecture and standardized formats makes \MWS applicable to a wide range of
 querying tasks – web-based formula search engines or editing support services. Unification
 queries over content MathML expressions form the basis of an expressive query language
-with welldefined semantics. As substitution instances of the original query, \MWS results
+with well-defined semantics. As substitution instances of the original query, \MWS results
 are highly significant, if the encoding of data set and search query are adequate –
 i.e. do not drop or spuriously introduce salient semantic
 features~\cite{KohProHam:ntcir11}.
@@ -430,17 +430,38 @@ In Figure~\ref{fig:memory_sectors}, we present an example of term insertion whic
  \label{fig:memory_sectors}
 \end{figure}
 
-The advantage of the new data structures is that indexes can be distributed over multiple computers: when the memory usage on one machine goes above a specific threshold, a percentage of the memory sectors are migrated to other machines~\cite{ProKoh:mwsofse11}. As the tree uses only relative pointers and the sectors are represented as memory mapped files, it is enough to flush the memory sector to the file, send it across the network, and re-map it into the new system’s memory (of course, we assume endian-compatible machines). All operations on memory sectors (splits, migrations) are coordinated by a master node, which keeps track of their locations, as well as cross-sector links. 
+The advantage of the new data structures is that indexes can be distributed over multiple
+computers: when the memory usage on one machine goes above a specific threshold, a
+percentage of the memory sectors are migrated to other
+machines~\cite{ProKoh:mwsofse11}. As the tree uses only relative pointers and the sectors
+are represented as memory mapped files, it is enough to flush the memory sector to the
+file, send it across the network, and re-map it into the new system’s memory (of course,
+we assume endian-compatible machines). All operations on memory sectors (splits,
+migrations) are coordinated by a master node, which keeps track of their locations, as
+well as cross-sector links.
 
-For a distributed instance of \MWS we have the following setup: All nodes in the network of \MWS machines run mwsd (with the index and the URI database). \MWS has only one restd, which resides on the master node. Upon receiving Q restd passes it to mwsd on the master node, which start DFS search on its substitution tree index fragment. Whenever mwsd hits a remote index node whose target sector is on a different machine, it forwards the respective subquery Q0 to the mwsd on the remote machine, while continuing processing on the current machine. 
+For a distributed instance of \MWS we have the following setup: All nodes in the network
+of \MWS machines run \texttt{mwsd} (the \MWS daemon with the index and the URI
+database). \MWS has only one \texttt{restd} daemon, which resides on the master node. Upon
+receiving Q \texttt{restd} passes it to \texttt{mwsd} on the master node, which start DFS
+search on its substitution tree index fragment. Whenever \texttt{mwsd} hits a remote index
+node whose target sector is on a different machine, it forwards the respective subquery Q0
+to the \texttt{mwsd} on the remote machine, while continuing processing on the current
+machine.
 
-In result-unlimited queries, the master mwsd will just wait for the slave mwsd to return the results and aggregate that with its own result set. In result-limited cases, some of the slave’s results may be irrelevant, since the result limit has already been reached. The tradeoffs and efficiency issues involved in such effects will still need to be investigated. Similarly, the top of the index tree (which resides on the master node) will receive much higher processing loads, possibly becoming a bottleneck to the overall system. 
+In result-unlimited queries, the master \texttt{mwsd} will just wait for the slave
+\texttt{mwsd} to return the results and aggregate that with its own result set. In
+result-limited cases, some of the slave’s results may be irrelevant, since the result
+limit has already been reached. The tradeoffs and efficiency issues involved in such
+effects will still need to be investigated. Similarly, the top of the index tree (which
+resides on the master node) will receive much higher processing loads, possibly becoming a
+bottleneck to the overall system.
 
 
 \section{Frontend}\label{frontend}
 For exampling the functionality of \MWS we will continue by presenting two frontends based
 on its mechanism. The first one is a text-only search engine which returns the math from
-the matching documents, after running it through the Schematizer (the core part of
+the matching documents, after running it through the schematizer (the core part of
 MWS). This is the demo for showcasing the schematization process. The second one is a
 direct application of the Schematizer into a Math Search Engine which is capable of
 mathematical faceted search.~\cite{HamKoh:fsfm15}
@@ -505,7 +526,11 @@ Figure~\ref{fig:temav2query} shows the results of a query for “Fermat” and $
  \label{fig:temav2query}
 \end{figure}
 
-When the “Math Facets” section is expanded the user can see the top 10 schemata (ranked with respect to their coverage), as shown in Figure~\ref{fig:facets_temav2}. We have also implemented a “search-on-click” functionality that allows the user the do a fresh search using the clicked schema and the initial keyword, which effectively filters the current results.
+When the “Math Facets” section is expanded the user can see the top 10 schemata (ranked
+with respect to their coverage), as shown in Figure~\ref{fig:facets_temav2}. We have also
+implemented a “search-on-click” functionality that allows the user the do a fresh search
+using the clicked schema and the initial keyword, which effectively filters the current
+results.
 
 \begin{figure}[H]
 \centering
@@ -514,9 +539,11 @@ When the “Math Facets” section is expanded the user can see the top 10 schem
  \label{fig:facets_temav2}
 \end{figure}
 
-\section{\MWS Corpora: arXiv, ZBMath, Mizar}\label{arxiv}
+\section{\MWS Instances and Corpora: arXiv, ZBMath, Mizar}\label{arxiv}
 
-The \MWS system has been used on various corpora. 
+The \MWS system has been used to supply search instances on various corpora of
+mathematical documents, we describe three here, others can be seen on
+\url{http://search.mathweb.org}. 
 
 \subsection{arXiv search}
 
@@ -533,7 +560,7 @@ indexes over 105\,000 math-heavy papers. This subcorpus has also been used for t
 Math Information Retrieval
 Challenges~\cite{AizKohOun:nmpto13,AizKohOunSch:nmto14,AizKohOunSch:nmto16}.
 
-\subsection{zbMath search}
+\subsection{zbMATH search}
 
 Zentralblatt Math (zbMath) is a mathematical information service that curates a database
 of reviews and classifications (MSC, see~\cite{MSC2010}) for all articles in mathematics
@@ -545,13 +572,13 @@ bibliographic metadata, MSC classification, and \emph{formulae}. The latter is d
 
 \subsection{Search on a Formal Library of Mathematical Knowledge}
 
-We have converted the Mizar Mathematiacl Library~\cite{MizarKB:on} to the OMDoc/MMT format
+We have converted the Mizar Mathematical Library~\cite{MizarKB:on} to the OMDoc/MMT format
 and indexed the results in \MWS~\cite{IanKohRabUrb:tmmliotaa13}, enabling
 formula-based search on a formal knowledge of contains over 1000 articles with over 50000
 theorems and over 10000 definitions encoded in first-order logic based on
 Tarski-Grothendiek set theory. As the data is fully formal, we can identify universal
 variables in the corpus (explicitly marked up universal quantifications) and search for
-appliccable theorems, e.g. we can issue queries like formula query:
+applicable theorems, e.g. we can issue queries like formula query:
 \def\var#1{\textcolor{red}{?#1}} $\int_a^b |V(t)I(t)| dt\leq\var{R}$, and the \pn system
 will return H\"older's equation as one of the hits:
 \begin{quote}
@@ -603,3 +630,13 @@ working on exporting the D/K/S structures in the LMFDB, GAP, and SageMath into
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
+
+%  LocalWords:  maketitle vfill pn newpage tableofcontents newpage concl organized mws cn
+%  LocalWords:  arxiv standardized Elasticsearch bcs15 textbf textbf texttt itemize xmlns
+%  LocalWords:  lstset lstlisting csymbol centering includegraphics asemf06 XPointer mwsd
+%  LocalWords:  subterms Lucene listone subformulae listtwo mwsofse11 restd schematizer
+%  LocalWords:  schematization fsfm15 shcemasearch qvars temav2 temav2query Mizar StaKoh
+%  LocalWords:  Ginsparg optimized tlcspx10 AizKohOun nmpto13 AizKohOunSch nmto14 nmto16
+%  LocalWords:  AizKohOunSch zbMATH emph IanKohRabUrb tmmliotaa13 Tarski-Grothendiek leq
+%  LocalWords:  mathbb infty MWSProj parallelization utilization compactenum oeis LuzKoh
+%  LocalWords:  fsarfo16 printbibliography
