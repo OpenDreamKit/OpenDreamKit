@@ -45,40 +45,76 @@
 \issue{133}
 \deliverydate{14/06/2016}
 \duedate{1/07/2016 (M1)}
-\def\pn{OpenDreamKit}
+\def\pn{OpenDreamKit\xspace}
+
 \author{Michael Kohlhase \& Alexandru Glontaru}
+
 \usepackage[parfill]{parskip}
 \begin{document}
-\maketitle\newpage
+\maketitle\vfill
 \begin{abstract}
-  MathWebSearch is an open-source, open-format, contentoriented full-text search engine
-  for mathematical formulae encoded in Content MathML.  We want to use it for searching
-  notebooks, active documents and the Math-in-the-Middle Ontology in the OpenDreamKit VRE.
-  
+  A virtual research environment (VRE) contains extensive data (D), representations of
+  knowledge (K), and software (S). This only becomse accessible to users, if the VRE
+  provides a unified search facility for D/K/S structures. In the mathematical VRE under
+  development in the \pn project, we have mathematical D/K/S, so that conventional search
+  engines only partially apply. 
 
-  MathWebSearch is a complete system capable of crawling, indexing, and querying
-  expressions based on their functional structure (operator tree) rather than their
-  presentation. It combines a powerful exact formula unification/matching with the
-  fulltext search capabilities of ElasticSearch to achieve simultaneous full-text search
-  for mathematical/technical documents. 
+  In this report, we present the MathWebSearch engine, an open-source, open-format,
+  content-oriented full-text search engine for mathematical formulae encoded in Content
+  MathML. We eventually want to use it for searching notebooks, active documents and the
+  Math-in-the-Middle Ontology in the \pn VRE. This report only presents the current system
+  that can search mathematical documents written in {\LaTeX} or HTML5. 
 
-  MWS focuses on scalability (memory footprint, index persistence), integration of
-  keyword- and formula search, and hit presentation issues. It forms a stable basis for
-  future research into extended query languages and user-interaction issues. The system
-  has been integrated into high-profile information systems like Zentralblatt Math.
+%   MathWebSearch is a complete system capable of crawling, indexing, and querying
+%   expressions based on their functional structure (operator tree) rather than their
+%   presentation. It combines a powerful exact formula unification/matching with the
+%   fulltext search capabilities of ElasticSearch to achieve simultaneous full-text search
+%   for mathematical/technical documents. 
+
+%   MWS focuses on scalability (memory footprint, index persistence), integration of
+%   keyword- and formula search, and hit presentation issues. It forms a stable basis for
+%   future research into extended query languages and user-interaction issues. The system
+%   has been integrated into high-profile information systems like Zentralblatt Math.
  
-The software is licensed under the GNU General Public License version 3. 
+% The software is licensed under the GNU General Public License version 3. 
  \end{abstract}
-
+\vfill
 \newpage\tableofcontents\newpage
 
-\section{Introduction}\label{sec:intro}
+\section{Introduction: Search in \pn}
+
+A virtual research environment (VRE) contains extensive data (D), representations of
+knowledge (K), and software (S). This only becomse accessible to users, if the VRE
+provides a unified search facility for D/K/S structures. In the mathematical VRE under
+development in the \pn project, we have mathematical D/K/S, so that conventional search
+engines only partially apply. 
+
+In this report, we present the MathWebSearch engine, an open-source, open-format,
+content-oriented full-text search engine for mathematical formulae encoded in Content
+MathML. We eventually want to use it for searching notebooks, active documents and the
+Math-in-the-Middle Ontology in the \pn VRE. This report only presents the current system
+that can search mathematical documents written in {\LaTeX} or HTML5. For applications to
+other D/K/S structures, see Section~\ref{sec:concl}.
+ 
+The report is organized as follows: in Section~\ref{sec:mws} we give a general overview
+over the MathWebSearch system as a base for a discussion of the system's components in the
+ensuing sections: Sections~\ref{sec:harvests} and \ref{sec:ml} discuss the input format
+(MWS harvests) and how to convert {\TeX/\LaTeX} documents so that they can be
+harvested. Sections~\ref{sec:mathindex} to \ref{distribution} give an overview over
+internals of the MathWebSearch backend: indexing of formulae and full text, and
+distributed querying. Section~\ref{frontend} presents a web front-end for MathWebSearch
+and Section~\ref{sec:arxiv} discusses the larger corpora the system is used for.
+Section~\ref{sec:concl} concludes the report and details future work.
+
+\section{MathWebSearch Overview}\label{sec:mws}
+
 Mathematics-aware information retrieval (MIR) has often been touted as one of the “killer
 applications” of computer support in STEM (Science, Technology, Engineering, and
 Mathematics). Indeed, the yearly production of published research in mathematics exceeds
-120 thousand journal articles a year alone~\cite{KohProHam:ntcir11}; the amount of internal technical documents in
-company archives certainly exceeds this quantity by far; being able to access the
-knowledge locked up in them will become a determining factor for commercial success.
+120 thousand journal articles a year alone~\cite{KohProHam:ntcir11}; the amount of
+internal technical documents in company archives certainly exceeds this quantity by far;
+being able to access the knowledge locked up in them will become a determining factor for
+commercial success.
 
 MWS is a web application that provides low-latency answers to full-text queries which
 consist of keywords and formulae. MWS front-ends convert formula schemata (with query
@@ -89,7 +125,8 @@ querying tasks – web-based formula search engines or editing support services.
 queries over content MathML expressions form the basis of an expressive query language
 with welldefined semantics. As substitution instances of the original query, MWS results
 are highly significant, if the encoding of data set and search query are adequate –
-i.e. do not drop or spuriously introduce salient semantic features~\cite{KohProHam:ntcir11}.
+i.e. do not drop or spuriously introduce salient semantic
+features~\cite{KohProHam:ntcir11}.
 
 At its core, the MathWebSearch system is a content-based search engine for mathematical
 formulae. It indexes MathML formulae, using a technique derived from automated theorem
@@ -396,14 +433,6 @@ For a distributed instance of MathWebSearch we have the following setup: All nod
 
 In result-unlimited queries, the master mwsd will just wait for the slave mwsd to return the results and aggregate that with its own result set. In result-limited cases, some of the slave’s results may be irrelevant, since the result limit has already been reached. The tradeoffs and efficiency issues involved in such effects will still need to be investigated. Similarly, the top of the index tree (which resides on the master node) will receive much higher processing loads, possibly becoming a bottleneck to the overall system. 
 
-\section{arXiv}\label{arxiv}
-Begun on August 14, 1991, created by Paul Ginsparg, arXiv.org is a repository of
-scientific papers and electronic preprints in fields of mathematics, computer science,
-physics, astronomy, biology and statistics or finance written in TeX for an optimized
-transfer over the internet and an easily rendered client-side. In present the project is
-hosted by Cornell University and includes over a million articles and increases with
-around 8000 per month. MWS indexes over 8.3 million paragraphs totalling 176
-GB~\cite{ArXiv}.
 
 \section{Frontend}\label{frontend}
 For exampling the functionality of MWS we will continue by presenting two frontends based
@@ -481,6 +510,33 @@ When the “Math Facets” section is expanded the user can see the top 10 schem
  \caption{Math Facets in TeMa v2}
  \label{fig:facets_temav2}
 \end{figure}
+
+\section{MathWebSearch Corpora: arXiv, ZBMath Mizar}\label{arxiv}
+
+The MathWebSearch system has been used on various corpora. 
+
+\subsection{arXiv search}
+
+Begun on August 14, 1991, created by Paul Ginsparg, the ``Cornell e-Print arXiv''
+(\url{http://arXiv.org}) is a repository of scientific papers and electronic preprints in
+fields of mathematics, computer science, physics, astronomy, biology and statistics or
+finance written in {\TeX/\LaTeX} for an optimized transfer over the internet and an easily
+rendered client-side. In present the project is hosted by Cornell University and includes
+over a million articles and increases with around 8000 per month.
+
+The KWARC group have converted by arXiv corpus into HTML5~\cite{StaKoh:tlcspx10} and
+harvested it for MathWebSearch. The instance at \url{http://arxivsearch.mathweb.org}
+indexes over 105\,000 math-heavy papers.
+
+\subsection{zbMath search}
+
+Zentralblatt Math (zbMath) is a mathematical information service that curates a database
+of reviews and classifications (MSC, see~\cite{MSC2010}) for all articles in mathematics
+since the middle of the 19th century. The database currently contains 3.8 million reviews
+and grows at a rate of ca 120\,000 reviews per year. The zbMATH portal at
+\url{https://zbmath.org/} offers a faceted search engine for reviews based on
+bibliographic metadata, MSC classification, and \emph{formulae}. The latter is driven by
+MathWebSearch.
 
 \section{Conclusion}\label{sec:concl}
 We have presented a search engine capable of dealing with pure mathematical queries but
