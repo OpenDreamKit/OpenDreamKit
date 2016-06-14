@@ -30,6 +30,7 @@
       <head>
 	<title><xsl:value-of select="$name"/>: Selected Publications</title>
 	<link rel="stylesheet" href="publist.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/>
       </head>
       <body>
 	<h1><xsl:value-of select="$name"/>: Selected Publications</h1>

@@ -13,6 +13,7 @@ KPUBS.html = $(KPUBS.tex:%.tex=%.html)
 
 pubs: $(KPUBS.html)
 all: kwarcpubs.pdf pubs
+xml: $(KWARC.xml)
 
 kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 	pdflatex kwarcpubs
