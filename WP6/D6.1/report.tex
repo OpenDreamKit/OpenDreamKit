@@ -2,6 +2,7 @@
 
 \usepackage[style=alphabetic,backend=bibtex]{biblatex}
 \addbibresource{../../lib/kbibs/kwarc.bib}
+\addbibresource{../../lib/deliverables.bib}
 \addbibresource{rest.bib}
 % temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
 \makeatletter\def\blx@maxline{77}\makeatother
@@ -42,73 +43,112 @@
 }
 
 \deliverable{dksbases}{mws}
-\issue{91}
-\deliverydate{1/06/2016}
+\issue{133}
+\deliverydate{14/06/2016}
 \duedate{1/07/2016 (M1)}
-\def\pn{OpenDreamKit}
+\def\pn{OpenDreamKit\xspace}
+
+\def\MWS{\textsf{MathWebSearch}\xspace}
+
 \author{Michael Kohlhase \& Alexandru Glontaru}
+
 \usepackage[parfill]{parskip}
 \begin{document}
-\maketitle
+\maketitle\vfill
 \begin{abstract}
-  MathWebSearch is an open-source, open-format, contentoriented full-text search engine
-  for mathematical formulae encoded in Content MathML.  We want to use it for searching
-  notebooks, active documents and the Math-in-the-Middle Ontology in the OpenDreamKit VRE.
-  
+  A virtual research environment (VRE) contains extensive data (D), representations of
+  knowledge (K), and software (S). This only becomes accessible to users, if the VRE
+  provides a unified search facility for D/K/S structures. In the mathematical VRE under
+  development in the \pn project, we have mathematical D/K/S, so that conventional search
+  engines only partially apply. 
 
-  MathWebSearch is a complete system capable of crawling, indexing, and querying
-  expressions based on their functional structure (operator tree) rather than their
-  presentation. It combines a powerful exact formula unification/matching with the
-  fulltext search capabilities of ElasticSearch to achieve simultaneous full-text search
-  for mathematical/technical documents. 
+  In this report, we present the \MWS engine, an open-source, open-format,
+  content-oriented full-text search engine for mathematical formulae encoded in Content
+  MathML. We eventually want to use it for searching notebooks, active documents and the
+  Math-in-the-Middle Ontology in the \pn VRE. This report only presents the current system
+  that can search mathematical documents written in {\LaTeX} or HTML5. 
 
-  MWS focuses on scalability (memory footprint, index persistence), integration of
-  keyword- and formula search, and hit presentation issues. It forms a stable basis for
-  future research into extended query languages and user-interaction issues. The system
-  has been integrated into high-profile information systems like Zentralblatt Math.
+%   \MWS is a complete system capable of crawling, indexing, and querying
+%   expressions based on their functional structure (operator tree) rather than their
+%   presentation. It combines a powerful exact formula unification/matching with the
+%   fulltext search capabilities of ElasticSearch to achieve simultaneous full-text search
+%   for mathematical/technical documents. 
+
+%   \MWS focuses on scalability (memory footprint, index persistence), integration of
+%   keyword- and formula search, and hit presentation issues. It forms a stable basis for
+%   future research into extended query languages and user-interaction issues. The system
+%   has been integrated into high-profile information systems like Zentralblatt Math.
  
-The software is licensed under the GNU General Public License version 3. 
+% The software is licensed under the GNU General Public License version 3. 
  \end{abstract}
-
+\vfill
 \newpage\tableofcontents\newpage
 
-\section{Introduction}\label{sec:intro}
+\section{Introduction: Search in \pn}
+
+A virtual research environment (VRE) contains extensive data (D), representations of
+knowledge (K), and software (S). This only becomes accessible to users, if the VRE
+provides a unified search facility for D/K/S structures. In the mathematical VRE under
+development in the \pn project, we have mathematical D/K/S, so that conventional search
+engines only partially apply. 
+
+In this report, we present the \MWS engine, an open-source, open-format,
+content-oriented full-text search engine for mathematical formulae encoded in Content
+MathML. We eventually want to use it for searching notebooks, active documents and the
+Math-in-the-Middle Ontology in the \pn VRE. This report only presents the current system
+that can search mathematical documents written in {\LaTeX} or HTML5. For applications to
+other D/K/S structures, see Section~\ref{sec:concl}.
+ 
+The report is organized as follows: in Section~\ref{sec:mws} we give a general overview
+over the \MWS system as a base for a discussion of the system's components in the
+ensuing sections: Sections~\ref{sec:harvests} and \ref{sec:ml} discuss the input format
+(MWS harvests) and how to convert {\TeX/\LaTeX} documents so that they can be
+harvested. Sections~\ref{sec:mathindex} to \ref{distribution} give an overview over
+internals of the \MWS backend: indexing of formulae and full text, and
+distributed querying. Section~\ref{frontend} presents a web front-end for \MWS
+and Section~\ref{sec:arxiv} discusses the larger corpora the system is used for.
+Section~\ref{sec:concl} concludes the report and details future work.
+
+\section{\MWS Overview}\label{sec:mws}
+
 Mathematics-aware information retrieval (MIR) has often been touted as one of the “killer
 applications” of computer support in STEM (Science, Technology, Engineering, and
 Mathematics). Indeed, the yearly production of published research in mathematics exceeds
-120 thousand journal articles a year alone~\cite{KohProHam:ntcir11}; the amount of internal technical documents in
-company archives certainly exceeds this quantity by far; being able to access the
-knowledge locked up in them will become a determining factor for commercial success.
+120 thousand journal articles a year alone~\cite{KohProHam:ntcir11}; the amount of
+internal technical documents in company archives certainly exceeds this quantity by far;
+being able to access the knowledge locked up in them will become a determining factor for
+commercial success.
 
 MWS is a web application that provides low-latency answers to full-text queries which
-consist of keywords and formulae. MWS front-ends convert formula schemata (with query
-variables) into content MathML expressions, which the MWS formula indexer answers by
+consist of keywords and formulae. \MWS front-ends convert formula schemata (with query
+variables) into content MathML expressions, which the \MWS formula indexer answers by
 unification and combines the results with keyword results from a text search engine. The
-modular architecture and standardized formats makes MWS applicable to a wide range of
-querying tasks: web-based formula search engines or editing support services. Unification
+modular architecture and standardized formats makes \MWS applicable to a wide range of
+querying tasks – web-based formula search engines or editing support services. Unification
 queries over content MathML expressions form the basis of an expressive query language
-with well-defined semantics. As substitution instances of the original query, MWS results
+with well-defined semantics. As substitution instances of the original query, \MWS results
 are highly significant, if the encoding of data set and search query are adequate –
-i.e. do not drop or spuriously introduce salient semantic features~\cite{KohProHam:ntcir11}.
+i.e. do not drop or spuriously introduce salient semantic
+features~\cite{KohProHam:ntcir11}.
 
-At its core, the MathWebSearch system is a content-based search engine for mathematical
+At its core, the \MWS system is a content-based search engine for mathematical
 formulae. It indexes MathML formulae, using a technique derived from automated theorem
 proving: Substitution Tree Indexing. Recently, it was augmented with full-text search
 capabilities, combining keyword queries with unification-based formula search. The engine
 serving text queries is Elasticsearch 2.3. From now on, in order to avoid confusion, we
-will refer to the core system (providing just formula query capability) as MWS and to the
+will refer to the core system (providing just formula query capability) as \MWS and to the
 complete service (MWS + Elasticsearch) as TeMaSearch (Text + Math Search).
 
 The overall workflow of TeMaSearch is the following~\cite{Ham:bcs15}: 
 
 \begin{enumerate}
-\item HTML5 documents representing mathematical articles are crawled to generate MWS
-  harvests. The harvest format is an extension of MathML which MWS can index. Its role is
+\item HTML5 documents representing mathematical articles are crawled to generate \MWS
+  harvests. The harvest format is an extension of MathML which \MWS can index. Its role is
   to separate the math from the text in a given document.
-\item MWS indexes the harvests.
+\item \MWS indexes the harvests.
 \item a second pass is made over the harvests to generate annotated documents.
 \item Elasticsearch indexes the annotated documents.
-\item Everything is now ready for answering queries. When a query is issued, MWS will
+\item Everything is now ready for answering queries. When a query is issued, \MWS will
   answer the mathematical part and Elasticsearch will answer the text part. The results
   are combined through a NodeJS proxy to send a final result set.
 \end{enumerate}
@@ -117,16 +157,16 @@ Each mathematical expression is encoded as a set of substitutions based on a dep
 traversal of its Content MathML tree. Furthermore, each tag from the Content MathML tree
 is encoded as a TokenID, to lower the size of the resulting index. The (bijective) mapping
 is also stored together with the index and is needed to reconstruct the original
-formula. The index itself is an in-memory tree of substitution paths.
+formula. The index itself is an in-memory trie of substitution paths.
 
-To facilitate fast retrieval, MWS stores FormulaIDs in the leaves of the substitution
+To facilitate fast retrieval, \MWS stores FormulaIDs in the leaves of the substitution
 tree. These are integers uniquely associated with formulae, and they are used to store the
 context in which the respective expressions occurred. These identifiers are stored in a
 separate LevelDB database.
 
 \section{MwsHarvests}\label{sec:harvests}
 
-MwsHarvests is the format that the MathWebSearch accepts as crawled data. It is an
+MwsHarvests is the format that the \MWS accepts as crawled data. It is an
 extension of MathML which introduces a few tags and attributes to specify meta-information
 about the crawled Content MathML data~\cite{MWSH}.
 
@@ -205,9 +245,9 @@ formats are not good candidates for searching because they do not display the ma
 structure of the underlying idea. For this purpose, conversion engines have been developed
 to convert LATEX expressions to more organized formats such as MathML~\cite{Ham:bcs15}.
 
-An open source example of such a conversion engine is LATEXML. The MathWebSearch project
+An open source example of such a conversion engine is LATEXML. The \MWS project
 relies heavily on it, to convert arXiv documents from LATEX to XHTML which is later
-indexed by MWS. It exposes a powerful API, accepting custom definition files which relate
+indexed by \MWS. It exposes a powerful API, accepting custom definition files which relate
 TEX elements to corresponding XML fragments that should be generated. For the scope of
 this project, we are more interested in another feature of LATEXML: cross-referencing
 between Presentation MathML and Content MathML. While converting TEX entities to
@@ -355,7 +395,7 @@ documents.
 
 \section{Integration via the Query Proxy}\label{sec:proxy}
 
-The query proxy is a HTTP RESTful interface which provides text and formula search. It is the operational heart of the full-text search functionality that is new for the NTCIR-11 version of MWS. As we show in figure~\ref{fig:markup2}, its backend is a MWS formula indexer serving the formula index and an ElasticSearch daemon serving the annotated documents. 
+The query proxy is a HTTP RESTful interface which provides text and formula search. It is the operational heart of the full-text search functionality that is new for the NTCIR-11 version of \MWS. As we show in figure~\ref{fig:markup2}, its backend is a \MWS formula indexer serving the formula index and an ElasticSearch daemon serving the annotated documents. 
 
 Upon receiving a query, it sends the formula to the formula indexer service and receives the matching formula identifiers. Using these, along with the text query, it queries ElasticSearch for documents which contain the respective text and the formula identifiers. As these documents may be large, only their unique identifiers are retrieved and a secondary query is used to provide snippets with the relevant data. 
 
@@ -390,25 +430,38 @@ In Figure~\ref{fig:memory_sectors}, we present an example of term insertion whic
  \label{fig:memory_sectors}
 \end{figure}
 
-The advantage of the new data structures is that indexes can be distributed over multiple computers: when the memory usage on one machine goes above a specific threshold, a percentage of the memory sectors are migrated to other machines~\cite{ProKoh:mwsofse11}. As the tree uses only relative pointers and the sectors are represented as memory mapped files, it is enough to flush the memory sector to the file, send it across the network, and re-map it into the new system’s memory (of course, we assume endian-compatible machines). All operations on memory sectors (splits, migrations) are coordinated by a master node, which keeps track of their locations, as well as cross-sector links. 
+The advantage of the new data structures is that indexes can be distributed over multiple
+computers: when the memory usage on one machine goes above a specific threshold, a
+percentage of the memory sectors are migrated to other
+machines~\cite{ProKoh:mwsofse11}. As the tree uses only relative pointers and the sectors
+are represented as memory mapped files, it is enough to flush the memory sector to the
+file, send it across the network, and re-map it into the new system’s memory (of course,
+we assume endian-compatible machines). All operations on memory sectors (splits,
+migrations) are coordinated by a master node, which keeps track of their locations, as
+well as cross-sector links.
 
-For a distributed instance of MathWebSearch we have the following setup: All nodes in the network of MathWebSearch machines run mwsd (with the index and the URI database). MathWebSearch has only one restd, which resides on the master node. Upon receiving Q restd passes it to mwsd on the master node, which start DFS search on its substitution tree index fragment. Whenever mwsd hits a remote index node whose target sector is on a different machine, it forwards the respective subquery Q0 to the mwsd on the remote machine, while continuing processing on the current machine. 
+For a distributed instance of \MWS we have the following setup: All nodes in the network
+of \MWS machines run \texttt{mwsd} (the \MWS daemon with the index and the URI
+database). \MWS has only one \texttt{restd} daemon, which resides on the master node. Upon
+receiving Q \texttt{restd} passes it to \texttt{mwsd} on the master node, which start DFS
+search on its substitution tree index fragment. Whenever \texttt{mwsd} hits a remote index
+node whose target sector is on a different machine, it forwards the respective subquery Q0
+to the \texttt{mwsd} on the remote machine, while continuing processing on the current
+machine.
 
-In result-unlimited queries, the master mwsd will just wait for the slave mwsd to return the results and aggregate that with its own result set. In result-limited cases, some of the slave’s results may be irrelevant, since the result limit has already been reached. The tradeoffs and efficiency issues involved in such effects will still need to be investigated. Similarly, the top of the index tree (which resides on the master node) will receive much higher processing loads, possibly becoming a bottleneck to the overall system. 
+In result-unlimited queries, the master \texttt{mwsd} will just wait for the slave
+\texttt{mwsd} to return the results and aggregate that with its own result set. In
+result-limited cases, some of the slave’s results may be irrelevant, since the result
+limit has already been reached. The tradeoffs and efficiency issues involved in such
+effects will still need to be investigated. Similarly, the top of the index tree (which
+resides on the master node) will receive much higher processing loads, possibly becoming a
+bottleneck to the overall system.
 
-\section{arXiv}\label{arxiv}
-Begun on August 14, 1991, created by Paul Ginsparg, arXiv.org is a repository of
-scientific papers and electronic preprints in fields of mathematics, computer science,
-physics, astronomy, biology and statistics or finance written in TeX for an optimized
-transfer over the internet and an easily rendered client-side. In present the project is
-hosted by Cornell University and includes over a million articles and increases with
-around 8000 per month. MWS indexes over 8.3 million paragraphs totalling 176
-GB~\cite{ArXiv}.
 
 \section{Frontend}\label{frontend}
-For exampling the functionality of MWS we will continue by presenting two frontends based
+For exampling the functionality of \MWS we will continue by presenting two frontends based
 on its mechanism. The first one is a text-only search engine which returns the math from
-the matching documents, after running it through the Schematizer (the core part of
+the matching documents, after running it through the schematizer (the core part of
 MWS). This is the demo for showcasing the schematization process. The second one is a
 direct application of the Schematizer into a Math Search Engine which is capable of
 mathematical faceted search.~\cite{HamKoh:fsfm15}
@@ -433,13 +486,6 @@ percentages~\cite{Ham:bcs15}.
 
 \subsection{TemaV2 frontend}\label{v2}
 
-\begin{figure}[H]
-\centering
- \includegraphics[scale=0.8]{figure8.jpg}
- \caption{TemaV2 frontend}
- \label{fig:temav2}
-\end{figure}
-
 The TemaV2 front-end extends TeMaSearch to be able to perform mathematical faceted
 search. It is intended for users who want to filter query results based on a given facet
 (formula schema in this case). The look and feel is similar to the previous version of
@@ -448,57 +494,121 @@ specify keywords and the second one is used to specify LATEX-style formulae for 
 query. When returning results, a “Math Facets” menu will be presented to the
 user~\cite{Ham:bcs15}.
 
-
-
-Figure~\ref{fig:temav2query} shows the results of a query for “Fermat” and $?a^{?n}+?b^{?n}=?c^{?n}$.
 \begin{figure}[H]
 \centering
- \includegraphics[scale=0.6]{figure9.jpg}
+ \includegraphics[scale=0.8]{figure6.jpg}
+ \caption{TemaV2 frontend}
+ \label{fig:temav2}
+\end{figure}
+
+Figure~\ref{fig:temav2query} shows the results of a query for “Fermat” and $?a^{?n}+?b^{?n}=?c^{?n}$.
+
+\begin{figure}[H]
+\centering
+ \includegraphics[scale=0.6]{figure7.jpg}
  \caption{TeMa v2 Query Results}
  \label{fig:temav2query}
 \end{figure}
 
 
+\section{\MWS Instances and Corpora: arXiv, ZBMath, Mizar}\label{arxiv}
+
+The \MWS system has been used to supply search instances on various corpora of
+mathematical documents, we describe three here, others can be seen on
+\url{http://search.mathweb.org}. 
+
+\subsection{arXiv search}
+
+Begun on August 14, 1991, created by Paul Ginsparg, the ``Cornell e-Print arXiv''
+(\url{http://arXiv.org}) is a repository of scientific papers and electronic preprints in
+fields of mathematics, computer science, physics, astronomy, biology and statistics or
+finance written in {\TeX/\LaTeX} for an optimized transfer over the internet and an easily
+rendered client-side. In present the project is hosted by Cornell University and includes
+over a million articles and increases with around 8000 per month.
+
+The KWARC group have converted by arXiv corpus into HTML5~\cite{StaKoh:tlcspx10} and
+harvested it for \MWS. The instance at \url{http://arxivsearch.mathweb.org}
+indexes over 105\,000 math-heavy papers. This sub-corpus has also been used for the NTCIR
+Math Information Retrieval
+Challenges~\cite{AizKohOun:nmpto13,AizKohOunSch:nmto14,AizKohOunSch:nmto16}.
+
+\subsection{zbMATH search}
+
+Zentralblatt Math (zbMath) is a mathematical information service that curates a database
+of reviews and classifications (MSC, see~\cite{MSC2010}) for all articles in mathematics
+since the middle of the 19th century. The database currently contains 3.8 million reviews
+and grows at a rate of ca 120\,000 reviews per year. The zbMATH portal at
+\url{https://zbmath.org/} offers a faceted search engine for reviews based on
+bibliographic metadata, MSC classification, and \emph{formulae}. The latter is driven by
+\MWS.
+
+\subsection{Search on a Formal Library of Mathematical Knowledge}
+
+We have converted the Mizar Mathematical Library~\cite{MizarKB:on} to the OMDoc/MMT format
+and indexed the results in \MWS~\cite{IanKohRabUrb:tmmliotaa13}, enabling
+formula-based search on a formal knowledge of contains over 1000 articles with over 50000
+theorems and over 10000 definitions encoded in first-order logic based on
+Tarski-Grothendiek set theory. As the data is fully formal, we can identify universal
+variables in the corpus (explicitly marked up universal quantifications) and search for
+applicable theorems, e.g. we can issue queries like formula query:
+\def\var#1{\textcolor{red}{?#1}} $\int_a^b |V(t)I(t)| dt\leq\var{R}$, and the \pn system
+will return H\"older's equation as one of the hits:
+\begin{quote}
+  \textbf{Theorem 17.} (H\"older's Inequality)\\\it
+  If $f$ and $g$ are measurable real functions, $l,h\in\mathbb{R}$, and  $p,q\in
+  [0,\infty)$, such that $1/p + 1/q = 1$, then 
+  \begin{equation}\label{eq:hi}
+  \int_l^h \left|f(x)g(x)\right| dx \leq\kern-.4em 
+    \left(\int_l^h\left|f(x)\right|^p dx\right)^\frac{1}{p} 
+    \kern-.5em
+    \left(\int_l^h\left|g(x)\right|^q dx \right)^\frac{1}{q}
+  \end{equation}
+\end{quote}
 
 \section{Conclusion}\label{sec:concl}
 We have presented a search engine capable of dealing with pure mathematical queries but
-also with text and math queries. The MWS web service is open source software released
+also with text and math queries. The \MWS web service is open source software released
 under the GNU public license. The code is available from the developer
 portal~\cite{MWS-git:on}. Search front-ends for various corpora and applications are
-referenced on the MATHWEBSEARCH project page~\cite{MWSProj:on}. In contrast to other
-approaches, MathWebSearch uses the full content structure of formulae and is easily
-extensible to other content-oriented formats. Our first evaluation shows that query times
-are low and essentially constant in index/harvest size, so that a search engine can scale
-up to web proportions. Contrary to our expectations, index size is linear in harvest size
-for the arXiv corpus, which transcends the main memory limits of standard
-servers. Therefore, implementing parallelization/distribution strategies is a
-priority. 
+referenced on the \MWS project page~\cite{MWSProj:on}. In contrast to other
+approaches, \MWS uses the full content structure of formulae and is easily
+extensible to other content-oriented formats. Our evaluations show that query times are
+low and essentially constant in index/harvest size, so that a search engine can scale up
+to web proportions. Contrary to our expectations, index size is linear in harvest size for
+the arXiv corpus, which transcends the main memory limits of standard servers. Therefore,
+implementing parallelization/distribution strategies is a priority.
 
-In the long run, we plan to extend MathWebSearch, so that it can take more document
-context information into account, i.e., not just keywords from the text around the
-formulae but e.g. the topology of theories in the OMDoc format: It would be very useful,
-if we could restrict searches to formulae that are consistent with current (mathematical)
-assumptions. 
+\subsection*{Adaptation to \pn} For utilization in the \pn VRE we need to solve two
+development problems: 
+\begin{compactenum}[\bf ODK1]
+\item for all types of data (D), representations of knowledge (K), and software (S) in \pn
+  we need \MWS harvesters -- i.e. systems that transform the D/K/S strutures into \MWS
+  harvests (see Section~\ref{sec:harvests}).
+\item for all interfaces in the \pn VRE -- see e.g.~\cite{ODK-D4.2} -- we need to embed
+  search front-ends that make use of the user context to allow precise and convenient
+  entry of queries and selection/ranking of search results.
+\end{compactenum}
+Work on these has already begun. For instance we have parsed the formulae in the ``Open
+Encyclopedia of Integer Sequences'' (OEIS, see~\cite{oeis} and Task \textbf{T6.6} in the
+\pn proposal) and harvested them for \MWS (\textbf{ODK1}) and built an OEIS-specific
+front-end (\textbf{ODK2}), see~\cite{LuzKoh:fsarfo16}. Further more we are currently
+working on exporting the D/K/S structures in the LMFDB, GAP, and SageMath into
+\MWS-harvestable OMDoc/MMT format (\textbf{ODK1}). 
 
-Another important application of the unification search in MathWebSearch is applicable
-theorem search. The MathWebSearch system already supports the necessary queries
-(unification), but the arXiv corpus we are currently using does not have the necessary
-degree of formalization (explicitly marked up universal quantifications). We plan to
-utilize (possibly shallow) linguistic technologies to reliably analyze phrases like “Let
-$f$ and $g$ be functions from $R$ to $R$... ” that mark the identifiers $f$ and $g$ as
-universal and to retrieve the associated sortal restrictions. Note that the linguistic
-capabilities of the variable spotter have to be considerable to detect the difference
-between “...where $c$ is a natural number” and “...where $x$ is the number between $1$ and
-$n$, such that...” (only is $c$ universal) or to detect that universals in a negative
-scope are indeed existential.
-
-An online version of Math Web Search that works on the arXiv database can be found at the
-following address: \url{arxivsearch.mathweb.org}
-
-\printbibliography
+\newpage\printbibliography
 \end{document}
 
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
+
+%  LocalWords:  maketitle vfill pn newpage tableofcontents newpage concl organized mws cn
+%  LocalWords:  arxiv standardized Elasticsearch bcs15 textbf textbf texttt itemize xmlns
+%  LocalWords:  lstset lstlisting csymbol centering includegraphics asemf06 XPointer mwsd
+%  LocalWords:  subterms Lucene listone subformulae listtwo mwsofse11 restd schematizer
+%  LocalWords:  schematization fsfm15 shcemasearch qvars temav2 temav2query Mizar StaKoh
+%  LocalWords:  Ginsparg optimized tlcspx10 AizKohOun nmpto13 AizKohOunSch nmto14 nmto16
+%  LocalWords:  AizKohOunSch zbMATH emph IanKohRabUrb tmmliotaa13 Tarski-Grothendiek leq
+%  LocalWords:  mathbb infty MWSProj parallelization utilization compactenum oeis LuzKoh
+%  LocalWords:  fsarfo16 printbibliography
