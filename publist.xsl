@@ -35,30 +35,53 @@
       <body>
 	<h1><xsl:value-of select="$name"/>: Selected Publications</h1>
 	<p>(please respect any copyrights when downloading)</p>
-	<h2>Articles in Journals</h2>
+	<!-- the important stuff -->
+	<h2>Archival Literature</h2>
+	<h3>Articles in Journals</h3>
 	<ol class="ltx_biblist">
 	  <xsl:copy-of  select="document(concat($id,'-article.html'))//x:ul[@class='ltx_biblist']/x:li"/>
 	</ol>
-	<h2>Articles in Collections</h2>
+	<h3>Articles in Collections</h3>
 	<ol class="ltx_biblist">
 	  <xsl:copy-of select="document(concat($id,'-incollection.html'))//x:ul[@class='ltx_biblist']/x:li"/>
 	</ol>
-	<h2>Conference and Workshop Contributions</h2>
+	<h3>Papers at International, Peer-Reviewed Conferences</h3>
 	<ol class="ltx_biblist">
-	  <xsl:copy-of select="document(concat($id,'-inproceedings.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+	  <xsl:copy-of select="document(concat($id,'-conference.html'))//x:ul[@class='ltx_biblist']/x:li"/>
 	</ol>
-	<h2>Monographs and Proceedings</h2>
+	<h3>Monographs</h3>
 	<ol class="ltx_biblist">
+	  <xsl:copy-of select="document(concat($id,'-book.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+	  <xsl:copy-of select="document(concat($id,'-cbook.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+	</ol>
+	<h3>Proceedings Edited</h3>
+	<ol class="ltx_biblist">
+	  <xsl:copy-of select="document(concat($id,'-cproceedings.html'))//x:ul[@class='ltx_biblist']/x:li"/>
 	</ol>
 	<xsl:copy-of select="document(concat($id,'-proceedings.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+
+        <!-- important, but not archival -->
 	<h2>Theses</h2>
 	<ol class="ltx_biblist">
 	  <xsl:copy-of select="document(concat($id,'-thesis.html'))//x:ul[@class='ltx_biblist']/x:li"/>
 	</ol>
-	<h2>Technical Reports</h2>
+
+	<!-- the rest -->
+	<h2>Gray Literature</h2>
+	<h3>Worskhop Proceedings Edited</h3>
+	<ol class="ltx_biblist">
+	  <xsl:copy-of select="document(concat($id,'-wproceedings.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+	</ol>
+	<h3>Papers at Peer-Reviewed Workshops</h3>
+	<ol class="ltx_biblist">
+	  <xsl:copy-of select="document(concat($id,'-workshop.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+	</ol>
+	<h3>Technical Reports</h3>
 	<ol class="ltx_biblist">
 	  <xsl:copy-of select="document(concat($id,'-report.html'))//x:ul[@class='ltx_biblist']/x:li"/>
 	</ol>
+
+	<!-- not even published -->
 	<h2>Unpublished</h2>
 	<ol class="ltx_biblist">
 	  <xsl:copy-of select="document(concat($id,'-unpublished.html'))//x:ul[@class='ltx_biblist']/x:li"/>

@@ -17,7 +17,38 @@
 \usepackage{kwarcbibs}
 \bibliography{kwarcpubs,kwarccrossrefs,extcrossrefs}
       </xsl:text>
-      <xsl:apply-templates select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and @type=$type]"/>
+      <xsl:choose>
+	<xsl:when test="$type='conference'">
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      @type='inproceedings' and ltx:bib-extract[@role='keywords']='conference']"/>
+	</xsl:when>
+	<xsl:when test="$type='workshop'">
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      @type='inproceedings' and not(ltx:bib-extract[@role='keywords'])]"/>
+	</xsl:when>
+	<xsl:when test="$type='cproceedings'">
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      @type='proceedings' and ltx:bib-extract[@role='keywords']='conference']"/>
+	</xsl:when>
+	<xsl:when test="$type='wproceedings'">
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      @type='proceedings' and not(ltx:bib-extract[@role='keywords'])]"/>
+	</xsl:when>
+	<xsl:when test="$type='cbook'">
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      @type='book']"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      @type=$type]"/>
+	</xsl:otherwise>
+      </xsl:choose>
       <xsl:text>\printbibliography&#xA;\end{document}&#xA;</xsl:text>	
     </xsl:template>
 
