@@ -34,7 +34,8 @@ $(KPUBS.html): %.html: %.tex $(KWARC.xml)
 	latexmlc $(LBIBS) --format=html5 --destination=$@ --log=$<.ltxlog --css=bib.css $<
 
 clean:
-	rm -f *-*.tex *-*.html
+	rm -f *-*.tex *-*.html *.ltxlog ltx-article.css LaTeXML.css
+	rm -Rf auto
 
 distclean: clean
 	rm -f *.bib.xml
