@@ -21,7 +21,7 @@ kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 	pdflatex kwarcpubs
 	pdflatex kwarcpubs
 
-$(KWARCEXT.xml): %.bib.xml: %.bib 
+$(KWARCEXT.xml): %.bib.xml: %.bib kwarcbibs.sty kwarcbibs.sty.ltxml
 	latexmlc $< --bibtex --includestyles --preload=kwarcbibs.sty.ltxml --destination=$@ --log=$<.ltxlog
 
 pubs.html: pubs.tex $(KWARC.xml)
@@ -32,6 +32,12 @@ $(KPUBS.tex): kwarcpubs.bib.xml mybib.xsl
 
 $(KPUBS.html): %.html: %.tex $(KWARC.xml)
 	latexmlc $(LBIBS) --format=html5 --destination=$@ --log=$<.ltxlog --css=bib.css $<
+
+clean:
+	rm -f *-*.tex *-*.html
+
+distclean: clean
+	rm -f *.bib.xml
 
 echo: 
 	@echo $(KPUBS.tex)
