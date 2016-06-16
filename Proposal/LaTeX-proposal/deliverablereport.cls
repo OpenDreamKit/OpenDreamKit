@@ -11,14 +11,19 @@
 \RequirePackage{hyperref}
 \RequirePackage[utf8]{inputenc}
 \RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
-\RequirePackage[french]{babel}
+\RequirePackage[english]{babel}
 \RequirePackage{times}
 \RequirePackage[babel=true,kerning=true]{microtype}
 \RequirePackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
 \RequirePackage{graphicx}
+\RequirePackage{mdframed}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros for defining metadata
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\issue}[1]{\def\@issue{#1}}
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
@@ -36,6 +41,10 @@
   \def\@title{{Report on \deliv@label{},\\lead by \sitename{\deliv@lead} (\site{\deliv@lead}):\\\deliv@title}}%
   \def\shorttitle{Report on \deliv@label}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Header and footer configuration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \RequirePackage{fancyhdr}
 \pagestyle{fancyplain}
 %\renewcommand{\headrulewidth}{0pt}
@@ -48,19 +57,28 @@
 
 \fancyhead[RE,LO]{\includegraphics[height=2ex]{\prop@gen@image} \prop@gen@instrument }
 
+\providecommand{\tightlist}{%
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Default front page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \let\oldmaketitle=\maketitle
 \renewcommand{\maketitle}{
   \oldmaketitle%
   \centerline{Due on: \@duedate}
   \centerline{Delivered on: \@deliverydate}
-  \bigskip
-  \bigskip
-  \centerline{\includegraphics[height=30ex]{\prop@gen@logo}}
+  \centerline{\includegraphics[height=25ex]{\prop@gen@logo}}
   Progress on and finalization of this deliverable has been tracked
   publicly on:\\
-  \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}  
+  \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}
   \bigskip
   \thispagestyle{fancyplain}
 }
+\newcommand{\githubissuedescription}{%
+  \begin{mdframed}
+    \input{github-issue-description}
+  \end{mdframed}}
 
 \endinput
