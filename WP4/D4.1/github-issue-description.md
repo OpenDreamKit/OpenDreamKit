@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue's #83 on 2016-06-16
+# Deliverable description, as taken from Github issue's #83 on 2016-06-16 {-}
 
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
 - **Lead Institution:** CNRS
