@@ -13,9 +13,9 @@
 
     <xsl:template match="/">
       <xsl:text>\documentclass{article}
-\usepackage{biblatex}
 \usepackage{kwarcbibs}
 \bibliography{kwarcpubs,kwarccrossrefs,extcrossrefs}
+\begin{document}
       </xsl:text>
       <xsl:choose>
 	<xsl:when test="$type='conference'">
@@ -49,7 +49,7 @@
 		      @type=$type]"/>
 	</xsl:otherwise>
       </xsl:choose>
-      <xsl:text>\printbibliography&#xA;\end{document}&#xA;</xsl:text>	
+      <xsl:text>&#xA;\end{document}&#xA;</xsl:text>	
     </xsl:template>
 
     <xsl:template match="ltx:bibentry">
