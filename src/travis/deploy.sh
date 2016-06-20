@@ -33,6 +33,11 @@ ssh-add src/travis/keys/deploy_key
 
 echo "Done. "
 
+echo "Configuring Git ..."
+git config --global user.email "t.wiesing@jacobs-university.de"
+git config --global user.name "Tom Wiesing (via Travis)"
+echo "Done. "
+
 echo "Cleaning previous builds ..."
 make clean
 echo "Done. "
@@ -45,7 +50,7 @@ make bib
 echo "Done. "
 
 # copy it into the sub-repository
-git clone $SSH_REPO deploy/bib -b $SOURCE_BRANCH
+git clone $SSH_REPO deploy/bib -b $SOURCE_BRANCH --depth 1
 cp dist/kwarc.bib deploy/bib/dist/kwarc.bib
 
 # cd into it and check if we have something to commit
@@ -63,8 +68,8 @@ cd ../../
 
 # Install LaTeXML
 echo "Installing LaTeXML prerequistes, please wait ..."
-apt-get update -qq
-apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus
+sudo apt-get update -qq
+sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus
 echo "Done. "
 
 echo "Installing LaTeXML, please wait ..."
@@ -76,7 +81,7 @@ echo "Building website, this will take a while. "
 make pubs
 
 # clone the deployed repository and copy over
-git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH
+git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH  --depth 1
 cp -r dist/pubs deploy/pub
 
 cd deploy/pub
