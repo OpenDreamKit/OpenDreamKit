@@ -50,7 +50,7 @@ setup-bib:
 	mkdir -p $(dist)
 clean-bib:
 	-rm $(bib.dist)
-$(bib.dist):
+$(bib.dist): 
 	awk 'FNR==1{print ""}{print}' $(kwarc.bib.in) > $(bib.dist)
 
 # *.bib.xml --> use latexmlc
