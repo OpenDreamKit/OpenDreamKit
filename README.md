@@ -10,10 +10,11 @@ We additionally use the Travis job to generate a
 ## File structure
 
 This repository contains two main folders: ```src/``` and ```dist/```. The first 
-folder contains the sources used to generate the content of the latter. 
+folder contains the sources used to generate the content of the latter. All bib
+files are toplevel. 
 
 ## Bib files
-The files in ```src/bib``` are concatenated to create the unified ```kwarc.bib```
+The top-level bib files  concatenated to create the unified ```kwarc.bib```
 file. The sources are: 
 
 * preamble.bib – LaTeX preamble that defines shared macros and strings
@@ -39,14 +40,9 @@ In order to use these files with BiBTeX, it is best to configure the following
 environment variables: 
 
 ```bash
-
-# if you want to use the concatenated file only
-export BIBINPUTS=".:/path/to/clone/dist"
-export BSTINPUTS=".:/path/to/clone/dist"
-
-# if you want to use the raw source files
-export BIBINPUTS=".:/path/to/clone/src/bib"
-export BSTINPUTS=".:/path/to/clone/src/bib"
+# /path/to/clone is a clone of this repository. 
+export BIBINPUTS=".:/path/to/clone"
+export BSTINPUTS=".:/path/to/clone"
 ```
 
 ## Editing
@@ -85,7 +81,7 @@ targets:
 
 * ```all = dist```
 * ```dist = bib pubs```
-* ```bib``` Takes the individual .bib files and concatenates them into ```dist/kwarc.bib````
+* ```bib``` Takes the individual .bib files and concatenates them into ```kwarc.bib````
 * ```xml``` Takes the individual .bib files and generates xml versions of them in ```dist/ltxml/*.bib.xml``` using ```latexml```. The generated files are ```.gitignore```d as users should not need them. 
 * ```html``` Takes the generated xml files from above and uses latexml and xslt to first generate .tex files in  ```dist/tex/name-type.tex``` and then html files ```dist/html/name-type.html```. Both types are gitignored. Uses an adapted version of the  ```generate-pubwww``` script, now found in ```src/html/generate.html```. 
 * ```pubs``` Takes the generated html files and builds a nice-looking bibliography in ```dist/pubs```. The output is .gitignored and intended to be committed to a gh-pages branch later on. Although that would still need an index.html, but that should not be a problem. 

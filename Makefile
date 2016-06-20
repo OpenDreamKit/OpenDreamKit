@@ -9,7 +9,7 @@ bib.people		= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller fra
 
 # Sources
 src						= src/
-bib.src				=	$(src)bib/
+bib.src				=	./
 ltxml.src			= $(src)ltxml/
 tex.src				= $(src)tex/
 html.src			= $(src)html/
@@ -17,7 +17,7 @@ pubs.src			= $(src)pubs/
 
 # Destination
 dist					=	dist/
-bib.dist			= $(dist)kwarc.bib
+bib.dist			= ./kwarc.bib
 ltxml.dist		= $(dist)ltxml/
 tex.dist			= $(dist)tex/
 html.dist			= $(dist)html/

@@ -14,7 +14,7 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
 fi
 
 # work only if files actually changed. 
-git diff --quiet --exit-code "HEAD" "HEAD^" src/
+git diff --quiet --exit-code "HEAD" "HEAD^" src/ preamble.bib kwarcpubs.bib extpubs.bib kwarccrossrefs.bib extcrossrefs.bib
 if [ $? -eq 0 ];then
   echo "Refusing to work: No source files were changed. Exiting normally. "
   exit 0
@@ -51,7 +51,7 @@ echo "Done. "
 # copy it into the sub-repository
 echo "Preparing kwarc.bib deploy ..."
 git clone $SSH_REPO deploy/bib -b $SOURCE_BRANCH --depth 1
-cp -v dist/kwarc.bib deploy/bib/dist/kwarc.bib
+cp -v kwarc.bib deploy/bib/kwarc.bib
 echo "Done. "
 
 # Add all the new files
