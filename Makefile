@@ -1,25 +1,19 @@
-BST = alpha apalike
-BSTINPUTS = /usr/local/texlive/2008/texmf-dist/bibtex/bst/base/:
-HURL = $(BST:%=%hurl.bst)
-URLH = $(BST:%=%urlh.bst)
-KWARC.bib = extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
+
+KWARC.bib = kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
 KWARC.xml = $(KWARC.bib:%=%.xml)
+KWARCEXT.bib = $(KWARC.bib) extpubs.bib
+KWARCEXT.xml = $(KWARCEXT.bib:%=%.xml)
 LBIBS = $(KWARC.xml:%=--bibliography=%)
 
-KWARC = mkohlhase
-PTYPE = article inproceedings
-KPUBS.tex = $(PTYPE:%=mkohlhase-%.tex)
+KWARC = mkohlhase ako
+TYPES = article incollection inproceedings proceedings masterthesis phdthesis techreport unpublished misc
+KPUBS.tex = $(foreach k,$(KWARC),$(foreach t,$(TYPES),$(k)-$(t).tex))
+
 KPUBS.html = $(KPUBS.tex:%.tex=%.html)
 
-all: kwarcpubs.pdf $(KWARC.xml)
-bst: $(HURL) $(URLH)
 pubs: $(KPUBS.html)
-
-$(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
-	urlbst --inlinelinks --hyperref $< > $@
-
-$(URLH): %urlh.bst: $(BSTINPUTS)/%.bst
-	urlbst --hyperref $< > $@
+all: kwarcpubs.pdf pubs
+xml: $(KWARC.xml)
 
 kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 	pdflatex kwarcpubs
@@ -27,20 +21,24 @@ kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
 	pdflatex kwarcpubs
 	pdflatex kwarcpubs
 
-$(KWARC.xml): %.bib.xml: %.bib 
+$(KWARCEXT.xml): %.bib.xml: %.bib kwarcbibs.sty kwarcbibs.sty.ltxml
 	latexmlc $< --bibtex --includestyles --preload=kwarcbibs.sty.ltxml --destination=$@ --log=$<.ltxlog
 
-Pubs.html: pubs.tex $(KWARC.xml)
+pubs.html: pubs.tex $(KWARC.xml)
 	latexmlc $(LBIBS) --format=html5 --destination=pubs.html --log=pubs.ltxlog $<
 
-mkohlhase-article.tex: kwarcpubs.bib.xml kwarcpubs.bib.xml
-	xsltproc --stringparam type article -o $@ mybib.xsl kwarcpubs.bib.xml
-
-mkohlhase-inproceedings.tex: kwarcpubs.bib.xml kwarcpubs.bib.xml
-	xsltproc --stringparam type inproceedings -o $@ mybib.xsl kwarcpubs.bib.xml
+$(KPUBS.tex): kwarcpubs.bib.xml mybib.xsl
+	xsltproc --stringparam file $(@:%.tex=%) -o $@ mybib.xsl kwarcpubs.bib.xml
 
 $(KPUBS.html): %.html: %.tex $(KWARC.xml)
 	latexmlc $(LBIBS) --format=html5 --destination=$@ --log=$<.ltxlog --css=bib.css $<
 
+clean:
+	rm -f *-*.tex *-*.html *.ltxlog ltx-article.css LaTeXML.css
+	rm -Rf auto
+
+distclean: clean
+	rm -f *.bib.xml
+
 echo: 
-	echo $(KPUBS.html)
+	@echo $(KPUBS.tex)
