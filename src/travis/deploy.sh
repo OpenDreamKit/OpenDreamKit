@@ -67,9 +67,9 @@ fi;
 cd ../../
 
 # Install LaTeXML
-echo "Installing LaTeXML prerequistes, please wait ..."
+echo "Installing build prerequistes, please wait ..."
 sudo apt-get update -qq
-sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus
+sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus xsltproc
 echo "Done. "
 
 echo "Installing LaTeXML, please wait ..."
