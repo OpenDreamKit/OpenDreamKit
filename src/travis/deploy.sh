@@ -4,7 +4,7 @@ REPO=`git config remote.origin.url`
 SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
 SHA=$(git rev-parse --short HEAD)
 
-SOURCE_BRANCH="auto"
+SOURCE_BRANCH="master"
 DEPLOY_BRANCH="gh-pages"
 
 # work only on the source branch
