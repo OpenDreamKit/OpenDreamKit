@@ -54,7 +54,7 @@ cd deploy/bib/
 git diff --exit-code
 if [ $? -ne 0 ];then
   echo "Committing new KWARC.bib ..."
-  git commit deploy/kwarc.bib -m "Auto-generated kwarc.bib. "
+  git commit dist/kwarc.bib -m "Auto-generated kwarc.bib. "
   git push origin $SOURCE_BRANCH
   echo "Done. "
 fi; 
@@ -63,8 +63,8 @@ cd ../../
 
 # Install LaTeXML
 echo "Installing LaTeXML prerequistes, please wait ..."
-sudo apt-get update -qq
-sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus
+apt-get update -qq
+apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus
 echo "Done. "
 
 echo "Installing LaTeXML, please wait ..."
