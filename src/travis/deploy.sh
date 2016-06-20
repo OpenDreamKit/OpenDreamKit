@@ -2,6 +2,7 @@
 
 REPO=`git config remote.origin.url`
 SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
+SHA=$(git rev-parse --short HEAD)
 
 SOURCE_BRANCH="auto"
 DEPLOY_BRANCH="gh-pages"
@@ -42,24 +43,25 @@ echo "Cleaning previous builds ..."
 make clean
 echo "Done. "
 
-
-
 # Build the bib file
-echo "Updating bib file ..."
+echo "Updating kwarc.bib ..."
 make bib
 echo "Done. "
 
 # copy it into the sub-repository
+echo "Preparing kwarc.bib deploy ..."
 git clone $SSH_REPO deploy/bib -b $SOURCE_BRANCH --depth 1
-cp dist/kwarc.bib deploy/bib/dist/kwarc.bib
+cp -v dist/kwarc.bib deploy/bib/dist/kwarc.bib
+echo "Done. "
 
 # cd into it and check if we have something to commit
 cd deploy/bib/
+git status
 
 git diff --exit-code
 if [ $? -ne 0 ];then
-  echo "Committing new KWARC.bib ..."
-  git commit dist/kwarc.bib -m "Auto-generated kwarc.bib. "
+  echo "Committing new kwarc.bib ..."
+  git commit dist/kwarc.bib -m "Auto-generated kwarc.bib for commit $SHA"
   git push origin $SOURCE_BRANCH
   echo "Done. "
 fi; 
@@ -79,16 +81,20 @@ echo "Done. "
 # Make the updated website. 
 echo "Building website, this will take a while. "
 make pubs
+echo "Done. "
 
-# clone the deployed repository and copy over
+echo "Preparing website deploy ..."
 git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH  --depth 1
-cp -r dist/pubs deploy/pub
+cp -rv dist/pubs deploy/pub
+echo "Done. "
 
 cd deploy/pub
+git status
+
 git diff --exit-code
 if [ $? -ne 0 ];then
   echo "Committing new website ..."
-  git commit -A . -m "Auto-generated website. "
+  git commit -A . -m "Auto-generated website for commit $SHA"
   git push origin $DEPLOY_BRANCH
   echo "Done. "
 fi; 
@@ -98,4 +104,4 @@ cd ../..
 echo "Finished build, cleaning up..."
 rm -rf src/travis/deploy_key
 rm -rf deploy
-echo "Finished. "
+echo "Done. "
