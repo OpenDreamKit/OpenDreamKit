@@ -85,7 +85,7 @@ echo "Done. "
 
 echo "Preparing website deploy ..."
 git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH  --depth 1
-cp -rv dist/pubs deploy/pub
+cp -rv dist/pubs/* deploy/pub
 echo "Done. "
 
 cd deploy/pub
@@ -94,7 +94,8 @@ git status
 git diff --exit-code
 if [ $? -ne 0 ];then
   echo "Committing new website ..."
-  git commit -A . -m "Auto-generated website for commit $SHA"
+  git add -A .
+  git commit -m "Auto-generated website for commit $SHA"
   git push origin $DEPLOY_BRANCH
   echo "Done. "
 fi; 
