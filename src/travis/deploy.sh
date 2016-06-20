@@ -54,26 +54,27 @@ git clone $SSH_REPO deploy/bib -b $SOURCE_BRANCH --depth 1
 cp -v dist/kwarc.bib deploy/bib/dist/kwarc.bib
 echo "Done. "
 
-# cd into it and check if we have something to commit
-cd deploy/bib/
+# Add all the new files
+cd deploy/bib
+git add --all
 git status
 
-git diff --exit-code
-if [ $? -ne 0 ];then
-  echo "Committing new kwarc.bib ..."
-  git commit dist/kwarc.bib -m "Auto-generated kwarc.bib for commit $SHA"
-  git push origin $SOURCE_BRANCH
-  echo "Done. "
-fi; 
+# Commit and push
+echo "Committing new kwarc.bib ..."
+git commit dist/kwarc.bib -m "Auto-generated kwarc.bib for commit $SHA"
+git push origin $SOURCE_BRANCH
+echo "Done. "
 
+# go back
 cd ../../
 
-# Install LaTeXML
+# Install cpanm, xsltproc + latexml deps
 echo "Installing build prerequistes, please wait ..."
 sudo apt-get update -qq
 sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus xsltproc
 echo "Done. "
 
+# Intalls latexml
 echo "Installing LaTeXML, please wait ..."
 cpanm --notest --sudo LaTeXML
 echo "Done. "
@@ -83,25 +84,27 @@ echo "Building website, this will take a while. "
 make pubs
 echo "Done. "
 
+# get ready to deploy
 echo "Preparing website deploy ..."
 git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH  --depth 1
 cp -rv dist/pubs/* deploy/pub
 echo "Done. "
 
+# Add all the new files
 cd deploy/pub
+git add --all
 git status
 
-git diff --exit-code
-if [ $? -ne 0 ];then
-  echo "Committing new website ..."
-  git add -A .
-  git commit -m "Auto-generated website for commit $SHA"
-  git push origin $DEPLOY_BRANCH
-  echo "Done. "
-fi; 
+# commit and push
+echo "Committing new website ..."
+git commit -m "Auto-generated website for commit $SHA"
+git push origin $DEPLOY_BRANCH
+echo "Done. "
 
+# go back
 cd ../..
 
+# cleanup sensitive files
 echo "Finished build, cleaning up..."
 rm -rf src/travis/deploy_key
 rm -rf deploy
