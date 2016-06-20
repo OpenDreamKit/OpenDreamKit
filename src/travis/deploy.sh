@@ -61,7 +61,7 @@ git status
 
 # Commit and push
 echo "Committing new kwarc.bib ..."
-git commit dist/kwarc.bib -m "Auto-generated kwarc.bib for commit $SHA"
+git commit -m "Auto-generated kwarc.bib for commit $SHA"
 git push origin $SOURCE_BRANCH
 echo "Done. "
 
