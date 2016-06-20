@@ -73,7 +73,7 @@ sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-pe
 echo "Done. "
 
 echo "Installing LaTeXML, please wait ..."
-cpanm LaTeXML
+cpanm --sudo LaTeXML
 echo "Done. "
 
 # Make the updated website. 
