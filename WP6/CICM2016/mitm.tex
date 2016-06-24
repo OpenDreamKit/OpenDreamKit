@@ -1,0 +1,207 @@
+\section{Integrating mathematical software systems via the Math-in-the-Middle approach}\label{sec:mitm}
+
+% Mathematics has a rich notion of data: it can be either numeric or symbolic data;
+% knowledge about mathematical objects given as statements (definitions, theorems or
+% proofs); or software that computes with these mathematical objects. All this data is
+% really a common resource, and should be maintained as such
+
+As discussed before, we aim to make our components interoperable at a mathematical level.
+In particular, we have to establish a common meaning space that will 
+allow us to share computation, visualization of the mathematical concepts, objects, and models
+between the respective systems. This mediation problem is well understood in information systems
+\cite{mediator}, and has for instance been applied to natural language translation via a hub
+language \cite{kanayama}.
+Here, our hub is mathematics itself, and the vocabulary (or even language) admits further
+formalisation that translates into direct gains in interoperability. For this reason, neither
+OpenMath \cite{openmath} nor MathML \cite{mathml} have the practical expressivity needed for
+our intended applications. 
+
+% \ednote{POD: This is an attempt to federate many comments of reviewers asking to put the work in context, and add references to existing systems. I think the references are relevant, but MK should definitely review this paragraph. }
+
+
+% Building on this we can build a VRE with classical techniques for integrated development environments (IDE).
+% \ednote{R1: What is the effort involved in creating the interface theories? Can 
+% this be somehow characterized in general, or perhaps (e.g., using time as a 
+% measure of effort) by illustration based on the example included in the paper? 
+% Does the approach require that every piece of the source system be translated 
+% individually and statically inserted into the wrapper? If a new component is 
+% added to the source (an update), does a corresponding new component need to 
+% be added manually to the interface, or does the interface somehow provide a 
+% mechanism for automatic updates to incorporate new translations from an 
+% existing source? (In other words, is the wrapper in fact a complete re-implementation 
+% of the source functionality in the MitM language, or is a run-time translator 
+% that runs between the source and the mediator?)}
+% \ednote{R3: "Building on this we can build a VRE with classical techniques for integrated 
+% development environments" - Perhaps you could add a reference to a comparison case or two 
+% that would back up this claim.}
+
+\subsection{A common meaning space for interoperability}
+
+One problem is that the software systems in \ODK cover different mathematical concepts, and
+if there are overlaps, their models for them differ, and the implementing objects have
+different functionalities.
+This starts with simple naming issues (\emph{e.g.}\ elliptic curves are named
+\lstinline|ec| in the \LMFDB, and as \lstinline|EllipticCurve| in \Sage), persists through
+the underlying data structures
+%(mpf) this is wrong, so I'll comment it out (permutations are represented as products of cycles in
+%\GAP, in list form in \Sage
+and in differing representations in the various tables of the
+\LMFDB), and becomes virulent at the level of algorithms, their parameters, and domains of
+applicability.
+
+To obtain a common meaning space for a VRE, we have the three well-known approaches in
+Figure~\ref{fig:interop}.
+\begin{figure}[ht]\centering
+  \begin{tabular}{|c|c|c|}\hline
+    peer to peer & open standard & industry standard\\\hline
+    \input{tikz/fullgraph} & \input{tikz/mstargraph} & \input{tikz/stargraph}\\\hline
+    $n^2/2$  translations & $2n$ translations & $2n-2$ translations \\
+    symmetric & symmetric & asymmetric\\\hline
+  \end{tabular}
+  \caption{Approaches for many-systems interoperability}\label{fig:interop}
+\end{figure}
+
+The first does not scale to a project with about a dozen systems, for the third there is
+no obvious contender in the \ODK ecosystem. Fortunately, we already have a ``standard''
+for expressing the meaning of mathematical concepts -- \defemph{mathematical vernacular}:
+the language of mathematical communication, and in fact all the concepts supported in the
+\ODK VRE are documented in mathematical vernacular in journal articles, manuals, etc.
+% \ednote{R3: "mathematical vernacular" - This is sometimes used in a specific formal way,
+%   you might need to distinguish your usage from that.  (I.e. *which* mathematical
+%   vernacular are you referring to.)}
+The obvious problem is that mathematical vernacular is too
+\begin{inparaenum}[\em i\rm)]
+\item \emph{ambiguous}: we need a human to understand structure, words, and symbols
+\item \emph{redundant}: every paper introduces slightly different notions. 
+\end{inparaenum}
+
+Therefore we explore an approach where we \defemph{flexiformalize}, i.e. partially formalize;
+see~\cite{Kohlhase:tffm13} mathematical vernacular to obtain a flexiformal ontology of
+mathematics that can serve as an open communication vocabulary. We call the approach the
+\defemph{Math-in-the-Middle} (MitM) Strategy for integration and the ontology the \defemph{MitM
+ontology}.
+
+\begin{wrapfigure}r{4cm}%\vspace*{-1.5em}
+  \input{tikz/mistargraph}\vspace*{-.5em}
+  \caption{Interface theories}\label{fig:interface-theories}\vspace*{-1em}
+\end{wrapfigure}
+Before we go into any detail on this ontology, and how it induces a uniform
+meaning space -- see Section~\ref{sec:lmfdb} for an example -- we have to address another
+problem: the descriptions in the MitM ontology must simultaneously be system-near to make
+interfacing easy for systems, and serve as an interoperability standard -- \emph{i.e.}\ be
+general and stable. If we have an ontology system that allows modular/structured
+ontologies, we can solve this apparent dilemma by introducing \defemph{interface
+  theories}~\cite{KohRabSac:fvip11}, \emph{i.e.}\ ontology modules (the light purple
+circles in Figure~\ref{fig:interface-theories}) that are at the same time system-specific
+in their description of mathematical concepts -- near the actual representation of the
+system and part of the greater MitM ontology (depicted by the cloud in
+Figure~\ref{fig:interface-theories}) as they are connected to the core MitM ontology (the
+blue circle) by views we call \defemph{interface views}.  The MitM approach stipulates
+that interface theories and interface views are maintained and released together with the
+respective systems, whereas the core MitM ontology represents the mathematical scope of
+the VRE and is maintained with it. In fact in many ways, the core MitM ontology is the
+conceptual essence of the mathematical VRE.
+
+\subsection{Realizing and utilizing a MitM ontology}
+
+\begin{wrapfigure}r{6.2cm}\centering\vspace*{-2em}
+  \input{tikz/metalogics}\vspace*{-.5em}
+  \caption{A OMDoc/MMT Theory Graph}\label{fig:mmt}\vspace*{-1em}
+  \label{figure.omdoc.example}
+\end{wrapfigure}
+Our current candidate for representing the MitM ontology is the OMDoc/MMT
+format~\cite{Kohlhase:OMDoc1.2,MMTSVN:on}. OMDoc/MMT is an ontology format specialized for
+representing mathematical knowledge modularly in a theory graph: \defemph{theories} are
+collections of declarations of concepts, objects, and their properties that are connected
+by truth-preserving mappings called \defemph{theory morphisms}. The latter come in two
+forms: \defemph{inclusions} and \defemph{structures} that essentially correspond to
+object-oriented inheritance (direct inheritance and and inheritance modulo renaming and
+identification of symbols), and \defemph{view} that connect pre-existing theories -- in
+these all axioms of the source theory have be to proven in the target theory. See
+\cite{RabKoh:WSMSML13} for a full account. Figure~\ref{fig:mmt} shows an example of a
+theory graph. It has three layers:
+\begin{compactenum}[\em i\rm)]
+\item the (bottom) \defemph{domain level} which specifies mathematical domains as theories; here
+  parts of elementary algebra. The hooked arrows are inclusions for inheritance, while the
+  regular arrows are named structures that induce the additive and multiplicative
+  structures of a ring.
+\item the \defemph{logic level} represents the languages we use for talking about the
+  properties of the objects at the domain level -- again as theories: the meta-theories of
+  the domain-level ones -- the dotted arrows signify the meta-relation. At this level, we
+  also have inclusions and views (the squiggly arrows) which correspond to logic
+  translations (\cn{f2h}) and interpretations into \defemph{foundational theories} like
+  set theory (here \cn{ZFC}). Incidentally models can be represented as views into
+  foundations.
+% \ednote {R3: "views (the squiggly arrows)" - - what's going on with the 
+% upwards-pointing arrow in Figure 3, mod? (i.e. why is this one not dotted?)}
+\item The top layer contains theories that act as metalogics, \emph{e.g.}\ the Logical
+  Framework \cn{LF} and extensions which can be used to specify logics and their
+  translations.
+\end{compactenum}
+The theory graph structure is very well-suited to represent heterogeneous collections of
+mathematical knowledge, because views at the domain level can be used to connect differing
+but equivalent conceptualizations and views at the logic level can be used to bridge the
+different foundations of the various systems. The top level is only indirectly used in
+the MitM framework: it induces the joint meaning space via the meta-relation.
+
+\begin{figure}[ht]\centering
+  \input{tikz/kf-paradigm}
+  \caption{The MitM paradigm in detail. PyF, C${}^{++}$F and CompF are (basic) foundational theories for \Python, C${}^{++}$ and a generic computational model. SEC, LEC and GEC are theories for \Sage, \LMFDB and \GAP elliptic curves.}\label{fig:mitm}
+\end{figure}
+If we apply OMDoc/MMT to the MitM architecture, we arrive at the situation in
+Figure~\ref{fig:mitm}, where we drill into the MitM information architecture from
+Figure~\ref{fig:interface-theories}, but restrict at this stage to three systems from the \ODK
+project. In the middle we see the core MitM ontology (the blue cloud) as an OMDoc/MMT
+theory graph connected to the interface theories (the purple clouds) via MitM
+interface views. Conceptually, the systems in \ODK consist of three main components:
+\begin{compactenum}[\em i\rm)]
+\item a \emph{Knowledge Representation component} that provides data structures for the
+      objects modeling mathematical concepts and their properties.
+\item a \emph{DataBase component} that provides mass storage for objects, and 
+\item a \emph{library of algorithms} that operate on these.
+\end{compactenum}
+To connect a system to an MitM-based VRE, the knowledge representation component is either
+refactored so that it can generate interface theories, or a schema-like description of the
+underlying data structures is created manually from which abstract data structures for the
+system can be generated automatically -- in this version the interface theories act as an
+Interface Description Language.
+
+In this situation there are two ways to arrive at a greater MitM ontology: the \ODK
+project aims to explore both: either
+\begin{inparaenum}[\em i\rm)] 
+\item standardizing a core MitM by refactoring the various interface theories where they
+  overlap, or
+\item flexiformalizing the available literature for a core MitM ontology.
+\end{inparaenum}
+For \emph{i}), the MitM interface views emerge as refinements that add system-specific details
+to the general mathematical concepts\footnote{We use the word ``interface theory'' with a
+slightly different intention when compared to the original use
+in~\cite{KohRabSac:fvip11}: There the core MitM ontology would be an interface between
+the more specific implementations in the systems, whereas here we use the ``interface
+theories'' as interfaces between systems and the core MitM ontology. Technically the
+same issues apply.} For \emph{ii}), we have to give the interface views directly. 
+
+To see that this architecture indeed gives us a uniform meaning space, we observe that the
+core MitM ontology uses a mathematical foundation (presumably some form of set theory),
+whereas the interface theories also use system-specific foundations that describe aspects
+of the computational primitives of the respective systems. We have good formalizations of
+the mathematical foundations already; first steps towards a computational ones have been
+taken in~\cite{KohManRab:aumftg13}.
+
+Our efforts also fit neatly alongside similar efforts underway across the sciences to
+standardize metadata formats (for instance through the Research Data Alliance's Typing
+Registry Working Group \cite{rda-typing}), except for a typically much higher complexity
+in the typing since our objects of study are sometimes seen as types and
+sometimes as instances (think of groups for instance).
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:
+
+%  LocalWords:  pn visualization lstinline ec lstinline Weierstrass ednote interop hline
+%  LocalWords:  centering tikz fullgraph tikz mstargraph tikz stargraph defemph emph mmt
+%  LocalWords:  inparaenum flexiformalize flexiformal wrapfigure vspace mistargraph cn
+%  LocalWords:  KohRabSac fvip11 Realizing Utilizing metalogics specialized RabKoh mitm
+%  LocalWords:  compactenum conceptualizations kf-paradigm standardizing flexiformalizing
+%  LocalWords:  formalizations KohManRab aumftg13 tffm13 standardize rda-typing

@@ -1,0 +1,146 @@
+\subsection{Identifiers}
+
+GAP uses a flat namespace: It identifies every operation by a name.
+
+Different declarations whose types do not conflict, may use the same name.
+These can be understood as giving two different types to the same operation.
+
+Each operation can have multiple methods.
+These do not have identifiers.
+But operation references can be refine to a method reference by using the method's documentation string.
+
+\subsection{Object Level}
+
+GAP allows arbitrary run-time representations of mathematical objects (which is natural for efficiency).
+These types of the run-time system are called families.
+Each GAP object is typed by exactly one family.
+
+An \textbf{object} is
+\begin{compactitem}
+  \item a literal,
+  \item a list of objects,
+  \item a function on object,
+  \item any other object introduced by a user-declared family.
+\end{compactitem}
+
+Objects are typed.
+A \textbf{type} is
+\begin{compactitem}
+  \item a base type (called a \textbf{family})
+  \item a predicate subtype of some type by a unary predicate on objects (called a \textbf{filter})
+\end{compactitem}
+
+Users can declare new families.
+But some families are built-in:
+\begin{compactitem}
+  \item one base type for each type of built-in literals:
+    \begin{compactitem}
+      \item cyclotomic numbers (elements of the algebraic closure of the rationals),
+      \item booleans,
+      \item strings,
+    \end{compactitem}
+  \item one base type each for several built-in operators that allow forming complex objects
+    \begin{compactitem}
+      \item homogeneous lists (called \textbf{collections}): lists of objects that have the same family,
+      \item arbitrary lists of objects,
+      \item functions on objects.
+    \end{compactitem}
+\end{compactitem}
+
+A \textbf{filter} is a unary predicate on objects.
+\begin{compactitem}
+  \item the universal filter $\isobj$ (the filter of all objects)
+  \item a category $C$,
+  \item a property $P$,
+  \item a conjunction $F\wedge G$ of filters.
+\end{compactitem}
+By convention, the names of atomic filters are of the form \lstinline|IsXXX|.
+
+The \textbf{typing relation} is a binary relation between objects and filters.
+We write it as $\has{O}{F}$.
+It is defined by
+\begin{compactitem}
+  \item $\has{O}{\isobj}$ always
+  \item $\has{O}{C}$ if $O$ was returned by a constructor of category $C$,
+  \item $\has{O}{P}$ if evaluating $P$ on $O$ returns \lstinline|true|,
+  \item $\has{O}{F\wedge G}$ if $\has{O}{F}$ and $\has{O}{G}$.
+\end{compactitem}
+
+For atomic filters $F$, the known state of the relation $\has{O}{F}$ is cached with $O$.
+Thus, the type of every object can be inferred as the conjunction of atomic filters that are known to hold.
+This type changes dynamically as more properties are evaluated.
+
+\subsection{Declaration Level}
+
+\paragraph{Categories}
+A \textbf{category} declaration introduces a definition-less filter.
+A category declaration consists of
+\begin{compactitem}
+  \item a name,
+  \item a filter (called the superfilter).
+\end{compactitem}
+The concrete syntax is \lstinline|DeclareCategory(name: String, superfilter: Filter)|.
+
+Categories can be used to represent the type of models of an abstract specification.
+The details of the specification are formulated by declaring operations and properties on the category.
+
+Because categories are definition-less, all categories are created empty.
+The objects typed by the category are introduced by declaring constructors.
+These are operations whose implementation explicitly marks the returned objects as having the category as a filter.
+
+\paragraph{Operations}
+An \textbf{operation} declaration introduces an $n$-ary\footnote{GAP has an implementation restriction of $n\leq 6$.} function on objects.
+Operations are softly typed: Each $n$-ary operations provides a list of length $n$ providing the input filter of the respective argument.
+Operations may also carry an optional return type, which defaults to $\isobj$ if omitted.\footnote{This is not implemented yet.}
+
+The concrete syntax is
+ \lstinline|DeclareOperation(name: String, inputfilters: Filter*, outputfilter: Filter?)|.
+
+An \textbf{attribute} declaration can be seen as a special case of an operation that is unary.
+The special treatment of attributes is important only for efficiency reasons: The values of attributes are cached with each object.
+The concrete syntax is \lstinline|DeclareAttribute(name: String, inputfilter: Filter, outputfilter: Filter?)|.
+
+A \textbf{property} declaration can be seen as a special case of an attribute that returns a boolean.
+The special treatment of properties is important only because properties can be used as filters.
+The concrete syntax is \lstinline|DeclareProperty(name: String, inputfilter: Filter)|.
+
+An \textbf{constructor} declaration can be seen as a special case of an operation that returns an object of a given category.
+The concrete syntax is \lstinline|DeclareConstructor(name: String, inputfilters: Filter*, outputfilter: Filter?)|.
+\footnote{The return argument is not implemented yet.}
+\footnote{The current implementation of constructors is somewhat awkward and may be subject to change. Currently, a constructor's first argument is special: It must be the expected return filter (rather than an object). This is used to allow method selection to choose a different method for different special cases.
+A more elegant solution would be to allow every operation to declare that some of its arguments must be filters.
+This would yield a very nice untyped version of bounded polymorphism, which is routine in typed programming languages.}
+
+Conceptually, all operations are defined.
+However, the definiens is declared separately through methods.
+
+\paragraph{Methods}
+Every operation can have multiple definitions, which are declared by methods.
+A method declaration consists of
+\begin{compactitem}
+  \item the named of the operation,
+  \item the input and output filters,
+  \item the actual definition, as a function in the underlying programming language.
+\end{compactitem}
+
+The concrete syntax of a method declaration is
+\lstinline|InstallMethod(operationname: String, inputfilters: Filter*, outputfilter: Filter?, definition: function)|.
+
+The input and return filters of a method may be more restrictive than the filters used in the operation declaration.
+More restrictive input filters can be used to represent overloading of operations or run-time polymorphism.
+A more restrictive output filter can be used to indicate a sharper type than required by the operations.
+
+When evaluating the application of an operation to arguments, one method is selected and its definition executed.
+If more than one method is found, whose input filters are type the operation arguments, an internal ranking is used to disambiguate.
+
+\subsection{Theory Level}
+
+There is no explicit theory level.
+Instead, theories are represented as categories, and theory morphisms as operations, and their relation is a special case of typing.
+
+Therefore, we can treat each source file as a theory.
+
+\subsection{Document Level}
+
+Source files are grouped into folders and \textbf{packages}.
+The package bundled with GAP is called the \textbf{library}.

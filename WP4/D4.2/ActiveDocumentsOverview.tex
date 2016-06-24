@@ -1,0 +1,272 @@
+\section{Active Documents}\label{sec:active}
+\def\mathhub{MathHub.info\xspace}
+\def\mmt{MMT\xspace}
+\def\ommt{OMDoc/MMT\xspace}
+\def\imgdir#1{#1}
+\subsection{Introduction}
+
+We define the Active Documents as semantically annotated documents associated with a
+content commons that holds the corresponding background ontologies. An \textit{Active
+  Document Player} embeds user-visible, interactive services like program execution,
+computation, visualization, navigation, information aggregation and information retrieval
+to make documents executable. We call this framework the Active Documents Paradigm (ADP;
+see Figure~\ref{fig:activedocs}), since documents can also actively adapt to user
+preferences and environment rather than only executing services upon user request. The ADP
+is implemented in the Active Documents Portal MathWeb.info~\cite{MathHub:on} building on
+standard components as an instance of the Planetary system \cite{Kohlhase:ppte12}; see
+Section~\ref{sec:mathhub:arch} below.
+
+\begin{figure}[ht]\centering
+  \input{adp2}
+  \caption{Active Documents}\label{fig:activedocs} 
+\end{figure} 
+
+We present the ADP with a focus on three distinct annotation levels, \textit{presentation
+structure}, \textit{semantic} and \textit{formal}.
+
+\subsection{Presentation Structure}
+
+The importance of the presentation structure level is that an active document player can
+turn legacy documents into active documents by transforming them into
+XHTML+MathML+SVG-encoded documents with semantic annotations in RDFa.
+
+We have transformed over half a million articles from the Cornell ePrint arXiv to
+XHTML+MathML with LaTeXML, preserving properties like document and formula structures and
+embedded them into an instance the Planetary System, an active documents player.
+
+The document structure can then be exploited for a FoldingBar service (see on the left in
+Figure~\ref{fig:interacting-article}) and for localizing discussions about document
+content to document structures and subformulae – e.g. for questions/answers, or reviewers'
+comments. In the situation in Figure 6 we have clicked on the formula, which pops up the
+IconMenu with three options: reporting errors in the content (bug icon), asking/answering
+a question (question mark icon), and accessing the discussion threads of this element
+(balloons icon). Here, a click on the question mark icon allowed us to pose a question and
+hope for an answer by other users in the forum. Figure 6 also shows the Planetary InfoBar
+with information markers on the right, which indicate the availability and state of the
+discussion threads pertaining to information objects in the line they are horizontally
+aligned with. Clicking them will highlight all items that have discussions. Localized
+discussions have proven a very valuable tool for community-based validation of papers,
+especially if they are coupled with a discussion subscription/trackback system for readers
+and personal notification system for authors.
+
+\begin{figure}[ht]\centering
+    \includegraphics[width=\textwidth]{PresentationStructure}
+    \caption{Interacting with an article}\label{fig:interacting-article}
+\end{figure} 
+
+\subsection{Semantic Level}
+
+We can considerably improve the user experience by extending the depth of semantic
+annotations. For this we employ OMDoc (Open Mathematical Documents), an XML-based
+content-oriented, semi-formal representation format for scientific and technical documents.
+
+It builds on the OpenMath/MathML3 semantic representation format for mathematical formulae. OMDoc extends OpenMath with an infrastructure for context and domain models from
+Formal Methods, as well as a generic document infrastructure. At the semantic level
+Planetary is based on STEX documents, which can be transformed to OMDoc and via a
+user-adaptive and context-based presentation process further to XHTML+MathML+SVG+RDFa. The
+generated OMDoc documents are committed to an instance of the versioned XML database
+TNTBase that indexes them by semantic functional criteria, and can then perform
+server-side semantic services via user-defined XQuery queries.
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=\textwidth]{UserServices}
+  \caption{User Services at the Semantic Level}\label{fig:adt:semantic} 
+\end{figure} 
+
+TNTBase thus becomes a source of the user-adaptive, custom-generated documents forming
+Planetary's content commons. Many semantic services can directly be derived from this setup. At the semantic level, the IconMenu we know from Figure 6 can be extended,
+depending on the services available for the semantic item in focus. The book icon triggers
+definition lookup (see item i) below) and the graph and portrait icons prerequisites
+navigation (see iii)). Figure 7 shows results of these and other services.
+
+\begin{enumerate}
+\item \textit{Definition Lookup}: All technical terms and symbols in formulae presented in
+  Planetary are linked to their semantic counterparts in the content commons, which in
+  turn are linked to their definitions.
+\item \textit{Semantic Folding}: If any explanations of the meanings of subformulae have
+  been added as annotations, folding can use these instead of ": : :". In Figure 6/ii) the
+  motion law above is semantically folded to \[s_0 + s_v + s_a \]
+  and the abbreviations \[s_*\] are explained via flyover help.
+\item \textit{Prerequisites Navigation}: As the content commons has an inherent notion of
+  semantic dependency, we can use that to show prerequisites leading to a
+  concept. Currently Planetary supports two ways of dealing with prerequisites: i) a
+  concept graph view, where the required concepts can be navigated on demand by clicking
+  on concept nodes, and ii) guided tours, where the necessary content is generated in a
+  coherent narrative.
+\item \textit{Executable Formulae}: As the formulae in the documents are generated from
+  OpenMath objects, we can export them to a computer algebra system like Mathematica (or
+  in our case the open-source system GAP, which has been made available as an
+  OpenMath-based Web service) for evaluation, graphing, or experimentation.
+\item \textit{Unit Conversion}: In scientific papers, formulae often contain expressions
+  for measurable quantities; these can be automatically converted to other unit systems.
+\end{enumerate}
+
+Note that the underlying OMDoc format and the services based on it address a peculiarity
+of documents in the STEM disciplines. Here, documents are dynamic in the sense that they
+declare new concepts, definitions, model assumptions, terminology, notations, etc., as
+they go along, or else they explicitly (or implicitly) import such items from other
+documents. As a consequence, all knowledge items in STEM documents have a non-trivial
+context of declarations. This must be managed explicitly in our representations of these
+documents, in the content commons, and within user interaction in order for semantic
+services to be effective. This effect is especially pronounced in mathematical sciences
+(including Computer Science, Physics etc.), and somewhat less so in Chemistry and the Life
+Sciences, where a global context in the form of external terminology and notation
+databases often suffices.
+
+\subsection{Formal Level}
+
+Finally, we can use Planetary as a frontend system for completely formal content. OMDoc is
+also a foundation-agnostic integration format for mathematical knowledge that can express
+web ontologies, program specifications and verifications, and even representations of
+logics in logical frameworks like LF. In formal systems, documents are dominated by
+complex formulae, and users need support in navigating, abstracting, and evaluating them
+in order to cope with this complexity. Figure 8 shows how fully formalized formulae can be
+adapted to user preferences, about, e.g., the level of brackets and the availability of
+inferred arguments or definitions. Further semantic services at the fully formalized level
+include access to automated theorem provers via the HETS system and argument
+reconstruction via the Twelf system.
+
+It is important to note that programs (and program fragments) are also knowledge items at
+the fully formal level, as all their semantics can be recovered by parsing. Program
+fragments are not yet supported by Planetary.
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=\textwidth]{FormalRepresentationAdapted}
+  \caption{Formal Representations Adapted to Distinct User Settings (Customized via the
+    DocDash Widget on the Right)}
+\end{figure} 
+
+\subsection{Architecture}\label{sec:mathhub:arch}
+\mathhub has four main components (see Figure~\ref{fig:arch}):
+\begin{compactenum}[\em i\rm)]
+\item a versioned \emph{backend} holds the libraries,
+\item the \mmt API as the kernel tool understands the libraries provides semantic services
+  for them,
+\item a web-based \emph{frontend} makes the libraries and services available to users,
+\item a Javascript \emph{plugin architecture} enriches document presentations with
+  localized semantic services.
+\end{compactenum}
+We use best-of-breed open source systems for the components going beyond \mmt.  In the
+backend, we use GIT for versioning, distribution, and user/rights management adapting the
+GitLab repository manager~\cite{GitLab:on}, an open-source alternative to GitHub. For the
+frontend, we use the Drupal container management system.\footnote{Drupal and similar
+  systems self-describe as ``content management systems'', but they actually only manage
+  the documents and their metadata -- essentially document containers -- without changing
+  their internal structure.} For the Javascript library we use our JOBAD framework
+\cite{GLR:WebSvcActMathDoc09,Kohlhase:ppte12}, which embeds semantic services into HTML documents
+and thus makes them interactive and user-adaptive.  Even though JOBAD is just a relatively
+thin layer of glue code that picks up on semantic annotations in the generated HTML5, its
+effect for the users is rather profound: It gives them access to added-value services ``at
+the point of pain/interest'', i.e., in the user interface.  Figure~\ref{fig:web} already
+shows JOBAD in action: it links fragments of the formula presentations with computations
+in the \mmt system and makes both available to the user embedded in the document.
+
+\begin{figure}[ht]\centering\def\imgdir{img}
+  \input{mathhub-arch}
+  \caption{The modular \mathhub Architecture}\label{fig:arch}
+\end{figure}
+Figure~\ref{fig:arch} shows the detailed architecture.  Here GitLab provides distributed
+versioned storage of the libraries and organizes them into repositories owned by users and
+groups.  And Drupal supplies uniform theming, discussion forums, and a plugin
+infrastructure for adding interface functionality.  Both systems provide user management,
+but we automatically synchronize the users and permissions between them, so that GitLab
+becomes invisible to the casual user.
+
+This componentized architecture has the advantage that we can combine two methods for
+accessing the contents of \mathhub:
+\begin{inparaenum}[\em i\rm)]
+\item an online, web-based workflow for the casual user, and
+\item an offline authoring workflow based on git working copies for power users and bulk
+  edits.
+\end{inparaenum}
+Users can fork or pull the relevant repositories from GitLab, edit them, and submit them back to \mathhub
+either via a pull request to the repository masters or a direct commit/push.
+As the content is often highly interlinked and distributed across multiple interdependent repositories, we
+have developed tool support for managing multiple working copies across repository borders.
+
+In the web-based system, semantic services (notation-based, presentation, definition
+lookup, relational navigation, dependency management, etc.) are provided by \mmt and are
+made available to the user, primarily by dedicated JOBAD~\cite{GLR:WebSvcActMathDoc09}
+modules.
+The interactive functionalities in \mathhub are based on the \ommt representation of
+the libraries, but authors and users have to interact with them in the respective source
+language of the library.  Both the source and \ommt representations are versioned in
+GitLab and the respective source representations must be converted into \ommt by
+language-specific custom exporters. Correspondingly library import is managed by \mathhub
+at the level of the GitLab repository.
+
+Then we can dedicate a specific GIT working copy together with an \mmt instance to a user
+or a group that shares permissions.  Thus, the \mmt instance sees (and takes into account
+for its services) only the documents accessible to the group.  If an authenticated user
+edits \mathhub content, the changes are committed under his name into the specific working
+copy.  This makes it easy to cope with multiple synchronous users, for which \mathhub uses
+separate working GIT clones and \mmt instances.
+
+
+\subsection{Conclusion}
+
+The Active Documents stand for semantically annotated documents connected to a content
+commons accessed through an adaptive document player , such as Planetary. The Planetary
+system is presented as an answer to the challenge of creating "executable papers". We have
+shown the initial feasibility of the concept in a variety of publicly available case
+studies.
+
+Along the Planetary system, the Active Documents addresses all the following challenges:
+
+\begin{itemize}
+\item \textbf{Executability} is achieved by an extensible and configurable collection of
+  semantic services that can be embedded into documents. In particular, code can be made
+  executable via external computation machines, and computational experiments can be
+  repeated and varied (via the same mechanism). Where the functionality of a service
+  depends on ontologies, the user community can customize the service by customizing the
+  ontology inside Planetary.
+\item \textbf{Short and long-term compatibility} is guaranteed by usage of open standards
+  in representation formats and protocols (XML, RDF/RDFa, OpenMath, MathML, XQuery,
+  SPARQL, XHTML, SVG) supporting a web service framework, and hence
+  operating-system-independent. Of course, Planetary can export monographs, collections
+  and even entire libraries both as PDF (inactive documents) or in the EPUB eBook format.
+\item \textbf{Validation} and in particular human refereeing and scientific validation can
+  be facilitated via an in-text discussion feature. Moreover, documents can be
+  automatically validated via semantic services, e.g. automated SI-dimensionality
+  checking.
+\item \textbf{Copyright/licensing} is represented by fine-grained RDFa-based metadata
+  annotations in STEX and OMDoc, which are maintained over the presentation process. So
+  they can be used for filtering or attribution either on the backend storage level
+  (TNTBase, RDF triple store) or in the frontend Planetary system. Together with the user
+  management and permission system, Planetary can be extended to enforce compliance. In
+  fact, as documents are assembled for the user at view-time they can be adapted to the
+  license status of the user (e.g. it is possible to make a document license conforming by
+  leaving out examples that are not licensed to her specific institution).
+\item \textbf{Systems} As the Planetary system is entirely based on web standards and
+  communicates via RESTful interfaces, it is simple to wrap external systems into web
+  services, if we can equip them with OMDoc, OpenMath, or RDF interfaces.
+\item \textbf{Size} Even though individual human-written documents are modest in size,
+  journals and encyclopedias can get big – consider e.g. the Wikipedia or the arXiv. The
+  Planetary system has been tested on the latter; the underlying data stores scale
+  sufficiently for large document collections. Furthermore, the modular and semantic
+  document formats accommodate the integration of external data stores via 'special'
+  links, which the Planetary player can interpret on view, hence keeping the storage
+  minimal and the experience optimal. To the best of our knowledge, the semantically
+  transparent integration of data into a document player application is a new feature of
+  the Planetary system.
+\item \textbf{Provenance} comes in various aspects. Data provenance can be specified by
+  the techniques for semantic integration of data fields. For instance we can specify
+  units (as OpenMath objects) and computations to obtain the displayed data from raw data,
+  etc. As all of these are content representations in the documents or the content
+  commons, they can be handled with semantic services. The system state provenance
+  (i.e. what actions of the user led to the current state of interaction in the Planetary
+  system), can be handled by recording system data ("who did what when") in the metadata
+  store of Planetary. This can be opened to querying the system ontologies we have
+  developed for semantically transparent system self-documentation. An encouraging aspect
+  of this work is that document authors only need expertise in their own domain. In
+  particular, no system-level programming is necessary for authors: the semantic
+  representation formats involved act as a high level conceptual interface between content
+  authors and system/service/interface developers. We are convinced that without such a
+  separation of concerns, "the next generation of publishing" will not scale enough to
+  become practical.
+\end{itemize}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:

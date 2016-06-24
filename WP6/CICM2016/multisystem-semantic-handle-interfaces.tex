@@ -1,0 +1,161 @@
+\section{An application: toward multi-system semantic aware handle interfaces}
+
+\subsection{The handle paradigm in system interfaces}\label{the-handle-paradigm-in-system-interfaces}
+
+The ``handle'' paradigm has become a classic when interfacing two
+computational mathematics systems. For example, most of the \Sage
+interfaces, including that for \GAP, \Singular, or \Pari use this
+paradigm to delegate calculations to those systems.
+
+In this paradigm, when a system \texttt{A} delegates a calculation to a
+system \texttt{B}, the result \texttt{r} of the calculation is not
+converted to a native \texttt{A} object; instead \texttt{B} just returns
+a handle (or reference) to the object \texttt{r}. Later \texttt{A} can
+run further calculations with \texttt{r} by passing it as argument to
+\texttt{B} functions or methods. Advantages of this approach include:
+
+\begin{itemize}
+\item Avoiding the overhead of back and forth conversions between
+  \texttt{A} and \texttt{B}.
+\item Manipulating objects of \texttt{B} from \texttt{A} even if they
+  have no native representation in \texttt{A}.
+\end{itemize}
+
+\subsection{Semantic handle interfaces}\label{semantic-handle-interfaces}
+
+Whenever \texttt{A} and \texttt{B} share some common semantic (for example the concept of
+group), it's desirable that handles behave as native \texttt{A} objects. For example, if a
+group \texttt{G} is constructed in \texttt{B}, one wants to manipulate handles to
+\texttt{G} or its elements as if they were native \texttt{A} groups or group elements,
+even if there is no corresponding native implementation for \texttt{G} in \texttt{A}.
+This can be achieved with the usual \emph{adapter} design pattern. The bulk of the work is
+the implementation of adapter methods so that, for example, calling the method
+\texttt{h.cardinality()} on a \Sage handle \texttt{h} to a \GAP object \texttt{G},
+triggers in \GAP a call to \texttt{Size(G)}.
+
+In \Sage, this has been implemented in a couple special cases. For
+examples, \Sage permutation groups or matrix groups are built on top
+of handles to \GAP objects. However, this implementation is monolithic
+and does not scale. For example, if \texttt{h} is a handle to a set
+\texttt{S}, \Sage only knows that \texttt{h.cardinality()} can be
+computed by \texttt{Size(S)} in \GAP if \texttt{S} is a group; in fact
+if \texttt{h} has been constructed through the
+\texttt{PermutationGroup} or \texttt{MatrixGroup}
+constructors. Whereas we would want this method to be available as
+soon as \texttt{S} is a set.
+
+\subsection{Generic/hierarchical semantic handle interfaces}\label{generichierarchical-semantic-handle-interfaces}
+
+During the \href{http://gapdays.de/gap-sage-days2016/}{first joint
+  \GAP-\Sage days}, the last author worked on a prototype of generic
+semantic handle \Sage-\GAP interface. The idea is twofold:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item Every \Sage category (\emph{e.g.}\ the category of sets, of groups) can
+  provide a collection of adapter methods that are valid for every
+  handle to a \GAP object in the corresponding mathematical category.
+  This applies as well to elements and morphisms.
+\item When a handle \texttt{h} to a \GAP object \texttt{S} is created,
+  the properties of \texttt{S} (its \GAP categories and properties)
+  are explored, and the handle \texttt{h} is then put in the matching
+  (or closest matching) \Sage category.
+\end{enumerate}
+
+For example, here is the adapter for the cardinality method and some
+context around:
+\begin{lstlisting}
+class Sets: # Everything about sets in Sage
+    class GAP: # The adapter methods relevant to Sets in the Sage-Gap interface
+         class ParentMethods: # Adapter methods for sets
+             def cardinality(self): # The adapter for the cardinality method
+                 return self.gap().Size().sage()
+         class ElementMethods: # Adapter methods for set elements
+             ...
+         class MorphismMethods: # Adapter methods for set morphisms
+             ...
+\end{lstlisting}
+
+At the current stage of the implementation, a handle to a \GAP field
+behaves essentially like a native \Sage field. This remains valid for
+objects of all subcategories as well, from magmas to rings. The
+infrastructure is relatively lightweight, and can be extended by
+developers and users as the need for more adapter methods arises.
+
+\subsection{Scaling to multisystem interfaces?}\label{scaling-to-multisystem-interfaces}
+
+A second stage was initiated during the
+\href{http://opendreamkit.org/2015/12/08/WP6StAndrewsMeeting/}{Knowledge
+representation in mathematical software and databases workshop}
+organized at the University of St Andrews, St Andrews, 25th-27th
+January, 2016.
+
+The approach described earlier is likely to work well for implementing
+an interface between two systems. However it does not scale for
+interfacing \texttt{n} systems, as this requires the implementation of
+\texttt{n(n-1)} independent adapter interfaces.
+
+The key point here is that implementing an adapter method (or
+function) typically requires only some simple abstract information on
+the method, namely its signature and its names in both systems.  In
+particular, the only things that changes between an \texttt{A->B}
+adapter method and the equivalent \texttt{C->D} adapter method are the
+names of the methods.
+
+The second stage of this project is therefore to explore whether the
+interfaces could be automatically generated from a consistent
+formalizations of the systems.
+
+\ednote{NT:Update this paragraph w.r.t. the rest of this section}
+
+Ideally, the mathematical structure and operations would be described
+once, \emph{e.g.}\ in the MMT language (the blue blob in Michael's talk) and
+then each system would be formalized by specifying how the operations
+are implemented (the purple blobs). For example, one would specify in
+MMT that a magma is a set with a binary operation denoted by default
+\texttt{o}. The relevant category in \Sage is \texttt{Magmas()}, and
+the binary operation is implemented by the method \texttt{\_mul\_}.
+
+We experimented with doing this formalization using lightweight
+annotations in the \Sage source code such as:
+\begin{lstlisting}
+@semantic(mmt="sets")
+class Sets:
+    class ParentMethods:
+         @semantic(mmt="o", gap="Size")
+         @abstractmethod
+         def cardinality(self):
+             r"""
+             Return the cardinality of ``self``.
+             """
+\end{lstlisting}
+Note: the only additions to the original source code are the \texttt{@semantic} lines.
+
+Several variants of the annotations exist to allow for adding
+annotations on existing categories without touching their file, and also
+for specifying directly the corresponding method names in other systems
+when this has not yet been formalized elsewhere. Similarly, one could
+provide directly the signature information in case that is not yet
+modelled in MMT.
+
+\subsection{Difficulties}\label{difficulties}
+
+In \Sage and \GAP (and most other systems with some category mechanism) we distinguish
+additive magma and multiplicative magma, duplicating all the information, code, etc. In
+MMT however, thanks to morphisms which allow to rename operations transparently, there is
+no such distinction: there are just Magmas.
+
+Hence, to actually map additive magmas in \Sage to additive magmas in \GAP (and map the
+corresponding methods), one need in the intermediate MMT step to keep an extra bit of
+information, namely whether the monoid is additive or multiplicative (or something else;
+think of the bracket operation of Lie algebras).
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "deleted-scenes"
+%%% End:
+
+%  LocalWords:  subsubsection texttt itemize emph labelenumi lstlisting organized ednote
+%  LocalWords:  generichierarchical-semantic-handle-interfaces formalizations formalized
+%  LocalWords:  scaling-to-multisystem-interfaces formalization mmt
