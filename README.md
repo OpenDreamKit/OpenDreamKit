@@ -156,23 +156,49 @@ In this case, only ODK specific info (link to task, delivery date,
 
 ## Submitting a deliverable
 
-For each deliverable, a report should be written and submitted to the
-EU portal. Please write the report in latex in WPX/DY.Z/report.tex using
-the our [style file](Proposal/LaTeX-proposal/deliverablereport.cls).
-For deliverables that are not reports by themselves, and assuming the
-status and tracking information is properly written on the github
-issue, it's appropriate to have a very short report containing just a
-link to that issue. The style file makes this trivial. See
-[WP1/D1.1/report.tex](WP1/D1.1/report.tex) for an example.
+### Steps for the deliverable lead
 
-To submit, login on the [EU portal](http://ec.europa.eu/research/participants/portal/)
-and go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
-Uploading a pdf failed for me with firefox (Nicolas); it worked with
-chromium, or with firefox by wrapping the pdf in a zip file.
-I haven't checked yet whether any participant can submit a deliverable
-or if it has to go through the coordinator.
+- Edit the description on the corresponding github issues to give an
+  overview of the purpose of the deliverable and of what has been
+  achieved (think the abstract of a paper). Feel free to add cross
+  links as appropriate. In particular, make sure that the description
+  points to the relevant task and reciprocally.
 
-Then send a notice to participants@opendreamkit.org.
+- A report should be written in latex in WPX/DX.Z/report.tex using our
+  [style file](Proposal/LaTeX-proposal/deliverablereport.cls).
+
+  For deliverables that are not reports by themselves, it's
+  appropriate to have a very short report containing just a link to
+  that issue, and a copy of the description from github. This is
+  essentially automatized, so just write a trivial latex file starting
+  from [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
+
+- Send a notice to the coordinator
+
+- Send a notice to participants@opendreamkit.org
+
+- Write a blog post (TODO: add a link)
+
+### Steps for the coordinator
+
+- TODO: document the automatic download of the github description
+
+- Proofread the pdf
+
+- Commit it as report-final.pdf
+
+- Add a link to the report in the github description
+
+- Submit the PDF on the [EU portal](http://ec.europa.eu/research/participants/portal/):
+
+    - login
+    - go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
+
+    - Uploading a pdf fails for me with firefox (Nicolas). It works
+      with chromium, or with firefox by wrapping the pdf in a zip
+      file.
+
+- Close the issue on github
 
 ## Organizing a workshop
 
