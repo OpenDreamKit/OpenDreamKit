@@ -97,18 +97,6 @@ make this repository into an external sub-repository that can be updated as nece
 the instructions below we assume that you - as the paper repos maintainer - want to add the
 KWARC bibs as a sub-repository at path ```lib/kbibs``` from the top of the paper
 repository.
-
-## Externals in SVN
-In a subversion repository you can must make an external by
-
-1. go to the top of your paper preository: ```cd path/to/top```
-2. make the ```lib``` subdir if necessary: ```mkdir lib```
-3. add the external: ```svn propedit svn:externals lib```
-4. an editor will appear, add the line ```kbibs bibs https://github.com/KWARC/bibs.git```
-5. commit your work: ```svn commit -m'adding external for the KWARC bibs'```
-
-Note that in SVN any ```snv update``` will update the KWARC bibs in the external as well. 
-
 ## The best way for GIT
 is via the ```git-subrepo``` extension of ```git```. Unfortunately this is not part of git
 (yet). So you as the paper repos maintainer have to
@@ -152,5 +140,13 @@ pull" as above:
 
 Contributing back to the KWARC bibs repository is somewhat more complex; RTFM!
 
+## Externals in SVN
+In a subversion repository you can must make an external by
 
+1. go to the top of your paper preository: ```cd path/to/top```
+2. make the ```lib``` subdir if necessary: ```mkdir lib```
+3. add the external: ```svn propedit svn:externals lib```
+4. an editor will appear, add the line ```kbibs bibs https://github.com/KWARC/bibs/trunk```
+5. commit your work: ```svn commit -m'adding external for the KWARC bibs'```
 
+Note that in SVN any ```snv update``` will update the KWARC bibs in the external as well. 
