@@ -152,26 +152,62 @@ For examples, see #50, #87, #72.
 Alternatively, when natural, the issue can be just a pointer to an
 issue of the relevant software where the actual discussion happens.
 In this case, only ODK specific info (link to task, delivery date,
-...) needs to be on the issue.
+status report, ...) needs to be on the issue.
 
 ## Submitting a deliverable
 
 ### Steps for the deliverable lead
 
 - Edit the description on the corresponding github issues to give an
-  overview of the purpose of the deliverable and of what has been
-  achieved (think the abstract of a paper). Feel free to add cross
-  links as appropriate. In particular, make sure that the description
-  points to the relevant task and reciprocally.
+  overview (think the abstract of a paper) of the deliverable:
 
-- A report should be written in latex in WPX/DX.Z/report.tex using our
+    - What was the original goal.
+    - How it fits within the overall ODK picture.
+    - Where the work started from.
+
+    - What precisely is the deliverable, and was achieved during the
+      project, clarifying the contribution of the participants and of
+      the community.
+
+    - A brief view on applications, further outcomes, current
+      activities, future plans.
+
+    The distinction between what was done before, for, and after the
+    deliverable should be strictly unambigous.
+
+    This description should be self-contained. Still, it's recommended
+    to enrich it with cross links as appropriate.  In particular add
+    links for all issues on the different component trackers (trac,
+    ...)  that have been worked on to achieve the deliverable.  The
+    link label/context should be explanatory: the reader should not
+    need to follow the link to know what additional information it
+    provides.
+
+- Double check the deliverable metadata is up to date
+
+    - Leader (as specified by the person the issue is assigned to),
+      participants, and sites involved.
+    - Due and delivery date, milestone.
+    - Estimate of the number of PM's that were put to achieve the deliverable.
+    - Link to the relevant ODK task(s) and reciprocally.
+    - (when times come): link to the report and presentation slides.
+
+- A report should be written, in latex, and in WPX/DX.Z/report.tex using our
   [style file](Proposal/LaTeX-proposal/deliverablereport.cls).
+  The use of pictures and other visual material is strongly recommended.
 
   For deliverables that are not reports by themselves, it's
-  appropriate to have a very short report containing just a link to
-  that issue, and a copy of the description from github. This is
-  essentially automatized, so just write a trivial latex file starting
-  from [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
+  appropriate to have a relatively short report with a link to the
+  github issue, and a copy of the description of this issue. This is
+  essentially automatized: you just need to write a trivial latex file
+  starting from [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as
+  template.
+
+  In all cases, the report shall be self-contained. The deliverable
+  will be evaluated based upon its version submitted on the EU portal
+  without retrieving other resources. Links have no legal value, since
+  there is no guarantee that the referenced material will remain
+  unchanged.
 
 - Send a notice to the coordinator
 
@@ -226,6 +262,15 @@ take lives notes both on the plan and what's done, directly in a
 synthetic project-by-project form. The goal is to have a couple
 paragraphs per projects, with links to the end results. And an overall
 debriefing.
+
+## Organizing a project review
+
+Day 1: Deliverable mock presentation
+Day 2: 
+Day 3: Official review
+-    1/2 hour: general presentation (Nicolas)
+-    Presentation of each work package (10 minutes each)
+-    Deliverable presentation
 
 ## Recommendations of Collaborative software
 
