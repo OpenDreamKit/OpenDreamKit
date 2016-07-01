@@ -152,26 +152,62 @@ For examples, see #50, #87, #72.
 Alternatively, when natural, the issue can be just a pointer to an
 issue of the relevant software where the actual discussion happens.
 In this case, only ODK specific info (link to task, delivery date,
-...) needs to be on the issue.
+status report, ...) needs to be on the issue.
 
 ## Submitting a deliverable
 
 ### Steps for the deliverable lead
 
 - Edit the description on the corresponding github issues to give an
-  overview of the purpose of the deliverable and of what has been
-  achieved (think the abstract of a paper). Feel free to add cross
-  links as appropriate. In particular, make sure that the description
-  points to the relevant task and reciprocally.
+  overview (think the abstract of a paper) of the deliverable:
 
-- A report should be written in latex in WPX/DX.Z/report.tex using our
+    - What was the original goal.
+    - How it fits within the overall ODK picture.
+    - Where the work started from.
+
+    - What precisely is the deliverable, and was achieved during the
+      project, clarifying the contribution of the participants and of
+      the community.
+
+    - A brief view on applications, further outcomes, current
+      activities, future plans.
+
+    The distinction between what was done before, for, and after the
+    deliverable should be strictly unambigous.
+
+    This description should be self-contained. Still, it's recommended
+    to enrich it with cross links as appropriate.  In particular add
+    links for all issues on the different component trackers (trac,
+    ...)  that have been worked on to achieve the deliverable.  The
+    link label/context should be explanatory: the reader should not
+    need to follow the link to know what additional information it
+    provides.
+
+- Double check the deliverable metadata is up to date
+
+    - Leader (as specified by the person the issue is assigned to),
+      participants, and sites involved.
+    - Due and delivery date, milestone.
+    - Estimate of the number of PM's that were put to achieve the deliverable.
+    - Link to the relevant ODK task(s) and reciprocally.
+    - (when times come): link to the report and presentation slides.
+
+- A report should be written, in latex, and in WPX/DX.Z/report.tex using our
   [style file](Proposal/LaTeX-proposal/deliverablereport.cls).
+  The use of pictures and other visual material is strongly recommended.
 
   For deliverables that are not reports by themselves, it's
-  appropriate to have a very short report containing just a link to
-  that issue, and a copy of the description from github. This is
-  essentially automatized, so just write a trivial latex file starting
-  from [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
+  appropriate to have a relatively short report with a link to the
+  github issue, and a copy of the description of this issue. This is
+  essentially automatized: you just need to write a trivial latex file
+  starting from [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as
+  template.
+
+  In all cases, the report shall be self-contained. The deliverable
+  will be evaluated based upon its version submitted on the EU portal
+  without retrieving other resources. Links have no legal value, since
+  there is no guarantee that the referenced material will remain
+  unchanged.
 
 - Send a notice to the coordinator
 
@@ -227,6 +263,62 @@ synthetic project-by-project form. The goal is to have a couple
 paragraphs per projects, with links to the end results. And an overall
 debriefing.
 
+## Organization of official meetings
+
+- The agenda must be
+
+  - Day 1: test (mock presentation). This should be the exact same setup
+    as on the day of the meeting (day 3). But without the EU reviewers.
+  
+  - Day 2: project meetings
+
+  - Day 3: official review with
+     - 1/2 hour to 1 hour: general presentation
+     - presentation of each work package (10 minutes each)
+     - deliverable presentation
+
+- (Project Manager) Send official e-mail invitations 20 days in advance to all
+  the meeting participants, with the agenda. Those e-mails are to be kept for
+  later audits (proving that the attendance was necessary).
+
+- (Project Manager) Prepare a signature sheet to collect attendance (to be kept
+  for later audits).
+
+- (Project Manager) In the appropriate git repository, prepare for each site, a
+  template file for the progress report, and request all partners to fill in
+  the file in advance.
+
+- (Project Manager) Make sure that all the support material (e.g. slides of
+  progress reports, ...) is available in advance (e.g. posted online), linked
+  from the agenda, and read by all participants before the meeting. This way
+  it is sufficient to scan quickly through them during the test, stopping only
+  if some point raises a discussion.
+
+- (Project Manager) Set up a pad (e.g. on framapad) or/and a chat room (e.g.
+  gitter or use the one in framapad) for collaborative editing of the minutes
+  during the meeting. Initialize the pad with the agenda, and links to all
+  supporting material. After the meeting, move the content of the pad into a file
+  in the relevant git repository for later editing.  Whenever appropriate, make
+  this file accessible online.
+
+- Remote participation: For meetings of 4-5 people, RPC-based video conferences
+  as above can possibly do the job. For a larger number of people, this does
+  not seem to scale. Here are some recommendations:
+
+  - Request all participants to have a wired access (not wifi).
+
+  - Plan for a backup solution so that participants can join by plain
+    phone.
+
+  - [Renater's Rendez Vous](https://rendez-vous.renater.fr/) might
+    be a good option as it is supposed to provide a bridge with phone
+    lines. However, at this point (February 2016), only the latest
+    development version of firefox is supported.
+
+  - Explore webcast solutions as an alternative to peer-to-peer video
+    conference, so that at least remote participants can follow what's
+    going on.
+
 ## Recommendations of Collaborative software
 
 - Chat: [http://gitter.im](http://gitter.im)
@@ -236,53 +328,3 @@ debriefing.
 - Anonymous votes: [http://adoodle.org](http://adoodle.org)
 - Surveys: [http://limesurvey.org](http://limesurvey.org)
 - Whiteboard?
-
-## Recommendations for organizing official meetings
-
-Send official e-mail invitations XXX days to all the meeting
-participants, with the agenda. Those e-mails are to be kept for later
-audits (proving that the attendance was necessary).
-
-For meetings of 4-5 people, RPC-based video conferences as above can
-possibly do the job. For a larger number of people, this does not seem
-to scale. Here are some recommendations:
-
-- Prepare a signature sheet to collect attendance
-
-- Run a test, e.g. the day before, with the exact same setup as on the
-  day of the meeting, asking all remote participants to join briefly.
-
-- Request all participants to have a wired access (not wifi).
-
-- Plan for a backup solution so that participants can join by plain
-  phone.
-
-- [Renater's Rendez Vous](https://rendez-vous.renater.fr/) might be a
-  good option as it is supposed to provide a bridge with phone
-  lines. However, at this point (February 2016), only the latest
-  development version of firefox is supported.
-
-- Explore webcast solutions as an alternative to peer-to-peer video
-  conference, so that at least remote participants can follow what's
-  going on.
-
-- Steering committee meetings: in the appropriate git repository,
-  prepare for each site, a template file for the progress report, and
-  request all partners to fill in the file in advance.
-
-- Make sure that all the support material (e.g. slides of progress
-  reports, ...) is available in advance (e.g. posted online), linked
-  from the agenda, and read by all participants before the
-  meeting. This way it is sufficient to scan quickly through them
-  during the meeting, stopping only if some point raises a discussion.
-
-- Set up a pad (e.g. on framapad) for collaborative editing of the
-  minutes during the meeting. Initialize the pad with the agenda, and
-  links to all supporting material.
-
-- Set up a chat room (e.g. gitter) to let remote participants
-  interact. Explore if the framapad's chat is good enough for that.
-
-- After the meeting, move the content of the pad into a file in the
-  relevant git repository for later editing. Whenever appropriate,
-  make this file accessible online.
