@@ -79,7 +79,13 @@ cd ../../
 # Install cpanm, xsltproc + latexml deps
 echo "Installing build prerequistes, please wait ..."
 sudo apt-get update -qq
-sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus xsltproc
+sudo apt-get install -qq cpanminus xsltproc
+sudo apt-get install   \
+  libarchive-zip-perl libfile-which-perl libimage-size-perl  \
+  libio-string-perl libjson-xs-perl libtext-unidecode-perl \
+  libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl \
+  libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl  \
+  texlive-latex-base imagemagick libimage-magick-perl
 echo "Done. "
 
 # Intalls latexml
