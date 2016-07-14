@@ -41,11 +41,19 @@ echo "Done. "
 
 echo "Cleaning previous builds ..."
 make clean
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # Build the bib file
 echo "Updating kwarc.bib ..."
 make bib
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # copy it into the sub-repository
@@ -77,11 +85,19 @@ echo "Done. "
 # Intalls latexml
 echo "Installing LaTeXML, please wait ..."
 cpanm --notest --sudo LaTeXML
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # Make the updated website. 
 echo "Building website, this will take a while. "
 make pubs
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # get ready to deploy
