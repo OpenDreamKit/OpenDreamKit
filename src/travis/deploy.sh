@@ -41,11 +41,19 @@ echo "Done. "
 
 echo "Cleaning previous builds ..."
 make clean
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # Build the bib file
 echo "Updating kwarc.bib ..."
 make bib
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # copy it into the sub-repository
@@ -71,17 +79,31 @@ cd ../../
 # Install cpanm, xsltproc + latexml deps
 echo "Installing build prerequistes, please wait ..."
 sudo apt-get update -qq
-sudo apt-get install -qq libarchive-zip-perl libfile-which-perl libimage-size-perl libio-string-perl libjson-xs-perl libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl texlive-latex-base imagemagick libimage-magick-perl cpanminus xsltproc
+sudo apt-get install -qq cpanminus xsltproc
+sudo apt-get install   \
+  libarchive-zip-perl libfile-which-perl libimage-size-perl  \
+  libio-string-perl libjson-xs-perl libtext-unidecode-perl \
+  libparse-recdescent-perl liburi-perl libuuid-tiny-perl libwww-perl \
+  libxml2 libxml-libxml-perl libxslt1.1 libxml-libxslt-perl  \
+  texlive-latex-base imagemagick libimage-magick-perl
 echo "Done. "
 
 # Intalls latexml
 echo "Installing LaTeXML, please wait ..."
 cpanm --notest --sudo LaTeXML
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # Make the updated website. 
 echo "Building website, this will take a while. "
 make pubs
+if [ "$?" -ne "0" ]; then
+  echo "Fail"
+  exit 1
+fi
 echo "Done. "
 
 # get ready to deploy
