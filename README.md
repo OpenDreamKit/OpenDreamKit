@@ -1,4 +1,4 @@
-# The KWARC.bib respository
+# The KWARC.bib respository [![Build Status](https://travis-ci.org/KWARC/bibs.svg?branch=master)](https://travis-ci.org/KWARC/bibs)
 
 The repository contains the bib resources of the KWARC group, most notably the
 citation database kwarc.bib. It is generated automatically by concatinating
