@@ -9,3 +9,10 @@ Florent Hivert: 4 days
 
 
 Total: 46 days
+
+STAN
+----
+
+Markus Pfeiffer: 28 days
+
+Total: 28 days
