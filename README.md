@@ -263,14 +263,61 @@ synthetic project-by-project form. The goal is to have a couple
 paragraphs per projects, with links to the end results. And an overall
 debriefing.
 
-## Organizing a project review
+## Organization of official meetings
 
-Day 1: Deliverable mock presentation
-Day 2: 
-Day 3: Official review
--    1/2 hour: general presentation (Nicolas)
--    Presentation of each work package (10 minutes each)
--    Deliverable presentation
+- The agenda must be
+
+  - Day 1: test (mock presentation). This should be the exact same setup
+    as on the day of the meeting (day 3). But without the EU reviewers.
+  
+  - Day 2: project meetings
+
+  - Day 3: official review with
+     - 1/2 hour to 1 hour: general presentation
+     - presentation of each work package (10 minutes each)
+     - deliverable presentation
+
+- (Project Manager) Send official e-mail invitations 20 days in advance to all
+  the meeting participants, with the agenda. Those e-mails are to be kept for
+  later audits (proving that the attendance was necessary).
+
+- (Project Manager) Prepare a signature sheet to collect attendance (to be kept
+  for later audits).
+
+- (Project Manager) In the appropriate git repository, prepare for each site, a
+  template file for the progress report, and request all partners to fill in
+  the file in advance.
+
+- (Project Manager) Make sure that all the support material (e.g. slides of
+  progress reports, ...) is available in advance (e.g. posted online), linked
+  from the agenda, and read by all participants before the meeting. This way
+  it is sufficient to scan quickly through them during the test, stopping only
+  if some point raises a discussion.
+
+- (Project Manager) Set up a pad (e.g. on framapad) or/and a chat room (e.g.
+  gitter or use the one in framapad) for collaborative editing of the minutes
+  during the meeting. Initialize the pad with the agenda, and links to all
+  supporting material. After the meeting, move the content of the pad into a file
+  in the relevant git repository for later editing.  Whenever appropriate, make
+  this file accessible online.
+
+- Remote participation: For meetings of 4-5 people, RPC-based video conferences
+  as above can possibly do the job. For a larger number of people, this does
+  not seem to scale. Here are some recommendations:
+
+  - Request all participants to have a wired access (not wifi).
+
+  - Plan for a backup solution so that participants can join by plain
+    phone.
+
+  - [Renater's Rendez Vous](https://rendez-vous.renater.fr/) might
+    be a good option as it is supposed to provide a bridge with phone
+    lines. However, at this point (February 2016), only the latest
+    development version of firefox is supported.
+
+  - Explore webcast solutions as an alternative to peer-to-peer video
+    conference, so that at least remote participants can follow what's
+    going on.
 
 ## Recommendations of Collaborative software
 
@@ -281,53 +328,3 @@ Day 3: Official review
 - Anonymous votes: [http://adoodle.org](http://adoodle.org)
 - Surveys: [http://limesurvey.org](http://limesurvey.org)
 - Whiteboard?
-
-## Recommendations for organizing official meetings
-
-Send official e-mail invitations XXX days to all the meeting
-participants, with the agenda. Those e-mails are to be kept for later
-audits (proving that the attendance was necessary).
-
-For meetings of 4-5 people, RPC-based video conferences as above can
-possibly do the job. For a larger number of people, this does not seem
-to scale. Here are some recommendations:
-
-- Prepare a signature sheet to collect attendance
-
-- Run a test, e.g. the day before, with the exact same setup as on the
-  day of the meeting, asking all remote participants to join briefly.
-
-- Request all participants to have a wired access (not wifi).
-
-- Plan for a backup solution so that participants can join by plain
-  phone.
-
-- [Renater's Rendez Vous](https://rendez-vous.renater.fr/) might be a
-  good option as it is supposed to provide a bridge with phone
-  lines. However, at this point (February 2016), only the latest
-  development version of firefox is supported.
-
-- Explore webcast solutions as an alternative to peer-to-peer video
-  conference, so that at least remote participants can follow what's
-  going on.
-
-- Steering committee meetings: in the appropriate git repository,
-  prepare for each site, a template file for the progress report, and
-  request all partners to fill in the file in advance.
-
-- Make sure that all the support material (e.g. slides of progress
-  reports, ...) is available in advance (e.g. posted online), linked
-  from the agenda, and read by all participants before the
-  meeting. This way it is sufficient to scan quickly through them
-  during the meeting, stopping only if some point raises a discussion.
-
-- Set up a pad (e.g. on framapad) for collaborative editing of the
-  minutes during the meeting. Initialize the pad with the agenda, and
-  links to all supporting material.
-
-- Set up a chat room (e.g. gitter) to let remote participants
-  interact. Explore if the framapad's chat is good enough for that.
-
-- After the meeting, move the content of the pad into a file in the
-  relevant git repository for later editing. Whenever appropriate,
-  make this file accessible online.
