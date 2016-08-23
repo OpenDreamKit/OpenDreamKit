@@ -23,3 +23,10 @@ SOUTHAMPTON
 -----------
 
 Hans Fangohr: 2 days
+
+
+CNRS 
+----
+
+Bill Allombert (BORDEAUX): 5 days  % Atelier PARI/GP 2016
+Karim Belabas (BORDEAUX): 5 days   % Atelier PARI/GP 2016
