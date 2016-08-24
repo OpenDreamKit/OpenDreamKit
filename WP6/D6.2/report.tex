@@ -1,0 +1,126 @@
+\documentclass{deliverablereport}
+
+
+\usepackage[style=alphabetic,backend=bibtex]{biblatex}
+\addbibresource{../../lib/kbibs/kwarc.bib}
+\addbibresource{../../lib/deliverables.bib}
+% \addbibresource{rest.bib}
+% temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
+\makeatletter\def\blx@maxline{77}\makeatother
+
+\usepackage{tikz}
+\usepackage{standalone}
+\usepackage[show]{ed}
+
+\usepackage{graphicx}
+\usepackage{float}
+
+\usepackage{color}
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+
+\deliverable{dksbases}{design}
+\issue{136}
+\deliverydate{31/08/2016}
+\duedate{31/08/2016 (Month 12)}
+\def\pn{OpenDreamKit\xspace}
+
+\author{Tom Wiesing}
+
+\usepackage[parfill]{parskip}
+
+\begin{document}
+
+\maketitle\vfill
+
+\begin{abstract}
+Yet to do
+\end{abstract}
+
+\vfill
+
+\newpage\tableofcontents\newpage
+
+\ednote{Write an abstract}
+\ednote{Update delivery data}
+
+\section{Introduction}\label{sec:intro}
+
+The OpenDreamKit project \cite{ODKproposal:on} is an EU Horizon 2020 project with the aim to deliver flexible mathematical toolkit for working with mathematical knowledge. To achieve this goal the project in particular wants to allow multiple mathematical knowledge systems (such as Sage, GAP, \dots) to work together\ednote{Cross-check with proposal document}.
+
+To facilitate communication between these systems they need to have access to the same mathematical knowledge. This allows them to communicate and, for example, exchange objects between systems. By enabling exchange of objects between systems, each system can be used to compute properties of mathematical objects in the area in which it is best. We call this approach the Math-In-The-Middle approach \cite{DehKohKon:iop16} because the underlying mathematical knowledge, the ``real math'' is in betweeen -- in the ``middle'' -- of the systems. Just having access to this knowledge is not enough -- each of the systems involved has its on particularities and needs some kind of interface to this knowledge. We model this approach using the well-established framework of theory graphs.
+
+\subsection{A Brief Recap of Theory Graphs}
+
+A theory graph consists of theories and the relations between them. A theory in this sense is a set of declarations -- a set of declared symbols. In adddition to the declarations, each theory has a name (which together with its namespace forms the gloabl URI for the theory) and a meta-theory. A meta-theory is commonly the logical framework that is used to model the content of the theory. Each declared symbol has a name and can additionally have a type, a definition and different kinds of meta-data. In each theory these symbols can then be used to form terms that can be used to express more advanced knowledge. Here terms are effectively OpenMath 2.0 \cite{BusCapCar:2oms04} objects -- they mostly consist of literal values, symbols and applications of terms to other terms.
+
+There are two basic kinds of relations between theories, imports and views. An import is a way to declare symbols from one theory in another theory -- to import the symbols from a source theory to a target theory. This can for example be used to extend an existing theory without re-declaring all symbols or to combine two theories. Furthremore the concept of imports allows to modularise knowledge. On top of imports there are also Structures which are imports and additional renamings of the imported symbols. The second type of relation, the view, is a mapping from one theory to another -- a way to ``view'' one theory as another. This mapping allows terms from one theory to be translated into another theory. In the case where terms represent boolean statements or proofs, the mapping given by the view should be truth preserving -- i.e. if a statement is true in the source theory, it should be true in the target theory after translation\ednote{Give an example theory graph here}.
+
+Theory graphs are implemented inside the MMT system \cite{RabKoh:WSMSML13}. The system allows for the declaration of theories along with symbols, imports and views. Furthremore it is possible to create terms over these theories and translate them along views. Furthermore the MMT system provides a type checker that can be used to type check declarations.
+
+\subsection{The Need For DKS Theories}
+
+In the OpenDreamKit project we want to use this modular approach to mathematics, and in particular the MMT system, to allow us to easily translate mathematical expressions between systems. For this purpose we define a ``Math In The Middle'' theory as well as interface theories for each system. With the help of MMT and bi-views\footnote{A bi-view is a bidriectional view between two theories} between the interface theories and the central theory, we can translate objects from one system to the other. \ednote{possible include a reference to \cite{KohManRab:aumftg13}; this probably does not fit in here well enough though}
+
+This however is still not enough -- we need three aspects to properly model our situation. In addition to the Knowledge (Math-In-The-Middle) and Systems (Interfaces) there is also a theird aspect that is involved inside these systems -- the Data aspect. Together these three form so-called \textit{DKS} theories. Thus we need a framework to allow MMT to handle big databases of knowledge. In this paper\ednote{We are actually a report. } we focus on our progress towards this goal.
+
+In Section~\ref{sec:data} we describe in detail how we model data-centric thoeries, then continue in Section~\ref{sec:lmfdb} by describing and demonstrating the example we have implemented already. We conclude in Section~\ref{sec:conclusion} by summarizing what we have achieved so far and giving a short outlook on how we plan to build translations between systems.
+
+\section{Modelling data-centric theories}\label{sec:data}
+
+To properly model data-centric theories we first need to define them. In our setting we considder a theory data-centric if most of the declarations contained within it are instances of a single concept that usually originate from a database. But what exactly does this mean? Consider the example of having a concept of sequences of natural number formalised inside a theory. In this setting we could create a data-centric theory by having the theory a theory that contains all sequences of natural numbers as concepts.
+
+This setting is in practice very difficult for multiple reasons. Mainly, the number of declarations is infinite. This in itself is not a problem, however a theory containing all sequences is just not very useful in practice. Even if we limited ourselves to a large finite subset of sequences -- take for example thoise defined in OEIS \ednote{cite OEIS} a further problem arises: We never want to manually write a theory that contains all these declarations. Hence we need to introduce dynamic on-demand declarations inside of MMT -- declarations that are only evaluated once they are needed.
+
+For this we want to some form of database directly from within MMT. Furthermore this need to be invisible to the user -- they should not notice the difference between an actual theory and a theory that contains virtual declarations. This of course brings with it a few disadvantages. First and foremost we need to be connected to the network in order to properly handle this theory -- a request has to be made to the database each time we look for a new declaration.
+
+\subsection{Using Codecs To Understand Database Objects}
+
+We also need to be able to translate between the representations of the objects stored in the database and proper MMT terms -- objects of a certain type that properly represent the corresponding mathematical objects. In most common databases, each record stored usually has multiple fields that each have values. These values are usually represented with some physical data type -- for example an integer is stored in the form of a 64-bit integer\ednote{Better example?}. In some of the cases it is trivial to translate the encoded values to the actual, intended values. In some cases, it might not be as trivial as it seems. Take for example a field with the type matrix of integers. On one hand it could be represented as a list of list of integers. On the other hand the database could use some kind of sparse representation, i.e. store only the non-zero entries. To encompass this setup inside MMT we introduce the concept of codecs.
+
+A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term inside the Math-In-The-Middle Theory), $f$ a mapping from the encoded representations of the type to the intended values of the type and $g$ is a mapping from the actual values of the type to their physical encodings. We call the operation performed by $f$ a decoding and the operation performed by $g$ an encoding of the type $t$.
+
+There are two basic ways of creating codecs -- atomic codecs and codec operators. An atomic codec is a codec of a very simple type, for example an encoding of integers as strings. In this case $f$ would be a map from strings consisting of digits\footnote{Technically, there may also be a starting \texttt{"-"} or \texttt{"+"} sign, but the details are not important here. } to integers. This mapping does exactly what you would expect -- it maps the string \texttt{"0"} to 0, the string \texttt{"1"} to 1, etc. $g$ would be an inverse of sorts -- the map from integers to strings that maps 0 to \texttt{"0"}, 1 to \texttt{"1"}, etc. Note that here $g$ is the left inverse of $f$ (in the sense that $g \circ f$ is the identity), but $f \circ g$ not neccessarily. In a general setting we want $g \circ f$ to be the identity for all codecs, however in practive it rarely happens. A good example of this is the problem of precision -- there is no chance of encoding all of the real numbers in a physical (countable, probably even finite) datatype.
+The second way of creating codecs is by using codec operators. These take as input an atomic codec and give a codec for a composite type. Take for example the list codec operator. It takes as input a codec for an arbitary type $t$ and gives a codec for the type \texttt{List(t)}.
+
+\ednote{Give more examples of codecs}
+Inside MMT we can represent the actual values as literals. For this we do not use the representations from the database, but instead values that best represent the true values. We also represent the codecs inside MMT. Each codec can be represented as an MMT term, with each atomic codec  and each codec operator having an associated symbol inside a Codec theory We can use these symbols to represent arbitary codecs, for example a codec for a matrix of integers would be represented by applying the symbol for a matrix codec operator to the symbol for an integer codec. For each codec and codec operator we have an associated Scala class. For atomic codecs, this class implements an \texttt{encode} and \texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec operators, it implements a \texttt{build\_codec}\ednote{Correct method name} method -- that takes as input an AtomicCodec and returns an codec for the composite type.
+
+To be able to construct the codec that corresponds to a Term we have also implemented a Coder class\ednote{Different name?}. It starts from a term representing a codec, finds the appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec instance. This allows us given a literal value  and a Term representing its type to encode or decode terms in almost arbitary ways.
+
+\subsection{Using Records and Schemas inside MMT}
+
+Now that we are able to translate between the representations of values of fields of records inside an external database we want to model the record as a whole inside MMT. For this we introduce a type of records inside MMT. This is just what you would expect -- a list of (key, value) pairs with each key appearing at most once. In ou rimplementation the keys are MMT symbols and the values are arbitary MMT values. We also introduce a projection operator. This takes an MMT record and a key and returns the values of the key in the given record.
+
+Next we want to be able to represent the database record inside MMT. For this we assume that the records inside the database are homogeneous, that is each record has the same fields and the values have the same types. We require the values of these types to be decodable with a single codec. For this purpose we introduce the concept of a schema theory. This schema theory has a declaration for each field in the database. Furthermore we use meta-data to annotate each declaration by stating which codec it uses. Since a codec can be represented by an MMT term this is easy to implement.
+
+The schema theory tells us exactly how a record inside the database looks like and how to turn it into an MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{Update the name ; need to implement this w/ Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the MMT term corresponding to the record.
+
+We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them. \ednote{This currently does not work; why?}.
+
+\ednote{Transition to the next section; missing}
+
+\section{LMFDB as an Example Implementation}\label{sec:lmfdb}
+
+\ednote{Write about the concrete lmfdb example}
+\ednote{Give an actual example}
+\ednote{Give an overview of the written theories}
+
+\section{Outlook and Conclusion}\label{sec:conclusion}
+
+In this report we introduced the basics of how we imagine MMT data-centric theories. Here we connect to external databases which we model as a set of well-typed records, that is list of (key, value) pairs. We introduced the concept of record types inside MMT. Here keys are symbols which are declared inside a schema theory and the values are MMT literals translated from the physical database representations using codecs.
+
+Additionally we have implemented an an actual example. For this we used the lmfdb database of elliptic curves. We implemented a multitude of codecs that should also prove useful in future expansions of this implementation. We have demonstrated that it is possible to integrate databases inside MMT seamlessly so that it is not noticable that declarations are actually retrieved from a database instead of being declared from within MMT directly.
+
+In the future we want to expand on this concept. Right now we can only translate database records into MMT objects. While we want to use the form of the objects used by MMT as the primary representation we want to be able to translate these objects to system specifc objects. Each system might have system-specific constructors and / or representations. In practice all systems will have a constructor for these objects. These will take a set of arguments. These arguments will either be primitive (in which case we can just encode them from MMT using a codec) or be complex objects themselves (in which case we can recurse into the entire procedure). Storing these encodings inside MMT we will be able to write thin interfaces to MMT, which can then easily retrieve objects from MMT in their prefered representation.
+
+Together with the opposite process -- the understanding of objects by using accessors from arbitary systems -- will also allow (almost) arbitary systems to exchange objects via MMT. We are already working on a Python Client implementation. This will not apply any recoding to the objects -- it just retrieves records in an easily accessible form from MMT. In the future we are hoping to use this to integrate MMT and GAP and enable GAP to use any kind of object that MMT has access to.
+
+\newpage\printbibliography
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
