@@ -1,46 +1,84 @@
-BST = alpha apalike
-BSTINPUTS = /usr/local/texlive/2008/texmf-dist/bibtex/bst/base/:
-HURL = $(BST:%=%hurl.bst)
-URLH = $(BST:%=%urlh.bst)
-KWARC.bib = extpubs.bib kwarcpubs.bib kwarccrossrefs.bib extcrossrefs.bib
-KWARC.xml = $(KWARC.bib:%=%.xml)
-LBIBS = $(KWARC.xml:%=--bibliography=%)
+SHELL:=/bin/bash
 
-KWARC = mkohlhase
-PTYPE = article inproceedings
-KPUBS.tex = $(PTYPE:%=mkohlhase-%.tex)
-KPUBS.html = $(KPUBS.tex:%.tex=%.html)
+### <CONFIG> ###
 
-all: kwarcpubs.pdf $(KWARC.xml)
-bst: $(HURL) $(URLH)
-pubs: $(KPUBS.html)
+# BIB files
+bib.ext				= kwarcpubs.bib extpubs.bib kwarccrossrefs.bib extcrossrefs.bib
+bib.all				= preamble.bib $(bib.ext)
+bib.people		= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
 
-$(HURL): %hurl.bst: $(BSTINPUTS)/%.bst
-	urlbst --inlinelinks --hyperref $< > $@
+# Sources
+src						= src/
+bib.src				=	./
+ltxml.src			= $(src)ltxml/
+tex.src				= $(src)tex/
+html.src			= $(src)html/
+pubs.src			= $(src)pubs/
 
-$(URLH): %urlh.bst: $(BSTINPUTS)/%.bst
-	urlbst --hyperref $< > $@
+# Destination
+dist					=	dist/
+bib.dist			= ./kwarc.bib
+ltxml.dist		= $(dist)ltxml/
+tex.dist			= $(dist)tex/
+html.dist			= $(dist)html/
+pubs.dist			= $(dist)pubs/
 
-kwarcpubs.pdf: kwarcpubs.tex kwarcnocites.tex $(KWARC.bib)
-	pdflatex kwarcpubs
-	biber kwarcpubs
-	pdflatex kwarcpubs
-	pdflatex kwarcpubs
+# Scripts etc
+bib.sty				= $(ltxml.src)kwarcbibs.sty
+html.script 	= $(html.src)generate-html
 
-$(KWARC.xml): %.bib.xml: %.bib 
-	latexmlc $< --bibtex --includestyles --preload=kwarcbibs.sty.ltxml --destination=$@ --log=$<.ltxlog
 
-Pubs.html: pubs.tex $(KWARC.xml)
-	latexmlc $(LBIBS) --format=html5 --destination=pubs.html --log=pubs.ltxlog $<
+### </CONFIG> ###
 
-mkohlhase-article.tex: kwarcpubs.bib.xml kwarcpubs.bib.xml
-	xsltproc --stringparam type article -o $@ mybib.xsl kwarcpubs.bib.xml
+# FOR kwarc.bib files
+kwarc.bib.in		= $(bib.all:%=$(bib.src)%)
 
-mkohlhase-inproceedings.tex: kwarcpubs.bib.xml kwarcpubs.bib.xml
-	xsltproc --stringparam type inproceedings -o $@ mybib.xsl kwarcpubs.bib.xml
+# for kwarc.bib.xml files
+kwarc.ltxml.in		= $(bib.sty) $(bib.sty).ltxml
+kwarc.ltxml.out		= $(bib.ext:%=$(ltxml.dist)%.xml)
 
-$(KPUBS.html): %.html: %.tex $(KWARC.xml)
-	latexmlc $(LBIBS) --format=html5 --destination=$@ --log=$<.ltxlog --css=bib.css $<
+### TARGETS ###
 
-echo: 
-	echo $(KPUBS.html)
+all: dist
+clean: clean-bib clean-xml clean-html clean-pubs
+
+dist: bib pubs
+
+# kwarc.bib --> concat files
+bib: setup-bib $(bib.dist)
+setup-bib:
+	mkdir -p $(dist)
+clean-bib:
+	-rm $(bib.dist)
+$(bib.dist): 
+	awk 'FNR==1{print ""}{print}' $(kwarc.bib.in) > $(bib.dist)
+
+# *.bib.xml --> use latexmlc
+xml: setup-xml $(kwarc.ltxml.out)
+setup-xml:
+	mkdir -p $(ltxml.dist)
+clean-xml: 
+	-rm -r $(ltxml.dist)
+$(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
+	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
+
+# *.html --> custom script (xsltproc + latexml)
+html: setup-html xml
+	$(SHELL) $(html.script) $(src) $(dist) "$(bib.people)"
+setup-html:
+	mkdir -p $(html.dist)
+	mkdir -p ${tex.dist}
+clean-html:
+	-rm -r $(html.dist)
+	-rm -r ${tex.dist}
+
+# pubs --> xsltproc
+pubs: setup-pubs html $(bib.people)
+setup-pubs:
+	mkdir -p $(pubs.dist)
+	cp $(pubs.src)publist.css $(pubs.dist)
+clean-pubs:
+	-rm -r $(pubs.dist)
+$(bib.people): %:
+	mkdir -p $(pubs.dist)$@
+	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(pubs.src)publist.xsl $(pubs.src)publist.xsl
