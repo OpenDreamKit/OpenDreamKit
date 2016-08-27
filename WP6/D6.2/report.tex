@@ -25,8 +25,12 @@
 \duedate{31/08/2016 (Month 12)}
 \def\pn{OpenDreamKit\xspace}
 
-\author{Michael Kohlhase, Florian Rabe, Tom Wiesing\\Jacobs University Bremen}
-\date{}
+\author{Michael Kohlhase}
+\author{Florian Rabe}
+\author{Tom Wiesing}
+\address{Jacobs University Bremen}
+\author{Paul-Olivier Dehaye}
+\address{Z\"urich University}
 %\title{-- ??title?? -- }
 
 \usepackage[parfill]{parskip}
@@ -552,7 +556,7 @@ Consider the problem of formalising the natural numbers inside a theory. For thi
 
 This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
 
-Lmfdb\ednote{reference to definition; should be in Pauls part} consists of many sub-databases, one of them is a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves (and indeed we have done this, but more on that later). We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside lmfdb. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
+LMFDB\ednote{reference to definition; should be in Pauls part} consists of many sub-databases, one of them is a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves (and indeed we have done this, but more on that later). We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
 
 In practice we will never need to access all of these declarations at once -- in most scenarios we will only need a very small subset of them. A small subset that is big enough to hold in memory. Hence we need some process to load the declarations inside main memory once we need them -- or possibly even create them if they do not yet exist.
 \begin{mydef}[Virtual theory]
@@ -593,7 +597,7 @@ We also want to be able to access specific fields from the retrieved objects. Fo
 
 \section{Existing Databases}\label{sec:lmfdb}
 
-\subsection{lmfdb}
+\subsection{LMFDB}
 \subsection{OEIS}
 \subsection{FindStat}
 
@@ -613,7 +617,7 @@ In the future of the OpenDreamKit project we want to investigate this question f
 
 In this report we introduced the basics of how we imagine MMT data-centric theories. Here we connect to external databases which we model as a set of well-typed records, that is list of (key, value) pairs. We introduced the concept of record types inside MMT. Here keys are symbols which are declared inside a schema theory and the values are MMT literals translated from the physical database representations using codecs.
 
-Additionally we have implemented an an actual example. For this we used the lmfdb database of elliptic curves. We implemented a multitude of codecs that should also prove useful in future expansions of this implementation. We have demonstrated that it is possible to integrate databases inside MMT seamlessly so that it is not noticable that declarations are actually retrieved from a database instead of being declared from within MMT directly.
+Additionally we have implemented an an actual example. For this we used the LMFDB database of elliptic curves. We implemented a multitude of codecs that should also prove useful in future expansions of this implementation. We have demonstrated that it is possible to integrate databases inside MMT seamlessly so that it is not noticable that declarations are actually retrieved from a database instead of being declared from within MMT directly.
 
 In the future we want to expand on this concept. Right now we can only translate database records into MMT objects. While we want to use the form of the objects used by MMT as the primary representation we want to be able to translate these objects to system specifc objects. Each system might have system-specific constructors and / or representations. In practice all systems will have a constructor for these objects. These will take a set of arguments. These arguments will either be primitive (in which case we can just encode them from MMT using a codec) or be complex objects themselves (in which case we can recurse into the entire procedure). Storing these encodings inside MMT we will be able to write thin interfaces to MMT, which can then easily retrieve objects from MMT in their prefered representation.
 
