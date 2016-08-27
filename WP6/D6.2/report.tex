@@ -1,5 +1,6 @@
 \documentclass{deliverablereport}
 
+
 \usepackage[style=alphabetic,backend=biber]{biblatex}
 \addbibresource{../../lib/kbibs/kwarc.bib}
 \addbibresource{../../lib/deliverables.bib}
@@ -25,9 +26,7 @@
 \duedate{31/08/2016 (Month 12)}
 \def\pn{OpenDreamKit\xspace}
 
-\author{Michael Kohlhase, Florian Rabe, Tom Wiesing\\Jacobs University Bremen}
-\date{}
-%\title{-- ??title?? -- }
+\author{Tom Wiesing}
 
 \usepackage[parfill]{parskip}
 
@@ -546,13 +545,13 @@ To work with DK theories, the first thing we need to do is define them.
   A DK theory is a theory consisting potentially infinite set of declarations.
 \end{mydef}
 
-But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all classical\ednote{Better word} theories represented inside MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
+But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all K-theories represented inside MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
 
-Consider the problem of formalising the natural numbers inside a theory. For this we could use a theory with just eighjt declarations -- one for the type of natural numbers, one for the number zero, one for the successor function and one for each of the five Peano axiomes. This defines a DK theory however it is not very practical. We could use terms for each of the natural numnbers, but if we want to write down a number like $365$, we would have to apply the successor function $365$ times. We really want to have one declaration for each natural number, i.e. have each number declared as the successor of the previous one. This is in the spirit of DK theories. The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down.
+Consider the problem of formalising the natural numbers inside a theory. For this we could use a theory with as little as eight declarations -- one for the type of natural numbers, one for the number zero, one for the successor function and one for each of the five Peano axiomes. This defines a DK theory however it is not very practical. We could use terms for each of the natural numnbers, but if we want to write down a number like $365$, we would have to apply the successor function $365$ times. We really want to have one declaration for each natural number, i.e. have each number declared as the successor of the previous one. This is in the spirit of DK theories.
 
-This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
+The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down. This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
 
-Lmfdb\ednote{reference to definition; should be in Pauls part} consists of many sub-databases, one of them is a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves (and indeed we have done this, but more on that later). We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside lmfdb. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
+Lmfdb is a mathematical database that contains a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done this. More on what lmfdb is and what exactly we have achieved so far can be found below in Section~\ref{sec:lmfdb}}. We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside lmfdb. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
 
 In practice we will never need to access all of these declarations at once -- in most scenarios we will only need a very small subset of them. A small subset that is big enough to hold in memory. Hence we need some process to load the declarations inside main memory once we need them -- or possibly even create them if they do not yet exist.
 \begin{mydef}[Virtual theory]
@@ -590,11 +589,11 @@ The schema theory tells us exactly how a record inside the database looks like a
 
 We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them.
 
-\section{Case Studies of Existing Databases}\label{sec:lmfdb}
+\section{Case Studies of Existing Databases}\label{sec:cases}
 
-While our theoretical model of DK theories and our architectural design of virtual theories are applicable to a wide variety of databases, in the scope of the OpenDreamKit project we want to conduct a few case studies and connect to some databases in particular. We have started effort to connect to some of them already whereas we are still in the design phase for others. In this section we want to give a short overview of these databases, the current state and future of our plans. \ednote{Possibly refactor \& extend these parts, they are mostly based on the proposal}
+While our theoretical model of DK theories and our architectural design of virtual theories are applicable to a wide variety of databases, in the scope of the OpenDreamKit project we want to conduct a few case studies and connect to some databases in particular. Our efforts so far are based on two of these case studies of which we want to give a short overview below.
 
-\subsection{Lmfdb}
+\subsection{Lmfdb}\label{sec:lmfdb}
 
 Lmfdb \cite{lmfdb} is a database of objects from number theory. It mostly consists of L-functions, but also has a number of other sub-databases. It is built on top of MongoDB and as such uses JSON to model all of its data.
 
@@ -610,21 +609,17 @@ We have already semantified the pure text format and, among other things, this h
 
 Similar to lmfdb we plan on integrating this into our virtual theories architecture. We are considering building one DK theory per sequence, where the declarations in each theory contain the known elements of the sequence. We also plan to integrate this with our infrastructure on knowledge management services, such as MathHub and MathWebSearch.
 
-\subsection{FindStat}
-
-\ednote{What exactly did we promise here?}
-
 \section{Querying}
 
 So far we have only concerned ourselves with accessing DK theories one declaration at a time. This shows that DK theories are indeed useful, however in general one wants to be able to access multiple declarations at once. Even though it is not the focus of this report, we have had some thoughts about this.
 
-Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve}.
+Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve. }.
 
 There gives a wide range of interesting questions that one might want to implement a query engine for. Since most of the declarations that one wants to query over a big, one does not want to evaluate each query by iterating over the entire set -- this is far to slow. Thus a naive approach consists of iterating over all declarations beforehand, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
 
 To be able to answer the second question above, one might want to take all occuring values (in this case integers) and factorise them. Again we can store this in some form of index. This can also be extended to polynomials -- which would allow users to search polynomials based on their roots. Also in this situation it is very easy to underestimate the complexity of the index.
 
-It comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. For example we have built a general purpose query language for MMT. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \ednote{Which MWS do we cite?} for details.
+It comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. For example we have built a general purpose query language for MMT. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \cite{ODK-D6.1} for details.
 
 In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside MMT and then compile this into a database query -- which can then be evaluated efficiently. It could also take another direction entirely.
 
