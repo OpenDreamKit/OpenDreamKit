@@ -583,7 +583,7 @@ To be able to construct the codec that corresponds to a Term we have also implem
 
 Codecs only solve half of the problem -- they can only translate values. We still need to represent the records as a whole inside DK theories. For this we introduce a type of records inside MMT. This is just what you would expect -- a list of (key, value) pairs with each key appearing at most once. In ou rimplementation the keys are MMT symbols and the values are arbitary MMT values. We also introduce a projection operator which takes an MMT record and a key and returns the values of the key in the given record.
 
-To translate the entire object, we assume that the records of one type inside the database are homogeneous\footnote{That is each record has the same fields and the values have the same semantic types. Having the same semantic types means requiring the values of these types to be decodable with a single codec. }For this purpose we introduce the concept of a schema theory. This schema theory has a declaration for each field in the database. Furthermore we use meta-data to annotate each declaration by stating which codec it uses. Since a codec can be represented by an MMT term this is easy to implement.
+To translate the entire object, we assume that the records of one type inside the database are homogeneous\footnote{That is each record has the same fields and the values have the same semantic types. Having the same semantic types means to be decodable with the same codec. }. For this purpose we introduce the concept of a schema theory. This schema theory has a declaration for each field in the database. Furthermore we use meta-data to annotate each declaration by stating which codec it uses. Since a codec can be represented by an MMT term this is easy to implement.
 
 The schema theory tells us exactly how a record inside the database looks like and how to turn it into an MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{Update the name ; need to implement this w/ Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the MMT term corresponding to the record.
 
@@ -598,16 +598,15 @@ We also want to be able to access specific fields from the retrieved objects. Fo
 
 \section{Querying}
 
-* MWS + QMT focus on querying (mostly K-theories)
-* research goal: querying DK-theories
-  * two parts: query language + evaluating queries
-  * naive implementation will not scale
-  * need for indexes (values, subterms, etc)
-  * possiblities: transslate queries like values with an aextension of codecs
-  * hashing / indexing
-    * MWS index
-    * relational indexes (QMT)
-    * "value" indexes
+So far we have only concerned ourselves with accessing DK theories one declaration at a time. This shows that DK theories are indeed useful, however in general one wants to be able to access multiple declarations at once. Even though it is not the focus of this report, we have had some thoughts about this.
+
+Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve}.
+
+There gives a wide range of interesting questions that one might want to implement a query engine for. A very naive approach can consists of iterating over all declarations inside the database, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
+
+Thus it comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. We have built a general purpose query language for MMT -- but this only works well with K theories. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \ednote{Which MWS do we cite?} for details.
+
+In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could also consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside MMT and then compile this into a database query -- which can then be evaluated efficiently.
 
 \section{Outlook and Conclusion}\label{sec:conclusion}
 
