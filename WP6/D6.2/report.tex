@@ -3,7 +3,7 @@
 \usepackage[style=alphabetic,backend=biber]{biblatex}
 \addbibresource{../../lib/kbibs/kwarc.bib}
 \addbibresource{../../lib/deliverables.bib}
-% \addbibresource{rest.bib}
+\addbibresource{rest.bib}
 % temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
 \makeatletter\def\blx@maxline{77}\makeatother
 
@@ -586,16 +586,33 @@ Codecs only solve half of the problem -- they can only translate values. We stil
 
 To translate the entire object, we assume that the records of one type inside the database are homogeneous\footnote{That is each record has the same fields and the values have the same semantic types. Having the same semantic types means to be decodable with the same codec. }. For this purpose we introduce the concept of a schema theory. This schema theory has a declaration for each field in the database. Furthermore we use meta-data to annotate each declaration by stating which codec it uses. Since a codec can be represented by an MMT term this is easy to implement.
 
-The schema theory tells us exactly how a record inside the database looks like and how to turn it into an MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{Update the name ; need to implement this w/ Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the MMT term corresponding to the record.
+The schema theory tells us exactly how a record inside the database looks like and how to turn it into an MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{check if this a good idea with Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the MMT term corresponding to the record.
 
-We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them. \ednote{This currently does not work; why?}.
+We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them.
 
+\section{Case Studies of Existing Databases}\label{sec:lmfdb}
 
-\section{Existing Databases}\label{sec:lmfdb}
+While our theoretical model of DK theories and our architectural design of virtual theories are applicable to a wide variety of databases, in the scope of the OpenDreamKit project we want to conduct a few case studies and connect to some databases in particular. We have started effort to connect to some of them already whereas we are still in the design phase for others. In this section we want to give a short overview of these databases, the current state and future of our plans. \ednote{Possibly refactor \& extend these parts, they are mostly based on the proposal}
 
-\subsection{lmfdb}
+\subsection{Lmfdb}
+
+Lmfdb \cite{lmfdb} is a database of objects from number theory. It mostly consists of L-functions, but also has a number of other sub-databases. It is built on top of MongoDB and as such uses JSON to model all of its data.
+
+We have already implemented the schema and codec architecture above to build a virtual theory of elliptic curves in lmfdb. Even though this only is a very small part of lmfdb, this can serve as a template for future implementations of the remaining parts of lmfdb. We started out with having just a few fields of the curves available inside MMT, however adding the relevant codecs and making more fields available proofed to be a quick and easy job. This has shown us that we are heading in the right direction with our ideas so far.
+
+In the future we want to extend the coverage of the existing set of theories. This will include writing more schema theories and possibly introducing more codecs. This will likely also lead to some refactoring inside lmfdb itself, as the community for the first time will try to semantically describe its entire dataset.
+
 \subsection{OEIS}
+
+OEIS \cite{oeis} stands for On-Line Encyclopedia of Integer Sequences. It is a collection of around 250 thousand integer sequences that are stored as pure text form. The OEIS is licensed under Creative Commons and thus freely accessible.
+
+We have already semantified the pure text format and, among other things, this has helped us finding new relations between the existing sequences. A more detailed look at our previous work can be found in \cite{LuzKoh:fsarfo16} and we will not go into details here. So far these efforts have helped us to understand how the OEIS database is structured.
+
+Similar to lmfdb we plan on integrating this into our virtual theories architecture. We are considering building one DK theory per sequence, where the declarations in each theory contain the known elements of the sequence. We also plan to integrate this with our infrastructure on knowledge management services, such as MathHub and MathWebSearch.
+
 \subsection{FindStat}
+
+\ednote{What exactly did we promise here?}
 
 \section{Querying}
 
@@ -603,11 +620,13 @@ So far we have only concerned ourselves with accessing DK theories one declarati
 
 Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve}.
 
-There gives a wide range of interesting questions that one might want to implement a query engine for. A very naive approach can consists of iterating over all declarations inside the database, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
+There gives a wide range of interesting questions that one might want to implement a query engine for. Since most of the declarations that one wants to query over a big, one does not want to evaluate each query by iterating over the entire set -- this is far to slow. Thus a naive approach consists of iterating over all declarations beforehand, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
 
-Thus it comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. We have built a general purpose query language for MMT -- but this only works well with K theories. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \ednote{Which MWS do we cite?} for details.
+To be able to answer the second question above, one might want to take all occuring values (in this case integers) and factorise them. Again we can store this in some form of index. This can also be extended to polynomials -- which would allow users to search polynomials based on their roots. Also in this situation it is very easy to underestimate the complexity of the index.
 
-In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could also consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside MMT and then compile this into a database query -- which can then be evaluated efficiently.
+It comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. For example we have built a general purpose query language for MMT. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \ednote{Which MWS do we cite?} for details.
+
+In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside MMT and then compile this into a database query -- which can then be evaluated efficiently. It could also take another direction entirely.
 
 \section{Outlook and Conclusion}\label{sec:conclusion}
 
@@ -620,7 +639,6 @@ In the future we want to expand on this concept. Right now we can only translate
 Together with the opposite process -- the understanding of objects by using accessors from arbitary systems -- will also allow (almost) arbitary systems to exchange objects via MMT. We are already working on a Python Client implementation. This will not apply any recoding to the objects -- it just retrieves records in an easily accessible form from MMT. In the future we are hoping to use this to integrate MMT and GAP and enable GAP to use any kind of object that MMT has access to.
 
 \newpage\printbibliography
-\ednote{Switch this back to bibtex?}
 \end{document}
 
 %%% Local Variables:
