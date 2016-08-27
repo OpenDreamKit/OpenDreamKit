@@ -536,12 +536,11 @@ I don't know if it is relevant here but we are also accumulating a set of
 bibliographic references and have already instuted a system for making
 citations within knowls very easy.
 
-\section{DK theories}\label{sec:data}
-\ednote{Better section title}
+\section{Data-Knowledge Theories}\label{sec:data}
 
 To work with DK theories, the first thing we need to do is define them.
 \begin{mydef}[DK theory]
-  A DK theory is a theory consisting potentially infinite set of declarations.
+  A Data-Knowledge (or DK for short) theory is a theory consisting of a potentially infinite set of declarations.
 \end{mydef}
 
 But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all K-theories represented inside MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
@@ -573,7 +572,6 @@ A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term insid
 We can use codecs to translate between MMT terms and the database objects. There are two basic ways of creating codecs -- atomic codecs and codec operators. An atomic codec is a codec of a very simple type, for example an encoding of integers as strings. In this case $f$ would be a map from strings consisting of digits\footnote{Technically, there may also be a starting \texttt{"-"} or \texttt{"+"} sign, but the details are not important here. } to integers. This mapping does exactly what you would expect -- it maps the string \texttt{"0"} to 0, the string \texttt{"1"} to 1, etc. $g$ would be an inverse of sorts -- the map from integers to strings that maps 0 to \texttt{"0"}, 1 to \texttt{"1"}, etc. Note that here $g$ is the left inverse of $f$ (in the sense that $g \circ f$ is the identity), but $f \circ g$ not neccessarily. In a general setting we want $g \circ f$ to be the identity for all codecs, however in practive it rarely happens. A good example of this is the problem of precision -- there is no chance of encoding all of the real numbers in a physical (countable, probably even finite) datatype.
 The second way of creating codecs is by using codec operators. These take as input an atomic codec and give a codec for a composite type. Take for example the list codec operator. It takes as input a codec for an arbitary type $t$ and gives a codec for the type \texttt{List(t)}.
 
-\ednote{Give more examples of codecs}
 Inside MMT we can represent the actual values as literals. For this we do not use the representations from the database, but instead values that best represent the true values. We also represent the codecs inside MMT. Each codec can be represented as an MMT term, with each atomic codec  and each codec operator having an associated symbol inside a Codec theory We can use these symbols to represent arbitary codecs, for example a codec for a matrix of integers would be represented by applying the symbol for a matrix codec operator to the symbol for an integer codec. For each codec and codec operator we have an associated Scala class. For atomic codecs, this class implements an \texttt{encode} and \texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec operators, it implements a \texttt{build\_codec}\ednote{Correct method name} method -- that takes as input an AtomicCodec and returns an codec for the composite type.
 
 To be able to construct the codec that corresponds to a Term we have also implemented a Coder class\ednote{Different name?}. It starts from a term representing a codec, finds the appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec instance. This allows us given a literal value  and a Term representing its type to encode or decode terms in almost arbitary ways.
