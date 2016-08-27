@@ -30,6 +30,10 @@
 
 \usepackage[parfill]{parskip}
 
+% for definitions
+\usepackage{amsthm}
+\newtheorem{mydef}{Definition}
+
 \begin{document}
 
 \maketitle\vfill
@@ -52,7 +56,6 @@ The OpenDreamKit project \cite{ODKproposal:on} is an EU Horizon 2020 project wit
 To facilitate communication between these systems they need to have access to the same mathematical knowledge. This allows them to communicate and, for example, exchange objects between systems. By enabling exchange of objects between systems, each system can be used to compute properties of mathematical objects in the area in which it is best. We call this approach the Math-In-The-Middle approach \cite{DehKohKon:iop16} because the underlying mathematical knowledge, the ``real math'' is in betweeen -- in the ``middle'' -- of the systems. Just having access to this knowledge is not enough -- each of the systems involved has its own particularities and needs some kind of interface to this knowledge. We model this approach using the well-established framework of theory graphs.
 
 \ednote{Introduce DK theories here}
-
 
 \subsection{A Brief Recap of Theory Graphs}
 
@@ -534,18 +537,31 @@ I don't know if it is relevant here but we are also accumulating a set of
 bibliographic references and have already instuted a system for making
 citations within knowls very easy.
 
-\section{Data-centric theories}\label{sec:data}
+\section{DK theories}\label{sec:data}
+\ednote{Better section title}
 
-\ednote{Define D-Theories}
-\ednote{Define Virtual Theories}
+To work with DK theories, the first thing we need to do is define them.
+\begin{mydef}[DK theory]
+  A DK theory is a theory consisting potentially infinite set of declarations.
+\end{mydef}
 
-To properly model data-centric theories we first need to define them. In our setting we considder a theory data-centric if most of the declarations contained within it are instances of a single concept that usually originate from a database. But what exactly does this mean? Consider the example of having a concept of sequences of natural number formalised inside a theory. In this setting we could create a data-centric theory by having the theory a theory that contains all sequences of natural numbers as concepts.
+But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all classical\ednote{Better word} theories represented inside MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
 
-This setting is in practice very difficult for multiple reasons. Mainly, the number of declarations is infinite. This in itself is not a problem, however a theory containing all sequences is just not very useful in practice. Even if we limited ourselves to a large finite subset of sequences -- take for example thoise defined in OEIS \ednote{cite OEIS} a further problem arises: We never want to manually write a theory that contains all these declarations. Hence we need to introduce dynamic on-demand declarations inside of MMT -- declarations that are only evaluated once they are needed.
+Consider the problem of formalising the natural numbers inside a theory. For this we could use a theory with just eighjt declarations -- one for the type of natural numbers, one for the number zero, one for the successor function and one for each of the five Peano axiomes. This defines a DK theory however it is not very practical. We could use terms for each of the natural numnbers, but if we want to write down a number like $365$, we would have to apply the successor function $365$ times. We really want to have one declaration for each natural number, i.e. have each number declared as the successor of the previous one. This is in the spirit of DK theories. The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down.
 
-For this we want to some form of database directly from within MMT. Furthermore this need to be invisible to the user -- they should not notice the difference between an actual theory and a theory that contains virtual declarations. This of course brings with it a few disadvantages. First and foremost we need to be connected to the network in order to properly handle this theory -- a request has to be made to the database each time we look for a new declaration.
+This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
 
-\section{Using Codecs To Understand Database Objects}
+Lmfdb\ednote{reference to definition; should be in Pauls part} consists of many sub-databases, one of them is a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves (and indeed we have done this, but more on that later). We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside lmfdb. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
+
+In practice we will never need to access all of these declarations at once -- in most scenarios we will only need a very small subset of them. A small subset that is big enough to hold in memory. Hence we need some process to load the declarations inside main memory once we need them -- or possibly even create them if they do not yet exist.
+\begin{mydef}[Virtual theory]
+  A Virtual Theory is an implementation of a DK theory that loads or creates declarations in main memory on demand and unloads them once memory space becomes limited.
+\end{mydef}
+This adresses the problems we mentioned above. On top of the requirements already defined, we ideally want such an implementation to be invisible to the user -- they should not notice the difference between a K theory and a DK theory that contains on-demand declarations.
+
+While there are many possible implementations for DK theories, here we only concern ourselves with the case where the declaration come from some arbitary external database. On top of retrieving declarations from DK theories, we also want to be able to create new declarations, update existing ones and possibly even delete some. In the case of some underlying database this corresponds perfectly to the CRUD -- Create, Read, Update, Delete -- operations. We can just translate the operations and have the database take care of the implementation details. \ednote{Possibly link to query section here}
+
+\section{Relating Database structure and Mathematical objects}
 
 We also need to be able to translate between the representations of the objects stored in the database and proper MMT terms\ednote{underlying math <-> database objects} -- objects of a certain type that properly represent the corresponding mathematical objects. In most common databases, each record stored usually has multiple fields that each have values. These values are usually represented with some physical data type -- for example an integer is stored in the form of a 64-bit integer\ednote{Better example?}. In some of the cases it is trivial to translate the encoded values to the actual, intended values. In some cases, it might not be as trivial as it seems. Take for example a field with the type matrix of integers. On one hand it could be represented as a list of list of integers. On the other hand the database could use some kind of sparse representation, i.e. store only the non-zero entries. To encompass this setup inside MMT we introduce the concept of codecs.
 
