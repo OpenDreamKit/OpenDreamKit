@@ -1,9 +1,10 @@
 \documentclass{deliverablereport}
 
+
 \usepackage[style=alphabetic,backend=biber]{biblatex}
 \addbibresource{../../lib/kbibs/kwarc.bib}
 \addbibresource{../../lib/deliverables.bib}
-% \addbibresource{rest.bib}
+\addbibresource{rest.bib}
 % temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
 \makeatletter\def\blx@maxline{77}\makeatother
 
@@ -83,480 +84,22 @@ In Section~\ref{casestudy}, we will present the different systems that are most 
 In Section~\ref{sec:data} we describe in detail how we model data-centric theories, then continue in Section~\ref{sec:lmfdb} by describing and demonstrating the example we have implemented already. We conclude in Section~\ref{sec:conclusion} by summarizing what we have achieved so far and giving a short outlook on how we plan to build translations between systems.
 
 \section{Report and Case-Study}\label{casestudy}
-\ednote{Paul: Write about study}
-\subsection{FindStat}
-1. Overview at a high level of your system
+\ednote{Paul: give a general overview of the results of the case-study}
 
-FindStat is a database and a web interface accessing the database designed for combinatorists.
-The purpose is to store and search informations on *statistics* over *combinatorial objects*.
-A statistic is mostly a map between a set of combinatorial objects to the natural numbers. As an
-example, the number of edges is a statistic on graphs. The main purpose of FindStat is to give an
-interface for one to *search* for some statistics the same way one would search for integer sequences
-on oeis.
-
-1. What data do you have?
- 1. Structure
-
-We have basically 3 categories of objects.
-
-**The combinatorial collections** FindStat stores a list of combinatorial collections: 18 as of today (January 2016).
-All our combinatorial collections are actually linked to a *Sage* combinatorial collection. We store the minimal informations
-for us to print the collection on our website and recreate the collection in Sage.
-
-For every collection, we store a list of combinatorial objects. More precisely, we use *Sage* to generate the list of objects,
-but we store a standardised version of the printout of the object. This standardised version is homemade: it has to be
-* standardized: a single given graph will always be printed the same way,
-* unique: two different graphs will never be printed the same way,
-* human readable: when possible, it should be easy to understand for a Human reader and not only a machine (so no hashkey or anything like this).
-When possible, we keep the default printout of Sage object. Sometimes, we have to store a little bit of code to convert this printout into a
-Sage entry.
-
-**The statistics** A Statistic is a list of couples : combinatorial object from a certain collection / value. As of now, we have 364 statistics,
-each of them containing between 200 and 1000 entries. For each statistic, we store some metadata: Name, identifier
-(specific to FindStat, can be referenced from outside), combinatorial collection, description, code, references, etc. And we also store the data itself: a list of entries,
-each entry is made from combinatorial object (as a string, by its standardised printout) and a integer value. As an example, the values of "The number of Edges of a graph"
-St000081 is a list of all graphs up to size 6 with their associated number of edges.
-
-**The combinatorial maps** A combinatorial map is a mathematical function from a combinatorial collection to another combinatorial collection. For example: binary search
-tree insertion turns permutations into binary trees. As of now, we store 107 maps each of them containing between 200 and 1000 entries. We store the metadata of the map: domain, codomain, description, code, etc. And we store the mapdata as a list of (value, image)
-where value and image are combinatorial objects stored as strings through their standardised printout.
-
-As an addition, we also provide some **wiki pages** with informations on combinatorial objects, maps and statistics in a less formalized way.
-
- 1. Format
-
-Our low level data format is a SQL database where we store everything we need. Most of the data described above is accessible through the website in HTML.
-All information about *statistics* and *maps* can be accessed through *json* files that have standardised url depending on the identifier of said statistics or
-maps. It is possible that the url changes if the website organisation is changed in the future but it will always be related to the identifiers which are set once and for all.
-The format of the json files are also likely to change but we try to limit those changes and keep backward compatibility as much as possible. Those json files
-are the closest we have to an external API, their are used by the *Sage FindStat interface*.
-
-All our data are distributed under Creative Commons Attribution-ShareAlike 3.0 Unported License.
-
- 1. How is it produced?
- 1. How is it changed?
-
-The data are produced and changed through user contributions. As for now, 55 people are listed as contributors. We have an HTML form to submit statistics where
-the user receives many informations on what should be submitted and in what format. Once a new statistic is submitted or a change is proposed, it has to be validated
-by one of the FindStat developers. We don't receive that much data so the process is usually very quick. Each change is stored and so we have access to the full history
-of the statistic informations with authors.
-
-For maps, we don't have yet the "Add Map" form. Each map has to be added by one of the FindStat developers. The reason is just that the maps are a more recent addition and
-so the adding process has not been finalized yet.
-
- 1. How do you document it?
-
-We have a very basic documentation for statistic data that we provide to the user who which to contribute. We don't have any documentation for our dataformat (json files).
-
-1. What knowledge do you have?
- 1. Sources of external knowledge?
-
-We relate on the knowledge of our contributors about statistics and maps and try to store it. We also depend on some Sage algorithms, for example to generate the combinatorial
-objects.
-
- 1. Can you point to implicit knowledge? Is it common knowledge?
-
-Our website is targeted at combinatorists. Even though, we try to give all the basic definitions and information, it might be difficult to use for someone who has no
-knowledge of these objects.
-
- 1. What would you gain if it was made explicit/machine actionable?
-
-At the moment, our infrastructure is really Sage oriented (object printouts, names, etc). A language-neutral description of our objects might make it easier for interfaces
-from other system to appear. The gain for us is that the more user we have (from different background), the more contributors we might get and so the more mathematically
-pertinent our database is.
-
- 1. Have you gone in this direction? How did you represent the knowledge then?
-
-Giving access to the statistics and maps data as json files was a first step in this direction.
-
- 1. How do you collaborate on knowledge representation?
-
-By referencing those data (statistics and maps) and proposing unique identifiers that can be referenced from the outside (the same way the OEIS
-identifies integer sequences with a unique number).
-
-1. What software do you have?
- 1. What custom software are you running?
-
-We need the software *Sage* to run some computations: basically, generating the objects, printing them, etc. The statistic and maps code are usually given into
-Sage for consistency but it is not mandatory.
-
-There is also some FindStat specific code to run the website. Most of this code is just basic webprogramming views of our database.
-
-The database search is the heart of the service. It is a small algorithm that takes a user given statistics and compares it to the database up to some maps.
-
- 1. In which language?
-
-Our server runs on *Sage* with some imported web packages, so it is written in python. We use the python wiki server *MoinMoin* as a backend
-and have written some customized *MoinMoin* pluggings to run our service.
-
- 1. How does it use the data and the knowledge?
-
-The data is stored in a SQL database. It is preloaded and precomputed when we launch the server then all computations are made on this preloaded data.
-We don't use the knowledge at this stage, we just basically request the database and compare numbers using some parameters. In the future, we might wanna
-use the knowledge we have on the maps (bijection, injection, surjection, involution, etc) to improve our algorithm.
-
- 1. How does your software act on represented knowledge?
-
-The software might put into light some mathematical relations between combinatorial objects but doesn't store them or anything like this.
-
-1. Mixing (revisit?)
- 1. Which knowledge is implicit in the data you have?
- 1. Which knowledge is implicit in the software you have?
-
-1. Anything else?
-
-\subsection{Sage}
-  - skim over sage databases (i.e. mention they exist, not more)
-  - talk about different uses of category framework, including Florent's tricks of adding new axions to check consistency
-  - talk about persistence/pickling of math objects as one point where semantics are implicit
-
-  - [SageMath](http://www.sagemath.org): General purpose computational (pure) mathematics software
-
-- 300 contributors
-
-- 1.5M lines of Python/Cython code
-
-- 40k functions
-
-- 4k classes
-
-- hundreds of open source (math) software/libraries in the distribution
-
---
-
----
- What data do you have?
-
- A collection of (optional) databases:
-
-- Usually coming from external software/databases
-
-- Examples:
-
-  - GAP databases
-  - OEIS
-  - John's database of elliptic curves
-  - ...
-
----
- Pickling / Serialization
-
-Objects can be converted to strings and reconstructed
-
-- Applications:
-
-  - Persistence
-  - Sage databases
-  - Exchange of data between Sage instances
-
-- Format: Python's pickle protocol
-
-  - Code to reconstruct the object + sanity checks
-  - By default: pickling by class + plain data (no encapsulation)
-  - Aiming for: pickling by construction (more semantic)
-
-
-
----
- What knowledge do you have?
-
-Mathematical properties and theorems, algorithms, ...
-
-
- Two key points that conditioned the design
-
-- There are only a handful of fundamental concepts:
-
-  operations: *, +, ...
-
-  axioms: associativity, commutativity, ...
-
-  Richness in the combinations of them (e.g. Fields)
-
-- Using an existing language and its object oriented features for
-  modelling and method selection
-
-
- Sources of external knowledge?
-
-Each Sage contributer brings on specific mathematical knowledge about
-the objects studied, which might not be available to others in the
-collaboration.
-
---
-
- Can you point to implicit knowledge?
-
-- The algorithms rely heavily on the mathematical properties of
-  the objects they manipulate.
-
-- Sage uses the Object Oriented features of Python
-
-  The properties of a Sage object are specified by its *class*:
-
-  - what mathematical object does it represent?
-
-  - how is it represented
-
-- The class information is often of technical flavor, and complemented
-  by additional information on its universe (parent, category)
-
---
-- Sage strives to model mathematics closely:
-
-  Not only matrices are instances of a specific classes and not plain
-  list of lists
-
-  But linear maps are instances of specific classes and not just
-  represented by matrices
-
-  ==> Reduced risk of calling a meaningless function
-
---
-
-- The abstract algebraic properties of an object (e.g. being a group
-  or a field) are modelled relatively explicitely:
-
-  Objects know the names of their categories and axioms
-
-  Meaning essentially implicit except, in the good cases, informally
-  in the documentation and as testing methods
-
-- The names of the operations are hardcoded
-
-  ==> duplication: additive / multiplicative / lie magmas
-
-  Morphisms by automatic renaming? Lacks static typing?
-
-- Taming the exponential blow
-
-  Size of the code linear in the number of methods
-
---
-- It's not always defined explicitly which methods an object in a
-  given category should implement.
-
-  Methods/operations are documented, but their exact specifications of
-  is not always completely defined/defined consistently accross the
-  class hierarchy.
-
-- Some theorems (e.g. wedderburn) are embedded in actionable form,
-  but that information cannot be extracted / operated on
-
---
- Is it common knowledge?
-
-The meaning of the relevant categories / axioms (e.g. ring,
-associativity) is relatively well known by the users and developpers.
-
---
- What would you gain if it was made explicit/machine actionable?
-
-- Dynamic generation of documentation that the user can navigate
-- Sanity/correctness checks; proofs?
-- Semantic handles to communicate with other systems
-- Avoiding duplication (additive magmas / multiplicative magmas)?
-
- Have you gone in this direction? How did you represent the knowledge then?
-
-- Categories / axioms were a first step :-)
-
- How do you collaborate on knowledge representation?
-
-- Collaborative development of code / doc / tests in the Sage sources
-
----
- What software do you have?
-
- What custom software are you running?
-
-- 1.5 M lines for the Sage library + all the rest
-
- In which language?
-
-- Python/Cython + myriads of languages used by subsystems
-
- How does it use the data and the knowledge?
-
-- As a fundation for its hierarchy of classes/categories
-
-- Those are used for code factorization, documentation, and generic testing
-
---
-
- How does your software act on represented knowledge?
-
-- Some computations in the lattices of categories:
-
-  X is a division ring and X is a finite set
-
-  ==> X is a finite field
-
----
- Mixing (revisit?)
-
- Which knowledge is implicit in the data you have?
-
- Which knowledge is implicit in the software you have?
-
-- Formal definition of axioms
-
-  That can be manipulated by the machine
-
-- Formal specifications of methods
-
-  That can be manipulated by the machine
-
-1. Anything else?
-
-Nope
-<section>
-
-\subsection{GAP}
-
-\subsection{LMFDB}
-
-1. Overview at a high level of the LMFDB system
-
- The [L-functions and Modular Forms DataBase](http://www.lmfdb.org) aims to aggregate and integrate computational and mathematical knowledge about L-functions and other number theoretic objects, and to present these complex and interconnected objects reliably while maintaining accessibility. At a mathematical level, this could help provide a uniform view of the concept of L-function, objects which can (sometimes conjecturally) be produced out of very different mathematical constructions. The collaboration involves around 50 mathematicians of varying coding skills and with different mathematical expertise.
-
-1. What data do you have?
-
- The entirety of the data held by the LMFDB is [accessible through an API](http://www.lmfdb.org/api/). One counts around 30 different types of objects stored, for a total of a few TB. The data is downloadable  [here](http://www.lmfdb.org/data/dump/).
-
- 1. Structure
-
-   The data is held in a Mongo database server, holding around 30 or so databases, each with their own collections.
-
- 1. Format
-
-   The data is held in the database as BSON (binary JSON), the internal format of Mongo documents.
-
- 1. How is it produced?
-
-   Data that ends up in the LMFDB has many different origins. Some are historical computations. Most are done in either GAP, Pari, Sage, Magma, etc, with the person who coded these original sources a member of the LMFDB who aims to make their data more accessible to their peers. Some of the data shown on the website is actually computed on the fly.
-
-    Data comes in through a variety of ad hoc ways, but essentially always transits through a JSON format before upload to the Mongo database. At some point there was discussion of allowing anyone to upload their data through an online form. This option is still there, but sees little use.
-
-    In general, proper referencing of data sources and documentation of its quality is a struggle.
-
- 1. How is it changed?
-
-   Updating is mostly done through some form of overwriting.
-
- 1. How do you document it?
-
-   The various formats are [in the process of being formalised]
-   % https://github.com/LMFDB/lmfdb-inventory
-   . The most advanced example is on elliptic curves
-   % https://github.com/LMFDB/lmfdb-inventory/blob/master/db-elliptic_curves.md
-   . The formalisation format itself does not have a spec.
-
-1. What knowledge do you have?
- 1. Sources of external knowledge?
-
-   Each participant in the LMFDB brings on specific mathematical knowledge about the objects studied, which might not be available to others in the collaboration. The LMFDB has the concept of "knowls", which are encyclopedic bits of content integrated alongside the data, and editable collaboratively.
-
- 1. Can you point to implicit knowledge? Is it common knowledge?
-
-   There is a lot of implicit knowledge in the encodings chosen for the data (ad hoc formats and references), some of it is made explicit (for instance [here](
-   % http://www.lmfdb.org/knowledge/show/ec.conductor_label
-   )). There is also a lot of implicit knowledge in the source code. There is little common knowledge across the collaboration, or at least there is a lot that is not common.
-
- 1. What would you gain if it was made explicit/machine actionable?
-
-   I (Paul) think the development process could be made more robust and efficient. The knowls currently serve as entry points for users and crucially also for onboarding future collaborators, as a stable basis for further collaboration. LMFDB could gain in productivity, robustness and ultimately utility if this process could be extended a bit further.
-
- 1. Have you gone in this direction? How did you represent the knowledge then?
-
-   The furthest the LMFDB has gone into the direction of formalising knowledge is in modularising as much as possible of the mathematical knowledge through knowls, creating an ad hoc ontology to classify them, and aligning it to the mathematical data objects that are presented. The LMFDB also tries to adhere to the concept of "one URL per object".
-
- 1. How do you collaborate on knowledge representation?
-
-   Edition of the knowls requires an account, which the LMFDB intends to offer to anyone. There is some versioning in place for knowls.
-
-1. What software do you have?
-
- The LMFDB is mostly written in Python, relies on Sage and Pari/GP as libraries. It uses the database MongoDB (and possibly also an SQL one), uses the web framework Flask, and the templating engine Jinja.
-
- 1. What custom software are you running?
-
-   In a way Sage is custom, since lots of LMFDB developers also contribute to Sage. Otherwise a whole lot of the logic is embedded in the website code.
-
- 1. In which language?
-
-   In the Flask framework.
-
- 1. How does it use the data and the knowledge?
-
-   Generally, a URL path will be associated to a Jinja template, requiring simultaneous fetching of pre-entered knowledge (knowls, Mongo DB), precomputed data (Mongo DB), and on-the-fly computation based on this precomputed data or existing functions implemented in some of the Computer Algebra Software already used.
-
- 1. How does your software act on represented knowledge?
-
-   As far as I know, it doesn't, except to display knowls.
-
-1. Mixing (revisit?)
- 1. Which knowledge is implicit in the data you have?
-
-   Again, a lot of the data encoding is implicit in the data. For instance, `[0,4,5,1]` might represent the polynomial $4*x+5*x^2+x^3$ or the polynomial $x(x-4)(x-5)(x-1)$.
-
- 1. Which knowledge is implicit in the software you have?
-
-   When populating templates, some of the mathematical knowledge might be really entered through the code, by completing the template in different ways according to the calling class (example: elliptic curve L-functions are of degree 2).
-
-1. Anything else?
-
- Nope
-
-Thanks for making a good start on this.  I do have some comments, some of
-which reflect rather recent changes and decisions made during the
-just-finished semester at ICERM which included weekly LMFDB working
-sessions.
-
-About uploading of data: "This option is still there, but sees little
-use."  This has never been a realistic option, and is not even visible
-unless a user of the website is a developer with an account and is logged
-in.  Perhaps best to say "This option has never been used seriously, and is
-not currently supported."
-
-"In general, proper referencing of data sources and documentation of its
-quality is a struggle."   Progress has been made on these through a new
-collection of "data quality" knowls, see
-http://www.lmfdb.org/knowledge/?category=dq .  This only started within the
-last few weeks but the intention is to have source / extent / quality /
-reliability all documented for the main sections of the database by next
-March's workshop.  As an example, see all elliptic curve pages such as
-http://www.lmfdb.org/EllipticCurve/Q/  there is a "Learn more about"
-section in th euppoe right which links to these knowls.
-
-Under "How is [the data] changed" we could say more though it is not
-uniform across the LMFDB.  In the best cases, the data is stored completely
-separately fom the LMFDB's own (mongo) database, e.g. in my ecdata github
-repository, under full revision control of text files;  and there are
-scripts to populate the d.b. from that.
-
-The process of documenting the data formats is ongoing, as has been driven
-recently by the writing of the API by Harald Schilly -- all very new.
-
-I don't know if it is relevant here but we are also accumulating a set of
-bibliographic references and have already instuted a system for making
-citations within knowls very easy.
-
-\section{DK theories}\label{sec:data}
-\ednote{Better section title}
+\section{Data-Knowledge Theories}\label{sec:data}
 
 To work with DK theories, the first thing we need to do is define them.
 \begin{mydef}[DK theory]
-  A DK theory is a theory consisting potentially infinite set of declarations.
+  A Data-Knowledge (or DK for short) theory is a theory consisting of a potentially infinite set of declarations.
 \end{mydef}
 
-But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all classical\ednote{Better word} theories represented inside MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
+But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all K-theories represented inside MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
 
-Consider the problem of formalising the natural numbers inside a theory. For this we could use a theory with just eighjt declarations -- one for the type of natural numbers, one for the number zero, one for the successor function and one for each of the five Peano axiomes. This defines a DK theory however it is not very practical. We could use terms for each of the natural numnbers, but if we want to write down a number like $365$, we would have to apply the successor function $365$ times. We really want to have one declaration for each natural number, i.e. have each number declared as the successor of the previous one. This is in the spirit of DK theories. The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down.
+Consider the problem of formalising the natural numbers inside a theory. For this we could use a theory with as little as eight declarations -- one for the type of natural numbers, one for the number zero, one for the successor function and one for each of the five Peano axiomes. This defines a DK theory however it is not very practical. We could use terms for each of the natural numnbers, but if we want to write down a number like $365$, we would have to apply the successor function $365$ times. We really want to have one declaration for each natural number, i.e. have each number declared as the successor of the previous one. This is in the spirit of DK theories.
 
-This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
+The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down. This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
 
-LMFDB\ednote{reference to definition; should be in Pauls part} consists of many sub-databases, one of them is a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves (and indeed we have done this, but more on that later). We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
+LMFDB is a mathematical database that contains a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done this. More on what LMFDB is and what exactly we have achieved so far can be found below in Section~\ref{sec:LMFDB}}. We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
 
 In practice we will never need to access all of these declarations at once -- in most scenarios we will only need a very small subset of them. A small subset that is big enough to hold in memory. Hence we need some process to load the declarations inside main memory once we need them -- or possibly even create them if they do not yet exist.
 \begin{mydef}[Virtual theory]
@@ -579,7 +122,6 @@ A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term insid
 We can use codecs to translate between MMT terms and the database objects. There are two basic ways of creating codecs -- atomic codecs and codec operators. An atomic codec is a codec of a very simple type, for example an encoding of integers as strings. In this case $f$ would be a map from strings consisting of digits\footnote{Technically, there may also be a starting \texttt{"-"} or \texttt{"+"} sign, but the details are not important here. } to integers. This mapping does exactly what you would expect -- it maps the string \texttt{"0"} to 0, the string \texttt{"1"} to 1, etc. $g$ would be an inverse of sorts -- the map from integers to strings that maps 0 to \texttt{"0"}, 1 to \texttt{"1"}, etc. Note that here $g$ is the left inverse of $f$ (in the sense that $g \circ f$ is the identity), but $f \circ g$ not neccessarily. In a general setting we want $g \circ f$ to be the identity for all codecs, however in practive it rarely happens. A good example of this is the problem of precision -- there is no chance of encoding all of the real numbers in a physical (countable, probably even finite) datatype.
 The second way of creating codecs is by using codec operators. These take as input an atomic codec and give a codec for a composite type. Take for example the list codec operator. It takes as input a codec for an arbitary type $t$ and gives a codec for the type \texttt{List(t)}.
 
-\ednote{Give more examples of codecs}
 Inside MMT we can represent the actual values as literals. For this we do not use the representations from the database, but instead values that best represent the true values. We also represent the codecs inside MMT. Each codec can be represented as an MMT term, with each atomic codec  and each codec operator having an associated symbol inside a Codec theory We can use these symbols to represent arbitary codecs, for example a codec for a matrix of integers would be represented by applying the symbol for a matrix codec operator to the symbol for an integer codec. For each codec and codec operator we have an associated Scala class. For atomic codecs, this class implements an \texttt{encode} and \texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec operators, it implements a \texttt{build\_codec}\ednote{Correct method name} method -- that takes as input an AtomicCodec and returns an codec for the composite type.
 
 To be able to construct the codec that corresponds to a Term we have also implemented a Coder class\ednote{Different name?}. It starts from a term representing a codec, finds the appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec instance. This allows us given a literal value  and a Term representing its type to encode or decode terms in almost arbitary ways.
@@ -590,28 +132,43 @@ Codecs only solve half of the problem -- they can only translate values. We stil
 
 To translate the entire object, we assume that the records of one type inside the database are homogeneous\footnote{That is each record has the same fields and the values have the same semantic types. Having the same semantic types means to be decodable with the same codec. }. For this purpose we introduce the concept of a schema theory. This schema theory has a declaration for each field in the database. Furthermore we use meta-data to annotate each declaration by stating which codec it uses. Since a codec can be represented by an MMT term this is easy to implement.
 
-The schema theory tells us exactly how a record inside the database looks like and how to turn it into an MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{Update the name ; need to implement this w/ Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the MMT term corresponding to the record.
+The schema theory tells us exactly how a record inside the database looks like and how to turn it into an MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{check if this a good idea with Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the MMT term corresponding to the record.
 
-We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them. \ednote{This currently does not work; why?}.
+We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them.
 
+\section{Case Studies of Existing Databases}\label{sec:cases}
 
-\section{Existing Databases}\label{sec:lmfdb}
+While our theoretical model of DK theories and our architectural design of virtual theories are applicable to a wide variety of databases, in the scope of the OpenDreamKit project we want to conduct a few case studies and connect to some databases in particular. Our efforts so far are based on two of these case studies of which we want to give a short overview below.
 
-\subsection{LMFDB}
+\subsection{LMFDB}\label{sec:lmfdb}
+
+LMFDB \cite{lmfdb} is a database of objects from number theory. It mostly consists of L-functions, but also has a number of other sub-databases. It is built on top of MongoDB and as such uses JSON to model all of its data.
+
+We have already implemented the schema and codec architecture above to build a virtual theory of elliptic curves in LMFDB. Even though this only is a very small part of LMFDB, this can serve as a template for future implementations of the remaining parts of LMFDB. We started out with having just a few fields of the curves available inside MMT, however adding the relevant codecs and making more fields available proofed to be a quick and easy job. This has shown us that we are heading in the right direction with our ideas so far.
+
+In the future we want to extend the coverage of the existing set of theories. This will include writing more schema theories and possibly introducing more codecs. This will likely also lead to some refactoring inside LMFDB itself, as the community for the first time will try to semantically describe its entire dataset.
+
 \subsection{OEIS}
-\subsection{FindStat}
+
+OEIS \cite{oeis} stands for On-Line Encyclopedia of Integer Sequences. It is a collection of around 250 thousand integer sequences that are stored as pure text form. The OEIS is licensed under Creative Commons and thus freely accessible.
+
+We have already semantified the pure text format and, among other things, this has helped us finding new relations between the existing sequences. A more detailed look at our previous work can be found in \cite{LuzKoh:fsarfo16} and we will not go into details here. So far these efforts have helped us to understand how the OEIS database is structured.
+
+Similar to lmfdb we plan on integrating this into our virtual theories architecture. We are considering building one DK theory per sequence, where the declarations in each theory contain the known elements of the sequence. We also plan to integrate this with our infrastructure on knowledge management services, such as MathHub and MathWebSearch.
 
 \section{Querying}
 
 So far we have only concerned ourselves with accessing DK theories one declaration at a time. This shows that DK theories are indeed useful, however in general one wants to be able to access multiple declarations at once. Even though it is not the focus of this report, we have had some thoughts about this.
 
-Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve}.
+Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve. }.
 
-There gives a wide range of interesting questions that one might want to implement a query engine for. A very naive approach can consists of iterating over all declarations inside the database, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
+There gives a wide range of interesting questions that one might want to implement a query engine for. Since most of the declarations that one wants to query over a big, one does not want to evaluate each query by iterating over the entire set -- this is far to slow. Thus a naive approach consists of iterating over all declarations beforehand, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
 
-Thus it comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. We have built a general purpose query language for MMT -- but this only works well with K theories. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \ednote{Which MWS do we cite?} for details.
+To be able to answer the second question above, one might want to take all occuring values (in this case integers) and factorise them. Again we can store this in some form of index. This can also be extended to polynomials -- which would allow users to search polynomials based on their roots. Also in this situation it is very easy to underestimate the complexity of the index.
 
-In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could also consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside MMT and then compile this into a database query -- which can then be evaluated efficiently.
+It comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. For example we have built a general purpose query language for MMT. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \cite{ODK-D6.1} for details.
+
+In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside MMT and then compile this into a database query -- which can then be evaluated efficiently. It could also take another direction entirely.
 
 \section{Outlook and Conclusion}\label{sec:conclusion}
 
@@ -624,7 +181,10 @@ In the future we want to expand on this concept. Right now we can only translate
 Together with the opposite process -- the understanding of objects by using accessors from arbitary systems -- will also allow (almost) arbitary systems to exchange objects via MMT. We are already working on a Python Client implementation. This will not apply any recoding to the objects -- it just retrieves records in an easily accessible form from MMT. In the future we are hoping to use this to integrate MMT and GAP and enable GAP to use any kind of object that MMT has access to.
 
 \newpage\printbibliography
-\ednote{Switch this back to bibtex?}
+
+\appendix
+\input{case_study_paul.tex}
+
 \end{document}
 
 %%% Local Variables:
