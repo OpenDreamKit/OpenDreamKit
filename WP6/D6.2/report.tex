@@ -61,17 +61,16 @@ The goal of the OpenDreamKit project \cite{ODKproposal:on} is to develop a gener
 
 To be able to build such a toolkit, we will need to combine three different aspects -- Data (D), Knowledge (K) and Systems. Ultimatly we want to create and make use of them using a VRE; we want to model the real world, translate it into a set of mathematical objects and computationally simulate and thereby explore them.
 
-The Data aspect is commonly manifested inside databases as tables or lists of numerical of symbolic data. The systems aspect is reprented by mathematical knowledge systems (MKS), such as GAP, Sage, \ednote{full list} and others computing on top of this data. The knowledge aspect is in between these two, providing both the basis for the data that is stored inside Databases and the basis for the algorithms implemented inside the software.
-\ednote{reference or show the image from the proposal here. }
+The Data aspect is commonly manifested inside databases as tables or lists of numerical of symbolic data. The systems aspect is reprented by mathematical knowledge systems (MKS), such as GAP, Sage, \dots and others computing on top of this data. The knowledge aspect is in between these two, providing both the basis for the data that is stored inside Databases and the basis for the algorithms implemented inside the software. An illustration with more examples of these aspects can be found in Figure~\ref{fig:thebigpicture}.
 
+\begin{figure}[H]
+  \centerline{\includegraphics[width=\textwidth]{../../Proposal/Pictures/TheBigPicture.pdf}}
+  \caption{Virtual Research Environments for research in pure
+    mathematics and applications.}
+  \label{fig:thebigpicture}
+\end{figure}
 
-
-
-The OpenDreamKit project is an EU Horizon 2020 project with the aim to deliver flexible mathematical toolkit for working with mathematical knowledge. To achieve this goal the project in particular wants to allow multiple mathematical knowledge systems (such as Sage, GAP, \dots) to work together\ednote{Cross-check with proposal document}.
-
-To facilitate communication between these systems they need to have access to the same mathematical knowledge. This allows them to communicate and, for example, exchange objects between systems. By enabling exchange of objects between systems, each system can be used to compute properties of mathematical objects in the area in which it is best. We call this approach the Math-In-The-Middle approach \cite{DehKohKon:iop16} because the underlying mathematical knowledge, the ``real math'' is in betweeen -- in the ``middle'' -- of the systems. Just having access to this knowledge is not enough -- each of the systems involved has its own particularities and needs some kind of interface to this knowledge. We model this approach using the well-established framework of theory graphs.
-
-\ednote{Introduce DK theories here}
+We split the task of integrating these aspects in two, integrating \textit{systems and knowledge} and integrating \textit{knowledge and data}. Our current approach to both sub-problems is very much based on the well-established framework of Theory Graphs -- which we briefly introduce below.
 
 \subsection{A Brief Recap of Theory Graphs}
 
@@ -79,19 +78,21 @@ A theory graph consists of theories and the relations between them. A theory in 
 
 There are two basic kinds of relations between theories: imports and views. An import is a way to declare symbols from one theory in another theory -- to import the symbols from a source theory to a target theory. This can for example be used to extend an existing theory without re-declaring all symbols or to combine two theories. Furthermore the concept of imports allows to modularise knowledge. On top of imports there are also Structures which are imports and additional renamings of the imported symbols. The second type of relation, the view, is a mapping from one theory to another -- a way to ``view'' one theory as another. This mapping allows terms from one theory to be translated into another theory. In the case where terms represent boolean statements or proofs, the mapping given by the view should be truth preserving -- \emph{i.e.}~if a statement is true in the source theory, it should be true in the target theory after translation\ednote{Give an example theory graph here}.
 
-Theory graphs are implemented inside the MMT system \cite{RabKoh:WSMSML13}. The system allows for the declaration of theories along with symbols, imports and views. Furthermore it is possible to create terms over these theories and translate them along views. The MMT system also provides a type checker that can be used to type check declarations. \ednote{Emphasize MMT theories so far =K theories}
+Theory graphs are implemented inside the MMT system \cite{RabKoh:WSMSML13}. The system allows for the declaration of theories along with symbols, imports and views. Furthermore it is possible to create terms over these theories and translate them along views. The MMT system also provides a type checker that can be used to type check declarations.
 
-\subsection{The Need For DKS Theories}
-The OpenDreamKit project is meant to construct a modular toolbox of mathematical software. One possibility is to interface the different systems pairwise. An additional possibility is to facilitate the interactions between the various systems through a Math-in-the-Middle "backbone", which would clearly be of prime importance.
+\subsection{Using the Math-In-The-Middle approach to integrate systems}
 
-In the OpenDreamKit project we want to use this modular approach to mathematics, and in particular the MMT system, to allow us to easily translate mathematical expressions between systems. For this purpose we define a ``Math In The Middle'' theory as well as interface theories for each system. With the help of MMT and bi-views\footnote{A bi-view is a bidirectional view between two theories} between the interface theories and the central theory, we can translate objects from one system to the other. \ednote{possible include a reference to \cite{KohManRab:aumftg13}; this probably does not fit in here well enough though}
+To integrate systems and knowledge we make use of an approach we call Math-In-The-Middle. For this we assume that the underlying mathematical knowledge, the ``real math'' is in betweeen -- in the ``middle'' -- of the systems. Just giving each system access to this knowledge is not enough -- each of the systems involved has its own particularities and needs some kind of interface to this knowledge.
 
-This however is still not enough -- we need three aspects to properly model our situation. In addition to the Knowledge (Math-In-The-Middle) and Systems (Interfaces) there is also a third aspect that is involved inside these systems -- the Data aspect. Together these three form so-called \textit{DKS} theories. Thus we need a framework to allow MMT to handle big databases of knowledge. In this report we focus on our progress towards this goal.
+To implement this we want to make use of the modular approach to mathematics provided by theory graphs, and in particular MMT as an implementation thereof, to first of all allow us translate mathematical expressions between systems. We define a ``Math In The Middle'' theory as well as interface theories for each system. With the help of MMT and bi-views\footnote{A bi-view is a bidirectional view between two theories} between the interface theories and the central theory, we can translate objects from one system to the other. \ednote{Possibly have an image here. }
 
+We have explored and developed much of this approach already -- see \cite{DehKohKon:iop16} for details -- and will not focus on it here. Instead we focus on the second part of the problem, integrating Data with Knowledge.
 
+\subsection{Data-Knowledge Theories as a step towards DKS}
 
-In Section~\ref{casestudy}, we will present the different systems that are most relevant to the OpenDreamKit project, in the sense that some if not all of their components would be interfaced with others.
-In Section~\ref{sec:data} we describe in detail how we model data-centric theories, then continue in Section~\ref{sec:lmfdb} by describing and demonstrating the example we have implemented already. We conclude in Section~\ref{sec:conclusion} by summarizing what we have achieved so far and giving a short outlook on how we plan to build translations between systems.
+The theories currently implemented inside MMT are very good at formalising a variety of knowledge, however are limited when it comes to representing a big amount of data. They are are effectively K(nowledge)-Theories. To build the OpenDreamKit VREs however we need to be able to utilise them for Data and different systems as well. In our initial design towards this we need to expand the theory graph model (and by extension the MMT system) with a concept of Data-Knowledge theories -- this is what we will focus on in this report.
+
+In Section~\ref{casestudy}, we will first of all present the different systems that are most relevant to the OpenDreamKit project, in the sense that some if not all of their components would be interfaced with others. Next in Section~\ref{sec:data} we describe in detail the concept of Data-Knowledge theories, then continue in Section~\ref{sec:cases} by showing and explaining which databases we have integrated into our efforts already. Next we show in Section~\ref{sec:querying} how we plan to enable users to query and make further use of DK-theories before finally concluding with a short summary and outlook in Section~\ref{sec:conclusion}.
 
 \section{Report and Case-Study}\label{casestudy}
 \ednote{Paul: give a general overview of the results of the case-study}
@@ -109,7 +110,7 @@ Consider the problem of formalising the natural numbers inside a theory. For thi
 
 The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down. This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
 
-LMFDB is a mathematical database that contains a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done this. More on what LMFDB is and what exactly we have achieved so far can be found below in Section~\ref{sec:LMFDB}}. We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
+LMFDB is a mathematical database that contains a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done this. More on what LMFDB is and what exactly we have achieved so far can be found below in Section~\ref{sec:lmfdb}}. We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
 
 In practice we will never need to access all of these declarations at once -- in most scenarios we will only need a very small subset of them. A small subset that is big enough to hold in memory. Hence we need some process to load the declarations inside main memory once we need them -- or possibly even create them if they do not yet exist.
 \begin{mydef}[Virtual theory]
@@ -166,7 +167,7 @@ We have already semantified the pure text format and, among other things, this h
 
 Similar to lmfdb we plan on integrating this into our virtual theories architecture. We are considering building one DK theory per sequence, where the declarations in each theory contain the known elements of the sequence. We also plan to integrate this with our infrastructure on knowledge management services, such as MathHub and MathWebSearch.
 
-\section{Querying}
+\section{Querying}\label{sec:querying}
 
 So far we have only concerned ourselves with accessing DK theories one declaration at a time. This shows that DK theories are indeed useful, however in general one wants to be able to access multiple declarations at once. Even though it is not the focus of this report, we have had some thoughts about this.
 
