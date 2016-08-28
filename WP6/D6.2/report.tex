@@ -70,9 +70,9 @@ The Data aspect is commonly manifested inside databases as tables or lists of nu
   \label{fig:thebigpicture}
 \end{figure}
 
-We split the task of integrating these aspects in two, integrating \textit{systems and knowledge} and integrating \textit{knowledge and data}. Our current approach to both sub-problems is very much based on the well-established framework of Theory Graphs -- which we briefly introduce below.
+To achieve the task of building a VRE with these three aspects we want to use the well-established framework of theory graphs -- which we will briefly explain below in \ref{sec:mmt}. As a basis towards building DKS theories we use the MMT system -- our existing implementation of theory graphs -- which has K(nowledge) theories already. We split the remaining task in two, integrating \textit{systems and knowledge} (Section~\ref{sec:mitm}) and integrating \textit{knowledge and data} (Section~\ref{sec:introfinal}).
 
-\subsection{A Brief Recap of Theory Graphs}
+\subsection{A Brief Recap of Theory Graphs}\label{sec:mmt}
 
 A theory graph consists of theories and the relations between them. A theory in this sense is a set of declarations -- a set of declared symbols. In addition to the declarations, each theory has a name (which together with its namespace forms the global URI for the theory) and a meta-theory. A meta-theory is commonly the logical framework that is used to model the content of the theory. Each declared symbol has a name and can additionally have a type, a definition and different kinds of meta-data. In each theory these symbols can then be used to form terms that can be used to express more advanced knowledge. Here terms are effectively OpenMath 2.0 \cite{BusCapCar:2oms04} objects -- they mostly consist of literal values, symbols and applications of terms to other terms.
 
@@ -80,19 +80,21 @@ There are two basic kinds of relations between theories: imports and views. An i
 
 Theory graphs are implemented inside the MMT system \cite{RabKoh:WSMSML13}. The system allows for the declaration of theories along with symbols, imports and views. Furthermore it is possible to create terms over these theories and translate them along views. The MMT system also provides a type checker that can be used to type check declarations.
 
-\subsection{Using the Math-In-The-Middle approach to integrate systems}
+\subsection{Using the Math-In-The-Middle approach to integrate systems}\label{sec:mitm}
 
-To integrate systems and knowledge we make use of an approach we call Math-In-The-Middle. For this we assume that the underlying mathematical knowledge, the ``real math'' is in betweeen -- in the ``middle'' -- of the systems. Just giving each system access to this knowledge is not enough -- each of the systems involved has its own particularities and needs some kind of interface to this knowledge.
+When integrating multiple system we are mostly talking about using concrete algorithms (implemented by these systems) to solve a specific computational problem (the knowledge about the problem). To integrate multiple systems woth this knowledge we want to enable users to write down a problem in one system and then solve it in another system. We want to be independent of the implementation of the knowledge -- independent of the systems.
 
-To implement this we want to make use of the modular approach to mathematics provided by theory graphs, and in particular MMT as an implementation thereof, to first of all allow us translate mathematical expressions between systems. We define a ``Math In The Middle'' theory as well as interface theories for each system. With the help of MMT and bi-views\footnote{A bi-view is a bidirectional view between two theories} between the interface theories and the central theory, we can translate objects from one system to the other. \ednote{Possibly have an image here. }
+For this we make use of an approach we call Math-In-The-Middle. Here the underlying mathematical knowledge, the ``real math'', is in betweeen (in the ``middle'') of the systems -- hence the name. Each system needs access to this knowledge. As each of them come with their own particularities, they will need some interface to it.
 
-We have explored and developed much of this approach already -- see \cite{DehKohKon:iop16} for details -- and will not focus on it here. Instead we focus on the second part of the problem, integrating Data with Knowledge.
+We want to make use of the modular approach to mathematics provided by theory graphs, and in particular MMT as an implementation thereof, to first of all allow us translate mathematical expressions between systems. We define a ``Math In The Middle'' theory as well as interface theories for each system. With the help of MMT and bi-views\footnote{A bi-view is a bidirectional view between two theories} between the interface theories and the central theory, we can translate objects from one system to the other.
 
-\subsection{Data-Knowledge Theories as a step towards DKS}
+A sketch of the theory graph we want to implement can be seen in Figure\ednote{Copy figure from MITm paper}. We will not go into more details here -- we have alread disucssed the approach in detail in \cite{DehKohKon:iop16}. Instead we focus on the second part of the problem, integrating Data with Knowledge.
 
-The theories currently implemented inside MMT are very good at formalising a variety of knowledge, however are limited when it comes to representing a big amount of data. They are are effectively K(nowledge)-Theories. To build the OpenDreamKit VREs however we need to be able to utilise them for Data and different systems as well. In our initial design towards this we need to expand the theory graph model (and by extension the MMT system) with a concept of Data-Knowledge theories -- this is what we will focus on in this report.
+\subsection{Data-Knowledge Theories as a step towards DKS}\label{sec:introfinal}
 
-In Section~\ref{casestudy}, we will first of all present the different systems that are most relevant to the OpenDreamKit project, in the sense that some if not all of their components would be interfaced with others. Next in Section~\ref{sec:data} we describe in detail the concept of Data-Knowledge theories, then continue in Section~\ref{sec:cases} by showing and explaining which databases we have integrated into our efforts already. Next we show in Section~\ref{sec:querying} how we plan to enable users to query and make further use of DK-theories before finally concluding with a short summary and outlook in Section~\ref{sec:conclusion}.
+The theories currently implemented inside MMT are very good at formalising a variety of knowledge, however are limited when it comes to representing a big amount of data. They are are effectively K(nowledge)-Theories. To build the OpenDreamKit VREs however we need to be able to utilise them for Data and different systems as well. As an initial design step towards this we need to expand the theory graph model with a concept of Data-Knowledge theories -- this is what we will focus on in this report.
+
+In Section~\ref{casestudy}, we will first of all present the different systems that are most relevant to the OpenDreamKit project. Next in Section~\ref{sec:data} we describe in detail our concept of Data-Knowledge theories, and our implementation thereof in Section~\ref{sec:impl}. Continuing in Section~\ref{sec:cases} by showing and explaining which databases we have integrated into our efforts already. Next we show in Section~\ref{sec:querying} how we plan to enable users to query and make further use of DK-theories before finally concluding with a short summary and outlook in Section~\ref{sec:conclusion}.
 
 \section{Report and Case-Study}\label{casestudy}
 \ednote{Paul: give a general overview of the results of the case-study}
@@ -120,7 +122,7 @@ This adresses the problems we mentioned above. On top of the requirements alread
 
 While there are many possible implementations for DK theories, here we only concern ourselves with the case where the declaration come from some arbitary external database. On top of retrieving declarations from DK theories, we also want to be able to create new declarations, update existing ones and possibly even delete some. In the case of some underlying database this corresponds perfectly to the CRUD -- Create, Read, Update, Delete -- operations. We can just translate the operations and have the database take care of the implementation details. \ednote{Possibly link to query section here}
 
-\section{Relating Database structure and Mathematical objects}
+\section{Relating Database structure and Mathematical objects}\ref{sec:impl}
 
 The first step towards implementing Virtual Theories is to create a theory that retrieves declarations from inside a database. Databases are not commonly optimise for mathematical objects. On the contrary -- databases usually enforce their own schema that does not correspond in any way to the high-level mathematical objects that we want to model. Furthermore the object representations are not in the form of something resembling OpenMath / MMT terms -- usually they are in primitive objects (integers, strings, booleans, etc. ) or in data formats like JSON.
 
