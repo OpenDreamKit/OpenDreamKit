@@ -1,40 +1,71 @@
 \section{Introduction}\label{sec:intro}
 
 The goal of the OpenDreamKit project \cite{ODKproposal:on} is to develop a generic Toolkit
-that will enable Mathematicans (and scientists in general) to build so-called Virtual
-Research Environments (VREs) that are optimally tailored to specific communitites. These
+that will enable Mathematicians (and scientists in general) to build so-called Virtual
+Research Environments (VREs) that are optimally tailored to specific communities. These
 will combine a multitude of different tasks, such as symbolic mathematics, automatic code
 generation, numerical computation, data bases, post-processing or visualisation. A VRE
 will provide end-users with a single tool-chain that can be used for most, if not all, of
 their research.
 
-To be able to build such a toolkit, we will need to combine three different aspects --
-Data (D), Knowledge (K) and Software (S). Ultimatly we want to create and make use of them
-using a VRE; we want to model the real world, translate it into a set of mathematical
-objects and computationally simulate and thereby explore them.
+To be able to build such a toolkit, we will need to combine three different aspects of
+``doing mathematics research'' -- Data (D), Knowledge (K) and Software (S). Ultimately we want to
+create and make use of them using a VRE; we want to model the real world, translate it
+into a set of mathematical objects and computationally simulate and thereby explore them.
 
 The \emph{Data Aspect} is commonly implemented in special databases as tables or lists of
-numerical of symbolic data. The \emph{Systems Aspect} is reprented by mathematical
-software systems, such as \GAP, \Sage, and others computing on top of this data. The
+numerical of symbolic data. The \emph{Systems Aspect} is represented by mathematical
+software systems, such as \GAP, \SageMath, and others computing on top of this data. The
 \emph{Knowledge Aspect} specifies the meaning of the mathematics data as well as the
 knowledge underlying the algorithms and thus bridges between the former two. An
 illustration with more examples of these aspects can be found in
-Figure~\ref{fig:thebigpicture}.
+Figure~\ref{fig:thebigpicture} (from the \pn proposal).
 
-\begin{figure}[H]\centering
+\begin{figure}[ht]\centering
   \includegraphics[width=\textwidth]{../../Proposal/Pictures/TheBigPicture.pdf}
   \caption{Virtual Research Environments for research in pure
     mathematics and applications.}
   \label{fig:thebigpicture}
 \end{figure}
 
-To achieve the task of building a VRE with these three aspects we want to use the
-well-established framework of theory graphs -- which we will briefly explain below in
-\ref{sec:MMT}. As a basis towards building DKS theories we use the \MMT system -- our
-existing implementation of theory graphs -- which has K(nowledge) theories already. We
-split the remaining task in two, integrating \textit{systems and knowledge}
-(Section~\ref{sec:mitm}) and integrating \textit{knowledge and data}
-(Section~\ref{sec:introfinal}).
+The approach of work package \WPtref{dksbases} in the \pn project is to model all three
+aspects of mathematics research explicitly in as a basis for the envisioned mathematical
+VRE toolkit. Concretely, the \pn proposal calls for an extension of the well-established
+framework of theory graphs -- developed for the representation of mathematical knowledge
+and languages (see Section~\ref{sec:MMT}) -- with Data and Software components to arrive
+at a foundation for mathematical $\mathcal{DKS}$-bases. This deliverable report surveys
+the results of the first year and presents the initial design for the
+$\mathcal{DKS}$-bases.
+
+In a series of workshops (September 2015 in Paris, January 2016 in St. Andrews, June 2016
+in Bremen, and July 2016 in Bia{\l}ystok) the participants working on \WPref{dksbases} met
+and discussed the topic of integrating the \pn systems into a mathematical VRE toolkit by
+explicitly representing the D/K/S aspects of mathematical research and basing
+computational services and inter-system communication on a joint $\mathcal{DKS}$-base. The
+group agreed that for the \emph{Software Aspect}, interoperability of systems is most
+important for \pn and can be achieved by aligning the mathematical knowledge underlying
+the systems; this realization is engrained in the ``Math-in-the-Middle'' (MitM)
+paradigm~\cite{DehKohKon:iop16}, see Section~\ref{sec:mitm} for the \emph{Software Aspect}
+in \pn.
+
+In the rest of the introduction we will 
+\begin{compactenum}
+\item introduce the framework of OMDoc/MMT theory graphs (Section~\ref{sec:MMT}) as a
+  basis towards building DKS theories we use the \MMT system -- our existing
+  implementation of theory graphs -- which has K(nowledge) theories already 
+\item review the MitM paradigm for integrating the \emph{software} and \emph{knowledge}
+  aspects in \pn, and
+\item preview the initial design of $\mathcal{DKS}$-Bases.
+\end{compactenum}
+In Section~\ref{sec:survey} we report on the initial survey of existing \pn-systems with
+D/K/S aspects (see also Appendix~\ref{sec:raw-survey}) conducted at the Paris workshop in
+September 2015 and derive requirements from that.  Section~\ref{sec:data} introduces the
+(abstract) concept of DK-theories that extend of OMDoc/MMT theory graphs for handling data
+and Section~\ref{sec:impl} presents first steps towards an implementation in the MMT
+system, which are then evaluated on two case studies of mathematical data bases in
+Section~\ref{sec:cases}. In Section~\ref{sec:querying} how we plan to enable users to
+query and make further use of DK-theories before finally concluding with a short summary
+and outlook in Section~\ref{sec:conclusion}.
 
 \subsection{A Brief Recap of Theory Graphs}\label{sec:MMT}
 
@@ -69,12 +100,12 @@ it is possible to create terms over these theories and translate them along view
 
 When integrating multiple system we are mostly talking about using concrete algorithms
 (implemented by these systems) to solve a specific computational problem (the knowledge
-about the problem). To integrate multiple systems woth this knowledge we want to enable
+about the problem). To integrate multiple systems with this knowledge we want to enable
 users to write down a problem in one system and then solve it in another system. We want
 to be independent of the implementation of the knowledge -- independent of the systems.
 
 For this we make use of an approach we call Math-In-The-Middle. Here the underlying
-mathematical knowledge, the ``real math'', is in betweeen (in the ``middle'') of the
+mathematical knowledge, the ``real math'', is in between (in the ``middle'') of the
 systems -- hence the name. Each system needs access to this knowledge. As each of them
 come with their own particularities, they will need some interface to it.
 
@@ -94,7 +125,7 @@ the central theory, we can translate objects from one system to the other.
 \end{figure}
 
 A sketch of the theory graph based on the example of elliptic curves can be found in
-Figure~\ref{sec:mitm}. We will not go into details here -- we have alread disucssed the
+Figure~\ref{sec:mitm}. We will not go into details here -- we have already discussed the
 approach in \cite{DehKohKon:iop16}. Instead we focus on the second part of the problem,
 integrating Data with Knowledge.
 
@@ -107,16 +138,12 @@ to be able to utilise them for Data and different systems as well. As an initial
 step towards this we need to expand the theory graph model with a concept of
 Data-Knowledge theories -- this is what we will focus on in this report.
 
-In Section~\ref{casestudy}, we will first of all present the different systems that are
-most relevant to the OpenDreamKit project. Next in Section~\ref{sec:data} we describe in
-detail our concept of Data-Knowledge theories, and our implementation thereof in
-Section~\ref{sec:impl}. Continuing in Section~\ref{sec:cases} by showing and explaining
-which databases we have integrated into our efforts already. Next we show in
-Section~\ref{sec:querying} how we plan to enable users to query and make further use of
-DK-theories before finally concluding with a short summary and outlook in
-Section~\ref{sec:conclusion}.
 
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "report"
 %%% End:
+
+%  LocalWords:  ODKproposal emph thebigpicture pn centering includegraphics textwidth
+%  LocalWords:  WPtref dksbases mathcal ystok WPref realization DehKohKon iop16 nowledge
+%  LocalWords:  impl RabKoh myxscale myyscale
