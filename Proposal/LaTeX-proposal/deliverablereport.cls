@@ -10,7 +10,7 @@
 \LoadClass[a4paper,twoside,12pt]{amsart}
 \RequirePackage{hyperref}
 \RequirePackage[utf8]{inputenc}
-\RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
+%\RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
 \RequirePackage[english]{babel}
 \RequirePackage{times}
 \RequirePackage[babel=true,kerning=true]{microtype}
@@ -31,14 +31,14 @@
 
 % Same as in eu/proposal.cls, but without an hyperlink (since it would
 % point to a different document)
-\newcommand\site[1]{\wa@ref{institution}{#1}{acronym}}
-\newcommand\sitename[1]{\wa@ref{institution}{#1}{name}}
+\newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
+\newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
 
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1#2@label\endcsname}
   \gdef\deliv@title{\csname deliv@#1#2@title\endcsname}
   \gdef\deliv@lead{\csname deliv@#1#2@lead\endcsname}
-  \def\@title{{Report on \deliv@label{},\\lead by \sitename{\deliv@lead} (\site{\deliv@lead}):\\\deliv@title}}%
+  \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]\deliv@title}}%
   \def\shorttitle{Report on \deliv@label}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,13 +66,19 @@
 
 \let\oldmaketitle=\maketitle
 \renewcommand{\maketitle}{
-  \oldmaketitle%
-  \centerline{Due on: \@duedate}
-  \centerline{Delivered on: \@deliverydate}
-  \centerline{\includegraphics[height=25ex]{\prop@gen@logo}}
-  Progress on and finalization of this deliverable has been tracked
-  publicly on:\\
-  \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}
+  \oldmaketitle\vfill
+  \strut\par\noindent
+    \begin{minipage}[c]{4cm}\includegraphics[height=20ex]{\prop@gen@logo}\end{minipage}  
+    \begin{minipage}[c]{11cm}
+    \begin{tabular}{|l|l|}\hline
+      Due on &  \@duedate\\
+      Delivered on &  \@deliverydate\\
+      Lead & \sitename{\deliv@lead} (\site{\deliv@lead})\\\hline
+      \multicolumn{2}{|p{11cm}|}{
+      Progress on and finalization of this deliverable has been tracked
+      publicly on: \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}}\\\hline
+    \end{tabular}
+  \end{minipage}
   \bigskip
   \thispagestyle{fancyplain}
 }
