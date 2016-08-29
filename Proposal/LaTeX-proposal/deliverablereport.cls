@@ -7,7 +7,7 @@
 \newcommand{\prop@gen@logo}{../../media/ODK_elected_logo.png}
 \newcommand{\prop@gen@image}{../../media/logos/Flag_of_Europe.png}
 
-\LoadClass[a4paper,twoside,12pt]{}
+\LoadClass[a4paper,twoside,12pt]{amsart}
 \RequirePackage{hyperref}
 \RequirePackage[utf8]{inputenc}
 %\RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
