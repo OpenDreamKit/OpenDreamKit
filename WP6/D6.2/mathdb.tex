@@ -1,0 +1,106 @@
+\section{Relating Database Structure and Mathematical objects}\label{sec:impl}
+
+The first step towards implementing Virtual Theories is to create a theory that retrieves
+declarations from inside a database. Databases are not commonly optimise for mathematical
+objects. On the contrary -- databases usually enforce their own schema that does not
+correspond in any way to the high-level mathematical objects that we want to
+model. Furthermore the object representations are not in the form of something resembling
+OpenMath / \MMT terms -- usually they are in primitive objects (integers, strings,
+booleans, etc. ) or in data formats like JSON.
+
+Hence we need to be able to translate between the low-level representations of the objects
+stored in the database and the underlying mathematical objects (in the form of \MMT
+terms). In most common databases, each record stored usually has multiple fields that each
+have values. Each field commonly represents one property of the mathematical
+object. Together the fields and their values are more than enough to uniquely define the
+mathematical object. The values themselves are usually represented with some physical data
+type -- for example an integer is stored in the form of a 64-bit integer\ednote{Better
+  example?}. In some of the cases it is trivial to translate the encoded values to the
+proper values. In other cases, it might not be as trivial as it seems. Take for example a
+mathematical object defined by some matrix of integers. On one hand it could simply be
+represented as a list of list of integers. On the other hand the database could use some
+kind of sparse representation, i.e. store only the non-zero entries. To encompass this
+setup inside \MMT we introduce the concept of codecs.
+
+\begin{mydef}[Codec]
+  A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term inside the
+  Math-In-The-Middle Theory), $f$ a mapping from the encoded representations of the type
+  to the intended values of the type and $g$ is a mapping from the actual values of the
+  type to their physical encodings. We call the operation performed by $f$ a decoding and
+  the operation performed by $g$ an encoding of the type $t$.
+\end{mydef}
+
+We can use codecs to translate between \MMT terms and the database objects. There are two
+basic ways of creating codecs -- atomic codecs and codec operators. An atomic codec is a
+codec of a very simple type, for example an encoding of integers as strings. In this case
+$f$ would be a map from strings consisting of digits\footnote{Technically, there may also
+  be a starting \texttt{"-"} or \texttt{"+"} sign, but the details are not important
+  here. } to integers. This mapping does exactly what you would expect -- it maps the
+string \texttt{"0"} to 0, the string \texttt{"1"} to 1, etc. $g$ would be an inverse of
+sorts -- the map from integers to strings that maps 0 to \texttt{"0"}, 1 to \texttt{"1"},
+etc. Note that here $g$ is the left inverse of $f$ (in the sense that $g \circ f$ is the
+identity), but $f \circ g$ not neccessarily. In a general setting we want $g \circ f$ to
+be the identity for all codecs, however in practive it rarely happens. A good example of
+this is the problem of precision -- there is no chance of encoding all of the real numbers
+in a physical (countable, probably even finite) datatype.  The second way of creating
+codecs is by using codec operators. These take as input an atomic codec and give a codec
+for a composite type. Take for example the list codec operator. It takes as input a codec
+for an arbitary type $t$ and gives a codec for the type \texttt{List(t)}.
+
+Inside \MMT we can represent the actual values as literals. For this we do not use the
+representations from the database, but instead values that best represent the true
+values. We also represent the codecs inside \MMT. Each codec can be represented as an \MMT
+term, with each atomic codec and each codec operator having an associated symbol inside a
+Codec theory We can use these symbols to represent arbitary codecs, for example a codec
+for a matrix of integers would be represented by applying the symbol for a matrix codec
+operator to the symbol for an integer codec. For each codec and codec operator we have an
+associated Scala class. For atomic codecs, this class implements an \texttt{encode} and
+\texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec
+operators, it implements a \texttt{build\_codec}\ednote{Correct method name} method --
+that takes as input an AtomicCodec and returns an codec for the composite type.
+
+To be able to construct the codec that corresponds to a Term we have also implemented a
+Coder class\ednote{Different name?}. It starts from a term representing a codec, finds the
+appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec
+instance. This allows us given a literal value and a Term representing its type to encode
+or decode terms in almost arbitary ways.
+
+\subsection{Using Records and Schemas inside \MMT}
+
+Codecs only solve half of the problem -- they can only translate values. We still need to
+represent the records as a whole inside DK theories. For this we introduce a type of
+records inside \MMT. This is just what you would expect -- a list of (key, value) pairs
+with each key appearing at most once. In ou rimplementation the keys are \MMT symbols and
+the values are arbitary \MMT values. We also introduce a projection operator which takes
+an \MMT record and a key and returns the values of the key in the given record.
+
+To translate the entire object, we assume that the records of one type inside the database
+are homogeneous\footnote{That is each record has the same fields and the values have the
+  same semantic types. Having the same semantic types means to be decodable with the same
+  codec. }. For this purpose we introduce the concept of a schema theory. This schema
+theory has a declaration for each field in the database. Furthermore we use meta-data to
+annotate each declaration by stating which codec it uses. Since a codec can be represented
+by an \MMT term this is easy to implement.
+
+The schema theory tells us exactly how a record inside the database looks like and how to
+turn it into an \MMT term. However we also want to be able to have a type to be able to
+talk about the theory of all records in the database. This contains only two fixed
+declaration: A type for the database objects we are talking about and a constructor
+\texttt{from\_record}\ednote{check if this a good idea with Florian} that takes a generic
+record and returns an member of this type. We dynamically introduce a set of virtual
+declarations into this theory: One for each record in the database. When it is requested,
+we check for all declared fields in the schema theory and use the appropriate codecs to
+construct an \MMT record for the requested object. We then use the \texttt{from\_record}
+constructor to define the \MMT term corresponding to the record.
+
+We also want to be able to access specific fields from the retrieved objects. For this we
+introduce a third theory that declares a set of accessors, that is a function from the
+type of records in the database to the appropriate types. Each accessor also contains
+meta-data that states which field from the schema theory it implements. With the help of
+dynamically generated rules we can then simplify terms by extracting the appropriate
+fields from the records that were used to construct them.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:

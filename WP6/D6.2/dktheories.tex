@@ -1,0 +1,71 @@
+\section{Data/Knowledge Theories}\label{sec:data}
+
+To work with DK theories, the first thing we need to do is define them.
+\begin{mydef}[DK theory]
+  A Data-Knowledge (or DK for short) theory is a theory consisting of a potentially
+  infinite set of declarations.
+\end{mydef}
+
+But what does this mean? To clarify this, we list a few examples here. The first thing to
+note is that all K-theories represented inside \MMT are DK theories that contain a very
+limited set of finitely many declarations. However this only part of what is covered by
+this concept -- it becaomes interesting once we have many more declarations inside a
+theory, in the sense that we have sufficiently many that we can not keep them all in
+memory or want to materialise all of them on disk.
+
+Consider the problem of formalising the natural numbers inside a theory. For this we could
+use a theory with as little as eight declarations -- one for the type of natural numbers,
+one for the number zero, one for the successor function and one for each of the five Peano
+axiomes. This defines a DK theory however it is not very practical. We could use terms for
+each of the natural numnbers, but if we want to write down a number like $365$, we would
+have to apply the successor function $365$ times. We really want to have one declaration
+for each natural number, i.e. have each number declared as the successor of the previous
+one. This is in the spirit of DK theories.
+
+The naive approach to implement this theory does not work -- we would need to hold
+infitely many declarations in memory. Even if we had infinite memory, this would not be
+enough -- we would need to materialise all of these definitions in the first place -- we
+can not just write all of them down. This particular example can be solved by introducing
+literals -- but that is not the point. It illustrates the basic problem that comes up in
+many practical situations. We have a very big set of declarations that are generated
+according to some schema. This can mean that there is an obvious pattern to generate all
+of them -- like with natural numbers -- or that they are stored in some external database
+or system. In the database system there is some pattern in how to generate the
+declarations -- each declaration corresponds to a record inside the database.
+
+LMFDB is a mathematical database that contains a collection of elliptic curves. We can use
+this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done
+  this. More on what LMFDB is and what exactly we have achieved so far can be found below
+  in Section~\ref{sec:lmfdb}}. We could furthermore extend this theory to not only include
+elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all
+declarations will look the same -- they will all be of different types. It should also be
+noted that this theory is not something one would want to write down manually -- even
+though there are finitely many declarations. Likely the number of declarations is vastly
+bigger than what we can hold in main memory at any point.
+
+In practice we will never need to access all of these declarations at once -- in most
+scenarios we will only need a very small subset of them. A small subset that is big enough
+to hold in memory. Hence we need some process to load the declarations inside main memory
+once we need them -- or possibly even create them if they do not yet exist.
+
+\begin{mydef}[Virtual theory]
+  A Virtual Theory is an implementation of a DK theory that loads or creates declarations in main memory on demand and unloads them once memory space becomes limited.
+\end{mydef}
+
+This adresses the problems we mentioned above. On top of the requirements already defined,
+we ideally want such an implementation to be invisible to the user -- they should not
+notice the difference between a K theory and a DK theory that contains on-demand
+declarations.
+
+While there are many possible implementations for DK theories, here we only concern
+ourselves with the case where the declaration come from some arbitary external
+database. On top of retrieving declarations from DK theories, we also want to be able to
+create new declarations, update existing ones and possibly even delete some. In the case
+of some underlying database this corresponds perfectly to the CRUD -- Create, Read,
+Update, Delete -- operations. We can just translate the operations and have the database
+take care of the implementation details. \ednote{Possibly link to query section here}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
