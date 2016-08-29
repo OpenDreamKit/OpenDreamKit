@@ -43,11 +43,12 @@
   
 \begin{document}
 
+\maketitle
+
 \begin{abstract}
 Yet to do
 \end{abstract}
 
-\maketitle
 
 \newpage\tableofcontents\newpage
 \newcommand{\Sage}{Sage}
@@ -61,153 +62,19 @@ Yet to do
 \ednote{Write an abstract}
 \ednote{Update delivery data}
 
-\section{Introduction}\label{sec:intro}
-
-The goal of the OpenDreamKit project \cite{ODKproposal:on} is to develop a generic Toolkit that will enable Mathematicans (and scientists in general) to build so-called Virtual Research Environments (VREs) that are optimally tailored to specific communitites. These will combine a multitude of different tasks, such as symbolic mathematics, automatic code generation, numerical computation, data bases, post-processing or visualisation. A VRE will provide end-users with a single tool-chain that can be used for most, if not all, of their research.
-
-To be able to build such a toolkit, we will need to combine three different aspects -- Data (D), Knowledge (K) and Systems. Ultimatly we want to create and make use of them using a VRE; we want to model the real world, translate it into a set of mathematical objects and computationally simulate and thereby explore them.
-
-The Data aspect is commonly manifested inside databases as tables or lists of numerical of symbolic data. The systems aspect is reprented by mathematical knowledge systems (MKS), such as \GAP, \Sage, \dots and others computing on top of this data. The knowledge aspect is in between these two, providing both the basis for the data that is stored inside Databases and the basis for the algorithms implemented inside the software. An illustration with more examples of these aspects can be found in Figure~\ref{fig:thebigpicture}.
-
-\begin{figure}[H]
-  \centerline{\includegraphics[width=\textwidth]{../../Proposal/Pictures/TheBigPicture.pdf}}
-  \caption{Virtual Research Environments for research in pure
-    mathematics and applications.}
-  \label{fig:thebigpicture}
-\end{figure}
-
-To achieve the task of building a VRE with these three aspects we want to use the well-established framework of theory graphs -- which we will briefly explain below in \ref{sec:MMT}. As a basis towards building DKS theories we use the \MMT system -- our existing implementation of theory graphs -- which has K(nowledge) theories already. We split the remaining task in two, integrating \textit{systems and knowledge} (Section~\ref{sec:mitm}) and integrating \textit{knowledge and data} (Section~\ref{sec:introfinal}).
-
-\subsection{A Brief Recap of Theory Graphs}\label{sec:MMT}
-
-A theory graph consists of theories and the relations between them. A theory in this sense is a set of declarations -- a set of declared symbols. In addition to the declarations, each theory has a name (which together with its namespace forms the global URI for the theory) and a meta-theory. A meta-theory is commonly the logical framework that is used to model the content of the theory. Each declared symbol has a name and can additionally have a type, a definition and different kinds of meta-data. In each theory these symbols can then be used to form terms that can be used to express more advanced knowledge. Here terms are effectively OpenMath 2.0 \cite{BusCapCar:2oms04} objects -- they mostly consist of literal values, symbols and applications of terms to other terms.
-
-There are two basic kinds of relations between theories: imports and views. An import is a way to declare symbols from one theory in another theory -- to import the symbols from a source theory to a target theory. This can for example be used to extend an existing theory without re-declaring all symbols or to combine two theories. Furthermore the concept of imports allows to modularise knowledge. On top of imports there are also Structures which are imports and additional renamings of the imported symbols. The second type of relation, the view, is a mapping from one theory to another -- a way to ``view'' one theory as another. This mapping allows terms from one theory to be translated into another theory. In the case where terms represent boolean statements or proofs, the mapping given by the view is truth preserving -- \emph{i.e.}~if a statement is true in the source theory, it is be true in the target theory after translation.
-
-Theory graphs are implemented inside the \MMT system \cite{RabKoh:WSMSML13}. The system allows for the declaration of theories along with symbols, imports and views. Furthermore it is possible to create terms over these theories and translate them along views. The \MMT system also provides a type checker that can be used to type check declarations.
-
-\subsection{Using the Math-In-The-Middle approach to integrate systems}\label{sec:mitm}
-
-When integrating multiple system we are mostly talking about using concrete algorithms (implemented by these systems) to solve a specific computational problem (the knowledge about the problem). To integrate multiple systems woth this knowledge we want to enable users to write down a problem in one system and then solve it in another system. We want to be independent of the implementation of the knowledge -- independent of the systems.
-
-For this we make use of an approach we call Math-In-The-Middle. Here the underlying mathematical knowledge, the ``real math'', is in betweeen (in the ``middle'') of the systems -- hence the name. Each system needs access to this knowledge. As each of them come with their own particularities, they will need some interface to it.
-
-We want to make use of the modular approach to mathematics provided by theory graphs, and in particular \MMT as an implementation thereof, to first of all allow us translate mathematical expressions between systems. We define a ``Math In The Middle'' theory as well as interface theories for each system. With the help of \MMT and bi-views\footnote{A bi-view is a bidirectional view between two theories} between the interface theories and the central theory, we can translate objects from one system to the other.
-
-\begin{figure}[ht]\centering
-  \input{../CICM2016/tikz/kf-paradigm}
-  \caption{The MitM paradigm in detail. PyF, C${}^{++}$F and CompF are (basic) foundational theories for \python, C${}^{++}$ and a generic computational model. SEC, LEC and GEC are theories for \Sage, \LMFDB and \GAP elliptic curves.}\label{fig:mitm}
-\end{figure}
-
-A sketch of the theory graph based on the example of elliptic curves can be found in Figure~\ref{sec:mitm}. We will not go into details here -- we have alread disucssed the approach in \cite{DehKohKon:iop16}. Instead we focus on the second part of the problem, integrating Data with Knowledge.
-
-\subsection{Data-Knowledge Theories as a step towards DKS}\label{sec:introfinal}
-
-The theories currently implemented inside \MMT are very good at formalising a variety of knowledge, however are limited when it comes to representing a big amount of data. They are are effectively K(nowledge)-Theories. To build the OpenDreamKit VREs however we need to be able to utilise them for Data and different systems as well. As an initial design step towards this we need to expand the theory graph model with a concept of Data-Knowledge theories -- this is what we will focus on in this report.
-
-In Section~\ref{casestudy}, we will first of all present the different systems that are most relevant to the OpenDreamKit project. Next in Section~\ref{sec:data} we describe in detail our concept of Data-Knowledge theories, and our implementation thereof in Section~\ref{sec:impl}. Continuing in Section~\ref{sec:cases} by showing and explaining which databases we have integrated into our efforts already. Next we show in Section~\ref{sec:querying} how we plan to enable users to query and make further use of DK-theories before finally concluding with a short summary and outlook in Section~\ref{sec:conclusion}.
-
+\include{intro}
 \section{Report and Case-Study}\label{casestudy}
 \ednote{Paul: give a general overview of the results of the case-study}
 
-\section{Data-Knowledge Theories}\label{sec:data}
-
-To work with DK theories, the first thing we need to do is define them.
-\begin{mydef}[DK theory]
-  A Data-Knowledge (or DK for short) theory is a theory consisting of a potentially infinite set of declarations.
-\end{mydef}
-
-But what does this mean? To clarify this, we list a few examples here. The first thing to note is that all K-theories represented inside \MMT are DK theories that contain a very limited set of finitely many declarations. However this only part of what is covered by this concept -- it becaomes interesting once we have many more declarations inside a theory, in the sense that we have sufficiently many that we can not keep them all in memory or want to materialise all of them on disk.
-
-Consider the problem of formalising the natural numbers inside a theory. For this we could use a theory with as little as eight declarations -- one for the type of natural numbers, one for the number zero, one for the successor function and one for each of the five Peano axiomes. This defines a DK theory however it is not very practical. We could use terms for each of the natural numnbers, but if we want to write down a number like $365$, we would have to apply the successor function $365$ times. We really want to have one declaration for each natural number, i.e. have each number declared as the successor of the previous one. This is in the spirit of DK theories.
-
-The naive approach to implement this theory does not work -- we would need to hold infitely many declarations in memory. Even if we had infinite memory, this would not be enough -- we would need to materialise all of these definitions in the first place -- we can not just write all of them down. This particular example can be solved by introducing literals -- but that is not the point. It illustrates the basic problem that comes up in many practical situations. We have a very big set of declarations that are generated according to some schema. This can mean that there is an obvious pattern to generate all of them -- like with natural numbers -- or that they are stored in some external database or system. In the database system there is some pattern in how to generate the declarations -- each declaration corresponds to a record inside the database.
-
-LMFDB is a mathematical database that contains a collection of elliptic curves. We can use this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done this. More on what LMFDB is and what exactly we have achieved so far can be found below in Section~\ref{sec:lmfdb}}. We could furthermore extend this theory to not only include elliptic curves, but all objects contained inside LMFDB. Inside this theory, not all declarations will look the same -- they will all be of different types. It should also be noted that this theory is not something one would want to write down manually -- even though there are finitely many declarations. Likely the number of declarations is vastly bigger than what we can hold in main memory at any point.
-
-In practice we will never need to access all of these declarations at once -- in most scenarios we will only need a very small subset of them. A small subset that is big enough to hold in memory. Hence we need some process to load the declarations inside main memory once we need them -- or possibly even create them if they do not yet exist.
-\begin{mydef}[Virtual theory]
-  A Virtual Theory is an implementation of a DK theory that loads or creates declarations in main memory on demand and unloads them once memory space becomes limited.
-\end{mydef}
-This adresses the problems we mentioned above. On top of the requirements already defined, we ideally want such an implementation to be invisible to the user -- they should not notice the difference between a K theory and a DK theory that contains on-demand declarations.
-
-While there are many possible implementations for DK theories, here we only concern ourselves with the case where the declaration come from some arbitary external database. On top of retrieving declarations from DK theories, we also want to be able to create new declarations, update existing ones and possibly even delete some. In the case of some underlying database this corresponds perfectly to the CRUD -- Create, Read, Update, Delete -- operations. We can just translate the operations and have the database take care of the implementation details. \ednote{Possibly link to query section here}
-
-\section{Relating Database structure and Mathematical objects}\label{sec:impl}
-
-The first step towards implementing Virtual Theories is to create a theory that retrieves declarations from inside a database. Databases are not commonly optimise for mathematical objects. On the contrary -- databases usually enforce their own schema that does not correspond in any way to the high-level mathematical objects that we want to model. Furthermore the object representations are not in the form of something resembling OpenMath / \MMT terms -- usually they are in primitive objects (integers, strings, booleans, etc. ) or in data formats like JSON.
-
-Hence we need to be able to translate between the low-level representations of the objects stored in the database and the underlying mathematical objects (in the form of \MMT terms). In most common databases, each record stored usually has multiple fields that each have values. Each field commonly represents one property of the mathematical object. Together the fields and their values are more than enough to uniquely define the mathematical object. The values themselves are usually represented with some physical data type -- for example an integer is stored in the form of a 64-bit integer\ednote{Better example?}. In some of the cases it is trivial to translate the encoded values to the proper values. In other cases, it might not be as trivial as it seems. Take for example a mathematical object defined by some matrix of integers. On one hand it could simply be represented as a list of list of integers. On the other hand the database could use some kind of sparse representation, i.e. store only the non-zero entries. To encompass this setup inside \MMT we introduce the concept of codecs.
-
-\begin{mydef}[Codec]
-A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term inside the Math-In-The-Middle Theory), $f$ a mapping from the encoded representations of the type to the intended values of the type and $g$ is a mapping from the actual values of the type to their physical encodings. We call the operation performed by $f$ a decoding and the operation performed by $g$ an encoding of the type $t$.
-\end{mydef}
-
-We can use codecs to translate between \MMT terms and the database objects. There are two basic ways of creating codecs -- atomic codecs and codec operators. An atomic codec is a codec of a very simple type, for example an encoding of integers as strings. In this case $f$ would be a map from strings consisting of digits\footnote{Technically, there may also be a starting \texttt{"-"} or \texttt{"+"} sign, but the details are not important here. } to integers. This mapping does exactly what you would expect -- it maps the string \texttt{"0"} to 0, the string \texttt{"1"} to 1, etc. $g$ would be an inverse of sorts -- the map from integers to strings that maps 0 to \texttt{"0"}, 1 to \texttt{"1"}, etc. Note that here $g$ is the left inverse of $f$ (in the sense that $g \circ f$ is the identity), but $f \circ g$ not neccessarily. In a general setting we want $g \circ f$ to be the identity for all codecs, however in practive it rarely happens. A good example of this is the problem of precision -- there is no chance of encoding all of the real numbers in a physical (countable, probably even finite) datatype.
-The second way of creating codecs is by using codec operators. These take as input an atomic codec and give a codec for a composite type. Take for example the list codec operator. It takes as input a codec for an arbitary type $t$ and gives a codec for the type \texttt{List(t)}.
-
-Inside \MMT we can represent the actual values as literals. For this we do not use the representations from the database, but instead values that best represent the true values. We also represent the codecs inside \MMT. Each codec can be represented as an \MMT term, with each atomic codec  and each codec operator having an associated symbol inside a Codec theory We can use these symbols to represent arbitary codecs, for example a codec for a matrix of integers would be represented by applying the symbol for a matrix codec operator to the symbol for an integer codec. For each codec and codec operator we have an associated Scala class. For atomic codecs, this class implements an \texttt{encode} and \texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec operators, it implements a \texttt{build\_codec}\ednote{Correct method name} method -- that takes as input an AtomicCodec and returns an codec for the composite type.
-
-To be able to construct the codec that corresponds to a Term we have also implemented a Coder class\ednote{Different name?}. It starts from a term representing a codec, finds the appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec instance. This allows us given a literal value  and a Term representing its type to encode or decode terms in almost arbitary ways.
-
-\subsection{Using Records and Schemas inside \MMT}
-
-Codecs only solve half of the problem -- they can only translate values. We still need to represent the records as a whole inside DK theories. For this we introduce a type of records inside \MMT. This is just what you would expect -- a list of (key, value) pairs with each key appearing at most once. In ou rimplementation the keys are \MMT symbols and the values are arbitary \MMT values. We also introduce a projection operator which takes an \MMT record and a key and returns the values of the key in the given record.
-
-To translate the entire object, we assume that the records of one type inside the database are homogeneous\footnote{That is each record has the same fields and the values have the same semantic types. Having the same semantic types means to be decodable with the same codec. }. For this purpose we introduce the concept of a schema theory. This schema theory has a declaration for each field in the database. Furthermore we use meta-data to annotate each declaration by stating which codec it uses. Since a codec can be represented by an \MMT term this is easy to implement.
-
-The schema theory tells us exactly how a record inside the database looks like and how to turn it into an \MMT term. However we also want to be able to have a type to be able to talk about the theory of all records in the database. This contains only two fixed declaration: A type for the database objects we are talking about and a constructor \texttt{from\_record}\ednote{check if this a good idea with Florian} that takes a generic record and returns an member of this type. We dynamically introduce a set of virtual declarations into this theory: One for each record in the database. When it is requested, we check for all declared fields in the schema theory and use the appropriate codecs to construct an \MMT record for the requested object. We then use the  \texttt{from\_record} constructor to define the \MMT term corresponding to the record.
-
-We also want to be able to access specific fields from the retrieved objects. For this we introduce a third theory that declares a set of accessors, that is a function from the type of records in the database to the appropriate types. Each accessor also contains meta-data that states which field from the schema theory it implements. With the help of dynamically generated rules we can then simplify terms by extracting the appropriate fields from the records that were used to construct them.
-
-\section{Case Studies of Existing Databases}\label{sec:cases}
-
-While our theoretical model of DK theories and our architectural design of virtual theories are applicable to a wide variety of databases, in the scope of the OpenDreamKit project we want to conduct a few case studies and connect to some databases in particular. Our efforts so far are based on two of these case studies of which we want to give a short overview below.
-
-\subsection{LMFDB}\label{sec:lmfdb}
-
-LMFDB \cite{lmfdb} is a database of objects from number theory. It mostly consists of L-functions, but also has a number of other sub-databases. It is built on top of MongoDB and as such uses JSON to model all of its data.
-
-We have already implemented the schema and codec architecture above to build a virtual theory of elliptic curves in LMFDB. Even though this only is a very small part of LMFDB, this can serve as a template for future implementations of the remaining parts of LMFDB. We started out with having just a few fields of the curves available inside \MMT, however adding the relevant codecs and making more fields available proofed to be a quick and easy job. This has shown us that we are heading in the right direction with our ideas so far.
-
-In the future we want to extend the coverage of the existing set of theories. This will include writing more schema theories and possibly introducing more codecs. This will likely also lead to some refactoring inside LMFDB itself, as the community for the first time will try to semantically describe its entire dataset.
-
-\subsection{OEIS}
-
-OEIS \cite{oeis} stands for On-Line Encyclopedia of Integer Sequences. It is a collection of around 250 thousand integer sequences that are stored as pure text form. The OEIS is licensed under Creative Commons and thus freely accessible.
-
-We have already semantified the pure text format and, among other things, this has helped us finding new relations between the existing sequences. A more detailed look at our previous work can be found in \cite{LuzKoh:fsarfo16} and we will not go into details here. So far these efforts have helped us to understand how the OEIS database is structured.
-
-Similar to lmfdb we plan on integrating this into our virtual theories architecture. We are considering building one DK theory per sequence, where the declarations in each theory contain the known elements of the sequence. We also plan to integrate this with our infrastructure on knowledge management services, such as MathHub and MathWebSearch.
-
-\section{Querying}\label{sec:querying}
-
-So far we have only concerned ourselves with accessing DK theories one declaration at a time. This shows that DK theories are indeed useful, however in general one wants to be able to access multiple declarations at once. Even though it is not the focus of this report, we have had some thoughts about this.
-
-Querying is the act of finding all declarations subject to some arbitary criterion. Practically relevant queries can range from very simple queries -- such as find all OEIS sequences containing a certain number -- to computationally intensive tasks, such as find all elliptic curves with a conductor divisible by five\footnote{This particular example was given to us by John Cremona when asked for queries that the current architecture can not solve. }.
-
-There gives a wide range of interesting questions that one might want to implement a query engine for. Since most of the declarations that one wants to query over a big, one does not want to evaluate each query by iterating over the entire set -- this is far to slow. Thus a naive approach consists of iterating over all declarations beforehand, finding all occuring values, and storing all of these inside a hash table. Such as index can easily answer the first question from above. On top of this someone might want to find sequences starting with a given integer. In this case we should either build a second index that only contains starting numbers, or expand the first index in a smart fashion. Another interesting query can be to find OEIS sequences containing arbitary subsequences -- in which case the index no needs to contain any possible subsequence. Eventually the index will explode -- the last addition would already scale exponentially.
-
-To be able to answer the second question above, one might want to take all occuring values (in this case integers) and factorise them. Again we can store this in some form of index. This can also be extended to polynomials -- which would allow users to search polynomials based on their roots. Also in this situation it is very easy to underestimate the complexity of the index.
-
-It comes down to finding a good balance between interesting and useful queries and size and scalability of the index. This in and of itself is a non-trvivial research task. In the scope of K-theories we have solved parts of this question already. For example we have built a general purpose query language for \MMT. We have also built MathWebSearch that allows users to search for certain mathematical expressions within document corpera. We will not discuss this here -- interested readers should take a look at \cite{Rabe:qlfml12} and \cite{ODK-D6.1} for details.
-
-In the future of the OpenDreamKit project we want to investigate this question for DK-theories further. We want to take a deeper look at useful query languages. This could consist of extending codecs from a value-translating mechanism to a query-translating mechanism. That is we take a query from inside \MMT and then compile this into a database query -- which can then be evaluated efficiently. It could also take another direction entirely.
-
-\section{Outlook and Conclusion}\label{sec:conclusion}
-
-In this report we introduced the basics of how we imagine \MMT data-centric theories. Here we connect to external databases which we model as a set of well-typed records, that is list of (key, value) pairs. We introduced the concept of record types inside \MMT. Here keys are symbols which are declared inside a schema theory and the values are \MMT literals translated from the physical database representations using codecs.
-
-Additionally we have implemented an actual example. For this we used the LMFDB database of elliptic curves. We implemented a multitude of codecs that should also prove useful in future expansions of this implementation. We have demonstrated that it is possible to integrate databases inside \MMT seamlessly so that it is not noticable that declarations are actually retrieved from a database instead of being declared from within \MMT directly.
-
-In the future we want to expand on this concept. Right now we can only translate database records into \MMT objects. While we want to use the form of the objects used by \MMT as the primary representation we want to be able to translate these objects to system specifc objects. Each system might have system-specific constructors and / or representations. In practice all systems will have a constructor for these objects. These will take a set of arguments. These arguments will either be primitive (in which case we can just encode them from \MMT using a codec) or be complex objects themselves (in which case we can recurse into the entire procedure). Storing these encodings inside \MMT we will be able to write thin interfaces to \MMT, which can then easily retrieve objects from \MMT in their prefered representation.
-
-Together with the opposite process -- the understanding of objects by using accessors from arbitary systems -- will also allow (almost) arbitary systems to exchange objects via \MMT. We are already working on a \python Client implementation. This will not apply any recoding to the objects -- it just retrieves records in an easily accessible form from \MMT. In the future we are hoping to use this to integrate \MMT and \GAP and enable \GAP to use any kind of object that \MMT has access to.
+\include{dktheories}
+\include{mathdb}
+\include{casestudies}
+\include{concl}
 
 \newpage\printbibliography
 
 \appendix
-\input{case_study_paul.tex}
+\include{case_study_paul.tex}
 
 \end{document}
 
