@@ -9,107 +9,106 @@ This has been done ad hoc in the past and has proved both very difficult and ---
 Therefore, we have developed systematic method for encoding/decoding mathematical objects as database objects.
 This allows formally specifying the schema of a database in such a way that \MMT storages can use it to encapsulate the encoding and provide users with a high-level view of a mathematical database.
 
+\ednote{@TW: add reasonable definitoins for the macros that I used without defining}
+
 \subsubsection{Codecs}
 
-The first step towards implementing Virtual Theories is to create a theory that retrieves
-declarations from inside a database. Databases are not commonly optimise for mathematical
-objects. On the contrary -- databases usually enforce their own schema that does not
-correspond in any way to the high-level mathematical objects that we want to
-model. Furthermore the object representations are not in the form of something resembling
-OpenMath / \MMT terms -- usually they are in primitive objects (integers, strings,
-booleans, etc. ) or in data formats like JSON.
+We fix an arbitrary data type of \textbf{codes}.
+These are the primitive values of the database.
+Typical examples are strings or JSON objects.
+We will JSON for the purpose of giving concrete examples.
 
-Hence we need to be able to translate between the low-level representations of the objects
-stored in the database and the underlying mathematical objects (in the form of \MMT terms). In
-most common databases, each record stored usually has multiple fields that each have values.
-Each field commonly represents one property of the mathematical object. Together the fields and
-their values are more than enough to uniquely define the mathematical object. The values
-themselves are usually represented with some physical data type -- for example an integer can
-be stored in the form of a 64-bit integer or in the form of a string if it becomes to big. In
-some of the cases it is trivial to translate the encoded values to the proper values. In other
-cases, it might not be as trivial as it seems. Take for example a mathematical object defined
-by some matrix of integers. On one hand it could simply be represented as a list of list of
-integers. On the other hand the database could use some kind of sparse representation, i.e.
-store only the non-zero entries. To encompass this setup inside \MMT we introduce the concept
-of codecs.
+Our goal is to define codecs that define the relation between \MMT objects and codes.
 
 \begin{mydef}[Codec]
-  A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term inside the
-  Math-In-The-Middle Theory), $f$ a mapping from the encoded representations of the type
-  to the intended values of the type and $g$ is a mapping from the actual values of the
-  type to their physical encodings. We call the operation performed by $f$ a decoding and
-  the operation performed by $g$ an encoding of the type $t$.
+  For an \MMT object $t$, a $t$-codec is a pair $(\enc, \dec)$ where
+  \begin{compactitem}
+   \item $\enc$ is a partial function from \MMT objects of type $t$ to codes
+   \item $\dec$ is a partial function from codes to $\MMT$ objects of type $t$
+  \end{compactitem}
+  such that $\dec$ and $\enc$ are inverse to each other whenever defined.
 \end{mydef}
 
-We can use codecs to translate between \MMT terms and the database objects. There are two
-basic ways of creating codecs -- atomic codecs and codec operators. An atomic codec is a
-codec of a very simple type, for example an encoding of integers as strings. In this case
-$f$ would be a map from strings consisting of digits\footnote{Technically, there may also
-  be a starting \texttt{"-"} or \texttt{"+"} sign, but the details are not important
-  here. } to integers. This mapping does exactly what you would expect -- it maps the
-string \texttt{"0"} to 0, the string \texttt{"1"} to 1, etc. $g$ would be an inverse of
-sorts -- the map from integers to strings that maps 0 to \texttt{"0"}, 1 to \texttt{"1"},
-etc. Note that here $g$ is the left inverse of $f$ (in the sense that $g \circ f$ is the
-identity), but $f \circ g$ not neccessarily. In a general setting we want $g \circ f$ to
-be the identity for all codecs, however in practive it rarely happens. A good example of
-this is the problem of precision -- there is no chance of encoding all of the real numbers
-in a physical (countable, probably even finite) datatype.  The second way of creating
-codecs is by using codec operators. These take as input an atomic codec and give a codec
-for a composite type. Take for example the list codec operator. It takes as input a codec
-for an arbitary type $t$ and gives a codec for the type \texttt{List(t)}.
+Both encoding and decoding are partial functions.
+This is to be expected for decoding: only certain codes are the result of encoding objects of type $t$.
+It may be surprising for encoding.
+Here we need partiality because \MMT objects may be arbitrarily complex expressions.
+This can include non-normalized expressions or expressions with free variables or uninterpreted symbols.
+This will become clear in the examples below.
 
-Inside \MMT we can represent the actual values as literals. For this we do not use the
-representations from the database, but instead values that best represent the true
-values. We also represent the codecs inside \MMT. Each codec can be represented as an \MMT
-term, with each atomic codec and each codec operator having an associated symbol inside a
-Codec theory We can use these symbols to represent arbitary codecs, for example a codec
-for a matrix of integers would be represented by applying the symbol for a matrix codec
-operator to the symbol for an integer codec. For each codec and codec operator we have an
-associated Scala class. For atomic codecs, this class implements an \texttt{encode} and
-\texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec
-operators, it implements a \texttt{build\_codec} method --
-that takes as input an AtomicCodec and returns an codec for the composite type.
+Recall the Math-in-the-Middle theory from Section~\ref{sec:MMT}.
+\ednote{@TW: make sure all symbols mentioned here are part of the earlier example}
+A trivial example of an $\int$-codec is essentially the identity function: $\enc$ maps integer literals to the corresponding JSON integer, and $\dec$ inverts it.
+$\enc$ is partial because it only encodes literals, e.g., it does not encode expressions like $x+1$ or $\min \{x^4+x^3+x^2+x+1|x\in \mathbb{N}\}$.
+(An object like $1+1$ can be encoded by first simplifying it to a literal $2$.)
+More subtly, it cannot encode integer literals that do not fit into the $64$ bit integers of a typical JSON implementation.
 
-To be able to construct the codec that corresponds to a Term we have also implemented a
-Coder class. It starts from a term representing a codec, finds the
-appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec
-instance. This allows us given a literal value and a Term representing its type to encode
-or decode terms in almost arbitary ways.
+But this is not the only reasonable $\int$-codec.
+In \LMFDB databases, we often encounter integers that do not fit into $64$ bits, and we have specify two additional codecs.
+$\intAsString$ encodes integer literal as strings in decimal representation.
+$\intAsString$ has the advantage of easily encoding all integers.
+But it is not convenient for computations.
+Therefore, \LMFDB users have occasionally used a smarter encoding: $\intAsList$ encodes integer literals as lists of JSON integers such that the list $[n,d_1,\ldots,d_n]$ corresponds to the integer whose base $2^{64}$ representation is $(d_1\ldots d_n)$.
+$\intAsList$ has the advantage that the lexicographic ordering can be used for size comparisons without having to decode.
 
-\subsubsection{Using Records and Schemas inside \MMT}
+Along the same lines, we can define codecs for other simple data types.
+For example, we can define a codec for matrices of integers that encodes pairs of pairs of integers as a JSON list of $4$ JSON integers.
+This example is interesting because it comes up in the \LMFDB and has confused some programmers: because the encoding was not fully documented, it was mistakenly assumed that the respective mathematical type of the value is that of lists of integers.
 
-Codecs only solve half of the problem -- they can only translate values. We still need to
-represent the records as a whole inside DK theories. For this we introduce a type of
-records inside \MMT. This is just what you would expect -- a list of (key, value) pairs
-with each key appearing at most once. In ou rimplementation the keys are \MMT symbols and
-the values are arbitary \MMT values. We also introduce a projection operator which takes
-an \MMT record and a key and returns the values of the key in the given record.
+We collect and document all available codecs in a special \MMT theory:
+\ednote{@TW: give and explain relevant fragment of codec theory}
+Note that our codec theory does not include any implementations (which usually require highly programming language--specific function calls.
+Instead, it standardizes names for the codecs and documents their behavior so that each codec can be implemented faithfully in multiple programming languages.
+This is in line with the Math-in-the-Middle approach of centrally storing the shared knowledge.
 
-To translate the entire object, we assume that the records of one type inside the database
-are homogeneous\footnote{That is each record has the same fields and the values have the
-  same semantic types. Having the same semantic types means to be decodable with the same
-  codec. }. For this purpose we introduce the concept of a schema theory. This schema
-theory has a declaration for each field in the database. Furthermore we use meta-data to
-annotate each declaration by stating which codec it uses. Since a codec can be represented
-by an \MMT term this is easy to implement.
+We have seeded this theory with a few important codecs.
+And for every codec we describe, we have already given a reference implementation in Scala so that the \MMT system (which is written in Scala) can use all codecs.
+In the future, \pn will gradually build a library of relevant codecs and implement them in multiple programming languages.
 
-The schema theory tells us exactly how a record inside the database looks like and how to
-turn it into an \MMT term. However we also want to be able to have a type to be able to
-talk about the theory of all records in the database. This contains only two fixed
-declaration: A type for the database objects we are talking about and a constructor
-\texttt{from\_record}\ednote{check if this a good idea with Florian} that takes a generic
-record and returns an member of this type. We dynamically introduce a set of virtual
-declarations into this theory: One for each record in the database. When it is requested,
-we check for all declared fields in the schema theory and use the appropriate codecs to
-construct an \MMT record for the requested object. We then use the \texttt{from\_record}
-constructor to define the \MMT term corresponding to the record.
+\paragraph{Codec Operators}
+$\int$ is an atomic type.
+But mathematical types are usually very complex types.
+Already, types like $\lst(\int)$ provide substantial encoding problems because both integers and lists can be encoded differently.
+To systematize these choices, we introduce codec operators.
 
-We also want to be able to access specific fields from the retrieved objects. For this we
-introduce a third theory that declares a set of accessors, that is a function from the
-type of records in the database to the appropriate types. Each accessor also contains
-meta-data that states which field from the schema theory it implements. With the help of
-dynamically generated rules we can then simplify terms by extracting the appropriate
-fields from the records that were used to construct them.
+\begin{mydef}[Codec Operator]
+  For an \MMT symbol $t$ and an arity $n$, a $t$-codec operator takes an $o_1$-codec $C_1$, \ldots, an $o_n$-codec $C_n$ and returns a $t(o_1,\ldots,o_n)$ codec.
+\end{mydef}
+
+For example, let us define a $\lst$-codec operator $\lstAsList$ of arity $1$.
+It takes a type $t$-codec $C$ and returns the following codec: $\enc$ maps the object $\cons(a_1,\cons(a_2,\ldots,\cons(a_n,\nil)\ldots))$ to the JSON list $[e_1,\ldots,e_n]$ where each $e_i$ is the result or encoding $a_i$ with $C$.
+$\dec$ is defined accordingly.
+\ednote{@TW: give declaration of $\lstAsList$ in codec theory, mention a few other codec operators that we have (if any)}
+
+\subsubsection{Schema Theories}
+
+\ednote{@DM: Can you check/prettify/detailify the descriptions in this section. Maybe add the URIs that we use LMFDb or add details.}
+
+Codecs can transform between \MMT objects and codes, but we still have to specify which codecs to use for which types.
+We use special theories for this purpose, which we call \emph{schema theories}.
+These satisfy two functions.
+
+Firstly, a schema theory describes the database schema: many databases (including the ones in \LMFDB) can be seen as sets of records conforming to a certain schema.
+We represent these schemas as \MMT theories with one symbol declaration for each field.
+The meta-theory of these theories is the math-in-the-middle theory \ednote{@TW replace with actual name of the theory as introduced in Sect. 3} so that the types of the symbols can be the intended mathematical types.
+Secondly, we annotate meta-data to each declaration $f:\tm t$ that gives an \MMT object $c$ of type $\codec t$.
+
+Thus, the schema documents both the mathematical meaning of the fields and the physical encoding used when exchanging records conforming to the schema.
+By giving the schema theory for each database, we can capture all knowledge necessary to automatically interface with it.
+\ednote{@TW: give simple example of elliptic curve schema theory}
+
+We have implemented a new component of the \MMT system that takes an expression $c$ of type $\codec t$ and builds the appropriate $\tm t$-codec by traversing $c$.
+We use this in the storage instance for \LMFDB as follows:\ednote{@DM add details here, e.g., explain theory names in general and/or for elliptic curve example}
+\begin{compactenum}
+ \item A declaration with name $n$ in theory $T$ is requested.
+ \item We connect to \LMFDB and retrieve the corresponding record.
+ \item We load the schema theory $S$ for $T$.
+ \item We decode every field of the record according to the codec specified in $S$.
+ \item We collect the decoded \MMT object in an \MMT records $r$, the mathematical representation of the requested object.
+ \item We add the declaration $n=r$ to the corresponding virtual theory.
+\end{compactenum}
+
+\ednote{FR: add description of handling of constructors/assessors for a future paper; I think we can omit it for the deliverable as unnecessarily detailed}
 
 %%% Local Variables:
 %%% mode: latex
