@@ -1,28 +1,49 @@
-An OMDoc/MMT theory graph consists of theories and the relations between
-them~\cite{RabKoh:WSMSML13}. An OMDoc/MMT theory is a set of declarations -- a set of
-declared symbols. In addition to the declarations, each theory has a name (which together
-with its namespace forms the global URI for the theory) and a meta-theory. A meta-theory
-is commonly the logical framework that is used to model the content of the theory. Each
-declared symbol has a name and can additionally have a type, a definition and different
-kinds of meta-data. In each theory these symbols can then be used to form terms that can
-be used to express more advanced knowledge. Here terms are effectively OpenMath 2.0
-\cite{BusCapCar:2oms04} objects -- they mostly consist of literal values, symbols and
-applications of terms to other terms.
+We only sketch \MMT here to the extent that we need it and refer to \cite{RabKoh:WSMSML13} for details.
+An OMDoc/MMT theory graph is a diagram in the category of \MMT theories and theory morphisms.
+Theories represent all kinds of languages such as mathematical foundations and type systems as well as individual mathematical theories.
+Theory morphisms represent relations between them including translations, imports, and representation theorems.
 
-There are two basic kinds of relations between theories: imports and views. An import is a
-way to declare symbols from one theory in another theory -- to import the symbols from a
-source theory to a target theory. This can for example be used to extend an existing
-theory without re-declaring all symbols or to combine two theories. Furthermore the
-concept of imports allows to modularise knowledge. On top of imports there are also
-Structures which are imports and additional renamings of the imported symbols. The second
-type of relation, the view, is a mapping from one theory to another -- a way to ``view''
-one theory as another. This mapping allows terms from one theory to be translated into
-another theory. In the case where terms represent boolean statements or proofs, the
-mapping given by the view is truth preserving -- \emph{i.e.}~if a statement is true in the
-source theory, it is be true in the target theory after translation.
+\paragraph{Theories}
+In the simplest case (which is sufficient for our purposes here) an \MMT \textbf{theory} is a set of symbol declarations.
+Each \textbf{symbol declaration} must have a name and may optionally have a type object, a defining object, and arbitrary meta-data (such as tags, cross-references, comments, etc).
+The \textbf{objects} are OpenMath 2.0 objects \cite{BusCapCar:2oms04} --- these are complex expressions formed from application, binding, variables, literals, and symbol references.
+\ednote{@TW: give example of a theory, e.g., a fragment of the ODK math theory}
 
-Theory graphs are implemented inside the \MMT system~\cite{Rabe:MAGMS13,uniformal:on}. The
-system allows for the declaration of theories along with symbols, imports and
-views. Furthermore it is possible to create terms over these theories and translate them
-along views. The \MMT system also provides a type checker that can be used to type check
-declarations.
+Critically, \MMT enforces structural validity: Every object may only reference symbols that are declared in or imported into the containing theory.
+But \MMT abstracts from the foundational semantics such as type and logic systems that specify exactly which objects are meaningful.
+This puts \MMT into a powerful intermediate position, where enough structure is guaranteed for knowledge management while not committing to a particular foundation.
+
+Above we have skipped the \MMT module system, which is not essential for our results here.
+However, one detail of the \MMT module system \emph{is} critical: Every theory may have a \textbf{meta-theory}.
+Practically, the meta-theory mostly behaves like a plain import.
+But conceptually, the meta-theory of a theory $T$ is the language that provides the foundational background to understand $T$.
+The most common use case employs three meta-levels: Firstly, an \MMT theory introduces a logical framework $F$.
+Secondly, $F$ serves as the meta-theory of a foundation $L$, which uses the symbols of $F$ to define a particular type system and logic.
+Thirdly, a library of mathematical knowledge is developed as a theory graph in which all theories have meta-theory $L$.
+\ednote{@TW: give example graph involving some theories involved in this report}
+
+Most systems (including most systems involved in \pn) focus on the third level only.
+The second level is usually left implicit, e.g., because it is hard-coded in the implementation of computation system.
+And because the second level is hard-coded, there is no need for the first level.
+For system integration, it is important to make the second level explicit so that the semantics of the exchanged knowledge can be specified.
+Thus, \MMT already anticipates much of the high-level concepts needed for the system-spanning \DKS-bases in \pn.
+
+\paragraph{Theory Morphisms}
+There are two kinds of theory morphisms: imports and views.
+Imports are the central for building theories modularly by pulling together symbols introduced in other theories.
+Practically, imports can be seen amount to copying symbol declarations while instantiating, renaming, or otherwise modifying them.
+The semantics of theories with imports is defined via colimits.
+
+A view from theory $S$ to theory $T$, is a translation of $S$-objects to $T$-objects.
+Contrary to imports, views are given after the involved theories have been defined.
+Thus, they have the character of theorems rather than definitions, and indeed views usually induce proof obligations that must be discharged for a view to be accepted.
+In the presence of appropriate logical frameworks, \MMT guarantees a critical property: The translation of objects preserves all properties of the type system and the logic.
+In particular, all $S$-theorems are translated to $T$-theorems.
+
+\paragraph{Implementation}
+Theory graphs are implemented in the \MMT system~\cite{Rabe:MAGMS13,uniformal:on}.
+At its core, this system allows for the declaration of theories along with symbols, imports and views, to build objects and translate them along views.
+
+On top of this, the \MMT system provides a number of logical and knowledge management services.
+The former includes computing the respective colimits, translating objects along morphisms, or type checking and proving objects relative to the respective meta-theory.
+The latter include import/export of libraries, editing, browsing, and middleware for system integration.
