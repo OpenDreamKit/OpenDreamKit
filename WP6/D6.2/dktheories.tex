@@ -1,68 +1,59 @@
-To work with DK theories, the first thing we need to do is define them.
-\begin{mydef}[DK theory]
-  A Data-Knowledge (or DK for short) theory is a theory consisting of a potentially
-  infinite set of declarations.
+OMDoc/MMT theories are limited when it comes to representing large amounts of data.
+Conceptually, every database should be represented as one theory, but this can easily lead to very large theories.
+For example, the theory for elliptic curves in the \LMFDB would contain \ednote{@TW: add number} symbol declarations: one definition for every curve.
+Prior to \pn, \MMT could only load who{e theories into main memory, which made it insufficient as a basis for \DKS-bases.
+
+Moreover, many data-driven theories are technically infinite collections of which only finite fragments have been explored so far.
+For example, this applies to all databases in the \LMFDB (each of which enumerates a certain infinite class of mathematical objects) and \OEIS (each of which enumerates a certain integer sequence).
+As the explored fragments grow, the set of symbol declarations in the corresponding \MMT theory must grow accordingly.
+
+Therefore, we generalize \MMT theories to allow for a virtual, possibly infinite set of declarations, that is explored dynamically.
+The combination of virtual theories with the Math-in-the-Middle approach yields our desired \DKS-bases.
+
+\begin{mydef}[Virtual Theory]
+  A \textbf{virtual theory} is like an \MMT theory but with a (possibly infinite) partially ordered set of declarations.
 \end{mydef}
 
-But what does this mean? To clarify this, we list a few examples here. The first thing to
-note is that all K-theories represented inside \MMT are DK theories that contain a very
-limited set of finitely many declarations. However this only part of what is covered by
-this concept -- it becaomes interesting once we have many more declarations inside a
-theory, in the sense that we have sufficiently many that we can not keep them all in
-memory or want to materialise all of them on disk.
+We give a trivial example of an infinite virtual theory for the natural numbers:
+Besides the usual symbols for $0$ and $\mathtt{succ}$ as well as the Peano axioms, it contains the totally ordered set of one declaration for every natural number.
+For example, we might have a declaration
+ \[5:\mathtt{nat}=\mathtt{succ}(4)\]
+to introduce a symbol for the number $5$.
+In the presence of an addition operator, this theory might also contain one axiom for every pair of natural numbers, e.g., to state the truth of $2+2=4$.
 
-Consider the problem of formalising the natural numbers inside a theory. For this we could
-use a theory with as little as eight declarations -- one for the type of natural numbers,
-one for the number zero, one for the successor function and one for each of the five Peano
-axiomes. This defines a DK theory however it is not very practical. We could use terms for
-each of the natural numnbers, but if we want to write down a number like $365$, we would
-have to apply the successor function $365$ times. We really want to have one declaration
-for each natural number, i.e. have each number declared as the successor of the previous
-one. This is in the spirit of DK theories.
+This is a typical situation: We have an infinite (or very big) set of declarations that are generated systematically.
+In some cases (as for the natural numbers above), every declaration can be easily generated on-demand.
+Thus, one might think that virtual theories can be easily represented in a finitary way by storing the algorithm that produces the generations.
 
-The naive approach to implement this theory does not work -- we would need to hold
-infitely many declarations in memory. Even if we had infinite memory, this would not be
-enough -- we would need to materialise all of these definitions in the first place -- we
-can not just write all of them down. This particular example can be solved by introducing
-literals -- but that is not the point. It illustrates the basic problem that comes up in
-many practical situations. We have a very big set of declarations that are generated
-according to some schema. This can mean that there is an obvious pattern to generate all
-of them -- like with natural numbers -- or that they are stored in some external database
-or system. In the database system there is some pattern in how to generate the
-declarations -- each declaration corresponds to a record inside the database.
+But this falls short in general.
+For example, the generation of the declarations may be so expensive that it is only practical if they are precomputed and stored in a database.
+This is what happens in the \LMFDB (and why the \LMFDB was introduced in the first place).
+It is also possible that there are multiple algorithms enumerating different fragments of the virtual theory, or that no generating algorithm is known (e.g., for some integer sequences in the \OEIS) and individual declarations must be collected manually.
 
-\LMFDB is a mathematical database that contains a collection of elliptic curves. We can use
-this to define a DK theory consisting of elliptic curves\footnote{And indeed we have done
+For example, consider the database of elliptic curves in the \LMFDB.
+We can define the virtual theory \footnote{And indeed we have done
   this. More on what \LMFDB is and what exactly we have achieved so far can be found below
-  in Section~\ref{sec:lmfdb}}. We could furthermore extend this theory to not only include
-elliptic curves, but all objects contained inside \LMFDB. Inside this theory, not all
-declarations will look the same -- they will all be of different types. It should also be
-noted that this theory is not something one would want to write down manually -- even
-though there are finitely many declarations. Likely the number of declarations is vastly
-bigger than what we can hold in main memory at any point.
+  in Section~\ref{sec:lmfdb}}.
+\ednote{@TW: give more detailed example declaration here}
 
-In practice we will never need to access all of these declarations at once -- in most
-scenarios we will only need a very small subset of them. A small subset that is big enough
-to hold in memory. Hence we need some process to load the declarations inside main memory
-once we need them -- or possibly even create them if they do not yet exist.
+\paragraph{Implementation}
+In practice we never need to access all of these declarations at once --- in most
+scenarios we only need a very small subset of them, usually small enough to hold in memory.
+This motivates the main idea behind how we have implemented virtual theories in the \MMT system.
 
-\begin{mydef}[Virtual theory]
-  A Virtual Theory is an implementation of a DK theory that loads or creates declarations in main memory on demand and unloads them once memory space becomes limited.
-\end{mydef}
+\MMT already abstracts from physical storage backends (working copies, databases, etc.), from which theories are loaded.
+We have extended this storage abstraction to allow loading not only theories but individual declarations on demand.
+This is more difficult than it sounds because while theories have a self-contained semantics, declarations only make sense in the context of the containing theory.
+Thus, we had to comb through the \MMT code base and generalize all processing to the case where a theory's declarations are only partially known.
 
-This adresses the problems we mentioned above. On top of the requirements already defined,
-we ideally want such an implementation to be invisible to the user -- they should not
-notice the difference between a K theory and a DK theory that contains on-demand
-declarations.
+We have also built an \LMFDB-specific implementation of this this generalized storage abstraction.
+This instance dynamically queries \LMFDB for the appropriate entry, computes the corresponding declarations, and adds it to the in-memory representation of the virtual theory.
+(Additionally, if that virtual theory is not in memory yet, it first creates it.)
+We were able to retain an important feature of \MMT: The loading of declarations is transparent to the user.
+The backend loads a declaration automatically when and if it is needed by some operation.
+\ednote{@TW: give details on example here}
 
-While there are many possible implementations for DK theories, here we only concern ourselves
-with the case where the declaration come from some arbitary external database. On top of
-retrieving declarations from DK theories, we also want to be able to create new declarations,
-update existing ones and possibly even delete some. In the case of some underlying database
-this corresponds perfectly to the CRUD -- Create, Read, Update, Delete -- operations. We can
-just translate the operations and have the database take care of the implementation details. We
-have already had a few more thoughts on how to enable efficient querying of theories -- we will
-get to this later in Section~\ref{sec:querying}.
+
 
 %%% Local Variables:
 %%% mode: latex
