@@ -9,18 +9,18 @@ OpenMath / \MMT terms -- usually they are in primitive objects (integers, string
 booleans, etc. ) or in data formats like JSON.
 
 Hence we need to be able to translate between the low-level representations of the objects
-stored in the database and the underlying mathematical objects (in the form of \MMT
-terms). In most common databases, each record stored usually has multiple fields that each
-have values. Each field commonly represents one property of the mathematical
-object. Together the fields and their values are more than enough to uniquely define the
-mathematical object. The values themselves are usually represented with some physical data
-type -- for example an integer is stored in the form of a 64-bit integer\ednote{Better
-  example?}. In some of the cases it is trivial to translate the encoded values to the
-proper values. In other cases, it might not be as trivial as it seems. Take for example a
-mathematical object defined by some matrix of integers. On one hand it could simply be
-represented as a list of list of integers. On the other hand the database could use some
-kind of sparse representation, i.e. store only the non-zero entries. To encompass this
-setup inside \MMT we introduce the concept of codecs.
+stored in the database and the underlying mathematical objects (in the form of \MMT terms). In
+most common databases, each record stored usually has multiple fields that each have values.
+Each field commonly represents one property of the mathematical object. Together the fields and
+their values are more than enough to uniquely define the mathematical object. The values
+themselves are usually represented with some physical data type -- for example an integer can
+be stored in the form of a 64-bit integer or in the form of a string if it becomes to big. In
+some of the cases it is trivial to translate the encoded values to the proper values. In other
+cases, it might not be as trivial as it seems. Take for example a mathematical object defined
+by some matrix of integers. On one hand it could simply be represented as a list of list of
+integers. On the other hand the database could use some kind of sparse representation, i.e.
+store only the non-zero entries. To encompass this setup inside \MMT we introduce the concept
+of codecs.
 
 \begin{mydef}[Codec]
   A codec is a triple $(t, f, g)$ where $t$ is a type (represented as a term inside the
@@ -56,11 +56,11 @@ for a matrix of integers would be represented by applying the symbol for a matri
 operator to the symbol for an integer codec. For each codec and codec operator we have an
 associated Scala class. For atomic codecs, this class implements an \texttt{encode} and
 \texttt{decode} method (implementing $g$ and $f$ respectively). In the case of Codec
-operators, it implements a \texttt{build\_codec}\ednote{Correct method name} method --
+operators, it implements a \texttt{build\_codec} method --
 that takes as input an AtomicCodec and returns an codec for the composite type.
 
 To be able to construct the codec that corresponds to a Term we have also implemented a
-Coder class\ednote{Different name?}. It starts from a term representing a codec, finds the
+Coder class. It starts from a term representing a codec, finds the
 appropriate atomic codec(s) and codec operator(s) and then uses them to construct a Codec
 instance. This allows us given a literal value and a Term representing its type to encode
 or decode terms in almost arbitary ways.
