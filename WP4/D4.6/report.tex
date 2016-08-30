@@ -1,0 +1,176 @@
+\documentclass{deliverablereport}
+\usepackage{hyperref}
+
+\usepackage[style=alphabetic,backend=bibtex]{biblatex}
+\addbibresource{../../lib/deliverables.bib}
+\addbibresource{report.bib}
+% temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
+\makeatletter\def\blx@maxline{77}\makeatother
+
+
+\deliverable{UI}{jupyter-collab}
+\issue{95}
+\duedate{31/08/2016 (M12)}
+\deliverydate{31/08/2016}
+\author{Benjamin Ragan-Kelley \& Martin Alnaes \& Vidar Fauske}
+
+\begin{document}
+    
+\maketitle
+
+\begin{abstract}
+Version control tools, such as Git and Mercurial, have become an integral part of
+open and collaborative science and software. Version control tools allow proposed changes to be
+reviewed ('diffing') and resolve conflicts through combination of changes ('merging'). Jupyter
+notebook documents are stored in text files as JSON formatted data. This makes them well suited to
+tracking in version control, but the JSON structure can make diffing and merging difficult. We have
+developed the nbdime tool for diffing and merging notebook documents with awareness of the
+structured nature of the documents, allowing a significantly improved experience over naïve
+text-file diffing and merging tools.
+nbdime can be integrated into the popular git version control system,
+maximizing impact on common developer workflows.
+\end{abstract}
+
+\githubissuedescription
+
+
+\section{Collaborating on notebooks with nbdime}
+
+Version control tools, such as Git and Mercurial, have become an integral part of open and
+collaborative science and software. Version control tools allow proposed changes to be reviewed
+('diffing') and resolve conflicts through combination of changes ('merging'). Jupyter notebook
+documents are stored in text files as JSON formatted data. This makes them well suited to tracking
+in version control, but the JSON structure can make diffing and merging difficult.
+We have developed tools for diffing and merging notebook documents with awareness of the structured
+nature of the documents, allowing a significantly improved experience over naïve text-file tools.
+These tools also provide integration with the git version control system.
+
+We have built a new Python package called nbdime, for \textbf{N}ote\textbf{b}ook \textbf{Di}ffing and \textbf{Me}rging.
+nbdime makes use of the nbformat package, part of the Jupyter project.
+nbdime aims to improve the experience of scientists collaborating on notebooks,
+in particular addressing difficulties in the diffing and merging stages of collaboration.
+We submitted the project to Jupyter via the Jupyter Enhancement Proposal process,
+and it has been accepted as an official Jupyter project.
+
+nbdime is available on GitHub as https://github.com/jupyter/nbdime
+
+\section{diffing notebooks} % (fold)
+\label{sec:diffing_notebooks}
+
+\begin{figure}
+    \center
+    \includegraphics[width=8cm]{img/json-diff}
+    \caption{Text-based diff of a notebook as JSON, showing additional markup impeding readability.}
+    \label{fig:json-diff}
+\end{figure}
+
+\begin{figure}
+    \center
+    \includegraphics[width=8cm]{img/nbdiff}
+    \caption{nbdiff output, including truncated image changes and clearer changes in source code compared to JSON.}
+    \label{fig:nbdiff}
+\end{figure}
+
+nbdime provides two mechansims for comparing notebooks. First is a command-line diff of notebooks
+via the \texttt{nbdiff} command, enabling use in a text-based terminal where developers spend much
+of their time. The key for diffing notebooks is that not all information in a notebook has equal
+importance, and not all of it is sensibly viewable as text, such as embedded images. The second
+important task of nbdime is displaying text content in a more legible form than the raw JSON. JSON
+includes additional structured markup, such as quotation marks, indentation, and escaped
+characters, which make the text difficult to read, and appear different from the text a user might
+see when they are editing the notebook. By recognizing the structure of the notebook, nbdime is
+able to make intelligent decisions about how to display text without additional markup and deemphasize information that is not viewable in a text-only environment.
+nbdime includes the structure and metadata with minimal markup, designed for humans to read.
+When images or other embedded data is seen, it is replaced by an indication that there is binary data that change, rather than the unintelligible difference between the binary data.
+
+\begin{figure}
+    \center
+    \includegraphics[width=10cm]{img/nbdiff-web}
+    \caption{nbdiff-web output showing side-by-side comparison of output images.}
+    \label{fig:nbdiff-web}
+\end{figure}
+
+nbdime also provides a web-based diff viewer via the \texttt{nbdiff-web} command. Notebooks are
+most commonly viewed and produced in a web-based environment, with the ability to view rendered
+images and HTML. The goal of the web-based viewer is to show the reviewer the actual changes in the
+notebook document, including changes in output images and rendered HTML.
+This allows the most natural experience of reviewing changes in a document, where the review environment is as similar to the interactive notebook environment as possible.
+
+% section diffing_notebooks (end)
+
+\section{merging notebooks} % (fold)
+\label{sec:merging_notebooks}
+
+\begin{figure}
+    \center
+    \includegraphics[width=8cm]{img/nbmerge}
+    \caption{The result of nbmerge with a conflict is still a valid notebook.}
+    \label{fig:nbmerge}
+\end{figure}
+
+One challenge for merging two notebooks using text is the structured JSON information, where
+text-based merge strategies can result in a syntactically invalid document. This is a problem for
+merging all structured documents, including source code in programming languages such as C, Python,
+or \LaTeX, but for tools where the editor is not plain-text, preventing the creation of these
+invalid documents. Another challenge for merging is the fact that some of the content in notebooks
+is generated, and thus should be treated differently when considering conflicts between two change
+sets.
+
+nbdime addresses the issue of conflicts with its own merge mechanism, always ensuring that a valid notebook is the result, even if there are conflicts.
+The second task of nbdime's merge tool is to allow users to ignore conflicts on certain fields of the notebook.
+There is a hierarchy of significance int he content of notebooks,
+and not all changes should be considered conflicting.
+For instance, if two change sets both alter certain metadata,
+the changes are not significant and an aggressive.
+Similarly for generated output, conflicts can be automatically resolved without the consequences of automatic resolution in the source code.
+In the worst case scenario, a notebook can be re-executed to produce new output.
+
+
+\begin{figure}
+    \center
+    \includegraphics[width=10cm]{img/nbmerge-web}
+    \caption{nbmerge web-based merge conflict resolution tool allows individual conflict resolution.}
+    \label{fig:nbmerge-web}
+\end{figure}
+
+When merge conflicts do occur, the nbmerge web tool can be used to view and resolve the conflicting changes one by one.
+
+% section merging_notebooks (end)
+
+
+\section{version control integration} % (fold)
+\label{sub:version_control_integration}
+
+nbdime provides integration with the git version control system for its diffing and merging tools.
+Git provides two mechanisms for integrating external software for.
+
+The first is called a "driver", and is used internally by git when computing diffs and performing merges. nbdime can register its command-line diff rendering as a diff driver for notebook files.
+This can be done as a system-wide configuration, or for individual git repositories.
+nbdime also provides a merge driver for auto-resolving conflicts on notebooks,
+ensuring that a \texttt{git merge} never results in an invalid notebook document,
+and that conflicts can be resolved in the user's familiar notebook-editing environment.
+
+The second git integration point is called a "tool", e.g. "difftool" or "mergetool".
+These are like drivers, but allow external applications that may open windows to be launched.
+nbdime provides tool entrypoints for diff and merge to launch the web interfaces for viewing diffs
+and manually resolving merge conflicts.
+
+% subsection version_control_integration (end)
+
+
+\section{Future work}
+
+While nbdime integrates well into the local git workflow of diffing and merging,
+much of the diffing and merging work of today's scientists and developers happens
+on public websites such as GitHub or Bitbucket,
+where the user cannot customize.
+However, these websites do support custom diff viewing of certain file types,
+such as images and GeoJSON files \cite{geojson-diff}.
+After some maturation of the design of the nbdime-web diff viewer,
+we will work with GitHub and others to integrate diff viewing of notebooks into their websites,
+as we have done in the past with rendering of single notebooks.
+
+\printbibliography
+
+\end{document}
+
