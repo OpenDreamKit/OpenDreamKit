@@ -7,11 +7,34 @@ Theory morphisms represent relations between them including translations, import
 In the simplest case (which is sufficient for our purposes here) an \MMT \textbf{theory} is a finite list of symbol declarations.
 Each \textbf{symbol declaration} must have a name and may optionally have a type object, a defining object, and arbitrary meta-data (such as tags, cross-references, comments, etc).
 The \textbf{objects} are OpenMath 2.0 objects \cite{BusCapCar:2oms04} --- these are complex expressions formed from application, binding, variables, literals, and symbol references.
-\ednote{@TW: give example of a theory, e.g., a fragment of the ODK math theory}
 
 Critically, \MMT enforces structural validity: Every object may only reference symbols that are declared in or imported into the containing theory.
 But \MMT abstracts from the foundational semantics such as type and logic systems that specify exactly which objects are meaningful.
 This puts \MMT into a powerful intermediate position, where enough structure is guaranteed for knowledge management while not committing to a particular foundation.
+
+An example MMT theory can be found in Listing~\ref{lst:mmt-odk-int}.
+The theory \texttt{Int} shows a part of the formalisation of integers.
+It contains three different kinds of declarations. Includes, Symbol declarations and Rule declarations.
+Each declaration is on its own line and delimited with a non-printable ascii character, shown here as $\RS$.
+Include declarations, prefixed with the \texttt{include} keyword, are used to make declarations from another theory available in this one.
+A symbol declaration introduces a new symbol into the theory.
+Rules start with the \texttt{rule} keyword and are used to extend the structural validity of objects.
+As described above, each symbol declaration may consist of multiple components, such as a type object, a definitional object and meta-data.
+Type objects are prefixed with \texttt{:}, definition objects are prefixed with \texttt{=}.
+The \texttt{\#} character is used to introduce notations.
+All components are seperated by another non-prinable ascii character, shown here as $\US$.
+
+
+\lstset{
+  morecomment=[l]{/T}
+}
+
+\lstinputlisting[
+  morekeywords={namespace,theory,include,rule},
+  mathescape,
+  caption={Example of an MMT theory: Defining a theory of integers. },
+  label=lst:mmt-odk-int
+]{examples/odk-int.mmt}
 
 Above we have skipped the \MMT module system, which is not essential for our results here.
 However, one detail of the \MMT module system \emph{is} critical: Every theory may have a \textbf{meta-theory}.
