@@ -1,11 +1,11 @@
-# Deliverable description, as taken from Github issue's #91 on 2016-06-16
+# Deliverable description, as taken from Github issue's #91 on 2016-06-16 {-}
 
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
 - **Lead Institution:** Jacobs University Bremen
 - **Due:** 2016-02-29 (month 6)
 - **Nature:** Report
-
-See page 47 of the [proposal](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf) for the full description.
+- **Proposal:** [p. 47](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf).
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP4/D4.2/report-final.pdf)**
 
 Related projects:
 - MathBookXML: http://mathbook.pugetsound.edu/
