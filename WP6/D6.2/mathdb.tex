@@ -91,20 +91,27 @@ These satisfy two functions.
 Firstly, a schema theory describes the database schema: many databases (including the ones in \LMFDB) can be seen as sets of records conforming to a certain schema.
 We represent these schemas as \MMT theories with one symbol declaration for each field.
 The meta-theory of these theories is the math-in-the-middle theory \ednote{@TW replace with actual name of the theory as introduced in Sect. 3} so that the types of the symbols can be the intended mathematical types.
-Secondly, we annotate meta-data to each declaration $f:\tm t$ that gives an \MMT object $c$ of type $\codec t$.
+Secondly, we annotate meta-data to each declaration, providing the information which concept in the math-in-the-middel theory a field implements and which codecs to use for converting between the two.
 
 Thus, the schema documents both the mathematical meaning of the fields and the physical encoding used when exchanging records conforming to the schema.
 By giving the schema theory for each database, we can capture all knowledge necessary to automatically interface with it.
-\ednote{@TW: give simple example of elliptic curve schema theory}
+
+\ednote{@TW: give simple example of elliptic curve schema theory\\DM: Done.}
+As an example, the schema theory for the database of \emph{elliptic curves} in LMFDB
+has meta-data linking it to the \emph{type} of elliptic curves in the corresponding math-in-the-middle theory, as well as meta-data telling \MMT which field in the database to use as \emph{names} for the resulting \MMT declarations - in this case the field \texttt{label}, which corresponds to a unique LMFDB-internal naming scheme. The schema theory contains e.g. a declaration \texttt{degree} of type \texttt{pos} (for positive  integers), corresponding to a field in the database by the same name, which is annotated with meta-data telling \MMT
+\begin{enumerate}
+\item to use the codec \texttt{standardPos} to convert from (and to) an LMFDB entry, and 
+\item that the field \texttt{degree} implements the function \texttt{modular\_degree} in the math-in-the-middle theory. 
+\end{enumerate}
 
 We have implemented a new component of the \MMT system that takes an expression $c$ of type $\codec t$ and builds the appropriate $\tm t$-codec by traversing $c$.
 We use this in the storage instance for \LMFDB as follows:\ednote{@DM add details here, e.g., explain theory names in general and/or for elliptic curve example}
 \begin{compactenum}
- \item A declaration with name $n$ in theory $T$ is requested.
- \item We connect to \LMFDB and retrieve the corresponding record.
- \item We load the schema theory $S$ for $T$.
+ \item A declaration with name $n$ in theory $T$ is requested (e.g. the elliptic curve with label \texttt{11a1} in the theory \texttt{lmfdb:db/elliptic\_curves?curves}).
+ \item We load the schema theory $S$ for $T$ (e.g. \texttt{lmfdb:schema/elliptic\_curves?curves})
+ \item We connect to \LMFDB and retrieve the corresponding record (e.g. the database entry for the curve with label \texttt{11a1}).
  \item We decode every field of the record according to the codec specified in $S$.
- \item We collect the decoded \MMT object in an \MMT records $r$, the mathematical representation of the requested object.
+ \item We collect the decoded \MMT object in an \MMT record $r$, the mathematical representation of the requested object.
  \item We add the declaration $n=r$ to the corresponding virtual theory.
 \end{compactenum}
 
