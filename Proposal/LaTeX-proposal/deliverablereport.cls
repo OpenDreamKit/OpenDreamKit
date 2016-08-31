@@ -29,10 +29,13 @@
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
 
-% Same as in eu/proposal.cls, but without an hyperlink (since it would
-% point to a different document)
+% Same as in eu/euproposal.cls and base/proposal.cls, but without an
+% hyperlink (since it would point to a different document)
+% TODO: add hyperlink to github
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
+\newcommand\delivref[2]{\csname deliv@#1#2@label\endcsname}
+\newcommand\taskref[2]{\csname task@#1#2@label\endcsname}
 
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1#2@label\endcsname}
