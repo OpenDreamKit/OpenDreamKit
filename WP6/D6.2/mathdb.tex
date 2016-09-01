@@ -9,7 +9,7 @@ This has been done ad hoc in the past and has proved both very difficult and ---
 Therefore, we have developed systematic method for encoding/decoding mathematical objects as database objects.
 This allows formally specifying the schema of a database in such a way that \MMT storages can use it to encapsulate the encoding and provide users with a high-level view of a mathematical database.
 
-\ednote{@TW: add reasonable definitoins for the macros that I used without defining}
+\ednote{macros are working, possibly re-check them /TW}
 
 \subsubsection{Codecs}
 
@@ -38,12 +38,12 @@ This will become clear in the examples below.
 
 Recall the Math-in-the-Middle theory from Section~\ref{sec:MMT}.
 \ednote{@TW: make sure all symbols mentioned here are part of the earlier example}
-A trivial example of an $\int$-codec is essentially the identity function: $\enc$ maps integer literals to the corresponding JSON integer, and $\dec$ inverts it.
+A trivial example of an $\Int$-codec is essentially the identity function: $\enc$ maps integer literals to the corresponding JSON integer, and $\dec$ inverts it.
 $\enc$ is partial because it only encodes literals, e.g., it does not encode expressions like $x+1$ or $\min \{x^4+x^3+x^2+x+1|x\in \mathbb{N}\}$.
 (An object like $1+1$ can be encoded by first simplifying it to a literal $2$.)
 More subtly, it cannot encode integer literals that do not fit into the $64$ bit integers of a typical JSON implementation.
 
-But this is not the only reasonable $\int$-codec.
+But this is not the only reasonable $\Int$-codec.
 In \LMFDB databases, we often encounter integers that do not fit into $64$ bits, and we have specify two additional codecs.
 $\intAsString$ encodes integer literal as strings in decimal representation.
 $\intAsString$ has the advantage of easily encoding all integers.
@@ -66,9 +66,9 @@ And for every codec we describe, we have already given a reference implementatio
 In the future, \pn will gradually build a library of relevant codecs and implement them in multiple programming languages.
 
 \paragraph{Codec Operators}
-$\int$ is an atomic type.
+$\Int$ is an atomic type.
 But mathematical types are usually very complex types.
-Already, types like $\lst(\int)$ provide substantial encoding problems because both integers and lists can be encoded differently.
+Already, types like $\lst(\Int)$ provide substantial encoding problems because both integers and lists can be encoded differently.
 To systematize these choices, we introduce codec operators.
 
 \begin{mydef}[Codec Operator]
@@ -100,8 +100,8 @@ By giving the schema theory for each database, we can capture all knowledge nece
 As an example, the schema theory for the database of \emph{elliptic curves} in LMFDB
 has meta-data linking it to the \emph{type} of elliptic curves in the corresponding math-in-the-middle theory, as well as meta-data telling \MMT which field in the database to use as \emph{names} for the resulting \MMT declarations - in this case the field \texttt{label}, which corresponds to a unique LMFDB-internal naming scheme. The schema theory contains e.g. a declaration \texttt{degree} of type \texttt{pos} (for positive  integers), corresponding to a field in the database by the same name, which is annotated with meta-data telling \MMT
 \begin{enumerate}
-\item to use the codec \texttt{standardPos} to convert from (and to) an LMFDB entry, and 
-\item that the field \texttt{degree} implements the function \texttt{modular\_degree} in the math-in-the-middle theory. 
+\item to use the codec \texttt{standardPos} to convert from (and to) an LMFDB entry, and
+\item that the field \texttt{degree} implements the function \texttt{modular\_degree} in the math-in-the-middle theory.
 \end{enumerate}
 
 We have implemented a new component of the \MMT system that takes an expression $c$ of type $\codec t$ and builds the appropriate $\tm t$-codec by traversing $c$.
