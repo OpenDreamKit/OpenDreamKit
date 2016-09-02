@@ -11,10 +11,11 @@ reports.zip: $(REPORTS)
 	zip -r --junk-paths reports.zip /tmp/reports
 
 %/github-issue-description.md:
-	(issue=`python bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue's #$$issue on `date -I` {-}\n"; python bin/get_issue_body $$issue) > $@
+	(issue=`python bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue's #$$issue on `date -I` {.notoc}\n"; python bin/get_issue_body $$issue) > $@
 
+# For some pandoc does not support both options {.notoc .unumbered}. So we force the section to be a section* ...
 %.tex: %.md
-	sed -e 's/- \[[xX]\]/- $$\\checkmark$$/; s! \([^ ]*[a-z]\)#\([0-9][0-9]*\)! [\1#\2](https://github.com/\1/issues/\2)!g; s!\([^a-z]\)#\([0-9]*[0-9]\)!\1[#\2](https://github.com/OpenDreamKit/OpenDreamKit/issues/\2)!g;' $< | pandoc -f markdown_github+tex_math_dollars+header_attributes -t latex -o $@
+	sed -e 's/- \[[xX]\]/- $$\\checkmark$$/; s! \([^ ]*[a-z]\)#\([0-9][0-9]*\)! [\1#\2](https://github.com/\1/issues/\2)!g; s!\([^a-z]\)#\([0-9]*[0-9]\)!\1[#\2](https://github.com/OpenDreamKit/OpenDreamKit/issues/\2)!g;' $< | pandoc --toc-depth=1 -f markdown_github+tex_math_dollars+header_attributes -t latex | sed -e 's/\\section/\\section*/' > $@
 
 %/report.pdf: %/report.tex %/github-issue-description.tex Proposal/LaTeX-proposal/deliverablereport.cls
 	cd `dirname $<`; file=`basename $<`; pdflatex $$file; bibtex $$file; pdflatex $$file; pdflatex $$file
