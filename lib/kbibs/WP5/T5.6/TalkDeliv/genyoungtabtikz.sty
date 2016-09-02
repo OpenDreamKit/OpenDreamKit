@@ -1,0 +1,1014 @@
+%%
+%% This is file `genyoungtabtikz.sty'.
+%%
+%% Copyright 2013,2014,2015 Matthew Fayers.
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `maintained'.
+%%
+%% The Current Maintainer of this work is Matthew Fayers (m.fayers@qmul.ac.uk).
+%% This work consists of the file genyoungtabtikz.sty
+%%
+%% This package is inspired by (and retains some tiny code fragments from) the youngtab package, Copyright 1996,98,99 Volker B"orchers and Stefan Gieseke.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{genyoungtabtikz}
+[2015/04/13 v1.10; Macros for Young tableaux, using Tikz]
+\RequirePackage{tikz}
+\RequirePackage{calc}
+\newdimen\g@b@xdim
+\newdimen\g@tempdim
+\newdimen\g@boxdim \g@boxdim=13pt
+\newdimen\g@boxdimx \g@boxdimx=13pt
+\newdimen\g@boxdimy \g@boxdimy=13pt
+\newdimen\g@xcoord
+\newdimen\g@ycoord
+\newdimen\g@xpos
+\def\Yboxdim#1{\g@boxdimx=#1\g@boxdimy=#1}
+\def\Yboxdimx#1{\g@boxdimx=#1}
+\def\Yboxdimy#1{\g@boxdimy=#1}
+\newdimen\g@linethick    \g@linethick=.3pt
+\def\Ylinethick#1{\g@linethick=#1}
+\newif\ifg@vcenter   \g@vcenterfalse
+\def\Yvcentermath#1{\ifnum #1=0 \g@vcenterfalse\else\g@vcentertrue\fi}
+\newif\ifg@stdtext   \g@stdtextfalse
+\newif\ifg@french \g@frenchfalse
+\newif\ifg@russian \g@russianfalse
+\newif\ifg@addables \g@addablesfalse
+\newif\ifg@internals \g@internalstrue
+\newif\ifg@removables \g@removablestrue
+\newif\ifg@tabloid \g@tabloidfalse
+\def\Ystdtext#1{\ifnum #1=0 \g@stdtextfalse\else\g@stdtexttrue\fi}
+\def\Yaddables#1{\ifnum #1=0 \g@addablesfalse\else\g@addablestrue\fi}
+\def\Yremovables#1{\ifnum #1=0 \g@removablesfalse\g@internalsfalse\else\g@removablestrue\fi}
+\def\Yinternals#1{\ifnum #1=0 \g@internalsfalse\else\g@removablestrue\g@internalstrue\fi}
+\def\g@filcol{white}
+\def\Yfillcolor#1{\def\g@filcol{#1}}
+\def\Yfillcolour#1{\def\g@filcol{#1}}
+\def\g@lincol{black}
+\def\Ylinecolor#1{\def\g@lincol{#1}}
+\def\Ylinecolour#1{\def\g@lincol{#1}}
+\def\g@nodcol{black}
+\def\Ynodecolor#1{\def\g@nodcol{#1}}
+\def\Ynodecolour#1{\def\g@nodcol{#1}}
+\def\g@filopa{1}
+\def\Yfillopacity#1{\def\g@filopa{#1}}
+\DeclareOption{vcentermath}{\g@vcentertrue}
+\DeclareOption{stdtext}{\g@stdtexttrue}
+\DeclareOption{french}{\g@frenchtrue}
+\DeclareOption{French}{\g@frenchtrue}
+\DeclareOption{russian}{\g@frenchtrue\g@russiantrue}
+\DeclareOption{Russian}{\g@frenchtrue\g@russiantrue}
+\DeclareOption*{\PackageWarning{genyoungtabtikz}{%
+    Unknown option `\CurrentOption' (Known:\MessageBreak
+    `vcentermath', `stdtext', `french', `French', `russian', `Russian'.)}}
+\ProcessOptions\relax
+\def\YFrench{\g@frenchtrue\g@russianfalse}
+\def\Yfrench{\g@frenchtrue\g@russianfalse}
+\def\YEnglish{\g@frenchfalse\g@russianfalse}
+\def\Yenglish{\g@frenchfalse\g@russianfalse}
+\def\YRussian{\g@frenchtrue\g@russiantrue}
+\def\Yrussian{\g@frenchtrue\g@russiantrue}
+\newdimen\g@adder
+\newdimen\g@line
+\newdimen\g@xshifting
+\newdimen\g@yshifting
+\newcount\g@counter
+\newcount\g@counting
+\newcounter{yrescount}
+\newcounter{ystartrow}
+\newdimen\g@shift
+\newdimen\g@dep
+\newif\ifg@islast
+\newif\ifg@cont
+\newcount\g@corner \g@corner0
+\def\Ycorner#1{\g@corner=#1}
+\newcounter{g@c@rner}\setcounter{g@c@rner}0
+\newcount\g@baselineshifter
+\newcounter{blockheight}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%argument tests
+\def\g@lastargtest#1,#2 {\if\space #2 \g@islasttrue\else\g@islastfalse\fi}%tests whether the first comma is followed by a space
+\def\g@singletest#1#2. {\if\space #2 \g@islasttrue\else\g@islastfalse\fi}%tests whether the remaining bit has only one argument
+\def\g@countrows#1,#2 {\if\space #2 \g@counter=0\else\g@countrows#2 %
+\advance\g@counter1\fi}
+\def\g@strip(#1^ ){#1}
+\def\g@rowsinblk(#1^#2){\if\space#2\g@counting=1\else\g@counting=\g@strip(#2)\fi}%
+\def\g@countrowsblock#1,#2 {\if\space #2 \g@counter=-1\else\g@countrowsblock#2 %
+\fi\g@rowsinblk(#1^ )\advance\g@counter\g@counting}
+\def\g@setbaselineshifter{\ifg@vcenter\ifg@french\g@baselineshifter=-1\else\g@baselineshifter=1\fi\else\g@baselineshifter=0\fi}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Young diagrams
+\def\g@setblk(#1^ ){\setcounter{blockheight}{#1}}
+
+\def\g@emptyblock(#1^#2){\if\space#2\setcounter{blockheight}1\else\g@setblk(#2)\fi\setlength{\g@adder}{\value{blockheight}\g@boxdimy}%
+\ifg@french\draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord)rectangle++(#1*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\draw[\g@lincol,line width=\g@linethick,xstep=\g@boxdimx,ystep=\g@boxdimy,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord)grid++(#1*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\advance\g@ycoord\g@adder%
+\else\draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa,fill opacity=\g@filopa,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord+\g@boxdimy-\value{blockheight}*\g@boxdimy)rectangle++(#1*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\draw[\g@lincol,line width=\g@linethick,xstep=\g@boxdimx,ystep=\g@boxdimy,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord+\g@boxdimy-\value{blockheight}*\g@boxdimy)grid++(#1*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\advance\g@ycoord -\g@adder\fi}
+
+\def\g@yng(#1,#2){\g@emptyblock(#1^ )\g@lastargtest#2, \ifg@islast\g@emptyblock(#2^ )\else\g@yng(#2)\fi}
+
+\def\tyng(#1,#2,#3){\g@xpos=0cm\g@ycoord=0cm\g@xshifting=#1,\g@yshifting=#2,\g@lastargtest#3, %
+\ifg@islast\g@emptyblock(#3^ )\else\g@yng(#3)\fi}
+
+\def\yngxy(#1,#2,#3){\settoheight\g@shift{1}\settodepth\g@dep{1}\g@countrowsblock#3, %
+\g@setbaselineshifter%
+\tikz[xscale=#1,yscale=#2,baseline=.5*#2*\g@boxdimy-.5*\g@shift-.5*#2*\g@counter*\g@baselineshifter*\g@boxdimy, rotate=\ifg@russian45\else0\fi]{\tyng(0cm,0cm,#3)}}
+
+\def\yngs(#1,#2){\yngxy(#1,#1,#2)}
+\def\yngx(#1,#2){\yngxy(#1,1,#2)}
+\def\yngy(#1,#2){\yngxy(1,#1,#2)}
+\def\yng(#1){\yngxy(1,1,#1)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%e-residue diagrams
+\def\g@reducec@rner(#1){\ifnum\value{g@c@rner}=#1\addtocounter{g@c@rner}{-#1}\g@reducec@rner(#1)\else\ifnum\value{g@c@rner}>#1\addtocounter{g@c@rner}{-#1}\g@reducec@rner(#1)\else\ifnum\value{g@c@rner}<0\addtocounter{g@c@rner}{#1}\g@reducec@rner(#1)\fi\fi\fi}
+
+\def\g@setc@rner(#1){\setcounter{g@c@rner}\g@corner\ifnum#1=0\else\g@reducec@rner(#1)\fi}
+
+%y@neblockresboxes arguments: e-value, residue at start of first row, length of row^number of rows
+\def\g@neblockresboxes(#1,#2,#3^#4){%
+\if\space#4\setcounter{blockheight}1\else\g@setblk(#4)\fi%
+\setlength{\g@adder}{\value{blockheight}\g@boxdimy}%
+\ifg@french%
+\draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord)rectangle++(#3*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\draw[\g@lincol,line width=\g@linethick,xstep=\g@boxdimx,ystep=\g@boxdimy,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord)grid++(#3*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\else%
+\draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord+\g@boxdimy-\value{blockheight}*\g@boxdimy)rectangle++(#3*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\draw[\g@lincol,line width=\g@linethick,xstep=\g@boxdimx,ystep=\g@boxdimy,xshift=\g@xshifting,yshift=\g@yshifting](\g@xpos,\g@ycoord+\g@boxdimy-\value{blockheight}*\g@boxdimy)grid++(#3*\g@boxdimx,\value{blockheight}*\g@boxdimy);%
+\fi%
+\setcounter{yrescount}{#2}\g@counter=#3%
+\ifg@addables%
+\foreach\x in{1,...,\g@counter}%
+{\addtocounter{yrescount}1\ifnum\value{yrescount}=#1\setcounter{yrescount}0\fi}%
+\node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+\g@counter*\g@boxdimx+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord-\g@boxdimy+\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+\foreach\x in{1,...,\g@counter}%
+{\addtocounter{yrescount}{-1}\ifnum\value{yrescount}=-1\addtocounter{yrescount}#1\fi}%
+\fi%
+\advance\g@counter-1%
+\ifg@internals
+  \foreach\y in {1,...,\value{blockheight}}%
+    {%
+    \ifg@french%
+      \node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord-\g@boxdimy+\y*\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+    \else%
+      \node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord+\g@boxdimy-\y*\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+    \fi%
+    \ifnum\g@counter>0%
+      \foreach\x in{1,...,\g@counter}%
+	{%
+	\addtocounter{yrescount}1\ifnum\value{yrescount}=#1\setcounter{yrescount}0\fi%
+	\ifg@french%
+	  \node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+\x*\g@boxdimx+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord-\g@boxdimy+\y*\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+	\else%
+	  \node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+\x*\g@boxdimx+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord+\g@boxdimy-\y*\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+	\fi%
+	}%
+    \fi%
+    \foreach\x in{0,...,\g@counter}%
+      {\addtocounter{yrescount}{-1}\ifnum\value{yrescount}=-1\addtocounter{yrescount}#1\fi}%
+    }%
+\else
+  \ifg@removables%
+    \ifnum\value{blockheight}>1%
+      \foreach\y in {2,...,\value{blockheight}}%
+	{\addtocounter{yrescount}{-1}\ifnum\value{yrescount}=-1\addtocounter{yrescount}#1\fi}%
+    \else%
+	\addtocounter{yrescount}0% why is this fudge needed?  I don't understand
+    \fi%
+    \ifnum\g@counter>0%
+      \foreach\x in{1,...,\g@counter}%
+	{\addtocounter{yrescount}1\ifnum\value{yrescount}=#1\setcounter{yrescount}0\fi}%
+    \fi%
+    \ifg@french%
+      \node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+\g@counter*\g@boxdimx+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord-\g@boxdimy+\value{blockheight}*\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+    \else%
+      \node[\g@nodcol,xshift=\g@xshifting,yshift=\g@yshifting] at(\g@xpos+\g@counter*\g@boxdimx+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord+\g@boxdimy-\value{blockheight}*\g@boxdimy){$\vphantom1\smash{\theyrescount}$};%
+    \fi%
+    \foreach\x in{0,...,\g@counter}%
+      {\addtocounter{yrescount}{-1}\ifnum\value{yrescount}=-1\addtocounter{yrescount}#1\fi}%
+  \else
+    \foreach\y in {1,...,\value{blockheight}}%
+      {\addtocounter{yrescount}{-1}\ifnum\value{yrescount}=-1\addtocounter{yrescount}#1\fi}%
+  \fi%
+\fi%
+\setcounter{ystartrow}{\value{yrescount}}%
+\ifg@french\advance\g@ycoord\g@adder\else\advance\g@ycoord -\g@adder\fi%
+}
+
+%y@ungres arguments: e-value, residue at start of row, (remainder of) partition
+\def\g@ungres(#1,#2,#3,#4){\setcounter{ystartrow}{#2}\g@neblockresboxes(#1,#2,#3^ )%
+\g@lastargtest#4, \ifg@islast\g@neblockresboxes(#1,\value{ystartrow},#4^ )\else\g@ungres(#1,\value{ystartrow},#4)\fi}
+
+%tyngres arguments: x-coord, y-coord, e-value, partition
+\def\tyngres(#1,#2,#3,#4){\g@setc@rner(#3)\g@xpos=0cm\g@ycoord=0cm\g@xshifting=#1,\g@yshifting=#2,\g@lastargtest#4, %
+\ifg@islast\g@neblockresboxes(#3,\value{g@c@rner},#4^ )\else\g@ungres(#3,\value{g@c@rner},#4)\fi%
+\ifg@addables\node[\g@nodcol] at(\g@xpos+.5*\g@boxdimx,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord-\g@boxdimy+\g@boxdimy){$\vphantom1\smash{\theyrescount}$};\fi%
+}
+
+\def\yngresxy(#1,#2,#3,#4){\settoheight\g@shift{1}\settodepth\g@dep{1}\g@countrowsblock#4, %
+\g@setbaselineshifter%
+\tikz[xscale=#1,yscale=#2,baseline=.5*#2*\g@boxdimy-.5*\g@shift-.5*#2*\g@counter*\g@baselineshifter*\g@boxdimy, rotate=\ifg@russian45\else0\fi]{\tyngres(0cm,0cm,#3,#4)}}
+
+\def\yngress(#1,#2,#3){\yngresxy(#1,#1,#2,#3)}
+\def\yngresx(#1,#2,#3){\yngresxy(#1,1,#2,#3)}
+\def\yngresy(#1,#2,#3){\yngresxy(1,#1,#2,#3)}
+\def\yngres(#1,#2){\yngresxy(1,1,#1,#2)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Young tableaux and tabloids - we now have a global boolean g@tabloid
+\def\g@youngbox#1.{%draws a single box with contents #1
+\ifg@tabloid%
+\draw[fill=\g@filcol,line width=\g@linethick,fill opacity=\g@filopa](\g@xcoord,\g@ycoord)--++(\g@boxdimx,0)++(0,\g@boxdimy)--++(-\g@boxdimx,0);%
+\else%
+\draw[fill=\g@filcol,line width=\g@linethick,fill opacity=\g@filopa](\g@xcoord,\g@ycoord)rectangle+(\g@boxdimx,\g@boxdimy);%
+\fi%
+\ifg@stdtext%
+\node[\g@nodcol] at(0.5*\g@boxdimx+\g@xcoord,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord){\vphantom1\smash{#1}};%
+\else%
+\node[\g@nodcol] at(0.5*\g@boxdimx+\g@xcoord,-.5*\g@dep+0.5*\g@boxdimy+\g@ycoord){$\vphantom1\smash{#1}$};%
+\fi%
+\advance\g@xcoord\g@boxdimx%
+}
+
+\def\g@newline{%
+%\draw[line width=\g@linethick](\g@xpos,\g@ycoord)--(\g@xcoord,\g@ycoord);%
+%\draw[line width=\g@linethick](\g@xpos,\g@ycoord+\g@boxdimy)--(\g@xcoord,\g@ycoord+\g@boxdimy);%
+\g@xcoord=\g@xpos%
+\ifg@french%
+\advance\g@ycoord\g@line%
+\else%
+\advance\g@ycoord -\g@line%
+\fi%
+\setlength{\g@line}{\g@boxdimy}%
+}
+
+\def\g@youngboxingbrack#1>#2.{%#2 includes a space as its last (and possibly only) character
+\g@youngbox#1.%
+\if \space #2\else\g@youngboxing#2.\fi%
+}
+
+\def\g@youngboxingcmdbrack#1>#2.{%#2 includes a space as its last (and possibly only) character
+#1%
+\if \space #2\else\g@youngboxing#2.\fi%
+}
+
+\def\g@youngboxingcmd#1#2.{%#2 includes a space as its last (and possibly only) character
+\if <#1%
+\g@youngboxingcmdbrack#2.%
+\else%
+#1%
+\if \space #2\else \g@youngboxing#2.\fi%
+\fi%
+}
+
+\def\g@youngboxing#1#2.{%#2 includes a space as its last (and possibly only) character
+\if ,#1%
+\g@newline%
+\if \space #2\else\g@youngboxing#2.\fi%
+\else%
+\if !#1%
+\g@youngboxingcmd#2.%
+\else%
+\if <#1%
+\g@youngboxingbrack#2.%
+\else%
+\g@youngbox#1.%
+\if \space #2\else\g@youngboxing#2.\fi%
+\fi%
+\fi%
+\fi%
+}
+
+\def\tyoung(#1,#2,#3){%#1 and #2 coordinates, #3 the stuff defining the tableau
+\g@xpos=#1%this gets fixed so that we know where to come back to when we do a new line
+\g@xcoord=#1%
+\g@ycoord=#2%
+\setlength{\g@line}{\g@boxdimy}%
+\g@youngboxing#3 .%
+%\draw[line width=\g@linethick](\g@xpos,\g@ycoord)--(\g@xcoord,\g@ycoord);%
+%\draw[line width=\g@linethick](\g@xpos,\g@ycoord+\g@boxdimy)--(\g@xcoord,\g@ycoord+\g@boxdimy);%
+}
+
+\def\youngxy(#1,#2,#3){\settoheight\g@shift{1}\settodepth\g@dep{1}\g@countrows#3, %
+\g@setbaselineshifter
+\tikz[baseline=.5*#2*\g@boxdimy-.5*\g@shift-.5*#2*\g@counter*\g@baselineshifter*\g@boxdimy,xscale=#1,yscale=#2, rotate=\ifg@russian45\else0\fi]{\tyoung(0cm,0cm,#3)}%
+}
+\def\youngs(#1,#2){\youngxy(#1,#1,#2)}
+\def\youngx(#1,#2){\youngxy(#1,1,#2)}
+\def\youngy(#1,#2){\youngxy(1,#1,#2)}
+\def\young(#1){\youngxy(1,1,#1)}
+
+\def\tyoungtabloid(#1,#2,#3){\g@tabloidtrue\tyoung(#1,#2,#3)\g@tabloidfalse}
+\def\youngtabloidxy(#1,#2,#3){\g@tabloidtrue\youngxy(#1,#2,#3)\g@tabloidfalse}
+\def\youngtabloids(#1,#2){\youngtabloidxy(#1,#1,#2)}
+\def\youngtabloidx(#1,#2){\youngtabloidxy(#1,1,#2)}
+\def\youngtabloidy(#1,#2){\youngtabloidxy(1,#1,#2)}
+\def\youngtabloid(#1){\youngtabloidxy(1,1,#1)}
+
+%%%%%%%%%%%%%%%%Generalised Young tableaux
+\def\g@emptybigbox#1#2{%
+\ifg@french%
+\draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa](\g@xcoord,\g@ycoord)rectangle++(#1*\g@boxdimx,#2*\g@boxdimy);%
+\else%
+\draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa](\g@xcoord,\g@ycoord+\g@boxdimy-#2*\g@boxdimy)rectangle++(#1*\g@boxdimx,#2*\g@boxdimy);%
+\fi%
+\setlength{\g@adder}{#1\g@boxdimx}\advance\g@xcoord\g@adder%
+\setlength{\g@line}{#2\g@boxdimy}%
+}
+
+\def\hdts{abracadabra}
+\def\vdts{arbacadarba}
+
+\def\g@abcbigbox#1#2#3.{%
+\ifg@french%
+  \draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa](\g@xcoord,\g@ycoord)rectangle++(#1*\g@boxdimx,#2*\g@boxdimy);%
+  \ifx#3\hdts%
+    \draw[thick,dotted](\g@xcoord+.25*\g@boxdimx,\g@ycoord+#2*.5*\g@boxdimy)--++(#1*\g@boxdimx-.5*\g@boxdimx,0);%
+  \else%
+    \ifx#3\vdts%
+      \draw[thick,dotted](\g@xcoord+.5*#1*\g@boxdimx,\g@ycoord+.25*\g@boxdimy)--++(0,#2*\g@boxdimy-.5*\g@boxdimy);%
+    \else%
+      \ifg@stdtext%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+0.5*#2*\g@boxdimy+\g@ycoord){\vphantom1\smash{#3}};%
+      \else%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+0.5*#2*\g@boxdimy+\g@ycoord){$\vphantom1\smash{#3}$};%
+      \fi%
+    \fi%
+  \fi%
+\else%
+  \draw[\g@lincol,line width=\g@linethick,fill=\g@filcol,fill opacity=\g@filopa](\g@xcoord,\g@ycoord+\g@boxdimy-#2*\g@boxdimy)rectangle++(#1*\g@boxdimx,#2*\g@boxdimy);%
+  \ifx#3\hdts%
+    \draw[thick,dotted](\g@xcoord+.25*\g@boxdimx,\g@ycoord+\g@boxdimy-#2*.5*\g@boxdimy)--++(#1*\g@boxdimx-.5*\g@boxdimx,0);%
+  \else%
+    \ifx#3\vdts%
+      \draw[thick,dotted](\g@xcoord+.5*#1*\g@boxdimx,\g@ycoord+1.25*\g@boxdimy-#2*\g@boxdimy)--++(0,#2*\g@boxdimy-.5*\g@boxdimy);%
+    \else%
+      \ifg@stdtext%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+\g@boxdimy-0.5*#2*\g@boxdimy+\g@ycoord){\vphantom1\smash{#3}};%
+      \else%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+\g@boxdimy-0.5*#2*\g@boxdimy+\g@ycoord){$\vphantom1\smash{#3}$};%
+      \fi%
+    \fi%
+  \fi%
+\fi%
+\setlength{\g@adder}{#1\g@boxdimx}\advance\g@xcoord\g@adder%
+\setlength{\g@line}{#2\g@boxdimy}%
+}
+
+\def\g@emptybignobox#1#2{%
+\setlength{\g@adder}{#1\g@boxdimx}\advance\g@xcoord\g@adder%
+\setlength{\g@line}{#2\g@boxdimy}%
+}
+
+\def\g@abcbignobox#1#2#3.{%
+\ifg@french%
+  \ifx#3\hdts%
+    \draw[thick,dotted](\g@xcoord+.25*\g@boxdimx,\g@ycoord+#2*.5*\g@boxdimy)--++(#1*\g@boxdimx-.5*\g@boxdimx,0);%
+  \else%
+    \ifx#3\vdts%
+      \draw[thick,dotted](\g@xcoord+.5*#1*\g@boxdimx,\g@ycoord+.25*\g@boxdimy)--++(0,#2*\g@boxdimy-.5*\g@boxdimy);%
+    \else%
+      \ifg@stdtext%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+0.5*#2*\g@boxdimy+\g@ycoord){\vphantom1\smash{#3}};%
+      \else%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+0.5*#2*\g@boxdimy+\g@ycoord){$\vphantom1\smash{#3}$};%
+      \fi%
+    \fi%
+  \fi%
+\else%
+  \ifx#3\hdts%
+    \draw[thick,dotted](\g@xcoord+.25*\g@boxdimx,\g@ycoord+\g@boxdimy-#2*.5*\g@boxdimy)--++(#1*\g@boxdimx-.5*\g@boxdimx,0);%
+  \else%
+    \ifx#3\vdts%
+      \draw[thick,dotted](\g@xcoord+.5*#1*\g@boxdimx,\g@ycoord+1.25*\g@boxdimy-#2*\g@boxdimy)--++(0,#2*\g@boxdimy-.5*\g@boxdimy);%
+    \else%
+      \ifg@stdtext%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+\g@boxdimy-0.5*#2*\g@boxdimy+\g@ycoord){\vphantom1\smash{#3}};%
+      \else%
+	\node[\g@nodcol] at(0.5*#1*\g@boxdimx+\g@xcoord,-.5*\g@dep+\g@boxdimy-0.5*#2*\g@boxdimy+\g@ycoord){$\vphantom1\smash{#3}$};%
+      \fi%
+    \fi%
+  \fi%
+\fi%
+\setlength{\g@adder}{#1\g@boxdimx}\advance\g@xcoord\g@adder%
+\setlength{\g@line}{#2\g@boxdimy}%
+}
+
+\def\g@emptybox{\g@emptybigbox11}
+\def\g@emptynobox{\g@emptybignobox11}
+\def\g@emptytallbox#1{\g@emptybigbox1#1}
+\def\g@emptytallnobox#1{\g@emptybignobox1#1}
+\def\g@emptywidebox#1{\g@emptybigbox#11}
+\def\g@emptywidenobox#1{\g@emptybignobox#11}
+\def\g@abcbox#1.{\g@abcbigbox11#1.}
+\def\g@abcnobox#1.{\g@abcbignobox11#1.}
+\def\g@abcwidebox#1#2.{\g@abcbigbox#11#2.}
+\def\g@abcwidenobox#1#2.{\g@abcbignobox#11#2.}
+\def\g@abctallbox#1#2.{\g@abcbigbox1#1#2.}
+\def\g@abctallnobox#1#2.{\g@abcbignobox1#1#2.}
+
+\def\g@boxingcmdbrack#1>#2.{%#2 ends with a space
+#1\g@boxing#2.%
+}
+
+\def\g@boxingbignoboxbrack#1#2#3>#4.{%#1,#2 the height and width, #3 the contents, #4 ends with a space
+\g@abcbignobox#1#2.\g@boxing#3.%
+}
+
+\def\g@boxingbigboxbrack#1#2#3>#4.{%#1,#2 the height and width, #3 the contents, #4 ends with a space
+\g@abcbigbox#1#2.\g@boxing#3.%
+}
+
+\def\g@boxingwidenoboxbrack#1#2>#3.{%#1 the height, #2 the contents, #3 ends with a space
+\g@abcwidenobox#1#2.\g@boxing#3.%
+}
+
+\def\g@boxingwideboxbrack#1#2>#3.{%#1 the height, #2 the contents, #3 ends with a space
+\g@abcwidebox#1#2.\g@boxing#3.%
+}
+
+\def\g@boxingtallnoboxbrack#1#2>#3.{%#1 the height, #2 the contents, #3 ends with a space
+\g@abctallnobox#1#2.\g@boxing#3.%
+}
+
+\def\g@boxingtallboxbrack#1#2>#3.{%#1 the height, #2 the contents, #3 ends with a space
+\g@abctallbox#1#2.\g@boxing#3.%
+}
+
+\def\g@boxingnoboxbrack#1>#2.{%#2 ends with a space
+\g@abcnobox#1.\g@boxing#2.%
+}
+
+\def\g@boxingboxbrack#1>#2.{%#2 ends with a space
+\g@abcbox#1.\g@boxing#2.%
+}
+
+\def\g@boxingcmda#1#2.{%#1 either a cmd token or the command, #2 includes a space as its last (and possibly only) character
+\if ,#1%
+	\g@newline\g@boxing#2.%
+\else%
+	\if ;#1%
+		\g@boxingbox#2.%
+	\else%
+		\if :#1%
+			\g@boxingnobox#2.%
+		\else%
+			\if |#1%
+				\g@boxingtallbox#2.%
+			\else%
+				\if /#1%
+					\g@boxingtallnobox#2.%
+				\else%
+					\if _#1%
+						\g@boxingwidebox#2.%
+					\else%
+						\if ^#1%
+							\g@boxingwidenobox#2.%
+						\else%
+							\if `#1%
+								\g@boxingbigbox#2.%
+							\else%
+								\if '#1%
+									\g@boxingbignobox#2.%
+								\else%
+									\if !#1%
+										\g@boxingcmd#2.%
+									\else%
+										\if <#1%
+											\g@boxingcmdbrack#2.%
+										\else%
+											#1\g@boxing#2.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingbignoboxa#1#2#3#4.{%#1,#2 width and height, #3 either a cmd token or the nobox contents, #4 includes a space as its last (and possibly only) character
+\if ,#3%
+	\g@emptybigbox#1#2\g@newline\g@boxing#4.%
+\else%
+	\if ;#3%
+		\g@emptybignobox#1#2\g@boxingbox#4.%
+	\else%
+		\if :#3%
+			\g@emptybignobox#1#2\g@boxingnobox#4.%
+		\else%
+			\if |#3%
+				\g@emptybignobox#1#2\g@boxingtallbox#4.%
+			\else%
+				\if /#3%
+					\g@emptybignobox#1#2\g@boxingtallnobox#4.%
+				\else%
+					\if _#3%
+						\g@emptybignobox#1#2\g@boxingwidebox#4.%
+					\else%
+						\if ^#3%
+							\g@emptybignobox#1#2\g@boxingwidenobox#4.%
+						\else%
+							\if `#3%
+								\g@emptybignobox#1#2\g@boxingbigbox#4.%
+							\else%
+								\if '#3%
+									\g@emptybignobox#1#2\g@boxingbignobox#4.%
+								\else%
+									\if !#3%
+										\g@emptybignobox#1#2\g@boxingcmd#4.%
+									\else%
+										\if <#3%
+											\g@boxingbignoboxbrack#1#2#4.%
+										\else%
+											\g@abcbignobox#1#2#3.\g@boxing#4.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingbigboxa#1#2#3#4.{%#1,#2 width and height, #3 either a cmd token or the box contents, #4 includes a space as its last (and possibly only) character
+\if ,#3%
+	\g@emptybigbox#1#2\g@newline\g@boxing#4.%
+\else%
+	\if ;#3%
+		\g@emptybigbox#1#2\g@boxingbox#4.%
+	\else%
+		\if :#3%
+			\g@emptybigbox#1#2\g@boxingnobox#4.%
+		\else%
+			\if |#3%
+				\g@emptybigbox#1#2\g@boxingtallbox#4.%
+			\else%
+				\if /#3%
+					\g@emptybigbox#1#2\g@boxingtallnobox#4.%
+				\else%
+					\if _#3%
+						\g@emptybigbox#1#2\g@boxingwidebox#4.%
+					\else%
+						\if ^#3%
+							\g@emptybigbox#1#2\g@boxingwidenobox#4.%
+						\else%
+							\if `#3%
+								\g@emptybigbox#1#2\g@boxingbigbox#4.%
+							\else%
+								\if '#3%
+									\g@emptybigbox#1#2\g@boxingbignobox#4.%
+								\else%
+									\if !#3%
+										\g@emptybigbox#1#2\g@boxingcmd#4.%
+									\else%
+										\if <#3%
+											\g@boxingbigboxbrack#1#2#4.%
+										\else%
+											\g@abcbigbox#1#2#3.\g@boxing#4.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingwidenoboxa#1#2#3.{%#1 width, #2 either a cmd token or the box contents, #3 includes a space as its last (and possibly only) character
+\if ,#2%
+	\g@emptywidenobox#1\g@newline\g@boxing#3.%
+\else%
+	\if ;#2%
+		\g@emptywidenobox#1\g@boxingbox#3.%
+	\else%
+		\if :#2%
+			\g@emptywidenobox#1\g@boxingnobox#3.%
+		\else%
+			\if |#2%
+				\g@emptywidenobox#1\g@boxingtallbox#3.%
+			\else%
+				\if /#2%
+					\g@emptywidenobox#1\g@boxingtallnobox#3.%
+				\else%
+					\if _#2%
+						\g@emptywidenobox#1\g@boxingwidebox#3.%
+					\else%
+						\if ^#2%
+							\g@emptywidenobox#1\g@boxingwidenobox#3.%
+						\else%
+							\if `#2%
+								\g@emptywidenobox#1\g@boxingbigbox#3.%
+							\else%
+								\if '#2%
+									\g@emptywidenobox#1\g@boxingbignobox#3.%
+								\else%
+									\if !#2%
+										\g@emptywidenobox#1\g@boxingcmd#3.%
+									\else%
+										\if <#2%
+											\g@boxingwidenoboxbrack#1#3.%
+										\else%
+											\g@abcwidenobox#1#2.\g@boxing#3.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingwideboxa#1#2#3.{%#1 width, #2 either a cmd token or the box contents, #3 includes a space as its last (and possibly only) character
+\if ,#2%
+	\g@emptywidebox#1\g@newline\g@boxing#3.%
+\else%
+	\if ;#2%
+		\g@emptywidebox#1\g@boxingbox#3.%
+	\else%
+		\if :#2%
+			\g@emptywidebox#1\g@boxingnobox#3.%
+		\else%
+			\if |#2%
+				\g@emptywidebox#1\g@boxingtallbox#3.%
+			\else%
+				\if /#2%
+					\g@emptywidebox#1\g@boxingtallnobox#3.%
+				\else%
+					\if _#2%
+						\g@emptywidebox#1\g@boxingwidebox#3.%
+					\else%
+						\if ^#2%
+							\g@emptywidebox#1\g@boxingwidenobox#3.%
+						\else%
+							\if `#2%
+								\g@emptywidebox#1\g@boxingbigbox#3.%
+							\else%
+								\if '#2%
+									\g@emptywidebox#1\g@boxingbignobox#3.%
+								\else%
+									\if !#2%
+										\g@emptywidebox#1\g@boxingcmd#3.%
+									\else%
+										\if <#2%
+											\g@boxingwideboxbrack#1#3.%
+										\else%
+											\g@abcwidebox#1#2.\g@boxing#3.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingtallnoboxa#1#2#3.{%#1 height, #2 either a cmd token or the box contents, #3 includes a space as its last (and possibly only) character
+\if ,#2%
+	\g@emptytallnobox#1\g@newline\g@boxing#3.%
+\else%
+	\if ;#2%
+		\g@emptytallnobox#1\g@boxingbox#3.%
+	\else%
+		\if :#2%
+			\g@emptytallnobox#1\g@boxingnobox#3.%
+		\else%
+			\if |#2%
+				\g@emptytallnobox#1\g@boxingtallbox#3.%
+			\else%
+				\if /#2%
+					\g@emptytallnobox#1\g@boxingtallnobox#3.%
+				\else%
+					\if _#2%
+						\g@emptytallnobox#1\g@boxingwidebox#3.%
+					\else%
+						\if ^#2%
+							\g@emptytallnobox#1\g@boxingwidenobox#3.%
+						\else%
+							\if `#2%
+								\g@emptytallnobox#1\g@boxingbigbox#3.%
+							\else%
+								\if '#2%
+									\g@emptytallnobox#1\g@boxingbignobox#3.%
+								\else%
+									\if !#2%
+										\g@emptytallnobox#1\g@boxingcmd#3.%
+									\else%
+										\if <#2%
+											\g@boxingtallnoboxbrack#1#3.%
+										\else%
+											\g@abctallnobox#1#2.\g@boxing#3.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingtallboxa#1#2#3.{%#1 height, #2 either a cmd token or the box contents, #3 includes a space as its last (and possibly only) character
+\if ,#2%
+	\g@emptytallbox#1\g@newline\g@boxing#3.%
+\else%
+	\if ;#2%
+		\g@emptytallbox#1\g@boxingbox#3.%
+	\else%
+		\if :#2%
+			\g@emptytallbox#1\g@boxingnobox#3.%
+		\else%
+			\if |#2%
+				\g@emptytallbox#1\g@boxingtallbox#3.%
+			\else%
+				\if /#2%
+					\g@emptytallbox#1\g@boxingtallnobox#3.%
+				\else%
+					\if _#2%
+						\g@emptytallbox#1\g@boxingwidebox#3.%
+					\else%
+						\if ^#2%
+							\g@emptytallbox#1\g@boxingwidenobox#3.%
+						\else%
+							\if `#2%
+								\g@emptytallbox#1\g@boxingbigbox#3.%
+							\else%
+								\if '#2%
+									\g@emptytallbox#1\g@boxingbignobox#3.%
+								\else%
+									\if !#2%
+										\g@emptytallbox#1\g@boxingcmd#3.%
+									\else%
+										\if <#2%
+											\g@boxingtallboxbrack#1#3.%
+										\else%
+											\g@abctallbox#1#2.\g@boxing#3.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingnoboxa#1#2.{%#1 either a cmd token or the box contents, #2 includes a space as its last (and possibly only) character
+\if ,#1%
+	\g@emptynobox\g@newline\g@boxing#2.%
+\else%
+	\if ;#1%
+		\g@emptynobox\g@boxingbox#2.%
+	\else%
+		\if :#1%
+			\g@emptynobox\g@boxingnobox#2.%
+		\else%
+			\if |#1%
+				\g@emptynobox\g@boxingtallbox#2.%
+			\else%
+				\if /#1%
+					\g@emptynobox\g@boxingtallnobox#2.%
+				\else%
+					\if _#1%
+						\g@emptynobox\g@boxingwidebox#2.%
+					\else%
+						\if ^#1%
+							\g@emptynobox\g@boxingwidenobox#2.%
+						\else%
+							\if `#1%
+								\g@emptynobox\g@boxingbigbox#2.%
+							\else%
+								\if '#1%
+									\g@emptynobox\g@boxingbignobox#2.%
+								\else%
+									\if !#1%
+										\g@emptynobox\g@boxingcmd#2.%
+									\else%
+										\if <#1%
+											\g@boxingnoboxbrack#2.%
+										\else%
+											\g@abcnobox#1.\g@boxing#2.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingboxa#1#2.{%#1 either a cmd token or the box contents, #2 includes a space as its last (and possibly only) character
+\if ,#1%
+	\g@emptybox\g@newline\g@boxing#2.%
+\else%
+	\if ;#1%
+		\g@emptybox\g@boxingbox#2.%
+	\else%
+		\if :#1%
+			\g@emptybox\g@boxingnobox#2.%
+		\else%
+			\if |#1%
+				\g@emptybox\g@boxingtallbox#2.%
+			\else%
+				\if /#1%
+					\g@emptybox\g@boxingtallnobox#2.%
+				\else%
+					\if _#1%
+						\g@emptybox\g@boxingwidebox#2.%
+					\else%
+						\if ^#1%
+							\g@emptybox\g@boxingwidenobox#2.%
+						\else%
+							\if `#1%
+								\g@emptybox\g@boxingbigbox#2.%
+							\else%
+								\if '#1%
+									\g@emptybox\g@boxingbignobox#2.%
+								\else%
+									\if !#1%
+										\g@emptybox\g@boxingcmd#2.%
+									\else%
+										\if <#1%
+											\g@boxingboxbrack#2.%
+										\else%
+											\g@abcbox#1.\g@boxing#2.%
+										\fi%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxingcmd#1.{%#1 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #1%
+\else%
+	\g@boxingcmda#1.%
+\fi%
+}
+
+\def\g@boxingbignobox#1#2#3.{%#1 and #2 are width and height, #3 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #3%
+	\g@emptybignobox#1#2%
+\else%
+	\g@boxingbignoboxa#1#2#3.%
+\fi%
+}
+
+\def\g@boxingbigbox#1#2#3.{%#1 and #2 are width and height, #3 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #3%
+	\g@emptybigbox#1#2%
+\else%
+	\g@boxingbigboxa#1#2#3.%
+\fi%
+}
+
+\def\g@boxingwidenobox#1#2.{%#1 is width, #2 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #2%
+	\g@emptywidenobox#1%
+\else%
+	\g@boxingwidenoboxa#1#2.%
+\fi%
+}
+
+\def\g@boxingwidebox#1#2.{%#1 is width, #2 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #2%
+	\g@emptywidebox#1%
+\else%
+	\g@boxingwideboxa#1#2.%
+\fi%
+}
+
+\def\g@boxingtallnobox#1#2.{%#1 is height, #2 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #2%
+	\g@emptytallnobox#1%
+\else%
+	\g@boxingtallnoboxa#1#2.%
+\fi%
+}
+
+\def\g@boxingtallbox#1#2.{%#1 is height, #2 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #2%
+	\g@emptytallbox#1%
+\else%
+	\g@boxingtallboxa#1#2.%
+\fi%
+}
+
+\def\g@boxingnobox#1.{%#1 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #1%
+	\g@emptynobox%
+\else%
+	\g@boxingnoboxa#1.%
+\fi%
+}
+
+\def\g@boxingbox#1.{%#1 includes a space as its last (and possibly only) character, and possibly starts with the box contents
+\if \space #1%
+	\g@emptybox%
+\else%
+	\g@boxingboxa#1.%
+\fi%
+}
+
+\def\g@boxinga#1#2.{%#1 is one of the tokens, #2 includes a space as its last (and possibly only) character
+\if ,#1%
+	\g@newline\g@boxing#2.%
+\else%
+	\if ;#1%
+		\g@boxingbox#2.%
+	\else%
+		\if :#1%
+			\g@boxingnobox#2.%
+		\else%
+			\if |#1%
+				\g@boxingtallbox#2.%
+			\else%
+				\if /#1%
+					\g@boxingtallnobox#2.%
+				\else%
+					\if _#1%
+						\g@boxingwidebox#2.%
+					\else%
+						\if ^#1%
+							\g@boxingwidenobox#2.%
+						\else%
+							\if `#1%
+								\g@boxingbigbox#2.%
+							\else%
+								\if '#1%
+									\g@boxingbignobox#2.%
+								\else%
+									\if !#1%
+										\g@boxingcmd#2.%
+									\else% do a normal box
+										\g@boxingbox#1#2.%
+									\fi%
+								\fi%
+							\fi%
+						\fi%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+	\fi%
+\fi%
+}
+
+\def\g@boxing#1.{%#1 includes a space as its last (and possibly only) character
+\if \space #1\else\g@boxinga#1.\fi%
+}
+
+\def\tgyoung(#1,#2,#3){\g@xpos=#1\g@xcoord=#1\g@ycoord=#2\setlength{\g@line}{\g@boxdimy}%
+\g@boxing#3 .%
+}
+
+\def\gyoungxy(#1,#2,#3){\settoheight\g@shift{1}\settodepth\g@dep{1}\g@countrows#3, %
+\g@setbaselineshifter\tikz[baseline=.5*#2*\g@boxdimy-.5*\g@shift-.5*#2*\g@counter*\g@baselineshifter*\g@boxdimy,xscale=#1,yscale=#2, rotate=\ifg@russian45\else0\fi]
+{\tgyoung(0cm,0cm,#3)}}
+
+\def\gyoungs(#1,#2){\gyoungxy(#1,#1,#2)}
+\def\gyoungx(#1,#2){\gyoungxy(#1,1,#2)}
+\def\gyoungy(#1,#2){\gyoungxy(1,#1,#2)}
+\def\gyoung(#1){\gyoungxy(1,1,#1)}
+
+\endinput

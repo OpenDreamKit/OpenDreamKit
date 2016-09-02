@@ -1,0 +1,100 @@
+\section{LMFDB knowledge and interoperability}\label{sec:lmfdb}
+%\subsection{Short description of LMFDB's goals and implementation}
+The \emph{$L$-functions and modular forms database} is a project involving dozens of
+mathematicians who assemble computational data about $L$-functions, modular forms, and
+related number theoretic objects. The main output of the project is a website, hosted at
+\url{http://www.lmfdb.org}, that presents this data so that it can serve as a
+reference for research efforts, and is accessible for postgraduate students.
+The mathematical concepts underlying the \LMFDB are extremely complex and varied, so part
+of the effort has been focused on how to relay knowledge, such as mathematical definitions
+and their relationships, to data and software. For this purpose, the \LMFDB has developed so-called
+\emph{knowls}, which are a technical solution to present \LaTeX-encoded information
+interactively, heavily exploiting the concept of transclusion. The end result is a
+very modular and highly interlinked set of definitions in mathematical vernacular
+which can be easily anchored in vastly different contexts, such as an interface to a database,
+to browsable data, or as constituents of an encyclopedia \cite{lmfdb-definitions}.
+
+The \LMFDB code is primarily written in \Python, with some reliance on \Sage for
+the business logic. The backend
+uses the NoSQL document database system \Mongo \cite{lmfdb-repo}. Again, due to the
+complexity of the objects considered, many idiosyncratic encodings are used for the
+data. This makes the whole data management lifecycle particularly tricky, and dependent on
+different select groups of individuals for each component.
+
+%\subsection{Tentative approach to MMT semantic layers for the LMFDB}
+As the LMFDB spans the whole ``vertical'' workflow, from writing software, to producing new
+data, up to presenting this new knowledge, it is a perfect test case for a large scale
+case study of the MitM approach. Conversely, a semantic layer would be beneficial to its
+activities across data, knowledge and software, which it would help integrate more
+cohesively and systematically.
+
+Among the components of the LMFDB, elliptic curves stand
+out in the best shape, and a source of best practices for other areas. 
+%
+% For this reason,
+% the \ODK collaboration targeted that relatively small subset of the LMFDB for its
+% prototype. We plan to extend coverage in a second phase, and expect it to be relatively
+% easy if we manage to demonstrate the added value of a semantic layer for our prototype.
+%
+We have generated MitM interface theories for LMFDB elliptic curves by (manually)
+refactoring and flexiformalizing the {\LaTeX} source of knowls into \sTeX (see
+Listing~\ref{stex-ec} for an excerpt), which can be converted into flexiformal OMDoc/MMT
+automatically. The MMT system can already type-check the definitions, avoiding circularity
+and ensuring some level of consistency in their scope and make it browsable through
+\textsf{MathHub.info}, a project developed in parallel to MMT to host such formalisations.
+
+\lstinputlisting[language={[sTeX]TeX},label={stex-ec},firstline=31,
+   caption= {\protect\stex flexiformalization of an \LMFDB knowl (original: \cite{lmfdb-mwm})}]
+   {examples/elliptic-curve.tex}
+
+   The second step consisted of translating these informal definitions into progressively
+   more exhaustive MMT formalisations of mathematical concepts (see
+   Listing~\ref{lst:mmt-ec}). The two representations are coordinated via the theory and
+   symbol names -- we can see the \sTeX representation as a human-oriented documentation
+   of the MMT.
+
+\lstinputlisting[morekeywords={namespace,theory,include},mathescape,
+firstline=21,
+caption= {MMT formalisation of elliptic curves and their Weierstrass models},
+label=lst:mmt-ec]{examples/elliptic-curve.mmt}
+
+
+Finally, we have to integrate computational data into the interface theories. Based on
+recent ongoing efforts \cite{lmfdb-formats} to document the \LMFDB ``data schemata'' we
+established OMDoc/MMT theories that link the database fields to their data types (string
+\emph{vs.} float \emph{vs.} integer tuple, for instance) and mathematical types (elliptic
+curves or polynomials) -- the latter based on the vocabulary in the interface theories
+generated from the \LMFDB knowls. This schema theory is complemented by a theory on
+functorial hence composable \emph{MMT codecs}, which in turn acts as a specification for a collection of
+implementations in various programming languages (currently \Python, Scala, and
+C\textsuperscript{++} for \Sage, MMT, and \GAP respectively) which are first instances of
+a computational foundation (see Section~\ref{sec:mitm}).  For instance, one can compose
+two MMT codecs, say \emph{polynomial-as-reversed-list} and
+\emph{rational-as-tuple-of-int}, to signify that the data $[(2,3),(0,1),(4,1)]$ is meant
+to represent the polynomial $4x^2+2/3$. Of course, these codecs could be further
+decomposed (e.g. for signaling which variable name to use). The initial cost of
+developing these codecs is high, but the clarity gained in documentation is valuable, they
+are highly reusable, and they drastically expand the range of tooling that can be built
+around data management.
+
+
+\paragraph{A typical application}
+Based on these MitM interface theories we can generate I/O interfaces that translate
+between the low-level \LMFDB API, which delivers raw \Mongo data in JSON format into MMT
+expressions that are grounded in the interface theories. This ties the \LMFDB database
+into the MitM architecture transparently. As a side effect, this opens up the \LMFDB to
+programmatic queries via the MMT API, which can be queried and can then relay them to the
+\LMFDB API directly and transparently.
+
+%  LocalWords:  subsubsection emph knowls textsf lmfdb-repo stex-ec stex knowl mmt-ec odk
+%  LocalWords:  Weierstrass emphasizing alltt tp rightarrow vdash doteq vdash doteq lst
+%  LocalWords:  polynomial_equation_injectivity a_invariants_factors_injectivity colorbox
+%  LocalWords:  minimality_idempotence lmfdb-formats emphasized composable standardize
+%  LocalWords:  rda-typing lstinputlisting mathescape elliptic-curve.mmt lmfdb firstline
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:
+%  LocalWords:  flexiformal flexiformalization flexiformalizing ednote mathhub mitm
+%  LocalWords:  lmfdb-mwm functorial signaling

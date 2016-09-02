@@ -1,0 +1,67 @@
+OMDoc/MMT theories are limited when it comes to representing large amounts of data.
+Conceptually, every database should be represented as one theory, but this can easily lead to very large theories.
+For example, the theory for elliptic curves in the \LMFDB would contain $319,882$ symbol declarations: one definition for every curve.
+Prior to \pn, \MMT could only load who{e theories into main memory, which made it insufficient as a basis for \DKS-bases.
+
+Moreover, many data-driven theories are technically infinite collections of which only finite fragments have been explored so far.
+For example, this applies to all databases in the \LMFDB (each of which enumerates a certain infinite class of mathematical objects) and \OEIS (each of which enumerates a certain integer sequence).
+As the explored fragments grow, the set of symbol declarations in the corresponding \MMT theory must grow accordingly.
+
+Therefore, we generalize \MMT theories to allow for a virtual, possibly infinite set of declarations, that is explored dynamically.
+The combination of virtual theories with the Math-in-the-Middle approach yields our desired \DKS-bases.
+
+\begin{mydef}[Virtual Theory]
+  A \textbf{virtual theory} is like an \MMT theory but with a (possibly infinite) partially ordered set of declarations.
+\end{mydef}
+
+We give a trivial example of an infinite virtual theory for the natural numbers:
+Besides the usual symbols for $0$ and $\mathtt{succ}$ as well as the Peano axioms, it contains the totally ordered set of one declaration for every natural number.
+For example, we might have a declaration
+ \[5:\mathtt{nat}=\mathtt{succ}(4)\]
+to introduce a symbol for the number $5$.
+In the presence of an addition operator, this theory might also contain one axiom for every pair of natural numbers, e.g., to state the truth of $2+2=4$.
+
+This is a typical situation: We have an infinite (or very big) set of declarations that are generated systematically.
+In some cases (as for the natural numbers above), every declaration can be easily generated on-demand.
+Thus, one might think that virtual theories can be easily represented in a finitary way by storing the algorithm that produces the generations.
+
+But this falls short in general.  For example, the generation of the declarations may be
+so expensive that it is only practical if they are precomputed and stored in a database.
+This is what happens in the \LMFDB (and was why the \LMFDB was introduced in the first
+place).  It is also possible that there are multiple algorithms enumerating different
+fragments of the virtual theory, or that no generating algorithm is known (e.g., for some
+integer sequences in the \OEIS) and individual declarations must be collected manually.
+
+\lstinputlisting[
+  language=json,
+  caption={JSON representation of a curve in LMFDB. },
+  label=lst:odk-curve
+]{examples/11a1.json}
+
+For example, consider the database of elliptic curves in the \LMFDB.
+A curve is typically defined by a JSON object such as the one in Listing~\ref{lst:odk-curve}.
+This curve has the label \texttt{11a1} and it is non-trivial to translate a label into a full definition.
+
+\paragraph{Implementation}
+In practice we never need to access all of these declarations at once --- in most
+scenarios we only need a very small subset of them, usually small enough to hold in memory.
+This motivates the main idea behind how we have implemented virtual theories in the \MMT system.
+
+\MMT already abstracts from physical storage backends (working copies, databases, etc.), from which theories are loaded.
+We have extended this storage abstraction to allow loading not only theories but individual declarations on demand.
+This is more difficult than it sounds because while theories have a self-contained semantics, declarations only make sense in the context of the containing theory.
+Thus, we had to comb through the \MMT code base and generalize all processing to the case where a theory's declarations are only partially known.
+
+We have also built an \LMFDB-specific implementation of this this generalized storage abstraction.
+This instance dynamically queries \LMFDB for the appropriate entry, computes the corresponding declarations, and adds it to the in-memory representation of the virtual theory.
+(Additionally, if that virtual theory is not in memory yet, it first creates it.)
+We were able to retain an important feature of \MMT: The loading of declarations is transparent to the user.
+The backend loads a declaration automatically when and if it is needed by some operation.
+As each declaration has a unique URI\ednote{Need to check that this is mentioned in the MMT section /TW}, it is enough to know the set of URIs that need dynamic creation of declarations.
+Instead of loading these from memory, the backend can make an appropriate query to lmfdb and create the declarations on demand.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:

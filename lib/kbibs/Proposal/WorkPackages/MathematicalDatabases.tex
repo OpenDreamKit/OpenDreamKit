@@ -1,0 +1,324 @@
+\begin{workpackage}[id=dksbases,%wphases=1-48!.5,
+  title=Data/Knowledge/Software-Bases,lead=FAU,
+  ZHRM=12,JURM=12,FAURM=34,UWRM=25,SARM=10,LLRM=2,PSRM=37]
+
+\begin{wpobjectives}
+  The ultimate purpose of a mathematical VRE is to create \emph{data} ($\mathcal{D}$; see
+  Section~\ref{sec:innovation}), \emph{knowledge} ($\mathcal{K}$), and \emph{software} ($\mathcal{S}$)
+  by modeling world situations, computing mathematical objects, and running
+  computational experiments. To be effective a VRE needs an infrastructure that supports
+  the creation, management, access, and dissemination of \DKS-Structures.  All
+  the systems considered in this proposal (\GAP, \Sage, \Pari, \Singular, OEIS, \texttt{arXiv.org},
+  \ldots) already include data, knowledge, and software modules as part of their regular
+  distribution, but not in a form that is interoperable between systems, severely limiting
+  the usefulness of the systems and results. The objectives of this work package are
+\begin{compactenum}
+\item to design metadata and representation formats for trans-system $\mathcal{DKS}$
+  structures as a basis for a math VRE, 
+\item implement interfaces to existing systems for interoperability and compatibility with
+  the RE, and
+\item implement a joint \DKS infrastructure for, searches, documentation, traceability,
+  versioning, provenance, visualisation and native dissemination of \TheProject results
+  (the latter three together with \WPref{UI}).
+\end{compactenum}
+Concretely we will design and build an infrastructure that would make it easy for either
+individual mathematicians or a distributed collaboration to manage and use such
+interlinked mathematical data. This work would provide part of the backend to \WPref{UI},
+and would draw on previous work with the \LMFDB and \FindStat (which will be treated as
+prototypes for our purposes, to serve as exemplars to other projects) and in return will
+substantially enhance their capabilities.
+
+User prerequisites should be kept to a minimum (depending on contributors' and users'
+needs and goals), and in particular would not require any background in databases to
+contribute new data or perform queries.
+\end{wpobjectives}
+
+\begin{wpdescription}
+  We need ways to represent \DKS in the same representational system, make the \DKS
+  structures explicit and therefore machine-manageable and -- since current
+  computational/experimental mathematics involve quite extensive \DKS -- we need a new
+  kind of ``database'', which we will call Mathematical Data/Knowledge/Software-base
+  (\textbf{\DKS base}), and which we will build in this work package.
+
+  The starting points for this unification effort will be the system-oriented data bases
+  for $\mathcal{D}$, the OMDoc (\underline{O}pen \underline{M}athematical
+  \underline{Doc}uments) framework~\cite{Kohlhase:OMDoc1.2} for $\mathcal{K}$.
+  OMDoc/MMT~\cite{RabKoh:WSMSML13} is a representation format for mathematical documents
+  and knowledge that incorporates a metalogical framework to be foundation-independent,
+  which allows interoperability between various ontologies/foundations of mathematics. For
+  the integration of $\mathcal{K}$ and $\mathcal{S}$ we will build on the notion of
+  \emph{biform theories} developed by Carette/Farmer~\cite{Farmer:btc07} and extended to
+  OMDoc/MMT by \site{JU} in~\cite{KohManRab:aumftg13}. In this setup, the programming
+  language serves as a foundation, just as ZFC set theory might for mathematical
+  knowledge. Complex relationships between mathematical objects, interpretations of the
+  underlying languages, and unit transformations are modeled in a graph of theories and
+  theory morphisms.
+
+  The complexity of mathematical \DKS structures is on vivid display in the
+  \emph{L-functions and Modular Forms database} project (\LMFDB): while the general shape
+  of the functional equation of an $L$-function is dependent on a lot of theoretical
+  knowledge, it also requires parameter data and the coefficients of the associated
+  Dirichlet series. Once this is obtained, highly optimised (and heavily parallelizable)
+  algorithms can be run to compute values of this function.
+\end{wpdescription}
+
+\begin{tasklist}
+\begin{task}[title={Survey of existing \DKS bases, Formulation of requirements},
+  id=data-assessment,lead=ZH,partners={JU,SA,UW,US},wphases=0-3,PM=4]
+  In this task, we will survey existing databases, the technology used to implement them,
+  how they were linked to the rest of the existing infrastructure and the functionalities
+  offered. We will also select additional external data and projects to add to this
+  effort, aiming to maximise the impact of our work.
+
+  We will organise a workshop associated to this task (see
+  \taskref{dissem}{devel-workshops}). Results will be communicated in
+  \localdelivref{design}.
+\end{task}
+
+\begin{task}[title=Triform Theories in OMDoc/MMT,id=data-triform,
+  lead=JU,partners={ZH},PM=12,wphases=0-12]
+  Work here would extend OMDoc/MMT biform theories along the data axis, which will require
+  a specialised but integrated treatment. This integration will serve as a theoretical
+  basis informing the design of a \DKS base in \localtaskref{data-design}.
+
+  The results are reported in \localdelivref{dkstheories}.
+\end{task}
+
+\begin{task}[id=data-design,lead=JU,partners={ZH,US,SA,UW,LL,FAU},wphases={6-12,15-18!.33},PM=12,
+  title={\DKS Base Design}]
+  Ontologies are the canonical method used to implement databases that require significant
+  data interchange. However, because of the extreme reification present in mathematics
+  (relations between objects themselves become objects of study), there are specific
+  obstacles compared to the usual semantic web model of publishing.
+
+  Drawing on semantic web/Linked Open Data experience of the \site{LL} group, specialised
+  to mathematics through the OMDoc/MMT work of the Bremen group, we will design a
+  decentralised infrastructure for \TheProject. This infrastructure would allow modular
+  collaborations, through decentralised hosting of data without the need to merge
+  everything centrally.
+  
+  The initial design of the \DKS base in \TheProject is reported in
+ \localdelivref{design}. Conversion issues are covered in \localtaskref{data-foundationCAS}.
+\end{task}
+
+\begin{task}[title=Computational Foundation for Python/Sage,
+  id=data-foundationCAS,lead=FAU,partners={ZH,SA,JU},PM=9,wphases=6-18!.66]
+  In the OMDoc/MMT world a foundation is a logical base language that gives the formal
+  meaning to all objects represented/formalised in it. We have created a very initial
+  computational foundation for the programming language Scala and implemented it in the MMT API. This can be used
+  to execute (or verify) computations directly in OMDoc/MMT and thus forms the basis for
+  various integration tasks for OMDoc/MMT biform theories that integrate Scala
+  computations. Here we propose to develop a somewhat more complete computational
+  foundation for Python and/or parts of Sage (coverage to be determined). Bi/Triform
+  theories come in three parts:
+  \begin{compactitem}
+  \item \emph{syntax}: what operators/types are there, how do they nest,
+  \item \emph{computation}: what does the computation relation look like (sometimes called
+    operational semantics). The declarative semantics of a computational foundation can be
+    given as an OMDoc/MMT theory morphism into another foundation (e.g. a set theory);
+  \item \emph{specification}: what are the observable properties of the computation. 
+  \end{compactitem}
+  The foundation (a triform theory in OMDoc/MMT) will be published as
+  \localdelivref{psfoundation}.
+\end{task}
+
+\begin{task}[title=Knowledge-based code infrastructure, id=research-categories,lead=PS,partners={ZH,JU,FAU},PM=33,wphases=12-48]
+  Over the last decades, computational components, and in particular
+  Axiom, MuPAD, \GAP, or \Sage, have embedded more and more
+  mathematical knowledge directly inside the code, as a way to better
+  structure it for expressiveness, flexibility, composability,
+  documentation, and robustness. In this task we will review the
+  various approaches taken in these software (e.g. categories and
+  dynamic class hierarchies) and in proof assistants like Coq
+  (e.g. static type systems), and compare their respective strength
+  and weaknesses on concrete case studies. We will also explore
+  whether paradigms offered by recent programming languages like Julia
+  or Scala could enable a better implementation. Based on this we will
+  suggest and experiment with design improvements, and explore
+  challenges such as the compilation, verification, or
+  interoperability of such code.
+\end{task}
+
+\begin{task}[title=OEIS Case Study (Coverage and automated Import),id=data-OEIS,lead=FAU,partners={JU},
+  PM=6,wphases=12-18]
+In this case study we test the practical coverage of the trifunctional modules, by
+transforming an existing, high-profile database (the Online Sequence of Integer
+Sequences\footnote{\url{http://www.oeis.org}}) into OMDoc/MMT. The OEIS has about 250
+thousand sequences, with formulae, descriptions, definitions, references, software,
+etc. in a structured text file (but no standardised format for formulae and references),
+so we expect to get 250 k theories. Having the OEIS in OMDoc/MMT form allows to do
+Knowledge Management services (presentation, definition lookup, formula search, ...) in
+\MathHub (see \WPref{UI}). The OEIS is a good case study, since the data is licensed under
+a Creative Commons license which allows derived works. The large size will allow
+statistically significant semantic cross-validation of the heuristic transformation
+process and thus achieve a significant community resource.
+
+The results of the import are reported in \localdelivref{conv}.
+\end{task}
+
+% Michael, I think triformal theories would be easier to start with findstat.org
+% There are many reasons: more consistent structure in the mathematical data, more established research patterns, more consistent database storage, tighter integration of the code with sage code (in fact copy paste), etc
+
+\begin{task}[title=FindStat Case Study (Triformal Theories),id=data-findstat,
+  lead=FAU,partners={ZH},PM=9,wphases=18-30!.5]
+  In this task we would develop triformal theories for the \FindStat project \footnote{\url{http://www.findstat.org}} to test the
+  design from \localtaskref{data-foundationCAS}.  Similarly to the previous task, in this
+  case study, we first develop a thorough OMDoc/MMT model, which should only involve a
+  handful of MMT theories (combinatorial collections, maps, statistics,...), each with a
+  few hundred realisations. Together with   \WPref{UI}, this will again allow for
+  easier knowledge management services, and in particular improved search services.
+
+  This Task will be co-developed with \localtaskref{data-foundationCAS}, it will validate
+  the design of triformal theories and be iterated to test the design changes. Results
+  will be reported in \localdelivref{conv}.
+\end{task}
+
+\begin{task}[title=\LMFDB Case Study (Triformal Theories),id=data-LMFDB,
+  lead=JU,partners={ZH,UW},PM=24,wphases={12-24!.25,24-48!.7}]
+  In this task we would develop triformal theories for an exemplary part of the \LMFDB
+  project to test the design from \localtaskref{data-foundationCAS}.  We will identify a
+  fragment of the \LMFDB that we want to model and design the model (see
+  \localdelivref{conv}). 
+
+  Then we will perform cross-validation of the three model parts against each other
+  (essentially model-based testing of software and inference; see
+  \localdelivref{lfmverif}). Once this has been successful for the chosen fragment, we
+  will try to semi-automatically extend the import and model to the whole \LMFDB to gain
+  coverage and integrate it fully into the \DKS base. We expect that this will entail
+  quite a lot of work in refactoring the \LMFDB proper, which will benefit the \LMFDB
+  community independently of its use in \TheProject.
+
+  Finally, we will pick an algorithm from the \LMFDB and verify it against its
+  specification and the computational foundation developed in
+  \localtaskref{data-foundationCAS}; this is the final validation of the case study. The
+  results are reported in \localdelivref{lfmint}.
+  \end{task}
+
+\begin{task}[title=Memoisation and production of new data,id=data-memo,
+  lead=SA,partners={US,PS,UW},PM=12,wphases=24-42!.6]
+  Many CAS users run large and intensive computations, for which they want to collect the
+  results while simultaneously working on software improvements. \GAP retains computed
+  attribute values of objects within a session; \Sage currently has a limited
+  \texttt{cached\_method}. Neither offers storage that is persistent across sessions or
+  supports publication of the result or sharing within a collaboration. We will use,
+  extend and contribute back to, an appropriate established persistent memoisation
+  infrastructure, such as \texttt{python-joblib}, \texttt{redis-simple-cache} or
+  \texttt{dogpile.cache}, adding features needed for storage and use of results in
+  mathematical research. We will design something that is simple to deploy and configure,
+  and makes it easy to share results in a controlled manner, but provides enough assurance
+  to enable the user to rely on the data, give proper credit to the original computation
+  and rerun the computation if they want to. Results are reported in \localdelivref{persistent-memoization}.
+
+%Mock code:
+%    \begin{lstlisting}
+%       mycloud = storage("ssh:xxx@yyy/zzz")
+%       memoize(sage.combinat...., storage=mycloud, input=ZZ, output=Posets(), key="catalan")
+%    \end{lstlisting}
+\end{task}
+
+\begin{task}[id=mws,title=Math Search Engine,lead=JU,PM=10,wphases={3-9!.3,21-42!.5}]
+  The advantage of having a unified \DKS base for a math VRE is that we can navigate the
+  combined information space of all the underlying tools, systems and resources integrated
+  into the VRE. The negative effect is that this aggravates the already serious problem of
+  finding anything. Therefore we will adapt the existing MathWebSearch Engine
+  (MWS~\cite{ProKoh:mwssofse12,MWSProj:on}) to the \DKS base system. MWS consists of a web
+  service that indexes mathematical documents (formula/text) and a web front-end that
+  allows users to query the index. Formula queries are highly efficient (25$\mu s$/query)
+  and can be combined with keyword/full text search queries. An initial search engine for
+  papers and system documentation will be established early in the project (see
+  \localdelivref{mws}). For an integration into the \DKS base we only need to build new
+  harvesters -- i.e. programs that generate keywords and formula URL/pairs from the
+  contents (see \localdelivref{notebooksearch}).
+
+  For the data/software components in \DKS this is true in principle, but the formulae in
+  code can take many more forms and the notion of a hit URL is not as clear. But the
+  theory graph structure and foundation change morphisms can be integrated into search so
+  that even systems that are incompatible at first glance can be searched under one
+  interface~\cite{KohIan:ssmk12}.
+
+  But this puts high demands on the search interface (user inputs are usually only
+  meaningful with respect to a given context). We will explore this together with the
+  notebook development -- semantically annotated notebooks and active documents serve as
+  an explicit context here together with \WPref{UI}; results of this integration will be
+  reported in \localdelivref{nbad-search}.
+\end{task}
+
+\end{tasklist}
+
+\begin{wpdelivs}
+\begin{wpdeliv}[id=mws,miles=startup,due=9,nature=OTHER,dissem=PU,lead=JU]
+    {Full-text Search (Formulae + Keywords) over LaTeX-based Documents
+      (e.g. the arXiv subset)}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=12,miles=startup,id=design,dissem=PU,nature=R,lead=JU]
+    {Initial \DKS base Design (including base survey and Requirements Workshop Report)}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=15,miles=proto1,id=dkstheories,dissem=PU,nature=R,lead=JU]
+    {Design of Triform (DKS) Theories (Specification/RNC Schema/Examples) and 
+      Implementation of Triform Theories in the MMT API}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=24,miles=proto1,id=conv,dissem=PU,nature=DEC,lead=ZH]
+    {Conversion of existing and new Databases (\LMFDB, OEIS, \FindStat) to unified interoperable
+      System: }
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=24,miles=proto1,id=psfoundation,dissem=PU,nature=OTHER,lead=FAU]
+    {\Python/\Sage Computational Foundation Module in OMDoc/MMT}
+  \end{wpdeliv}
+  \begin{wpdeliv}[id=notebooksearch,due=30,nature=OTHER,dissem=PU,lead=FAU]
+    {Full-text search (Formulae + Keywords) over CAS Modules and Notebooks} (see
+      \taskref{UI}{structdocs})
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=36,miles=community,id=pssem,dissem=PU,nature=OTHER,lead=FAU]
+    {\Python/\Sage Declarative Semantics in OMDoc/MMT}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=36,miles=community,id=lfmverif,dissem=PU,nature=OTHER,lead=ZH]
+    {\LMFDB Algorithm Verification with respect to a Triformal Theory}
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=42,miles=eval,id=persistent-memoization,dissem=PU,nature=OTHER,lead=SA]
+    {Shared persistent Memoisation Library for \Python/\Sage} 
+  \end{wpdeliv}
+  \begin{wpdeliv}[id=nbad-search,miles=eval,due=42,nature=OTHER,dissem=PU,lead=FAU]
+    {Search from Notebooks/Active Documents Interface} Often it is important to have some
+    local context to inform search, therefore search from the notebook/active documents
+    interface is an interesting and useful development target.
+  \end{wpdeliv}
+  \begin{wpdeliv}[due=48,miles=eval,id=lfmint,dissem=PU,nature=R,lead=FAU]
+    {\LMFDB Integration of Algorithms, Data and Presentation}
+  \end{wpdeliv}
+\end{wpdelivs}
+  
+\begin{comment}
+Another connection: on several occasions, we found that software was the best way to
+represent certain databases of mathematical knowledge. E.g. in Algebraic Combinatorics we
+have a whole zoo of Hopf algebras. Many of them are implemented in MuPAD/Sage by
+specifying the objects that index the basis together with computation rules for the
+product and coproduct. When we want to retrieve information about such algebras, it's
+usually much more convenient to look at the code than to search through the
+literature. Especially since the code is usually more correct than the literature because
+it's *tested*.
+
+We may also think of providing an interface to \LMFDB via SCSCP
+protocol (http://www.symbolic-computing.org/scscp) so it may
+be accessed by a variety of other systems (see their current
+list at http://www.symbolic-computing.org/scscp). But it's probably as
+good to access it via \Sage.
+
+\end{comment}
+\end{workpackage}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../proposal"
+%%% End:
+
+%  LocalWords:  workpackage dksbases wphases wpobjectives standardise visualisation emph
+%  LocalWords:  wpdescription Swinnerton-Dyer Millenium Borcherds optimised tasklist conv
+%  LocalWords:  parallelizable maximise organise biform specialised trifunctional TOWRITE
+%  LocalWords:  triformal findstat.org data-findstat localdelivref realisations texttt wrt
+%  LocalWords:  Memoization python-joblib texttt redis-simple-cache texttt dogpile.cache
+%  LocalWords:  lstlisting mycloud memoize sage.combinat wpdelivs wpdeliv dissem Polymake
+%  LocalWords:  Recomputation wsrep dkstheories dksimp pssyntax psfoundation pssem lfmmod
+%  LocalWords:  modelling lfmval lfmverif lfmint oeisparser oeisvalidation Hopf coproduct
+%  LocalWords:  compactitem decentralised Logilab ensuremath xspace ldots compactenum mws
+%  LocalWords:  textbf athematical uments RabKoh btc07 KohManRab aumftg13 localdelivref
+%  LocalWords:  lmfmod lmfval findstat ProKoh mwssofse12 MWSProj KohIan ssmk12 taskref
+%  LocalWords:  nbad-search devel-workshops Jupyter-based structdocs

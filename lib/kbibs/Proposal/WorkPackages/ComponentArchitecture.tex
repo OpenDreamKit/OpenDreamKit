@@ -1,0 +1,600 @@
+\TOWRITE{ALL}{Proofread WP 3 Component Architecture pass 2}
+\begin{draft}
+\TOWRITE{UV (Work Package Lead)}{For WP leaders, please check the following (remove items
+once completed)}
+\begin{verbatim}
+- [X] have all the tasks in this Work Package a lead institution?
+- [X] have all deliverables in the WP a lead institution?
+- [X] do all tasks list all sites involved in them?
+- [X] does the table of sites and their PM efforts match lists of sites for each task?
+      (each site from the table is listed in all relevant tasks, and no site is listed
+      only in the table or only at some task)
+\end{verbatim}
+\end{draft}
+
+\begin{workpackage}[id=component-architecture,wphases=0-48!.5,
+  title=Component Architecture,lead=UV,
+  PSRM=50,UVRM=8,SARM=16, USORM=6, UORM=4, LLRM=14, UJFRM=6, UGRM=14]
+  % PS: Full time dev: 48 PM, NT: 4 PM
+
+  \begin{wpobjectives}
+    The objective of this work package is to develop and demonstrate a
+    set of APIs that enable components, such as database interfaces,
+    computational modules, separate systems such as \GAP or \Sage, to
+    be flexibly combined and run smoothly across a wide range of
+    environments (such as Cloud-based, local, and server environments).
+  \end{wpobjectives}
+
+  \begin{wpdescription}
+    This Work Package focuses on the structure of the components that make
+    up a mathematical software and their interactions. Such components
+    can be separate modules inside a unique software, or separate
+    softwares interacting through library calls and/or through APIs
+    (e.g.: web APIs). When combined together, they make up a full VRE.
+
+    The architecture of these software components must be:
+    \begin{compactitem}
+    \item \textbf{Portable}, to support a wide range of platforms
+      (mobile, desktops, cloud, \dots).
+    \item \textbf{Modular}, so to ease installing, building, testing,
+      and remixing.
+    \item \textbf{Flexible}, so to adapt to different use cases:
+      personal computation, HPC, parallel platforms, \dots
+    \item \textbf{Open}, in the sense of \emph{open source}, but also
+      in the sense of clearly documented and open to
+      the user who wants to understand its underpinnings and/or
+      contribute to it. Indeed we must not forget that the working
+      mathematicians and other users need to know what algorithms the software is
+      going to run to solve a given problem.
+    \end{compactitem}
+  \end{wpdescription}
+
+  \begin{tasklist}
+  \begin{task}[id=portability,title=Portability,lead=UV,PM=28,partners={PS,UG},wphases=0-36]
+    In order to achieve maximum availability and accessibility,
+    mathematical software must be developed and tested for a wide range
+    of computer architectures and operating systems.  However most of
+    open source development happens in POSIX environments (usually
+    Linux or OS X), and almost exclusively on x86 platforms.  The vast
+    majority of the developers of mathematical software does not have
+    the expertise, nor the access to appropriate hardware and software, to insure
+    appropriate testing and porting of components.  The best
+    incarnation of this issue is the involved installation procedure
+    for \Sage on Windows, a major adoption barrier and common source of
+    complaints by end-users.
+
+    In this task we will address the common needs of the community in
+    terms of portability layers, building and testing infrastructure.
+
+    \begin{compactitem}
+    \item Best practices adopted by the larger open source community
+      will be investigated and leveraged, and existing expertise will
+      be shared between the component developers.
+    \item Windows being largely dominant in the desktop/laptop market,
+      a specific focus will be placed on the port of \Sage, and
+      therefore all the components included in its distribution (in
+      particular \PariGP, \GAP, \Singular, \Linbox) to this platform
+      (\delivref{component-architecture}{portability-cygwin}).
+    \item The deployment of a common infrastructure for multi-platform
+      continuous integration (testing, building and distribution) will
+      be addressed
+      (\delivref{component-architecture}{multiplatform-buildbot}).
+    \end{compactitem}
+
+      % Jean-Pierre:
+      % Should we mention port to non-x86-64 archs and non-Linuces?
+      % 
+      % For CPUs:
+      % - I guess at least ARM and ppc64 (IBM POWER*) really make sense.
+      % - Sparc is less convincing though the latest sparc CPUs
+      % are muche more interesting for math computation as the
+      % previous ones, e.g. the GMP folk specifically added assembly
+      % for them in their latest release.
+      % - Itanium is dead, but it can help discovering bugs as any non
+      % standard archs.
+      % - Supporting any of these would mean buying (potentially very
+      % expensive) hardware.
+      % 
+      % For OSes?
+      % - Should we mention OS X which is a pain at each new release?
+      % - A BSD variant would be interesting, let's say FreeBSD which
+      % is basically (almost) already supported
+      % - Solaris? and/or OpenIndiana? Interesting if we mention sparc...
+      % - Windows is already included below, my opinion is:
+      % * provide live USB, VMs and Cygwin32 first as these three are
+      % basically already working solutions
+      % * go Cygwin64 as it is still POSIX
+      % * explorate a MinGW solution, at least GAP and PARI should be
+      % problematic
+      % * try to use MSVC
+  \end{task}
+
+  \begin{task}[title=Interfaces between systems,id=interface-systems,lead=PS,PM=22,partners={UV,UO,SA,UG},wphases=0-36]
+    In this task we will investigate patterns to share data,
+    ontologies, and semantics across computational systems, possibly
+    connected remotely.  We will leverage the well established
+    semantics used in mathematics (categories, type systems, \dots) to
+    give powerful abstractions on computational objects.
+    
+    We will build upon the work already done in the EU FP6 project
+    26133 ``SCIEnce -- Symbolic Computation Infrastructure for
+    Europe'' (\url{http://www.symbolic-computing.org/}) on the Symbolic Computation
+    Software Composability Protocol (SCSCP). SCSCP is a remote
+    procedure call protocol by which a computer algebra system (CAS)
+    may offer services to a variety of possible clients, including
+    e.g.  another CAS running on the same computer system or remotely;
+    another instance of the same CAS (in a parallel computing
+    context); a simplistic SCSCP client
+    (e.g. C/C++/Python/etc. program) with a minimal SCSCP support
+    needed for a particular application; a Web server which passes on
+    the same services as Web services, etc.  A distinctive feature of
+    the protocol is that both instructions and data are represented in
+    the OpenMath format (\url{http://www.openmath.org/}; previously
+    supported by the EU JEM Thematic Network; EU project 24969
+    ``ESPRIT'' and other projects); moreover, OpenMath support is not
+    limited by existing official OpenMath content dictionaries --
+    private encodings may be easily embedded into SCSCP messages.
+    
+    SCSCP is already supported by a number of computer algebra
+    systems, including \GAP, Macaulay2, Maple, TRIP and others. We
+    will extend support for SCSCP to other relevant systems involved
+    in \TheProject (\delivref{component-architecture}{scscp-sage}).
+    Through its API, we will enable discovery of subsystems,
+    functionality, documentation and computational resources. The user
+    interfaces shall be enabled to automatically choose the best
+    available algorithms and resources to perform a required
+    computation, as well as clearly and intuitively present the
+    available choices to the expert user.
+
+    As a first concrete test bed, we will consider the \Sage interface
+    to \GAP, or more precisely \libGAP.  Like most \Sage interfaces,
+    this uses the now classical \emph{handle} design pattern, whereby
+    one can manipulate from \Sage an object created and stored in
+    \GAP, through a \emph{handle} (a.k.a. \emph{remote objects}).  By
+    mapping \GAP's categories to \Sage's categories, in
+    \delivref{component-architecture}{semantic-interface-sage-gap} we
+    will:
+    \begin{compactitem}
+    \item Implement a modular infrastructure for adapters, based on
+      SCSCP, in order to let the implementation of adapters scale to a
+      large variety of objects.
+    \item Refactor the existing adapters, using this infrastructure to
+      generalise their features. This step by itself will provide
+      adapters for larger categories like semigroups or monoids.
+    \item Merge the adapters into the handles, so that a handle to a
+      \GAP group will \emph{automatically} behave like a native \Sage
+      group.
+      % This will remove much back-conversion burden from the
+      % delegating methods
+    \end{compactitem}
+    A specific challenge will be performance; indeed low level method
+    adapters, e.g. for arithmetic, need to be compiled when most of
+    the interface infrastructure is dynamic by nature.
+
+    % When different algorithms are available, some of them coded in
+    % \Sage, some of them in \GAP, the interface shall offer an easily
+    % navigable interface for the expert user to choose among them.
+  \end{task}
+
+  \begin{task}[title=Modularisation and packaging,id=mod-packaging,lead=UV,PM=20,partners={PS,LL,UG},wphases=0-48]
+    % TODO: logilab can contribute to producing VM images
+    % using its proven worflow based on saltstack and packer.io PM=2
+    % TODO: logilab can help to define the metadata to be provided
+    % by software authors to facilitate the packaging of their
+    % components. Beware not the reinvent the wheel^H packaging system.
+    % PM=2
+    % TODO: if needed, logilab can develop a package index similar
+    % to PyPI using CubicWeb: html UI for browsing and web service
+    % for registration. Maybe an instance of PyPI is enough? PM=6
+    % TODO: logilab can help with debian packages PM=6
+    In this task we will investigate best practices for composing,
+    sharing and interfacing computational components and data for
+    connected mathematical systems.
+
+    We will start with a comparative study of the practices adopted in
+    various open source projects, both inside and outside of
+    \TheProject. This will include reviewing non-mathematical systems,
+    e.g.: operating systems, platforms, web frameworks, cloud and HPC
+    infrastructures.  In particular, pushed by cloud computing,
+    containerisation \cite{Docker} and virtualisation
+    \cite{Virtualbox} have become a major trend for distributing
+    complex software, thanks to their ease of installation and
+    configuration. We shall experiment with these technologies by
+    building and distributing virtual appliances for the major
+    components of \TheProject
+    (\delivref{component-architecture}{virtual-machines}).
+
+    Once the initial study will have identified the present
+    shortcomings, we will promote a new generation of mathematical
+    software that is capable of scaling to large code bases, large
+    datasets, and massively distributed infrastructures. This task
+    also needs to consider the results of work
+    package~\WPref{social-aspects} on social issues regarding
+    distributed development, community management, acknowledging
+    contributions, etc.
+
+    As an example, \Sage has a long history of integrating and
+    distributing large mathematical libraries/software as a whole,
+    with relatively few attention given to defining and exposing
+    interfaces. Component re-usability is not a main focus for the
+    \Sage community, at the same time the non-standard and relatively
+    underused package system discourages writing and maintaining
+    autonomous libraries. These factors have contributed to make the
+    \Sage distribution what is usually described as a ``monolith''
+    (\Sage library code alone, not counting included libraries, makes
+    up for 1.5M lines of code and documentation), hard to distribute,
+    to maintain, to port, and to develop with.
+
+    On the other hand, \GAP has been distributing
+    community-developed ``\GAP packages'' for a long time, but faces
+    now fragmentation issues, at the code and at the community
+    level. The rudimentary package system adds more technical
+    difficulties to \GAP's development model.
+
+    Both models reach the limits of their scalability, and a synthesis
+    is very much needed.  Our first experiment will be to enhance
+    \Sage's package system
+    (\delivref{component-architecture}{sage-repository}), enough to
+    support an open repository of user-contributed code, in the same
+    spirit of modern systems such as Julia
+    (\url{http://pkg.julialang.org/}) or PyPI
+    (\url{https://pypi.python.org/}).  Once \emph{internal} packaging
+    has been dealt with, the route will be paved to further modularise
+    the \Sage distribution, and make sure that the major Linux
+    distributions have standard packages for it
+    (\delivref{component-architecture}{sage-distribution}).
+
+  \end{task}
+
+\begin{task}[id=simulagora-dev,title=Simulagora integration,PM=4,lead=LL,wphases=0-48]
+  To deliver every six month a new Simulagora VM image containing all the software
+  components released over the period. The goal is to prove that the project is
+  improving the component architecture by measuring the time it takes to
+  integrate them.
+\end{task}
+
+
+  \begin{task}[title=Component architecture for High Performance Computing and Parallelism,id=component-for-HPC,PM=12,wphases=36-48,lead=UJF,partners=SA]
+    As in all other areas of science, properly supporting massively
+    parallel architecture is a major challenge. Many of the
+    computational components have already gone a long way in this
+    direction, and further work will be carried out in
+    WorkPackage~\WPref{hpc}.
+
+    In this task we will investigate and implement
+    parallelism-friendly ways of combining components together, so
+    that calling components can benefit from the parallelism features
+    of called components, with self-adaptation to the environment and
+    cooperative sharing of resources. We will use \Sage and its
+    components as a test-bed, by producing an HPC-enabled distribution
+    (\delivref{component-architecture}{hpc-configure}).
+  \end{task}
+
+  \begin{task}[title=Document and modularise \SMC's codebase,id=extract-smc,lead=PS,PM=10,partners={UV,UG},wphases=0-24]
+    From its inception in 2013, \SMC\ (see Section~\ref{linked-projects}, page~\pageref{sec:SMC-page}) 
+    has quickly developed into a full
+    featured VRE.  Because of the tight, partly closed source
+    development cycles, \SMC's codebase has quickly grown in size,
+    with its documentation not always keeping the pace. As a result,
+    it is at the moment very hard for a newcomer to set up a clone
+    service of \SMC just from its sources.
+
+    Now that \SMC is
+    \href{https://twitter.com/sagemath/status/544939872294014977}{fully
+      open source}, we need to go through its codebase, understand and
+    document it
+    (\delivref{component-architecture}{smc-documentation}), isolate
+    components that might be reused by other software (e.g.:
+    \Jupyter), and make it as portable as possible.
+
+    The ultimate goal of this task is to produce a \emph{personal}
+    version of \SMC, to be shipped along with \Sage, that a user can
+    run on his own personal computer
+    (\delivref{component-architecture}{personal-smc}).
+  \end{task}
+
+  \begin{task}[title=Improving the development workflow in mathematical software,id=workflow,lead=UV,PM=10,partners={PS,LL,UG},wphases=6-24]
+    Truly open software must enable any actor to easily contribute his
+    work to the community. Be it an experienced developer, or a
+    student. Be it for a major software component or for a piece of
+    translation. All the systems involved in \TheProject have
+    developed their own workflows for contributing back, but those are
+    almost exclusively geared toward experienced developers working on
+    large components. When these workflows eventually reach their
+    scalability limits, software development stagnates and major
+    features are delayed. A well known example is given by \Sage's TRAC
+    server, where tickets can stay in ``needs review'' state for a
+    long time before entering the code base.  \emph{Upstream} bug
+    reporting and fixing is another major factor of slow development.
+
+    This task will seek new ways of accepting contributions to
+    mathematical software in a scalable way. For example we will
+    experiment with integrating bug reporting and contributing
+    features right in the VRE (e.g., in \SMC:
+    \delivref{component-architecture}{smc-trac}).).
+
+    % TODO: logilab would like to enhance the existing forges to publish
+    % linked open data and ease the sharing of information about
+    % package/version/issues across systems. See for example
+    % https://packages.qa.debian.org/p/python-defaults.html and the link to RDF
+    % meta-data on the right
+    % https://packages.qa.debian.org/p/python-defaults.ttl
+    % see also https://wiki.debian.org/RDF
+    % PM=6 up to 12
+  \end{task}
+
+
+\begin{task}[lead=USO,id=oommf-python-interface,title=Python interface for OOMMF micromagnetic simulation library,PM=6,wphases=7-13,partners={SA}]
+  % 6 person months
+  In this task, we create a Python interface
+  for the open source Object
+  Oriented MicroMagnetic Framework (OOMMF \cite{OOMMF-url}).
+  %which is the most widely used micromagnetic simulation package
+  %\cite{OOMMF-citations-url}. 
+  As a result, the OOMMF library will be fully accessible and usable
+  from a Python interface and become a component in the
+  Python/\Jupyter eco system of computational tools and in
+  \TheProject. We make use of this component architecture in
+  \taskref{UI}{oommf-py-ipython-attributes} to build the micromagnetic
+  VRE demonstrator
+  (Sect.~\ref{sec:introduction-micromagnetic-vre-demonstrator}).
+
+  In more detail, we will first identify the best option for interfacing
+  from Python to OOMMF core (C++) routines. The technical options
+  include CTypes, Cython, Swig, and Boost-Python, all with particular
+  advantages/disadvantages. Following analysis of the current OOMMF
+  code layout and compilation model, we will use the most suitable
+  tool, bearing in mind our ambition not to modify the OOMMF code so
+  that the python interface we create remains functional and
+  maintainable with minimal effort while the OOMMF core code is
+  developed further by the OOMMF authors. 
+  The interface will expose the C++ objects in Python, providing
+  an architecture component that provides full access to OOMMF's
+  raw capabilities. For clarity, we will refer to this interface as
+  \texttt{OOMMF-py-raw}. %Creation of this \texttt{OOMMF-py-raw} is
+  %technically doable as OOMMF had been written allowing to do this
+  %from Tcl. The \texttt{OOMMF-py-raw} library for Python provides
+  %access to the OOMMF functionality but requires some care when being
+  %used.
+
+  Secondly, we will create a user friendly Python library
+  \texttt{OOMMF-py} that combines the \texttt{OOMMF-py-raw}
+  capabilities in an object orientated and safe-to-use Python library
+  targeting researchers in the magnetic materials community. We will
+  follow the design of the well-received high level Python interface
+  in the Nmag micromagnetic simulation package \cite{Fischbacher2007a}
+  interface \cite{Nmag-url}. Unit and regression tests for both
+  component interfaces \texttt{OOMMF-py-raw} and \texttt{OOMMF-py} are
+  simultanously developed.
+
+  %Once this is completed, several new features will be available to
+  %OOMMF users: (i) ability to drive OOMMF from Python, (ii)
+  %computational steering, and (iii) combination of OOMMF simulation
+  %with the existing Python eco-system of computational tools.
+
+  %Can remove the next paragraph if we are pushed for space.
+
+  %We illustrate the advantage of (iii) through an example: to solve
+  %the micromagnetic standard problem 3
+  %\cite{Micromagnetic-Standardproblem-3}, traditionally multiple OOMMF
+  %simulation runs would have to be conducted, and for each of those a
+  %new configuration file as to be written. Between these the size of
+  %the simulated geometry needs to be modified until two particular
+  %values of energy are the same. Given the new interface developed in
+  %this work package, this whole process can be replaced by one Python
+  %script that creates multiple OOMMF simulations, combined with a root
+  %finding method for the automatic iterative determination of the
+  %required simulation geometry.
+
+  %For all tasks relating to
+  %\OOMMFNB, documentation and tests are created simultaneously with
+  %the code. All codes, tests and documentation will be made available as open source.
+
+  %We anticipate to start this task \localtaskref{oommf-python-interface}
+  %in month 4, leading to deliverable \delivref{UI}{oommf-py}.
+\end{task}
+
+
+
+
+
+\end{tasklist}
+
+  \begin{wpdelivs}
+    % \begin{wpdeliv}[due=6,miles=startup,id=portability-cygwin32,dissem=PU,nature=OTHER,lead=UV]
+    %   {One-click install \Sage distribution for Windows with Cygwin 32bits}
+    %   % JPF: this should take a few months of work
+    %   % This 32bits version would work right away on Windows 64 bits with
+    %   % Cygwin 32 bits; more work would be required for a version working on
+    %   % a 64 bits of Cygwin.
+    %   % JPF: I agree.
+    % \end{wpdeliv}%
+
+
+    \begin{wpdeliv}[due=6,miles=startup,id=virtual-machines,dissem=PU,nature=OTHER,lead=UV]
+      {Virtual images and containers} Creation and distribution of
+      preconfigured cloud oriented virtual machines/containers
+      (e.g. Docker images) for \PariGP, \Sage, \SMC, \dots
+      % Requires: licenses
+      \TOWRITE{??}{Make this deliverable shorter.}
+    \end{wpdeliv}
+    \begin{wpdeliv}[due=18,miles=startup,id=smc-documentation,dissem=PU,nature=R,lead=PS]
+      {Understand and document \SMC backend code.}
+    \end{wpdeliv}%
+
+    \begin{wpdeliv}[due=12,miles=startup,id=scscp-sage,dissem=PU,nature=OTHER,lead=SA]
+      {Support for the \href{http://www.symbolic-computing.org/}{SCSCP} interface protocol
+        in all relevant components (\Sage, \GAP, etc.) distribution}
+    \end{wpdeliv}
+
+    \begin{wpdeliv}[due=24,miles=proto1,id=personal-smc,dissem=PU,nature=OTHER,lead=PS]
+      {\emph{Personal} \SMC: single user version of \SMC distributed
+        with \Sage.}
+    \end{wpdeliv}%
+
+    \begin{wpdeliv}[due=24,miles=proto1,id=smc-trac,dissem=PU,nature=OTHER,lead=UV]
+      {Integration between \SMC and \Sage's TRAC server}
+    \end{wpdeliv}
+    \begin{wpdeliv}[due=24,miles=proto1,id=sage-repository,dissem=PU,nature=OTHER,lead=UV]
+      {Open package repository for \Sage} Refactor \Sage package and
+      build system to support community-contributed packages
+      installable via the web.
+    \end{wpdeliv}
+
+    \begin{wpdeliv}[due=24,miles=proto1,id=portability-cygwin,dissem=PU,nature=OTHER,lead=PS]
+      {One-click install \Sage distribution for Windows with Cygwin 32bits and 64bits}
+
+      % Participants involved: Paris Sud, Kaiserslautern, Saint Andrews, Bordeaux
+      % Comments on this by Bill Hart
+      % The big problems you will have on Windows 64 on Cygwin include:
+      % 
+      % * anything with assembly language -- the ABI is different on Windows, so
+      % it'll need rewriting, or you can incur a performance penalty by using
+      % generic C fallback code
+      % * the memory allocator on Windows is not so great
+      % * bugs exposed due to being on a different platform, e.g. segfaults due to
+      % off-by-one errors that were masked by the granularity of malloc on Linux
+      % * build issues, due to identifying Cygwin and using the correct header
+      % files, which are often different on Cygwin than linux
+      % * issues with PATH vs LD_LIBRARY_PATH
+      % * Windows has a case insensitive file system
+      % * EOL issues
+      % * Windows is not able to rapidly create and delete files, which some
+      % libraries (esp. test code) calls for
+      % * memory limitations (many people using Windows are using laptops with
+      % limited memory, only a portion of which is realistically available to
+      % Cygwin)
+      % * autotools versions that don't support Windows (usually autotools has a
+      % release that is used in all the distributions, which doesn't work correctly
+      % on Windows, and this is followed up by a version which has all the Windows
+      % patches)
+      % * building takes forever on Windows. Mingw2 has now gotten parallel build
+      % working on Windows and the speed is within a factor of 5 of Linux. But I'm
+      % not sure the improvements have propagated to Cygwin yet.
+      % * Cygwin 64 is new, contains quite a few bugs still, and things keep
+      % changing with every version as they try to get things right.
+      % * Although projects will likely accept patches for Windows, they are less
+      % likely to maintain support themselves. I would like to think Singular would
+      % be an exception to this. And obviously flint and MPIR work on Windows (even
+      % with MSVC as of the next version of flint -- or now if you use our bleeding
+      % edge repo version).
+      % 
+      % Comments by Jean-Pierre on some of the above and mor:
+      % * first things first: I already completely built Sage on Cygwin64, though it
+      % was surely not completely functional.
+      % * assembly: that's right, note that as far as Sage and it's dependencies are
+      % concerned, only a few of them actually use assembler, and yes all of them
+      % provide fallback generic C code IIRC
+      % * PATH vs LD_...: basically the same problem as for Cygwin32, so it's already
+      % been taken care of for the Cygwin32 port
+      % case issue: not a problem IIRC
+      % * EOL issues: I don't thing so, Cygwin is POSIX like
+      % * autotools issues: most of Sage dependencies are now updated, I used to track
+      % the few problematic ones in 2013
+      % * time to build: not so long, sure longer than on a POWER7 machine, but I do
+      % it on a usual x86_64 laptop running Debian within a Windows VM in a few hours!
+      % what we actually really need is patch/build bots to test on Cygwin 32/64!
+      % * upstream cooperation: I agree Windows is often a low priority issue, but
+      % most teams have welcomed my Cygwin patches
+    \end{wpdeliv}
+
+    \begin{wpdeliv}[due=36,miles=community,id=multiplatform-buildbot,dissem=PP,nature=DEM,lead=UV]
+      {Continuous integration platform for multi-platform build/test.}
+
+      \Sage's \emph{buildbot} is a x86\_64/Linux specific platform for
+      continuous building and testing. We will investigate the
+      possibility of evolving it towards a multi-platform tool, and
+      opening it to other mathematical software.
+    \end{wpdeliv}%
+    \begin{wpdeliv}[due=36,miles=community,id=semantic-interface-sage-gap,dissem=PU,nature=OTHER,lead=PS]
+      {Semantic-aware \Sage interface to \GAP.}
+    \end{wpdeliv}
+
+
+    \begin{wpdeliv}[due=48,miles=eval,id=sage-distribution,dissem=PU,nature=OTHER,lead=UV]
+      {Packaging for major Linux distributions} Make sure that \Sage and
+      all the components it depends on (including \GAP,
+      Linbox, \PariGP, Singular, \dots) have standard packages in the
+      main Linux distributions.
+    \end{wpdeliv}
+
+    % lmonade has very similar objectives but uses the gentoo prefix whereas Linux distributions use very different packaging systems:
+    % \begin{compactitem}
+    % \item gentoo prefix (gentoo)
+    % \item pacman (arch),
+    % \item yum (redhat),
+    % \item apt (debian),
+    % \item easy\_install
+    % \item Python index packaging (pip)
+    % \end{compactitem}}
+    \begin{wpdeliv}[due=48,miles=eval,id=hpc-configure,dissem=PU,nature=OTHER,lead=UJF]
+      {HPC enabled \Sage distribution}
+    \end{wpdeliv}
+
+  \end{wpdelivs}
+
+% \begin{verbatim}
+% Raw material:
+
+% Component Architecture
+% ----------------------
+
+% Recomputation connection belongs here?
+
+% Collaboration with unreliable (or restricted!) networking connections
+% (peer-to-peer, opportunistic syncing, 3rd world). This is technically
+% interesting, and gets in support for non-networked working. Not sure
+% if it belongs here or not.
+
+% - Security concerns
+
+% Goal: Fostering collaborations/integration between components in an open source ecosystem
+% =============================================================================
+
+% - How to make systems "cooperate" rather than "predate each other".
+% - E.g. reduce the version issues
+
+% - Foster collaboration with upstream libraries by sharing the
+%   development and maintenance of the interfaces, typically as
+%   standalone upstream Python bindings (e.g. py-Singular).
+
+% - How to make it easy to develop simultaneously two interdependent
+%   components (e.g. Sage+Singular)
+
+% - Foster communication
+
+% - Social aspect:
+%   Credit, Citations, Recognition, Funding
+
+% Documentation system
+% ====================
+
+% In which package?
+
+% Improvements to Sphinx
+
+% Sage heavily customises the Sphinx documentation system, hacking deep
+% in it in some cases, with quite some duplication in some cases.
+% Refactor the whole thing, generalizing and contributing back upstream
+% as much as possible (e.g. parallel compilation).
+% \end{verbatim}
+
+\end{workpackage}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../proposal"
+%%% End: 
+
+%  LocalWords:  workpackage wphases wpobjectives wpdescription textbf emph tasklist archs
+%  LocalWords:  Linbox delivref portability-cygwin delivref Sparc
+%  LocalWords:  non-Linuces sparc muche Itanium OSes VMs Cygwin32 Cygwin64 explorate hpc
+%  LocalWords:  Composability Macaulay2 WPref deployment-distrib wpdelivs wpdeliv dissem
+%  LocalWords:  Sud segfaults autotools autotools Mingw2 mor multiplatform-buildbot Nmag
+%  LocalWords:  buildbot scscp-sage lmonade gentoo pacman redhat debian smc-trac logilab
+%  LocalWords:  compactitem worflow saltstack packer.io simulagora-dev Simulagora Jupyter
+%  LocalWords:  extract-smc smc-documentation personal-smc TOWRITE oommf-python-interface
+%  LocalWords:  micromagnetic oommf-py taskref oommf-py-ipython-attributes CTypes Cython
+%  LocalWords:  introduction-micromagnetic-vre-demonstrator texttt OOMMF-py-raw texttt
+%  LocalWords:  OOMMF-py-raw simultanously Micromagnetic-Standardproblem-3 OOMMFNB
+%  LocalWords:  localtaskref Virtualbox
