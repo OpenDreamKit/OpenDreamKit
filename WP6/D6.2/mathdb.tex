@@ -12,7 +12,7 @@ This has been done ad hoc in the past and has proved both very difficult and ---
 Therefore, we have developed systematic method for encoding/decoding mathematical objects as database objects.
 This allows formally specifying the schema of a database in such a way that \MMT storages can use it to encapsulate the encoding and provide users with a high-level view of a mathematical database.
 
-\ednote{macros are working, possibly re-check them /TW}
+
 
 \subsubsection{Codecs}
 
@@ -22,6 +22,8 @@ Typical examples are strings or JSON objects.
 We will JSON for the purpose of giving concrete examples.
 
 Our goal is to define codecs that define the relation between \MMT objects and codes.
+
+\ednote{we should find a better name for the \enc and \dec macros /TW}
 
 \begin{mydef}[Codec]
   For an \MMT object $t$, a $t$-codec is a pair $(\enc, \dec)$ where
@@ -58,8 +60,20 @@ Along the same lines, we can define codecs for other simple data types.
 For example, we can define a codec for matrices of integers that encodes pairs of pairs of integers as a JSON list of $4$ JSON integers.
 This example is interesting because it comes up in the \LMFDB and has confused some programmers: because the encoding was not fully documented, it was mistakenly assumed that the respective mathematical type of the value is that of lists of integers.
 
-We collect and document all available codecs in a special \MMT theory:
-\ednote{@TW: give and explain relevant fragment of codec theory}
+\lstset{
+  morecomment=[l]{/T}
+}
+
+\lstinputlisting[
+  morekeywords={namespace,theory,include,rule},
+  mathescape,
+  caption={Fragment of the special Codec Theory in MMT},
+  label=lst:mmt-codec
+]{examples/odk-codec.mmt}
+
+We collect and document all available codecs in a special \MMT theory, a fraction of which can be seen in Listing~\ref{lst:mmt-codec}.
+Here, we first declare a type of codecs for each MMT type.
+
 Note that our codec theory does not include any implementations (which usually require highly programming language--specific function calls.
 Instead, it standardizes names for the codecs and documents their behavior so that each codec can be implemented faithfully in multiple programming languages.
 This is in line with the Math-in-the-Middle approach of centrally storing the shared knowledge.
@@ -78,10 +92,12 @@ To systematize these choices, we introduce codec operators.
   For an \MMT symbol $t$ and an arity $n$, a $t$-codec operator takes an $o_1$-codec $C_1$, \ldots, an $o_n$-codec $C_n$ and returns a $t(o_1,\ldots,o_n)$ codec.
 \end{mydef}
 
-For example, let us define a $\lst$-codec operator $\lstAsList$ of arity $1$.
+For example, let us define a $\lst$-codec operator $\standardList$ of arity $1$.
 It takes a type $t$-codec $C$ and returns the following codec: $\enc$ maps the object $\cons(a_1,\cons(a_2,\ldots,\cons(a_n,\nil)\ldots))$ to the JSON list $[e_1,\ldots,e_n]$ where each $e_i$ is the result or encoding $a_i$ with $C$.
 $\dec$ is defined accordingly.
-\ednote{@TW: give declaration of $\lstAsList$ in codec theory, mention a few other codec operators that we have (if any)}
+
+Similar to the codecs, the special \MMT codec theory (Listing~\ref{lst:mmt-codec} above) also includes standardised names for these.
+Apart from $\standardList$, we also have straightforward codec operators for vectors (as lists of fixed length) and matrices (as lists of lists of fixed lengths).
 
 \subsubsection{Schema Theories}
 
@@ -99,7 +115,6 @@ Secondly, we annotate meta-data to each declaration, providing the information w
 Thus, the schema documents both the mathematical meaning of the fields and the physical encoding used when exchanging records conforming to the schema.
 By giving the schema theory for each database, we can capture all knowledge necessary to automatically interface with it.
 
-\ednote{@TW: give simple example of elliptic curve schema theory\\DM: Done.}
 As an example, the schema theory for the database of \emph{elliptic curves} in LMFDB
 has meta-data linking it to the \emph{type} of elliptic curves in the corresponding math-in-the-middle theory, as well as meta-data telling \MMT which field in the database to use as \emph{names} for the resulting \MMT declarations - in this case the field \texttt{label}, which corresponds to a unique LMFDB-internal naming scheme. The schema theory contains e.g. a declaration \texttt{degree} of type \texttt{pos} (for positive  integers), corresponding to a field in the database by the same name, which is annotated with meta-data telling \MMT
 \begin{enumerate}
