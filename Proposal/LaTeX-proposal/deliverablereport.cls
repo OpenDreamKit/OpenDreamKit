@@ -17,6 +17,7 @@
 \RequirePackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
 \RequirePackage{graphicx}
 \RequirePackage{mdframed}
+\RequirePackage{array}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
@@ -29,10 +30,13 @@
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
 
-% Same as in eu/proposal.cls, but without an hyperlink (since it would
-% point to a different document)
+% Same as in eu/euproposal.cls and base/proposal.cls, but without an
+% hyperlink (since it would point to a different document)
+% TODO: add hyperlink to github
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
+\newcommand\delivref[2]{\csname deliv@#1#2@label\endcsname}
+\newcommand\taskref[2]{\csname task@#1#2@label\endcsname}
 
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1#2@label\endcsname}
@@ -66,15 +70,17 @@
 
 \let\oldmaketitle=\maketitle
 \renewcommand{\maketitle}{
-  \oldmaketitle\vfill
+  \oldmaketitle%\vfill
   \strut\par\noindent
-    \begin{minipage}[c]{4cm}\includegraphics[height=20ex]{\prop@gen@logo}\end{minipage}  
-    \begin{minipage}[c]{11cm}
+    \begin{minipage}[c]{2.2cm}\includegraphics[width=2.2cm]{\prop@gen@logo}\end{minipage}  
+    \begin{minipage}[c]{13cm}
+      \setlength{\extrarowheight}{.5ex}
+      %\renewcommand{\arraystretch}{1.1}
     \begin{tabular}{|l|l|}\hline
       Due on &  \@duedate\\
       Delivered on &  \@deliverydate\\
       Lead & \sitename{\deliv@lead} (\site{\deliv@lead})\\\hline
-      \multicolumn{2}{|p{11cm}|}{
+      \multicolumn{2}{|p{13cm}|}{
       Progress on and finalization of this deliverable has been tracked
       publicly on: \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}}\\\hline
     \end{tabular}
@@ -83,6 +89,7 @@
   \thispagestyle{fancyplain}
 }
 \newcommand{\githubissuedescription}{%
+  \linebreak\phantom{X} % Workaround to get the topline drawn ...
   \begin{mdframed}
     \input{github-issue-description}
   \end{mdframed}}
