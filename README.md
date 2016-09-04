@@ -217,7 +217,12 @@ status report, ...) needs to be on the issue.
 
 ### Steps for the coordinator
 
-- TODO: document the automatic download of the github description
+- Go to the root dir of the main OpenDreamKit repository
+
+- Edit the main Makefile to add the deliverable
+
+  Run make to automatically download the github description and build
+  the report
 
 - Proofread the pdf
 

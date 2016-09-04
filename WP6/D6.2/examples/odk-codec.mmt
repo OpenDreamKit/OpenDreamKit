@@ -1,0 +1,53 @@
+namespace http://www.opendreamkit.org/ $\RS$
+
+theory Codecs : ur:?PLF $\RS$
+
+  /T We include the Math theory to be able to use types $\RS$
+  include odk:?Math $\RS$ $\RS$
+
+  /T Declare a type of codecs
+  /T There can be multiple codecs for each type $\RS$
+  codec : type $\rightarrow$ type $\RS$
+
+  /T a codec that codes strings as JSON strings $\RS$
+  standardString: codec string $\RS$
+
+  /T a codec that codes integers as JSON integers if
+  /T within 32 bits, and as JSON strings otherwise $\RS$
+  standardInt: codec int $\RS$
+
+  /T a codec that codes natural numbers (with 0)
+  /T as JSON integers if within 32 bits, and as
+  /T JSON strings otherwise $\RS$
+  standardNat: codec nat0 $\RS$
+
+  /T a codec that codes positive natural numbers
+  /T as JSON integers if within 32 bits, and as JSON
+  /T strings otherwise $\RS$
+  standardPos: codec pos $\RS$
+
+  /T a codec that codes integers as a JSON array
+  /T of integers each of which fits within 32 bits $\RS$
+  intAsArray: codec int $\RS$
+
+  /T a codec that codes booleans as JSON
+  /T booleans $\RS$
+  standardBool: codec bool $\RS$
+
+  /T a codec that codes booleans as JSON integers
+  /T 0/1 $\RS$
+  boolAsInt : codec bool  $\RS$
+
+  /T a codec operator that codes lists as JSON
+  /T arrays, recursively coding each element of
+  /T the list $\RS$
+  standardList: {A} codec A $\rightarrow$ codec (list A) $\RS$
+
+  /T a codec operator that codes vectors of
+  /T fixed length as JSON arrays $\RS$
+  standardVector: {A,n} codec A $\rightarrow$ codec (vector A n)  $\RS$
+
+  /T a codec operator that codes matrices of
+  /T fixed size as JSON lists of lists $\RS$
+  standardMatrix: {A,n,m} codec A $\rightarrow$ codec (matrix A n m)  $\RS$
+$\GS$
