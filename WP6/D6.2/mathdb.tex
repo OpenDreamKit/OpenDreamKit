@@ -16,15 +16,14 @@ This allows formally specifying the schema of a database in such a way that \MMT
 
 \subsubsection{Codecs}
 
-We fix an arbitrary data type of \textbf{codes}.
-These are the primitive values of the database.
-Typical examples are strings or JSON objects.
-We will JSON for the purpose of giving concrete examples.
+We fix an arbitrary data type of \textbf{codes}.  These are the primitive values of the
+database.  Typical examples are strings or JSON objects.  We will use JSON for the purpose
+of giving concrete examples.
 
 Our goal is to define codecs that define the relation between \MMT objects and codes.
 
 \begin{mydef}[Codec]
-  For an \MMT object $t$, a $t$-codec is a pair $(\enc, \dec)$ where
+  For an \MMT object $t$, a \textbf{$t$-codec} is a pair $(\enc, \dec)$ where
   \begin{compactitem}
    \item $\enc$ is a partial function from \MMT objects of type $t$ to codes
    \item $\dec$ is a partial function from codes to $\MMT$ objects of type $t$
@@ -46,13 +45,15 @@ $\enc$ is partial because it only encodes literals, e.g., it does not encode exp
 (An object like $1+1$ can be encoded by first simplifying it to a literal $2$.)
 More subtly, it cannot encode integer literals that do not fit into the $64$ bit integers of a typical JSON implementation.
 
-But this is not the only reasonable $\Int$-codec.
-In \LMFDB databases, we often encounter integers that do not fit into $64$ bits, and we have specify two additional codecs.
+But this is not the only reasonable $\Int$-codec.  In \LMFDB databases, we often encounter
+integers that do not fit into $64$ bits, and we have specify two additional codecs.
 $\intAsString$ encodes integer literal as strings in decimal representation.
-$\intAsString$ has the advantage of easily encoding all integers.
-But it is not convenient for computations.
-Therefore, \LMFDB users have occasionally used a smarter encoding: $\intAsList$ encodes integer literals as lists of JSON integers such that the list $[n,d_1,\ldots,d_n]$ corresponds to the integer whose base $2^{64}$ representation is $(d_1\ldots d_n)$.
-$\intAsList$ has the advantage that the lexicographic ordering can be used for size comparisons without having to decode.
+$\intAsString$ has the advantage of easily encoding all integers.  But it is not
+convenient for computations.  Therefore, \LMFDB users have occasionally used a smarter
+encoding: $\intAsList$ encodes integer literals as lists of JSON integers such that the
+list $[n,d_1,\ldots,d_n]$ corresponds to the integer whose base $2^{64}$ representation is
+$(d_1\ldots d_n)$.  $\intAsList$ has the advantage that the lexicographic ordering can be
+used for size comparisons without having to decode.
 
 Along the same lines, we can define codecs for other simple data types.
 For example, we can define a codec for matrices of integers that encodes pairs of pairs of integers as a JSON list of $4$ JSON integers.
@@ -64,9 +65,11 @@ Note that our codec theory does not include any implementations (which usually r
 Instead, it standardizes names for the codecs and documents their behavior so that each codec can be implemented faithfully in multiple programming languages.
 This is in line with the Math-in-the-Middle approach of centrally storing the shared knowledge.
 
-We have seeded this theory with a few important codecs.
-And for every codec we describe, we have already given a reference implementation in Scala so that the \MMT system (which is written in Scala) can use all codecs.
-In the future, \pn will gradually build a library of relevant codecs and implement them in multiple programming languages.
+We have seeded this theory with a few important codecs.  And for every codec we describe,
+we have already given a reference implementation in Scala~\cite{scala:webpage} so that the
+\MMT system (which is written in Scala) can use all codecs.  In the future, \pn will
+gradually build a library of relevant codecs and implement them in multiple programming
+languages.
 
 \paragraph{Codec Operators}
 $\Int$ is an atomic type.
@@ -78,10 +81,12 @@ To systematize these choices, we introduce codec operators.
   For an \MMT symbol $t$ and an arity $n$, a $t$-codec operator takes an $o_1$-codec $C_1$, \ldots, an $o_n$-codec $C_n$ and returns a $t(o_1,\ldots,o_n)$ codec.
 \end{mydef}
 
-For example, let us define a $\lst$-codec operator $\lstAsList$ of arity $1$.
-It takes a type $t$-codec $C$ and returns the following codec: $\enc$ maps the object $\cons(a_1,\cons(a_2,\ldots,\cons(a_n,\nil)\ldots))$ to the JSON list $[e_1,\ldots,e_n]$ where each $e_i$ is the result or encoding $a_i$ with $C$.
-$\dec$ is defined accordingly.
-\ednote{@TW: give declaration of $\lstAsList$ in codec theory, mention a few other codec operators that we have (if any)}
+For example, let us define a $\lst$-codec operator $\lstAsList$ of arity $1$.  It takes a
+type $t$-codec $C$ and returns the following codec: $\enc$ maps the object
+$\cons(a_1,\cons(a_2,\ldots,\cons(a_n,\nil)\ldots))$ to the JSON list $[e_1,\ldots,e_n]$
+where each $e_i$ is the result or encoding $a_i$ with $C$.  $\dec$ is defined accordingly.
+\ednote{@TW: give declaration of $\lstAsList$ in codec theory, mention a few other codec
+  operators that we have (if any)} 
 
 \subsubsection{Schema Theories}
 
@@ -118,7 +123,10 @@ We use this in the storage instance for \LMFDB as follows:\ednote{@DM add detail
  \item We add the declaration $n=r$ to the corresponding virtual theory.
 \end{compactenum}
 
-\ednote{FR: add description of handling of constructors/assessors for a future paper; I think we can omit it for the deliverable as unnecessarily detailed}
+\ednote{FR: add description of handling of constructors/assessors for a future paper; I
+  think we can omit it for the deliverable as unnecessarily detailed} \ednote{MK@TW: We
+  need one or two diagrams above that show how the theories hold together and how the
+  information flow works. This is non-trivial, but will help us clarify the presentation}
 
 %%% Local Variables:
 %%% mode: latex
