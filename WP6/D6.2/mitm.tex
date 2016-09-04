@@ -18,6 +18,8 @@ implementation conforms to this is the realm of ``Formal Methods''. Again, the e
 doing this for any of the systems in \pn is prohibitive and way beyond the scope of the
 project.
 
+\subsection{Specification of Interfaces}
+
 Fortunately, we do not need implementation-level specification and verification for
 integration of existing systems into a VRE toolkit. Specification (of objects and intended
 behavior) at the mathematical level is sufficient. In particular quality control
@@ -51,6 +53,8 @@ level (\textbf{S1.}), which is only marginally supported by programming language
 central concern in the \pn project. The math specification level is characterized by some
 kind of logical system that can express universal properties like
 $\forall y,y. x=\operatorname{sqrt}(y) \Leftrightarrow x^2=y$.
+
+\subsection{The Math-in-the-Middle Paradigm}
 
 In the \pn project we want to cover the software aspect of a math VRE toolkit via an
 approach we call ``Math-In-The-Middle'' paradigm (MitM; see~\cite{DehKohKon:iop16} for
@@ -91,6 +95,7 @@ mathematical specification to the system theories, they express the ``implementa
 relation''. Thus the OMDoc/MMT framework already allows to integrate the knowledge and
 software aspects for system interoperability.
 
+\subsection{Design Decisions and Initial Evaluation}
 The MitM paradigm we choose for the software (S) aspect of the \pn VRE toolkit essentially
 takes two design decisions: 
 \begin{compactenum}[\bf D1.]
@@ -108,7 +113,44 @@ takes two design decisions:
 The MitM paradigm constitutes a lightweight alternative; identifying and refining it has
 been one of the major achievements of the first year in \WPref{dksbases}.
 
+To evaluate the paradigm and the design decisions we have implemented extensions to the
+\GAP and \SageMath that export interface theory graphs in the OMDoc/MMT format
+(see~Section~\ref{sec:cases} for details):
+\begin{compactitem}
+\item \GAP exports types, constructors, functions, data, and their documentation: 4097
+  Objects exported (2996 unique) in ca. 210 theories.
+\item \SageMath exports categories/types, annotates functions: 382 Categories using 25
+  Axioms and (in total) 808 methods.
+\end{compactitem}
+These interface theories allow the representation of all mathematical objects in \GAP and
+\SageMath as OpenMath2/MathML3 objects~\cite{BusCapCar:2oms03,CarlisleEd:MathML3} whose
+symbols are grounded in the interface theories (interpreted as OpenMath content
+dictionaries). \GAP already had an \textbf{OpenMath phrasebook} -- an import/export
+facility for OpenMath objects -- and we have developed one for Python and
+\SageMath~\cite{py-openmath:on}.
 
+Even though the development of the MitM paradigm is still at an early stage, these case
+studies show the potential of the approach. We hope that the nontrivial cost of curating
+an ontology of mathematical knowledge and interface views to the interface theories will
+be offset by its utility as a resource, which we are currently exploring; the unification
+of the knowledge representation components in the \MMT system
+\begin{compactenum}
+\item enables VRE-wide domain-centered (rather than system-centered) documentation: the
+  namespace alignment given by the interface-views allows to re-use documentation for a
+  concept, object, or model in the MitM ontology in all interface functions aligned with
+  it.
+\item can be leveraged for distributed computation via uniform protocols like the
+  SCSCP~\cite{HorRoz:ossp09} and MONET-style service
+  matching~\cite{CaprottiEtAl:MathServiceMatching04:tr} (the absence of content
+  dictionaries -- now given as interface theories -- was the main hurdle that kept these
+  from gaining more traction). Again, \GAP already had an SCSCP interface, and we are
+  developing one for \SageMath at \cite{py-scscp:on}.
+\item will lead to the wider adoption of best practices in mathematical knowledge
+  management in the systems involved; in fact, this is already happening: the development
+  of the \GAP interface theory exporter led to the discovery of hundreds of documentation
+  errors and to a large-scale code refactoring that made type information more explicit
+  and could lead to efficiency gains by extended static analysis in the future.
+\end{compactenum}
 
 %%% Local Variables:
 %%% mode: latex
