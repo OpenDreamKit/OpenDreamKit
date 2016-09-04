@@ -1,0 +1,75 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{../json}
+\usetikzlibrary{backgrounds,shapes,fit,shadows,arrows,shapes.geometric}
+\makeatletter\input{../../CICM2016/tikz/pgflibrarytikzmmt.code.tex}\makeatother
+%MMT
+\newcommand{\GS}{\textcolor{red}{\fbox{M}}}
+\newcommand{\RS}{\textcolor{blue}{\fbox{D}}}
+\newcommand{\US}{\textcolor{green}{\fbox{O}}}
+
+\begin{document}
+\def\thmo#1#2{\mathsf{#1}\colon\kern-.15em{#2}}
+\providecommand\myxscale{3}
+\providecommand\myyscale{1.5}
+\providecommand\myfontsize{\footnotesize}
+
+\begin{tikzpicture}[xscale=\myxscale,yscale=\myyscale]\myfontsize
+  \tikzstyle{database}=[cylinder,shape border rotate=90,aspect=0.25,draw,cylinder uses custom fill,cylinder body fill=white!30,cylinder end fill=white!3]
+  \node[database] (db) at (1,4) {
+    \begin{tabular}{c}Database\\\\ LMFDB\\ (MongoDB)\end{tabular}
+  };
+
+  \node[draw] (record) at (2.5,4) {
+    \begin{minipage}{3cm}
+\begin{lstlisting}[language=json,mathescape,frame=none,aboveskip=2pt,belowskip=2pt]
+label: "11a1",
+conductor: 5,
+$\dots$
+\end{lstlisting}
+\end{minipage}};
+
+  \draw[->] (db) -- node[above]{contains} (record);
+
+  \node[thy] (schema) at (2.5,2) {
+    \begin{tabular}{l}
+      \textsf{Record Schema Theory}\\\hline
+      \texttt{conductor: int} $\US$\\
+        \texttt{  ?codec standardInt} $\US$\\
+        \texttt{  ?implements cond}\\
+      $\RS$\\
+      $\dots$
+    \end{tabular}
+
+  };
+
+  \draw[->] (schema) -- node[above]{describes} (record);
+
+  \node[thy] (mitm) at (0,2) {
+    \begin{tabular}{l}
+      \textsf{Math-In-The-Middle Theory}\\\hline
+      \texttt{elliptic\_curve: type} $\RS$\\
+      \texttt{cond: elliptic\_curve $\rightarrow$ int} $\RS$\\
+      $\dots$
+    \end{tabular}
+  };
+
+  \draw[->] (schema) -- node[above]{implements} (mitm);
+
+  \node[thy] (virtual) at (1,0) {
+    \begin{tabular}{l}
+      \textsf{Virtual Theory}\\\hline
+      \texttt{11a1: elliptic\_curve $\US$ = $\dots$} $\RS$\\
+      $\dots$
+    \end{tabular}
+  };
+
+  \draw[include] (virtual) -- node[above]{includes} (mitm);
+
+\end{tikzpicture}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
