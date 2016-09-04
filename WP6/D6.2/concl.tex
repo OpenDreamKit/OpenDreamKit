@@ -1,42 +1,62 @@
 \section{Outlook and Conclusion}\label{sec:conclusion}
 
-In this report we have outlined our plans for building \textit{DKS} theories, splittig the
-problem into \textit{Knowledge and System} integration via the Math-In-The-Middle approach and
-\textit{Data and Knowledge} integration via data/knowledge theories.
+In this report we have outlined the initial design of a $\mathcal{DKS}$-base (the main
+objective of \WPtref{dksbases}). The basis is the OMDoc/MMT format that allows a
+foundation-independent representation of mathematical knowledge in theories that are
+linked by imports for modular development and views for integrating knowledge from
+different sources by interpretation. As anticipated in the \pn proposal, the OMDoc/MMT
+format and its implementation in the \MMT system is sufficient to for the knowledge
+($\mathcal{K}$) aspect of $\mathcal{DKS}$-bases.
 
-\ednote{@Paul: Mention the survey again}
+The \pn workshops and the survey (see Section~\ref{sec:survey} and
+Appendix~\ref{sec:raw-survey}) clarified that the system integration task is much more
+critical in the development of a VRE toolkit than the classical ``Formal Methods'' tasks
+of software verification or synthesis. As a consequence we base our integration of the
+software aspect ($\mathcal{S}$) on the specifically-developed ``Math-in-the-Middle''
+paradigm, which constitutes a much more lightweight approach by concentrating on abstract
+(mathematics-level) specifications. We were able to show that this can represent this
+OMDoc/MMT theory graphs, if we can generate interface theories for the \pn systems and
+align them to a mathematical reference ontology (the MitM ontology) via OMDoc/MMT
+views. We have established the feasibility of this by generating interface ontologies for
+the \GAP and \SageMath systems and conjecture that carries over to other \pn systems.
 
-We introduced the basics of how we imagine \MMT data/knowledge theories. Here we connect to
-external databases which we model as a set of well-typed records, that is list of (key, value)
-pairs. We introduced the concept of record types inside \MMT, keys are symbols which are
-declared inside a schema theory and values are \MMT literals translated from the physical
-database representations using codecs.
-
-We have showed our implementation so far. We used the LMFDB database of elliptic curves. We
-implemented a multitude of codecs that should also prove useful in future expansions of this
-implementation. We have demonstrated that it is possible to build \textit{Virutal Theories}
-that integrate databases inside \MMT seamlessly so that it is not noticable that declarations
-are actually retrieved from a database instead of being declared from within \MMT directly.
+For the data aspect ($\mathcal{D}$) of $\mathcal{DKS}$-bases we had to extend OMDoc/MMT to
+allow \emph{virtual theories} that consist of arbitrarily many declarations and the \MMT
+system to handle them efficiently, -- loading only small subsets into system memory for
+processing. Thus we can connect to external databases which we model as a set of
+well-typed records, that is list of (key, value) pairs. We introduced the concept of
+record types inside \MMT, keys are symbols which are declared inside a schema theory and
+values are \MMT literals translated from the physical database representations using
+codecs. We used the LMFDB database of elliptic curves as a case study to test this
+approach and implemented a multitude of codecs as a ``database connector'' that lifts the
+database contents to virtual declarations in virtual theories that can be seamlessly
+integrated into the \MMT system. 
 
 In the future we want to expand on both the implementation and the concept as a whole. Right
 now we can only translate database records into \MMT objects. While we want to use the form of
 the objects used by \MMT as the primary representation we want to be able to translate these
-objects to system specifc objects, thereby building true \textit{DKS} theories. Each system
+objects to system specific objects, thereby building true \textit{DKS} theories. Each system
 might have system-specific constructors and / or representations. In practice all systems will
 have a constructor for these objects. These will take a set of arguments. These arguments will
 either be primitive (in which case we can just encode them from \MMT using a codec) or be
 complex objects themselves (in which case we can recurse into the entire procedure). Storing
 these encodings inside \MMT we will be able to write thin interfaces to \MMT, which can then
-easily retrieve objects from \MMT in their prefered representation.
+easily retrieve objects from \MMT in their preferred representation.
 
 Together with the opposite process -- the understanding of objects by using accessors from
-arbitary systems -- will also allow (almost) arbitary systems and databases to exchange objects
+arbitrary systems -- will also allow (almost) arbitrary systems and databases to exchange objects
 via \MMT. We are already working on a \python Client implementation. This will not apply any
 recoding to the objects -- it just retrieves records in an easily accessible form from \MMT. In
 the future we are hoping to use this to integrate \MMT and \GAP and enable \GAP to use any kind
 of object that \MMT has access to.
 
+It is interesting to note that both the integration of the $\mathcal{S}$ and $\mathcal{D}$
+aspects into OMDoc/MMT necessitate the generation of theories: pre-generated as interface
+theories in the MitM paradigm, and on-the-fly in virtual theories. 
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "report"
 %%% End:
+
+%  LocalWords:  mathcal WPtref dksbases pn emph textit
