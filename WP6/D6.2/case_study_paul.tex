@@ -1,0 +1,261 @@
+\section{Raw Case Study Results}\label{sec:raw-survey}
+
+\setcounter{secnumdepth}{4}
+
+\makeatletter
+\def\subsubsection{\@startsection{subsubsection}{3}%
+  \z@{.2\linespacing\@plus.7\linespacing}{.1\linespacing}%
+  {\normalfont\itshape}}
+\makeatother
+\makeatletter
+\def\paragraph{\@startsection{paragraph}{4}%
+  \z@{.2\linespacing\@plus.7\linespacing}{.1\linespacing}%
+  {\normalfont}}
+\makeatother
+
+
+The structure of this survey has been slightly adapted to this presentation format.
+\ednote{@Paul: Format this nicely}
+\subsection{\FindStat}
+\subsubsection{Overview at a high level of the system}
+
+\FindStat is a database and a web interface accessing the database. It is designed for combinatorists. The purpose is to store and search information on \emph{statistics} over \emph{combinatorial objects}. A statistic is mostly a map between a set of combinatorial objects to the natural numbers. As an example, the number of edges is a statistic on graphs. The main purpose of \FindStat is to give an interface for one to \emph{search} for some statistics the same way one would search for integer sequences on the OEIS \cite{oeis}.
+
+\subsubsection{Available data}
+
+\paragraph{Structure of the data}
+
+\FindStat has basically 3 categories of objects.
+
+\begin{description}
+\item[The combinatorial collections] \FindStat stores a list of combinatorial collections: 18 as of today (January 2016). All these combinatorial collections are actually linked to a \SageMath combinatorial collection. We only store the minimal  information needed to print the collection on the website and to recreate the collection in \SageMath.
+
+For every collection, we store a list of combinatorial objects. More precisely, we use \SageMath to generate the list of objects,
+but we store a standardised version of the printout of the object. This standardised version is homemade: it has to be
+\begin{description}
+\item[standardized] a single given graph will always be printed the same way,
+\item[unique] two different graphs will never be printed the same way,
+\item[human readable] when possible, it should be easy to understand for a Human reader and not only a machine (so no hash-key or anything like this).
+When possible, we keep the default printout of \SageMath object. Sometimes, we have to store a little bit of code to convert this printout into a
+\SageMath entry.
+\end{description}
+
+\item[The statistics] A Statistic is a list of couples : combinatorial object from a certain collection or value. As of now, we have 364 statistics,
+each of them containing between 200 and 1000 entries. For each statistic, we store some metadata: Name, identifier
+(specific to \FindStat, can be referenced from outside), combinatorial collection, description, code, references, etc. And we also store the data itself: a list of entries,
+each entry is made from combinatorial object (as a string, by its standardised printout) and a integer value. As an example, the values of "The number of Edges of a graph"
+St000081 is a list of all graphs up to size 6 with their associated number of edges.
+
+\item[The combinatorial maps] A combinatorial map is a mathematical function from a combinatorial collection to another combinatorial collection. For example: binary search
+tree insertion turns permutations into binary trees. As of now, we store 107 maps each of them containing between 200 and 1000 entries. We store the metadata of the map: domain, codomain, description, code, etc. And we store the map-data as a list of (value, image)
+where value and image are combinatorial objects stored as strings through their standardised printout.
+\end{description}
+
+As an addition, \FindStat also provides some wiki pages with information on combinatorial objects, maps and statistics in a less formalized way.
+
+The low level data format is a SQL database where we store everything we need. Most of the data described above is accessible through the website in HTML. All information about combinatorial statistics and combinatorial maps can be accessed through JSON files that have standardised URLs depending on the identifier of said statistics or maps. It is possible that the url changes if the website organisation is changed in the future but it will always be related to the identifiers which are set once and for all. The format of the JSON files are also likely to change but we try to limit those changes and keep backward compatibility as much as possible. Those JSON files are the closest we have to an external API, they are used by the \SageMath-\FindStat interface.
+
+All our data are distributed under Creative Commons Attribution-ShareAlike 3.0 Unported License.
+
+\paragraph{How is this data produced?  How is it changed?}
+
+The data are produced and changed through user contributions. As for now, 55 people are listed as contributors. We have an HTML form to submit statistics where the user receives many information on what should be submitted and in what format. Once a new statistic is submitted or a change is proposed, it has to be validated by one of the day developers. We don't receive that much data so the process is usually very quick. Each change is stored and so we have access to the full history of the statistic information with authors.
+
+For maps, we don't have yet the "Add Map" form. Each map has to be added by one of the \FindStat developers. The reason is just that the maps are a more recent addition and so the adding process has not been finalized yet.
+
+\paragraph{How do you document it?}
+
+We have a very basic documentation for statistic data that we provide to the user who which to contribute. We don't have any documentation for our dataformat (JSON files).
+
+\subsubsection{What knowledge do you have in the system?}
+\paragraph{ What are the sources of external knowledge?}
+
+We relate on the knowledge of our contributors about statistics and maps and try to store it. We also depend on some \SageMath algorithms, for example to generate the combinatorial
+objects.
+
+ \paragraph{Can you point to implicit knowledge? Is it common knowledge?}
+
+Our website is targeted at combinatorists. Even though, we try to give all the basic definitions and information, it might be difficult to use for someone who has no
+knowledge of these objects.
+
+ \paragraph{What would you gain if it was made explicit/machine actionable?}
+
+At the moment, our infrastructure is really \SageMath oriented (object printouts, names, etc). A language-neutral description of our objects might make it easier for interfaces
+from other system to appear. The gain for us is that the more user we have (from different background), the more contributors we might get and so the more mathematically
+pertinent our database is.
+
+ \paragraph{Have you gone in this direction? How did you represent the knowledge then?}
+
+Giving access to the statistics and maps data as JSON files was a first step in this direction.
+
+ \paragraph{How do you collaborate on knowledge representation?}
+
+By referencing those data (statistics and maps) and proposing unique identifiers that can be referenced from the outside (the same way the OEIS identifies integer sequences with a unique number).
+
+\subsubsection{What software do you have?}
+ \paragraph{What custom software are you running?}
+
+We need the software \SageMath to run some computations: basically, generating the objects, printing them, etc. The statistic and maps code are usually given into \SageMath for consistency but it is not mandatory.
+
+There is also some \FindStat specific code to run the website. Most of this code is just basic web-programming views of our database.
+
+The database search is the heart of the service. It is a small algorithm that takes a user-given statistics and compares it to the database up to some maps.
+
+\paragraph{In which language is your system written?}
+
+Our server runs on \SageMath with some imported web packages, so it is written in \python. We use the \python wiki server \textsf{MoinMoin} as a backend and have written some customized \textsf{MoinMoin} plugins to run our service.
+
+ \paragraph{How does it use the data and the knowledge?}
+
+The data is stored in a SQL database. It is preloaded and precomputed when we launch the server then all computations are made on this preloaded data. We don't use the knowledge at this stage, we just basically request the database and compare numbers using some parameters. In the future, we might want to  use the knowledge we have on the maps (bijection, injection, surjection, involution, etc) to improve our algorithm.
+
+\paragraph{How does your software act on represented knowledge?}
+
+The software might put into light some mathematical relations between combinatorial objects but doesn't store them or anything like this.
+
+
+\subsection{\SageMath}
+\subsubsection{Overview at a high level of the system}
+\SageMath is  general purpose computational  (pure) mathematics software. It has 300 contributors and consists of 1.5 million lines of \python/Cython code, around 40000 function, and 4000 classes. It is distributed with hundreds of open source (math) software and libraries.
+
+Most of the survey answers are given specifically for the \SageMath \textsf{category} framework, which is used to structure a lot of \SageMath code by exploiting as much as possible of the underlying mathematical structure.
+
+\subsubsection{Available data}
+\SageMath interfaces with a large collection of (optional) databases, usually coming from external software and possibly repackaged from external databases. Examples include \GAP databases, the OEIS \cite{oeis}, various databases of elliptic curves, etc.
+
+The data format is heavily reliant on pickling (\python protocol for serialization).  Objects can be converted to strings and reconstructed. This is used for persistence, for storing in \SageMath databases, for data exchange between \SageMath instances. \SageMath comes with code to reconstruct the object and perform sanity checks. By default, pickling is done by class and stores plain data (no encapsulation). We aim for pickling by construction (which would require more semantics).
+
+\subsubsection{What knowledge do you have in the system?}
+The system effectively knows many mathematical properties and theorems, algorithms, ...
+
+In designing the system, a few key points conditioned the design:
+\begin{enumerate}
+\item There are only a handful of fundamental concepts: operations (*, +, ...),  axioms (associativity, commutativity, ...), ...;
+\item The richness arises in the combinations of these concepts (\emph{e.g.}~fields);
+\item We use an existing language and its object oriented features for modelling and method selection.
+\end{enumerate}
+
+\paragraph{Sources of external knowledge?}
+Each \SageMath contributor brings on specific mathematical knowledge about the objects studied, which might not be available to others in the collaboration.
+
+\paragraph{Can you point to implicit knowledge?}
+The algorithms rely heavily on the mathematical properties of the objects they manipulate.
+\SageMath uses the Object Oriented features of \python.
+The properties of a \SageMath object are specified by its \python class:
+\begin{itemize}
+\item what mathematical object does it represent?
+\item how is it represented?
+\item the class information is often of technical flavor, and complemented
+  by additional information on its universe (parent, category)
+\end{itemize}
+
+\SageMath strives to model mathematics closely: not only matrices are instances of a specific classes and not plain list of lists,  but linear maps themselves are instances of specific classes and not just represented by matrices. This reduces the  risk of calling a meaningless function.
+
+The abstract algebraic properties of an object (\emph{e.g.}~being a group or a field) are modelled relatively explicitly: objects know the names of their categories and axioms.  The meaning is essentially implicit except, in the good cases, informally in the documentation and as testing methods. The names of the operations are hardcoded, which leads to duplication (for instance between additive and multiplicative structures). The size of the code is linear in the number of methods, which in the current setup ought to grow exponentially as the complexity of the modeled objects increases.
+
+It is not always made explicit which methods an object in a given category should implement: methods and operations are documented, but their exact specifications is not always completely defined or defined consistently across the class hierarchy.
+
+Some theorems (\emph{e.g.}~Wedderburn) are embedded in actionable form,  but that information cannot be extracted or operated on.
+
+\paragraph{Is it common knowledge?}
+
+The meaning of the relevant categories and axioms (\emph{e.g.}~ring or associativity) is relatively well known by the users and developers.
+
+
+\paragraph{What would you gain if it was made explicit/machine actionable?}
+\begin{itemize}
+\item Dynamic generation of documentation that the user can navigate
+\item Sanity/correctness checks; proofs?
+\item Semantic handles to communicate with other systems
+\item Avoiding duplication (\emph{e.g.}~additive magmas / multiplicative magmas)?
+\end{itemize}
+
+\paragraph{Have you gone in this direction? How did you represent the knowledge then?}
+The \textsf{category} framework for \SageMath goes in this direction.
+
+\paragraph{How do you collaborate on knowledge representation?}
+This is done through collaborative development of code, documentation and tests in the \SageMath sources.
+
+\subsubsection{Available software}
+The \SageMath library consists of 1.5 M lines of code (\python/Cython), and relies on hundreds of other software packages, in a myriad of languages.
+
+The software, and particularly the \textsf{category} framework, builds on the available data and knowledge to construct a hierarchy of classes mirroring the categorical properties.  Those are used for code factorization, documentation, and generic testing. For instance, a computation relying on the lattice of categories would be helped by the conclusion that if X is a division ring and X is a finite set, then X is a finite field.
+
+
+\subsection{\GAP}
+
+\subsection{\LMFDB}
+
+\subsubsection{Overview at a high level of the \LMFDB system}
+
+ The \emph{L-functions and Modular Forms DataBase} \cite{lmfdb} aims to aggregate and integrate computational and mathematical knowledge about L-functions and other number theoretic objects, and to present these complex and interconnected objects reliably while maintaining accessibility. At a mathematical level, this could help provide a uniform view of the concept of L-function, objects which can (sometimes conjecturally) be produced out of very different mathematical constructions. The collaboration involves around 50 mathematicians of varying coding skills and with different mathematical expertise.
+
+\subsubsection{Available data}
+
+The entirety of the data held by the \LMFDB is accessible through an API. One counts around 30 different types of objects stored, for a total of a few Tb. The data is downloadable directly.
+
+The data is held in a Mongo database server, holding around 30 or so databases, each with their own collections. It is held there as BSON (binary JSON), the internal format of Mongo documents.
+
+Data that ends up in the \LMFDB has many different origins. Some are historical computations. Most are done in either \GAP, \Pari, \SageMath, \Magma, etc, with the person who coded these original sources a member of the \LMFDB who aims to make their data more accessible to their peers. Some of the data shown on the website is actually computed on the fly.
+
+Data comes in through a variety of ad hoc ways, but essentially always transits through a JSON format before upload to the Mongo database. Updating is mostly done through some form of overwriting, but it is not uniform across the \LMFDB. In the best cases, the data is stored completely separately from the \LMFDB's own (mongo) database, \emph{e.g.}~in a GitHub repository, under full revision control of text files, and there are scripts to populate the database from that.
+ At some point there was discussion of allowing anyone to upload their data through an online form. This option has never been used seriously, and is not currently supported.
+
+
+In general, proper referencing of data sources and documentation of its quality is a struggle, but there is recent improvement.
+Progress has been made on these through a new collection of "data quality" pages. The intention is to have source, extent and quality reliably documented for the main sections of the database.
+
+In addition, the various formats are in the process of being formalised \footnote{See \url{https://github.com/LMFDB/LMFDB-inventory}, with the most advanced example (for elliptic curves) at \url{https://github.com/LMFDB/LMFDB-inventory/blob/master/db-elliptic_curves.md}. The formalisation format itself does not have a spec.}
+
+
+\subsubsection{What knowledge do you have?}
+\paragraph{What are the sources of external knowledge?}
+Each participant in the \LMFDB brings on specific mathematical knowledge about the objects studied, which might not be available to others in the collaboration. The \LMFDB has the concept of \emph{knowls}, which are encyclopaedic bits of content integrated alongside the data, and editable collaboratively. These help converge on common definitions of the objects described.
+
+
+\paragraph{Can you point to implicit knowledge? Is it common knowledge?}
+There is a lot of implicit knowledge in the encodings chosen for the data (ad hoc formats and references), some of it is made explicit \footnote{emph{e.g.}~ at \url{http://www.LMFDB.org/knowledge/show/ec.conductor_label}}
+There is also a lot of implicit knowledge in the source code. There is little common knowledge across the collaboration, or at least there is a lot that is not common.
+
+\paragraph{What would you gain if it was made explicit/machine actionable?}
+The development process could probably be made more robust and efficient. The knowls currently serve as entry points for users and crucially also for onboarding future collaborators, as a stable basis for further collaboration. \LMFDB could gain in productivity, robustness and ultimately utility if this process could be extended a bit further along the chain of contributions.
+
+\paragraph{Have you gone in this direction? How did you represent the knowledge then?}
+
+The furthest the \LMFDB has gone into the direction of formalising knowledge is in modularising as much as possible of the mathematical knowledge through knowls, creating an ad hoc ontology to classify them, and aligning it to the mathematical data objects that are presented. The \LMFDB also tries to adhere to the concept of "one URL per object".
+
+\paragraph{How do you collaborate on knowledge representation?}
+
+Edition of the knowls requires an account, which the \LMFDB intends to offer to anyone who wishes to contribute. There is some versioning in place for knowls.
+
+\subsubsection{What software do you have?}
+
+ The \LMFDB is mostly written in \python, relies on \SageMath and \PariGP as libraries. It uses the database MongoDB (and possibly also an SQL one), uses the web framework Flask, and the templating engine Jinja.
+
+ \paragraph{What custom software are you running?}
+
+In a way \SageMath is custom, since lots of \LMFDB developers also contribute the relevant functionality to \SageMath. Otherwise a whole lot of the logic is embedded in the website code.
+
+ \paragraph{How does the system use the data and the knowledge?}
+Generally, a URL path will be associated to a Jinja template, requiring simultaneous fetching of pre-entered knowledge (knowls, Mongo DB), precomputed data (Mongo DB), and on-the-fly computation based on this precomputed data or existing functions implemented in some of the Computer Algebra Software already used.
+
+\paragraph{Which knowledge is implicit in the data you have?}
+A lot of information about the data encoding is implicit in the data itself. For instance, even if $[0,4,5,1]$ is known to represent a polynomial, depending on the context it might represent $4*x+5*x^2+x^3$ or $x(x-4)(x-5)(x-1)$.
+
+\paragraph{ Which knowledge is implicit in the software you have?}
+
+When populating templates, some of the mathematical knowledge might be really entered through the code, by completing the template in different ways according to the calling class (\emph{e.g.}~elliptic curve L-functions are of degree 2).
+
+I don't know if it is relevant here but we are also accumulating a set of
+bibliographic references and have already instituted a system for making
+citations within knowls very easy.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  setcounter secnumdepth makeatletter subsubsection subsubsection itshape
+%  LocalWords:  makeatother ednote combinatorists emph emph emph standardized formalized
+%  LocalWords:  Unported finalized textsf textsf Cython serialization itemize flavor oeis
+%  LocalWords:  Wedderburn factorization knowls onboarding templating lmfdb
