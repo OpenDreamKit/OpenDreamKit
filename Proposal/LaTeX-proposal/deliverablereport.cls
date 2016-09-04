@@ -80,9 +80,9 @@
       Due on &  \@duedate\\
       Delivered on &  \@deliverydate\\
       Lead & \sitename{\deliv@lead} (\site{\deliv@lead})\\\hline
-      \multicolumn{2}{|p{13cm}|}{
+      \multicolumn{2}{|p{13cm}|}{\small
       Progress on and finalization of this deliverable has been tracked
-      publicly on: \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}}\\\hline
+      publicly at:\par\noindent \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}}\\\hline
     \end{tabular}
   \end{minipage}
   \bigskip
