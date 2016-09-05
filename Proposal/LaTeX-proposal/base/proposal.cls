@@ -342,6 +342,7 @@
 \define@key{deliv}{miles}{\def\deliv@miles{#1}}
 \define@key{deliv}{short}{\def\deliv@short{#1}}
 \define@key{deliv}{lead}{\def\deliv@lead{#1}}
+\define@key{deliv}{issue}{\def\deliv@issue{#1}}
 \newcounter{deliverable}
 \newcommand{\wpg@deliv}[3]{% keys, title, type
 \stepcounter{deliverable}
@@ -367,6 +368,9 @@
 {\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv \wpg@id  undefined}}
 {\pdata@def{deliv}{\wpg@id\deliv@id}{lead}{\deliv@lead}}
 \@ifundefined{deliv@due}{}{%
+\@ifundefined{deliv@issue}
+{}%\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
+{\pdata@def{deliv}{\wpg@id\deliv@id}{issue}{\deliv@issue}}
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
