@@ -1,7 +1,7 @@
 The \pn project intends to integrate multiple mathematical software systems into a VRE
 toolkit. These systems are constituted by large collections of algorithms manipulating
 highly optimized data structures representing mathematical objects with the intent of
-solving specific computational problems. The systems overlap in the mathematical
+solving specific computational problems. These systems overlap in the mathematical
 objects they cover and the problems they can solve, but every system has aspects that are
 not covered by any other system (as efficiently or generally). In particular, algorithms,
 implementation languages, and data structures differ significantly between systems and are
@@ -11,68 +11,70 @@ in cost and might lead to systems with greater coverage, but less efficiency.
 
 Given this situation, the integration problem in \pn becomes a problem of establishing an
 interoperability layer between systems. As we have seen in the previous section, the
-mathematical knowledge -- for specifying the computational problems -- can be expressed
+mathematical knowledge --- for specifying the computational problems --- can be expressed
 and made interoperable via views in the OMDoc/MMT format, specifying the exact data
-structures and intended behavior of software systems -- and possibly verifying that the
+structures and intended behavior of software systems --- and possibly verifying that the
 implementation conforms to this is the realm of ``Formal Methods''. Again, the effort of
 doing this for any of the systems in \pn is prohibitive and way beyond the scope of the
 project.
 
 \subsection{Specification of Interfaces}
-
-Fortunately, we do not need implementation-level specification and verification for
-integration of existing systems into a VRE toolkit. Specification (of objects and intended
-behavior) at the mathematical level is sufficient. In particular quality control
-(establishment of correctness of the implementations) can be left to other
-means\footnote{In particular, it is independent of interoperability of mathematical
-  software systems.} and as a result we can resort to more lightweight methods for
-establishing interoperability.
-
 If we analyze mathematical software from a specification-based viewpoint, then we see
-three levels: The
+three levels:
 \begin{compactenum}[\rm\bf S1.]
 \item \textbf{Math Specification} represents the underlying mathematical knowledge and
-  the computational problems of our domain.
+  the computational problems of the domain in a system-independent way.
 \item \textbf{Interface Specification} represents the interfaces of mathematical software
   systems: the abstract data structures, and the input/output behavior (and possible
   side-effects) of the user-visible functions and procedures provided by the system.
 \item \textbf{Implementation} gives concrete implementations of the interface
   specification in a specific programming language.
 \end{compactenum}
+
 Most modern programming languages support the organization of programs into software
 libraries by separating the specification (\textbf{S2.}) and implementation levels
-(\textbf{S3.}), allowing multiple implementations of a single specification. Examples include
+(\textbf{S3.}), allowing multiple implementations of a single interface specification. Examples include
 abstract vs. concrete classes in object-oriented programming, signatures vs. structures in
-SML, header files vs. C files in C, and operations vs. methods in \GAP. In all of them the
-interface specification level is utilized for intra-library interoperability, making use
+SML, header files vs. C files in C, and operations vs. methods in \GAP.
+
+In all of these languages, the interface specification level is utilized for intra-library interoperability, making use
 of the more abstract description of the interface specification that can be instantiated
 by its various implementations. The interface specifications usually tie the names of the
-interface functions to argument and result types. The specification of intended behavior
-is usually left to documentation facilities. This is the domain of the math specification
-level (\textbf{S1.}), which is only marginally supported by programming languages, but a
-central concern in the \pn project. The math specification level is characterized by some
-kind of logical system that can express universal properties like
+interface functions to argument and result types.
+
+The specification of intended behavior is usually left to documentation facilities. This is the domain of the math specification
+level (\textbf{S1.}).
+This level is only marginally supported by programming languages, but a
+central concern in the \pn project.
+The math specification level differs from the other levels by using some kind of logical system that can express universal properties like
 $\forall x,y. x=\operatorname{sqrt}(y) \Leftrightarrow x^2=y$.
+
+Fortunately, we do not need to specify and verify all existing systems in order to integrate them into a VRE toolkit: The specification (of objects and intended behavior) at the mathematical and interface level is sufficient. In particular quality control
+(establishment of correctness of the implementations) can be left to other
+means\footnote{In particular, it is independent of interoperability of mathematical
+  software systems.} and as a result we can resort to more lightweight methods for
+establishing interoperability.
 
 \subsection{The Math-in-the-Middle Paradigm}
 
 In the \pn project we want to cover the software aspect of a math VRE toolkit via an
 approach we call ``Math-In-The-Middle'' paradigm (MitM; see~\cite{DehKohKon:iop16} for
 details and Figure~\ref{fig:mitm} for an overview diagram). In contrast to most
-programming languages MitM paradigm concentrates on levels \textbf{S1.} and \textbf{S2.},
+programming languages, the MitM paradigm concentrates on levels \textbf{S1.} and \textbf{S2.},
 represents them in the OMDoc/MMT format and leaves the implementation (\textbf{S3.}) to
 the respective systems.
 
 Here the underlying mathematical knowledge (level \textbf{S1.}), the ``real math'', is
 used as a reference ontology (in the ``middle'' -- hence the name) for the math VRE
 toolkit. This ontology is represented as an OMDoc/MMT theory graph $M$ as described in the
-previous section. For every systen in the \pn VRE toolkit we establish an interface
+previous section.
+
+Additionally, for every systen in the \pn VRE toolkit we establish an interface
 specification as an OMDoc/MMT theory graph $I$ and link it to the MitM ontology via
-\textbf{interface views}. These fulfil two purposes: they align the name spaces of the
+\textbf{interface views}. These fulfil two purposes: they align the namespaces of the
 systems with the math specification and they specify the intended behavior of the systems
 in terms of the MitM ontology: Recall that OMDoc/MMT views transport $I$-theorems to
-$M$-theorems, so all properties expressed in these are conserved -- up to the namespace
-alignment.
+$M$-theorems, so all properties expressed in these are conserved.
 
 \begin{figure}[ht]\centering
   \def\myxscale{3}\def\myyscale{1.2}
@@ -101,22 +103,23 @@ integrate the knowledge and software aspects for system interoperability.
 The MitM paradigm we choose for the software (S) aspect of the \pn VRE toolkit essentially
 takes two design decisions:
 \begin{compactenum}[\bf D1.]
-\item The restriction to formalizing the interface specification (\textbf{S2.}: names and
+\item Formalizing the interface specification (\textbf{S2.}: names and
   types of the interface functions) of the systems is sufficient to ensure system
-  interoperability
-\item integrating the implementations -- e.g. C\textsuperscript{++} or Python code -- into
-  the OMDoc/MMT theories would be overkill here, since the code can only be executed by
-  the respective systems -- i.e. \GAP or \SageMath. Therefore we will base our foundation
-  on OMDoc/MMT theory graphs directly rather than on an extension of OMDoc/MMT with
-  ``biform theories''~\cite{KohManRab:aumftg13,Farmer:btc07} as envisioned in the
-  proposal. Biform theories would enable (partial) verification of mathematical software
-  systems, but this is not on the critical path towards a mathematical VRE.
+  interoperability.
+\item Integrating the implementations at Level \textbf{S3.} --- e.g. \GAP or Python code --- into
+  the OMDoc/MMT theory graphs is overkill:
+  This code can anyway only be executed by the respective systems --- i.e. \GAP or \SageMath --- and is rarely exchanged between systems.
 \end{compactenum}
+Therefore we will base our foundation on OMDoc/MMT theory graphs directly rather than on an extension of OMDoc/MMT with
+  ``biform theories''~\cite{KohManRab:aumftg13,Farmer:btc07} as envisioned in the
+  proposal. Such biform theories could explicitly represent the code as well and thus enable the (partial) verification of mathematical software
+  systems, but this is not on the critical path towards a mathematical VRE.
+
 The MitM paradigm constitutes a lightweight alternative; identifying and refining it has
 been one of the major achievements of the first year in \WPref{dksbases}.
 
 To evaluate the paradigm and the design decisions we have implemented extensions to the
-\GAP and \SageMath that export interface theory graphs in the OMDoc/MMT format
+\GAP and \SageMath systems that export interface theory graphs in the OMDoc/MMT format
 (see~Section~\ref{sec:cases} for details):
 \begin{compactitem}
 \item \GAP exports types, constructors, functions, data, and their documentation: 4097
@@ -127,15 +130,15 @@ To evaluate the paradigm and the design decisions we have implemented extensions
 These interface theories allow the representation of all mathematical objects in \GAP and
 \SageMath as OpenMath2/MathML3 objects~\cite{BusCapCar:2oms03,CarlisleEd:MathML3} whose
 symbols are grounded in the interface theories (interpreted as OpenMath content
-dictionaries). \GAP already had an \textbf{OpenMath phrasebook} -- an import/export
-facility for OpenMath objects -- and we have developed one for Python and
+dictionaries). \GAP already had an \textbf{OpenMath phrasebook} --- an import/export
+facility for OpenMath objects --- and we have developed one for Python and
 \SageMath~\cite{py-openmath:on}.
 
 Even though the development of the MitM paradigm is still at an early stage, these case
 studies show the potential of the approach. We hope that the nontrivial cost of curating
 an ontology of mathematical knowledge and interface views to the interface theories will
-be offset by its utility as a resource, which we are currently exploring; the unification
-of the knowledge representation components in the \MMT system
+be offset by its utility as a resource, and we are currently exploring this hope.
+The unification of the knowledge representation components in the \MMT system
 \begin{compactenum}
 \item enables VRE-wide domain-centered (rather than system-centered) documentation: the
   namespace alignment given by the interface-views allows to re-use documentation for a
@@ -144,7 +147,7 @@ of the knowledge representation components in the \MMT system
 \item can be leveraged for distributed computation via uniform protocols like the
   SCSCP~\cite{HorRoz:ossp09} and MONET-style service
   matching~\cite{CaprottiEtAl:MathServiceMatching04:tr} (the absence of content
-  dictionaries -- now given as interface theories -- was the main hurdle that kept these
+  dictionaries --- now given as interface theories --- was the main hurdle that kept these
   from gaining more traction). Again, \GAP already had an SCSCP interface, and we are
   developing one for \SageMath at \cite{py-scscp:on}.
 \item will lead to the wider adoption of best practices in mathematical knowledge

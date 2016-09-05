@@ -41,10 +41,10 @@ integer sequences in the \OEIS) and individual declarations must be collected ma
 
 For example, consider the database of elliptic curves in the \LMFDB.
 A curve is typically defined by a JSON object such as the one in Listing~\ref{lst:odk-curve}.
-This curve has the label \texttt{11a1} and it is non-trivial to translate a label into a full definition.
+Not only does this record include a field \cn{label} for a unique identifier and the defining equation, but it includes numerous additional values such as the conductor or the $2$-adic generators, some of which can be very expensive to compute.
 
 \paragraph{Implementation}
-In practice we never need to access all of these declarations at once --- in most
+In practice we never need to access all of the virtual declarations at once --- in most
 scenarios we only need a very small subset of them, usually small enough to hold in memory.
 This motivates the main idea behind how we have implemented virtual theories in the \MMT system.
 
@@ -56,11 +56,7 @@ Thus, we had to comb through the \MMT code base and generalize all processing to
 We have also built an \LMFDB-specific implementation of this this generalized storage abstraction.
 This instance dynamically queries \LMFDB for the appropriate entry, computes the corresponding declarations, and adds it to the in-memory representation of the virtual theory.
 (Additionally, if that virtual theory is not in memory yet, it first creates it.)
-We were able to retain an important feature of \MMT: The loading of declarations is transparent to the user.
-The backend loads a declaration automatically when and if it is needed by some operation.
-As each declaration has a unique URI\ednote{Need to check that this is mentioned in the MMT section /TW}, it is enough to know the set of URIs that need dynamic creation of declarations.
-Instead of loading these from memory, the backend can make an appropriate query to \LMFDB and create the declarations on demand.
-
+We were able to retain an important feature of \MMT: The loading of declarations is transparent to the user, and the storage loads a declaration automatically when and if it is needed by some operation.
 
 %%% Local Variables:
 %%% mode: latex

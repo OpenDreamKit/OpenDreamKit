@@ -17,7 +17,9 @@
 \RequirePackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
 \RequirePackage{graphicx}
 \RequirePackage{mdframed}
+\RequirePackage{paralist}
 \RequirePackage{array}
+\RequirePackage{listings}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
 \RequirePackage{import}
 \input{../../Proposal/final.pdata}
@@ -91,11 +93,24 @@
 }
 \newcommand{\githubissuedescription}{%
   \linebreak\phantom{X} % Workaround to get the topline drawn ...
-  \begin{mdframed}
-    \input{github-issue-description}
+  \IfFileExists{github-issue-description.md}
+  {\begin{mdframed}
+      \IfFileExists{github-issue-description.tex}
+      {\input{github-issue-description}}
+      {\lstinputlisting[linewidth=14cm,breaklines=true,
+        columns=fullflexible,basicstyle=\footnotesize\sf,
+        frame=none]
+        {github-issue-description.md}}
   \end{mdframed}}
+  {
+}}
+
 
 %% For some reason compilation fails is this import is done earlier ...
 \import{../../Proposal/}{preamble}
 
 \endinput
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
