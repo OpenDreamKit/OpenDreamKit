@@ -17,6 +17,7 @@
 \RequirePackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
 \RequirePackage{graphicx}
 \RequirePackage{mdframed}
+\RequirePackage{paralist}
 \RequirePackage{array}
 \RequirePackage{listings}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
@@ -96,7 +97,9 @@
   {\begin{mdframed}
       \IfFileExists{github-issue-description.tex}
       {\input{github-issue-description}}
-      {\lstinputlisting[linewidth=14cm,columns=fullflexible,basicstyle=\footnotesize\sf,breaklines=true]
+      {\lstinputlisting[linewidth=14cm,breaklines=true,
+        columns=fullflexible,basicstyle=\footnotesize\sf,
+        frame=none]
         {github-issue-description.md}}
   \end{mdframed}}
   {
