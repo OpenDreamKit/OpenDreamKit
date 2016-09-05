@@ -18,6 +18,7 @@
 \RequirePackage{graphicx}
 \RequirePackage{mdframed}
 \RequirePackage{array}
+\RequirePackage{listings}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
@@ -90,8 +91,19 @@
 }
 \newcommand{\githubissuedescription}{%
   \linebreak\phantom{X} % Workaround to get the topline drawn ...
-  \begin{mdframed}
-    \input{github-issue-description}
+  \IfFileExists{github-issue-description.md}
+  {\begin{mdframed}
+      \IfFileExists{github-issue-description.tex}
+      {\input{github-issue-description}}
+      {\lstinputlisting[linewidth=14cm,columns=fullflexible,basicstyle=\footnotesize\sf]
+        {github-issue-description.md}}
   \end{mdframed}}
+  {
+}}
+
 
 \endinput
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:

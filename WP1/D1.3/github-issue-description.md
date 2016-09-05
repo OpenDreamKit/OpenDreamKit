@@ -1,7 +1,7 @@
 # Deliverable description, as taken from Github issue's #19 on 2016-08-31 {-}
 
 - **WP1:** [Project Management](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP1)
-- **Lead Institution:** Université Paris-Sud
+- **Lead Institution:** Universite Paris-Sud
 - **Due:** 2016-08-31 (month 12)
 - **Nature:** Report
 - **Task:** T.1.3 (#16)
