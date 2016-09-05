@@ -1,5 +1,5 @@
 REVIEW_2016_06_DELIVERABLES=WP1/D1.1 WP1/D1.2 WP2/D2.1 WP3/D3.1 WP4/D4.1 WP4/D4.2 WP5/D5.1 WP6/D6.1
-REVIEW_2017_03_DELIVERABLES=WP5/D5.3 WP4/D4.2 # WP6/D6.2
+REVIEW_2017_03_DELIVERABLES=WP5/D5.3 WP4/D4.2 WP4/D4.5 WP6/D6.2
 DELIVERABLES=$(REVIEW_2016_06_DELIVERABLES) $(REVIEW_2017_03_DELIVERABLES)
 REPORTS=$(DELIVERABLES:%=%/report.pdf)
 
@@ -11,7 +11,7 @@ reports.zip: $(REPORTS)
 	zip -r --junk-paths reports.zip /tmp/reports
 
 %/github-issue-description.md:
-	(issue=`python bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue's #$$issue on `date -I` {.notoc}\n"; python bin/get_issue_body $$issue) > $@
+	(issue=`python3 bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue's #$$issue on `date -I` {.notoc}\n"; python3 bin/get_issue_body $$issue) > $@
 
 # For some pandoc does not support both options {.notoc .unumbered}. So we force the section to be a section* ...
 %.tex: %.md
