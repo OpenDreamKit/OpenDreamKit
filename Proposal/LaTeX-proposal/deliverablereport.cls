@@ -95,7 +95,7 @@
   {\begin{mdframed}
       \IfFileExists{github-issue-description.tex}
       {\input{github-issue-description}}
-      {\lstinputlisting[linewidth=14cm,columns=fullflexible,basicstyle=\footnotesize\sf]
+      {\lstinputlisting[linewidth=14cm,columns=fullflexible,basicstyle=\footnotesize\sf,breaklines=true]
         {github-issue-description.md}}
   \end{mdframed}}
   {
