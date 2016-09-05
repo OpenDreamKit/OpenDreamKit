@@ -1,0 +1,1 @@
+../../Proposal/LaTeX-proposal/deliverablereport.cls
