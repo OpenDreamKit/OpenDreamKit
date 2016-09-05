@@ -20,6 +20,7 @@
 \RequirePackage{array}
 \RequirePackage{listings}
 \RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
+\RequirePackage{import}
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
 
@@ -27,7 +28,6 @@
 % Macros for defining metadata
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand{\issue}[1]{\def\@issue{#1}}
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
 
@@ -36,13 +36,14 @@
 % TODO: add hyperlink to github
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
-\newcommand\delivref[2]{\csname deliv@#1#2@label\endcsname}
-\newcommand\taskref[2]{\csname task@#1#2@label\endcsname}
+\newcommand\delivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1#2@issue\endcsname}{\csname deliv@#1#2@label\endcsname}}
+\newcommand\taskref[2]{\csname task@#1@#2@label\endcsname}
 
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1#2@label\endcsname}
   \gdef\deliv@title{\csname deliv@#1#2@title\endcsname}
   \gdef\deliv@lead{\csname deliv@#1#2@lead\endcsname}
+  \gdef\deliv@issue{\csname deliv@#1#2@lead\endcsname}
   \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]\deliv@title}}%
   \def\shorttitle{Report on \deliv@label}}
 
@@ -83,7 +84,7 @@
       Lead & \sitename{\deliv@lead} (\site{\deliv@lead})\\\hline
       \multicolumn{2}{|p{13cm}|}{\small
       Progress on and finalization of this deliverable has been tracked
-      publicly at:\par\noindent \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\@issue}}\\\hline
+      publicly at:\par\noindent \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\deliv@issue}}\\\hline
     \end{tabular}
   \end{minipage}
   \bigskip
@@ -101,6 +102,9 @@
   {
 }}
 
+
+%% For some reason compilation fails is this import is done earlier ...
+\import{../../Proposal/}{preamble}
 
 \endinput
 %%% Local Variables:
