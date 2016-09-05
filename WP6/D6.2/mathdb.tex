@@ -118,9 +118,14 @@ Secondly, we annotate meta-data to each declaration, providing the information w
 Thus, the schema documents both the mathematical meaning of the fields and the physical encoding used when exchanging records conforming to the schema.
 By giving the schema theory for each database, we can capture all knowledge necessary to automatically interface with it.
 
+\lstinputlisting[language=MMT,mathescape,
+  caption={Fragment of the Elliptic Curve Schema Theory in MMT},
+  label=lst:schema
+]{examples/schema.mmt}
+
 As an example, the schema theory for the database of \emph{elliptic curves} in LMFDB is indicated in Figure~\ref{fig:codec_arch}.
-A larger fragment is given in Listing~\ref{lst:schema}.\ednote{@TW: give the fragment of the schema theory that we need, and check that the explanation below makes sense wrt it; ask DM for help if needed}
-It has meta-data linking it to the \emph{type} of elliptic curves in the corresponding math-in-the-middle theory, as well as meta-data telling \MMT which field in the database to use as \emph{names} for the resulting \MMT declarations --- in this case the field \texttt{label}, which corresponds to a unique LMFDB-internal naming scheme. The schema theory contains e.g. a declaration \texttt{degree} of type \texttt{pos} (for positive  integers), corresponding to a field in the database by the same name, which is annotated with meta-data telling \MMT
+A larger fragment is given in Listing~\ref{lst:schema}. 
+It has meta-data linking it to the \emph{type} of elliptic curves in the corresponding math-in-the-middle theory, as well as meta-data telling \MMT which field in the database to use as \emph{names} for the resulting \MMT declarations --- in this case the field \texttt{label}, which corresponds to a unique LMFDB-internal naming scheme. The schema theory contains e.g. a declaration \texttt{degree} of type \texttt{pos} (for positive integers), corresponding to a field in the database by the same name, which is annotated with meta-data telling \MMT
 \begin{enumerate}
 \item to use the codec \texttt{standardPos} to convert from (and to) an LMFDB entry, and
 \item that the field \texttt{degree} implements the function \texttt{modular\_degree} in the math-in-the-middle theory.
@@ -134,7 +139,7 @@ We use this in the storage instance for \LMFDB as follows:
  \item We connect to \LMFDB and retrieve the corresponding record (e.g. the database entry for the curve with label \texttt{11a1}).
  \item We decode every field of the record according to the codec specified in $S$.
  \item We collect the decoded \MMT object in an \MMT record $r$, the mathematical representation of the requested object.
- \item We add the declaration $n\;:\;\cn{elliptic_curve}\;=\;r$ to the corresponding virtual theory.
+ \item We add the declaration $n\;:\;\cn{elliptic\_curve}\;=\;r$ to the corresponding virtual theory.
 \end{compactenum}
 
 \ednote{FR: add description of handling of constructors/assessors for a future paper; I think we can omit it for the deliverable as unnecessarily detailed}
