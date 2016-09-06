@@ -331,9 +331,9 @@
 {\end{wp@delivs}}
 \newcommand\lec[1]{\strut\hfil\strut\null\nobreak\hfill\hbox{$\leadsto$#1}\par}
 \newcommand\deliv@label[1]{D{#1}}
-\newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
+\newcommand\delivref[2]{\pdataRef{deliv}{#1@#2}{label}}
 \newcommand\localdelivref[1]{\delivref{\wp@id}{#1}}
-\newcommand\delivtref[2]{\delivref{#1}{#2}: \pdataRefFB{deliv}{#1#2}{short}{title}}
+\newcommand\delivtref[2]{\delivref{#1}{#2}: \pdataRefFB{deliv}{#1@#2}{short}{title}}
 \newcommand\localdelivtref[1]{\delivtref{\wp@id}{#1}}
 \define@key{deliv}{id}{\def\deliv@id{#1}}
 \define@key{deliv}{due}{\def\deliv@due{#1}}
@@ -352,30 +352,30 @@
 \setkeys{deliv}{#1}\stepcounter{deliv}% set state
 \ifx\@type\@wp\def\current@label{\deliv@label{\ifwork@areas\thewa.\fi\thewp.\thedeliv}}
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
-\pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
-\pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
-\pdata@def{deliv}{\wpg@id\deliv@id}{page}{\thepage}%
+\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{label}{\current@label}
+\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{title}{#2}
+\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{page}{\thepage}%
 \@ifundefined{deliv@short}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{short}{#2}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{short}{\deliv@short}}
 \@ifundefined{deliv@nature}
 {\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv \wpg@id undefined}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{nature}{\deliv@nature}}
 \@ifundefined{deliv@dissem}
 {\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for Deliv \wpg@id undefined}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{dissem}{\deliv@dissem}}
 \@ifundefined{deliv@lead}
 {\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv \wpg@id  undefined}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{lead}{\deliv@lead}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{lead}{\deliv@lead}}
 \@ifundefined{deliv@due}{}{%
 \@ifundefined{deliv@issue}
 {}%\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{issue}{\deliv@issue}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
 {\current@label}% label
-{\@ifundefined{deliv@id}{??}{\wpg@id\deliv@id}}% id
+{\@ifundefined{deliv@id}{??}{\taskin\deliv@id\wpg@id}}% id
 {\@ifundefined{deliv@dissem}{??}{\deliv@dissem}}% dissemination level
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
@@ -386,7 +386,7 @@
 \delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
 \delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
 \delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\site{\deliv@lead}})]
- \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
+ \pdata@target{deliv}{\taskin\deliv@id\wpg@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
 \let\m@sep=\relax% do not print the separator the first time round
 \lec{\@for\@I:=\deliv@miles\do{% Iterate over the milestones mentioned
@@ -491,12 +491,12 @@
 {\begin{compactenum}}{\end{compactenum}}
 \newcommand\task@label[2]{\textbf{T#1.#2}}
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
-\define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
+\define@key{task}{wphases}{\def\task@wphases{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
-\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
-\define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}}
-\define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}}
-\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}}
+\define@key{task}{title}{\def\task@title{#1}}
+\define@key{task}{lead}{\def\task@lead{#1}}
+\define@key{task}{partners}{\def\task@partners{#1}}
+\define@key{task}{PM}{\def\task@PM{#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
@@ -533,7 +533,11 @@
 \newcount\task@@end
 \def\@task#1{\stepcounter{task@all}\stepcounter{task@wp}%
 \task@set{#1}%
-\pdata@def{task}{\taskin\task@id\wp@id}{wphases}\task@wphases
+\pdata@def{task}{\taskin\task@id\wp@id}{title}{\task@title}
+\pdata@def{task}{\taskin\task@id\wp@id}{lead}{\task@lead}
+\pdata@def{task}{\taskin\task@id\wp@id}{partners}{\task@partners}
+\pdata@def{task}{\taskin\task@id\wp@id}{PM}{\task@PM}
+\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{\task@wphases}
 \pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{page}{\thepage}%
