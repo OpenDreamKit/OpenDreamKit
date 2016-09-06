@@ -2,7 +2,19 @@
 
 import fileinput
 import re
+import yaml
+
+with open("Proposal/final.pdata.yaml", 'r') as stream:
+    try:
+        pdata = yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+
+#print(pdata)
+
 for line in fileinput.input():
-    match = re.search("\\\\issue.(\d+).", line)
+    match = re.search("\\\\deliverable{(.*)}{(.*)}", line)
     if match:
-        print(match.group(1))
+        wp = match.group(1)
+        deliverable = match.group(2)
+        print(pdata["deliv"][wp][deliverable]["issue"])
