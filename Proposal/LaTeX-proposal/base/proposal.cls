@@ -497,6 +497,7 @@
 \define@key{task}{lead}{\def\task@lead{#1}}
 \define@key{task}{partners}{\def\task@partners{#1}}
 \define@key{task}{PM}{\def\task@PM{#1}}
+\define@key{task}{issue}{\def\task@issue{#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
 \setkeys{task}{#1}}
@@ -538,6 +539,8 @@
 \pdata@def{task}{\taskin\task@id\wp@id}{partners}{\task@partners}
 \pdata@def{task}{\taskin\task@id\wp@id}{PM}{\task@PM}
 \pdata@def{task}{\taskin\task@id\wp@id}{wphases}{\task@wphases}
+\@ifundefined{deliv@issue}{}
+{\pdata@def{task}{\taskin\task@id\wp@id}{issue}{\task@issue}}%
 \pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{page}{\thepage}%
