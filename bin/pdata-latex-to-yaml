@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+
+import fileinput
+import re
+import yaml
+
+db = {}
+separator = re.compile("}{|@")
+for line in fileinput.input():
+    match = re.match("\\\\@pdata@def{(.*)}", line)
+    if match:
+        data = re.split(separator, match.group(1))
+        ref = db
+        while len(data) > 2:
+            key = data[0]
+            data = data[1:]
+            if key in ref:
+                ref = ref[key]
+            else:
+                ref[key] = {}
+                ref = ref[key]
+        ref[data[0]] = data[1]
+
+print(yaml.dump(db))
