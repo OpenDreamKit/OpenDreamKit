@@ -47,6 +47,7 @@
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
 \newcommand\delivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname}}
+\newcommand\longdelivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname: ``\csname deliv@#1@#2@title\endcsname''}}
 \newcommand\taskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname}}
 \newcommand\longtaskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname: ``\csname task@#1@#2@title\endcsname''}}
 
@@ -84,7 +85,8 @@
 \let\oldmaketitle=\maketitle
 \renewcommand{\maketitle}{
   \oldmaketitle%\vfill
-  \strut\par\noindent
+  %\strut\par
+  \noindent
     \begin{minipage}[c]{2.2cm}\includegraphics[width=2.2cm]{\prop@gen@logo}\end{minipage}  
     \begin{minipage}[c]{13cm}
       \setlength{\extrarowheight}{.5ex}
@@ -98,22 +100,21 @@
       publicly at:\par\noindent \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\deliv@issue}}\\\hline
     \end{tabular}
   \end{minipage}
-  \bigskip
+  %\bigskip
   \thispagestyle{fancyplain}
 }
 \newcommand{\githubissuedescription}{%
   \linebreak\phantom{X} % Workaround to get the topline drawn ...
   \IfFileExists{github-issue-description.md}
-  {\begin{mdframed}
-      \IfFileExists{github-issue-description.tex}
+  {\begin{mdframed}%
+      \IfFileExists{github-issue-description.tex}%
       {\input{github-issue-description}}
       {\lstinputlisting[linewidth=14cm,breaklines=true,
         columns=fullflexible,basicstyle=\footnotesize\sf,
         frame=none]
         {github-issue-description.md}}
   \end{mdframed}}
-  {
-}}
+  {}}
 
 
 %% For some reason compilation fails is this import is done earlier ...
