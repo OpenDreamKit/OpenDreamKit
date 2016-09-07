@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue's #107 on 2016-06-16 {-}
+# Deliverable description, as taken from Github issue's #107 on 2016-09-07 {.notoc}
 
 - **WP5:** [High Performance Mathematical Computing](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5)
 - **Lead Institution:** Université Paris-Sud
@@ -8,7 +8,7 @@
 - **Task**: T5.6 (#104)
 - **Nature:** Demonstrator
 - **Proposal:** [p.51](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.1/D5.1-final-report.pdf)**
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.1/report-final.pdf)**, **[slides](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.1/slides-final.pdf)**
 
 [MapReduce](https://en.wikipedia.org/wiki/MapReduce) is a classical programming model for distributed computations where one maps a function on a large data set and use a reduce function to summarize all the produced information. A use case that occurs often e.g. in combinatorics is to have a data sets that is described by a recursion tree, and is too big to be expanded in memory. Instances include counting the number of elements in the data set, or collecting some statistics on them.
 
