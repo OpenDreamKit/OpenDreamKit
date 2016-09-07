@@ -1,0 +1,90 @@
+\section*{\texorpdfstring{Deliverable description, as taken from Github
+issue's
+\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/83}{\#83} on
+2016-09-07}{Deliverable description, as taken from Github issue's \#83 on 2016-09-07}}\label{deliverable-description-as-taken-from-github-issues-83-on-2016-09-07}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{WP4:}
+  \href{https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4}{User
+  Interfaces}
+\item
+  \textbf{Lead Institution:} CNRS
+\item
+  \textbf{Due:} 2016-02-29 (month 6)
+\item
+  \textbf{Nature:} Other
+\item
+  \textbf{Task:} T4.12
+  (\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/80}{\#80})
+\item
+  \textbf{Proposal:}
+  \href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf}{p.47}.
+\end{itemize}
+
+The SageMath project includes many different subsystems, mostly written
+in C/C++. For each subsystem, Sage provides a low-level interface,
+usually written in Cython, through which the higher level components
+access the subsystem. The mathematical community would immensely benefit
+if the low-level interfaces were maintained outside of the Sage project,
+as separate Python packages. Indeed such decoupling would enable other
+Python projects to build upon those externalized interfaces, thus
+helping to improve them, and share maintenance effort.
+
+Of all the subsystems, the case of Pari is of particular interest. Since
+its inception, Sage has had a low-level Cython interface to Pari, which
+has evolved over time in a highly coupled way. Around 2012, some Sage
+developers forked this interface into a project they called
+\href{https://bitbucket.org/t3m/cypari/}{CyPari}. One of the primary
+goals of the CyPari fork was to make independent Python bindings to Pari
+for use in a project called
+\href{https://bitbucket.org/t3m/snappy}{Snappy}. Over time, the CyPari
+fork has diverged from the Sage/Pari interface, and has gotten behind in
+terms of functionality.
+
+The goal of this deliverable is to reconcile the fork by externalizing
+the Sage/Pari interface into an independent package, maintained by the
+Sage community, which may ultimately replace CyPari inside Snappy. The
+task happened to be more difficult than originally thought. The high
+level of coupling between Sage internals and the Pari interface makes it
+very delicate to pull the latter out of the SageMath codebase. The
+process of making this possible has lead to a great amount of
+refactoring inside the Sage project, which is summarized in
+\href{http://trac.sagemath.org/ticket/20238}{Trac ticket 20238}.
+
+Because of the high degree of coupling, and thanks to the availability
+of Snappy, this deliverable constitutes a highly valuable case study for
+future externalizations of low-level interfaces in SageMath. To bring
+this deliverable to completion, we have decided to split it in several
+steps:
+
+\begin{itemize}
+\tightlist
+\item
+  \(\checkmark\) Move SageMath's C signalling api to a separate
+  Python/Cython package. The package is called
+  \href{https://github.com/sagemath/cysignals}{cycsignals}, and is
+  \href{http://trac.sagemath.org/ticket/20002}{integrated to SageMath
+  7.1}.
+\item
+  \(\checkmark\) Decouple SageMath's Pari interface from the coercion
+  model. This needs review at
+  \href{http://trac.sagemath.org/ticket/21158}{Trac ticket 21158} and
+  its dependencies.
+\item
+  {[} {]} Clean up the interface API, by removing unneeded object
+  orientation and external dependencies. This work is in progress at
+  \href{http://trac.sagemath.org/ticket/20241}{Trac ticket 20241}.
+\item
+  {[} {]} Move SageMath's Pari interface to a separate Python/Cython
+  package, depending on cysignals. The package is planned to replace the
+  PyPi package \href{https://pypi.python.org/pypi/cypari/}{CyPari}.
+\end{itemize}
+
+The first item is complete and delivered. Progress has been slowed down
+by delays in the recruitment process in Université Paris Sud, and by the
+aforementioned technical difficulties. The next two items are
+approaching completion, we estimate the remaining effort to three more
+person/weeks. The last item is very easy, once the previous ones are
+completed.
