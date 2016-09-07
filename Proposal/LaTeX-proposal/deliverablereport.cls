@@ -25,6 +25,14 @@
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Styling: adapt amsart's subsection macro to put a newline after the title
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\subsection{\@startsection{subsection}{2}%
+  \z@{.5\linespacing\@plus.7\linespacing}{.1\linespacing}%
+  {\normalfont\bfseries}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Macros for defining metadata
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -32,9 +40,10 @@
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
 
-% Same as in eu/euproposal.cls and base/proposal.cls, but without an
-% hyperlink (since it would point to a different document)
-% TODO: add hyperlink to github
+% Same as in eu/euproposal.cls and base/proposal.cls, but with an
+% hyperlink to the relevant github issues rather than an internal link
+% (the proposal file being separate)
+
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
 \newcommand\delivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname}}
