@@ -1,8 +1,10 @@
+# OpenDreamKit use case for the Design your Infrastructure workshop
+
 This is a draft of use case for the upcoming [Design your Infrastructure workshop](https://github.com/OpenDreamKit/OpenDreamKit/issues/202) in Krakow. Due date: tomorrow Friday 9th!
 
 Questions for use case providers:
 
-# Background:
+## Background:
 
 * Who is the community/project the use case belongs to?
 
@@ -32,7 +34,7 @@ Questions for use case providers:
     the European e-infrastructures.
 
 
-2. Users:
+## Users:
 
 * Who will be the users of the planned community-specific e-infrastructure? How many of them?
 
@@ -56,7 +58,7 @@ Questions for use case providers:
     validation. Additionally ODK has an End User Group whose specific
     workflow is still to be defined.
 
-3. Current status:
+## Current status:
 * Which components/services already exist in your architecture?
 
     An ecosystem of computational components (e.g. SageMath, Singular,
@@ -77,7 +79,7 @@ Questions for use case providers:
     etc. And technical support for the deployement of the components
     on such infrastructure.
 
-4. Plans for the workshop:
+## Plans for the workshop:
 * What questions would you like to get answered during the event?
 * What issues (if any) you would like to solve during the event?
 * Other outcomes that you would like to get out from the workshop?
