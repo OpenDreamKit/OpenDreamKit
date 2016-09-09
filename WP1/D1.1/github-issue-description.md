@@ -1,11 +1,12 @@
-# Deliverable description, as taken from Github issue's #17 on 2016-06-16 {-}
+# Deliverable description, as taken from Github issue's #17 on 2016-09-07 {.notoc}
 
 - **WP1:** [Project Management](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP1)
 - **Lead Institution:** Université Paris-Sud
 - **Due:** 2015-09-30 (month 1)
 - **Nature:** Websites, Media, etc.
+- **Task:** T1.1 (#14)
 - **Proposal:** [p34](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP1/D1.1/D1.1-basic-project-infrastructure.pdf)**
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP1/D1.1/report-final.pdf)**
 
 This deliverable includes the basic infrastructure for OpenDreamKit:
 - [x] Web site: http://opendreamkit.org/ 

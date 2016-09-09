@@ -25,6 +25,14 @@
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Styling: adapt amsart's subsection macro to put a newline after the title
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\subsection{\@startsection{subsection}{2}%
+  \z@{.5\linespacing\@plus.7\linespacing}{.1\linespacing}%
+  {\normalfont\bfseries}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Macros for defining metadata
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -32,20 +40,25 @@
 \newcommand{\deliverydate}[1]{\def\@deliverydate{#1}}
 \newcommand{\duedate}[1]{\def\@duedate{#1}}
 
-% Same as in eu/euproposal.cls and base/proposal.cls, but without an
-% hyperlink (since it would point to a different document)
-% TODO: add hyperlink to github
+% Same as in eu/euproposal.cls and base/proposal.cls, but with an
+% hyperlink to the relevant github issues rather than an internal link
+% (the proposal file being separate)
+
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
 \newcommand\delivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname}}
+\newcommand\longdelivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname: ``\csname deliv@#1@#2@title\endcsname''}}
 \newcommand\taskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname}}
+\newcommand\longtaskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname: ``\csname task@#1@#2@title\endcsname''}}
 
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1@#2@label\endcsname}
   \gdef\deliv@title{\csname deliv@#1@#2@title\endcsname}
   \gdef\deliv@lead{\csname deliv@#1@#2@lead\endcsname}
-  \gdef\deliv@issue{\csname deliv@#1@#2@lead\endcsname}
-  \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]\deliv@title}}%
+  \gdef\deliv@issue{\csname deliv@#1@#2@issue\endcsname}
+  \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]%
+      \deliv@title
+    }}%
   \def\shorttitle{Report on \deliv@label}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,7 +87,8 @@
 \let\oldmaketitle=\maketitle
 \renewcommand{\maketitle}{
   \oldmaketitle%\vfill
-  \strut\par\noindent
+  %\strut\par
+  \noindent
     \begin{minipage}[c]{2.2cm}\includegraphics[width=2.2cm]{\prop@gen@logo}\end{minipage}  
     \begin{minipage}[c]{13cm}
       \setlength{\extrarowheight}{.5ex}
@@ -88,26 +102,37 @@
       publicly at:\par\noindent \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/\deliv@issue}}\\\hline
     \end{tabular}
   \end{minipage}
-  \bigskip
+  %\bigskip
   \thispagestyle{fancyplain}
 }
 \newcommand{\githubissuedescription}{%
   \linebreak\phantom{X} % Workaround to get the topline drawn ...
   \IfFileExists{github-issue-description.md}
-  {\begin{mdframed}
-      \IfFileExists{github-issue-description.tex}
+  {\begin{mdframed}%
+      \IfFileExists{github-issue-description.tex}%
       {\input{github-issue-description}}
       {\lstinputlisting[linewidth=14cm,breaklines=true,
         columns=fullflexible,basicstyle=\footnotesize\sf,
         frame=none]
         {github-issue-description.md}}
   \end{mdframed}}
-  {
-}}
+  {}}
 
 
 %% For some reason compilation fails is this import is done earlier ...
 \import{../../Proposal/}{preamble}
+
+
+\AtEndDocument{
+  \vfil
+  \begin{mdframed}
+    Disclaimer: this document, together with its annexes, is self
+    contained for auditing and reviewing purposes. Hyperlinks to
+    external resources are meant as a convenience for casual readers
+    wishing to follow our progress; such links have been checked for
+    correctness at the time of submission of the deliverable, but
+    there is no guarantee implied that they will remain valid.
+\end{mdframed}}
 
 \endinput
 %%% Local Variables:
