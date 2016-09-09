@@ -86,7 +86,7 @@ Questions for use case providers:
 
     Understand details on availability of EGI solutions for ODK;
     specifically, cloud hosting (not only for "standard" hardware, but for
-    GPUs as well) and cloud persistent storage.
+    GPUs as well), cloud persistent storage, operating systems, ...
 
 * What issues (if any) you would like to solve during the event?
 * Other outcomes that you would like to get out from the workshop?
