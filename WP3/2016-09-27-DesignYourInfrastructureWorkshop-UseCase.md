@@ -1,6 +1,8 @@
 # OpenDreamKit use case for the Design your Infrastructure workshop
 
-This is a draft of use case for the upcoming [Design your Infrastructure workshop](https://github.com/OpenDreamKit/OpenDreamKit/issues/202) in Krakow. Due date: tomorrow Friday 9th!
+This is a draft of use case for the upcoming [Design your Infrastructure workshop](https://github.com/OpenDreamKit/OpenDreamKit/issues/202) in Krakow.
+
+Due date: tomorrow Friday 2016-09-09!
 
 Questions for use case providers:
 
@@ -50,7 +52,7 @@ Questions for use case providers:
     machine with many computational components preinstalled, where the
     users can install additional software, run computations, and
     manage a collection of documents (e.g. latex documents, Jupyter
-    notebooks, ...), with real time collaboration features.
+    notebooks, ...), with real-time collaboration features.
 
 * Who and how would validate the system?
 
@@ -69,7 +71,7 @@ Questions for use case providers:
 
 * Which components/services are under development (and by who)?
 
-    Same as above + additional glue between them, all developped by
+    Same as above + additional glue between them, all developed by
     overlaping communities with the support from OpenDreamKit.
 
 * Which components/services do you expect to get from e-infrastructures?
@@ -86,5 +88,5 @@ Questions for use case providers:
 
     An actionnable work plan for deploying some simple service (e.g. a
     public tmpnb server with SageMath under the hood), if not an
-    actual prototype. This to gain experience and mutal knowledge
+    actual prototype. This to gain experience and mutual knowledge
     before planning for more complicated services.
