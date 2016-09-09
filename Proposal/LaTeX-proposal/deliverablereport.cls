@@ -56,7 +56,9 @@
   \gdef\deliv@title{\csname deliv@#1@#2@title\endcsname}
   \gdef\deliv@lead{\csname deliv@#1@#2@lead\endcsname}
   \gdef\deliv@issue{\csname deliv@#1@#2@issue\endcsname}
-  \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]\deliv@title}}%
+  \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]%
+      \deliv@title
+    }}%
   \def\shorttitle{Report on \deliv@label}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -119,6 +121,18 @@
 
 %% For some reason compilation fails is this import is done earlier ...
 \import{../../Proposal/}{preamble}
+
+
+\AtEndDocument{
+  \vfil
+  \begin{mdframed}
+    Disclaimer: this document, together with its annexes, is self
+    contained for auditing and reviewing purposes. Hyperlinks to
+    external resources are meant as a convenience for casual readers
+    wishing to follow our progress; such links have been checked for
+    correctness at the time of submission of the deliverable, but
+    there is no guarantee implied that they will remain valid.
+\end{mdframed}}
 
 \endinput
 %%% Local Variables:
