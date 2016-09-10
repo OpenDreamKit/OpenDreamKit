@@ -15,7 +15,7 @@ reports.zip: $(REPORTS)
 	ln -s ../../Proposal/LaTeX-proposal/deliverablereport.cls $@
 
 %/github-issue-description.md:
-	(issue=`python3 bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue's #$$issue on `date -I` {.notoc}\n"; python3 bin/get_issue_body $$issue) > $@
+	(issue=`python3 bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue #$$issue on `date -I` {.notoc}\n"; python3 bin/get_issue_body $$issue) > $@
 
 # For some pandoc does not support both options {.notoc .unumbered}. So we force the section to be a section* ...
 %.tex: %.md
