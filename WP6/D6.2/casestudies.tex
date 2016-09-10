@@ -1,15 +1,9 @@
 \section{Case Studies}\label{sec:cases}
 
 While our theoretical model of \DKS-bases theories and our architectural design of virtual theories are applicable to a wide variety of systems, in the scope of \pn we want to conduct a few case studies and connect to some databases in particular.
-These case studies are not formally part of this deliverable, but we give a short overview of the current state below.
+These case studies are not formally part of this deliverable (they are mostly in D6.4), but we give a short overview of the current state below, except for \FindStat, where no progress has been made so far beyond the survey.
 
 \subsection{GAP}\label{sec:gap}
-\GAP \cite{gap} is a computer algebra system with a particular emphasis on group theory and discrete mathematics in general. Its fundamental
-ontology consists of \emph{objects} (e.g. a monoid) satisfying various (composite or elementary) \emph{filters} (e.g. \emph{isAbelian}) which
-can be thought of as the \emph{types} of objects. Filters can \emph{imply} other filters.
-On top of these filters, operations are defined (e.g. computing the \emph{degree} of a group) which are implemented by arbitrarily many concrete implementations
-called \emph{methods}. The user only ever applies operations - the \GAP system then uses a sophisticated method selection algorithm based on
-the specific (additional) filters satisfied by a given object.
 
 The interface specification (Level \textbf{S2} from Section~\ref{sec:mitm}) for \GAP consists of two parts.
 Firstly, we have a manually-written theory for \GAP's ontology in \MMT containing declarations for all of the above concepts.
@@ -20,10 +14,7 @@ Currently, work is ongoing on \GAP to make that information available within \GA
 
 As a first knowledge management application of this representation, we used \MMT's generic graph display components to display the implications between \GAP filters.
 
-\subsection{Sage}\label{sec:sage}
-\SageMath \cite{sagemath} is a \python-based computer algebra system. Much of its knowledge is organized based on the notion of a \emph{category} (which is related to, but not equivalent to the category theoretical notion),
-which provides \emph{methods} on its \emph{elements} (e.g. elements of a group), its \emph{parents} (e.g. groups themselves) and its \emph{morphisms}
-(e.g. the group homomorphisms). Each category can add new \emph{axioms} and inherit from other categories - e.g. the category \emph{AbelianGroups} inherits from \emph{Groups} and adds the axiom \emph{abelian}.
+\subsection{SageMath}\label{sec:sage}
 
 For the interface specification, we proceed in the same way as for \GAP.
 The manually-written meta-theory defines all the above concepts, and we automatically generate theories from the \SageMath categories.
@@ -31,11 +22,6 @@ The latter yields 382 categories using 25 axioms and 808 methods, where each cat
 The theory graph of the resulting theories mirrors exactly the inheritance graph of the original categories in Sage.
 
 \subsection{LMFDB}\label{sec:lmfdb}
-
-\LMFDB \cite{lmfdb} is a database of objects from number theory. It mostly consists of
-L-functions, but also has a number of other sub-databases. It is built on top of MongoDB
-and as such uses JSON to model all of its data.
-
 We have already implemented the schema and codec architecture above to build a virtual
 theory for the databases in \LMFDB and --- and as a guiding examples --- written a first schema theory for the database of elliptic curves.
 
@@ -45,11 +31,6 @@ likely also lead to some refactoring inside \LMFDB itself, as the community for 
 time will try to semantically describe its entire dataset.
 
 \subsection{OEIS}
-
-\OEIS \cite{oeis} stands for On-Line Encyclopedia of Integer Sequences. It is a collection
-of around 250 thousand integer sequences that are stored as pure text form. The \OEIS is
-licensed under Creative Commons and thus freely accessible.
-
 We have already semantified the pure text format and, among other things, this has helped
 us finding new relations between the existing sequences. A more detailed look at our
 previous work can be found in \cite{LuzKoh:fsarfo16} and we will not go into details

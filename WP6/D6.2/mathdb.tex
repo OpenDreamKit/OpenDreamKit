@@ -1,7 +1,7 @@
 The storages sketched in Section~\ref{sec:virtual} are not as simple as one might think.
 A major complication is that scalable databases only provide relatively low-level data types.
 For example, a typical relational database provides primitive types for, e.g., integers and strings, and tables contain records built from these.
-JSON databases (as used in MongoDb~\cite{Chodorow:mdg10}, which is used in \LMFDB) or XML databases are slightly better by providing structured types like trees and lists.
+JSON databases (as used in MongoDB~\cite{Chodorow:mdg10}, which is used in \LMFDB) or XML databases are slightly better by providing structured types like trees and lists.
 But the sets of mathematical objects stored in mathematical data systems use much richer data types such as matrices, polynomials, permutations, and arbitrarily more complex types built from them.
 
 Therefore, any data system must employ encodings that translate the actual mathematical objects into database objects.
@@ -62,7 +62,7 @@ convenient for computations.  Therefore, \LMFDB users have occasionally used a s
 encoding: $\intAsList$ encodes integer literals as lists of JSON integers such that the
 list $[n,d_1,\ldots,d_n]$ corresponds to the integer whose base $2^{64}$ representation is
 $(d_1\ldots d_n)$.  $\intAsList$ has the advantage that the lexicographic ordering can be
-used for size comparisons without having to decode.
+used for size comparisons without having to decode (this requires first comparing the length of the sequences, encoded).
 
 Along the same lines, we can define codecs for other simple data types.
 For example, we can define a codec for matrices of integers that encodes pairs of pairs of integers as JSON lists of $4$ JSON integers.
@@ -87,13 +87,12 @@ gradually build a library of relevant codecs and implement them in multiple prog
 languages.
 
 \paragraph{Codec Operators}
-$\Int$ is an atomic type.
-But mathematical types are usually very complex types.
+$\Int$ is an atomic type, but mathematical types are usually very complex types.
 Already, types like $\lst(\Int)$ provide substantial encoding problems because both integers and lists can be encoded in multiple ways.
 To systematize these choices, we introduce codec operators.
 
 \begin{mydef}[Codec Operator]
-  For an \MMT symbol $t$ and an arity $n$, a $t$-codec operator takes an $o_1$-codec $C_1$, \ldots, an $o_n$-codec $C_n$ and returns a $t(o_1,\ldots,o_n)$ codec.
+  For an \MMT symbol $t$ and an arity $n$, a $t$-codec operator takes an $o_1$-codec $C_1$, \ldots, an $o_n$-codec $C_n$ and returns a $t(o_1,\ldots,o_n)$-codec.
 \end{mydef}
 
 For example, Listing~\ref{lst:mmt-codec} declares a symbol $\lst$, which maps $t$-codecs to $\lst(\Int)$-codecs.

@@ -41,7 +41,7 @@ Questions for use case providers:
 * Who will be the users of the planned community-specific e-infrastructure? How many of them?
 
     SageMathCloud, one of the early VRE based on the ecosystem of
-    components OpenDreamKit is contributing to, has several thousands
+    components OpenDreamKit is contributing to, has tens of thousands
     of active projects and users.
 
 * How will the users interact with the system - Show this on a system architecture diagram
@@ -51,7 +51,7 @@ Questions for use case providers:
     grant access to other users. A project is more or less a virtual
     machine with many computational components preinstalled, where the
     users can install additional software, run computations, and
-    manage a collection of documents (e.g. latex documents, Jupyter
+    manage a collection of documents (e.g. LaTeX documents, Jupyter
     notebooks, ...), with real-time collaboration features.
 
 * Who and how would validate the system?
@@ -83,6 +83,11 @@ Questions for use case providers:
 
 ## Plans for the workshop:
 * What questions would you like to get answered during the event?
+
+    Understand details on availability of EGI solutions for ODK;
+    specifically, cloud hosting (not only for "standard" hardware, but for
+    GPUs as well), cloud persistent storage, operating systems, ...
+
 * What issues (if any) you would like to solve during the event?
 * Other outcomes that you would like to get out from the workshop?
 

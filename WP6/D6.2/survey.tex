@@ -1,9 +1,42 @@
 \section{Report and Case-Study}\label{sec:survey}
-\ednote{@Paul: give a general overview of the results of the case-study}
 
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: "report"
-%%% End:
+Starting in September 2015, we conducted a survey of the various big systems involved in OpenDreamKit. These would be \SageMath and \GAP for computer algebra(-focused) projects, and \FindStat and \LMFDB for database(-focused) projects. The \OEIS is a well-known project that is also focused on a database and was present in many discussions, but did not need to be explicitly surveyed. We nevertheless introduce that project in our summaries below. The raw survey results are in Appendix~\ref{sec:raw-survey}
 
-%  LocalWords:  ednote
+
+\subsection{OEIS}
+\OEIS \cite{oeis} stands for On-Line Encyclopedia of Integer Sequences. It is a collection
+of around 250 thousand integer sequences that are stored as pure text form. The \OEIS is
+licensed under Creative Commons and thus freely accessible.
+
+\subsection{GAP} 
+\GAP \cite{gap} is a computer algebra system with a particular emphasis on group theory and discrete mathematics in general. Its fundamental
+ontology consists of \emph{objects} (e.g. a monoid) satisfying various (composite or elementary) \emph{filters} (e.g. \emph{isAbelian}) which
+can be thought of as the \emph{types} of objects. Filters can \emph{imply} other filters.
+On top of these filters, operations are defined (e.g. computing the \emph{degree} of a group) which are implemented by arbitrarily many concrete implementations
+called \emph{methods}. The user only ever applies operations - the \GAP system then uses a sophisticated method selection algorithm based on
+the specific (additional) filters satisfied by a given object.
+
+\GAP also has an extensive collection of associated databases. 
+
+\subsection{SageMath}
+\SageMath \cite{sagemath} is a \python-based computer algebra system. Much of its knowledge is organized based on the notion of a \emph{category} (which is related to, but not equivalent to the category theoretical notion),
+which provides \emph{methods} on its \emph{elements} (e.g. elements of a group), its \emph{parents} (e.g. groups themselves) and its \emph{morphisms}
+(e.g. the group homomorphisms). Each category can add new \emph{axioms} and inherit from other categories - e.g. the category \emph{AbelianGroups} inherits from \emph{Groups} and adds the axiom \emph{abelian}.
+
+Much like the object/filter/operation tools in \GAP, the category framework in \SageMath is meant to provide uniform infrastructure to build mathematical objects. This is operationalised by dynamically constructing classes that represent parents, elements, morphisms, etc (and, crucially, their hierarchies). 
+
+Just as for \GAP, a lot of the knowledge is embedded in the documentation. This seems to be due to the ease of access for developers, but also due to the need of documenting the implementation decisions made, which invariably are tied to very domain-specific knowledge. 
+I
+\subsection{LMFDB}
+\LMFDB \cite{lmfdb} is a  web service interacting with a database of objects from number theory. It is mostly focused on 
+L-functions, but these can be obtained through many different constructions, so the \LMFDB is also concerned with the many related objects. The database is built in MongoDB and as such uses JSON to model all of its data, and the web service interfaces to it mostly through custom \python or \SageMath software for on-the-fly computations (or software packaged within \SageMath), although there are efforts to switch to precomputed tables. A lot of the mathematical knowledge is implicit in that workflow. 
+
+The \LMFDB includes a collaborative knowledge base, called \emph{knowls}. Remarkably that knowledge base is important for the onboarding process to the collaboration. 
+
+\subsection{FindStat}
+\FindStat \cite{findstat} is a database of objects from combinatorics. These objects are of very few kinds: combinatorial collections, combinatorial statistics and combinatorial maps, each containing many collections. \FindStat is a clear extension to the idea underpinning the \OEIS, and uses lots of \SageMath code. Users of \FindStat are almost certainly users of the \OEIS, and tend to be \SageMath contributors. \FindStat is also meant to be very collaborative, with a wiki attached to each of the collections.
+
+\subsection{Observations}
+
+The projects listed here are of two types: either data-backed or software-backed. In both cases, the mathematical knowledge is implicit, but communicated through different channels: software documentation for software projects, database schemas and wikis for data-backed projects. There is a lot of interdependency between those projects, both on the developer base and on the functionalities. \SageMath, for instance, interfaces (or is interfaced to) by all the other projects. 
+
