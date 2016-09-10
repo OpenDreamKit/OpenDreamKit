@@ -8,7 +8,6 @@
 \newcommand{\prop@gen@image}{../../media/logos/Flag_of_Europe.png}
 
 \LoadClass[a4paper,twoside,12pt]{amsart}
-\RequirePackage{hyperref}
 \RequirePackage[utf8]{inputenc}
 %\RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
 \RequirePackage[english]{babel}
@@ -24,14 +23,19 @@
 \RequirePackage{import}
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
+\RequirePackage{hyperref}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Styling: adapt amsart's subsection macro to put a newline after the title
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\subsection{\@startsection{subsection}{2}%
+\renewcommand\subsection{\@startsection{subsection}{2}%
   \z@{.5\linespacing\@plus.7\linespacing}{.1\linespacing}%
   {\normalfont\bfseries}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                    {3.25ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\normalfont\normalsize\bfseries}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Macros for defining metadata
