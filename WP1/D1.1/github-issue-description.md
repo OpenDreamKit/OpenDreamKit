@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue's #17 on 2016-09-07 {.notoc}
+# Deliverable description, as taken from GitHub issue #17 on 2016-09-07 {.notoc}
 
 - **WP1:** [Project Management](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP1)
 - **Lead Institution:** Université Paris-Sud
@@ -14,8 +14,8 @@ This deliverable includes the basic infrastructure for OpenDreamKit:
 - [x] Mailing lists: #13
 - [x] Issue trackers, including tracking of [tasks](https://github.com/OpenDreamKit/OpenDreamKit/labels/task?page=3&q=is%3Aopen+label%3Atask), [deliverables](https://github.com/OpenDreamKit/OpenDreamKit/labels/deliverable?page=4&q=is%3Aopen+label%3Adeliverable) and [milestones](https://github.com/OpenDreamKit/OpenDreamKit/milestones): #12
 - [x] Get a github education discount for 20 private repositories
-- [x] Github public repositories
-- [x] Github private repositories and teams for the:
+- [x] GitHub public repositories
+- [x] GitHub private repositories and teams for the:
     - [x] [Participants](https://github.com/orgs/OpenDreamKit/teams/participants)
     - [x] [Coordinator](https://github.com/orgs/OpenDreamKit/teams/coordinator)
     - [x] [Steering Committee](https://github.com/orgs/OpenDreamKit/teams/steering-committee)
