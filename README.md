@@ -166,8 +166,8 @@ status report, ...) needs to be on the issue.
     - Where the work started from.
 
     - What precisely is the deliverable, and was achieved during the
-      project, clarifying the contribution of the participants and of
-      the community.
+      project, clarifying the contribution of the ODK participants and
+      of the community.
 
     - A brief view on applications, further outcomes, current
       activities, future plans.
@@ -208,6 +208,14 @@ status report, ...) needs to be on the issue.
   without retrieving other resources. Links have no legal value, since
   there is no guarantee that the referenced material will remain
   unchanged.
+
+- Defining authorship is tricky, as most deliverable involve close
+  collaboration with the community, and the report is often written by
+  a subset of the contributors. Let's use the following simple rule of
+  thumb: the authors of the report should include all persons funded
+  by ODK that contributed non trivially. Not including outsiders in
+  the author list is reasonable, as the report is about the
+  contribution of ODK.
 
 - Send a notice to the coordinator
 
