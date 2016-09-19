@@ -130,12 +130,13 @@
 \AtEndDocument{
   \vfil
   \begin{mdframed}
-    Disclaimer: this document, together with its annexes, is self
-    contained for auditing and reviewing purposes. Hyperlinks to
-    external resources are meant as a convenience for casual readers
-    wishing to follow our progress; such links have been checked for
-    correctness at the time of submission of the deliverable, but
-    there is no guarantee implied that they will remain valid.
+    Disclaimer: this report, together with its annexes and the reports
+    for the earlier deliverables, is self contained for auditing and
+    reviewing purposes. Hyperlinks to external resources are meant as
+    a convenience for casual readers wishing to follow our progress;
+    such links have been checked for correctness at the time of
+    submission of the deliverable, but there is no guarantee implied
+    that they will remain valid.
 \end{mdframed}}
 
 \endinput
