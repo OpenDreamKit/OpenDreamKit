@@ -183,6 +183,9 @@ status report, ...) needs to be on the issue.
     need to follow the link to know what additional information it
     provides.
 
+    If this gets too long (say more than one page), the details can be
+    left to the report itself.
+
 - Double check the deliverable metadata is up to date
 
     - Leader (as specified by the person the issue is assigned to),
