@@ -1,11 +1,7 @@
-\ProvidesClass{deliverablereport}
-
-% Specific to ODK
-\newcommand{\prop@gen@proposalnumber}{676541}
-\newcommand{\prop@gen@acronym}{\href{http://opendreamkit.org}{OpenDreamKit}}
-\newcommand{\prop@gen@instrument}{H2020-EINFRA-2015-1}
-\newcommand{\prop@gen@logo}{../../media/ODK_elected_logo.png}
-\newcommand{\prop@gen@image}{../../media/logos/Flag_of_Europe.png}
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesClass{eudelivreport}[2016/09/29 v1.0 EU Deliverable Report]
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{eudelivreport}}
+\ProcessOptions
 
 \LoadClass[a4paper,twoside,12pt]{amsart}
 \RequirePackage[utf8]{inputenc}
@@ -19,10 +15,8 @@
 \RequirePackage{paralist}
 \RequirePackage{array}
 \RequirePackage{listings}
-\RequirePackage{../../Proposal/LaTeX-proposal/base/pdata}
+\RequirePackage{pdata}
 \RequirePackage{import}
-\input{../../Proposal/final.pdata}
-\input{../../Proposal/WApersons}
 \RequirePackage{hyperref}
 
 
