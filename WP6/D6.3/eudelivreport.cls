@@ -1,1 +1,0 @@
-../../Proposal/LaTeX-proposal/eu/eudelivreport.cls

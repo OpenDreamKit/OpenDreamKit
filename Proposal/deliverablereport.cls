@@ -7,7 +7,7 @@
 % Specific to ODK
 \newcommand{\prop@gen@proposalnumber}{676541}
 \newcommand{\prop@gen@acronym}{\href{http://opendreamkit.org}{OpenDreamKit}}
-\newcommand{\prop@gen@instrument}{H2020-EINFRA-2015-1}
+\renewcommand{\prop@gen@instrument}{H2020-EINFRA-2015-1} % euproposal.cls defines it
 \newcommand{\prop@gen@logo}{ODK_elected_logo}
 \newcommand{\prop@gen@image}{Flag_of_Europe}
 
