@@ -7,7 +7,7 @@ Main repository for the OpenDreamKit H2020 European project
 - Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-- deliverables and publications of the respective Work Packages: ```WP*/```
+- deliverables and publications of the respective Work Packages: [WP1/](WP1/), [WP2/](WP2/) , [WP3/](WP3/) , [WP4/](WP4/) , [WP5/](WP5/) , [WP6/](WP6/) , [WP6/](WP6/)
 - management scripts: [bin/](bin/)
 - media files: [media/](media/)
 - Legal documents: [LegalDocuments/](LegalDocuments/)
