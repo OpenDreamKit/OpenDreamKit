@@ -7,7 +7,7 @@
 %% proposal.dtx  (with options: `reporting')
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
-\ProvidesPackage{reporting}[2015/01/14 v1.5 Project Reporting]
+\ProvidesPackage{reporting}[2016/04/15 v1.5 Project Reporting]
 \newif\if@wpsubsection\@wpsubsectionfalse
 \newif\ifsubmit\submitfalse
 \newif\ifgrantagreement\grantagreementfalse
@@ -53,7 +53,7 @@
 \renewcommand{\familydefault}{\sfdefault}
 \RequirePackage[scaled=.90]{helvet}
 \RequirePackage{textcomp}
-\RequirePackage[hyperref=auto,style=numeric,defernumbers=true,backend=bibtex,backref=true,firstinits=true,maxbibnames=6]{biblatex}[2010/11-19]
+\RequirePackage[hyperref=auto,style=alphabetic,defernumbers=true,backend=bibtex,backref=true,firstinits=true,maxbibnames=6]{biblatex}[2010/11-19]
 \RequirePackage{csquotes}
 \RequirePackage{mdframed}
 \RequirePackage{pdata}
@@ -111,8 +111,8 @@
   {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
-    \prop@tl\prop@gen@PIs{\wa@ref{person}\tl@ext{name}}\\
-    \prop@tl\prop@gen@PIs{\wa@ref{institution}{\wa@ref{person}\tl@ext{affiliation}}{name}}
+    \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\
+    \prop@tl\prop@gen@PIs{\wa@ref3{institution}{\wa@ref3{person}\tl@ext{affiliation}}{name}}
  \end{tabular}\\[2cm]
 \end{center}
 \setcounter{tocdepth}{2}\tableofcontents\newpage\setcounter{page}{1}}
@@ -135,16 +135,14 @@
 \define@key{paperlist}{techreports}[true]{\prop@ppl{techreport}{Technical Reports}}
 \DeclareBibliographyCategory{featured}
 \newcommand\prop@paperlist[2][]{%
-\begin{refsection}%
-\nocite{#2}\addtocategory{featured}{#2}%
 \let\biboldfont\bibfont%
 \renewcommand{\bibfont}{\footnotesize}%
-\renewcommand{\baselinestretch}{.9}
+\renewcommand{\baselinestretch}{.9}%
+\nocite{#2}\def\do##1{\addtocategory{featured}{##1}}\docsvlist{#2}%
 \setkeys{paperlist}{#1}
 \@ifundefined{prop@rl}{}{\@latex@warning{some papers are not classified!}}
-\if@allpapers\printbibliography[heading=empty]\fi%
-\let\bibfont\biboldfont%
-\end{refsection}}
+\if@allpapers\printbibliography[category=featured,heading=empty]\fi%
+\let\bibfont\biboldfont}
 \def\prop@warnpubs@message{Many of the proposers' publications are online at one of the following URIs:}
 \def\prop@warnpubs@title{References}
 \defbibheading{warnpubs}{\section*{\prop@warnpubs@title}%
@@ -153,7 +151,6 @@
                    use the pubspage key in the proposal environment!}}
   {\prop@warnpubs@message%
  \@for\@I:=\prop@gen@pubspages\do{\par\noindent\csname\@I\endcsname}}}
-\defbibheading{empty}{}
 \endinput
 %%
 %% End of file `reporting.cls'.

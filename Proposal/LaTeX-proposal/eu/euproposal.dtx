@@ -13,9 +13,9 @@
 % 
 % \iffalse
 %<cls|pdata|reporting>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
-%<cls>\ProvidesClass{euproposal}[2015/01/14 v1.5 EU Proposal]
-%<pdata>\ProvidesPackage{eupdata}[2015/01/14 v1.5 EU Project Data]
-%<reporting>\ProvidesPackage{eureporting}[2015/01/14 v1.5 EU Project Reporting]
+%<cls>\ProvidesClass{euproposal}[2016/04/15 v1.5 EU Proposal]
+%<pdata>\ProvidesPackage{eupdata}[2016/04/15 v1.5 EU Project Data]
+%<reporting>\ProvidesPackage{eureporting}[2016/04/15 v1.5 EU Project Reporting]
 %<*driver>
 \documentclass[twoside]{ltxdoc}
 \DoNotIndex{\def,\long,\edef,\xdef,\gdef,\let,\global}
@@ -28,8 +28,8 @@
 \RecordChanges
 \usepackage{textcomp,url,paralist,a4wide,xspace}
 \usepackage[show]{ed}
-\usepackage[maxbibnames=6,hyperref=auto,style=alphabetic]{biblatex}
-\bibliography{kwarc}
+\usepackage[maxbibnames=6,hyperref=auto,style=alphabetic,backend=bibtex]{biblatex}
+\addbibresource{../lib/proposal.bib}
 \usepackage[bookmarks=true,linkcolor=blue,
  citecolor=blue,urlcolor=blue,colorlinks=true,
  breaklinks=true, bookmarksopen=true]{hyperref}
@@ -41,7 +41,7 @@
 %</driver>
 % \fi
 % 
-%\iffalse\CheckSum{365}\fi
+%\iffalse\CheckSum{639}\fi
 % 
 % \changes{v0.1}{2007/05/07}{used in the SciML proposal}
 % \changes{v0.2}{2007/05/09}{First Version with Documentation}
@@ -149,7 +149,7 @@
 %   the title page, and specify their heights; |1.5cm| is often a good value.
 % \end{compactitem}
 % 
-% \subsection{Work Packages and Work Areas}\label{sec:wpwa}
+% \subsection{Work Packages and Work Areas}\label{sec:user:wpwa}
 % 
 % \DescribeMacro{type} The |type| key specifies the activity type of the work package:
 % |RTD| = Research and technological development (including any activities to prepare for
@@ -171,7 +171,28 @@
 % name/deliverables/verification columns in the milestone table.
 % 
 % \subsection{Risks}\label{sec:user:risks}
-% \ednote{MK: document the infrastructure, make examples}
+% In some EU proposals (e.g. FET), we need to identify risks and contingency and specify
+% mitigation plans for them. In the |euproposal| we use two environments to mark them up.
+% 
+% \DescribeMacro{risk}|\begin{risk}{|\meta{title}|}{|\meta{prob}|}{|\meta{grav}|}|\ldots|\end{risk}|
+% makes a paragraph no a risk \meta{title} with gravity \meta{grav} and probability
+% \meta{prob}, where the body of the environment contains a description of the risk. The
+% \DescribeMacro{riskcont}|riskcont| is a variant, where \meta{title} names a risk and the
+% body is a description of the contingency plan.
+% 
+% \subsection{Relevant Papers}\label{sec:user:papers}
+% 
+% Sometimes we want to list the relevant papers in the site descriptions.  We use the
+% |biblatex| package to automate this. We only need to use
+% \DescribeMacro{\keypubs}|\keypubs[|\meta{keys}|]{|\meta{refs}|}|, where \meta{keys} that
+% specify what papers are selected and \meta{refs} is a comma-separated list of bibtex
+% keys from the bibTeX database used in the proposal.
+% 
+% The papers listed in |\keypubs| are put into a special bib\LaTeX category
+% \DescribeMacro{featured}|featured|, and can thus be excluded from the general
+% bibliography by adding |notcategory=featured| to the final |\printbibliography|.
+% 
+
 %
 % \begin{newpart}{MK@MK: This is new, and only partially implemented}
 % \subsection{Reporting Infrastructure}\label{sec:user:report}
@@ -329,9 +350,9 @@
   %   \textbf{Objective \prop@gen@objectiveid}: \prop@gen@objective,
   %   \textbf{target outcome \prop@gen@outcomeid}) \prop@gen@outcome.
   %   {\prop@gen@topicsaddressed}\\[1em]
-  \item[Coordinator:] \wa@ref{person}\prop@gen@coordinator{name}
-  \item[e-mail:] \wa@ref{person}\prop@gen@coordinator{email}
-  \item[tel/fax:] \wa@ref{person}\prop@gen@coordinator{worktelfax}
+  \item[Coordinator:] \wa@ref3{person}\prop@gen@coordinator{name}
+  \item[e-mail:] \wa@ref3{person}\prop@gen@coordinator{email}
+  \item[tel/fax:] \wa@ref3{person}\prop@gen@coordinator{worktelfax}
     \@ifundefined{prop@gen@keywords}{}{\item[Keywords:]  \prop@gen@keywords}
   \end{description}
 \end{large}
@@ -344,7 +365,7 @@
 \newpage
 \fi% ifgrantagreement
 \setcounter{tocdepth}{2}\setcounter{part}{2}}
-{\newpage\printbibliography[heading=warnpubs,maxnames=999]}
+{\newpage\printbibliography[heading=warnpubs]}
 %    \end{macrocode}
 % \end{environment}
 % 
@@ -385,14 +406,14 @@
 \ifx\@site@desc@logo\@true% if we want a logo 
 \wa@institution@logo[height=\site@desc@width]{#2}\\[1ex]%
 \fi% end logo 
-\textbf{\wa@ref{institution}{#2}{type}.\hfill \wa@ref{institution}{#2}{country}}\\%
-\small\wa@ref{institution}{#2}{streetaddress}, \wa@ref{institution}{#2}{townzip}\\\hline%
+\textbf{\wa@ref3{institution}{#2}{type}.\hfill \wa@ref3{institution}{#2}{country}}\\%
+\small\wa@ref3{institution}{#2}{streetaddress}, \wa@ref3{institution}{#2}{townzip}\\\hline%
 \end{tabular}\vspace{-2.5ex}%
 \end{wrapfigure}%
 \fi% end box
 \pdata@target{site}{#2}%
-{\subsubsection{\wa@ref{institution}{#2}{acronym}: % space here
-{\textsc{\wa@ref{institution}{#2}{name}}  (\wa@ref{institution}{#2}{countryshort})}}}%
+{\subsubsection{\wa@ref3{institution}{#2}{acronym}: % space here
+{\textsc{\wa@ref3{institution}{#2}{name}}  (\wa@ref3{institution}{#2}{countryshort})}}}%
 \small%
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
                                     {0.25ex \@plus1ex \@minus.2ex}%
@@ -427,7 +448,7 @@
 %    \end{macrocode}
 % \end{environment}
 % 
-% \subsection{Work Packages, Work Areas, and Deliverables}\label{sec:wpwa}
+% \subsection{Work Packages, Work Areas, and Deliverables}\label{sec::impl:wpwa}
 %
 % \begin{environment}{wp*}
 %    \begin{macrocode}
@@ -473,6 +494,69 @@
 \surroundwithmdframed{wpdelivs}
 %    \end{macrocode}
 % \end{environment}
+%
+% \begin{macro}{\milestone}
+%    \begin{macrocode}
+\define@key{milestone}{verif}{\gdef\mile@verif{#1}\pdata@def{mile}\mile@id{verif}{#1}}
+%    \end{macrocode}
+% \end{macro}
+% 
+% \begin{macro}{milestonetable}
+% here we do the work. 
+%    \begin{macrocode}
+\define@key{mst}{caption}{\gdef\mst@caption{#1}}
+\define@key{mst}{wname}{\gdef\mst@wname{#1}}
+\define@key{mst}{wdeliv}{\gdef\mst@wdeliv{#1}}
+\define@key{mst}{wverif}{\gdef\mst@wverif{#1}}
+\newcommand\milestonetable[1][]{%
+\def\mst@caption{Milestones, Deliverables, and Verification}%
+\def\mst@wname{2.5cm}\def\mst@wdeliv{7cm}\def\mst@wverif{4cm}
+\setkeys{mst}{#1}%
+{\gdef\mst@lines{}%initialize
+\let\tabularnewline\relax\let\hline\relax% so they 
+\let\textbf\relax\let\emph\relax% do not bother us
+\edef\@@miles{\pdataref{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{
+\edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
+\def\@@delivs{}
+\@for\@J:=\@delivs\do{\xdef\@@delivs{\@@delivs\ \pdataref{deliv}\@J{label}}}
+\def\@@line{
+\textbf{\pdataref{mile}\@I{label}}&
+\emph{\pdataref{mile}{\@I}{title}} &
+\@@delivs&
+\pdataref{mile}\@I{month} &
+\pdataref{mile}\@I{verif}}
+\xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
+\begin{table}[ht]
+\begin{tabular}{|l|p{\mst@wname}|p{\mst@wdeliv}|l|p{\mst@wverif}|}\hline
+\#&\textbf{\miles@legend@name}
+&\textbf{\miles@legend@involved}
+&\textbf{\miles@legend@mo}
+&\textbf{\miles@legend@verif}\\\hline\hline
+\mst@lines
+\end{tabular}
+\caption{\mst@caption}\label{tab:milestonetable}
+\end{table}
+\footnotetext\miles@legend@footnote}
+%    \end{macrocode}
+% now the multilinguality support 
+%    \begin{macrocode}
+\newcommand\miles@legend@name{Name}
+\newcommand\miles@legend@mo{Mo}
+\newcommand\miles@legend@verif{Means of Verif.}
+\newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
+\newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\prop@milesfor}
+%    the due date is the first argument to facilitate sorting
+%    \begin{macrocode}
+\newcommand\prop@milesfor[1]{\edef\@delivs{\pdataref@safe{mile}{#1}{delivs}}%
+\let\m@sep=\relax\def\new@sep{,\ }%
+\@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
+%    \end{macrocode}
+% \end{macro}
 % 
 % \subsection{Risks}\label{sec:impl:risks}
 % 
@@ -491,17 +575,6 @@
 {\end{risk}}
 %    \end{macrocode}
 % \end{environment}
-%
-% \subsection{Risks}\label{sec:impl:risks}
-%
-% In some EU proposals (e.g. FET), we need to identify risks and contingency and specify
-% mitigation plans for them. In the |euproposal| we use two environments to mark them up.
-% 
-% \DescribeMacro{risk}|\begin{risk}{|\meta{title}|}{|\meta{prob}|}{|\meta{grav}|}|\ldots|\end{risk}|
-% makes a paragraph no a risk \meta{title} with gravity \meta{grav} and probability
-% \meta{prob}, where the body of the environment contains a description of the risk. The
-% \DescribeMacro{riskcont}|riskcont| is a variant, where \meta{title} names a risk and the
-% body is a description of the contingency plan.
 %
 % \subsection{Relevant Papers}\label{sec:impl:papers}
 % 

@@ -1,0 +1,71 @@
+#!/usr/bin/perl -w
+#######################################################################################
+# A tool for updating .dtx files with a correspodning checksum counter                #
+# Copyright (c) 2010, Deyan Ginev, released under the Gnu General Public License (GPL)#
+#                                 see http://www.gnu.org/copyleft/gpl.html            #
+# $URL: https://svn.kwarc.info/repos/stex/trunk/bin/checksum$                         #
+#######################################################################################
+
+use strict;
+
+use Getopt::Long;
+use Modparse;
+use Pod::Usage;
+use Cwd qw(abs_path);
+
+####### start of program #######
+my $mode = "update"; #Default is update
+my $action = { "update" => \&update, "disable" => \&disable, "enable"=>\&enable };
+GetOptions("disable" => sub { $mode="disable"; },
+	   "enable" => sub { $mode="enable"; },
+	   "update" => sub { $mode="update"; });
+
+
+my ($path) = @ARGV;
+$path = abs_path($path);
+my ($volume,$dir,$file) = File::Spec->splitpath( $path );
+my @lines = `cd $dir; pdflatex "\\nonstopmode\\input{$file}"` if ($mode eq "update");
+my ($checksum) = map {$_=~/^\* The checksum should be (\d+)!/; $1;} grep ($_ =~ /^\* The checksum should be (\d+)!/,@lines) if @lines;
+if (!$checksum) {
+#One more possible error message:
+  ($checksum) = map {$_=~/^! Package doc Error: Checksum not passed \((\d+)<>(\d+)\)\./; $2;} grep ($_ =~ /^! Package doc Error: Checksum not passed \((\d+)<>(\d+)\)\./,@lines) if @lines;
+}
+open(IN,"<$path") or die "Cannot open DTX source: $path\n";
+@lines = ();
+while (<IN>) {
+  push @lines, &{$$action{$mode}}($_,$checksum);
+}
+close(IN);
+open(OUT,">$path") or die "Cannot write to DTX target: $path\n";
+print OUT join("",@lines);
+close(OUT);
+######### Subroutines ############
+sub update {
+  my $checksum=$_[1];
+  $_[0]=~s/\\CheckSum\{\d*\}/\\CheckSum{$checksum}/ if $checksum;
+  $_[0];
+}
+
+sub disable {
+ $_[0]=~s/\\CheckSum\{(\d*)\}/\\iffalse\\CheckSum\{$1}\\fi/ unless $_[0]=~/\\iffalse\\CheckSum\{(\d*)\}\\fi/;
+ $_[0];
+}
+
+sub enable {
+ $_[0]=~s/\\iffalse\\CheckSum\{(\d*)\}\\fi/\\CheckSum{$1}/;
+ $_[0];
+}
+
+
+__END__
+
+
+=head1 SYNOPSIS
+
+checksum <input filename> --update|enable|disable
+
+Purpose:
+    Update, enable or disable the \CheckSum macro for a given .dtx source
+
+Example:
+    checksum omd.dtx --update

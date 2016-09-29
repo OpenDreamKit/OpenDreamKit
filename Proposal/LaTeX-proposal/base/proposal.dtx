@@ -13,9 +13,9 @@
 %
 % \iffalse 
 %<cls|pdata|reporting>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
-%<cls>\ProvidesClass{proposal}[2015/01/14 v1.5 Project Proposal]
-%<pdata>\ProvidesPackage{pdata}[2015/01/14 v1.5 Project Data]
-%<reporting>\ProvidesPackage{reporting}[2015/01/14 v1.5 Project Reporting]
+%<cls>\ProvidesClass{proposal}[2016/04/15 v1.5 Project Proposal]
+%<pdata>\ProvidesPackage{pdata}[2016/04/15 v1.5 Project Data]
+%<reporting>\ProvidesPackage{reporting}[2016/04/15 v1.5 Project Reporting]
 %<*driver>
 \documentclass{ltxdoc}
 \DoNotIndex{\def,\long,\edef,\xdef,\gdef,\let,\global}
@@ -28,20 +28,23 @@
 \RecordChanges
 \usepackage{textcomp,url,paralist,a4wide,xspace}
 \usepackage[show]{ed}
-\usepackage[maxbibnames=6,hyperref=auto,style=alphabetic]{biblatex}
-\bibliography{kwarc}
+\usepackage[maxbibnames=6,hyperref=auto,style=alphabetic,backend=bibtex]{biblatex}
+\addbibresource{../lib/proposal.bib}
+% temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
+\makeatletter\def\blx@maxline{77}\makeatother
 \usepackage[bookmarks=true,linkcolor=blue,
  citecolor=blue,urlcolor=blue,colorlinks=true,
  breaklinks=true, bookmarksopen=true]{hyperref}
 \makeindex
 \def\subversion{\textsc{Subversion}\xspace}
+\def\git{\textsc{Git}\xspace}
 \begin{document}
 \DocInput{proposal.dtx}
 \end{document}
 %</driver>
 % \fi
 % 
-%\iffalse\CheckSum{3723}\fi
+%\iffalse\CheckSum{4091}\fi
 % 
 % \changes{v0.4}{2009/05/12}{copied over from eustrep.dtx}
 % \changes{v0.5}{2009/05/27}{added gantt charts}
@@ -86,19 +89,38 @@
 %
 % Writing grant proposals is a collaborative effort that requires the integration of
 % contributions from many individuals. The use of an ASCII-based format like {\LaTeX}
-% allows to coordinate the process via a source code control system like
-% \subversion, allowing the proposal writing team to concentrate on the contents
-% rather than the mechanics of wrangling with text fragments and revisions.
+% allows to coordinate the process via a source code control system like \git or
+% \subversion, allowing the proposal writing team to concentrate on the contents rather
+% than the mechanics of wrangling with text fragments and revisions. In fact the
+% |proposal| package has evolved out of a series of collaborative proposal writing
+% efforts, where large teams (up to 30 individuals from up to 20 sites) have written a
+% 100-page proposal in three weeks (with over 2000 commits). Such collaborative writing
+% sprints are impossible without a revision control system and a ``semantic'' document
+% class that generates tables, charts, and deliverable lists from content markup and thus
+% takes care of many of the routine tasks of keeping information consistent.
 % 
 % The |proposal| class supports many of the generic elements of Grant Proposals. The
 % package documentation is still preliminary, fragmented and incomplete. 
 %
 % The |proposal| class is distributed under the terms of the LaTeX Project Public License
 % from CTAN archives in directory |macros/latex/base/lppl.txt|.  Either version 1.0 or, at
-% your option, any later version. The CTAN archive always contains the latest stable
-% version, the development version can be found on GitHub at
-% \url{https://github.com/KWARC/LaTeX-proposal}. For bug reports please use the issue
-% tracker there.
+% your option, any later version. 
+% 
+% The CTAN archive always contains the latest stable version, the development version can
+% be found on GitHub at \url{https://github.com/KWARC/LaTeX-proposal}. For bug reports
+% please use the issue tracker there. Please feel free to fork the repository and provide
+% extensions and improvements. 
+% 
+% The development version also contains example proposals and a very useful script that
+% generates GitHub issues for all the workpackages, tasks, and deliverables. This is a
+% great way of starting up a project and controlling its progress. The OpenDreamKit EU
+% project (see \url{http://opendreamkit.org}) uses this for its (very public) project
+% planning on the issue tracker at \url{https://github.com/OpenDreamKit} after (also
+% publicly) developing the proposal on GitHub.
+% 
+% Finally, the GitHub reposistory contains example project proposals and specialized
+% Makefiles that help start off the proposal development process. These are not part of
+% the CTAN/TeXLive distributions.
 %
 % \section{The User Interface}\label{sec:user-interface}
 % 
@@ -590,7 +612,7 @@
 \renewcommand{\familydefault}{\sfdefault}
 \RequirePackage[scaled=.90]{helvet}
 \RequirePackage{textcomp}
-\RequirePackage[hyperref=auto,style=numeric,defernumbers=true,backend=bibtex,backref=true,firstinits=true,maxbibnames=6]{biblatex}[2010/11-19]
+\RequirePackage[hyperref=auto,style=alphabetic,defernumbers=true,backend=bibtex,backref=true,firstinits=true,maxbibnames=6]{biblatex}[2010/11-19]
 \RequirePackage{csquotes}
 \RequirePackage{mdframed}
 \RequirePackage{pdata}
@@ -663,7 +685,7 @@
 % |workaddress| package from sTeX and supplies the Euro symbol. 
 %    \begin{macrocode}
 %<*pdata>
-\RequirePackage{workaddress}[2011/05/03]
+\RequirePackage{workaddress}[2016/07/06]
 \RequirePackage{eurosym}
 %    \end{macrocode}
 % We define the keys for metadata declarations in the |proposal| environment, they park
@@ -684,8 +706,8 @@
 \if@RAM\define@key{workpackage}{#1RAM}{\pdata@def\wp@id{#1}{RAM}{##1}}\fi
 \define@key{prop@gen}{#1employed}{{\let\tabularnewline\relax\let\hline\relax\let\wa@ref\relax%
 \@ifundefined{prop@gen@employed@lines}%
-{\xdef\prop@gen@employed@lines{\wa@ref{institution}{#1}{shortname} & ##1\tabularnewline\hline}}%
-{\xdef\prop@gen@employed@lines{\prop@gen@employed@lines \wa@ref{institution}{#1}{shortname} & ##1\tabularnewline\hline}}}}}
+{\xdef\prop@gen@employed@lines{\wa@ref3{institution}{#1}{shortname} & ##1\tabularnewline\hline}}%
+{\xdef\prop@gen@employed@lines{\prop@gen@employed@lines \wa@ref3{institution}{#1}{shortname} & ##1\tabularnewline\hline}}}}}
 %    \end{macrocode}
 % If there are no sites, then we have to define keys |RM| and |RAM| that store the
 % intended research (assistant months). Unfortunately, we cannot just include this in the
@@ -796,8 +818,8 @@
   {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
-    \prop@tl\prop@gen@PIs{\wa@ref{person}\tl@ext{name}}\\
-    \prop@tl\prop@gen@PIs{\wa@ref{institution}{\wa@ref{person}\tl@ext{affiliation}}{name}}
+    \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\
+    \prop@tl\prop@gen@PIs{\wa@ref3{institution}{\wa@ref3{person}\tl@ext{affiliation}}{name}}
  \end{tabular}\\[2cm]
 \end{center}
 \setcounter{tocdepth}{2}\tableofcontents\newpage\setcounter{page}{1}}
@@ -808,8 +830,8 @@
 \begin{itemize}
 \@for\@I:=\prop@gen@PIs\do{%
 \item Curriculum Vitae and list of publications for
-  \wa@ref{person}\@I{personaltitle} \wa@ref{person}\@I{name}
-\end{itemize}}\newpage 
+  \wa@ref3{person}\@I{personaltitle} \wa@ref3{person}\@I{name}}
+\end{itemize}\newpage
 \printbibliography[heading=warnpubs]}
 %    \end{macrocode}
 % \end{environment}
@@ -877,8 +899,8 @@
   {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
-    \prop@tl\prop@gen@PIs{\wa@ref{person}\tl@ext{name}}\\
-    \prop@tl\prop@gen@PIs{\wa@ref{institution}{\wa@ref{person}\tl@ext{affiliation}}{name}}
+    \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\
+    \prop@tl\prop@gen@PIs{\wa@ref3{institution}{\wa@ref3{person}\tl@ext{affiliation}}{name}}
  \end{tabular}\\[2cm]
 \end{center}
 \setcounter{tocdepth}{2}\tableofcontents\newpage\setcounter{page}{1}}
@@ -890,8 +912,8 @@
 % \begin{macro}{\site*}
 %    \begin{macrocode}
 %<*cls>
-\newcommand\site[1]{\hyperlink{site@#1@target}{\wa@ref{institution}{#1}{acronym}}}
-\newcommand\sitename[1]{\hyperlink{site@#1@target}{\wa@ref{institution}{#1}{name}}}
+\newcommand\site[1]{\hyperlink{site@#1@target}{\wa@ref3{institution}{#1}{acronym}}}
+\newcommand\sitename[1]{\hyperlink{site@#1@target}{\wa@ref3{institution}{#1}{name}}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1286,9 +1308,9 @@
 %   This macro is generally useful to put a comment at the end of the line, possibly
 %   making a new one if there is not enough space.
 %    \begin{macrocode}
-\newcommand\delivref[2]{\pdataRef{deliv}{#1#2}{label}}
+\newcommand\delivref[2]{\pdataRef{deliv}{#1@#2}{label}}
 \newcommand\localdelivref[1]{\delivref{\wp@id}{#1}}
-\newcommand\delivtref[2]{\delivref{#1}{#2}: \pdataRefFB{deliv}{#1#2}{short}{title}}
+\newcommand\delivtref[2]{\delivref{#1}{#2}: \pdataRefFB{deliv}{#1@#2}{short}{title}}
 \newcommand\localdelivtref[1]{\delivtref{\wp@id}{#1}}
 %    \end{macrocode}
 % \end{macro}
@@ -1303,6 +1325,7 @@
 \define@key{deliv}{miles}{\def\deliv@miles{#1}}
 \define@key{deliv}{short}{\def\deliv@short{#1}}
 \define@key{deliv}{lead}{\def\deliv@lead{#1}}
+\define@key{deliv}{issue}{\def\deliv@issue{#1}}
 %    \end{macrocode}
 % The |\wpdeliv| macro cycles over the due dates and generates the relevant entries into
 % the deliverables file. The first step is to write the general metadata to the pdata
@@ -1317,30 +1340,31 @@
 \setkeys{deliv}{#1}\stepcounter{deliv}% set state
 \ifx\@type\@wp\def\current@label{\deliv@label{\ifwork@areas\thewa.\fi\thewp.\thedeliv}}
 \else\def\current@label{\deliv@label{\thewa.\thedeliv}}\fi
-\pdata@def{deliv}{\wpg@id\deliv@id}{label}{\current@label}
-\pdata@def{deliv}{\wpg@id\deliv@id}{title}{#2}
-\pdata@def{deliv}{\wpg@id\deliv@id}{page}{\thepage}%
+\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{label}{\current@label}
+\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{title}{#2}
+\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{page}{\thepage}%
 \@ifundefined{deliv@short}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{short}{\deliv@short}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{short}{#2}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{short}{\deliv@short}}
 \@ifundefined{deliv@nature}
 {\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv \wpg@id undefined}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{nature}{\deliv@nature}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{nature}{\deliv@nature}}
 \@ifundefined{deliv@dissem}
 {\protect\G@refundefinedtrue\@latex@warning{key 'dissem' for Deliv \wpg@id undefined}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{dissem}{\deliv@dissem}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{dissem}{\deliv@dissem}}
 \@ifundefined{deliv@lead}
 {\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv \wpg@id  undefined}}
-{\pdata@def{deliv}{\wpg@id\deliv@id}{lead}{\deliv@lead}}
+{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{lead}{\deliv@lead}}
 %    \end{macrocode}
 % Then we iterate over the due dates and generate an entry for teach of them.
 %    \begin{macrocode}
 \@ifundefined{deliv@due}{}{%
+\@ifundefined{deliv@issue}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
 {\current@label}% label
-{\@ifundefined{deliv@id}{??}{\wpg@id\deliv@id}}% id
+{\@ifundefined{deliv@id}{??}{\taskin\deliv@id\wpg@id}}% id
 {\@ifundefined{deliv@dissem}{??}{\deliv@dissem}}% dissemination level
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
@@ -1350,11 +1374,11 @@
 % And finally, we generate the entry into the deliverables table. 
 %    \begin{macrocode}
 \item[\current@label\ (%
-\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due}, 
-\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature}, 
-\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem}, 
+\delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
+\delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
+\delivs@legend@dissem: \@ifundefined{deliv@dissem}{??}{\deliv@dissem},
 \delivs@legend@lead: \@ifundefined{deliv@lead}{??}{\site{\deliv@lead}})]
- \pdata@target{deliv}{\wpg@id\deliv@id}{\textit{#2}}
+ \pdata@target{deliv}{\taskin\deliv@id\wpg@id}{\textit{#2}}
 \@ifundefined{deliv@miles}{}{% print the milestones and update their deliverables
 \let\m@sep=\relax% do not print the separator the first time round
 \lec{\@for\@I:=\deliv@miles\do{% Iterate over the milestones mentioned
@@ -1363,9 +1387,9 @@
 \def\d@sep{,}
  \@for\@I:=\deliv@miles\do{% Iterate over the milestones mentioned
  \expandafter\ifx\csname\@I delivs\endcsname\relax% Check that the miles@delivs is empty
-  {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id\deliv@id}}% if so, skip the separator
+  {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id @\deliv@id}}% if so, skip the separator
    \else\expandafter\xdef\csname\@I delivs\endcsname%if not add it
-      {\csname\@I delivs\endcsname\d@sep\wpg@id\deliv@id}\fi}}}
+      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1405,16 +1429,16 @@
 \newcounter{milestone}
 \define@key{milestone}{id}{\gdef\mile@id{#1}}
 \define@key{milestone}{month}{\gdef\mile@month{#1}}
-\define@key{milestone}{verif}{\gdef\mile@verif{#1}}
 \newcommand\milestone[3][]{%
 \ifdelivs%
 \setkeys{milestone}{#1}\stepcounter{milestone}%
 \pdata@def{mile}\mile@id{label}{\milestone@label{\themilestone}}%
 \pdata@def{mile}\mile@id{month}{\mile@month}%
-\pdata@def{mile}\mile@id{verif}{\mile@verif}%
 \pdata@def{mile}\mile@id{title}{#2}%
 \pdata@def{mile}\mile@id{description}{#3}%
-\@ifundefined{mile@stones}{\xdef\mile@stones{\mile@id}}{\xdef\mile@stones{\mile@stones,\mile@id}}%
+\@ifundefined{mile@stones}%
+{\xdef\mile@stones{\mile@id}}%
+{\xdef\mile@stones{\mile@stones,\mile@id}}%
 \@milestone{\mile@id}{#2}{#3}% presentation
 \else\deliv@error\fi}
 %    \end{macrocode}
@@ -1424,8 +1448,10 @@
 %   the corresponding presentation macro.
 %    \begin{macrocode}
 \newcommand\@milestone[3]{% id, title, description
-\item \textbf{\miles@legend@milestone \pdataref{mile}{#1}{label} (\miles@legend@month \pdataref{mile}\mile@id{month})
+\item \textbf{\miles@legend@milestone\xspace\pdata@target{mile}\mile@id{\pdataref{mile}{#1}{label}} 
+(\miles@legend@month \pdataref{mile}\mile@id{month})
 \textbf{#2}} #3}
+\newcommand\miles@legend@month{Month}
 \newcommand\miles@legend@milestone{Milestone}
 %    \end{macrocode}
 % \end{macro}
@@ -1450,56 +1476,6 @@
 %    \end{macrocode}
 % \end{environment}
 %
-% \begin{macro}{milestonetable}
-% here we do the work. 
-%    \begin{macrocode}
-\newcommand\milestonetable{%
-{\gdef\mst@lines{}%initialize
-\let\tabularnewline\relax\let\hline\relax% so they 
-\let\textbf\relax\let\emph\relax% do not bother us
-\edef\@@miles{\pdataref{all}{mile}{ids}}
-\@for\@I:=\@@miles\do{
-\edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
-\def\@@delivs{}
-\@for\@J:=\@delivs\do{\xdef\@@delivs{\@@delivs\ \pdataref{deliv}\@J{label}}}
-\def\@@line{
-\textbf{\pdataref{mile}\@I{label}}&
-\emph{\pdataref{mile}{\@I}{title}} &
-\@@delivs&
-\pdataref{mile}\@I{month} &
-\pdataref{mile}\@I{verif}}
-\xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
-\begin{table}[ht]
-\begin{tabular}{|l|p{2.5cm}|p{7cm}|l|p{4cm}|}\hline
-\#&\textbf{\miles@legend@name}
-&\textbf{\miles@legend@involved}
-&\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline
-\mst@lines
-\end{tabular}
-\caption{Milestones, Deliverables, and Verification}\label{tab:milestonetable}
-\end{table}
-\footnotetext\miles@legend@footnote}
-%    \end{macrocode}
-% now the multilinguality support 
-%    \begin{macrocode}
-\newcommand\miles@legend@name{Name}
-\newcommand\miles@legend@month{Mo}
-\newcommand\miles@legend@verif{Means of Verif.}
-\newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
-\newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\prop@milesfor}
-%    the due date is the first argument to facilitate sorting
-%    \begin{macrocode}
-\newcommand\prop@milesfor[1]{\edef\@delivs{\pdataref@safe{mile}{#1}{delivs}}%
-\let\m@sep=\relax\def\new@sep{,\ }%
-\@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
-%    \end{macrocode}
-% \end{macro}
-% 
 % \begin{macro}{\deliverable}
 %    the first argument is an extended due date to facilitate sorting. 
 %    \begin{macrocode}
@@ -1560,18 +1536,15 @@
 % We define the keys for the task macro
 %    \begin{macrocode}
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
-\define@key{task}{wphases}{\def\task@wphases{#1}\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{#1}\@dmp{wphases=#1}}
+\define@key{task}{wphases}{\def\task@wphases{#1}\@dmp{wphases=#1}}
 \define@key{task}{requires}{\@requires\task@id{#1}\@dmp{req=#1}}
-\define@key{task}{title}{\def\task@title{#1}\pdata@def{task}{\taskin\task@id\wp@id}{title}{#1}}
-\define@key{task}{lead}{\def\task@lead{#1}\pdata@def{task}{\taskin\task@id\wp@id}{lead}{#1}}
-\define@key{task}{partners}{\def\task@partners{#1}\pdata@def{task}{\taskin\task@id\wp@id}{partners}{#1}}
-\define@key{task}{PM}{\def\task@PM{#1}\pdata@def{task}{\taskin\task@id\wp@id}{PM}{#1}}
-%    \end{macrocode}
-% then we define an auxiliary function that gives them sensible defaults and sets the
-% internal macros.
-%    \begin{macrocode}
+\define@key{task}{title}{\def\task@title{#1}}
+\define@key{task}{lead}{\def\task@lead{#1}}
+\define@key{task}{partners}{\def\task@partners{#1}}
+\define@key{task}{PM}{\def\task@PM{#1}}
+\define@key{task}{issue}{\def\task@issue{#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
-\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
+\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}\def\task@title{}
 \setkeys{task}{#1}}
 %    \end{macrocode}
 % 
@@ -1591,7 +1564,7 @@
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}%
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
-\@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
+\ifx\task@title\@empty\textbf\task@title\fi\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I%
@@ -1626,7 +1599,13 @@
 \newcount\task@@end
 \def\@task#1{\stepcounter{task@all}\stepcounter{task@wp}%
 \task@set{#1}%
-\pdata@def{task}{\taskin\task@id\wp@id}{wphases}\task@wphases
+\pdata@def{task}{\taskin\task@id\wp@id}{title}{\task@title}
+\pdata@def{task}{\taskin\task@id\wp@id}{lead}{\task@lead}
+\pdata@def{task}{\taskin\task@id\wp@id}{partners}{\task@partners}
+\pdata@def{task}{\taskin\task@id\wp@id}{PM}{\task@PM}
+\pdata@def{task}{\taskin\task@id\wp@id}{wphases}{\task@wphases}
+\@ifundefined{deliv@issue}{}
+{\pdata@def{task}{\taskin\task@id\wp@id}{issue}{\task@issue}}%
 \pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{page}{\thepage}%
@@ -1846,8 +1825,7 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \else\begin{tabular}{|l|l|*{\thewpfig@options}{r|}|*{\the@sites}{r|}|r|}\hline\fi%|
 \wpfig@headline\\\hline\hline}
 {\end{tabular}\smallskip\\
-\wpfig@legend@RAM@expl
-\if@sites; \wpfig@legend@lead@expl\fi
+\wpfig@legend@RAM@expl\if@sites; \wpfig@legend@lead@expl\fi
 \@ifundefined{wpfig@label}{\caption{\wpfig@legend@caption}}{\caption{\wpfig@caption}}
 \@ifundefined{wpfig@label}{\label{fig:wplist}}{\label{\wpfig@label}}
 \end{center}\end{table}}
@@ -2295,11 +2273,11 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 %    \end{macrocode}
 % now the multilingual support
 %    \begin{macrocode}
-\newcommand\gantt@caption@main{Gantt Chart: Overview Work Package Activities} 
+\newcommand\gantt@caption@main{Gantt Chart: Overview Work Package Activities}
 \newcommand\gantt@caption@lower{lower bar shows the overall effort \if@RAM (RAM only)\fi per month}
 \newcommand\gantt@caption{\gantt@caption@main\ifgantt@draft\xspace
-  (\gantt@caption@lower)\fi} 
-\newcommand\gantt@footnote{Bars shown at reduced height (e.g. 50\%) indicate reduced 
+  (\gantt@caption@lower)\fi}
+\newcommand\gantt@footnote{Bars shown at reduced height (e.g. 50\%) indicate reduced
   intensity during  that work phase  (e.g. to 50\%).}
 %    \end{macrocode}
 % \end{macro}
@@ -2384,7 +2362,7 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
  \let\@sw\relax\let\jpub\relax\let\jpro\relax\let\jorga\relax% not bother
  \let\jsoft\relax\let\jsup\relax\let\cellcolor\relax% us
 \gdef\@ct@head{}%
-\@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head% 
+\@for\@site:=\prop@gen@sites\do{\xdef\@ct@head{\@ct@head%
 &\ifx\cht@swsites\@true\@sw{\site{\@site}}\else\site{\@site}\fi}}%
 \gdef\@ct@lines{\@ct@head\tabularnewline\hline\hline} %initialize with head line
 \@for\@site:=\prop@gen@sites\do{\xdef\@ct@line{\site{\@site}}%
@@ -2395,7 +2373,7 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \begin{tabular}{|l||*{\the@site}{c|}}\hline%
 \@ct@lines\hline%
 joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ project,
-      \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev, 
+       \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev,
        \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
 %    \end{macrocode}
@@ -2469,25 +2447,26 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % \end{macro}
 %
 % \begin{macro}{\prop@paperlist}
-%   We generate a subsection with a |refsection| (this makes a separate bibliography for
-%   this section) and activate the keys via |\nocite|. Then we just print the bibliography
-%   with the empty header we created before.
+%   |\prop@paperlist{|\meta{keys}|}{|\meta{refs}|}| generates a paper list from a list
+%   \meta{keys} of bibliography keys. It makes some local adaptions to the appearance of
+%   the bibliography, and then adds \meta{refs} to the citable papers marks them as
+%   |featured|. Then it uses |\printbibliography| to make a bibliography of the cited
+%   papers. Note that these are not cited again in the main bibliography\ednote{MK: we may
+%   want to make this optional controlled by a package option eventually.}
 %    \begin{macrocode}
 \newcommand\prop@paperlist[2][]{%
-\begin{refsection}%
-\nocite{#2}\addtocategory{featured}{#2}%
 \let\biboldfont\bibfont%
 \renewcommand{\bibfont}{\footnotesize}%
-\renewcommand{\baselinestretch}{.9}
+\renewcommand{\baselinestretch}{.9}%
+\nocite{#2}\def\do##1{\addtocategory{featured}{##1}}\docsvlist{#2}%
 \setkeys{paperlist}{#1}
 \@ifundefined{prop@rl}{}{\@latex@warning{some papers are not classified!}}
-\if@allpapers\printbibliography[heading=empty]\fi%
-\let\bibfont\biboldfont%
-\end{refsection}}
+\if@allpapers\printbibliography[category=featured,heading=empty]\fi%
+\let\bibfont\biboldfont}
 %    \end{macrocode}
 % \end{macro}
 %
-% We only have to define the |warnpubs| and |empty| heading constructors
+% We define the |warnpubs| heading constructor. 
 %
 %    \begin{macrocode}
 \def\prop@warnpubs@message{Many of the proposers' publications are online at one of the following URIs:}
@@ -2498,7 +2477,6 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
                    use the pubspage key in the proposal environment!}}
   {\prop@warnpubs@message%
  \@for\@I:=\prop@gen@pubspages\do{\par\noindent\csname\@I\endcsname}}}
-\defbibheading{empty}{}
 %</cls|reporting>
 %    \end{macrocode}
 %
@@ -2510,7 +2488,7 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 \newcommand{\signatures}[1]{\section{#1}
 \qquad\number\day. \number\month. \number\year\\[6ex]
 \strut\qquad Date\hfill\@for\@p:=\prop@gen@PIs\do{%
-\wa@ref{person}\@p{personaltitle}~\wa@ref{person}\@p{name}\hfill}}
+\wa@ref3{person}\@p{personaltitle}~\wa@ref3{person}\@p{name}\hfill}}
 %    \end{macrocode}
 % \end{macro}
 % 

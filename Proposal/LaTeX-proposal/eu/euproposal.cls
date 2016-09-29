@@ -7,7 +7,8 @@
 %% euproposal.dtx  (with options: `cls')
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
-\ProvidesClass{euproposal}[2015/01/14 v1.5 EU Proposal]
+\ProvidesClass{euproposal}[2016/04/15 v1.5 EU Proposal]
+
 \newif\ifpartB\partBfalse
 \DeclareOption{partB}{\partBtrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
@@ -56,9 +57,9 @@
   %   \textbf{Objective \prop@gen@objectiveid}: \prop@gen@objective,
   %   \textbf{target outcome \prop@gen@outcomeid}) \prop@gen@outcome.
   %   {\prop@gen@topicsaddressed}\\[1em]
-  \item[Coordinator:] \wa@ref{person}\prop@gen@coordinator{name}
-  \item[e-mail:] \wa@ref{person}\prop@gen@coordinator{email}
-  \item[tel/fax:] \wa@ref{person}\prop@gen@coordinator{worktelfax}
+  \item[Coordinator:] \wa@ref3{person}\prop@gen@coordinator{name}
+  \item[e-mail:] \wa@ref3{person}\prop@gen@coordinator{email}
+  \item[tel/fax:] \wa@ref3{person}\prop@gen@coordinator{worktelfax}
     \@ifundefined{prop@gen@keywords}{}{\item[Keywords:]  \prop@gen@keywords}
   \end{description}
 \end{large}
@@ -95,14 +96,14 @@
 \ifx\@site@desc@logo\@true% if we want a logo
 \wa@institution@logo[height=\site@desc@width]{#2}\\[1ex]%
 \fi% end logo
-\textbf{\wa@ref{institution}{#2}{type}.\hfill \wa@ref{institution}{#2}{country}}\\%
-\small\wa@ref{institution}{#2}{streetaddress}, \wa@ref{institution}{#2}{townzip}\\\hline%
+\textbf{\wa@ref3{institution}{#2}{type}.\hfill \wa@ref3{institution}{#2}{country}}\\%
+\small\wa@ref3{institution}{#2}{streetaddress}, \wa@ref3{institution}{#2}{townzip}\\\hline%
 \end{tabular}\vspace{-2.5ex}%
 \end{wrapfigure}%
 \fi% end box
 \pdata@target{site}{#2}%
-{\subsubsection{\wa@ref{institution}{#2}{acronym}: % space here
-{\textsc{\wa@ref{institution}{#2}{name}}  (\wa@ref{institution}{#2}{countryshort})}}}%
+{\subsubsection{\wa@ref3{institution}{#2}{acronym}: % space here
+{\textsc{\wa@ref3{institution}{#2}{name}}  (\wa@ref3{institution}{#2}{countryshort})}}}%
 \small%
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
                                     {0.25ex \@plus1ex \@minus.2ex}%
@@ -142,15 +143,58 @@
 \wp@efforts@line\\\hline%
 \end{tabular}\smallskip\par\noindent\ignorespaces}
 \surroundwithmdframed{wpdelivs}
+\define@key{milestone}{verif}{\gdef\mile@verif{#1}\pdata@def{mile}\mile@id{verif}{#1}}
+\define@key{mst}{caption}{\gdef\mst@caption{#1}}
+\define@key{mst}{wname}{\gdef\mst@wname{#1}}
+\define@key{mst}{wdeliv}{\gdef\mst@wdeliv{#1}}
+\define@key{mst}{wverif}{\gdef\mst@wverif{#1}}
+\newcommand\milestonetable[1][]{%
+\def\mst@caption{Milestones, Deliverables, and Verification}%
+\def\mst@wname{2.5cm}\def\mst@wdeliv{7cm}\def\mst@wverif{4cm}
+\setkeys{mst}{#1}%
+{\gdef\mst@lines{}%initialize
+\let\tabularnewline\relax\let\hline\relax% so they
+\let\textbf\relax\let\emph\relax% do not bother us
+\edef\@@miles{\pdataref{all}{mile}{ids}}
+\@for\@I:=\@@miles\do{
+\edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
+\def\@@delivs{}
+\@for\@J:=\@delivs\do{\xdef\@@delivs{\@@delivs\ \pdataref{deliv}\@J{label}}}
+\def\@@line{
+\textbf{\pdataref{mile}\@I{label}}&
+\emph{\pdataref{mile}{\@I}{title}} &
+\@@delivs&
+\pdataref{mile}\@I{month} &
+\pdataref{mile}\@I{verif}}
+\xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
+\begin{table}[ht]
+\begin{tabular}{|l|p{\mst@wname}|p{\mst@wdeliv}|l|p{\mst@wverif}|}\hline
+\#&\textbf{\miles@legend@name}
+&\textbf{\miles@legend@involved}
+&\textbf{\miles@legend@mo}
+&\textbf{\miles@legend@verif}\\\hline\hline
+\mst@lines
+\end{tabular}
+\caption{\mst@caption}\label{tab:milestonetable}
+\end{table}
+\footnotetext\miles@legend@footnote}
+\newcommand\miles@legend@name{Name}
+\newcommand\miles@legend@mo{Mo}
+\newcommand\miles@legend@verif{Means of Verif.}
+\newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
+\newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
+\newcommand\prop@milesfor[1]{\edef\@delivs{\pdataref@safe{mile}{#1}{delivs}}%
+\let\m@sep=\relax\def\new@sep{,\ }%
+\@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
 \newenvironment{risk}[3]
 {\paragraph{Risk: #1}\hfill\emph{probability}: #2, \emph{gravity}: #3\par\noindent\ignorespaces}
 {}
 \newenvironment{riskcont}[3]
 {\begin{risk}{#1}{#2}{#3}\textbf{Contingency:} }
 {\end{risk}}
-\newcommand\keypubs[1]{%
+\newcommand\keypubs[2][]{%
 \paragraph{Key publications relevant to the project}%
-{\renewcommand{\baselinestretch}{.9}\prop@paperlist{#1}}}
+{\prop@paperlist[#1]{#2}}}
 \endinput
 %%
 %% End of file `euproposal.cls'.

@@ -7,7 +7,7 @@
 %% proposal.dtx  (with options: `cls')
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
-\ProvidesClass{proposal}[2015/01/14 v1.5 Project Proposal]
+\ProvidesClass{proposal}[2016/04/15 v1.5 Project Proposal]
 \newif\if@wpsubsection\@wpsubsectionfalse
 \newif\ifsubmit\submitfalse
 \newif\ifgrantagreement\grantagreementfalse
@@ -53,7 +53,7 @@
 \renewcommand{\familydefault}{\sfdefault}
 \RequirePackage[scaled=.90]{helvet}
 \RequirePackage{textcomp}
-\RequirePackage[hyperref=auto,style=numeric,defernumbers=true,backend=bibtex,backref=true,firstinits=true,maxbibnames=6]{biblatex}[2010/11-19]
+\RequirePackage[hyperref=auto,style=alphabetic,defernumbers=true,backend=bibtex,backref=true,firstinits=true,maxbibnames=6]{biblatex}[2010/11-19]
 \RequirePackage{csquotes}
 \RequirePackage{mdframed}
 \RequirePackage{pdata}
@@ -100,8 +100,8 @@
   {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
-    \prop@tl\prop@gen@PIs{\wa@ref{person}\tl@ext{name}}\\
-    \prop@tl\prop@gen@PIs{\wa@ref{institution}{\wa@ref{person}\tl@ext{affiliation}}{name}}
+    \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\
+    \prop@tl\prop@gen@PIs{\wa@ref3{institution}{\wa@ref3{person}\tl@ext{affiliation}}{name}}
  \end{tabular}\\[2cm]
 \end{center}
 \setcounter{tocdepth}{2}\tableofcontents\newpage\setcounter{page}{1}}
@@ -109,8 +109,8 @@
 \begin{itemize}
 \@for\@I:=\prop@gen@PIs\do{%
 \item Curriculum Vitae and list of publications for
-  \wa@ref{person}\@I{personaltitle} \wa@ref{person}\@I{name}
-\end{itemize}}\newpage
+  \wa@ref3{person}\@I{personaltitle} \wa@ref3{person}\@I{name}}
+\end{itemize}\newpage
 \printbibliography[heading=warnpubs]}
 \newenvironment{proposal}[1][]{\readpdata\jobname
 \ofpagetrue\setkeys{prop@gen}{#1}
@@ -128,8 +128,8 @@
 {\end{prop@proposal}
 \pdata@def{prop}{page}{last}{\thepage}\ofpagefalse
 \pdata@close}
-\newcommand\site[1]{\hyperlink{site@#1@target}{\wa@ref{institution}{#1}{acronym}}}
-\newcommand\sitename[1]{\hyperlink{site@#1@target}{\wa@ref{institution}{#1}{name}}}
+\newcommand\site[1]{\hyperlink{site@#1@target}{\wa@ref3{institution}{#1}{acronym}}}
+\newcommand\sitename[1]{\hyperlink{site@#1@target}{\wa@ref3{institution}{#1}{name}}}
 \newcommand\objective@label[1]{O#1}
 \define@key{obj}{id}{\def\obj@id{#1}\@dmp{id=#1}}
 \define@key{obj}{title}{\def\obj@title{#1}\@dmp{title=#1}}
@@ -368,9 +368,7 @@
 {\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv \wpg@id  undefined}}
 {\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{lead}{\deliv@lead}}
 \@ifundefined{deliv@due}{}{%
-\@ifundefined{deliv@issue}
-{}%\pdata@def{deliv}{\wpg@id\deliv@id}{short}{#2}}
-{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
+\@ifundefined{deliv@issue}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
@@ -395,9 +393,9 @@
 \def\d@sep{,}
  \@for\@I:=\deliv@miles\do{% Iterate over the milestones mentioned
  \expandafter\ifx\csname\@I delivs\endcsname\relax% Check that the miles@delivs is empty
-  {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id\deliv@id}}% if so, skip the separator
+  {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id @\deliv@id}}% if so, skip the separator
    \else\expandafter\xdef\csname\@I delivs\endcsname%if not add it
-      {\csname\@I delivs\endcsname\d@sep\wpg@id\deliv@id}\fi}}}
+      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}}
 \newenvironment{wadeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wa}\else\deliv@error\fi}{}
 \newenvironment{wpdeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wp}\else\deliv@error\fi}{}
 \newcommand\milestone@label[1]{M{#1}}
@@ -406,21 +404,23 @@
 \newcounter{milestone}
 \define@key{milestone}{id}{\gdef\mile@id{#1}}
 \define@key{milestone}{month}{\gdef\mile@month{#1}}
-\define@key{milestone}{verif}{\gdef\mile@verif{#1}}
 \newcommand\milestone[3][]{%
 \ifdelivs%
 \setkeys{milestone}{#1}\stepcounter{milestone}%
 \pdata@def{mile}\mile@id{label}{\milestone@label{\themilestone}}%
 \pdata@def{mile}\mile@id{month}{\mile@month}%
-\pdata@def{mile}\mile@id{verif}{\mile@verif}%
 \pdata@def{mile}\mile@id{title}{#2}%
 \pdata@def{mile}\mile@id{description}{#3}%
-\@ifundefined{mile@stones}{\xdef\mile@stones{\mile@id}}{\xdef\mile@stones{\mile@stones,\mile@id}}%
+\@ifundefined{mile@stones}%
+{\xdef\mile@stones{\mile@id}}%
+{\xdef\mile@stones{\mile@stones,\mile@id}}%
 \@milestone{\mile@id}{#2}{#3}% presentation
 \else\deliv@error\fi}
 \newcommand\@milestone[3]{% id, title, description
-\item \textbf{\miles@legend@milestone \pdataref{mile}{#1}{label} (\miles@legend@month \pdataref{mile}\mile@id{month})
+\item \textbf{\miles@legend@milestone\xspace\pdata@target{mile}\mile@id{\pdataref{mile}{#1}{label}}
+(\miles@legend@month \pdataref{mile}\mile@id{month})
 \textbf{#2}} #3}
+\newcommand\miles@legend@month{Month}
 \newcommand\miles@legend@milestone{Milestone}
 \newenvironment{milestones}%
 {\ifdelivs\begin{@milestones}\else\deliv@error\fi}
@@ -428,41 +428,6 @@
 \pdata@def{all}{mile}{count}{\themilestone}%
 \end{@milestones}\fi}
 \newenvironment{@milestones}{\begin{enumerate}}{\end{enumerate}}
-\newcommand\milestonetable{%
-{\gdef\mst@lines{}%initialize
-\let\tabularnewline\relax\let\hline\relax% so they
-\let\textbf\relax\let\emph\relax% do not bother us
-\edef\@@miles{\pdataref{all}{mile}{ids}}
-\@for\@I:=\@@miles\do{
-\edef\@delivs{\pdataref@safe{mile}{\@I}{delivs}}%
-\def\@@delivs{}
-\@for\@J:=\@delivs\do{\xdef\@@delivs{\@@delivs\ \pdataref{deliv}\@J{label}}}
-\def\@@line{
-\textbf{\pdataref{mile}\@I{label}}&
-\emph{\pdataref{mile}{\@I}{title}} &
-\@@delivs&
-\pdataref{mile}\@I{month} &
-\pdataref{mile}\@I{verif}}
-\xdef\mst@lines{\mst@lines\@@line\tabularnewline\hline}}}
-\begin{table}[ht]
-\begin{tabular}{|l|p{2.5cm}|p{7cm}|l|p{4cm}|}\hline
-\#&\textbf{\miles@legend@name}
-&\textbf{\miles@legend@involved}
-&\textbf{\miles@legend@month}
-&\textbf{\miles@legend@verif}\\\hline\hline
-\mst@lines
-\end{tabular}
-\caption{Milestones, Deliverables, and Verification}\label{tab:milestonetable}
-\end{table}
-\footnotetext\miles@legend@footnote}
-\newcommand\miles@legend@name{Name}
-\newcommand\miles@legend@month{Mo}
-\newcommand\miles@legend@verif{Means of Verif.}
-\newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
-\newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
-\newcommand\prop@milesfor[1]{\edef\@delivs{\pdataref@safe{mile}{#1}{delivs}}%
-\let\m@sep=\relax\def\new@sep{,\ }%
-\@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
 \newcommand{\deliverable}[9]{\pdataRef{deliv}{#4}{label}&#7&#8&#9&#6&#5&#2\\\hline}%sortkey,due,label,id,title,type,level,lead
 \newenvironment{deliverables}[1]{\ifdelivs\begin{longtable}{|l|p{#1}|l|l|l|l|l|}\hline%
 \#&\textbf{\delivs@legend@name}&%
@@ -499,7 +464,7 @@
 \define@key{task}{PM}{\def\task@PM{#1}}
 \define@key{task}{issue}{\def\task@issue{#1}}
 \def\task@set#1{\edef\task@id{task\thetask@all}
-\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}
+\def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}\def\task@title{}
 \setkeys{task}{#1}}
 \def\task@post@title@space{\;}
 \newcounter{alltasks}
@@ -509,7 +474,7 @@
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}%
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
-\@ifundefined{task@title}{}{\textbf\task@title}\task@post@title@space%
+\ifx\task@title\@empty\textbf\task@title\fi\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I%
@@ -609,8 +574,7 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \else\begin{tabular}{|l|l|*{\thewpfig@options}{r|}|*{\the@sites}{r|}|r|}\hline\fi%|
 \wpfig@headline\\\hline\hline}
 {\end{tabular}\smallskip\\
-\wpfig@legend@RAM@expl
-\if@sites; \wpfig@legend@lead@expl\fi
+\wpfig@legend@RAM@expl\if@sites; \wpfig@legend@lead@expl\fi
 \@ifundefined{wpfig@label}{\caption{\wpfig@legend@caption}}{\caption{\wpfig@caption}}
 \@ifundefined{wpfig@label}{\label{fig:wplist}}{\label{\wpfig@label}}
 \end{center}\end{table}}
@@ -1014,7 +978,7 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \begin{tabular}{|l||*{\the@site}{c|}}\hline%
 \@ct@lines\hline%
 joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ project,
-      \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev,
+       \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev,
        \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
 \define@key{coherencetable}{swsites}[true]{\def\cht@swsites{#1}}
@@ -1048,16 +1012,14 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 \define@key{paperlist}{techreports}[true]{\prop@ppl{techreport}{Technical Reports}}
 \DeclareBibliographyCategory{featured}
 \newcommand\prop@paperlist[2][]{%
-\begin{refsection}%
-\nocite{#2}\addtocategory{featured}{#2}%
 \let\biboldfont\bibfont%
 \renewcommand{\bibfont}{\footnotesize}%
-\renewcommand{\baselinestretch}{.9}
+\renewcommand{\baselinestretch}{.9}%
+\nocite{#2}\def\do##1{\addtocategory{featured}{##1}}\docsvlist{#2}%
 \setkeys{paperlist}{#1}
 \@ifundefined{prop@rl}{}{\@latex@warning{some papers are not classified!}}
-\if@allpapers\printbibliography[heading=empty]\fi%
-\let\bibfont\biboldfont%
-\end{refsection}}
+\if@allpapers\printbibliography[category=featured,heading=empty]\fi%
+\let\bibfont\biboldfont}
 \def\prop@warnpubs@message{Many of the proposers' publications are online at one of the following URIs:}
 \def\prop@warnpubs@title{References}
 \defbibheading{warnpubs}{\section*{\prop@warnpubs@title}%
@@ -1066,7 +1028,6 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
                    use the pubspage key in the proposal environment!}}
   {\prop@warnpubs@message%
  \@for\@I:=\prop@gen@pubspages\do{\par\noindent\csname\@I\endcsname}}}
-\defbibheading{empty}{}
 \endinput
 %%
 %% End of file `proposal.cls'.

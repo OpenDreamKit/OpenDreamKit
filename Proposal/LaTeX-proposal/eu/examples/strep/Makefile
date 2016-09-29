@@ -1,3 +1,9 @@
+###########################################################################
+# Automating proposal management by make.
+# The participants work on proposal.tex in "draft" mode, which gives a lot
+# of information to the developers. Variants submit.tex and public.tex are
+# used to prepare official versions (hiding development/private info). 
+###########################################################################
 # possibly customize the following variables to your setting
 PROPOSAL = propB.tex 		# the proposal
 BIB = ../lib/dummy.bib	        # bibTeX databases
@@ -13,8 +19,7 @@ TBIB.aux 	= $(TBIB:%.tex=%.aux)             # their aux files.
 PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
 SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
 PDFLATEX = pdflatex -interaction batchmode -file-line-error
-BBL.base = 1 2 3 4
-BBL = $(PROPOSAL:%.tex=%.bbl) $(BBL.base:%=$(PROPOSAL:%.tex=%)%-blx.bbl)
+BBL = $(PROPOSAL:%.tex=%.bbl)
 PROPCLS.dir = $(PROP.dir)/base
 PROPETC.dir = $(PROP.dir)/etc
 EUPROPCLS.dir = $(PROP.dir)/eu
@@ -27,26 +32,11 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
-final:
-	$(MAKE) $(MAKEFAGS) -w PROPOSAL=final.tex all
+submit:
+	$(MAKE) -w PROPOSAL=final.tex all
 
-final-split: final
-	pdftk final.pdf cat 1-69   output final-123.pdf
-	pdftk final.pdf cat 70-end output final-45.pdf
-
-draft:  $(SRC)
-	$(MAKE) $(MAKEFAGS) -w PROPOSAL=draft.tex all
-
-grantagreement:
-	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W proposal.tex all
-	pdftk grantagreement.pdf cat 1-30 55-end output grantagreement-striped.pdf
-	mv grantagreement-striped.pdf grantagreement.pdf
-
-
-install: final
-	cp final.pdf proposal-www.pdf
-	git commit -m "Updated pdf" proposal-www.pdf
-	git push
+public:
+	$(MAKE) -w PROPOSAL=public.tex all
 
 bbl:	$(BBL)
 $(BBL): %.bbl: %.aux
@@ -76,11 +66,11 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
 clean: 
-	rm -f *.log *.blg *~ *.synctex.gz *.cut
+	rm -f *~ *.log *.ilg *.out *.glo *.idx *.ilg *.blg *.run.xml *.synctex.gz *.cut
 
 distclean: clean
-	rm -f *.aux *.out *.run.xml *.bbl *.toc *.deliv* *.pdata
+	rm -f *.aux *.ind *.gls *.ps *.dvi *.thm *.out *.run.xml *.bbl *.toc *.deliv* *.pdata *-blx.bib
 	rm -Rf auto
 
 echo:
-	echo $(BBL)
+	@echo $(BBL)
