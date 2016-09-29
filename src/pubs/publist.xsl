@@ -25,21 +25,83 @@
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:variable name="article"
-		select="document(concat($id,'-article.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+  <xsl:variable name="article">
+    <xsl:for-each select="document(concat($id,'-article.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
 
-  <xsl:variable name="incollection" select="document(concat($id,'-incollection.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="conference" select="document(concat($id,'-conference.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="book" select="document(concat($id,'-book.html'))//x:ul[@class='ltx_biblist']/x:li|
-				                           document(concat($id,'-cbook.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="proceedings" select="document(concat($id,'-cproceedings.html'))//x:ul[@class='ltx_biblist']/x:li|
-					                              document(concat($id,'-proceedings.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="thesis" select="document(concat($id,'-thesis.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="wproceedings" select="document(concat($id,'-wproceedings.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="workshop" select="document(concat($id,'-workshop.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="report" select="document(concat($id,'-report.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="unpublished" select="document(concat($id,'-unpublished.html'))//x:ul[@class='ltx_biblist']/x:li"/>
-  <xsl:variable name="misc" select="document(concat($id,'-misc.html'))//x:ul[@class='ltx_biblist']/x:li"/>
+  <xsl:variable name="incollection">
+    <xsl:for-each select="document(concat($id,'-incollection.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="conference">
+    <xsl:for-each select="document(concat($id,'-conference.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="workshop">
+    <xsl:for-each select="document(concat($id,'-workshop.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="book">
+    <xsl:for-each select="document(concat($id,'-book.html'))//x:ul[@class='ltx_biblist']/x:li|
+				                           document(concat($id,'-cbook.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="cproceedings">
+    <xsl:for-each select="document(concat($id,'-cproceedings.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="wproceedings">
+    <xsl:for-each select="document(concat($id,'-wproceedings.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="thesis">
+    <xsl:for-each select="document(concat($id,'-thesis.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="report">
+    <xsl:for-each select="document(concat($id,'-report.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="unpublished">
+    <xsl:for-each select="document(concat($id,'-unpublished.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="misc">
+    <xsl:for-each select="document(concat($id,'-misc.html'))//x:ul[@class='ltx_biblist']/x:li">
+      <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </xsl:variable>
 
   <xsl:template match="/">
     <html>
@@ -60,7 +122,7 @@
 		<xsl:if test="$incollection"><li><a href="#incollection">Articles in Collections</a></li></xsl:if>
 		<xsl:if test="$conference"><li><a href="#conference">Papers at International, Peer-Reviewed Conferences</a></li></xsl:if>
 		<xsl:if test="$book"><li><a href="#book">Monographs</a></li></xsl:if>
-		<xsl:if test="$proceedings"><li><a href="#proceedings">Proceedings Edited</a></li></xsl:if>
+		<xsl:if test="$cproceedings"><li><a href="#proceedings">Conference Proceedings Edited</a></li></xsl:if>
 	      </ol>
 	      </li>
 	    </xsl:if>
@@ -83,7 +145,7 @@
 
 	<!-- the important stuff -->
 
-	<xsl:if test="$article or $incollection or $conference or $book or $proceedings">
+	<xsl:if test="$article or $incollection or $conference or $book or $cproceedings">
 	  <h2 id="archival">Archival Literature</h2>
 	  <xsl:if test="$article">
 	    <h3 id="article">Articles in Journals</h3>
@@ -105,9 +167,9 @@
 	    <ol class="ltx_biblist"><xsl:copy-of select="$book"/></ol>
 	  </xsl:if>
 	  
-	  <xsl:if test="$proceedings">
-	    <h3 id="proceedings">Proceedings Edited</h3>
-	    <ol class="ltx_biblist"><xsl:copy-of select="$proceedings"/></ol>
+	  <xsl:if test="$cproceedings">
+	    <h3 id="cproceedings">Conference Proceedings Edited</h3>
+	    <ol class="ltx_biblist"><xsl:copy-of select="$cproceedings"/></ol>
 	  </xsl:if>
 	</xsl:if>
 	
