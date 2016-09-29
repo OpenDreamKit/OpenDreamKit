@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+#######################################################################################
+# A tool for updating .dtx files with a given package date.                           #
+# Copyright (c) 2010, Deyan Ginev, released under the Gnu General Public License (GPL)#
+#                                 see http://www.gnu.org/copyleft/gpl.html            #
+# $URL: https://svn.kwarc.info/repos/stex/trunk/bin/filedate$                         #
+#######################################################################################
+
+use strict;
+
+use Getopt::Long;
+use Modparse;
+use Pod::Usage;
+use Cwd qw(abs_path);
+
+my ($file) = @ARGV;
+my $date = `git log --format='%ai' $file`;
+$date = substr($date, 0, index($date, ' '));
+$date =~ s/-/\//g;
+$file = abs_path($file);
+open(IN,"<$file");
+my @lines = ();
+while (<IN>) {
+  if ($_ =~ /\\Provides(Package|Class)/) {
+    $_ =~ s/\[(.*?)\s/\[$date /;
+  }
+  push @lines, $_;
+}
+close(IN);
+open(OUT,">$file");
+print OUT join("",@lines);
+close(OUT);
+
+__END__
+
+
+=head1 SYNOPSIS
+
+filedate <input filename> <newdate>
+
+Purpose:
+    Update the dates for a \ProvidePackage invocation in a given .dtx source
+
+Example:
+    filedate omdoc.dtx 
