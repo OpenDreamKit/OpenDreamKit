@@ -4,12 +4,12 @@
 \ProcessOptions
 \LoadClass{eudelivreport}
 
-% Specific to ODK
+% Specific to ODK (this only works for deliverables in the right place)
 \newcommand{\prop@gen@proposalnumber}{676541}
 \newcommand{\prop@gen@acronym}{\href{http://opendreamkit.org}{OpenDreamKit}}
 \renewcommand{\prop@gen@instrument}{H2020-EINFRA-2015-1} % euproposal.cls defines it
-\newcommand{\prop@gen@logo}{ODK_elected_logo}
-\newcommand{\prop@gen@image}{Flag_of_Europe}
+\newcommand{\prop@gen@logo}{../../media/ODK_elected_logo}
+\newcommand{\prop@gen@image}{../../media/logos/Flag_of_Europe}
 
 \input{../../Proposal/final.pdata}
 \input{../../Proposal/WApersons}
