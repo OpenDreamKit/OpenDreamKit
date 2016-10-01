@@ -15,11 +15,12 @@
   <xsl:template match="ltx:bib-related[@role='host' and @bibrefs]">
     <xsl:variable name="bibref" select="@bibrefs"/>
     <xsl:variable name="target" select="//ltx:bibentry[@key=$bibref]"/>
+    <xsl:message>target <xsl:value-of select="$bibref"/>: <xsl:value-of select="count($target)"/></xsl:message>
     <xsl:choose>
-      <xsl:when test="$target/@type='proceedings'|$target/@type='book'">
+      <xsl:when test="$target/@type='proceedings' or $target/@type='book' or $target/@type='collection'">
 	<xsl:copy>
 	  <xsl:copy-of select="@*[local-name()!='bibrefs']"/>
-	  <xsl:attribute name="type"><xsl:text>proceedings</xsl:text></xsl:attribute>
+	  <xsl:attribute name="type"><xsl:value-of select="$target/@type"/></xsl:attribute>
 	  <xsl:apply-templates select="$target/*"/>
 	</xsl:copy>
       </xsl:when>
