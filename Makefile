@@ -28,7 +28,8 @@ pubs.dist			= $(dist)pubs/
 # Scripts etc
 bib.sty				= $(ltxml.src)kwarcbibs.sty
 html.script 			= $(html.src)generate-html
-
+CRXSL				= $(ltxml.src)crossrefs.xsl
+PLXSL				= $(pubs.src)publist.xsl
 
 ### </CONFIG> ###
 
@@ -73,8 +74,8 @@ $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
 
 $(kcr.ltxml.in): $(bib.kcr:%=$(bib.src)%)
 	cat $(bib.kcr:%=$(bib.src)%) > $@
-$(kcr.ltxml.out): $(kcr.ltxml.in) $(ltxml.src)crossrefs.xsl
-	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
+$(kcr.ltxml.out): $(kcr.ltxml.in) $(CRXSL)
+	latexmlc $< --bibtex --includestyles --stylesheet=$(CRXSL) --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
 
 # *.html --> custom script (xsltproc + latexml)
 html: setup-html xml
@@ -93,9 +94,9 @@ setup-pubs:
 	cp $(pubs.src)publist.css $(pubs.dist)
 clean-pubs:
 	-rm -r $(pubs.dist)
-$(bib.people): %:
+$(bib.people): %: $(PLXSL)
 	mkdir -p $(pubs.dist)$@
-	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(pubs.src)publist.xsl $(pubs.src)publist.xsl
+	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(PLXSL) $(PLXSL)
 
 
 ######## testing
