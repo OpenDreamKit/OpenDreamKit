@@ -3,29 +3,31 @@ SHELL:=/bin/bash
 ### <CONFIG> ###
 
 # BIB files
-bib.ext				= kwarcpubs.bib extpubs.bib kwarccrossrefs.bib extcrossrefs.bib
+bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
+bib.kcr 			= kwarcpubs.bib $(bib.cr)
+bib.ext				= extpubs.bib $(bib.cr)
 bib.all				= preamble.bib $(bib.ext)
-bib.people		= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
+bib.people		= mkohlhase #******** akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
 
 # Sources
-src						= src/
-bib.src				=	./
+src				= src/
+bib.src				= ./
 ltxml.src			= $(src)ltxml/
 tex.src				= $(src)tex/
 html.src			= $(src)html/
 pubs.src			= $(src)pubs/
 
 # Destination
-dist					=	dist/
+dist				= dist/
 bib.dist			= ./kwarc.bib
-ltxml.dist		= $(dist)ltxml/
+ltxml.dist			= $(dist)ltxml/
 tex.dist			= $(dist)tex/
 html.dist			= $(dist)html/
 pubs.dist			= $(dist)pubs/
 
 # Scripts etc
 bib.sty				= $(ltxml.src)kwarcbibs.sty
-html.script 	= $(html.src)generate-html
+html.script 			= $(html.src)generate-html
 
 
 ### </CONFIG> ###
@@ -36,6 +38,8 @@ kwarc.bib.in		= $(bib.all:%=$(bib.src)%)
 # for kwarc.bib.xml files
 kwarc.ltxml.in		= $(bib.sty) $(bib.sty).ltxml
 kwarc.ltxml.out		= $(bib.ext:%=$(ltxml.dist)%.xml)
+kcr.ltxml.in		= $(ltxml.dist)kcr.bib
+kcr.ltxml.out		= $(kcr.ltxml.in).xml
 
 ### TARGETS ###
 
@@ -52,6 +56,11 @@ clean-bib:
 	-rm $(bib.dist)
 $(bib.dist): 
 	awk 'FNR==1{print ""}{print}' $(kwarc.bib.in) > $(bib.dist)
+$(kcr.in):
+	cat 
+kwarcpubscr.bib:
+	cat kwarpubs.
+
 
 # *.bib.xml --> use latexmlc
 xml: setup-xml $(kwarc.ltxml.out)
@@ -60,6 +69,11 @@ setup-xml:
 clean-xml: 
 	-rm -r $(ltxml.dist)
 $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
+	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
+
+$(kcr.ltxml.in): $(bib.kcr:%=$(bib.src)%)
+	cat $(bib.kcr:%=$(bib.src)%) > $@
+$(kcr.ltxml.out): $(kcr.ltxml.in) $(ltxml.src)crossrefs.xsl
 	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
 
 # *.html --> custom script (xsltproc + latexml)
@@ -82,3 +96,10 @@ clean-pubs:
 $(bib.people): %:
 	mkdir -p $(pubs.dist)$@
 	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(pubs.src)publist.xsl $(pubs.src)publist.xsl
+
+
+######## testing
+test: $(kcr.ltxml.out)
+
+echo:
+	@echo $(kcr.ltxml.in)
