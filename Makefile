@@ -5,7 +5,7 @@ SHELL:=/bin/bash
 # BIB files
 bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
 bib.kcr 			= kwarcpubs.bib $(bib.cr)
-bib.ext				= extpubs.bib $(bib.cr)
+bib.ext				= extpubs.bib $(bib.kcr)
 bib.all				= preamble.bib $(bib.ext)
 bib.people		= mkohlhase #******** akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
 
@@ -39,6 +39,7 @@ kwarc.bib.in		= $(bib.all:%=$(bib.src)%)
 # for kwarc.bib.xml files
 kwarc.ltxml.in		= $(bib.sty) $(bib.sty).ltxml
 kwarc.ltxml.out		= $(bib.ext:%=$(ltxml.dist)%.xml)
+kcr.src			= $(bib.kcr:%=$(bib.src)%)
 kcr.ltxml.in		= $(ltxml.dist)kcr.bib
 kcr.ltxml.out		= $(kcr.ltxml.in).xml
 
@@ -47,7 +48,7 @@ kcr.ltxml.out		= $(kcr.ltxml.in).xml
 all: dist
 clean: clean-bib clean-xml clean-html clean-pubs
 
-dist: bib pubs
+dist: bib xml pubs
 
 # kwarc.bib --> concat files
 bib: setup-bib $(bib.dist)
@@ -57,11 +58,6 @@ clean-bib:
 	-rm $(bib.dist)
 $(bib.dist): 
 	awk 'FNR==1{print ""}{print}' $(kwarc.bib.in) > $(bib.dist)
-$(kcr.in):
-	cat 
-kwarcpubscr.bib:
-	cat kwarpubs.
-
 
 # *.bib.xml --> use latexmlc
 xml: setup-xml $(kwarc.ltxml.out)
@@ -72,13 +68,14 @@ clean-xml:
 $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
 	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
 
-$(kcr.ltxml.in): $(bib.kcr:%=$(bib.src)%)
-	cat $(bib.kcr:%=$(bib.src)%) > $@
+# kcr.bib.xlm --> use latexmlc after generating kcr.bib
+$(kcr.ltxml.in): $(kcr.src)
+	cat $(kcr.src) > $@
 $(kcr.ltxml.out): $(kcr.ltxml.in) $(CRXSL)
 	latexmlc $< --bibtex --includestyles --stylesheet=$(CRXSL) --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
 
 # *.html --> custom script (xsltproc + latexml)
-html: setup-html xml
+html: setup-html $(kcr.ltxml.out)
 	$(SHELL) $(html.script) $(src) $(dist) "$(bib.people)"
 setup-html:
 	mkdir -p $(html.dist)
@@ -103,4 +100,4 @@ $(bib.people): %: $(PLXSL)
 test: $(kcr.ltxml.out)
 
 echo:
-	@echo $(kcr.ltxml.in)
+	@echo $(kwarc.ltxml.out)
