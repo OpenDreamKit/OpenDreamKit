@@ -7,7 +7,7 @@ bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
 bib.kcr 			= kwarcpubs.bib $(bib.cr)
 bib.ext				= extpubs.bib $(bib.kcr)
 bib.all				= preamble.bib $(bib.ext)
-bib.people		= mkohlhase #******** akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
+bib.people		= mkohlhase#******** akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
 
 # Sources
 src				= src/
