@@ -72,7 +72,9 @@ $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
 $(kcr.ltxml.in): $(kcr.src)
 	cat $(kcr.src) > $@
 $(kcr.ltxml.out): $(kcr.ltxml.in) $(CRXSL)
-	latexmlc $< --bibtex --includestyles --stylesheet=$(CRXSL) --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
+	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
+	xsltproc -o $@.tmp $(CRXSL) $@
+#	mv $@.tmp $@
 
 # *.html --> custom script (xsltproc + latexml)
 html: setup-html $(kcr.ltxml.out)
@@ -80,6 +82,8 @@ html: setup-html $(kcr.ltxml.out)
 setup-html:
 	mkdir -p $(html.dist)
 	mkdir -p ${tex.dist}
+	mkdir -b $(ltxml.dist)
+
 clean-html:
 	-rm -r $(html.dist)
 	-rm -r ${tex.dist}
