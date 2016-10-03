@@ -82,8 +82,7 @@ html: setup-html $(kcr.ltxml.out)
 setup-html:
 	mkdir -p $(html.dist)
 	mkdir -p ${tex.dist}
-	mkdir -b $(ltxml.dist)
-
+	mkdir -p $(ltxml.dist)
 clean-html:
 	-rm -r $(html.dist)
 	-rm -r ${tex.dist}
