@@ -25,7 +25,9 @@ LTOPT="--bibliography=${DIST}ltxml/kcr.bib.xml --format=xhtml --path=${SRC}ltxml
 TYPES='article incollection conference workshop book thesis report unpublished misc wproceedings cproceedings cbook'
 for i in $KWARC; do
     for j in $TYPES; do
-    	  xsltproc --stringparam file $i-$j -o ${DIST}tex/$i-$j.tex ${BIB_XSL} ${DIST}ltxml/kcr.bib.xml;
-	      latexmlc ${LTOPT} --destination=${DIST}html/$i-$j.html ${DIST}tex/$i-$j.tex 2> >(tee ${DIST}tex/$i-$j.ltxlog >&2);
+	echo "Generating special LaTeX file ${DIST}tex/$i-$j.tex";
+    	xsltproc --stringparam file $i-$j -o ${DIST}tex/$i-$j.tex ${BIB_XSL} ${DIST}ltxml/kcr.bib.xml;
+	echo "converting it to XML";
+	latexmlc ${LTOPT} --destination=${DIST}html/$i-$j.html ${DIST}tex/$i-$j.tex 2> >(tee ${DIST}tex/$i-$j.ltxlog >&2);
     done;
 done;
