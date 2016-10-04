@@ -98,8 +98,8 @@ fi
 echo "Done. "
 
 # Make the updated website.
-echo "Building website, this will take a while. "
-make pubs
+echo "Building website and xml, this will take a while. "
+make xml pubs
 if [ "$?" -ne "0" ]; then
   echo "Fail"
   exit 1
@@ -107,11 +107,11 @@ fi
 echo "Done. "
 
 # get ready to deploy
-echo "Preparing website deploy ..."
+echo "Preparing website and xml deploy ..."
 git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH  --depth 1
 cp -rv dist/pubs/* deploy/pub
 mkdir -p deploy/pub/xml
-cp -rv dist/ltxml/*.bib.xml deploy/pub/xml
+cp -v dist/ltxml/*.xml deploy/pub/xml
 echo "Done. "
 
 # Add all the new files
@@ -120,7 +120,7 @@ git add --all
 git status
 
 # commit and push
-echo "Committing new website ..."
+echo "Committing new website and new xml ..."
 git commit -m "Auto-generated website for commit $SHA"
 git push origin $DEPLOY_BRANCH
 echo "Done. "
