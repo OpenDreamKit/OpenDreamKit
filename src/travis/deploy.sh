@@ -13,12 +13,12 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
     exit 0
 fi
 
-# work only if files actually changed. 
+# work only if files actually changed.
 git diff --quiet --exit-code "HEAD" "HEAD^" src/ preamble.bib kwarcpubs.bib extpubs.bib kwarccrossrefs.bib extcrossrefs.bib
 if [ $? -eq 0 ];then
   echo "Refusing to work: No source files were changed. Exiting normally. "
   exit 0
-fi; 
+fi;
 
 # setup ssh key
 echo "Setting up ssh key ..."
@@ -97,7 +97,7 @@ if [ "$?" -ne "0" ]; then
 fi
 echo "Done. "
 
-# Make the updated website. 
+# Make the updated website.
 echo "Building website, this will take a while. "
 make pubs
 if [ "$?" -ne "0" ]; then
@@ -110,6 +110,8 @@ echo "Done. "
 echo "Preparing website deploy ..."
 git clone $SSH_REPO deploy/pub -b $DEPLOY_BRANCH  --depth 1
 cp -rv dist/pubs/* deploy/pub
+mkdir -p deploy/pub/xml
+cp -rv dist/ltxml/*.bib.xml deploy/pub/xml
 echo "Done. "
 
 # Add all the new files
