@@ -41,6 +41,7 @@ kwarc.ltxml.in		= $(bib.sty) $(bib.sty).ltxml
 kwarc.ltxml.out		= $(bib.ext:%=$(ltxml.dist)%.xml)
 kcr.src			= $(bib.kcr:%=$(bib.src)%)
 kcr.ltxml.in		= $(ltxml.dist)kcr.bib
+kcr.ltxml.tmp		= $(ltxml.dist)pre-kcr.bib.xml
 kcr.ltxml.out		= $(kcr.ltxml.in).xml
 
 ### TARGETS ###
@@ -71,11 +72,12 @@ $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
 # kcr.bib.xlm --> use latexmlc after generating kcr.bib
 $(kcr.ltxml.in): $(kcr.src)
 	cat $(kcr.src) > $@
-pre-$(kcr.ltxml.out): $(kcr.ltxml.in)
+$(kcr.ltxml.tmp): $(kcr.ltxml.in)
 	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
 
-$(kcr.ltxml.out): pre-$(kcr.ltxml.out) $(CRXSL)
+$(kcr.ltxml.out): $(kcr.ltxml.tmp) $(CRXSL)
 	xsltproc -o $@ $(CRXSL) $<
+	rm -f $<
 
 # *.html --> custom script (xsltproc + latexml)
 html: setup-html $(kcr.ltxml.out)
