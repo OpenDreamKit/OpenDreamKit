@@ -10,6 +10,7 @@
     </xsl:copy>
   </xsl:template>
 
+  
   <!-- for a cross-reference we just copy over what we need,
           proceedings and books need to be treated specially --> 
   <xsl:template match="ltx:bib-related[@role='host' and @bibrefs]">
@@ -28,5 +29,8 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <!-- delete all other bib-related (LaTeXML copies some stuff over). -->
+  <xsl:template match="ltx:bib-related"/>
 </xsl:stylesheet>
 
