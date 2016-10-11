@@ -44,7 +44,6 @@
 		      @type='book']"/>
 	</xsl:when>
 	<xsl:when test="$type='incollection'">
-	  <xsl:message>XXXXXXXX</xsl:message>
 	  <xsl:apply-templates
 	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
 		      (@type='inbook' or @type='incollection')]"/>

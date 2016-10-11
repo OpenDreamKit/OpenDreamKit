@@ -73,7 +73,7 @@ $(kcr.ltxml.in): $(kcr.src)
 	cat $(kcr.src) > $@
 $(kcr.ltxml.out): $(kcr.ltxml.in)
 	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=pre-$@ 2> >(tee $@.ltxlog >&2)
-	xsltproc -o pre-$@ $(CRXSL) $@
+	xsltproc -o $@ $(CRXSL) pre-$@
 	rm -f pre-$@
 
 # *.html --> custom script (xsltproc + latexml)
