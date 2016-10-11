@@ -7,7 +7,7 @@ bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
 bib.kcr 			= kwarcpubs.bib $(bib.cr)
 bib.ext				= extpubs.bib $(bib.kcr)
 bib.all				= preamble.bib $(bib.ext)
-bib.people			= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
+bib.people			= mkohlhase# akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
 
 # Sources
 src				= src/
@@ -72,12 +72,10 @@ $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
 # kcr.bib.xlm --> use latexmlc after generating kcr.bib
 $(kcr.ltxml.in): $(kcr.src)
 	cat $(kcr.src) > $@
-$(kcr.ltxml.tmp): $(kcr.ltxml.in)
-	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
-
-$(kcr.ltxml.out): $(kcr.ltxml.tmp) $(CRXSL)
-	xsltproc -o $@ $(CRXSL) $<
-	rm -f $<
+$(kcr.ltxml.out): $(kcr.ltxml.in)
+	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@.tmp 2> >(tee $@.ltxlog >&2)
+	xsltproc -o $@ $(CRXSL) $@.tmp
+	rm -f $@.tmp
 
 # *.html --> custom script (xsltproc + latexml)
 html: setup-html $(kcr.ltxml.out)
