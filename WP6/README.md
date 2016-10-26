@@ -39,4 +39,5 @@ The complexity of mathematical DKS structures is on vivid display in the L-funct
 project (LMFDB): while the general shape of the functional equation of an L-function is dependent on a lot of theoretical
 knowledge, it also requires parameter data and the coefficients of the associated Dirichlet series. Once this is obtained,
 highly optimised (and heavily parallelizable) algorithms can be run to compute values of this function.
+
 See page 53 of the [proposal](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf) for the full description.
