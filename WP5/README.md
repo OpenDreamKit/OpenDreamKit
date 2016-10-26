@@ -1,6 +1,6 @@
 # WP5: High Performance Mathematical Computing
 
-Lead Institution: Université Joseph Fourier
+Lead Institution: Université Joseph Fourier Grenoble
 
 - Objectives:
 
