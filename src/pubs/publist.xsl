@@ -25,6 +25,8 @@
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="here" select="."/>
+  
   <xsl:variable name="article">
     <xsl:for-each select="document(concat($id,'-article.html'))//x:ul[@class='ltx_biblist']/x:li">
       <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
@@ -107,7 +109,16 @@
     <html>
       <head>
 	<title><xsl:value-of select="$name"/>: Selected Publications</title>
-	<link rel="stylesheet" href="../publist.css" type="text/css"/>
+	<style type="text/css">
+	  .ltx_bib_cited {display:none}
+	  .ltx_bib_key {display:none}
+	  
+	  /* lifted from LaTeXML.css */
+	  .ltx_bib_title { font-style:italic; }
+	  .ltx_bib_article .bib-title { font-style:normal !important; }
+	  .ltx_bib_journal  { font-style:italic; }
+	  .ltx_bib_volume { font-weight:bold; }
+	</style>
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/>
       </head>
       <body>
