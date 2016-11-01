@@ -1,7 +1,6 @@
 SHELL:=/bin/bash
 
 ### <CONFIG> ###
-
 # BIB files
 bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
 bib.kcr 			= kwarcpubs.bib $(bib.cr)
