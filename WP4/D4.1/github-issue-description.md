@@ -1,4 +1,4 @@
-# Deliverable description, as taken from GitHub issue #83 on 2016-09-07 {.notoc}
+# Deliverable description, as taken from GitHub issue #83 on 2016-11-03 {.notoc}
 
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
 - **Lead Institution:** CNRS
@@ -16,8 +16,7 @@ The goal of this deliverable is to reconcile the fork by externalizing the Sage/
 Because of the high degree of coupling, and thanks to the availability of Snappy, this deliverable constitutes a highly valuable case study for future externalizations of low-level interfaces in SageMath. To bring this deliverable to completion, we have decided to split it in several steps:
 
 - [x] Move SageMath's C signalling api to a separate Python/Cython package. The package is called [cycsignals](https://github.com/sagemath/cysignals), and is [integrated to SageMath 7.1](http://trac.sagemath.org/ticket/20002).
-- [X] Decouple SageMath's Pari interface from the coercion model. This needs review at [Trac ticket 21158](http://trac.sagemath.org/ticket/21158) and its dependencies.
-- [ ] Clean up the interface API, by removing unneeded object orientation and external dependencies. This work is in progress at [Trac ticket 20241](http://trac.sagemath.org/ticket/20241).
-- [ ] Move SageMath's Pari interface to a separate Python/Cython package, depending on cysignals. The package is planned to replace the PyPi package [CyPari](https://pypi.python.org/pypi/cypari/). 
+- [x] Decouple SageMath's Pari interface from the coercion model. This has been achieved in [SageMath 7.4](http://trac.sagemath.org/ticket/21158).
+- [x] Clean up the interface API, by removing unneeded object orientation and external dependencies. This has been achieved, and will be available in [SageMath 7.5](http://trac.sagemath.org/ticket/20241).
+- [ ] Move SageMath's Pari interface to a separate Python/Cython package, depending on cysignals. The package is planned to eventually replace the PyPi package [CyPari](https://pypi.python.org/pypi/cypari/). 
 
-The first item is complete and delivered. Progress has been slowed down by delays in the recruitment process in Université Paris Sud, and by the aforementioned technical difficulties. The next two items are approaching completion, we estimate the remaining effort to three more person/weeks. The last item is very easy, once the previous ones are completed.
