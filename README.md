@@ -5,7 +5,22 @@ citation database ```kwarc.bib```. It is generated automatically by concatenatin
 several source files via a [Travis CI](https://travis-ci.org/) build job. 
 We additionally use the Travis job to generate a 
 [publication website](https://kwarc.github.io/bibs/) with the help of 
-[LaTeXML](http://dlmf.nist.gov/LaTeXML/).  
+[LaTeXML](http://dlmf.nist.gov/LaTeXML/).
+
+## Using the KWARC bibs
+
+In the simplest case, just clone the repository, and extend your  ```BIBINPUTS```
+environment variable so that it can find it. On a UNIX system something like the following
+should work. 
+```
+cd /path/to/your/setup
+mkdir -p KWARC
+cd KWARC
+git clone https://github.com/KWARC/bibs
+echo 'export BIBINPUTS = "$(BIBINPUTS):/path/to/your/setup/KWARC/bibs"' > ~/.bashrc
+```
+Of course you will have to replace ```/path/to/your/setup``` with a path appropriate to
+your system.
 
 ## File structure
 
