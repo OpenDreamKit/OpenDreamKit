@@ -1,8 +1,8 @@
-# The KWARC.bib respository [![Build Status](https://travis-ci.org/KWARC/bibs.svg?branch=master)](https://travis-ci.org/KWARC/bibs)
+# The KWARC.bib repository [![Build Status](https://travis-ci.org/KWARC/bibs.svg?branch=master)](https://travis-ci.org/KWARC/bibs)
 
 The repository contains the bib resources of the KWARC group, most notably the
-citation database kwarc.bib. It is generated automatically by concatinating
-serveral source files via a [Travis CI](https://travis-ci.org/) build job. 
+citation database ```kwarc.bib```. It is generated automatically by concatenating
+several source files via a [Travis CI](https://travis-ci.org/) build job. 
 We additionally use the Travis job to generate a 
 [publication website](https://kwarc.github.io/bibs/) with the help of 
 [LaTeXML](http://dlmf.nist.gov/LaTeXML/).  
@@ -17,22 +17,26 @@ files are toplevel.
 The top-level bib files  concatenated to create the unified ```kwarc.bib```
 file. The sources are: 
 
-* preamble.bib – LaTeX preamble that defines shared macros and strings
-* kwarcpubs.bib – individual publications of KWARC members (e.g. @article,
-@inproceedings)
-* kwarccrossrefs.bib – crossref targets (e.g. @proceedings) edited by KWARC
+* ```preamble.bib``` – LaTeX preamble that defines shared macros and strings
+* ```kwarcpubs.bib``` – individual publications of KWARC members (e.g. ```@article```,
+```@inproceedings```)
+* ```kwarccrossrefs.bib``` – crossref targets (e.g. ```@proceedings```) edited by KWARC
 members (e.g. when one of us chaired a workshop)
-* extpubs.bib – publications by external researchers (which may cross-reference
-targets in kwarccrossrefs.bib!)
-* extcrossrefs.bib – crossref targets edited by external researchers,
+* ```extpubs.bib``` – publications by external researchers (which may cross-reference
+targets in ```kwarccrossrefs.bib```!)
+* ```extcrossrefs.bib``` – crossref targets edited by external researchers,
  regardless of whether KWARC or external publications refer to them.
-
+ * ```deprecated.bib``` deprecated citations that are still kept in ```kwarc.bib``` to
+   format old papers. NOTE that they may contain double crossrefs that need to be fixed
+   manually (the bib is mostly for documentation purposes), best by moving to the
+   non-deprecated versions. 
+ 
 For making citations in your documents, you can simply continue to use the
-all-in-one kwarc.bib (but keep in mind that it is not editable!), or
+all-in-one ```kwarc.bib``` (but keep in mind that it is not editable!), or
 alternatively you can use the individual files. In the latter case, use the
 following order:
 
-1. preamble.bib
+1. ```preamble.bib```
 2. pubs.bib
 3. crossrefs.bib
 
@@ -60,18 +64,18 @@ existing ones.
 ## Online Publications
 
 For online publications, it is strongly recommended to use
-BibLaTeX's @online{foo:on} entries; see 
+BibLaTeX's ```@online{foo:on}``` entries; see 
 http://trac.kwarc.info/KWARC/wiki/BibLaTeX 
  
 Most online publications come in multiple variants for 
 compatibility with legacy publication workflows (such as LNCS). 
 The naming scheme is: 
  
-* @online{entry:on} -- BibLaTeX ```online``` entry 
-* @webpage{entry:webpage} -- alpha[h]url, an older solution for 
+* ```@online{entry:on}``` -- BibLaTeX ```online``` entry 
+* ```@webpage{entry:webpage}``` -- alpha[h]url, an older solution for 
  online citations
-* @misc{entry:web} -- plain BibTeX entry 
-* @misc{entry:base} -- crossref'd by the others above, contains 
+* ```@misc{entry:web}``` -- plain BibTeX entry 
+* ```@misc{entry:base}``` -- crossref'd by the others above, contains 
  common fields, not suitable for citation
 
 ## Building locally
@@ -81,7 +85,7 @@ targets:
 
 * ```all = dist```
 * ```dist = bib pubs```
-* ```bib``` Takes the individual .bib files and concatenates them into ```kwarc.bib````
+* ```bib``` Takes the individual .bib files and concatenates them into ```kwarc.bib```
 * ```xml``` Takes the individual .bib files and generates xml versions of them in ```dist/ltxml/*.bib.xml``` using ```latexml```. The generated files are ```.gitignore```d as users should not need them. 
 * ```html``` Takes the generated xml files from above and uses latexml and xslt to first generate .tex files in  ```dist/tex/name-type.tex``` and then html files ```dist/html/name-type.html```. Both types are gitignored. Uses an adapted version of the  ```generate-pubwww``` script, now found in ```src/html/generate.html```. 
 * ```pubs``` Takes the generated html files and builds a nice-looking bibliography in ```dist/pubs```. The output is .gitignored and intended to be committed to a gh-pages branch later on. Although that would still need an index.html, but that should not be a problem. 
@@ -104,7 +108,7 @@ is via the ```git-subrepo``` extension of ```git```. Unfortunately this is not p
 install the KWARC bibs as a subrepos. Your users do not, they will get the subrepos
 automatically on ```git clone``` or ```git pull```. 
 
-1. go to the top of your paper preository: ```cd path/to/top``` (you can only make a
+1. go to the top of your paper prehistory: ```cd path/to/top``` (you can only make a
   "subrepo" from there) 
 2. add the KWARC bibs repos as a "subrepo": ```git subrepo clone git@github.com:KWARC/bibs.git lib/kbibs```
 
@@ -112,12 +116,12 @@ Note that under ```git-subrepo``` the "external" is not updated automatically, a
 maintainer has to "pull" it. This can be seen as a feature and not a bug (there is less of
 a chance to break things).
 
-1. go to the top of your paper preository: ```cd path/to/top``` (you can only pull from there)
+1. go to the top of your paper repository: ```cd path/to/top``` (you can only pull from there)
 2. pull the KWARC bibs repos as a "subrepo": ```git subrepo pull lib/kbibs```
 
 To contribute changes back to the the KWARC bibs repository, you analogously do 
 
-1. go to the top of your paper preository: ```cd path/to/top``` (you can only push from there)
+1. go to the top of your paper prehistory: ```cd path/to/top``` (you can only push from there)
 2. pull the KWARC bibs repos as a "subrepo": ```git subrepo push lib/kbibs```
 
 easypeasy!
@@ -143,10 +147,21 @@ Contributing back to the KWARC bibs repository is somewhat more complex; RTFM!
 ## Externals in SVN
 In a subversion repository you can must make an external by
 
-1. go to the top of your paper preository: ```cd path/to/top```
+1. go to the top of your paper prehistory: ```cd path/to/top```
 2. make the ```lib``` subdir if necessary: ```mkdir lib```
 3. add the external: ```svn propedit svn:externals lib```
 4. an editor will appear, add the line ```kbibs bibs https://github.com/KWARC/bibs/trunk```
 5. commit your work: ```svn commit -m'adding external for the KWARC bibs'```
 
-Note that in SVN any ```snv update``` will update the KWARC bibs in the external as well. 
+Note that in SVN any ```svn update``` will update the KWARC bibs in the external as well. 
+
+<!--  LocalWords:  kwarc.bib kwarcpubs.bib kwarccrossrefs.bib crossref extpubs.bib foo:on
+ -->
+<!--  LocalWords:  extcrossrefs.bib crossrefs entry:on entry:webpage entry:web entry:base
+ -->
+<!--  LocalWords:  ltxml latexml gitignore xslt gitignored generate-pubwww gh-pages kbibs
+ -->
+<!--  LocalWords:  xsltproc git-subrepo readme subrepos subrepos subrepo easypeasy subdir
+ -->
+<!--  LocalWords:  subrepository svn:externals
+ -->
