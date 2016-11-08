@@ -17,10 +17,13 @@ cd /path/to/your/setup
 mkdir -p KWARC
 cd KWARC
 git clone https://github.com/KWARC/bibs
-echo 'export BIBINPUTS = "$(BIBINPUTS):/path/to/your/setup/KWARC/bibs"' > ~/.bashrc
+echo 'export BIBINPUTS = "$(BIBINPUTS):/path/to/your/setup/KWARC/bibs"' >> ~/.bashrc
 ```
 Of course you will have to replace ```/path/to/your/setup``` with a path appropriate to
 your system.
+
+If you want to use the KWARC in a revision control system for a larger group,  read (far) below. 
+
 
 ## File structure
 
@@ -54,15 +57,6 @@ following order:
 1. ```preamble.bib```
 2. pubs.bib
 3. crossrefs.bib
-
-In order to use these files with BiBTeX, it is best to configure the following
-environment variables: 
-
-```bash
-# /path/to/clone is a clone of this repository. 
-export BIBINPUTS=".:/path/to/clone"
-export BSTINPUTS=".:/path/to/clone"
-```
 
 ## Editing
 The source files do not have any particular order.
