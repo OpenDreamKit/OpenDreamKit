@@ -113,12 +113,12 @@ maintainer has to "pull" it. This can be seen as a feature and not a bug (there 
 a chance to break things).
 
 1. go to the top of your paper preository: ```cd path/to/top``` (you can only pull from there)
-2. pull the KWARC bibs repos as a "subrepo": ```git subrepo pull lib/kbbis```
+2. pull the KWARC bibs repos as a "subrepo": ```git subrepo pull lib/kbibs```
 
 To contribute changes back to the the KWARC bibs repository, you analogously do 
 
 1. go to the top of your paper preository: ```cd path/to/top``` (you can only push from there)
-2. pull the KWARC bibs repos as a "subrepo": ```git subrepo push lib/kbbis```
+2. pull the KWARC bibs repos as a "subrepo": ```git subrepo push lib/kbibs```
 
 easypeasy!
 

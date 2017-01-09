@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue's #91 on 2016-09-07 {.notoc}
+# Deliverable description, as taken from GitHub issue #91 on 2016-09-07 {.notoc}
 
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
 - **Lead Institution:** Jacobs University Bremen

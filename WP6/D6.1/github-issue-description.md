@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue's #133 on 2016-09-07 {.notoc}
+# Deliverable description, as taken from GitHub issue #133 on 2016-09-07 {.notoc}
 
 - **WP6:** [Data/Knowledge/Software-Bases](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP6)
 - **Lead Institution:** Jacobs University Bremen

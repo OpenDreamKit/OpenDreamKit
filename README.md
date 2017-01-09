@@ -3,10 +3,15 @@ Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
 - Website: [OpenDreamKit.org](http://www.OpenDreamKit.org)
-- Proposal files: [Proposal/](Proposal/)
+- Proposal files: [Proposal/](Proposal/), we also use the proposal as a basis the developing grant agreements, etc. and for the macros. 
 - Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+- deliverables and publications of the respective Work Packages: [WP1/](WP1/), [WP2/](WP2/) , [WP3/](WP3/) , [WP4/](WP4/) , [WP5/](WP5/) , [WP6/](WP6/) , [WP6/](WP6/)
+- management scripts: [bin/](bin/)
+- media files: [media/](media/)
+- Legal documents: [LegalDocuments/](LegalDocuments/)
+- bibliographies, etc: [lib/](lib/)
 
 # Instructions for participants
 
@@ -166,8 +171,8 @@ status report, ...) needs to be on the issue.
     - Where the work started from.
 
     - What precisely is the deliverable, and was achieved during the
-      project, clarifying the contribution of the participants and of
-      the community.
+      project, clarifying the contribution of the ODK participants and
+      of the community.
 
     - A brief view on applications, further outcomes, current
       activities, future plans.
@@ -182,6 +187,9 @@ status report, ...) needs to be on the issue.
     link label/context should be explanatory: the reader should not
     need to follow the link to know what additional information it
     provides.
+
+    If this gets too long (say more than one page), the details can be
+    left to the report itself.
 
 - Double check the deliverable metadata is up to date
 
@@ -208,6 +216,14 @@ status report, ...) needs to be on the issue.
   without retrieving other resources. Links have no legal value, since
   there is no guarantee that the referenced material will remain
   unchanged.
+
+- Defining authorship is tricky, as most deliverable involve close
+  collaboration with the community, and the report is often written by
+  a subset of the contributors. Let's use the following simple rule of
+  thumb: the authors of the report should include all persons funded
+  by ODK that contributed non trivially. Not including outsiders in
+  the author list is reasonable, as the report is about the
+  contribution of ODK.
 
 - Send a notice to the coordinator
 

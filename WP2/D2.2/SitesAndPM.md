@@ -31,3 +31,10 @@ CNRS
 Bill Allombert (BORDEAUX): 5 days  % Atelier PARI/GP 2016
 Karim Belabas (BORDEAUX): 5 days   % Atelier PARI/GP 2016
 Vincent Delecroix (BORDEAUX): 8 days % Sage days 73 and 74
+Adrien Boussicault: 30 days % Sage Days 
+
+Total: 48
+
+============
+
+Total: 129

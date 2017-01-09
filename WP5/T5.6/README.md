@@ -17,6 +17,6 @@ integrate to SAGE.
    Automne 2015, Université Pierre et Marie Curie - 2015, November the 26.
 
 - A [snapshot]
-  (https://github.com/OpenDreamKit/OpenDreamKit/blob/master/WP5/T5.6/documentation.pdf)
+  (https://github.com/OpenDreamKit/OpenDreamKit/blob/master/WP5/D5.1/documentation.pdf)
   of the corresponding part of Sage's documentation.
 
