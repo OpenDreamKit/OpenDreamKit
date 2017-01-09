@@ -1,0 +1,183 @@
+\section{Improving the OEIS Formula Language} \label{sec:Improve}
+
+Section \ref{sec:form-parser} introduced the problems when parsing the \oeis. In this section we are going to show an
+ improved formula language and the parser for it.
+
+OEIS has a strong policy advocating human readable math syntax. Users have a pretty strong autonomy on what notation
+they use.
+In the FAQ of OEIS we can see these:
+
+\begin{lstlisting}
+Q: Is it OK to use LaTex or Maple notation in equations?
+A: No, please don't!
+
+Use notation that can be understood by humans.
+Say     (1+x)/(1-x)     not     $\frac{(1+x)}{(1-x)}$.
+Say     n^2/2     not     1/2n^2.
+Say     A/(B*C*D)     not     A/B/C/D
+Say     sigma     not     $\sigma$.
+\end{lstlisting}
+
+The above explicitly suggests a human readable format and implicitly not using any sort of delineation. Furthermore,
+the FAQ also contains:
+
+\begin{lstlisting}
+Q: How should I indicate summations?
+A: There are many acceptable ways to do this.
+
+All of the following examples are OK.
+
+sum_{i=1..n} i^2 + i
+
+sum_i=1..n (i^2+i)
+
+sum_{d|n} d^3
+
+sum_{ 2 <= p <= n, p prime} p^2
+
+Other styles also acceptable, as long as they are clear!
+\end{lstlisting}
+This offers too much autonomy in the choice of constructs and even the proposed notations lead to ambiguous usages.
+For instance, in the expression below, it is unclear if the first expression equivalent to any of the ones below it.
+
+\begin{lstlisting}
+x^2 + sum_{i=1..n} i^2 + 2
+x^2 + sum_{i=1..n} (i^2) + 2
+x^2 + sum_{i=1..n} (i^2 + 2)
+\end{lstlisting}
+
+
+While human readability is certainly important, there better ways to achieve it while making it easier for the
+parsers to mine the invaluable resources in the \oeis. In fact, once the parsers successfully parse the formulas, we
+can then have MathML presentations of the formulas. In this section we show the an improved language for which we
+have implemented a parser. The approach should be read having in mind the practicality of adopting the implementation
+ from the \oeis which explains the choice of a less rigorous language. We only address a part of the language,
+ specifically the part that is attempted by the current parser.
+
+\subsection{Language}
+We categorize two levels of ambiguity:
+
+\begin{enumerate}
+    \item Having no clearly defined semantic interpretation. For instance, in $phi(x+2)$, the  function that $phi$
+    refers to is not defined.
+
+    \item Having two or more clearly defined and distinct semantic interpretations of an expression. An example is
+    $pi(x+2)$, where $pi$ could be function or a variable.
+\end{enumerate}
+
+The level of severity in terms of ambiguity is debatable. If the goal is computing with these expressions, then the
+second ambiguity might be more severe than the first. In the example above, if we know the function to which $pi$
+refers to, then it is possible to compute all possible semantic interpretations of the expression.
+
+In the \oeis context, the first level is a bigger issue, mainly due to the fact that there are special sections in
+\oeis for computational purposes. These sections contain executable code for Mathematica, Maple etc.
+
+\oeis has to two different formats, the \emph{internal} format and the \emph{text} format which is shown to the users
+. Our modifications are applicable to the internal format, while the text format does not necessarily change.
+
+\paragraph{Delineating formulas} Currently, the majority of failures of the existing parser are attributed to lack of
+ delineation.
+So we add deliniators to the internal format. Once the formulae are parsed, the text format can optionally change to
+show them in MathML.
+
+\paragraph{Ambiguity and Open Set of Primitives} The new language disallows implicit multiplication. However, the
+explicit multiplication will only show up in the internal format, while the text format still includes the implicit
+multiplication.
+
+\begin{wrapfigure}{r}{8.0cm}
+\vspace{-0.5cm}
+\begin{center}
+\begin{tabular}{|lll|}
+\hline
+$\mathit{S}$ & \bbc & $\mathit{Func}\; | \mathit{Rel}\; | \mathit{Const}\; | \mathit{Esc}$\\
+$\mathit{Func}$ & \bbc & $\textit{:func}\; \mathit{Name}\; \mathit{Arg} \; \mathit{Form} \; \mathit{Prec} \;
+\mathit{Desc} $ \\
+$\mathit{Rel}$ & \bbc & \textit{:rel}$\; \mathit{Name}\; \mathit{Form} \; \mathit{Prec} \; \mathit{Desc} $ \\
+$\mathit{Const}$ & \bbc & \textit{:const}$\; \mathit{Name}\; \mathit{Desc} $ \\
+$\mathit{Esc}$ & \bbc & $\textit{:esc}\; \mathit{Name}\; \mathit{Desc} $ \\
+$\mathit{Name}$ & \bbc & Name of the function \\
+$\mathit{Arg}$ & \bbc & $\mathtt{(\mathit{W}, ..., \mathit{W})|(\mathit{W}, ..., \mathit{W}) \mathit{Arg}} $ \\
+$\mathit{Form}$ & \bbc & \textit{prefix | suffix | infix} \\
+$\mathit{Prec}$ & \bbc & [$1$-$2^{31}$] \\
+$\mathit{Desc}$ & \bbc & Description \\
+$\mathit{W}$     & \bbc & [a-zA-Z0-9\_] \\
+\hline
+
+\end{tabular}
+\caption{Grammar of \oeis language theory}\label{fig:theory-form}
+\end{center}
+\end{wrapfigure}
+
+The other problems are solved by having an explicit source of knowledge. This means having a document which lists the
+ in fix, postfix, relational operators and the constants. This is what we call the \emph{language theory} of an \oeis
+ document. These theories do not have complex inheritance system. They can be either global in scope to the whole
+ \oeis, or local, only in the scope of one \oeis document. This is reduces the reusability, however with this we
+ intend to increase the readability and user friendliness since there are usually a very limited number of operators
+ defined per document. These definitions follow a simple format, declaring the operator, the argument pattern, the
+ type, the precedence and the meaning in a few words.
+Assuming the description is good the definitions can be manually converted into more formal notations to be used for
+computation purposes.
+Other forms of ambiguity are generally solved in the same way: we get closer to the rigorous math notation. For
+instance, the power operators need to be properly bracketed - \verb|T^y(x^2+2)| should be written as \verb|(T(x^2+2))^y|.
+ Nonetheless, unbracketed function application is allowed since it is already disambiguated by disallowing
+implicit multiplication.
+
+Due to the natural language usage we have unusual expressions. For instance we can spot expressions of the form:
+\begin{verbatim}
+    x^y + 2*triangular number
+    2*x + perfect square
+    sum_{i in fibbonaci numbers}
+\end{verbatim}
+We have the constructs that we call \emph{escapers} to allow creating these expressions. With escapers the syntax
+would then become:
+
+\begin{verbatim}
+    x^y + 2*{{triangular number}}
+    2*x + {{perfect square}}}
+    sum_{i in {{fibbonaci numbers}}}
+\end{verbatim}
+
+These constructs can contain natural language, however they still have to be defined in the theory of the document.
+
+Below is an example definition of the theory for the sequence \verb|A000045| which is partially shown in Section ??.
+
+\renewcommand{\lstlistingname}{Theory}
+
+\begin{lstlisting}[label=lst:theoryA000045,caption=Example theory for A000045]
+:func     sqrt    (x1)        prefix  1   The square root of x1
+:func     sum     (x1, x2)    prefix  1   Sum over x1 for values defined in x2.
+:const    pi                              The number 3.14159
+:rel      >=                  infix   2   Greater than or equal
+:func     +                   infix   1   Sum
+:rel      to                  infix   2   Range
+:func     F                   prefix  1   The Fibonacci function
+\end{lstlisting}
+
+We have shown all of the definitions in one theory for simplicity. In a normal setting, some of them would be defined
+ in the global theory. We have also omitted some operators for brevity.
+Using the rules above the formula language for the sequence document would then be transformed as shown below.
+
+\begin{lstlisting}[caption=Adjusted A000045 based on Theory \ref{lst:theoryA000045}]
+%F A000045 $F(n) = ((1+sqrt(5))^n-(1-sqrt(5))^n)/(2^n*sqrt(5))$
+%F A000045 G.f.: $Sum_{n>=0}{x^n * Product_{k,1 to n} {(k + x)/(1 + k*x)}}$. - _Paul D. Hanna_, Oct 26 2013
+%F A000045 This is a divisibility sequence; that is, if n divides m, then a(n) divides a(m)
+\end{lstlisting}
+
+Notice that the last line could very easily be delineated as math, but we did not do it
+for illustration purposes.
+
+A complete definition for the theory definition language has been given in Figure
+\ref{fig:theory-form}. The defined operators are considered to be left associative.
+
+\paragraph{Implementation} The parser of the new language and the parser of the theory
+definition language have been implemented using the Packrat Parser \cite{packrat} in
+Scala. The theory definitions are first parsed and then fed to the parser for the formula
+language.  The current limitation of the formula language parser is that it doesn't
+support the operator precedences. It parses the prefix, infix and postfix operators in
+order.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
