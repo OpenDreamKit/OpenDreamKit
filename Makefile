@@ -14,6 +14,7 @@ reports.zip: $(REPORTS)
 %/deliverablereport.cls:
 	ln -s ../../Proposal/LaTeX-proposal/deliverablereport.cls $@
 
+# Requires PyGithub, PyYAML
 %/github-issue-description.md:
 	(issue=`python3 bin/get_issue $*/report.tex`; echo "# Deliverable description, as taken from Github issue #$$issue on `date -I` {.notoc}\n"; python3 bin/get_issue_body $$issue) > $@
 

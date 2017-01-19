@@ -1,9 +1,9 @@
-# Deliverable description, as taken from Github issue #43 on 2016-09-19 {.notoc}
+# Deliverable description, as taken from Github issue #43 on 2017-01-04 {.notoc}
 
 - **WP2:** [Community Building, Training, Dissemination, Exploitation, and Outreach](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP2)
 - **Lead Institution:** Université Paris-Sud
 - **Due:** 2016-08-31 (month 12)
-- **Delivered:** 2016-09-??
+- **Delivered:** 2016-09-21
 - **Nature:** Report
 - **Task:** [T2.4](https://github.com/OpenDreamKit/OpenDreamKit/issues/27)
 - **Proposal:** [p.39](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
