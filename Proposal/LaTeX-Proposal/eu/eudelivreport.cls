@@ -1,9 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{eudelivreport}[2016/09/29 v1.0 EU Deliverable Report]
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{eudelivreport}}
+\def\@@class{amsart}
+\DeclareOption{report}{\def\@@class{amsproc}}
+\DeclareOption{book}{\def\@@class{amsbook}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{amsart}}
 \ProcessOptions
 
-\LoadClass[a4paper,twoside,12pt]{amsart}
+\LoadClass[a4paper,twoside,12pt]{\@@class}
 \RequirePackage[utf8]{inputenc}
 %\RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
 \RequirePackage[english]{babel}
