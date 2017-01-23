@@ -206,11 +206,12 @@ foreach sequence
         pfd = partialFractionDecomposition(ogf)
         partialFractions = decompose(partialFractions(pfd))
         foreach pgf in partialFraction
-            transformations = applyTransformations(pgf)
+            transformations = normalize(applyTransformations(pgf))
             foreach transformed in transformations
                 if transformed exists in hashSet
                     print relation
-            add pgf to hashSet
+                else
+                    add pgf to hashSet
 \end{lstlisting}
 
 As an example, let us take two sequences $A_1$ and $A_2$ and their corresponding ordinary generating functions $GF_1$
@@ -350,7 +351,7 @@ Figure \ref{fig:after}).
  \hline
  Method 2 relations & 262\ 751\ 850\\
  \hline
- Method 3 relations & 24\ 615\ 176 \\
+ Method 3 relations & 98\ 401 \\
  \hline
 \end{tabular}
 \end{center}
@@ -363,24 +364,12 @@ We converted the generating functions to a SageMath syntax and checked if SageMa
 
 Method 1 reports $4859$ relations of that kind. However, in total only $853$ sequences are involved in these relations.
 
-It is noticeable that there are a lot of relations found using the third method. However, one needs to keep in mind
-that for each common partial fraction there is a relation generated. Moreover, if one partial fraction without any
-transformation is in common in two generating functions, then all of the transformed versions of that partial
-fraction will also be in common which then would count as extra relations. This adds to the number of relations found
-. Another consideration is that not all of relations can be carried over to the representing functions, as already
-mentioned. One must interpret the result presented having this in mind. Nonetheless, we exclude the relations found
-by having a constant in common or any transformation of them. These relations are not interesting since a lot of
-sequences have a constant generating function in their partial decomposition. We also remove relations that emerge
-from the intersection of ordinary generating functions of the form $x^n$ or $\frac{1}{1-x}$ or transformations of
-these. For this method, further consideration must go into building a set of heuristics that remove trivial and
-uninteresting relations.
-
-One can also notice that there is a plethora relations generated from the second method. However, this is expected.
+One can notice that there is a plethora relations generated from the second method. However, this is expected.
 Take for instance, $G = A + B + C + D$, where $G$ is the generating function of a sequence, and $A,B,C, D$ are the
 partial fractions. If each partial fraction represents an \oeis sequence under every transformation (unit, derivate,
 integrate), then there are $3*3*3*3=3^4$ Then the number of relations that we can form is actually $3^4$. Clearly,
-the number of relations are bound by the exponential function $f(n) = 3^n$ where $n$ is the number of partial
-fractions (including the partial fractions that come from \emph{decomopose}). Since there are generating functions
+the number of relations per generating function are bound by the exponential function $f(n) = 3^n$ where $n$ is the 
+number of partial fractions (including the partial fractions that come from \emph{decomopose}). Since there are generating functions
 with up to $22$ partial fractions, the big number of relations is not a big surprise.
 
 Out of three relation submissions to the \oeis, two relations are already accepted
