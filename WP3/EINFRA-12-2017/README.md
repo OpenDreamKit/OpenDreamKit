@@ -1,4 +1,4 @@
-# Participation to the EINFRA-12-2017 call with EGI/EUDAT?
+# Participation to the EINFRA-12-2017 call with EGI/EUDAT/...?
 
 EGI/EUDAT are reaching for partners for its application to the
 EINFRA-12-2017. Dima participated to the "Design Your E-infrastructure
