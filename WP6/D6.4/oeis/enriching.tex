@@ -337,9 +337,11 @@ Figure \ref{fig:after}).
 \begin{center}
  \begin{tabular}{||c | c||}
  \hline
- Parsed Generating Functions & 43\ 005 \\
+ Parsed Generating Functions & 39\ 218 \\
  \hline
- Verified Ordinary Generating Functions & 16\ 065 \\
+ SageMath syntax-proof Generating Functions & 22\ 757 \\
+ \hline
+ Verified Ordinary Generating Functions & 21\ 872 \\
  \hline
  Parsed Ordinary Generating Functions &  35\ 953 \\
  \hline
@@ -360,16 +362,15 @@ The number of parsed generating functions is self-explanatory. The generating fu
 These generating functions are of all kinds - ordinary, Dirichlet, exponential generating functions 
 just to name a few. However, we were only interested in the ordinary generating functions. 
 Since the parser is not guaranteed to produce correct results, nor the filtering of the ordinary
-generating functions, a verification phase is employed. The ordinary generating functions are used
-to generate the first 8 terms of the sequence and then matched against the first terms of that 
-sequence in the OEIS. This is important to set a basis for correct relations. In fact, this is also
+generating functions, two verification methods are employed. The first verification method is used to filter the generating functions that we can compute on. The second verification method is used to 
+filter the ordinary generating functions that are actually correct and that we can rely to generate
+new relations. These are the generating functions that the relation-generation algorithms use. 
+First, we translated the parsed generating functions in SageMath syntax and checked if they were accepted from SageMath. We name the generating functions that pass this test as 'SageMath syntax-proof Generating Functions' in the table above. From a manual inspection we notice that most of the generating functions that do not pass this test are due to external references to unknown functions. For instance, $1+Q(0)$ where the function $Q(n)$ is defined later on in the sequence document. Currently, we do not resolve these references.
+Second, the parsed ordinary generating functions are used to generate the first 8 terms of the sequence and then matched against the first terms (fetched from \oeis). This is important to set a basis for correct relations. In fact, this is also
 important to further verify the parsing accuracy aswell as the \oeis data. 
-From an inspection of $70$ ordinary generating functions that failed the verification phase (\url{https://github.com/eluzhnica/oeis_gf/blob/master/failed}), only 1 was found to have been wrongly parsed. It was due to an unexpected mix of words and formulae.
-On the other hand, from another (incomplete) inspection of the same data (\url{https://github.com/eluzhnica/oeis_gf/blob/master/failed}) we noticed 18 incorrect generating functions
-in the \oeis.  Two of them were already fixed, we just had an older copy of the \oeis. The rest were mostly the generating function not matching the shift/initial terms. However, there was also
-a case where the generating function matched only the first 5 terms but not the rest. 
-Finally, using these generating functions we made a SageMath module where users can 
-access the ordinary generating functions of the sequences (\url{https://github.com/eluzhnica/oeis_gf}).
+From an inspection of $70$ ordinary generating functions that failed the verification phase (data available at: \url{https://github.com/eluzhnica/oeis_gf/blob/master/failed}), only 1 was found to have been wrongly parsed. It was due to an unexpected mix of words and formulae.
+On the other hand, from another (incomplete) inspection of the same data we noticed 18 incorrect generating functions in the \oeis.  Two of them were already fixed, we just had an older copy of the \oeis. The rest were mostly the generating function not matching the shift/initial terms. However, there was also a case where the generating function matched only the first 5 terms but not the rest. 
+Finally, we also made a SageMath module where users can access the ordinary generating functions of the sequences and made it accessible at \url{https://github.com/eluzhnica/oeis_gf}.
 % Most of the generating functions that are not qualified are due to  that were not being accepted were because they referred to some other functions. For
 %   instance, $1+Q(0)$ where the function $Q(n)$ is defined later on in the sequence document. We currently do not
 %   resolve these references.
