@@ -139,8 +139,7 @@ A first draft of each issue was created automatically using the
 metadata produced in Proposal/final.pdata. It should be further edited
 and maintained.
 
-The issue should be assigned to whoever will be leading it (by
-default: the work package leader).
+The issue should be assigned to whoever will be leading it, in addition to the work package leader.
 
 The first comment of the issue should contain:
 - a description of the task (taken from the proposal) or deliverable
