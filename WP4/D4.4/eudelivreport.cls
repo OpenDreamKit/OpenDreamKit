@@ -1,9 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{eudelivreport}[2016/09/29 v1.0 EU Deliverable Report]
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{eudelivreport}}
+\def\@@class{amsart}
+\DeclareOption{report}{\def\@@class{amsproc}}
+\DeclareOption{book}{\def\@@class{amsbook}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{amsart}}
 \ProcessOptions
 
-\LoadClass[a4paper,twoside,12pt]{amsart}
+\LoadClass[a4paper,twoside,12pt]{\@@class}
 \RequirePackage[utf8]{inputenc}
 %\RequirePackage{ae,aecompl,aeguill}	% pour utiliser << et >>
 \RequirePackage[english]{babel}
@@ -48,6 +51,8 @@
 \newcommand\longdelivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname: ``\csname deliv@#1@#2@title\endcsname''}}
 \newcommand\taskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname}}
 \newcommand\longtaskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname: ``\csname task@#1@#2@title\endcsname''}}
+\renewcommand\WPref[1]{\href{https://github.com/OpenDreamKit//OpenDreamKit/tree/master/WP\csname wp@#1@number\endcsname}{\csname wp@#1@label\endcsname}}
+\newcommand\longWPref[1]{\href{https://github.com/OpenDreamKit//OpenDreamKit/tree/master/WP\csname wp@#1@number\endcsname}{\csname wp@#1@label\endcsname: ``\csname wp@#1@title\endcsname''}}
 
 \newcommand{\deliverable}[2]{
   \gdef\deliv@label{\csname deliv@#1@#2@label\endcsname}
