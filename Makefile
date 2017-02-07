@@ -11,8 +11,11 @@ reports.zip: $(REPORTS)
 	for deliverable in $(REPORTS); do cp $$deliverable/report.pdf /tmp/reports/`basename $$deliverable`.pdf; done
 	zip -r --junk-paths reports.zip /tmp/reports
 
-%/deliverablereport.cls:
-	ln -s ../../Proposal/LaTeX-proposal/deliverablereport.cls $@
+WP%/deliverablereport.cls: Proposal/deliverablereport.cls
+	cp $< $@
+
+WP%/eudelivreport.cls: Proposal/LaTeX-Proposal/eu/eudelivreport.cls
+	cp $< $@
 
 # Requires PyGithub, PyYAML
 %/github-issue-description.md:
@@ -22,7 +25,7 @@ reports.zip: $(REPORTS)
 %.tex: %.md
 	sed -e 's/- \[[xX]\]/- $$\\checkmark$$/; s! \([^ ]*[a-z]\)#\([0-9][0-9]*\)! [\1#\2](https://github.com/\1/issues/\2)!g; s!\([^a-z]\)#\([0-9]*[0-9]\)!\1[#\2](https://github.com/OpenDreamKit/OpenDreamKit/issues/\2)!g;' $< | pandoc --toc-depth=1 -f markdown_github+tex_math_dollars+header_attributes -t latex | sed -e 's/\\section/\\section*/' > $@
 
-%/report.pdf: %/report.tex %/github-issue-description.tex %/deliverablereport.cls Proposal/LaTeX-proposal/deliverablereport.cls
+%/report.pdf: %/report.tex %/github-issue-description.tex %/deliverablereport.cls %/eudelivreport.cls Proposal/deliverablereport.cls
 	cd `dirname $<`; file=`basename $<`; pdflatex $$file; bibtex $$file; pdflatex $$file; pdflatex $$file
 
 WP3/D3.1/report.pdf: WP3/D3.1/status-report.tex
