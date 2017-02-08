@@ -3,6 +3,7 @@
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{eudelivreport}}
 \ProcessOptions
 \LoadClass{eudelivreport}
+\RequirePackage{longtable}
 
 % Specific to ODK (this only works for deliverables in the right place)
 \newcommand{\prop@gen@proposalnumber}{676541}
