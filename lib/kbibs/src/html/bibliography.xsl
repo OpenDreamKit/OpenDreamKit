@@ -21,27 +21,32 @@
 	<xsl:when test="$type='conference'">
 	  <xsl:apply-templates
 	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
-		      @type='inproceedings' and ltx:bib-extract[@role='keywords']='conference']"/>
+		      @type='inproceedings' and descendant::ltx:bib-extract[@role='keywords']='conference']"/>
 	</xsl:when>
 	<xsl:when test="$type='workshop'">
 	  <xsl:apply-templates
 	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
-		      @type='inproceedings' and not(ltx:bib-extract[@role='keywords'])]"/>
+		      @type='inproceedings' and not(ltx:bib-extract[@role='keywords']='conference')]"/>
 	</xsl:when>
 	<xsl:when test="$type='cproceedings'">
 	  <xsl:apply-templates
 	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
-		      @type='proceedings' and ltx:bib-extract[@role='keywords']='conference']"/>
+		      @type='proceedings' and descendant::ltx:bib-extract[@role='keywords']='conference']"/>
 	</xsl:when>
 	<xsl:when test="$type='wproceedings'">
 	  <xsl:apply-templates
 	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
-		      @type='proceedings' and not(ltx:bib-extract[@role='keywords'])]"/>
+		      @type='proceedings' and not(ltx:bib-extract[@role='keywords']='conference')]"/>
 	</xsl:when>
 	<xsl:when test="$type='cbook'">
 	  <xsl:apply-templates
 	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
 		      @type='book']"/>
+	</xsl:when>
+	<xsl:when test="$type='incollection'">
+	  <xsl:apply-templates
+	      select="//ltx:bibentry[contains(ltx:bib-data[@role='pubs'],$pubs) and
+		      (@type='inbook' or @type='incollection')]"/>
 	</xsl:when>
 	<xsl:otherwise>
 	  <xsl:apply-templates
