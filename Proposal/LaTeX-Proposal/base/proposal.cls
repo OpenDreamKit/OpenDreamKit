@@ -504,7 +504,7 @@
 \pdata@def{task}{\taskin\task@id\wp@id}{partners}{\task@partners}
 \pdata@def{task}{\taskin\task@id\wp@id}{PM}{\task@PM}
 \pdata@def{task}{\taskin\task@id\wp@id}{wphases}{\task@wphases}
-\@ifundefined{deliv@issue}{}
+\@ifundefined{task@issue}{}
 {\pdata@def{task}{\taskin\task@id\wp@id}{issue}{\task@issue}}%
 \pdata@def{task}{\taskin\task@id\wp@id}{label}{\task@label\thewp\thetask@wp}%
 \pdata@def{task}{\taskin\task@id\wp@id}{number}{\thetask@wp}%
