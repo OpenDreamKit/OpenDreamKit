@@ -31,13 +31,15 @@ Jupyter notebook documents have become an important part of the development and 
 While these documents contain code and the output produced by running that code,
 they do not guarantee that the code remains valid in changing circumstances or that it continues to function after updates to underlying packages.
 These are common problems in all software, but existing testing frameworks do not support notebooks.
-Because notebooks contain both input and output, there are additional opportunities and challenges for testing notebooks,
-because outputs can be compared to previous runs.
 Further, Jupyter notebooks aim to be a tool for enabling reproducible computation and communication,
 and the ability to validate and verify the contents of notebooks is critical to that goal.
 For these reasons, it is important that notebooks can be tested efficiently,
 so that authors and readers alike can verify that the notebooks contents remain valid.
 
+The nature of notebooks presents different opportunities and challenges from conventional code testing.
+Notebooks are narrative documents, and their code is often not arranged in functions and classes, which normally form the units of code to be tested.
+However, because outputs are stored in the notebook,
+output from running the code can be compared against previously saved output.
 
 \section{Validating notebooks with \nbval} % (fold)
 
@@ -70,8 +72,12 @@ Many times, output can contain transient values that are not informative,
 such as memory addresses or dates.
 To deal with this, \nbval provides an extensible mechanism for normalizing output,
 so that these transient values may be excluded from the comparison.
-Developers 
 
+The output checking in \nbval may be controlled on a cell-by-cell basis:
+notebook authors may either start with no output checking (`lax mode') and mark specific cells whose output should be checked,
+or start with full output checking and mark cells whose output should be ignored.
+The author indicate that nbval should not execute a cell at all,
+or that it an error is the expected result of a cell.
 
 \section{nbval and reproducibility} % (fold)
 
@@ -102,7 +108,7 @@ for more effective comparison and identification of changes.
 
 \section{Future work} % (fold)
 
-\nbval has been integrated successfully into some repositories of notebook-based educational materials by OpenDreamKit participants,
+\nbval has been integrated successfully into some repositories of notebook-based educational materials and software documentation by OpenDreamKit participants,
 and is being integrated into the existing notebook-based documentation of projects in the wider Jupyter community.
 We will work to encourage adoption of \nbval for verifying documentation,
 and would like to see nbval used to enable verification of scientific publications
