@@ -15,13 +15,98 @@
 \deliverydate{02/27/2017}
 \duedate{02/27/2017 (Month 18)}
 \def\pn{OpenDreamKit}
-\author{ }
+\author{Martin Sandve Aln\ae{}s \& Hans Fangohr \& Vidar Fauske \& Thomas Kluyver \& Benjamin Ragan-Kelley \& MORE?}
 
 \begin{document}
 \maketitle
 %\input{abstract}
 \strut\githubissuedescription
 \newpage\tableofcontents\newpage
+
+\newcommand{\nbval}{\texttt{nbval} }
+
+\section{Background on validation} % (fold)
+
+Jupyter notebook documents have become an important part of the development and communication of computational ideas.
+While these documents contain code and the output produced by running that code,
+they do not guarantee that the code remains valid in changing circumstances or that it continues to function after updates to underlying packages.
+These are common problems in all software, but existing testing frameworks do not support notebooks.
+Because notebooks contain both input and output, there are additional opportunities and challenges for testing notebooks,
+because outputs can be compared to previous runs.
+Further, Jupyter notebooks aim to be a tool for enabling reproducible computation and communication,
+and the ability to validate and verify the contents of notebooks is critical to that goal.
+For these reasons, it is important that notebooks can be tested efficiently,
+so that authors and readers alike can verify that the notebooks contents remain valid.
+
+
+\section{Validating notebooks with \nbval} % (fold)
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.7\textwidth]{img/nbval-terminal}
+  \caption{\nbval output, showing that output changed.}\label{fig:nbval}
+\end{figure}
+
+\nbval (\url{https://github.com/computationalmodelling/nbval}) is a new tool for testing notebooks, built as a plugin for the pytest testing framework (\url{http://pytest.org}).
+By leveraging existing tools,
+\nbval fits well into the software development tools such as continuous integration services and testing environments.
+
+When \nbval encounters a notebook to test, it identifies the language of the notebook from the notebook's metadata and starts a process to run the code found in notebook, called the Kernel.
+\nbval communicates with this Kernel via the Jupyter protocol, as in the notebook environment.
+Each cell in a notebook constitutes a test, and is executed in order,
+as if the notebook had been executed in the interactive notebook environment.
+
+Unlike traditional source code files,
+notebooks contain both code to execute and the output.
+Validating notebooks can take the output into account or not.
+At its most basic level, called `lax mode', \nbval executes a cell, only checking for errors.
+This verifies that execution of a notebook completes without error,
+but makes no effort to guarantee that the result is the same across executions.
+
+\nbval's default mode is to record the output produced by executing the notebook,
+and compare it with the output stored in the notebook.
+At its strictest, any visible change in the output will result in a failed test.
+Many times, output can contain transient values that are not informative,
+such as memory addresses or dates.
+To deal with this, \nbval provides an extensible mechanism for normalizing output,
+so that these transient values may be excluded from the comparison.
+Developers 
+
+
+\section{nbval and reproducibility} % (fold)
+
+\nbval facilitates integrating notebooks into a reproducible scientific workflow.
+Tests are integral to maintaining and verifying software,
+which is critical for validating and reproducing scientific computation.
+A publication can include a notebook that produces its results or figures.
+By using \nbval, the validation of this notebook and output can be automated,
+to make it more convenient, and thus more likely,
+for scientific publications to follow reproducible practices.
+
+
+\section{nbval and nbdime} % (fold)
+
+Testing notebooks with \nbval involves comparing the notebook as saved,
+and the notebook recently run.
+This is comparing two notebooks,
+which can build on earlier OpenDreamKit work.
+\nbval can use nbdime, produced in \delivref{UI}{jupyter-collab},
+to display the difference between the before and after notebooks,
+for more effective comparison and identification of changes.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.7\textwidth]{img/nbval-nbdime}
+  \caption{An \nbval output rendered with nbdime}\label{fig:nbval-nbdime}
+\end{figure}
+
+\section{Future work} % (fold)
+
+\nbval has been integrated successfully into some repositories of notebook-based educational materials by OpenDreamKit participants,
+and is being integrated into the existing notebook-based documentation of projects in the wider Jupyter community.
+We will work to encourage adoption of \nbval for verifying documentation,
+and would like to see nbval used to enable verification of scientific publications
+now that it has proved its effectiveness in educational materials.
 
 \printbibliography
 \end{document}
