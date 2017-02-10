@@ -474,7 +474,7 @@
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}%
 \@task{#1}\item[\pdata@target{task}{\taskin\task@id\wp@id}{\task@label\thewp\thetask@wp}]%
-\ifx\task@title\@empty\textbf\task@title\fi\task@post@title@space%
+\ifx\task@title\@empty\else\textbf\task@title\fi\task@post@title@space%
 \def\@initial{0-0}\ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
 \do{\decode@wphase\@I%
