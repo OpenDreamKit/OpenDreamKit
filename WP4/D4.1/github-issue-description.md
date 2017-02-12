@@ -6,6 +6,7 @@
 - **Nature:** Other
 - **Task:** T4.12 (#80)
 - **Proposal:** [p.47](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf).
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP4/D4.1/report-final.pdf)**
 
 The SageMath project includes many different subsystems, mostly written in C/C++. For each subsystem, Sage provides a low-level interface, usually written in Cython, through which the higher level components access the subsystem. The mathematical community would immensely benefit if the low-level interfaces were maintained outside of the Sage project, as separate Python packages. Indeed such decoupling would enable other Python projects to build upon those externalized interfaces, thus helping to improve them, and share maintenance effort.
 
@@ -15,8 +16,10 @@ The goal of this deliverable is to reconcile the fork by externalizing the Sage/
 
 Because of the high degree of coupling, and thanks to the availability of Snappy, this deliverable constitutes a highly valuable case study for future externalizations of low-level interfaces in SageMath. To bring this deliverable to completion, we have decided to split it in several steps:
 
-- [x] Move SageMath's C signalling api to a separate Python/Cython package. The package is called [cycsignals](https://github.com/sagemath/cysignals), and is [integrated to SageMath 7.1](http://trac.sagemath.org/ticket/20002).
+- [x] Move SageMath's C signalling api to a separate Python/Cython package. The package is called [cysignals](https://github.com/sagemath/cysignals), and is [integrated to SageMath 7.1](http://trac.sagemath.org/ticket/20002).
 - [x] Decouple SageMath's PARI interface from the coercion model. This has been achieved in [SageMath 7.4](http://trac.sagemath.org/ticket/21158).
-- [x] Clean up the interface API, by removing unneeded object orientation and external dependencies. This has been achieved, and will be available in [SageMath 7.5](http://trac.sagemath.org/ticket/20241).
-- [ ] Move SageMath's PARI interface to a separate Python/Cython package, depending on cysignals. The package is planned to eventually replace the PyPi package [CyPari](https://pypi.python.org/pypi/cypari/). 
+- [x] Clean up the interface API, by removing unneeded object orientation and external dependencies. This has been achieved, and is [integrated to SageMath 7.5](http://trac.sagemath.org/ticket/20241).
+- [ ] Move SageMath's PARI interface to a separate Python/Cython package depending on cysignals. The package is called [CyPari2](https://github.com/defeo/cypari2), and will replace the old PARI interface starting from [SageMath 7.6](http://trac.sagemath.org/ticket/20238).
+
+The CyPari2 package is not ready to replace the [PyPi package CyPari](https://pypi.python.org/pypi/cypari/) yet. The most important missing functionality is Windows compatibility. A full replacement to CyPari is the goal of deliverable D4.10 #84.
 

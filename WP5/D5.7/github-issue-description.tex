@@ -1,0 +1,268 @@
+\section*{\texorpdfstring{Deliverable description, as taken from Github
+issue
+\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/120}{\#120} on
+2017-02-08}{Deliverable description, as taken from Github issue \#120 on 2017-02-08}}\label{deliverable-description-as-taken-from-github-issue-120-on-2017-02-08}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{WP5:}
+  \href{https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5}{High
+  Performance Mathematical Computing}
+\item
+  \textbf{Lead Institution:} University of Kaiserslautern
+\item
+  \textbf{Due:} 2017-02-28 (month 18)
+\item
+  \textbf{Nature:} Demonstrator
+\end{itemize}
+
+We parallelised the matrix fourier algorithm in Flint, speeding up the
+FFT used for:
+
+\begin{itemize}
+\tightlist
+\item
+  Large integer multiplication
+\item
+  Schoenhage-Strassen univariate polynomial multiplication
+\item
+  Kronecker-Segmentation univariate polynomial multiplication
+\end{itemize}
+
+The existing implementation is world class and includes:
+
+\begin{itemize}
+\tightlist
+\item
+  truncated fourier transform
+\item
+  use of low level GMP assembly optimised functions
+\item
+  square root of 2 trick
+\item
+  matrix Fourier algorithm
+\item
+  Nussbaumer convolution
+\item
+  Chinese remainder with naive convolution
+\end{itemize}
+
+The new code for the threaded matrix fourier algorithm has been
+implemented as part of this deliverable and merged into Flint
+\href{https://github.com/wbhart/flint2/tree/trunk/fft}{here}.
+
+Here are timings of the new code in Flint on a single core, versus four
+and eight cores for various sized integer multiplications on a 64 bit
+machine.
+
+\begin{longtable}[c]{@{}llll@{}}
+\toprule
+limbs & 1 core & 4 core & 8 core\tabularnewline
+\midrule
+\endhead
+114525 & 0.066s & 0.049s & 0.049s\tabularnewline
+229725 & 0.14s & 0.11s & 0.11s\tabularnewline
+360237 & 0.32s & 0.12s & 0.09s\tabularnewline
+721709 & 0.65s & 0.25s & 0.19s\tabularnewline
+1245101 & 1.14s & 0.39s & 0.27s\tabularnewline
+2492333 & 2.33s & 0.81s & 0.55s\tabularnewline
+4587132 & 4.45s & 1.52s & 1.02s\tabularnewline
+9178748 & 9.07s & 3.02s & 2.06s\tabularnewline
+25947772 & 28.1s & 9.35s & 6.25s\tabularnewline
+51908220 & 57.9s & 24.0s & 13.8s\tabularnewline
+118997068 & 143s & 48.4s & 33.2s\tabularnewline
+238026828 & 309s & 105s & 65.7s\tabularnewline
+506425420 & 801s & 241s & 146s\tabularnewline
+\bottomrule
+\end{longtable}
+
+\section*{Report on writing assembly primitives for the FFT
+butterflies}\label{report-on-writing-assembly-primitives-for-the-fft-butterflies}
+
+\subsection{Problem statement}\label{problem-statement}
+
+For this deliverable, our task was to improve existing functions or
+write\\
+new ones to use features of recent microprocessors (esp. AVX2) to
+speed\\
+up the Schönhage-Strassen FFT butterflies.
+
+The main operations used in the FFT butterflies are:
+
+\begin{itemize}
+\tightlist
+\item
+  Compute a+b, a-b for given a,b
+\item
+  Compute -(a+b), a-b for given a,b
+\item
+  Bit-wise shifts by varying bit-counts
+\item
+  Subtraction, and to a lesser extent addition and negation
+\end{itemize}
+
+\subsection{Work completed}\label{work-completed}
+
+The microarchitectures for which we optimized the code is mainly Intel\\
+Haswell and Intel Skylake, and to a lesser extent AMD Bulldozer. For\\
+Bulldozer (and Piledriver) it should be noted that the opportunities\\
+for optimization are rather limited: the microarchitecture generally\\
+performs poorly, especially in hyper-threading mode, and the AVX\\
+instructions in particular are so slow as to be practically useless.\\
+The newer Steamroller fares better, but we did not have access to one.
+
+For Haswell and Skylake, the mpn\_lshift1, mpn\_rshift1, mpn\_lshift
+and\\
+mpn\_rshift have been written anew, using AVX2 instructions which gave
+a\\
+large speed-up over the previous code. The mpn\_add\_n/mpn\_sub\_n
+functions\\
+(which are identical, performance-wise) have been modified from
+existing\\
+code and optimized according to the respective micro-architecture. An\\
+mpn\_sumdiff\_n (computes a+b, a-b) has been written; this function
+existed\\
+for older processors but not for recent x86\_64. A new
+mpn\_nsumdiff\_n\\
+(computes -(a+b), a-b) has been introduced into MPIR.
+
+We are very grateful to Jens Nurmann who contributed significant\\
+amounts of code and expertise on AVX2 programming.
+
+\subsubsection{Haswell}\label{haswell}
+
+Timings in cycles per limb:
+
+\begin{longtable}[c]{@{}lll@{}}
+\toprule
+Function & Old & New\tabularnewline
+\midrule
+\endhead
+mpn\_lshift1 & 1.11 & 0.564\tabularnewline
+mpn\_rshift1 & 1.39 & 0.589\tabularnewline
+mpn\_lshift & 1.85 & 0.568\tabularnewline
+mpn\_rshift & 1.40 & 0.578\tabularnewline
+mpn\_add\_n & 1.32 & 1.11\tabularnewline
+mpn\_sumdiff\_n & 2.62(1) & 2.42\tabularnewline
+mpn\_nsumdiff\_n & 3.23(2) & 2.64\tabularnewline
+\bottomrule
+\end{longtable}
+
+(1) The sum of the times of mpn\_add\_n, mpn\_sub\_n.
+
+(2) The sum of the times of mpn\_add\_n, mpn\_sub\_n, mpn\_neg\_n.
+
+Timings for the full Schönhage-Strassen large integer multiplication\\
+(mpn\_mul\_n) in seconds:
+
+\begin{longtable}[c]{@{}llll@{}}
+\toprule
+Limbs & Old & New & Ratio\tabularnewline
+\midrule
+\endhead
+10000 & 0.002399728 & 0.002171788 & 0.91\tabularnewline
+100000 & 0.026374851 & 0.022960783 & 0.87\tabularnewline
+1000000 & 0.357847841 & 0.302023203 & 0.84\tabularnewline
+\bottomrule
+\end{longtable}
+
+Note that these timings include the effect of code improvements made
+for\\
+D5.5, in particular, better mpn\_mul\_basecase and Karatsuba code.
+
+\subsubsection{Skylake}\label{skylake}
+
+Timings in cycles per limb:
+
+\begin{longtable}[c]{@{}lll@{}}
+\toprule
+Function & Old & New\tabularnewline
+\midrule
+\endhead
+mpn\_lshift1 & 1.01 & 0.601\tabularnewline
+mpn\_rshift1 & 1.52 & 0.601\tabularnewline
+mpn\_lshift & 2.01 & 0.608\tabularnewline
+mpn\_rshift & 1.52 & 0.606\tabularnewline
+mpn\_add\_n & 1.22 & 1.04\tabularnewline
+mpn\_sumdiff\_n & 2.44(1) & 2.04\tabularnewline
+mpn\_nsumdiff\_n & 3.06(2) & 2.32\tabularnewline
+\bottomrule
+\end{longtable}
+
+Of note here is the speed of mpn\_add\_n/mpn\_sub\_n, at essentially
+1c/l for\\
+the core loop, optimal both in terms of the data dependency chain and\\
+memory accesses, as Skylake can in theory execute 2 read and 1 write
+per\\
+clock cycle. In practice, presumably the instruction scheduler falls
+into\\
+a bad pattern after running at 1c/l for a while, and from then on runs
+the\\
+loop only at \textasciitilde{}1.2c/l. Jens Nurmann found that inserting
+a meaningless\\
+AVX2 instruction into the core loop (which does not otherwise use
+AVX2)\\
+breaks up this bad scheduling pattern, allowing these critically
+important\\
+core functions to run at the optimal speed reliably.
+
+Timings for mpn\_mul\_n in seconds:
+
+\begin{longtable}[c]{@{}llll@{}}
+\toprule
+Limbs & Old & New & Ratio\tabularnewline
+\midrule
+\endhead
+10000 & 0.002125143 & 0.001711500 & 0.81\tabularnewline
+100000 & 0.025231292 & 0.020712453 & 0.82\tabularnewline
+1000000 & 0.304166761 & 0.258099884 & 0.85\tabularnewline
+\bottomrule
+\end{longtable}
+
+\subsubsection{Bulldozer}\label{bulldozer}
+
+Much less optimization effort was made for Bulldozer than for Haswell
+and Skylake,\\
+owing to the age and poor performance of this processor. No code was
+written from\\
+scratch, but among all the existing implementations for a given
+function, the one\\
+that ran fastest on Bulldozer was chosen.
+
+Among those functions that were replaced by faster versions, these three
+are\\
+relevant to the FFT butterflies:
+
+\begin{longtable}[c]{@{}lll@{}}
+\toprule
+Function & Old & New\tabularnewline
+\midrule
+\endhead
+com\_n & 1.28 & 0.723\tabularnewline
+rshift & 2 & 1.11\tabularnewline
+lshift & 2.42 & 1.24\tabularnewline
+\bottomrule
+\end{longtable}
+
+Timings for mpn\_mul\_n in seconds:
+
+\begin{longtable}[c]{@{}llll@{}}
+\toprule
+Limbs & Old & New & Ratio\tabularnewline
+\midrule
+\endhead
+10000 & 0.004771156 & 0.004764643 & 1.0\tabularnewline
+100000 & 0.054624774 & 0.053038739 & 0.97\tabularnewline
+1000000 & 0.651062127 & 0.652278285 & 1.0\tabularnewline
+\bottomrule
+\end{longtable}
+
+Unfortunately, the improvements to the mpn\_{[}lr{]}shift functions are
+barely visible\\
+in the integer multiplication benchmark on Bulldozer.
+
+All code written for this deliverable has been committed to Alex
+Kruppa's fork of the MPIR repository at
+\url{https://github.com/akruppa/mpir} and merged into the main MPIR
+repository at \url{https://github.com/wbhart/mpir}
