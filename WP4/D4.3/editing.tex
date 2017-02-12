@@ -87,7 +87,7 @@ traditionally written in {\LaTeX} and the traditional authoring tools are well-s
 this task. Any cross-repository effects can be handled by \lmh, so we will discuss more
 semantic document formats next.
 
-\paragraph{Local Editing Support for Lightly Formalized Mathematical Content}
+\subsection{Local Editing Support for Lightly Formalized Mathematical Content}
 
 \sTeX~\cite{Kohlhase:ulsmf08,sTeX:github:on} is an extension of the {\TeX/\LaTeX} that
 allows the annotation of semantic properties into the document source. These annotation
@@ -106,6 +106,11 @@ archive curation functionalities such as basic link checking, pre-translation, a
 system support. An advantage of this approach is that it is largely editor-independent and
 thus does not constrain the user in her choice of tools.
 
+\begin{figure}[ht]\centering
+  \includegraphics[width=12cm]{errorview}
+  \caption{The \sys Error Viewer}\label{fig:errorview}
+\end{figure}
+
 In a second phase, the authors fully preload the documents semantically. In this phase,
 the content is built into \omdoc/\mmt, loaded into the \mmt API and checked for semantic
 link-consistency. In our experience the most important ``semantic editing service'' is to
@@ -121,28 +126,79 @@ enter a web-based editing cycle which gives access to the logs and results of th
 respective transformation steps. Any source errors can directly be fixed using the web
 editing facilities (see~\ref{sec:web}).
 
-\begin{figure}[ht]\centering
-  \includegraphics[width=12cm]{errorview}
-  \caption{The \sys Error Viewer}\label{fig:errorview}
-\end{figure}
+\subsection{Local Editing Support for Formal Mathematics}\label{sec:local-formal}
 
-
-\paragraph{Local Editing Support for Formal Mathematics}
+Editing formal mathematical content poses a different set of challenges. As the content is
+formal (i.e expressed in a formal language with well-defined semantics), its syntax and
+semantics are fully machine-checkable, and this defines the standard of mathematical
+quality. Consequently, an editing process that integrates syntax/semantics-checking --
+which takes the form of type-checking in \mmt -- is needed for editing formal mathematics.
 
 Figure~\ref{fig:jedit2} shows a JEdit-based IDE for \omdoc/\mmt content in \mmt surface
 syntax that is tightly coupled with the \mmt API for semantic services;
 see~\cite{Rabe:LII14} for details. In a nutshell, we can see the structural view of the
 files in the panel on the left and the source file in the central pane. Both are
-cross-linked for better structural and source navigation. In this 
+cross-linked for better structural and source navigation. In this example we also have a
+type checking error in line 51 of the file \texttt{algebra.mmt}. It is indicated by the
+red underline and the hovering the mouse over it gives the local error message, and the
+error console at the bottom give additional details.
 
 \begin{figure}[ht]\centering
   \includegraphics[width=15cm]{jedit2}
   \caption{Local Editing of \mmt Surface Syntax in JEdit}\label{fig:jedit2}
 \end{figure}
 
+In our experience, a dedicated, tightly integraded IDE is indispensible for the
+development of formal mathematical content. This is analogous to the development of
+software -- another form of formal content -- but for formal mathematical documents
+type-checking -- which includes proof checking via the Curry-Howard isomorphism -- puts
+even more semantic constraints on the edited material and thus an even heavier strain on
+the author/maintainer.
+
 \subsection{Web-based \sys Editing}\label{sec:web}
 
-\ednote{MK: write}
+\begin{figure}[ht]\centering
+  \fbox{\includegraphics[width=8.5cm]{bijective}}\quad
+  \fbox{\includegraphics[width=6.5cm]{bijective-source}}
+  \caption{Presentation and Source Views of A Glossary Entry}\label{fig:bijective}
+\end{figure}
+
+In the web-based workflows, we have the same requirements for integrating editing and
+semantic correctness management as in the local workflows. In the current state of
+development of \sys, we aim for a courser granularity of integration: we integrate at the
+document level, which is commensurate with the fact that the quest for reusability in
+active documents leads to small documents overall. Figure~\ref{fig:bijective} shows the
+presentation of (the english language binding) of a glossary module for bijectivity. The
+breadcrumbs at the top localize it in the \textsf{sets} archive in the \textsf{SMGloM}
+library. The content presentation shows its dependencies and a human-oriented presentation
+of the definition of bijectivity. There are five tabs with different forms of the same
+content, the source view (expanded on the right of Figure~\ref{fig:bijective}), the
+generated \omdoc, and an edit tab. The latter is just a link to the the corresponding
+GitLab edit page; Figure~\ref{fig:bijective-edit}. 
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=10cm]{bijective-edit}
+  \caption{Editing a Glossary Entry in GitLab}\label{fig:bijective-edit}
+\end{figure}
+
+This delegation is commensurate with the division of labor in the \sys system; GitLab
+suports the full range of revision control interactions. In this case, users with
+sufficient access rights can directly commit to the repository (and thus change the math
+archive directly) users with less rights can directly initiate a pull request and submit
+their changes to the archive maintainers in this way. 
+
+But this delegation is not without technical challenges. An important concern is that the
+user identities of the Drupal and GitLab instances have to be synchronized. Fortunately,
+users can log into both systems with their GitHub account, which solves the problem at
+least for the \pn project, where GitHub is universally emploayed and thus all partners
+have GitHub accounts. Another problem is that GitLab only offers editing facilities for
+files it considers text files, and it considers \mmt syntax files as binary, since they
+contain lower ASCII symbols for component, declaration, and module separators.
+Unfortunately, the media types are not configurable in GitLab, so we have to patch the
+code. Building on an open-source system like GitLab and not the closed-source GitHub
+allows to do that, but this still poses administration hassles with the fast-moving
+release cycle of GitLab.
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "report"
