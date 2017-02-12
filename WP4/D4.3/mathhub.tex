@@ -1,6 +1,6 @@
-\section{The \sys Portal}\label{sec:mathhub}
+\section{The \sys System/Portal}\label{sec:mathhub}
 
-\subsection{ System Architecture and Realization}\label{sec:arch}
+\subsection{System Architecture and Realization}\label{sec:arch}
 
 \sys is realized as an instance of the Planetary System~\cite{Kohlhase:ppte12}, which we
 have substantially extended in the course of the work reported here.
@@ -12,7 +12,8 @@ The system architecture has three main components:
  \item and a \emph{frontend} that makes the sources and the semantic services available to users.
 \end{compactenum}
 Specifically, we use the GitLab repository manager~\cite{GitLab:on} as the data store, the
-\mmt API as the semantic service provider and Drupal as the frontend.
+\mmt API as the semantic service provider and build system, and Drupal as the
+user-pointing frontend.
 
 Figure~\ref{fig:arch} shows the detailed architecture.
 
@@ -30,22 +31,21 @@ Figure~\ref{fig:arch} shows the detailed architecture.
 \node (user) {\pgfuseimage{user}}; 
 \node[system,right=1.5cm of user] (browser) {Browser}; 
 \node[system,right=1.3cm of browser] (drupal) {Drupal};
-\node[system,above right=0cm and 1.4cm of drupal] (mmt) {MMT};
+\node[system,above right=0cm and 1.4cm of drupal] (mmt) {MMT API}; 
+\node[system,right=1cm of mmt] (build) {MMT build}; 
 \node[system,below right=0cm and 1.4cm of drupal] (gl) {GitLab};
 \node[database,below left=-.3cm and 1.5cm of gl] (lib) {library};
 \node[below right=-.6cm and 1.6cm of gl] (author) {\pgfuseimage{author}}; 
-\node[below right=-.5cm and .6cm of mmt] (conv) {\begin{tabular}{l}\footnotesize convert to\\ OMDoc/MMT\end{tabular}};
 \draw[<-,thick] (mmt) -- node[left]{load} (gl);
 \draw[<->,dotted] (user) -- node[above]{read} node[below]{interact} (browser);
 \draw[->,thick] (browser) -- node[above]{REST} (drupal);
 \draw[->,thick] (browser) to[loop above] node [above] (jobad) {JOBAD} (browser); 
-\draw[->,thick] (gl) to[loop left,out=20,in=45,looseness=14] (gl); 
 \draw[<->,dashed] (jobad) -- (mmt);
-\draw[<->,dashed] (conv) -- (mmt);
 \draw[<-,thick] (drupal) -- node[above]{present}(mmt); 
 \draw[->,thick] (drupal) -- node[above]{edit}(gl); 
 \draw[->,dotted] (author) -- node[above]{local} node[below]{edit} (gl);
 \draw[->,dotted] (lib) -- node[below]{import} (gl);
+\draw[<->,thick] (gl) -- (build);
 \end{tikzpicture}
 \caption{The \sys Architecture}\label{fig:arch}
 \end{figure}
@@ -55,30 +55,14 @@ In this setup, Drupal serves as a container management system\footnote{Drupal an
 user management, discussion forums, etc. GitLab on the other hand, provides versioned
 storage of the content documents, and organizes them into repositories owned by users and
 groups. 
-The advantage of this setup is that we can combine two methods for accessing the
-contents of \sys: 
-\begin{compactenum}[\em i\rm)]
-\item an online, web-based editing/interaction workflow for the casual user, in the spirit
-  of the Planetary system and
-\item (new) an offline editing/authoring workflow based on a GIT working copy.
-\end{compactenum}
-The latter is important for power authors and for bulk editing jobs. A user can fork or
-pull the relevant repositories from GitLab, edit them and submit them back to \sys
-either via a pull request to the repository masters or a direct commit/push. As the
-content is usually highly networked and distributed across multiple GIT repositories, we
-have developed a command line tool \texttt{lmh} (\underline{l}ocal
-\underline{M}ath\underline{H}ub) that manages working copies across repository
-borders. 
 
-In the web-based system, semantic services (notation-based, presentation, definition
-lookup, relational navigation, dependency management, etc.) are provided by \mmt and are
-made available to the user, primarily by dedicated JOBAD~\cite{GLR:WebSvcActMathDoc09}
-modules.  Note that even though the active document functionalities and semantic editing
-support in \sys are based on \omdoc/\mmt representation of the content, the
-authors interact with the content in the source format. Both of these representations are
-versioned in GitLab and are converted into \omdoc/\mmt by custom
-transformers. \texttt{lmh} also supports running these transformers locally and previewing
-HTML5 renderings of the generated \omdoc/\mmt.
+The \mmt API provides semantic services (notation-based, presentation, definition lookup,
+relational navigation, dependency management, etc.) to the user, primarily by dedicated
+JOBAD~\cite{GLR:WebSvcActMathDoc09} modules.  Note that even though the active document
+functionalities and semantic editing support in \sys are based on \omdoc/\mmt
+representation of the content, the authors interact with the content in the source
+format. Both of these representations are versioned in GitLab and are converted into
+\omdoc/\mmt by  an \mmt-based build system that 
 
 In order to to deal with flexiformal mathematical content in \omdoc, we have also extended
 the \mmt API, which was previously restricted to fully formal content. In the extended
@@ -109,16 +93,6 @@ theorem prover libraries together with linguistic and educational resources. Now
 ground work has been laid, we anticipate the rapid integration of new semantic services,
 editing support and new content.
 
-For the \pn project, we have developed and are hosting on \sys
-\begin{compactenum}
-\item the ``Math-in-the-Middle ontology''~\cite{MitM:on}, which hosts a flexiformal
-  development of the mathematical knowledge for system interoperability in \pn
-  (see~\cite{DehKohKon:iop16,ODK-D6.2}),
-\item the ``ODK System ontologies''~\cite{ODKsysonto:on}, a collection of \omdoc/\mmt
-  theories and codecs that describe the mathematical content of the LMFDB and other data
-  sources, bridging the internal (i.e. system/database oriented) and external
-  (mathematical) views of the content.
-\end{compactenum}
 
 %%% Local Variables: 
 %%% mode: latex
