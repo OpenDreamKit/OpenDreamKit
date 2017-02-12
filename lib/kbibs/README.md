@@ -36,8 +36,7 @@ The top-level bib files  concatenated to create the unified ```kwarc.bib```
 file. The sources are: 
 
 * ```preamble.bib``` – LaTeX preamble that defines shared macros and strings
-* ```kwarcpubs.bib``` – individual publications of KWARC members (e.g. ```@article```,
-```@inproceedings```)
+* ```kwarcpubs.bib``` – individual publications of KWARC members (e.g. ```@article```, ```@inproceedings```)
 * ```kwarccrossrefs.bib``` – crossref targets (e.g. ```@proceedings```) edited by KWARC
 members (e.g. when one of us chaired a workshop)
 * ```extpubs.bib``` – publications by external researchers (which may cross-reference
