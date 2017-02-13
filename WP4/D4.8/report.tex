@@ -82,26 +82,112 @@ We see Jupyter notebooks being used in a number of use cases, including
 \end{itemize}
 
 In this deliverable, we enrich the ecosystem of Jupyter notebook tools
-with the NoteBook VALidation tool (NBVAL), that allows to check the
+with the NoteBook VALidation tool (\nbval), that allows to check the
 types of documents listed above \emph{automatically} for they validity.
 
-\section{Validation} % (fold)
+\subsection{Testing} % (fold)
+\label{sec:testing}
+
+
+It is good practice to test computer code through so-called unit
+tests: for every functionality a code provides (through a class, a
+method of a class, a function, etc), the developers write additional
+code that tests each unit of functionality. It is key that these unit
+tests can be executed \emph{automatically}. Once this set up is
+provided, it is easy for the developer to quickly execute all tests to
+check the state of the code base: if the tests all ``pass'' (this is
+the best possible outcome), then there is confidence that the code is
+working correctly (at least for the functionality that is covered by
+the unit tests). On the other hand, if one or more tests ``fail'',
+then something is not right with the code.
+
+Having a suite of unit tests available that can be executed
+automatically greatly assists the development process: developers can
+change code and be reasonably confident not to have broken other parts
+of the functionality if the test suite passes without fails after the
+modification.
+
+The typical structure of a unit test is that the code to be tested is
+called with some given input data, and that the code to be tested
+returns some output data for that input data. The test code then
+compares input and output data: if they are the same (or for numerical
+tests within acceptable deviation), this unit test is reported at a pass.
+
+The Software Engineering domain uses terms unit test, integration test
+and system tests (and others) to classify tests. Integration and
+system tests test more than just one unit of code, but are concerned
+with multiple units working together when being integrated, or
+combining multiple integrated units to form the entire production
+system.
+
+A test suite also increases confidence in (research) software: many
+(good) software packages will allow users to run the test suite after
+installing the code on their own system. This is a convenient way to
+check that the code works correctly, and that - for example - no
+unexpected incompatibilities exist with installed third party
+libraries, which may change from installation to installation.
+
+Reasons for test failures of a software tool include (i) developers
+modifying the actual source code and introducing errors inadvertently,
+(ii) changes or incompatibilities with other libraries that the tool
+needs, (iii) changes in data that is used as input for the
+software.
+
+\subsection{Testing and validation of Jupyter Notebooks}
 
 Jupyter notebook documents have become an important part of the
-development and communication of computational ideas.  While these
-documents contain code and the output produced by running that code,
-they do not guarantee that the code remains valid in changing
-circumstances or that it continues to function after updates to
-underlying packages.  These are common problems in all software, but
-existing testing frameworks do not support notebooks.  Further,
-Jupyter notebooks aim to be a tool for enabling reproducible
+development and communication of computational ideas. When research
+results of researcher A are communicated by a notebook and researcher
+B wants to extend them, the first thing that B will need to do is no
+re-execute the notebook on their computer to check that all the
+previous results can be reproduced. This can be done by manually
+executing all cells in the notebook, or re-running the whole notebook,
+and then checking if any errors have occurred. If the re-execution
+fails, one needs to test if the notebook was working on researcher A's
+setup, and what is different in terms of libraries being used etc.
+
+These are known problems for conventional computer code, which are
+routinely address by having test suites, and executing the tests
+suites automatically after every code change (known as ``continuous
+integration'').
+
+%A variety of efficient tools exists to help with the automatic
+%execution and failure reporting for conventional code, but not for the
+%Jupyter Notebooks.
+
+% While these documents contain code and the output produced by running
+% that code initially (before it was saved), they do not guarantee that
+% the code remains valid in changing circumstances or that it continues
+% to function after updates to underlying packages.
+
+
+However, the existing testing frameworks do not support notebooks.
+Further, Jupyter notebooks aim to be a tool for enabling reproducible
 computation and communication, and the ability to validate and verify
 the contents of notebooks is critical to that goal.  For these
 reasons, it is important that notebooks can be tested efficiently, so
-that authors and readers alike can verify that the notebooks contents
-remain valid.
+that authors and readers alike can automatically and effectively
+verify that the notebooks contents remain valid.
 
+%
+%
+%
+%
+%
+% Saved Jupyter Notebooks combine input and output data, and offer a
+% low-cost way of checking the
+%
 
+\section{Validating notebooks with \nbval} % (fold)
+
+\subsection{Introduction}
+
+Jupyter Notebooks are executable documents that transfer sets of input
+code into output, possibly using data files in the process. We can
+thus use the software engineering experience of automatic testing
+(Section~\ref{sec:testing}) to establish if output data in the jupyter
+notebook is compatible with the input cells that have triggered the
+computation of the data.
 
 The nature of notebooks presents different opportunities and
 challenges from conventional code testing.  Notebooks are narrative
@@ -110,14 +196,112 @@ classes, which normally form the units of code to be tested.  However,
 because outputs are stored in the notebook, output from running the
 code can be compared against previously saved output.
 
-\section{Validating notebooks with \nbval} % (fold)
+In contrast to unit-test based testing, where the test code has to be
+written in addition to the production code, we can use every pair of
+input output cell as a test case: the input cell contains the code to
+execute as part of the test. The computed output is then compared to
+the output stored on disk for that cell. If the outputs agree, the
+test passes, otherwise it fails.
+
+We have developed the \nbval tool that VALidates a given
+NoteBook. \emph{\nbval validates a saved notebook in the sense that stored
+input cells produce output cells that are identical to the output cell
+data saved in the notebook.}
+
+\subsection{Example 1}
+We use the trivial notebook in figure~\ref{fig:demo-ipynb} as an
+example.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=.7\textwidth]{img/nbval-terminal}
-  \caption{\nbval output, showing that output changed.}\label{fig:nbval}
+  \includegraphics[width=1\textwidth]{examples/demo.png}
+  \caption{Trivial notebook \texttt{demo.ipynb}. The code in cell [1] is
+    representative of the computational package we use (typically
+    accessed via the \texttt{import} statement).\label{fig:demo-ipynb}}
 \end{figure}
 
+Once the \nbval tool is insalled (Section~\ref{sec:installation}), we
+can use the \texttt{py.test --nbval demo.ipynb} command to to validate
+the notebook with name
+\texttt{demo.ipynb}. Figure~\ref{fig:demo-pytest} shows the output
+from the testing process.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{examples/demo-pytest.png}
+  \caption{\nbval Command and output from validating notebook
+    \texttt{demo.ipynb} with \nbval. For each of the 3 cells in the notebook,
+    the input code is re-executed, and any output compared with the
+    output stored in the notebook file (see
+    Figure~\ref{fig:demo-ipynb} for the notebook file).\label{fig:demo-pytest}}
+\end{figure}
+
+
+\subsection{Example 2}
+We show another example where the code computes a different output
+every time the notebook is run. This could be due to a change in the
+software that is imported into the notebook, and might be something
+that we want to report as an error. (There are other cases where we
+like to ignore changing output - this is discussed in more detail in Section~\ref{sec:changing-outputs})
+
+We use the notebook in figure~\ref{fig:demo-with-fail-ipynb} as an
+example.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{examples/demo-with-fail.png}
+  \caption{Trivial notebook \texttt{demo-with-fail.ipynb}. The code in
+    cell [5] produces a different output every time the notebook
+    executes as it reports the current date and time. \label{fig:demo-with-fail-ipynb}}
+\end{figure}
+
+As before, we trigger validation of the notebook with \texttt{py.test --nbval demo-with-fail.ipynb}. Figure~\ref{fig:demo-with-fail-pytest} shows the output
+from the testing process.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{examples/demo-with-fail-pytest.png}
+  \caption{\nbval Command and output from validating notebook
+    \texttt{demo-with-fail.ipynb} with \nbval. Cells [1], [2], [3],
+    and [5] are code cells and produce output (although it could be
+    \texttt{None}), and pass their tests. Cell [7] fails the test. The
+    tool provides a detailed breakdown on what the output for cell [7]
+    is in the stored file, and contrasts it with the output from the
+    re-execution that has just taken place (see
+    Figure~\ref{fig:demo-with-fail-ipynb} for the notebook
+    file).\label{fig:demo-with-fail-pytest}}
+\end{figure}
+
+We can see that cells [1] to [5] pass tests, but cell [7] fails the test. The
+    tool provides a detailed breakdown on what the output for cell [7]
+    is in the stored file, and contrasts it with the output from the
+    re-execution that has just taken place.
+
+TODO: Comment on numbering of cells.
+
+% force floats to appear.
+\clearpage
+\subsection{Installation}\label{sec:installation}
+The installation of the package is described as part of the
+documenation available on Github
+(https://github.com/computationalmodelling/nbval, in particular\linebreak
+\href{https://github.com/computationalmodelling/nbval/blob/master/README.md}{https://github.com/computationalmodelling/nbval/blob/master/README.md}.)
+
+Installation via \text{pip} in supported, which allows to install the
+package in all Python installations.
+\subsection{Documentation}
+The detailed behaviour of the tool is described in the online
+documentation\newline(\href{https://github.com/computationalmodelling/nbval/blob/master/documentation.ipynb}{https://github.com/computationalmodelling/nbval/blob/master/documentation.ipynb})
+\subsection{Testing and continuous integration}
+We have test suite with about 30 tests, that are executed
+automatically using the Travis CI continuous integration service
+(\href{https://travis-ci.org/computationalmodelling/nbval}{https://travis-ci.org/computationalmodelling/nbval}.)
+
+We are testing for successful completion of the test suite for
+Python versions 2.7, 3.5, 3.5, 3.6 and the nightly build of Python.
+
+\section{Design}
+\subsection{Overview}
 \nbval (\url{https://github.com/computationalmodelling/nbval}) is a
 new tool for testing notebooks, built as a plugin for the pytest
 testing framework (\url{http://pytest.org}).  By leveraging existing
@@ -145,7 +329,19 @@ At its strictest, any visible change in the output will result in a
 failed test.  Many times, output can contain transient values that are
 not informative, such as memory addresses or dates.  To deal with
 this, \nbval provides an extensible mechanism for normalizing output,
-so that these transient values may be excluded from the comparison.
+so that these transient values may be excluded from the comparison
+(see Section~\ref{sec:changing-outputs}).
+
+\subsection{Implementation}
+TODO We use pytest. Explain what Pytest is and why we use it here
+
+\subsection{Changing outputs}\label{sec:changing-outputs}
+TODO Comment on mechanism to deal with changing outputs:
+\begin{itemize}
+\item mark cell to be ignored
+\item use regular expressions
+\item use nbval-lax
+\end{itemize}
 
 The output checking in \nbval may be controlled on a cell-by-cell
 basis: notebook authors may either start with no output checking (`lax
@@ -154,7 +350,22 @@ start with full output checking and mark cells whose output should be
 ignored.  The author indicate that nbval should not execute a cell at
 all, or that it an error is the expected result of a cell.
 
-\section{nbval and reproducibility} % (fold)
+\subsection{Exceptional behaviour}
+TODO: Comment on commands to skip execution of cells, etc.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.7\textwidth]{img/nbval-terminal}
+  \caption{\nbval output, showing that output changed.}\label{fig:nbval}
+\end{figure}
+
+\subsection{Choice of kernel}
+TODO: Explain --current-env?
+
+TODO: Should we also comment on that this only works for Python
+kernels at the moment?
+
+
+\section{\nbval and reproducibility} % (fold)
 
 \nbval facilitates integrating notebooks into a reproducible
 scientific workflow.  Tests are integral to maintaining and verifying
@@ -165,7 +376,7 @@ and output can be automated, to make it more convenient, and thus more
 likely, for scientific publications to follow reproducible practices.
 
 
-\section{nbval and nbdime} % (fold)
+\section{\nbval and nbdime} % (fold)
 
 Testing notebooks with \nbval involves comparing the notebook as saved,
 and the notebook recently run.
@@ -180,6 +391,8 @@ for more effective comparison and identification of changes.
   \includegraphics[width=.7\textwidth]{img/nbval-nbdime}
   \caption{An \nbval output rendered with nbdime}\label{fig:nbval-nbdime}
 \end{figure}
+
+TODO: explain why visual comparison is great for humans working with figures
 
 \section{Future work} % (fold)
 
