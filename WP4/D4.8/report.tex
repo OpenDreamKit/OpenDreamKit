@@ -36,7 +36,7 @@ equations, visualizations and explanatory text.
 
 % \begin{wrapfigure}{r}{1.0\textwidth}
 \begin{figure}
-\centerline{\includegraphics[width=0.7\textwidth]{examples/demo.png}}
+\centerline{\includegraphics[width=1.0\textwidth]{examples/demo.png}}
 \caption{\label{fig:jupyterdemo} Self-contained \Jupyter Notebook
   demonstrating the concepts of cells that contain different types of
   material and can be executed (or updated) in arbitrary or sequential
@@ -220,9 +220,9 @@ example.
     accessed via the \texttt{import} statement).\label{fig:demo-ipynb}}
 \end{figure}
 
-Once the \nbval tool is insalled (Section~\ref{sec:installation}), we
-can use the \texttt{py.test --nbval demo.ipynb} command to to validate
-the notebook with name
+Once the \nbval tool is installed (Section~\ref{sec:installation}), we
+can use the\linebreak \texttt{py.test --nbval demo.ipynb} command to
+validate the notebook with name
 \texttt{demo.ipynb}. Figure~\ref{fig:demo-pytest} shows the output
 from the testing process.
 
@@ -255,7 +255,7 @@ example.
     executes as it reports the current date and time. \label{fig:demo-with-fail-ipynb}}
 \end{figure}
 
-As before, we trigger validation of the notebook with \texttt{py.test --nbval demo-with-fail.ipynb}. Figure~\ref{fig:demo-with-fail-pytest} shows the output
+As before, we trigger validation of the notebook with\linebreak \texttt{py.test --nbval demo-with-fail.ipynb}. Figure~\ref{fig:demo-with-fail-pytest} shows the output
 from the testing process.
 
 \begin{figure}[ht]
@@ -276,12 +276,6 @@ We can see that cells [1] to [5] pass tests, but cell [7] fails the test. The
 tool provides a detailed breakdown on what the output for cell [7]
 is in the stored file, and contrasts it with the output from the
 re-execution that has just taken place.
-Cells are numbered in their order of execution,
-so cell 1 was executed first, cell 2 second, and so on.
-With \nbval, cells will always be executed in order from start to finish,
-which is not guaranteed in the interactive notebook environment.
-This enables \nbval to catch errors that may not have been noticed due to
-out-of-order execution.
 
 
 % force floats to appear.
@@ -403,7 +397,7 @@ which will result in a description of the error being displayed to the user
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=.7\textwidth]{img/nbval-terminal}
+  \includegraphics[width=1.0\textwidth]{img/nbval-terminal}
   \caption{\nbval output, showing that output changed.}\label{fig:nbval}
 \end{figure}
 
@@ -441,6 +435,25 @@ but the test code in the notebooks themselves,
 is run in the test environment.
 
 
+\subsection{Numbering of cells}
+
+The Jupyter Notebook numbers code cells, in the order of
+execution. These can be increasing integers starting from top of the
+notebook to the bottom, for example if the cells are (written and)
+executed in this order, or at a later point the user chooses to
+restart the kernel, and run all cells in order. However, the notebook
+also allows to execute cells in arbitrary order.
+
+In contrast, With \nbval cells are always executed in order from start
+to finish, and labelled with increasing integer numbers starting from
+1.  This sequential execution enables \nbval to catch errors that may
+not have been noticed due to out-of-order execution.
+
+We note that \nbval counts all cells in the notebook, whereas the
+notebook in the browser only counts code cells.
+%TODO update if we change this behaviour
+
+
 \section{\nbval and reproducibility} % (fold)
 
 \nbval facilitates integrating notebooks into a reproducible
@@ -455,6 +468,12 @@ likely, for scientific publications to follow reproducible practices.
 \section{\nbval and nbdime} % (fold)
 \label{sec:nbval-nbdime}
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.7\textwidth]{img/nbval-nbdime}
+  \caption{An \nbval output rendered with \texttt{nbdime}}\label{fig:nbval-nbdime}
+\end{figure}
+
 Testing notebooks with \nbval involves comparing the notebook as saved,
 and the notebook recently run.
 This is comparing two notebooks,
@@ -463,16 +482,38 @@ which can build on earlier OpenDreamKit work.
 to display the difference between the before and after notebooks,
 for more effective comparison and identification of changes.
 
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=.7\textwidth]{img/nbval-nbdime}
-  \caption{An \nbval output rendered with nbdime}\label{fig:nbval-nbdime}
-\end{figure}
-
 A graphical display allows humans to quickly take in a lot of
 information, and intuitively spot visual differences between the
 two documents, in particular when before and after images of
 plots, graphs, and figures are shown.
+
+\section{Usage reports}
+
+As notebooks can be integrated directly into sphinx (and then be
+hosted on \texttt{readthedocs}, for example), they are a convenient
+way to create documentation for a software package.
+
+Any examples that demonstrate interaction with the code are naturally
+and efficiently included: the documentation developer just types the
+command, the note book automatically displays the behaviour.
+
+With \nbval, we can now include regression testing of the
+documentation into the continuous integration, and will automatically
+be alerted if the documented behaviour has changed (and thus the
+documentation is outdated).
+
+An example can be seen in this repository:
+\href{https://github.com/joommf/oommfc}{https://github.com/joommf/oommfc},
+which provides the documentation, for example at\linebreak
+\href{http://oommfc.readthedocs.io/en/latest/ipynb/new_discretisedfield_interface.html}{http://oommfc.readthedocs.io/en/latest/ipynb/new\_discretisedfield\_interface.html}.
+
+Being able to test the documentation \emph{automatically} addresses
+the common scenario in which documentation is developed for the first
+version of a tool, but not updated later, and increasingly getting out
+of date. The package developers are unlikely to notice as they would
+never read the documentation, in particular not the beginning aimed at
+new users of the package. With \nbval one can integrate the regression
+testing of the documentation into the continuous integration cycle.
 
 
 \section{Future work} % (fold)
