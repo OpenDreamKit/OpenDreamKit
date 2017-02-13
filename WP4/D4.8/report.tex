@@ -340,7 +340,7 @@ so that these transient values may be excluded from the comparison
 \subsection{Implementation}
 
 \nbval uses pytest, which is a popular, extensible testing framework for the Python language.
-We use pytest because it is the standard tool for running tests in the Python community,
+We use pytest because it is a standard tool for running tests in the Python community,
 and enables extending functionality via a robust plugin system.
 \nbval functions as a plugin for pytest, adding the following functionality:
 
@@ -382,12 +382,40 @@ ignored.  The author indicate that nbval should not execute a cell at
 all, or that it an error is the expected result of a cell.
 
 \subsection{Exceptional behaviour}
-TODO: Comment on commands to skip execution of cells, etc.
+
+There are three ways that a cell run as a test by nbval can result in a test
+failure:
+
+\begin{itemize}
+\item The kernel reports that executing the cell contains an error,
+and the cell is not marked as expected to produce an error.
+\item The output from running a cell differs from that saved in a notebook,
+nbval is not instructed to ignore that output,
+and the changes are not covered by the regular expression patterns used to
+normalise output.
+\item Execution of the cell does not complete within a configurable timeout,
+which by default is 2000 seconds.
+\end{itemize}
+
+In all three cases, the test corresponding to that cell is reported as a failure through pytest,
+which will result in a description of the error being displayed to the user
+(see Figure \ref{fig:nbval}).
+
 \begin{figure}[ht]
   \centering
   \includegraphics[width=.7\textwidth]{img/nbval-terminal}
   \caption{\nbval output, showing that output changed.}\label{fig:nbval}
 \end{figure}
+
+When the failure is due to a difference in output,
+\nbval can also optionally use nbdime to display how the notebook has changed
+(see Section \ref{sec:nbval-nbdime}).
+
+When the failure is due to a timeout executing code, execution is stopped.
+Later cells in the same notebook are marked as `expected failures',
+as later code often relies on the completion of earlier code,
+and reporting several separate failures would obscure the underlying cause.
+
 
 \subsection{Choice of kernel}
 
@@ -425,6 +453,7 @@ likely, for scientific publications to follow reproducible practices.
 
 
 \section{\nbval and nbdime} % (fold)
+\label{sec:nbval-nbdime}
 
 Testing notebooks with \nbval involves comparing the notebook as saved,
 and the notebook recently run.
