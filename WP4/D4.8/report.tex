@@ -36,7 +36,7 @@ equations, visualizations and explanatory text.
 
 % \begin{wrapfigure}{r}{1.0\textwidth}
 \begin{figure}
-\centerline{\includegraphics[width=0.7\textwidth]{img/jupyterdemo-largefont.pdf}}
+\centerline{\includegraphics[width=0.7\textwidth]{examples/demo.png}}
 \caption{\label{fig:jupyterdemo} Self-contained \Jupyter Notebook
   demonstrating the concepts of cells that contain different types of
   material and can be executed (or updated) in arbitrary or sequential
@@ -273,11 +273,16 @@ from the testing process.
 \end{figure}
 
 We can see that cells [1] to [5] pass tests, but cell [7] fails the test. The
-    tool provides a detailed breakdown on what the output for cell [7]
-    is in the stored file, and contrasts it with the output from the
-    re-execution that has just taken place.
+tool provides a detailed breakdown on what the output for cell [7]
+is in the stored file, and contrasts it with the output from the
+re-execution that has just taken place.
+Cells are numbered in their order of execution,
+so cell 1 was executed first, cell 2 second, and so on.
+With \nbval, cells will always be executed in order from start to finish,
+which is not guaranteed in the interactive notebook environment.
+This enables \nbval to catch errors that may not have been noticed due to
+out-of-order execution.
 
-TODO: Comment on numbering of cells.
 
 % force floats to appear.
 \clearpage
@@ -333,10 +338,36 @@ so that these transient values may be excluded from the comparison
 (see Section~\ref{sec:changing-outputs}).
 
 \subsection{Implementation}
-TODO We use pytest. Explain what Pytest is and why we use it here
+
+\nbval uses pytest, which is a popular, extensible testing framework for the Python language.
+We use pytest because it is the standard tool for running tests in the Python community,
+and enables extending functionality via a robust plugin system.
+\nbval functions as a plugin for pytest, adding the following functionality:
+
+\begin{itemize}
+\item recognize Jupyter notebooks as files that could contain tests
+\item construct and run tests based on notebook cells
+\item report test results based on output, optionally with nbdime
+\end{itemize}
+
+One \nbval is installed, notebooks can be included in any pytest-based test suite
+with a single \texttt{--nbval} argument.
+Simiarly, collections of notebooks can be tested without any configuration by running
+\texttt{pytest --nbval} in any directory containing notebooks.
+
 
 \subsection{Changing outputs}\label{sec:changing-outputs}
-TODO Comment on mechanism to deal with changing outputs:
+
+One of the test features of \nbval that differs from traditional tests
+is that notebooks contain the output produced by their previous execution.
+One of the ways \nbval tests notebooks is by comparing outputs produced during the tests
+with those recorded in the notebook.
+Not all outputs are necessarily useful to test,
+so \nbval provides some configuration for deciding which outputs should be tested,
+and which should get some normalization before comparison.
+
+The general mechanisms for less-than-exact output comparison are:
+
 \begin{itemize}
 \item mark cell to be ignored
 \item use regular expressions
@@ -359,10 +390,27 @@ TODO: Comment on commands to skip execution of cells, etc.
 \end{figure}
 
 \subsection{Choice of kernel}
-TODO: Explain --current-env?
 
-TODO: Should we also comment on that this only works for Python
-kernels at the moment?
+In the Jupyter protocol, a `kernel' is the process where code executes,
+and is a separate process from the one reading the notebook and determining what code should be execute.
+When kernels are installed on a system,
+they register a `kernel spec' that describes how to start the kernel.
+There can be many such kernels installed on a system,
+some corresponding to different languages, such as GAP, PARI (\delivref{UI}{ipython-kernels}), Sage, or Python,
+while others may correspond to particular environments.
+Notebooks record information about the kernel used to run them in metadata.
+\nbval can look at this metadata to select the appropriate kernel to run the notebook for tests.
+
+When the notebook's code is Python,
+Default kernel selection can be bypassed in \nbval to run the code with the same interpreter
+with the \texttt{--current-env} flag.
+This makes nbval fit best in testing frameworks,
+which often create temporary environments in which to run tests.
+The test code itself will execute in this environment,
+but default kernel selection could result in the tests running in a different environment.
+\texttt{--current-env} ensures that not only the test runner,
+but the test code in the notebooks themselves,
+is run in the test environment.
 
 
 \section{\nbval and reproducibility} % (fold)
