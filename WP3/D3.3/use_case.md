@@ -3,7 +3,7 @@ Use case for integrating ODK-MitM system with Gap and Sage
 1. Computation in Sage
    
    1. MitM -> Sage
-      something
+      something that retuns a permutation group
    1. Sage -> MitM
       OMA(
        OMS(Sage.permuationGroup)
@@ -34,7 +34,7 @@ Use case for integrating ODK-MitM system with Gap and Sage
        )
       )
 
-   1. GAP -> MMT:
+   1. GAP -> MMT
       OMA(
         OMS(GAP.List),
         OMA(
@@ -44,3 +44,6 @@ Use case for integrating ODK-MitM system with Gap and Sage
         ),
         ...
       )
+
+1. MitM translation
+   Now, for example, another translation step can be used to translate GAP's result back to Sage.
