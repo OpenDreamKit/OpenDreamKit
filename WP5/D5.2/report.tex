@@ -102,26 +102,27 @@ see section~\ref{sec:links}).
 We did some benchmarks to see the benefits of the Pythran integration for Numpy
 operations. These benchmarks have been done using an Intel Core i7-6700HQ.
 
-\subsection{Simple computation}
+\subsection{Float computation}
+
+Here is a code snippet that does some computation on floating-point values:
 
 \begin{lstlisting}[language=python]
 import numpy
 cimport numpy
-def sqrt_sum(numpy.ndarray[numpy.float_t, ndim=1] a, \
+def float_comp(numpy.ndarray[numpy.float_t, ndim=1] a, \
              numpy.ndarray[numpy.float_t, ndim=1] b):
     return numpy.sqrt(numpy.sqrt(a*a+b*b))
 \end{lstlisting}
 
-With an array of 100000000 32-bit floats as input, the timings are the
-following:
+The figure~\ref{fig:float_bench} shows the compute time for various sizes for
+{\tt a} and {\tt b}, using the original Cython mode, then Cython with the
+Pythran backend, and finally Cython with the Pythran backend and SIMD
+instructions.
 
-\begin{itemize}
-  \item for the classical Cython version: 960ms
-  \item for the Cython version using the Pythran backend: 761ms
-  \item for the Cython version using the Pythran backend using SIMD instructions: 243ms
-\end{itemize}
-
-which makes a speedup of ~3.9x using SIMD instructions.
+\begin{figure}[h]
+  \caption{\label{fig:float_bench} Float computation benchmark (logarithmic scales)}
+  \includegraphics{benchs/float/graph.pdf}
+\end{figure}
 
 \subsection{Convolution}
 
@@ -159,7 +160,7 @@ merged into its master branch (see
 \url{https://github.com/serge-sans-paille/pythran/pull/614}).
 
 The modifications necessary within the Cython project are currently reviewed
-(see TODO).
+(see \url{https://github.com/cython/cython/pull/1607}).
 
 \printbibliography
 \end{document}
