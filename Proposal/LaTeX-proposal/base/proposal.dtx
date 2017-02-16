@@ -69,7 +69,7 @@
 % \changes{v1.4}{2013/01/12}{more documentation of milestones}
 % \changes{v1.5}{2014/01/14}{many layout tweaks support for CVs, milestones in gantt}
 % \changes{v1.6}{2016/10/26}{splitting off proposal.sty so that documentation becomes easier}
-% \changes{v1.6}{2017/02/01}{adding RM/RAM to tasks for fine-grained specification}
+% \changes{v1.6}{2017/02/01}{adding site RM/RAM to tasks for fine-grained effort specification}
 % 
 % \GetFileInfo{proposal.cls}
 % 
@@ -337,11 +337,13 @@
 % In the work packages we can list tasks that need to be undertaken with the
 % \DescribeEnv{tasklist}|tasklist| environment. The individual tasks are marked up with
 % the \DescribeEnv{task}|task| environment.  This takes a keyval argument with the keys
-% |id| for identification, |title| for a title, and the workphase keys |wphases|,
-% |start|, |end|, and |force| (see Section~\ref{sec:user:workphase}). For planning
-% involvement we can specify the overall person months via the |PM| key, the task lead via
-% |lead|, and the partners involved via the |partners| key. Finally task dependencies can
-% be specified via the |requires| key. 
+% |id| for identification, |title| for a title, and the workphase keys |wphases|, |start|,
+% |end|, and |force| (see Section~\ref{sec:user:workphase}). For planning involvement we
+% can specify the overall person months via the |PM| key, the task lead via |lead|, and
+% the partners involved via the |partners| key. Instead of just listing the partners, we
+% can also specify the contributions of the partners with |RM|\meta{site} and
+% |RAM|\meta{site} keys. Finally task dependencies can be specified via the |requires|
+% key.
 % 
 % Tasks can be referenced by the \DescribeMacro{\taskref}|\taskref| macro that takes two
 % arguments: the work package identifier and the task identifier. As for work packages and
@@ -1371,13 +1373,14 @@
 \xdef\@@involvement{}\xdef\@@inv{}%
 \xdef\@@sep{, }\def\m@sep{}% do not show the sep the first time around
 \edef\@@sites{\prop@gen@sites}%
+{\let\site\relax% to to render it inert here
 \@for\@site:=\@@sites\do{%
 \edef\@@RM{\pdataref@safe{\wp@id @\task@id}\@site{RM}}%
 \ifx\@@RM\@empty\else\xdef\@@inv{showit}%
 \xdef\@@involvement{\@@involvement% and
-\m@sep\@site: \@@RM\if@RAM\ifx\@@RAM\@empty\else/\@@RM\fi\fi}
+\m@sep\site{\@site}: \@@RM\if@RAM\ifx\@@RAM\@empty\else/\@@RM\fi\fi}
 \let\m@sep=\@@sep% but the second time show it.
-\fi}% \@@RM empty
+\fi}}% \@@RM empty
 \ifx\@@inv\@empty\else(RM{\if@RAM/RAM\fi} distribution: \@@involvement)\strut\\\fi
 \fi% no partners key
 \fi% sites
