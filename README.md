@@ -139,8 +139,7 @@ A first draft of each issue was created automatically using the
 metadata produced in Proposal/final.pdata. It should be further edited
 and maintained.
 
-The issue should be assigned to whoever will be leading it (by
-default: the work package leader).
+The issue should be assigned to whoever will be leading it, in addition to the work package leader.
 
 The first comment of the issue should contain:
 - a description of the task (taken from the proposal) or deliverable
@@ -225,17 +224,18 @@ status report, ...) needs to be on the issue.
   the author list is reasonable, as the report is about the
   contribution of ODK.
 
-- Send a notice to the coordinator
+- Send a notice to coordinator@opendreamkit.org
+
+- Write a blog post in [ODK's news](http://opendreamkit.org/news/)
 
 - Send a notice to participants@opendreamkit.org
 
-- Write a blog post (TODO: add a link)
 
 ### Steps for the coordinator
 
 - Go to the root dir of the main OpenDreamKit repository
 
-- Edit the main Makefile to add the deliverable
+- Edit the Makefile to add the deliverable
 
   Run make to automatically download the github description and build
   the report
@@ -251,9 +251,8 @@ status report, ...) needs to be on the issue.
     - login
     - go to My Projects, Manage Project, Continuous Reporting Data, Deliverables.
 
-    - Uploading a pdf fails for me with firefox (Nicolas). It works
-      with chromium, or with firefox by wrapping the pdf in a zip
-      file.
+    - Uploading a pdf used to fail for me with firefox (Nicolas). A
+      workaround was to wrap the pdf in a zip file.
 
 - Close the issue on github
 

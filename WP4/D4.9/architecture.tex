@@ -1,0 +1,200 @@
+\section{Information Architecture}\label{sec:infarch}
+
+For the \pn project we have developed a general architecture for in-situ computation and
+tested it on the use cases \ref{sec:ex:units} to \ref{sec:ex:hyp} above, which involve
+computation with math objects -- aka. ``mathematical formlae''\footnote{The other use
+  cases are possible in this architecture. Use case~\ref{sec:ex:docstruct} has been
+  realized before -- on a similar information architecture but different implemenation --
+  and is currently being re-developed for the current version of the \mmt API.} in active
+documents.
+
+Active Documents are represented in the \omdoc/\mmt
+format~\cite{Kohlhase:OMDoc1.2,uniformal:on,Iancu:phd} which combines document- and
+content strutures and thus allows to formalize both sides of active documents -- the lower
+part in Figure~\ref{fig:activedocs}; see~\cite{ODK-D4.2} for an overview and comparison to
+other \pn systems. The active document player is implemented in the MathHub
+system~\cite{MathHub:on} -- see~\cite{ODK-D4.3} for an introduction in the context of the
+\pn project, which relies on the \mmt API~\cite{Rabe:MAGMS13,uniformal:on} for
+content/knowledge management services. In particular, the \mmt API can communicate with
+many of the \pn systems via the SCSCP remote procedure call
+standard~\cite{HHKLRAT:SCSCP10}; see~\cite{ODK-D3.3} for an account of the exact state of
+affairs. We will use this facility for the actual computations.
+
+To understand the realization of in-situ computation in active documents, we will first
+look at the information resources involved and only in the next section give go into
+concrete implementation details. The latter may change over the course of the \pn project
+while the former will only be refined with more experience.
+
+Active documents have \textbf{math objects} encoded in
+MathML~\cite{CarlisleEd:MathML3:base}: In \omdoc/\mmt-based active documents documents
+contain presentation MathMl and are crosslinked -- parallel markup -- to content MathML
+representations in he content commons; see Figure~\ref{fig:activedocs}. In any case, the
+objects which contain identifiers -- e.g. $E$, $m$, and $c$ in (\ref{f:emc2}), which are
+introduced (\textbf{declared}) in the text or taken for granted because they have
+definitions in the content commons that is assumed to be known by the reader;
+see~\cite{WolGriKoh:udc11} for an experimental account of the linguistic side. These
+declarations and definitions induce a context that \emph{gives meaning to the math
+  objects} by explaining or binding these identifiers. For in-situ computation this
+context -- we call it the \textbf{computation context} -- must be identified and passed to
+the compute engine.
+
+Our computation context is similar in spirit to the document and user contexts Rikko
+Verrijzer identifies in~\cite{Verrijzer:cimdpm15} for MathDox educational
+documents~\cite{mathdox:on}. His notions focus mainly on user modeling whereas our's are
+techically more generic , since our active documents have more elaborated document and
+content structures.
+
+To get a feeling for the situation, consider Figure~\ref{fig:emc-adp} which instantiates
+the abstract diagram from Figure~\ref{fig:activedocs} to the situation in our running
+example: Einstein's energy/mass equivalence. We have the two parts: the document commons
+with (a slightly rephrased fragment of) the document in Figure~\ref{fig:emc2-wikipedia}
+on the left upper corner and the content comment on the other side of the dashed line. 
+
+The latter is encoded as an OMDoc/MMT theory graph -- see~\cite{RabKoh:WSMSML13} for
+technical details and~\cite{DehKohKon:iop16,ODK-D6.2} for an account of the applications
+in the \pn project. All relevant concepts are grouped in named theories (the boxes with
+rounded corners), which introduce symbols and their properties e.g. the definition of the
+unit Joule in \textsf{energy} or the size of the speed of light in
+\textsf{lightspeed}. These theories are connected by theory morphisms -- only inclusions
+$S\mmtar{include}T$ which make all declarations (symbols and properties) of $S$ visible in
+$T$ -- and give an object-oriented, modular regime of formalizing mathematical knowledte.
+
+\begin{figure}\centering
+  {\footnotesize\input{emc-adp}}
+  \caption{$E=mc^2$ as an Active Document}\label{fig:emc-adp}
+\end{figure}
+
+Documents are marked up in terms of its document, statement, and phrase structure in the
+ADP. In particular, we mark up
+\begin{enumerate}
+\item the sectioning structure -- omitted in our running example, 
+\item statements -- the assertion for $E=mc^2$ coincides with the whole document
+  \dociconprototype{D} in Figure~\ref{fig:emc-adp}, and
+\item the phrase structure -- here declarations are shown as boxes and technical terms as
+  dashed boxes.
+\end{enumerate}
+Finally, the marked up structures in the document commons are cross linked to the content
+commons to create \textbf{parallel markup}\footnote{The idea of ``parallel markup'' has
+  been pioneered by the MathML format~\cite{CarlisleEd:MathML3:base}, which uses it to
+  connect equivalent sub-formulae in presentation and content Markup, and~\cite{Iancu:phd}
+  generalizes it to all levels in the OMDoc/MMT setting.} at all levels. We see three
+dashed arrows: two connect the technical terms ``Energy'' and ``Mass'' in the dashed boxes
+to the corresponding concepts in the content tree and one that connects the whole
+declaration ``$c$ is the speed of light'' to the corresponding declaration in the theory
+\textsf{ligthspeed}. The dotted arrow on the top of Figure~\ref{fig:emc-adp} represents
+still another parallel alignment relation, it is the ``home theory'' relation, which makes
+all concepts from a theory -- the \textbf{home theory}; here \textsf{EME} -- in a document
+fragment. All parallel markup relations must be refinements of this relation to be
+well-justified in OMDoc/MMT.
+
+The crucial observation is that together, the home theory relation, its refinements, and
+the document markup give a notion of context for the computation. The (required)
+declarations for the local identifiers $E$ and $m$ in \dociconprototype{D}, and the
+(optional) declaration for the identifier $c$ inherited form the theory
+\textsf{lightspeed} give meaning to $E=mc^2$ and also determine what can be
+computed. Instantiating the \emph{variables} (locally declared identifiers) $m$ and $E$
+give rise to the computations in Section~\ref{sec:ex:equations}, whereas the ``replacing''
+the \emph{constant} (an identifier inherited from a theory) $c$ with a different value the
+hypothetical calculations from section~\ref{sec:ex:hyp}. We can even predict the grade of
+hypotheticality by the inheritance distance in the content theory graph.
+
+Formally, the \textbf{computation context} of a formula comes in the form of
+\textbf{declarations}, i.e. triples of the form $c:\tau=\delta$, where $c$ is the name of
+the declared identifier, (optionally) $\tau$ its type $\tau$, and (again optionally) a
+definiens $\delta$. In our running example, the context of $E=mc^2$ consists of three
+declarations: $E:\bbE$, $m:\bbM$, and $c:\bbL/\bbT=299 792 458$ (leaving out units for the
+moment). It can be inferred from the information in Figure~\ref{fig:emc-adp}; but let us
+make the active document fragment more explicit. 
+
+Listing~\ref{lst:emc-adfragment}\ednote{MK: I am sure that MMT generates something
+  slightly similar, update when we know} shows the HTML5 representation for the active
+document fragment in Figure~\ref{fig:emc-adp}. It shows the (presentation) MathML
+representation of $E=mc^2$, followed by the text part in which the declarations are marked
+up with \lstinline|span| elements of class \lstinline|o_declaration| for the variable
+declarations and \lstinline|o_symbol| for the symbol declaration. These carry the
+OMDoc/MMT attributes \lstinline|o:for| and \lstinline|o:scope|. The former points to the
+identifier being declared, and the latter points at the element in which this declaration
+is active. In this case, since the scope is the other \lstinline|<p>| element the
+declarations govern the identifiers in the displayed equation $E=mc^2$. 
+
+\begin{lstlisting}[label=lst:emc-adfragment,caption=Native Markup for an Active Document Fragment, 
+language=HTML,basicstyle=\footnotesize\sf,mathescape,morekeywords={mi,mo,msup,math,mrow}]
+<p id="p" xmlns:o="http://omdoc.org/ns">
+ <math display="block" xref="http://mathhub.info/phys/famous?equations?eme">
+  <mi>E</mi>
+  <mo>=</mo>
+  <mrow>
+   <mi>m</mi>
+   <mo>&invisibletimes;</mo>
+   <msup><mi>c</mi><mn>2</mn></msup>
+  </mrow>
+ <math>
+ where 
+ <span class="o_declaration" o:for="#E" o:scope="#p">
+  <math><mi id="E">E</mi></math> is the 
+  <span class="term" xref="http://mathhub.info/units/SI/complex?energy?$\bbE$">energy</span>
+ </span>,
+ <span class="o_declaration" o:for="#m" o:scope="#p">
+  <math><mi id="m">m</mi></math> is the 
+  <span class="term" xref="http://mathhub.info/units/SI/dimensions?mass?$\bbM$">mass</span>
+ </span>, and 
+ <span class="o_symbol" o:for="#c" o:scope="#p">
+  <math><mi id="c" xref="http://mathhub.info/phys/const/basic?lightspeed?c">c</mi></math> the 
+  <span class="term" xref="http://mathhub.info/phys/const/basic?lightspeed?lightspeed">speed of light</span>
+ </span>.
+</p>
+\end{lstlisting}
+
+\begin{wrapfigure}r{7.5cm}\vspace*{-1em}
+\begin{lstlisting}[language=XML,morekeywords={constant,type,apply,math,ci,cn,csymbol},basicstyle=\footnotesize\sf]
+<constant name="eme">
+ <type>
+  <math>
+   <apply><eq/>
+    <ci>E</ci>
+    <apply><times/>
+     <ci>m</ci>
+     <apply><power/>
+      <csymbol cd="lightspeed">c</csymbol>
+      <cn>2</cn>
+     </apply>
+    </apply>
+   </apply>
+  </math>     
+ </type>
+</constant>
+\end{lstlisting}
+\caption{$E=mc^2$ in Content MathML}\label{fig:emc-content}\vspace*{-2em}
+\end{wrapfigure}
+Now let us have a look at how this enables computation: The displayed equation $E=mc^2$
+linked into the content commons via its \lstinline|xref| attribute, which points to the
+(constant) declaration in Figure~\ref{fig:emc-content}. The \lstinline|constant| element
+combines the system name \lstinline|eme| with the statement of the equation in the
+\lstinline|type| element\footnote{This is a consequence of using the Curry/Howard
+  isomorphism at work; we have elided the details of the type here.}. As the equation is
+represented as the ``operator tree'' in content MathML, it is fully disambiguated
+functionally and can therefore directly be computed with in a computational engine
+(e.g. the MMT system itself or a computer algebra system like GAP or SageMath) after
+instantiation of the variables with concrete values.
+
+
+\subsection{Information Architecture for Unit Conversion}
+For the automatic conversion of units, we assume that the document contains formulas
+in MathML with cross references between its presentational part and its content MathML. 
+The content MathML needs to be annotated with the semantics of the expression, which
+includes the information about the present units. 
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  sec:infarch oldpart Verrijzer:cimdpm15 mathdox:on fig:emc-adp textsf emph
+%  LocalWords:  fig:activedocs fig:emc2-wikipedia RabKoh:WSMSML13 mmtar formalizing mrow
+%  LocalWords:  DehKohKon:iop16,ODK-D6.2 centering emc-adp dociconprototype textbf msup
+%  LocalWords:  Iancu:phd ligthspeed sec:equations sec:hyp hypotheticality lstlisting
+%  LocalWords:  sf,mathescape,morekeywords mi,mo,msup,math,mrow invisibletimes msup o:for
+%  LocalWords:  xref lst:emc-adfragment lstinline lstinline lst:emc-adfragment,caption
+%  LocalWords:  xmlns:o wrapfigure vspace constant,type,apply,math,ci,csymbol csymbol
+%  LocalWords:  csymbol fig:emc-content
