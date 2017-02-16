@@ -1,14 +1,48 @@
 \section{Information Architecture}\label{sec:infarch}
 
-\begin{oldpart}{some intro here}
-  Documents have Math Objects (encoded in content and presentation MathML)\ednote{the
-    former may be in the content commons in the Active Documents Figure} and the documents
-  have a context \ednote{The guy from Eindhoven had something about document and user
-    context here.~\cite{Verrijzer:cimdpm15} in the context of the MathDox
-    system~\cite{mathdox:on}} that explains/binds all symbols in the object. This context
-  must be some how represented in the document and has to be transmitted to the
-  computation service.
-\end{oldpart}
+For the \pn project we have developed a general architecture for in-situ computation and
+tested it on the use cases \ref{sec:ex:units} to \ref{sec:ex:hyp} above, which involve
+computation with math objects -- aka. ``mathematical formlae''\footnote{The other use
+  cases are possible in this architecture. Use case~\ref{sec:ex:docstruct} has been
+  realized before -- on a similar information architecture but different implemenation --
+  and is currently being re-developed for the current version of the \mmt API.} in active
+documents.
+
+Active Documents are represented in the \omdoc/\mmt
+format~\cite{Kohlhase:OMDoc1.2,uniformal:on,Iancu:phd} which combines document- and
+content strutures and thus allows to formalize both sides of active documents -- the lower
+part in Figure~\ref{fig:activedocs}; see~\cite{ODK-D4.2} for an overview and comparison to
+other \pn systems. The active document player is implemented in the MathHub
+system~\cite{MathHub:on} -- see~\cite{ODK-D4.3} for an introduction in the context of the
+\pn project, which relies on the \mmt API~\cite{Rabe:MAGMS13,uniformal:on} for
+content/knowledge management services. In particular, the \mmt API can communicate with
+many of the \pn systems via the SCSCP remote procedure call
+standard~\cite{HHKLRAT:SCSCP10}; see~\cite{ODK-D3.3} for an account of the exact state of
+affairs. We will use this facility for the actual computations.
+
+To understand the realization of in-situ computation in active documents, we will first
+look at the information resources involved and only in the next section give go into
+concrete implementation details. The latter may change over the course of the \pn project
+while the former will only be refined with more experience.
+
+Active documents have \textbf{math objects} encoded in
+MathML~\cite{CarlisleEd:MathML3:base}: In \omdoc/\mmt-based active documents documents
+contain presentation MathMl and are crosslinked -- parallel markup -- to content MathML
+representations in he content commons; see Figure~\ref{fig:activedocs}. In any case, the
+objects which contain identifiers -- e.g. $E$, $m$, and $c$ in (\ref{f:emc2}), which are
+introduced (\textbf{declared}) in the text or taken for granted because they have
+definitions in the content commons that is assumed to be known by the reader;
+see~\cite{WolGriKoh:udc11} for an experimental account of the linguistic side. These
+declarations and definitions induce a context that \emph{gives meaning to the math
+  objects} by explaining or binding these identifiers. For in-situ computation this
+context -- we call it the \textbf{computation context} -- must be identified and passed to
+the compute engine.
+
+Our computation context is similar in spirit to the document and user contexts Rikko
+Verrijzer identifies in~\cite{Verrijzer:cimdpm15} for MathDox educational
+documents~\cite{mathdox:on}. His notions focus mainly on user modeling whereas our's are
+techically more generic , since our active documents have more elaborated document and
+content structures.
 
 To get a feeling for the situation, consider Figure~\ref{fig:emc-adp} which instantiates
 the abstract diagram from Figure~\ref{fig:activedocs} to the situation in our running
@@ -111,7 +145,7 @@ language=HTML,basicstyle=\footnotesize\sf,mathescape,morekeywords={mi,mo,msup,ma
 </p>
 \end{lstlisting}
 
-\begin{wrapfigure}r{7.5cm}\vspace*{-.5em}
+\begin{wrapfigure}r{7.5cm}\vspace*{-1em}
 \begin{lstlisting}[language=XML,morekeywords={constant,type,apply,math,ci,cn,csymbol},basicstyle=\footnotesize\sf]
 <constant name="eme">
  <type>
@@ -130,7 +164,7 @@ language=HTML,basicstyle=\footnotesize\sf,mathescape,morekeywords={mi,mo,msup,ma
  </type>
 </constant>
 \end{lstlisting}
-  \caption{$E=mc^2$ in Content MathML}\label{fig:emc-content}
+\caption{$E=mc^2$ in Content MathML}\label{fig:emc-content}\vspace*{-2em}
 \end{wrapfigure}
 Now let us have a look at how this enables computation: The displayed equation $E=mc^2$
 linked into the content commons via its \lstinline|xref| attribute, which points to the
