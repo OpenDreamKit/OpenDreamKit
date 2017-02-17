@@ -39,7 +39,7 @@ It also has a full C++ implementation of a major set of the Numpy API. Some of
 the advantage of this implementation is that it supports expression templates
 and SIMD instructions. Expression templates allow to "fuse" loops that can
 occurs when expressions with multiple operators are computed. For instance,
-the expression $a+b*c$ will original be transformed by Cython in two call: one
+the expression $a+b*c$ will originally be transformed by Cython in two calls: one
 for the multiplication of $b$ by $c$, and one for the addition of the result of
 this multiplication and the addition by $a$. Each call will end-up in one loop,
 that will read memory, compute the operation and write back to memory. The
@@ -60,8 +60,8 @@ arrays it can handle:
 
 \begin{itemize}
   \item array "views" are not supported. That means that arrays must be stored
-    in conitguous memory. Fortran and C-style format are supported.
-  \item the endianess of the integers must be the same that the one of the
+    in contiguous memory. Fortran and C-style formats are supported.
+  \item the endianess of the integers must be the same as the one of the
     targeted architecture (note that Cython has the same limitation)
 \end{itemize}
 
@@ -71,12 +71,12 @@ in one of those cases.
 The integration within Cython works this way:
 
 \begin{itemize}
-  \item at the function level, for every argument that is an numpy array and
+  \item at the function level, for every argument that is a numpy array and
     supported by Pythran, we change its type by a fused type
     \footnote{\url{http://cython.readthedocs.io/en/latest/src/userguide/fusedtypes.html}}.
-    This fused type is whether a Pythran numpy buffer or the original Cython
+    This fused type is either a Pythran numpy buffer or the original Cython
     buffer type
-  \item for variable defined as numpy array, we change them directly to a
+  \item for variables defined as numpy array, we change them directly to a
     Pythran buffer, if their type and endianess are supported.
 \end{itemize}
 
@@ -94,8 +94,19 @@ installation must be provided.
 
 Here is an example of usage using {\tt distutils}:
 
-More detailed example are provided in the documentation (within the Cython PR,
-see section~\ref{sec:links}).
+\begin{lstlisting}[language=python]
+from distutils.core import setup
+from Cython.Build import cythonize
+
+setup(
+    name = "My hello app",
+    ext_modules = cythonize('hello_pythran.pyx', np_pythran=True)
+)
+\end{lstlisting}
+
+Basically, a flag {\tt np\_pythran} has been added to the {\tt cythonize} call
+that will enable the usage of the Pythran backend. It needs to have the Pythran
+module installed.
 
 \section{Benchmarks}
 
@@ -122,6 +133,47 @@ instructions.
 \begin{figure}[h]
   \caption{\label{fig:float_bench} Float computation benchmark (logarithmic scales)}
   \includegraphics{benchs/float/graph.pdf}
+\end{figure}
+
+For instance, for $N = 1000000$, we have a speedup of ~2.4x using the Pythran
+backend (against the original Cython version), and ~3.7x using SIMD
+instructions (still against the original Cython version).
+
+\subsection{Harris}
+
+This benchmark is based on the code available here:
+\url{https://raw.githubusercontent.com/serge-sans-paille/numpy-benchmarks/master/benchmarks/harris.py}.
+
+The adapted Cython code is the following:
+
+\begin{lstlisting}[language=python]
+import numpy
+cimport numpy
+
+def harris(numpy.ndarray[numpy.float_t, ndim=2] I):
+  cdef int m = I.shape[0]
+  cdef int n = I.shape[1]
+  cdef numpy.ndarray[numpy.float_t, ndim=2] dx = \
+    (I[1:, :] - I[:m-1, :])[:, 1:]
+  cdef numpy.ndarray[numpy.float_t, ndim=2] dy = \
+    (I[:, 1:] - I[:, :n-1])[1:, :]
+
+  cdef numpy.ndarray[numpy.float_t, ndim=2] A = dx * dx
+  cdef numpy.ndarray[numpy.float_t, ndim=2] B = dy * dy
+  cdef numpy.ndarray[numpy.float_t, ndim=2] C = dx * dy
+  cdef numpy.ndarray[numpy.float_t, ndim=2] tr = A + B
+  cdef numpy.ndarray[numpy.float_t, ndim=2] det = A * B - C * C
+  return det - tr * tr
+\end{lstlisting}
+
+The figure~\ref{fig:harris_bench} shows the compute time for various sizes of
+the 2D array I ($N \times N$). We've got a ~25 \% improvement with an array of
+$4096 \times 4096$ floats as input using the Pythran backend. Moreover, in this
+case, it seems that this code does not really benefits from SIMD instructions.
+
+\begin{figure}[h]
+  \caption{\label{fig:harris_bench} Harris computation benchmark}
+  \includegraphics{benchs/harris/graph.pdf}
 \end{figure}
 
 \subsection{Convolution}
