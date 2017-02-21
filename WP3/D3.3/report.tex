@@ -63,38 +63,91 @@ to build interfaces between different systems.
 
 \section{Systems}\label{systems}
 
-In OpenDreamKit, the task is to provide SCSCP implementations
-for all involved components. SCSCP is a protocol in which 
-both data and instructions are implemented in OpenMath, so
-implementing SCSCP involves two tasks - implementing OpenMath
-support to be able to parse and generate OpenMath code in order
-to encode/decode mathematical objects, and on top of that 
-then implementing necessary framework to establish connection,
-send procedure calls and receive back results.
+Under the task T3.2, our goal is to make SCSCP-compliant all
+relevant components. Since SCSCP is a protocol in which 
+both data and instructions are encoded in OpenMath, its
+implementation is typically split into two components: 
+\begin{itemize}
+\item OpenMath support to be able to parse and 
+generate OpenMath code and encode/decode mathematical objects
+\item client and server functionality needed to establish connection
+and exchange with procedure calls and their results.
+\end{itemize}
 
-Instead of implementing it directly in SageMath, we have
-decided that the maximal impact would be if we could provide
-an independent Python library, which may be used then not
+In order to achieve maximal impact on the Python ecosystem, 
+instead of implementing SCSCP directly in SageMath, our approach
+was to provide independent Python libraries, which may be used not
 only in SageMath but also in a number of other Python applications
-including scientific computing libraries such as e.g. NumPy,
-SymPy etc. We will present this and other SCSCP implementations
-below.
+including scientific computing libraries such as e.g. 
+SciPy, NumPy, SymPy etc.
+
+
+
+\subsection{Python, SageMath and its components}
+
+OpenMath and SCSCP support in Python is provided by two libraries, 
+{\sf openmath} and {\sf scscp}, which are available from PyPI at
+\url{https://pypi.python.org/pypi/openmath/} and
+\url{https://pypi.python.org/pypi/scscp/} and
+may be installed using the standard {\sf pip} installer 
+both under Python 2 and Python 3. The development repositories
+and issue trackers for these packages are hosted on GitHub
+at \url{https://github.com/OpenMath/py-openmath}
+and \url{https://github.com/OpenMath/py-scscp}.
+
+TODO: Ask Luca for more detailed overview of the design of 
+\url{https://github.com/OpenMath/py-scscp} 
+and \url{https://github.com/OpenMath/py-openmath}. 
+
+Explain how the user can now use these packages to extend supported OpenMath CDs
+or use private encodings and implement own remote procedures.
+
+TODO: Appendix with READMEs from \url{https://github.com/OpenMath/py-scscp}
+and \url{https://github.com/OpenMath/py-openmath}. The latter should have
+some more detailed README.
+
+What other systems are doing? Because SageMath interfaces them, to offer them
+as remote services, the SCSCP server can be run in SageMath, and Sage may be
+also an SCSCP client, so can steer computation talking to e.g. remote GAP 
+via SCSCP and local PARI/GP or Singular via its own interface.
+
+We provide more details and examples of usage for the SCSCP client and server in
+Python in Appendices. 
+
+Appendix \ref{python2-to-GAP} shows an example of Python 2 client connecting
+to a GAP server.
+
+Appendix \ref{python3-to-GAP} shows an example of Python 3 client connecting
+to a GAP server.
+
+Appendix \ref{SageMath-to-GAP} shows an example of Python 3 client connecting
+to a GAP server.
+
 
 
 \subsection{GAP}
 
 TODO: add URLs
 
-GAP has two packages, SCSCP and OpenMath. The OpenMath package
-provides encoding/decoding, supports both XML and binary OpenMath.
+OpenMath and SCSCP support in GAP is provided by two GAP packages, 
+{\sf OpenMath} and {\sf SCSCP}. This packages are included in the 
+standard GAP distribution and are also available from their 
+websites \url{https://gap-packages.github.io/openmath/} and
+\url{https://gap-packages.github.io/scscp/}. 
+The development repositories and issue trackers for these packages are hosted on GitHub
+at \url{https://github.com/gap-packages/scscpopenmath}
+and \url{https://github.com/gap-packages/scscp}.
+
+The OpenMath package provides encoding/decoding, and supports both XML and binary OpenMath.
 The SCSCP package implements SCSCP client and server, and on top of
 that provides a framework for distributed parallel computations.
 
 TODO: more details and either URLs of manuals or append them to the report?
 
 During the reported period, we have prepared new versions of 
-both packages. Packages were migrated under the GAP packages VO
-on GitHub, their new versions are now picked up for the redistribution
+both packages and migrated their development repositories and
+websites under the GAP packages VO on GitHub. 
+Their new versions are now picked up for the redistribution
 with GAP and will appear in the next GAP release. Major changes
 were upgrades and compatibility fixes for next GAP releases, 
 and improvements to improve the security and robustness when
@@ -107,43 +160,27 @@ in the next section. They show how GAP SCSCP support feeds into
 activities from other workpackages (Docker, databases).
 
 
-\subsection{Python, SageMath and its components}
-
-The crucial step here is publishing {\sf openmath} and {\sf scscp} libraries
-for Python 2 and Python3.
-
-TODO: Ask Luca for descriptions of \url{https://github.com/OpenMath/py-scscp}
-and \url{https://github.com/OpenMath/py-openmath}. 
-
-Explain how the user can now use these packages to extend supported OpenMath CDs
-or use private encodings and implement own remote procedures.
-
-TODO: Appendix with READMEs from \url{https://github.com/OpenMath/py-scscp}
-and \url{https://github.com/OpenMath/py-openmath}. The latter should have
-some more detailed README.
-
-Cover the whole ecosystem: SageMath and its components, other Python libraries.
-
-
 \subsection{MMT/MathHub}
 
 TODO: Ask Tom to provide a description
 
 
-
 \section{Examples}\label{examples}
 
-TODO: introduction to this section
-
+TODO: introduction to this section. Alternatively, just incorporate 
+examples into appropriate Systems (sub)sections.
 
 \subsection{GAP SCSCP server in Docker container}
 
-TODO: describe how one could run GAP SCSCP server
-using GAP docker container 
-
-https://hub.docker.com/r/gapsystem/gap-docker/ 
-
-and possibly print that page or README from there in the appendix.
+A very efficient and secure way to run public GAP SCSCP
+server is to run it in the GAP docker container. Under the
+Task ??? we have established a pipeline of GAP Docker 
+containers, and the README for the container for GAP and
+packages \url{https://hub.docker.com/r/gapsystem/gap-docker/}
+is shown in Appendix \ref{SCSCP-with-GAP-docker} and explains
+how to start GAP SCSCP server in the container.
+TODO:more instructions here. Why useful - because some packages
+are difficult to install otherwise.
 
 
 \subsection{Number of groups of order $n$}\label{gnu-reproducibility}
@@ -166,24 +203,25 @@ TODO: Sebastian?
 \subsection{PARI/GP}
 
 TODO: Via SageMath?
+% http://doc.sagemath.org/html/en/reference/interfaces/sage/interfaces/gp.html
 
 
 \subsection{Parallel SCSCP tutorial}
 
 TODO: describe \url{https://github.com/alex-konovalov/scscp-demo},
-include page in the appendix.
+include page in the appendix. Was taught twice at CoDiMa training schools.
 
 \section{Future work}
 
-Dissemination: reach out to SymPy, NumPy, ...
+Dissemination: reach out to SciPy, SymPy, NumPy communities.
 
 Under the ODK project, we transferred SCSCP specification
 to OpenMath society and licensed it under
 W3C Software and document notice and license.
 
-TODO:make a proper webpage for SCSCP under OpenMath VO, with
+Make a proper webpage for SCSCP under OpenMath VO, with
 PDFs of the specification and links to existing implementations.
-
+TODO: give URLs of the new SCSCP website and repository.
 
 
 
