@@ -141,7 +141,9 @@ and maintained.
 
 The issue should be assigned to whoever will be leading it, in addition to the work package leader.
 
-The first comment of the issue should contain:
+By convention, we use the first comment on the issue as a description
+of that issue (github is missing an explicit notion of issue
+description). It should contain and be continuously updated with:
 - a description of the task (taken from the proposal) or deliverable
 - a brief status overview
 - crosslinks to the corresponding task/deliverables
@@ -162,8 +164,8 @@ status report, ...) needs to be on the issue.
 
 ### Steps for the deliverable lead
 
-- Edit the description on the corresponding github issues to give an
-  overview (think the abstract of a paper) of the deliverable:
+- Edit the github issue description (i.e. its first comment) to give
+  an overview (think the abstract of a paper) of the deliverable:
 
     - What was the original goal.
     - How it fits within the overall ODK picture.
