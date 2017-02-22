@@ -24,8 +24,8 @@ WP%/eudelivreport.cls: Proposal/LaTeX-Proposal/eu/eudelivreport.cls
 %.tex: %.md
 	sed -e 's/- \[[xX]\]/- $$\\checkmark$$/; s! \([^ ]*[a-z]\)#\([0-9][0-9]*\)! [\1#\2](https://github.com/\1/issues/\2)!g; s!\([^a-z]\)#\([0-9]*[0-9]\)!\1[#\2](https://github.com/OpenDreamKit/OpenDreamKit/issues/\2)!g;' $< | pandoc --toc-depth=1 -f markdown_github+tex_math_dollars+header_attributes -t latex | sed -e 's/\\section/\\section*/' > $@
 
-WP%/report.pdf: WP%/report.tex WP%/github-issue-description.tex WP%/deliverablereport.cls WP%/eudelivreport.cls
-	cd `dirname $<`; file=`basename $<`; pdflatex $$file; bibtex $$file; pdflatex $$file; pdflatex $$file
+WP%/report.pdf: WP%/report.tex WP%/github-issue-description.tex WP%/deliverablereport.cls WP%/eudelivreport.cls WP%/*.png
+	cd `dirname $<`; file=`basename -s .tex $<`; pdflatex $$file && bibtex $$file; pdflatex $$file && pdflatex $$file
 
 WP3/D3.1/report.pdf: WP3/D3.1/status-report.tex
 
