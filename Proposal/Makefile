@@ -7,7 +7,7 @@
 # possibly customize the following variables to your setting
 PROPOSAL = proposal.tex 		# the proposal
 BIB = bibliography.bib	        # bibTeX databases
-PROP.dir = LaTeX-Proposal
+PROP.dir = LaTeX-proposal
 ###########################################################################
 # the following are computed
 TSIMP = 			                  # pdflatex Targets without bibTeX

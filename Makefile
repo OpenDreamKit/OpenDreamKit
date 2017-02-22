@@ -13,7 +13,7 @@ reports.zip: $(REPORTS)
 
 WP%/deliverablereport.cls: Proposal/deliverablereport.cls
 	cp $< $@
-WP%/eudelivreport.cls: Proposal/LaTeX-Proposal/eu/eudelivreport.cls
+WP%/eudelivreport.cls: Proposal/LaTeX-proposal/eu/eudelivreport.cls
 	cp $< $@
 
 # Requires PyGithub, PyYAML
@@ -24,7 +24,7 @@ WP%/eudelivreport.cls: Proposal/LaTeX-Proposal/eu/eudelivreport.cls
 %.tex: %.md
 	sed -e 's/- \[[xX]\]/- $$\\checkmark$$/; s! \([^ ]*[a-z]\)#\([0-9][0-9]*\)! [\1#\2](https://github.com/\1/issues/\2)!g; s!\([^a-z]\)#\([0-9]*[0-9]\)!\1[#\2](https://github.com/OpenDreamKit/OpenDreamKit/issues/\2)!g;' $< | pandoc --toc-depth=1 -f markdown_github+tex_math_dollars+header_attributes -t latex | sed -e 's/\\section/\\section*/' > $@
 
-WP%/report.pdf: WP%/report.tex WP%/github-issue-description.tex WP%/deliverablereport.cls WP%/eudelivreport.cls WP%/*.png
+WP%/report.pdf: WP%/report.tex WP%/github-issue-description.tex WP%/deliverablereport.cls WP%/eudelivreport.cls $(wildcard WP%/*.png)
 	cd `dirname $<`; file=`basename -s .tex $<`; pdflatex $$file && bibtex $$file; pdflatex $$file && pdflatex $$file
 
 WP3/D3.1/report.pdf: WP3/D3.1/status-report.tex
