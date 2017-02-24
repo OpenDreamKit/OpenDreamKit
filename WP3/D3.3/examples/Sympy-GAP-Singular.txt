@@ -1,0 +1,53 @@
+# Singular
+
+LIB "poly.lib";
+ring r = 0,(x(0..3)),dp;
+ideal i = cyclic( 4 );
+i;
+std(i);
+
+LIB "poly.lib";
+ring r = 0,(x(0..4)),dp;
+ideal i = cyclic( 5 );
+i;
+std(i);
+
+# GAP 
+
+LoadPackage("singular");
+
+R := PolynomialRing( Rationals, ["x0", "x1", "x2", "x3"] );
+AssignGeneratorVariables(R);
+f1:=x0+x1+x2+x3;
+f2:=x0*x1+x1*x2+x0*x3+x2*x3;
+f3:=x0*x1*x2+x0*x1*x3+x0*x2*x3+x1*x2*x3;
+f4:=x0*x1*x2*x3-1;
+I:= Ideal( R, [ f1, f2, f3, f4 ]);
+GroebnerBasis( I );
+
+R := PolynomialRing( Rationals, ["x0", "x1", "x2", "x3", "x4" ] );
+AssignGeneratorVariables(R);
+f1:=x0+x1+x2+x3+x4;
+f2:=x0*x1+x1*x2+x2*x3+x0*x4+x3*x4;
+f3:=x0*x1*x2+x1*x2*x3+x0*x1*x4+x0*x3*x4+x2*x3*x4;
+f4:=x0*x1*x2*x3+x0*x1*x2*x4+x0*x1*x3*x4+x0*x2*x3*x4+x1*x2*x3*x4;
+f5:=x0*x1*x2*x3*x4-1;
+I:= Ideal( R, [ f1, f2, f3, f4, f5 ]);
+GroebnerBasis( I );
+
+# Sympy
+
+R, x0, x1, x2, x3 = ring("x0, x1, x2, x3", ZZ)
+f1=x0+x1+x2+x3
+f2=x0*x1+x1*x2+x0*x3+x2*x3
+f3=x0*x1*x2+x0*x1*x3+x0*x2*x3+x1*x2*x3
+f4=x0*x1*x2*x3-1
+sympy.polys.groebnertools.groebner([f1,f2,f3,f4],R)
+
+R, x0, x1, x2, x3, x4 = ring("x0, x1, x2, x3, x4", ZZ)
+f1=x0+x1+x2+x3+x4
+f2=x0*x1+x1*x2+x2*x3+x0*x4+x3*x4
+f3=x0*x1*x2+x1*x2*x3+x0*x1*x4+x0*x3*x4+x2*x3*x4
+f4=x0*x1*x2*x3+x0*x1*x2*x4+x0*x1*x3*x4+x0*x2*x3*x4+x1*x2*x3*x4
+f5=x0*x1*x2*x3*x4-1
+sympy.polys.groebnertools.groebner([f1,f2,f3,f4,f5],R)

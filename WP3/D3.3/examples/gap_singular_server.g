@@ -1,11 +1,10 @@
 # GAP SCSCP server for the example of calling Singular from Python SCSCP client
 
-LogTo(); # to close log file if it was opened from .:
+LogTo(); # to close the log file in case it was opened earlier 
 LoadPackage("singular");
 LoadPackage("scscp");
 
-SetInfoLevel(InfoSCSCP,4);
-
+# create polynomial from its external representation
 AssemblePolynomial := function( extrep )
 local fam, rep, coeffs, mons, i, term, j, p;
 fam := RationalFunctionsFamily(FamilyObj(1));
@@ -25,6 +24,7 @@ p:=PolynomialByExtRep(fam,rep);
 return p;
 end;
 
+# produce external representation of a polynomial
 DisassemblePolynomial:=function(f)
 local rep, coeffs, mons, deg, t, r, i, term, mon, j;
 rep := ExtRepPolynomialRatFun(f);
@@ -44,25 +44,31 @@ od;
 return [coeffs,mons];
 end;
 
-# Thus, f = AssemblePolynomial( DisassemblePolynomial( f ) )
-
+# This is the main purpose of this server
 GroebnerBasisWithSingular:=function( extreps )
+# it accepts external representations of polynomials
 local R, r, I, B;
+# create polynomial ring of appropriate rank
 R:=PolynomialRing( Rationals, Maximum(List( extreps, r -> Length(r[2]) ) ) );
+# convert arguments to polynomials and get an ideal they generate
 I:=Ideal( R, List( extreps, AssemblePolynomial ) );
+# call local instance of Singular
 B:=GroebnerBasis(I);
+# return result in the form of external representations
 return List(B,DisassemblePolynomial);
 end;
 
-PingPongPoly := x -> DisassemblePolynomial( AssemblePolynomial ( x ) );
+# Procedures that the GAP SCSCP server provides
 
+# Useful for simple tests 
 InstallSCSCPprocedure( "Identity", x -> x, "Identity procedure for tests", 1, 1 );
 
+# Clearly, f = AssemblePolynomial( DisassemblePolynomial( f ) )
+PingPongPoly := x -> DisassemblePolynomial( AssemblePolynomial ( x ) );
 InstallSCSCPprocedure( "PingPongPoly", PingPongPoly, "Decode/encode polynomial and send it back", 1, 1 );
 
+# Setting up calculation and calling Singular
 InstallSCSCPprocedure( "GroebnerBasisWithSingular", GroebnerBasisWithSingular, "Groebner Basis with Singular", 1, 1 );
 
-
-
-
+# Start GAP SCSCP server
 RunSCSCPserver( SCSCPserverAddress, SCSCPserverPort : OMignoreMatrices);
