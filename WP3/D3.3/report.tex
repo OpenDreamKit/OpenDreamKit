@@ -87,36 +87,55 @@ SciPy, NumPy, SymPy etc.
 
 \subsection{Python, SageMath and its components}
 
-OpenMath and SCSCP support in Python is provided by two libraries, 
-{\sf openmath} and {\sf scscp}, which are available from PyPI at
-\url{https://pypi.python.org/pypi/openmath/} and
-\url{https://pypi.python.org/pypi/scscp/} and
-may be installed using the standard {\sf pip} installer 
-both under Python 2 and Python 3. The development repositories
-and issue trackers for these packages are hosted on GitHub
-at \url{https://github.com/OpenMath/py-openmath}
-and \url{https://github.com/OpenMath/py-scscp}.
+OpenMath and SCSCP support in Python is provided by two libraries,
+{\sf openmath} and {\sf scscp}, which are available from the package
+repository PyPI at \url{https://pypi.python.org/pypi/openmath/} and
+\url{https://pypi.python.org/pypi/scscp/}, and may be installed using
+the standard {\sf pip} installer both under Python 2 and Python 3. The
+development repositories and issue trackers for these packages are
+hosted on GitHub at \url{https://github.com/OpenMath/py-openmath} and
+\url{https://github.com/OpenMath/py-scscp}.
 
-TODO: Ask Luca for more detailed overview of the design of 
-\url{https://github.com/OpenMath/py-scscp} 
-and \url{https://github.com/OpenMath/py-openmath}. 
+The {\sf openmath} package contains
+\begin{itemize}
+\item An object representation of the OpenMath standard,
+\item XML serializers and deserializers,
+\item An extendable mechanism for automatic conversions between Python
+  and OpenMath objects.
+\end{itemize}
+We give details on the two latter components in the appendices.
 
-Explain how the user can now use these packages to extend supported OpenMath CDs
-or use private encodings and implement own remote procedures.
+The {\sf scscp} package offers network components for implementing the
+SCSCP network protocol at various levels of abstraction. Among other
+components, it contains in particular
+\begin{itemize}
+\item An SCSCP base client with no understanding of OpenMath,
+\item An SCSCP base server with no understanding of OpenMath,
+\item An SCSCP base client leveraging {\sf openmath} to understand OpenMath,
+\item An SCSCP base server leveraging {\sf openmath} to understand OpenMath,
+\item A command line tool to interrogate SCSCP server, with automatic
+  discovery of remote procedures, and automatic conversion between
+  Python and OpenMath.
+\item A minimalist demo server, and other examples illustrating how to
+  use the package inside \Sage.
+\end{itemize}
 
 TODO: Appendix with READMEs from \url{https://github.com/OpenMath/py-scscp}
-and \url{https://github.com/OpenMath/py-openmath}. The latter should have
-some more detailed README.
+and \url{https://github.com/OpenMath/py-openmath}.
 
-What other systems are doing? Because SageMath interfaces them, to offer them
-as remote services, the SCSCP server can be run in SageMath, and Sage may be
-also an SCSCP client, so can steer computation talking to e.g. remote GAP 
-via SCSCP and local PARI/GP or Singular via its own interface.
+Both packages can easily be installed inside \Sage from PyPi. Although
+the client and server modules target generic Python code, they can
+easily be adapted to work seamlessly inside \Sage, as the included
+examples show. Since \Sage does not have extensive support for
+OpenMath yet, we have decided not to include these packages in \Sage
+by default for the moment. We will reevaluate this decision according
+to the progress made in WP6 in the next reporting period.
 
 We provide more details and examples of usage for the SCSCP client and server in
-Python in Appendices. Examples of of Python 2, Python 3 and SageMath clients 
+Python in Appendices. Examples of of Python 2, Python 3 and \Sage clients 
 communicating with a GAP server are shown in Appendices \ref{python2-to-GAP},
 \ref{python3-to-GAP} and \ref{SageMath-to-GAP} respectively.
+
 
 
 \subsection{GAP}
@@ -259,6 +278,21 @@ Using SCSCP, contributors may be able to get the latest information of
 known and unknown entries from the server, which runs in the GAP Docker 
 container (see \ref{gap-docker}).
 
+
+\subsection{PARI/GP}
+
+Given that the goal of \Pari is to be a small, fast and lightweight
+library and intepreter, we have come to the conclusion that adding
+support for SCSCP directly to it is inadequate.
+
+Instead, the Python library mentioned above, combined with the CyPari
+interface built in \longdelivref{UI}{pari-python-lib1}, will enable
+building fast and reliable SCSCP client and servers for \Pari through
+the Python platform.
+
+Both CyPari, and the packages built for this deliverable are not
+mature enough to showcase such applications, but we may be able to do
+so by the time \longdelivref{UI}{pari-python-lib2} is completed.
 
 \subsection{Parallel search in the GAP Small Groups Library using SCSCP}
 
