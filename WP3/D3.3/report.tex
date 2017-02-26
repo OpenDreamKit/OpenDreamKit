@@ -77,46 +77,77 @@ and exchange with procedure calls and their results.
 \end{itemize}
 
 In order to achieve maximal impact on the Python ecosystem, 
-instead of implementing SCSCP directly in SageMath, our approach
+instead of implementing SCSCP directly in \Sage, our approach
 was to provide independent Python libraries, which may be used not
-only in SageMath but also in a number of other Python applications
+only in \Sage but also in a number of other Python applications
 including scientific computing libraries such as e.g. 
 SciPy, NumPy, SymPy etc.
 
 
 
-\subsection{Python, SageMath and its components}
+\subsection{Python and \Sage}
 
-OpenMath and SCSCP support in Python is provided by two libraries, 
-{\sf openmath} and {\sf scscp}, which are available from PyPI at
-\url{https://pypi.python.org/pypi/openmath/} and
-\url{https://pypi.python.org/pypi/scscp/} and
-may be installed using the standard {\sf pip} installer 
-both under Python 2 and Python 3. The development repositories
-and issue trackers for these packages are hosted on GitHub
-at \url{https://github.com/OpenMath/py-openmath}
-and \url{https://github.com/OpenMath/py-scscp}.
+OpenMath and SCSCP support in Python is provided by two libraries,
+{\sf openmath} and {\sf scscp}, which are available from the package
+repository PyPI at
+\begin{itemize}
+\item \url{https://pypi.python.org/pypi/openmath/}
+\item \url{https://pypi.python.org/pypi/scscp/}
+\end{itemize}
+and may be installed using 
+the standard {\sf pip} installer both under Python 2 and Python 3. The
+development repositories and issue trackers for these packages are
+hosted on GitHub at 
+\begin{itemize}
+\item \url{https://github.com/OpenMath/py-openmath}
+\item \url{https://github.com/OpenMath/py-scscp}
+\end{itemize}
 
-TODO: Ask Luca for more detailed overview of the design of 
-\url{https://github.com/OpenMath/py-scscp} 
-and \url{https://github.com/OpenMath/py-openmath}. 
+The {\sf openmath} package contains
+\begin{itemize}
+\item An object representation of the OpenMath standard,
+\item XML serialisers and deserialisers,
+\item An extendable mechanism for automatic conversions between Python
+  and OpenMath objects.
+\end{itemize}
+We give details on the two latter components in the appendices.
 
-Explain how the user can now use these packages to extend supported OpenMath CDs
-or use private encodings and implement own remote procedures.
+The {\sf scscp} package offers network components for implementing the
+SCSCP network protocol at various levels of abstraction. Among other
+components, it contains in particular
+\begin{itemize}
+\item An SCSCP base client,
+\item An SCSCP base server,
+\item A command line tool to interrogate SCSCP server, with automatic
+  discovery of remote procedures, and automatic conversion between
+  Python and OpenMath.
+\item A minimalistic demo server, and other examples illustrating how to
+  use the package inside \Sage.
+\end{itemize}
 
-TODO: Appendix with READMEs from \url{https://github.com/OpenMath/py-scscp}
-and \url{https://github.com/OpenMath/py-openmath}. The latter should have
-some more detailed README.
+Both packages can easily be installed inside \Sage from PyPi. Although
+the client and server modules target generic Python code, they can
+easily be adapted to work seamlessly inside \Sage, as the included
+examples show. Since \Sage does not have extensive support for
+OpenMath yet, we have decided not to include these packages in \Sage
+by default for the moment. We will reevaluate this decision according
+to the progress made in WP6 in the next reporting period.
 
-What other systems are doing? Because SageMath interfaces them, to offer them
-as remote services, the SCSCP server can be run in SageMath, and Sage may be
-also an SCSCP client, so can steer computation talking to e.g. remote GAP 
-via SCSCP and local PARI/GP or Singular via its own interface.
+Appendices \ref{py-openmath_README} and \ref{py-scscp_README}
+contain README files for Python packages {\sf openmath} and {\sf scscp}
+respectively. Further appendices contain examples of using these packages
+for communication between different systems:
+\begin{itemize}
+\item from Python 2 to GAP (Appendix \ref{python2-to-GAP})
+\item from Python 3 to GAP (Appendix \ref{python3-to-GAP}),
+\item from \Sage to GAP (Appendix \ref{SageMath-to-GAP}),
+\item from SymPy Python 3 library to \Singular via GAP (Appendix \ref{Python3sympy-to-GAP-Singular})
+\item from GAP to NumPy Python 3 library (Appendix \ref{GAP-to-Python3numpy})
+\end{itemize}
+All of these examples were prepared in the form of Jupyter notebooks,
+and could be reproduced using the original {\tt .ipynb} files in the
+project repository.
 
-We provide more details and examples of usage for the SCSCP client and server in
-Python in Appendices. Examples of of Python 2, Python 3 and SageMath clients 
-communicating with a GAP server are shown in Appendices \ref{python2-to-GAP},
-\ref{python3-to-GAP} and \ref{SageMath-to-GAP} respectively.
 
 
 \subsection{GAP}
@@ -170,25 +201,82 @@ receive the {\tt procedure\_call} message; evaluate the result
 {\tt procedure\_completed} message, or returns an error in the form
 of {\tt procedure\_terminated} message.
 
-The ability to issue non-blocking procedure calls and collect their result
-later permitted to build a framework for distributed parallel computations
+The ability to issue concurrent non-blocking procedure calls 
+permitted to build a framework for distributed parallel computations
 using the ``master-worker'' skeleton.
 
-During the reported period, we have prepared new versions of 
+The SCSCP package had been established under the
+EU FP6 Programme project 026133 
+``SCIEnce -- Symbolic Computation Infrastructure for Europe'',
+and OpenMath project had been created with the support of
+the EU ESPRIT project EP 24969 
+``Accessing and Using Mathematical Information Electronically''
+and then had a major redevelopment under the SCIEnce project.
+However, they were not in active development after the SCIEnce
+project had finished.
+
+Under the OpenDreamKit,
+during the reported period we have prepared new versions of 
 both packages and migrated their development repositories and
 websites to host them under the GAP packages virtual organisation 
 on GitHub (see \url{https://gap-packages.github.io/}).
-Their new versions are now picked up for the redistribution
+Their new versions have now passed integration tests for the redistribution
 with GAP and will appear in the next GAP release. Major changes
-were upgrades and compatibility fixes for next GAP releases, 
-and improvements to improve the security and robustness when
-running public SCSCP servers. 
-
-TODO: release GAP 4.8.7 by the end of February?
+were upgrades and compatibility fixes for next GAP releases,
+improvements to improve the security and robustness when
+running public SCSCP servers, and fixes for problems discovered
+while testing Python packages for OpenMath and SCSCP.
 
 Several examples of using GAP SCSCP client and server are given
-in the next section and Appendices. TODO: Cross-ref to appendides
-and refer to other ODK workpackages (Docker, databases).
+in the next section and Appendices. In addition to 
+already mentioned examples of GAP SCSCP server called from
+Python application shown in Appendices \ref{python2-to-GAP}-\ref{GAP-to-Python3numpy},
+we also demonstrate several use cases for the GAP SCSCP package 
+in Appendices \ref{SCSCP-with-GAP-docker}, \ref{Gnu-SCSCP-server}
+and \ref{Parallel-GAP-SCSCP}.
+
+
+\subsection{PARI/GP}
+
+Given that the goal of \Pari is to be a small, fast and lightweight
+library and interpreter, we have come to the conclusion that adding
+support for SCSCP directly to it is inadequate.
+
+Instead, the Python library mentioned above, combined with the CyPari
+interface built in \longdelivref{UI}{pari-python-lib1}, will enable
+building fast and reliable SCSCP client and servers for \Pari through
+the Python platform.
+
+Both CyPari, and the packages built for this deliverable are not
+mature enough to showcase such applications, but we may be able to do
+so by the time \longdelivref{UI}{pari-python-lib2} is completed.
+
+
+\subsection{\Singular}
+
+Both GAP and \Sage have very flexible interfaces to \Singular
+% https://www.gap-system.org/Packages/singular.html
+% http://doc.sagemath.org/html/en/reference/interfaces/sage/interfaces/singular.html
+which permit to provide access \Singular functionality via SCSCP
+from these systems, for example, as shown in 
+Appendix \ref{Python3sympy-to-GAP-Singular} which 
+describes how one could call it from the SymPy Python 3 library 
+through a GAP SCSCP server.
+
+% http://wbhart.blogspot.co.uk/2016/11/new-computer-algebra-system-oscar_20.html
+% http://www.dfg.de/service/presse/pressemitteilungen/2016/pressemitteilung_nr_51/index.html
+% http://www.uni-kl.de/aktuelles/news/news/detail/News/grosser-erfolg-fuer-die-tu-kaiserslautern-neuer-dfg-sonderforschungsbereich-in-der-mathematik/
+
+Given that the perspective for \Singular has evolved in the meantime,
+and with the launch of the DFG-funded project 
+``Symbolische Werkzeuge in der Mathematik und ihre Anwendung''
+(``Symbolic Tools in Mathematics and their Application'')
+\Singular may later switch to Julia as a high level language 
+for \Singular and other involved systems), we have come to the
+conclusion that at this stage implementing a Singular-specific
+SCSCP client/server would be premature. Instead, it may be useful
+to establish an implementation of SCSCP in Julia, to be used 
+uniformly by \Singular and other systems.
 
 
 \subsection{MMT/MathHub}
@@ -198,26 +286,58 @@ TODO: Ask Tom to provide a description
 
 \section{Examples and use cases}\label{examples}
 
-In this section we present several examples 
-involving communication between some of the
-involved systems via SCSCP, and several use
-cases illustrating benefits of our setup.
+In this section we give a brief overview of 
+Appendices \ref{python2-to-GAP}-\ref{Parallel-GAP-SCSCP}
+and mention several highlights illustrating flexibility of our setup.
 
 \subsection{Examples involving applications from Python ecosystem}
 
-Appendix \ref{python2-to-GAP} demonstrates SCSCP client in Python2 connecting to GAP server.
-TODO: show remote objects.
+Appendices \ref{python2-to-GAP}-\ref{Python3sympy-to-GAP-Singular}
+show various examples of interactions between Python, \Sage, GAP 
+and \Singular. All these examples are produced using Jupyter notebooks
+and may be reproduced by re-running the original {\tt .ipynb} files
+contained in the project repository on GitHub.
 
-Appendix \ref{python3-to-GAP} demonstrates SCSCP client in Python3 connecting to GAP server.
+In Appendix \ref{python2-to-GAP} an SCSCP client in Python2 
+communicates with the GAP SCSCP server. One of the highlights is
+creating remote objects on the GAP server and manipulating
+with them using remote references without retrieving actual
+objects.
 
-Appendix \ref{SageMath-to-GAP} shows SCSCP client in SageMath connecting to GAP server.
+Appendix \ref{python3-to-GAP} demonstrates SCSCP client in 
+Python3 connecting to the GAP SCSCP server. Python 2 supports
+matrices, but it does not support matrix groups. When it needs
+to find the catalogue number of the group generated by given
+matrices, it sends those generators to the GAP server.
 
-Appendix \ref{Python3sympy-to-GAP-Singular} shows SCSCP client in Python3 calculates Groebner basis with Singular.
+Appendix \ref{SageMath-to-GAP} shows SCSCP client in \Sage 
+connecting to GAP server. There \Sage retrieves a group of order
+512 represented in a private OpenMath dictionary, which only
+can be processed by GAP. However, it can be used as an argument
+in next procedure calls in order to investigate properties of 
+this group.
+
+Appendix \ref{Python3sympy-to-GAP-Singular} describes
+accessing \Singular from Python3 via a GAP SCSCP server. 
+We show an example of calculating a Gr\"obner basis when
+remote procedure call to \Singular takes 6 seconds where
+as the same calculation with SymPy library in Python is
+taking 2 minutes. Besides the PDF version of the Jupyter
+notebook, we show the server configuration file for the
+GAP SCSCP server.
 
 Finally, in Appendix \ref{GAP-to-Python3numpy} we show how
 SCSCP client in GAP communicates with the Python 3 server
-and uses linear algebra functions and calculating roots
-of polynomials with NumPy.
+to operate with matrices and polynomials using the NumPy
+library. For example, the calculation of the rank and
+determinant of an integer matrix also has a well-performing
+implementation in GAPr, but it may be interesting to run
+it in Python to check the reproducibility of the result.
+The other example in this Appendix uses NumPy to calculate
+floating-point approximations of complex roots of a 
+polynomial, and such functionality is not available in GAP
+at all.
+
 
 \subsection{GAP SCSCP server in Docker container}\label{gap-docker}
 
@@ -250,11 +370,13 @@ types of finite groups}\label{gnu-reproducibility}
 
 One of SCSCP use cases is accessing large and/or frequently updated
 databases, which should be rather accessed online that redistributed as
-add-ons for mathematical software packages. Appendix \ref{Gnu-SCSCP-server}
+add-ons for mathematical software packages. 
+This is particularly relevant to work on mathematical databases under WP6.
+
+Appendix \ref{Gnu-SCSCP-server}
 contains a description of a proof-of-concept example how such access may
 be organised to provide a crowdsourced database of numbers of isomorphism
 types of finite groups (see  \url{https://github.com/alex-konovalov/gnu}). 
-
 Using SCSCP, contributors may be able to get the latest information of 
 known and unknown entries from the server, which runs in the GAP Docker 
 container (see \ref{gap-docker}).
@@ -271,19 +393,19 @@ Discrete Mathematics held in the UK in 2015 and 2016
 (\url{http://www.codima.ac.uk/schools/}).
 
 
-\section{Future work}
+\section{Conclusions and future work}
 
-Dissemination: reach out to SciPy, SymPy, NumPy communities.
+TODO
 
-Under the ODK project, we transferred SCSCP specification
-to OpenMath society and licensed it under
-W3C Software and document notice and license.
+Write how this feeds into further workpackages
 
-Make a proper webpage for SCSCP under OpenMath VO, with
-PDFs of the specification and links to existing implementations.
-TODO: give URLs of the new SCSCP website and repository.
+Dissemination: reach out to wider Python communities,
+in particular to SciPy, SymPy, NumPy communities.
 
-What in the future for Singular and PARI/GP.
+Establishing implementations/APIs for Julia, maybe other languages?
+
+Transferred SCSCP specification to OpenMath society and license it 
+under \software{W3C Software and document notice and license}.
 
 
 \printbibliography
@@ -291,30 +413,37 @@ What in the future for Singular and PARI/GP.
 \newpage
 \appendix
 
+\section{README file for the Python openmath package}\label{py-openmath_README}
+\includepdf[pages=-,scale=0.9,pagecommand={}]{READMEs/py-openmath_README.pdf}
+
+\section{README file for the Python scscp package}\label{py-scscp_README}
+\includepdf[pages=-,scale=0.9,pagecommand={}]{READMEs/py-scscp_README.pdf}
+
 \section{Example: SCSCP client in Python2 connecting to GAP server}\label{python2-to-GAP}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{examples/Python2-to-GAP.pdf}
 
 \section{Example: SCSCP client in Python3 connecting to GAP server}\label{python3-to-GAP}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{examples/Python3-to-GAP.pdf}
 
-\section{Example: SCSCP client in SageMath connecting to GAP server}\label{SageMath-to-GAP}
+\section{Example: SCSCP client in \Sage connecting to GAP server}\label{SageMath-to-GAP}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{examples/SageMath-to-GAP.pdf}
 
-\section{Example: SCSCP client in Python3 calculates Groebner basis with Singular}\label{Python3sympy-to-GAP-Singular}
+\section{Example: SCSCP client in Python3 calculates Groebner basis with \Singular}\label{Python3sympy-to-GAP-Singular}
 \includepdf[pages=-,scale=0.85,pagecommand={}]{examples/Python3sympy-to-GAP-Singular.pdf}
+\includepdf[pages=-,scale=0.85,pagecommand={}]{examples/gap_singular_server.pdf}
 
 \section{Example: SCSCP client in GAP connecting to Python 3 server}\label{GAP-to-Python3numpy}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{examples/GAP-to-Python3numpy.pdf}
 
 \section{Documentation for the GAP Docker container}\label{SCSCP-with-GAP-docker}
-\includepdf[pages=-,scale=0.8,pagecommand={}]{examples/SCSCP-with-GAP-docker.pdf}
+\includepdf[pages=-,scale=0.8,pagecommand={}]{READMEs/SCSCP-with-GAP-docker.pdf}
 
 \section{Documentation for the GAP SCSCP server for the number of isomorphism types of groups of order $n$}\label{Gnu-SCSCP-server}
-\includepdf[pages=-,scale=0.9,pagecommand={}]{examples/Gnu-SCSCP-server.pdf}
+\includepdf[pages=-,scale=0.9,pagecommand={}]{READMEs/Gnu-SCSCP-server.pdf}
 
 \section{Parallel search in the GAP Small Groups Library with SCSCP}
 \label{Parallel-GAP-SCSCP}
-\includepdf[pages=-,scale=0.9,pagecommand={}]{examples/Parallel-GAP-SCSCP.pdf}
+\includepdf[pages=-,scale=0.9,pagecommand={}]{READMEs/Parallel-GAP-SCSCP.pdf}
 
 \end{document}
 

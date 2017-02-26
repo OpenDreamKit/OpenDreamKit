@@ -61,14 +61,17 @@ end;
 # Procedures that the GAP SCSCP server provides
 
 # Useful for simple tests 
-InstallSCSCPprocedure( "Identity", x -> x, "Identity procedure for tests", 1, 1 );
+InstallSCSCPprocedure( "Identity", x -> x, 
+  "Identity procedure for tests", 1, 1 );
 
 # Clearly, f = AssemblePolynomial( DisassemblePolynomial( f ) )
 PingPongPoly := x -> DisassemblePolynomial( AssemblePolynomial ( x ) );
-InstallSCSCPprocedure( "PingPongPoly", PingPongPoly, "Decode/encode polynomial and send it back", 1, 1 );
+InstallSCSCPprocedure( "PingPongPoly", PingPongPoly, 
+  "Decode/encode polynomial and send it back", 1, 1 );
 
 # Setting up calculation and calling Singular
-InstallSCSCPprocedure( "GroebnerBasisWithSingular", GroebnerBasisWithSingular, "Groebner Basis with Singular", 1, 1 );
+InstallSCSCPprocedure( "GroebnerBasisWithSingular", GroebnerBasisWithSingular, 
+  "Groebner Basis with Singular", 1, 1 );
 
 # Start GAP SCSCP server
 RunSCSCPserver( SCSCPserverAddress, SCSCPserverPort : OMignoreMatrices);
