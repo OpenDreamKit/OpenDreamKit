@@ -26,13 +26,18 @@
 
 \section{Introduction}
 
-\SMC (SMC) was presented as an emerging technology in \delivref{dissem}{techno}. It is a on-line open source platform which allows the creation of collaborative scientific projects. Each user can create \emph{projects} within the platform. Each project is a linux virtual machine accessed through a web interface and providing access to many scientific tools. It is then an important working example of a Virtual Research
-Environment (VRE) as described in Section 1.3.2 of the Proposal,
-with capabilities suitable for reasearchers, software developers, and teachers.
-Launched in 2013, \SMC presently hosts over 100,000 projects and 10,000 weekly
-active users. This fast adoption by a wide variety of users demonstrates the
-relevance and the long term impact this kind of collaborative environments can
-have.  Although it is just one example of a VRE, it serves as an important
+\SMC (SMC) was presented as an emerging technology in
+\delivref{dissem}{techno}. It is an on-line open source platform which allows
+the creation of collaborative scientific projects. Each user can create
+\emph{projects} within the platform. Each project is hosted on a \Linux virtual
+machine accessed through a web interface and provides access to many scientific
+tools.  It is thus an important working example of a Virtual Research
+Environment (VRE) as described in Section 1.3.2 of the Proposal, with
+capabilities suitable for reasearchers, software developers, and teachers.
+Launched in 2013, \SMC presently hosts over 400,000 projects and nearly 20,000
+weekly active users. This fast adoption by a wide variety of users demonstrates
+the relevance and the long term impact this kind of collaborative environment
+can have.  Although it is just one example of a VRE, it serves as an important
 prototype for OpenDreamKit.
 
 Because there is no one VRE that suits all needs, a framework for VREs must be
@@ -102,10 +107,10 @@ Because of the fast pace of development, documentation on how to help with
 development of \SMC itself--something of interest if OpenDreamKit is to
 contribute back to SMC--has also fallen behind.  Even the talk
 \href{https://youtu.be/GOuy07Kift4}{How to contribute to SageMathCloud} given
-by William Stein in late 2015 and mentioned in the report for \delivref{dissem}{workshops-1}
-is no longer \emph{as} useful for getting started on full stack development
-of SMC as it was a year before this report (though it still contains some
-helpful information).
+by William Stein in late 2015 and mentioned in the report for
+\delivref{dissem}{workshops-1} is no longer \emph{as} useful for getting
+started on full stack development of SMC as it was a year before this report
+(though it still contains some helpful information).
 
 None of this should be read as criticism of Stein or \SMC--the reasons for the
 relative opacity of SMC's design are understandable.  It is just helpful to
@@ -133,24 +138,25 @@ for development of SMC.
 It also has a collection of many small scripts and utilities used for managing
 the live SMC site and the many servers that comprise it (hubs, compute nodes,
 etc.)  Many of these are just single command-line commands for what might be
-common tasks.  Though there is no documentation for most of these tools or when
-and how they should be used.  Most of them are not directly relevant to
-doing development of SMC.
+common tasks.  However, there is little to no documentation for most of these
+tools or when and how they should be used.  Most of them are not directly
+relevant to doing development of SMC.
 
 Most of the main SMC source code is split across two \Python packages, five
-\JavaScript, and one directory containing additional web resources such as
-fonts and images, as well as "vendored" \JavaScript--third-party source code
-that may require special handling to integrate into the SMC web app.
+\JavaScript packages, and one directory containing additional web resources
+such as fonts and images, as well as "vendored" \JavaScript--third-party source
+code that may require special handling to integrate into the SMC web app.
 
-There is also a configuration script for \href{https://webpack.github.io/}{Webpack},
-a tool used to bundle \JavaScript sources, HTML, images, and other resources
-into a working website.  This file serves as something of a map to how all of
-SMC's frontend code fits together.  Because there is no equivalent for the
-backend, it is a little more difficult at first to understand how the
-server-side code works.  That said, the general layout is clear enough that an
-experienced developer, armed with high-level documentation of SMC's
-infrastructure, can gain insight into what features might be implemented where.
-More such high-level documentation is needed, however.
+There is also a configuration script for
+\href{https://webpack.github.io/}{Webpack}, a tool used to bundle \JavaScript
+sources, HTML, images, and other resources into a working website.  This file
+serves as something of a map to how all of SMC's frontend code fits together.
+Because there is no equivalent for the backend, it is a little more difficult
+at first to understand how the server-side code works.  That said, the general
+layout is clear enough that an experienced developer, equipped with high-level
+documentation of SMC's infrastructure, can gain insight into what features
+might be implemented where.  More such high-level documentation is needed,
+however.
 
 Beyond a few brief "README" files in the main source packages, and scattered
 in-line documentation in some of the source files, there is very little
@@ -167,8 +173,10 @@ control.
 %% to understand the source code and its modularization.
 In order to help newcomers better undertand \SMC's internal design, we have
 begun documenting some aspects of it in better detail.  The first version of
-document is included as Appendix \ref{app:doc} of this report. It has also been accepted
-into \href{https://github.com/sagemathinc/smc/blob/master/src/doc/design_overview/overview.rst}{SMC's source tree} for easier discovery by anyone interested in how SMC
+this document is included as Appendix \ref{app:doc} of this report. It has also
+been accepted into
+\href{https://github.com/sagemathinc/smc/blob/master/src/doc/design_overview/overview.rst}{SMC's
+source code repository} for easier discovery by anyone interested in how SMC
 works.
 
 This document covers two topics in particular: It goes into greater detail than
@@ -179,15 +187,15 @@ covers most of the key technologies one needs to have understanding of in order
 to understand SMC's code base.
 
 Our documentation also provides a brief tour through SMC's code base--
-specifically the client-side code--explaining how a page is rendered by SMC's
-client code step by step.  This provides specific examples in SMC's code base
-of how its dependencies are used, and how the source code is organized
-internally.  Some of the exact details may change in the future, but the basic
-design (at least on the client side) is likely to remain stable for some time.
-This is due in part to the mostly finished work of rewriting SMC's web client
-on top of React--a \JavaScript UI framework created and heavily supported by
-Facebook.  This React-based design is not likely to change in the forseeable
-future.
+specifically the client-side code--explaining step by step how a page is
+rendered by SMC's client-side code.  This explains specific examples from SMC's
+code base of how its dependencies are used, and how the source code is
+organized internally.  Some of the exact details may change in the future, but
+the basic design (at least on the client side) is likely to remain stable for
+some time.  This is due in part to the mostly finished work of rewriting SMC's
+web client on top of React--a \JavaScript UI framework created and heavily
+supported by Facebook.  This React-based design is not likely to change in the
+forseeable future.
 
 The walkthrough we have written on SMC's code base is for a very simple
 example.  For future work, it would be instructive to include a more complex
@@ -226,46 +234,47 @@ source code documents a few different ways to work on SMC:
         this also creates a barrier for would-be developers working on Windows.
 
     \item Another compelling way to develop on SMC is referred to as
-        "SMC-in-SMC".  It is possible, on an existing SMC server (such as the
-        main one hosted at {\tt cloud.sagemath.com}), download the SMC source
-        code into a project, and run a full SMC server from within the SMC
-        project.  This is somewhat similar to the previous method, but takes
-        advantage of the fact that all of SMC's runtime dependencies are
-        already available inside an SMC project.  It is easier to get
-        SMC-in-SMC up and running than most other methods, and it works
-        impressively well considering its recursive nature.  While one is
-        restricted to working within an SMC project this is not \emph{much} of
-        a downside considering the flexibility afforded SMC users).  It does,
-        however, require having a non-free SMC account (the default free
+        "SMC-in-SMC".  It is possible, on an existing SMC server (particularly
+        the main one hosted at {\tt cloud.sagemath.com}) to download the SMC
+        source code into a project hosted on that server and run a full SMC
+        server from within the project.  This is somewhat similar to the
+        previous method, but takes advantage of the fact that all of SMC's
+        runtime dependencies are already available inside an SMC project.  It
+        is easier to get SMC-in-SMC up and running than most other methods, and
+        it works impressively well considering its recursive nature.  While one
+        is restricted to working within an SMC project this is not \emph{much}
+        of a downside considering the flexibility afforded SMC users).  It
+        does, however, require having a non-free SMC account (the default free
         accounts for SMC do not allow internet access from within projects),
         though Stein is generous in giving less restricted free accounts to
         users who wish to help with SMC development.
 
     \item The easiest way to get a fully functioning SMC server up and running
         on one's personal computer is with the official Docker container for
-        SMC.
-        %% TODO: Reference D3.1 report here, on Docker containers
-        The Docker container image is well-maintained to work with the latest
-        SMC source code, and provides a turn-key solution for a full-stack
-        single-server SMC deployment.  There is a slight downside, however,
-        that its current design is not very amenable to development.  For
-        example, the SMC source code is contained in the container itself,
-        which means any and all development, including editing the source code,
-        must be done within the Docker container.  This may require a would-be
-        developer to manually reproduced their preferred software development
-        environment (tools and settings) and edit all source code directly
-        inside the Docker container.  A better approach is to design a Docker
-        container for development that allows the developer to keep the SMC
-        source code on their local machine.  The SMC Docker container would
-        then mount the source code as an external "volume" (this is a feature
-        of containers similar to a shared folder between the container and its
-        host).  The developer can than do all development work on their local
-        machine, but \emph{execute} the source code inside the Docker
-        container, freeing them of the need to worry about setting up SMC's
-        dependencies.  We have begun work on a development-friendly Docker
-        container for SMC, but more work is required to make this fully viable.
-        When completed this will likely be the easiest way for anyone to get
-        quickly up and running with SMC development on their personal computer.
+        SMC (see the report for
+        \delivref{component-architecture}{virtual-machines} for more
+        information on Docker containers).  The Docker container image is
+        well-maintained to work with the latest SMC source code, and provides a
+        turn-key solution for a full-stack single-server SMC deployment.  There
+        is a slight downside, however, that its current design is not very
+        amenable to development.  For example, the SMC source code is contained
+        in the container itself, which means any and all development, including
+        editing the source code, must be done within the Docker container.
+        This may require a would-be developer to manually reproduce their
+        preferred software development environment (tools and settings) and
+        edit all source code directly inside the Docker container.  A better
+        approach is to design a Docker container for development that allows
+        the developer to keep the SMC source code on their local machine.  The
+        SMC Docker container would then mount the source code as an external
+        "volume" (this is a feature of containers similar to a shared folder
+        between the container and its host).  The developer can than do all
+        development work on their local machine, but \emph{execute} the source
+        code inside the Docker container, freeing them of the need to worry
+        about setting up SMC's dependencies.  We have begun work on a
+        development-friendly Docker container for SMC, but more work is
+        required to make this fully viable.  When completed this will likely be
+        the easiest way for anyone to get quickly up and running with SMC
+        development on their personal computer.
 
 \end{itemize}
 
@@ -276,17 +285,17 @@ source code documents a few different ways to work on SMC:
 %% currently documented in the proposal, is worth pursuing, and why/why not.
 Prior to work on this deliverable there was scant documentation on \SMC, its
 overall design, its dependencies, or its internals.  There was some
-documentation on how to do development on it, but not enough, and sometimes
-out of date.  With the documentation we have added it should require less
-effort for a motivated developer to gain the necessary background knowledge
-(such as knowledge of the core technologies SMC is built on) to development on
-SMC.  Our documentation should also help lead to a faster understanding of
-the general flow of SMC's design, though it has not been feasible to document
-the implementations of all of its features.  Some of its more advanced
+documentation on how to do development on it, but not enough, and sometimes out
+of date.  With the documentation we have added it should require less effort
+for a motivated developer to gain the necessary background knowledge (such as
+knowledge of the core technologies SMC is built on) to do development on SMC.
+Our documentation should also help lead to a faster understanding of the
+general flow of SMC's design, though it would not have been feasible to
+document the implementations of all of its features.  Some of its more advanced
 features--especially key features such as its real-time collaborative document
-editing--require further documentation.  More documentation is needed on the
+editing--do require further documentation.  More documentation is needed on the
 design of SMC's server components, though that work should wait until their
-implementation has stabilized more.
+implementation details have stabilized more.
 
 We have also gained experience within the OpenDreamKit team on setting up a
 \SMC server and the process of doing development on SMC.  Gaining this shared
@@ -304,8 +313,10 @@ container for SMC for development on one's personal computer.
 \section{\SMC documentation overview}
 \label{app:doc}
 
-Please find attached the document that was produced as part as the deliverable objective.
-It is also available on-line at this address: \url{https://github.com/sagemathinc/smc/blob/master/src/doc/design_overview/overview.rst}, that is: inside the code source of \SMC.
+Please find attached the document that was produced as part as the deliverable
+objective.  It is also available on-line at this address:
+\url{https://github.com/sagemathinc/smc/blob/master/src/doc/design_overview/overview.rst},
+that is, inside the source code repository of \SMC.
 
 \includepdf[pages=-]{overview/overview.pdf}
 \end{document}
