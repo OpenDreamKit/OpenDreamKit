@@ -1,7 +1,7 @@
 \section*{\texorpdfstring{Deliverable description, as taken from Github
 issue
 \href{https://github.com/OpenDreamKit/OpenDreamKit/issues/119}{\#119} on
-2017-02-08}{Deliverable description, as taken from Github issue \#119 on 2017-02-08}}\label{deliverable-description-as-taken-from-github-issue-119-on-2017-02-08}
+2017-02-27}{Deliverable description, as taken from Github issue \#119 on 2017-02-27}}\label{deliverable-description-as-taken-from-github-issue-119-on-2017-02-27}
 
 \begin{itemize}
 \tightlist
@@ -15,7 +15,53 @@ issue
   \textbf{Due:} 2017-02-28 (month 18)
 \item
   \textbf{Nature:} Demonstrator
+\item
+  \textbf{Task:} T5.4
+  (\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/102}{\#102})
+  Singular
+\item
+  \textbf{Proposal:}
+  \href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf}{P.
+  52}
+\item
+  \textbf{\href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.6/report-final.pdf}{Final
+  report}}
 \end{itemize}
+
+\section{Context}\label{context}
+
+One of the approaches toward OpenDreamKit's aim of High Performance
+Mathematical Computing is to explore the addition of very fine grained
+parallelism (e.g.~threading or SIMD) to some key computational
+components like \href{http://flintlib.org}{Flint} and
+\href{http://mpir.org/}{MPIR}. In this deliverable, we tackle two
+typical algorithms of computer algebra: integer factorization and block
+Wiedemann for finding kernel vectors of matrices over a finite field.
+
+Whilst the threading of the quadratic sieve looks very promising, our
+conclusion is that the SIMD speedup that we implemented for the block
+Wiedemann algorithm (and the threaded experiments we did) weren't
+particularly useful for the quadratic sieve. We expect that only a
+number field sieve implementation, with matrices that are truly massive
+(millions of rows) would benefit from the kind of speedup we saw.
+
+This doesn't mean that SIMD is not useful in general, it very much is,
+see for example
+\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/118}{D5.5} and
+\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/120}{D5.7}
+where SIMD proves to be a big win. SIMD just hasn't proved to be a major
+benefit for a project like the quadratic sieve, where only a small part
+of the runtime depends on the linear algebra phase of the algorithm.
+
+The other improvements for the quadratic sieve that we describe below,
+such as threading the relation sieving where we get a speedup of up to 3
+on 4 cores, and the various algorithmic improvements that we describe
+below, turned out to be much more important in practice.
+
+\section{Report on writing a parallel implementation of the quadratic
+sieve}\label{report-on-writing-a-parallel-implementation-of-the-quadratic-sieve}
+
+\subsection{Problem description}\label{problem-description}
 
 The Quadratic Sieve is an algorithm for factoring integers n = pq, with
 n typically in the 15-90 decimal digit range. For this deliverable, we
@@ -42,20 +88,29 @@ have implemented a quadratic sieve with the following features:
   Threaded relation sieving (using OpenMP)
 \end{itemize}
 
+\subsubsection{Results}\label{results}
+
 Some partial progress towards this goal had already been completed
 before the OpenDreamKit project began, but the code didn't compile or
-run and was in an unusable state.
+run and was in an unusable state. This included a partial implementation
+of a single large prime variant quadratic sieve implemented by a Google
+Summer of Code student, based on a prior version for small integers
+only. This was not parallelised and a rough sketch only. It didn't
+compile and wasn't correct or complete.
 
 We have completed the
 \href{https://github.com/wbhart/flint2/tree/trunk/qsieve}{implementation}
-and the code has already been merged into Flint.
+and the code has already been merged into the \texttt{Flint} repository.
 
 Our implementation is not competitive below 130 bits
 (\textasciitilde{}40 digits), due to the
 Carrier-Wagstaff/Bradford-Monagan-Percival combination. Here are some
-timings for larger factorisations comparing Pari/GP with our
-implementation in Flint on one and four cores. There were no significant
-improvements for larger numbers of cores.
+timings for larger factorisations comparing \texttt{Pari/GP} with our
+implementation in \texttt{Flint} on one and four cores.
+
+In our tests, no significant improvements were observed for larger
+numbers of cores, so we report only on the improvements for four cores
+here.
 
 \begin{longtable}[c]{@{}llll@{}}
 \toprule
@@ -80,6 +135,8 @@ n (bits) & Pari & Flint & 4 core\tabularnewline
 \bottomrule
 \end{longtable}
 
+\subsection{Future possibilities}\label{future-possibilities}
+
 Possible future projects could include:
 
 \begin{itemize}
@@ -95,19 +152,64 @@ Possible future projects could include:
   Writing an efficient self-initialising MPQS for 20-128 bits.
 \end{itemize}
 
+\subsubsection{Testing the quadratic sieve
+code}\label{testing-the-quadratic-sieve-code}
+
+The \texttt{Flint} repository is available here:
+\url{https://github.com/wbhart/flint2}
+
+To build and test the code mentioned above, you must have
+\texttt{GMP/MPIR} installed on your machine (refer to your system
+documentation for how to do this). Then do:
+
+\begin{verbatim}
+git clone https://github.com/wbhart/flint2
+cd flint
+./configure --with-mpir=/path/to/mpir --with-mpfr=/path/to/mpfr --enable-openmp
+export OMP_NUM_THREADS=4
+make
+make check MOD=qsieve
+\end{verbatim}
+
+Full instructions on how to build \texttt{Flint} are available in the
+\texttt{Flint} documentation, available at the
+\href{http://flintlib.org}{\texttt{Flint} website}.
+
+The quadratic sieve functionality is made available by including
+qsieve.h, and the main interface is via the function:
+
+\begin{verbatim}
+void qsieve_factor(fmpz_factor_t factors, const fmpz_t n)
+\end{verbatim}
+
+\subsection{Blog post}\label{blog-post}
+
+A blog post about the improvements to the quadratic sieve in Flint is
+available at
+\url{https://wbhart.blogspot.de/2017/02/integer-factorisation-in-flint.html}
+.
+
+\section{Report on parallel block
+Wiedemann}\label{report-on-parallel-block-wiedemann}
+
+\subsection{Problem description}\label{problem-description-1}
+
 The Block Wiedemann algorithm computes kernel vectors of a matrix over a
 finite field. Along with the Block Lanczos algorithm it is often used in
 the Quadratic Sieve and Number Field sieve over GF2, but also has other
 applications over a prime p.
 
+\subsection{Work done}\label{work-done}
+
 We investigated parallelising the Block Wiedemann algorithm using the
-external library M4RI for basic linear algebra over GF2. This required
-three components to be written.
+external library \href{https://bitbucket.org/malb/m4ri}{\texttt{M4RI}}
+for basic linear algebra over GF2. This required three components to be
+written.
 
 \begin{itemize}
 \tightlist
 \item
-  A sparse matrix library over GFp for Flint
+  A sparse matrix library over GFp for \texttt{Flint}
 \item
   An implementation of the Block Wiedemann algorithm over GF2
 \item
@@ -120,18 +222,27 @@ as
 for Flint} and as an \href{https://github.com/alexjbest/bw}{external
 implementation} respectively.
 
+\subsection{Conclusions}\label{conclusions}
+
 Our experiments showed that it was possible to make use of the highly
-optimised SIMD arithmetic in the external library M4RI as a form of
-parallelism, to speed up the Block Wiedermann algorithm, and that this
-outperformed Block Wiedermann using M4RI in threaded mode, at least for
-the size and sparsity of problem encountered in the quadratic sieve! The
-result was comparable to the Block Lanczos code already used in Flint
-for the quadratic sieve.
+optimised SIMD arithmetic in the external library \texttt{M4RI} as a
+form of parallelism, to speed up the Block Wiedermann algorithm, and
+that this outperformed Block Wiedermann using \texttt{M4RI} in threaded
+mode, at least for the size and sparsity of problem encountered in the
+quadratic sieve! The result was comparable to the Block Lanczos code
+already used in Flint for the quadratic sieve.
 
 The sparse matrix library was not the focus of this deliverable, but
 will be expanded at a later date and included in Flint. Because of the
-additional external dependency on M4RI, the Block Wiedemann
+additional external dependency on \texttt{M4RI}, the Block Wiedemann
 implementation isn't eligible for inclusion in Flint, but the code is
 available to members of the OpenDreamKit collaboration. Future work may
 see the removal of this external dependency so that it can be merged
-into Flint.
+into Flint. However, we currently feel that this isn't something that
+should be made a priority.
+
+In fact, the quadratic sieve implementation we now have, even in
+parallel mode, doesn't have linear algebra as a bottleneck. This is
+because of the extremely small factor base sizes that are possible with
+the particular implementation of the quadratic sieve that we completed
+as part of this project.
