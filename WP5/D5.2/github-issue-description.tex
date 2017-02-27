@@ -1,7 +1,7 @@
 \section*{\texorpdfstring{Deliverable description, as taken from Github
 issue
 \href{https://github.com/OpenDreamKit/OpenDreamKit/issues/115}{\#115} on
-2017-02-08}{Deliverable description, as taken from Github issue \#115 on 2017-02-08}}\label{deliverable-description-as-taken-from-github-issue-115-on-2017-02-08}
+2017-02-27}{Deliverable description, as taken from Github issue \#115 on 2017-02-27}}\label{deliverable-description-as-taken-from-github-issue-115-on-2017-02-27}
 
 \begin{itemize}
 \tightlist
@@ -10,39 +10,64 @@ issue
   \href{https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5}{High
   Performance Mathematical Computing}
 \item
-  \textbf{Lead Institution:} Université Grenoble Alpes
+  \textbf{Lead Institution:} Université Joseph Fourier (UJF)
 \item
   \textbf{Due:} 2017-02-28 (month 18)
 \item
-  \textbf{Nature:} Demonstrator\\
-  Task: 5.7
+  \textbf{Nature:} Demonstrator
+\item
+  \textbf{Task:} T5.7
+  (\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/105}{\#105})
+  Pythran
+\item
+  \textbf{Proposal:}
+  \href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf}{p.51}
+\item
+  \textbf{\href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.2/report-final.pdf}{Final
+  report}}
 \end{itemize}
 
-%% See page 51 of the
-%% \href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf}{proposal}
-%% for the full description.
+The \href{http://python.org}{\texttt{Python}} programming language is
+widely used in the development of computational mathematics systems like
+\href{http://sagemath.org}{\texttt{SageMath}} for its expressiveness and
+flexibility. Yet, as an interpreted language, it suffers from inherent
+inefficiencies.
 
-The Python programming language, widely used in the development of
-computational mathematics software for its flexibility, yet suffers from the
-inefficiencies due its nature of interpreted language. Cython is both an extension of
-this language, and a compiler producing compilable C code, delivering
-performances of higher standard.
-The use of the very widespread library NumPy is a bottlneck in this framework,
-as it prevents the user from taking advantage of Cython's improvement.
-On the other hand, Pythran is a dedicated Python to C++ compiler. It has a C++
-implementation of a major set of the Numpy API, optimized for speed, with the
-support of expression templates, that minimize the number of memory transfers
-needed to compute complex expression. It also use as best as possible SIMD instructions available modern CPUs when possible.
+Over the years several tools have been developed to overcome this
+barrier. A major player is \href{http://cython.org}{\texttt{Cython}},
+which is both an extension of the Python language, and a compiler
+generating compilable \texttt{C} code. At the cost of additional work
+from the developer (e.g.~type annotations), \texttt{Cython} can deliver
+performances similar to that of a compiled language. It's being used
+intensively in \texttt{SageMath}. Another emerging player is
+\href{https://pythonhosted.org/pythran/}{\texttt{Pythran}}, a
+\texttt{Python} to \texttt{C++} compiler for a subset of the
+\texttt{Python} language, with a focus on scientific/numerical
+computing. It takes advantage of type inference features of \texttt{C++}
+as well as multi-cores and SIMD instruction units to deliver high
+performance without the need for additional work from the developer. In
+particular, it includes a \texttt{C++} implementation of a major subset
+of the \texttt{Numpy} API, optimized for speed, with support for
+expression templates that minimize the number of memory transfers needed
+to compute complex expressions (\href{http://numpy.org}{\texttt{Numpy}}
+is the fundamental package for scientific computing with
+\texttt{Python}). However, unlike \texttt{Cython}, \texttt{Pythran} does
+not support user defined classes, a key feature in systems like
+\texttt{SageMath}.
 
-This deliverable hence proposes to incorporate Pythran's support for Numpy code
-wihtin Cython, which consequently will provide high performance numerical linear
-algebra to high level mathematical software developpers, especially within the
-SageMath software.
+This deliverable is a step toward taking the best of both worlds, and
+helping bridge the gap between numerical and exact computing. It
+proposes to incorporate \texttt{Pythran} support for \texttt{Numpy}
+within \texttt{Cython}, which consequently provides high performance
+numerical linear algebra to high level mathematical software developers,
+especially within \texttt{SageMath}.
 
-As an illustration, the following code, using SIMD instructions, lead to a
-speed-up of about 4, when using the new Pythran backend in Cython:
-\begin{lstlisting}[language=python]
+As an illustration, the new \texttt{Pythran} backend in \texttt{Cython}
+achieves a speed-up of about 4 on the following typical \texttt{Numpy}
+based function:
+
+\begin{verbatim}
 def sqrt_sum (numpy.ndarray[FLOATTYPE_t, ndim=1] a,
               numpy.ndarray[FLOATTYPE_t, ndim=1] b):
     return numpy.sqrt(numpy.sqrt(a*a+b*b))
-\end{lstlisting}
+\end{verbatim}
