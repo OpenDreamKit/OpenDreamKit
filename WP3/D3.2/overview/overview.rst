@@ -953,6 +953,6 @@ In principle the scheme supports other web services embedded in SMC as well.
 .. _redux.createStore(): http://redux.js.org/docs/api/createStore.html
 .. |ReactDOM.render()| replace:: ``ReactDOM.render()``
 .. _ReactDOM.render(): https://facebook.github.io/react/docs/react-dom.html#render 
-.. |<Redux> component| replace ``<Redux>`` component
+.. |<Redux> component| replace:: ``<Redux>`` component
 .. _<Redux> component: redux-component_
 
