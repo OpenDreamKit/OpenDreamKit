@@ -10,7 +10,7 @@ issue
   \href{https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5}{High
   Performance Mathematical Computing}
 \item
-  \textbf{Lead Institution:} Université Joseph Fourier
+  \textbf{Lead Institution:} Université Grenoble Alpes
 \item
   \textbf{Due:} 2017-02-28 (month 18)
 \item
@@ -29,10 +29,20 @@ this language, and a compiler producing compilable C code, delivering
 performances of higher standard.
 The use of the very widespread library NumPy is a bottlneck in this framework,
 as it prevents the user from taking advantage of Cython's improvement.
-Similarly Pythran is a dedicated Python to C++ compiler dedicated for the
-optimization of Numpy code.
+On the other hand, Pythran is a dedicated Python to C++ compiler. It has a C++
+implementation of a major set of the Numpy API, optimized for speed, with the
+support of expression templates, that minimize the number of memory transfers
+needed to compute complex expression. It also use as best as possible SIMD instructions available modern CPUs when possible.
 
 This deliverable hence proposes to incorporate Pythran's support for Numpy code
 wihtin Cython, which consequently will provide high performance numerical linear
-algebra to high level mathematical software developpers, especially in the
+algebra to high level mathematical software developpers, especially within the
 SageMath software.
+
+As an illustration, the following code, using SIMD instructions, lead to a
+speed-up of about 4, when using the new Pythran backend in Cython:
+\begin{lstlisting}[language=python]
+def sqrt_sum (numpy.ndarray[FLOATTYPE_t, ndim=1] a,
+              numpy.ndarray[FLOATTYPE_t, ndim=1] b):
+    return numpy.sqrt(numpy.sqrt(a*a+b*b))
+\end{lstlisting}
