@@ -1,7 +1,7 @@
 \section*{\texorpdfstring{Deliverable description, as taken from Github
 issue
 \href{https://github.com/OpenDreamKit/OpenDreamKit/issues/118}{\#118} on
-2017-02-08}{Deliverable description, as taken from Github issue \#118 on 2017-02-08}}\label{deliverable-description-as-taken-from-github-issue-118-on-2017-02-08}
+2017-02-27}{Deliverable description, as taken from Github issue \#118 on 2017-02-27}}\label{deliverable-description-as-taken-from-github-issue-118-on-2017-02-27}
 
 \begin{itemize}
 \tightlist
@@ -15,120 +15,129 @@ issue
   \textbf{Due:} 2017-02-28 (month 18)
 \item
   \textbf{Nature:} Demonstrator
+\item
+  \textbf{Task:} T5.5
+  (\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/103}{\#103}):
+  MPIR
+\item
+  \textbf{Proposal:}
+  \href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf}{P.
+  52}
+\item
+  \textbf{\href{https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.5/report-final.pdf}{Final
+  report}}
 \end{itemize}
 
-\section*{Report on superoptimizer and writing optimized assembly for
-MPIR}\label{report-on-superoptimizer-and-writing-optimized-assembly-for-mpir}
+\section*{Context and Problem
+statement}\label{context-and-problem-statement}
 
-\subsection{Problem statement}\label{problem-statement}
+\href{www.mpir.org}{\texttt{MPIR}} is a highly optimised library for
+bignum arithmetic forked from \href{https://gmplib.org/}{GMP}. It is a
+fundamental building block for many open source mathematical
+computational components (\href{http://sagemath.org}{SageMath},
+\href{http://flintlib.org/}{FLINT}, \href{http://nemocas.org/}{Nemo},
+\href{https://room.eiffel.com/node/407}{Eiffelroom},
+\href{https://pypi.python.org/pypi/gmpy2}{GMPY},
+\href{http://www.advanpix.com/}{Advanpix}, \href{http://php.net/}{PHP}
+and \href{http://wezeku.github.io/Mpir.NET/}{MPIR.net}), and therefore
+its fine optimization on a variety of processor architecture is
+important for the High Performance aims of OpenDreamKit.
 
-For this deliverable, our task was to write a superoptimizer which
-tries\\
-valid permutations (i.e., that do not change program behaviour) of\\
-instructions in assembly functions, times each permutation, and
-chooses\\
-the fastest one.
+For this deliverable the task was to implement a superoptimizer which
+tries valid permutations (i.e., that do not change program behaviour) of
+instructions in assembly functions, times each permutation, and chooses
+the fastest one. In addition, new MPIR functions for recent processor
+architectures were to be written, making use of recently added features
+like AVX2 instructions, and be optimized with the super-optimizer where
+applicable.
 
-New functions for recent processor architectures should be written,\\
-making use of recently added features like AVX2 instructions, and\\
-should be optimized with the super-optimizer where applicable.
+It is usually the case that the difference between assembly optimised
+code and C code compiled by an optimising compiler such as GCC is a
+factor of 4-12 for bignum arithmetic. But each new processor
+microarchitecture requires new assembly language code to be written. One
+can use older assembly code, but each new microarchitecture can do
+around 20\% better than the previous one if hand optimisation is done.
+In addition to that, speedups due to superoptimisation can be anywhere
+from 5\% to 100\%.
 
-\subsection{Work completed}\label{work-completed}
+In MPIR, we are typically comparing superoptimised code that was written
+for a previous, but related microarchitecture, and so if the job is done
+properly, we expect about 20\% improvement. We see that, and more,
+below.
 
-For the first six months of the project, we wrote the ``ajs''\\
-superoptimizer (\url{https://github.com/akruppa/ajs}), based on\\
-the open-source asmjit library (\url{https://github.com/asmjit/asmjit}).
+\section*{Work completed}\label{work-completed}
 
-For the second six months, we solved several problems with the ajs\\
-superoptimizer, especially erratic timings that had put the concept\\
-in jeopardy, and, with contributions from Jens Nurmann, wrote and/or\\
-optimized a set of core functions for MPIR and some auxiliary
-functions\\
-used internally (see below).
+For the first six months of the project, we wrote the \texttt{ajs}
+superoptimizer (\url{https://github.com/akruppa/ajs}), based on the
+open-source \texttt{AsmJit} library
+(\url{https://github.com/asmjit/asmjit}), a complete Just In Time and
+remote assembler for C++ language.
 
-\subsection{The ajs superoptimizer}\label{the-ajs-superoptimizer}
+For the second six months, we solved several problems with the
+\texttt{ajs} superoptimizer, especially erratic timings that had put the
+concept in jeopardy, and, with contributions from Jens Nurmann, wrote
+and/or optimized a set of core functions for MPIR and some auxiliary
+functions used internally (see below).
+
+\section*{\texorpdfstring{The \texttt{ajs}
+superoptimizer}{The ajs superoptimizer}}\label{the-ajs-superoptimizer}
 
 The biggest problem with the superoptimizer was the highly erratic
-timings\\
-it measured for function executions. This made it practically
-impossible\\
-to have it automatically choose (one of) the fastest permutations for
-a\\
-given function.
+timings it measured for function executions. This made it practically
+impossible to have it automatically choose (one of) the fastest
+permutations for a given function.
 
-The major problem was that the RDTSC(P) instructions no longer count
-cpu\\
-core cycles, but cycles of a fixed-frequency counter, i.e., elapsed
-natural\\
-time. Due to extensive clock scaling features of recent cpus, the
-measured\\
-time depended much more on power saving decisions made by the cpu than
-on\\
-the (comparatively small) speedup by finding a good permutation. This
-is\\
-especially true as functions may have to be superoptimized in several\\
-pieces, e.g., separately for lead-in, core loop, and lead-out, to
-reduce\\
-the search space so that decent permutations are found within
-acceptable\\
+The major problem was that the
+\href{https://en.wikipedia.org/wiki/Time_Stamp_Counter}{RDTSC(P)}
+instructions no longer count cpu core cycles, but cycles of a
+fixed-frequency counter, i.e., elapsed natural time. Due to extensive
+clock scaling features of recent cpus, the measured time depended much
+more on power saving decisions made by the cpu than on the
+(comparatively small) speedup by finding a good permutation. This is
+especially true as functions may have to be superoptimized in several
+pieces, e.g., separately for lead-in, core loop, and lead-out, to reduce
+the search space so that decent permutations are found within acceptable
 time.
 
 The solution we used was the RDPMC instruction which provides
-low-latency\\
-access to performance measurement counters, including the ``second
-fixed-\\
-function counter'' (FFC2) which does, in fact, count cpu core clock
-cycles.\\
-The problem was enabling access to this counter from user mode
-applications,\\
-which requires setting some bits in MSR/CR. Attempts to do so via
-kernel\\
-modules we wrote turned out unreliable as the kernel disabled the bits
-again\\
-(and my modules killed machines on multiple occasions).
+low-latency access to performance measurement counters, including the
+``second fixed- function counter'' (FFC2) which does, in fact, count cpu
+core clock cycles. The problem was enabling access to this counter from
+user mode applications, which requires setting some bits in MSR/CR.
+Attempts to do so via kernel modules we wrote turned out unreliable as
+the kernel disabled the bits again (and my modules killed machines on
+multiple occasions).
 
 Eventually an excellent solution to this problem was found in the
-jevents\\
-library of the pmu-tools
-(\url{https://github.com/andikleen/pmu-tools/})\\
-which provides an API to the perf subsystem of the Linux kernel. This\\
-allows enabling RDPMC to read FFC2 without the kernel spuriously
-disabling\\
-it again.
+jevents library of the pmu-tools
+(\url{https://github.com/andikleen/pmu-tools/}) which provides an API to
+the perf subsystem of the Linux kernel. This allows enabling RDPMC to
+read FFC2 without the kernel spuriously disabling it again.
 
-The resulting timings within one program run were much more stable
-than\\
-before, usually resulting in the same cycle count for a given
-function.\\
+The resulting timings within one program run were much more stable than
+before, usually resulting in the same cycle count for a given function.
 The timings still vary by 1 occasionally (very rarely 2 or more); we
-have\\
-tried to find the source of the remaining variance, but to no avail.
+have tried to find the source of the remaining variance, but to no
+avail.
 
-Another major source of error, but invariant within one
-super-optimizer\\
-run, was the alignment of the stack, which appears to be randomly
-chosen\\
-at program start. The writes to the stack (PUSH/CALL) on a function
-call\\
-could alias (mod 4096) with the measured function's input operands,\\
+Another major source of error, but invariant within one super-optimizer
+run, was the alignment of the stack, which appears to be randomly chosen
+at program start. The writes to the stack (PUSH/CALL) on a function call
+could alias (mod 4096) with the measured function's input operands,
 causing ``partial address alias'' stalls which inflated execution time
-by\\
-as much as 10 cycles. This problem was solved by forcing a particular\\
+by as much as 10 cycles. This problem was solved by forcing a particular
 stack alignment.
 
-Other problems that occurred within ajs and which were solved:
+Other problems that occurred within \texttt{ajs} and which were solved:
 
 \begin{itemize}
 \tightlist
 \item
-  Jump instruction were always encoded in long form by asmjit,
-  changing\\
-  instruction alignment compared to other assemblers. We now manually\\
-  annotate those instructions that require long form; all other use
-  short.\\
-  This requires manual work to annotate and verify the resulting
-  instruction\\
-  encodings.
+  Jump instruction were always encoded in long form by \texttt{asmjit},
+  changing instruction alignment compared to other assemblers. We now
+  manually annotate those instructions that require long form; all other
+  use short. This requires manual work to annotate and verify the
+  resulting instruction encodings.
 \item
   Allow new registers introduced with AVX2, and instructions with 4
   operands
@@ -136,64 +145,71 @@ Other problems that occurred within ajs and which were solved:
   Various fixes and extensions to asm parsing code
 \end{itemize}
 
-All in all, fixing the aforementioned problems in ajs consumed well over
-2 months of time on\\
-the project. The code to generate permutations that honour data
-dependencies is quite\\
-powerful; however, subtle interactions with the cpu hardware made it\\
-very time-consuming to get nearly cycle-accurate timings as we required.
+All in all, fixing the aforementioned problems in \texttt{ajs} consumed
+well over 2 months of time on the project. The code to generate
+permutations that honour data dependencies is quite powerful; however,
+subtle interactions with the cpu hardware made it very time-consuming to
+get nearly cycle-accurate timings as we required.
 
-\subsection{Optimized functions for
+\section*{Optimized functions for
 MPIR}\label{optimized-functions-for-mpir}
 
-For Haswell and Skylake, the following set of core functions was\\
-re-implemented or existing code optimized to take advantage of the\\
-respective micro-architecture:\\
-add\_n, sub\_n, addmul\_1, submul\_1, addlsh1\_n,\\
-sublsh1\_n, com\_n, copyi, copyd, rshift1,\\
-lshift1, rshift, lshift, mul\_1, mul\_basecase.
+We now review the functions that have been optimized on various
+processor microarchitectures (Intel
+\href{https://en.wikipedia.org/wiki/Haswell_(microarchitecture)}{Haswell}
+and
+\href{https://en.wikipedia.org/wiki/Skylake_(microarchitecture)}{Skylake}
+and AMD
+\href{https://en.wikipedia.org/wiki/Bulldozer_(microarchitecture)}{Bulldozer}).
 
-The only AMD CPU to which we could gain access was a Bulldozer which
-is\\
-a fairly old and poorly designed microarchitecture; in particular,\\
-new instruction set extensions like AVX2 are so slow on Bulldozer (and\\
-Piledriver) that they are best avoided. This left little room for\\
-optimization, and we opted not to write new code for this out-dated
-cpu,\\
+Whilst these aren't the most recent architectures from the major chip
+manufacturers, they are coming into widespread use around now. Indeed it
+is difficult to get access to more recent machines. Naturally access to
+the particular architecture is required in order to optimise for it.
+
+For Haswell and Skylake, the following set of core functions was
+re-implemented or existing code optimized to take advantage of the
+respective micro-architecture: \texttt{add\_n}, \texttt{sub\_n},
+\texttt{addmul\_1}, \texttt{submul\_1}, \texttt{addlsh1\_n},
+\texttt{sublsh1\_n}, \texttt{com\_n}, \texttt{copyi}, \texttt{copyd},
+\texttt{rshift1}, \texttt{lshift1}, \texttt{rshift}, \texttt{lshift},
+\texttt{mul\_1}, \texttt{mul\_basecase}.
+
+The only AMD CPU to which we could gain access was a Bulldozer which is
+a fairly old and poorly designed microarchitecture; in particular, new
+instruction set extensions like AVX2 are so slow on Bulldozer (and
+Piledriver) that they are best avoided. This left little room for
+optimization, and we opted not to write new code for this outdated cpu,
 but to cherry-pick existing code that performs well.
 
-We are very grateful to Jens Nurmann who contributed significant\\
-amounts of code and expertise on AVX2 programming, to Brian\\
-Gladman for porting the new code to the Microsoft Visual C build\\
-system, and to William Stein for granting us access to a Bulldozer\\
-machine.
+We are very grateful to Jens Nurmann who contributed significant amounts
+of code and expertise on AVX2 programming, to Brian Gladman for porting
+the new code to the Microsoft Visual C build system, and to William
+Stein for granting us access to a Bulldozer machine.
 
-\subsubsection{Haswell}\label{haswell}
+\subsection{Haswell microarchitecture}\label{haswell-microarchitecture}
 
-For Haswell, new AVX2 versions of com\_n, copyd, copyi,\\
-lshift, lshift1, rshift, rshift1 were written anew and\\
-super-optimized.
+For Haswell, new AVX2 versions of \texttt{com\_n}, \texttt{copyd},
+\texttt{copyi}, \texttt{lshift}, \texttt{lshift1}, \texttt{rshift},
+\texttt{rshift1} were written anew and super-optimized.
 
-The addmul\_1, submul\_1, mul\_1, mul\_basecase, and sqr\_basecase\\
-functions for Haswell in the GMP library were copied as these are
-extremely\\
-well optimized already - we did not think we could produce better in
-what\\
-little time we had left. Attempts to super-optimize these functions did
-not\\
-find better code.
+The \texttt{addmul\_1}, \texttt{submul\_1}, \texttt{mul\_1},
+\texttt{mul\_basecase}, and \texttt{sqr\_basecase} functions for Haswell
+in the GMP library were copied as these are extremely well optimized
+already - we did not think we could produce better in what little time
+we had left. Attempts to super-optimize these functions did not find
+better code.
 
-Existing add\_n, sub\_n, karaadd, karasub, hgcd2 functions\\
-were modified for Haswell and super-optimized, while sumdiff\_n and\\
-nsumdiff\_n were written anew.
+Existing \texttt{add\_n}, \texttt{sub\_n}, \texttt{karaadd},
+\texttt{karasub}, \texttt{hgcd2} functions were modified for Haswell and
+super-optimized, while \texttt{sumdiff\_n} and \texttt{nsumdiff\_n} were
+written anew.
 
 To give a summary of the speedups obtained, we include here results
-obtained\\
-with the mpir\_bench program
-(\url{https://github.com/akruppa/mpir_bench_two}).\\
-Higher values are better (function executions per unit time);\\
-the apparent slow-down for size \textless{} 512 GCD is to be
-investigated.
+obtained with the \texttt{mpir\_bench} program
+(\url{https://github.com/akruppa/mpir_bench_two}). Higher values are
+better (function executions per unit time); the apparent slow-down for
+size \textless{} 512 GCD is to be investigated.
 
 \begin{longtable}[c]{@{}lll@{}}
 \toprule
@@ -244,17 +260,16 @@ Program gcdext (weight 0.50) & Old & New\tabularnewline
 \bottomrule
 \end{longtable}
 
-The new code can be found in the directory\\
-\url{https://github.com/akruppa/mpir/tree/master/mpn/x86_64/haswell}
+The new code can be found in the directory
+\url{https://github.com/akruppa/mpir/tree/master/mpn/x86_64/haswell} .
 
-\subsubsection{Skylake}\label{skylake}
+\subsection{Skylake microarchitecture}\label{skylake-microarchitecture}
 
-For Skylake, add\_n, sub\_n, mul\_1, add\_err1\_n and sub\_err1\_n were
-written anew\\
-and super-optimized.\\
-The addmul\_1, mul\_basecase and sqr\_basecase functions were taken from
-GMP.\\
-The other functions for Haswell are used as fall-backs.
+For Skylake, \texttt{add\_n}, \texttt{sub\_n}, \texttt{mul\_1},
+\texttt{add\_err1\_n} and \texttt{sub\_err1\_n} were written anew and
+super-optimized. The \texttt{addmul\_1}, \texttt{mul\_basecase} and
+\texttt{sqr\_basecase} functions were taken from GMP. The other
+functions for Haswell are used as fall-backs.
 
 \begin{longtable}[c]{@{}lll@{}}
 \toprule
@@ -305,23 +320,16 @@ Program gcdext (weight 0.50) & Old & New\tabularnewline
 \bottomrule
 \end{longtable}
 
-The new code can be found in the directory\\
-\url{https://github.com/akruppa/mpir/tree/master/mpn/x86_64/skylake}
+The new code can be found in the directory
+\url{https://github.com/akruppa/mpir/tree/master/mpn/x86_64/skylake} .
 
-\subsubsection{Bulldozer}\label{bulldozer}
+\subsection{Bulldozer
+microarchitecture}\label{bulldozer-microarchitecture}
 
 On Bulldozer, the speed gains obtained are much more humble than on
-Haswell\\
-and Skylake, as relatively few functions were replaced by faster ones.\\
-This microarchitecture is not a profitable target for code optimization
-any\\
-more.
-
-It would have been very interesting to write optimized code for the new
-Zen\\
-microarchitecture, but as that was released only towards the end of
-our\\
-project, there was no opportunity to get access to such a machine.
+Haswell and Skylake, as relatively few functions were replaced by faster
+ones. This microarchitecture is not a profitable target for code
+optimization any more.
 
 \begin{longtable}[c]{@{}lll@{}}
 \toprule
@@ -372,23 +380,73 @@ Program gcdext (weight 0.50) & Old & New\tabularnewline
 \bottomrule
 \end{longtable}
 
-The new code can be found in the directory\\
-\url{https://github.com/akruppa/mpir/tree/master/mpn/x86_64/bulldozer}
+The new code can be found in the directory
+\url{https://github.com/akruppa/mpir/tree/master/mpn/x86_64/bulldozer} .
 
-\subsubsection{Future work}\label{future-work}
+\section*{Additional work}\label{additional-work}
 
-The superoptimizer works reasonably reliably now and can be used to\\
-optimize more functions in MPIR and other software projects.
+Since the end of the project, we have added preliminary Broadwell CPU
+support. This does not include any superoptimisation at this point.
+Broadwell is essentially a revision of Haswell, but with some Skylake
+features. We have added processor detection to MPIR and sped up this CPU
+by making use of the Haswell code written for this project. Work is
+underway to make some of the new Skylake code available to Broadwell
+chips, and to write new assembly code for Broadwell. Many thanks to our
+volunteers, Jens Nurmann and David Cleaver who have agreed to work on
+this.
 
-The division and GCD functions in MPIR are worthwhile targets for\\
+\section*{Future work}\label{future-work}
+
+The superoptimizer works reasonably reliably now and can be used to
+optimize more functions in MPIR and other software projects. At this
+stage MPIR is the only project that has made use of the superoptimiser,
+however we have already received a support request, so we expect there
+to be more use cases soon.
+
+The division and GCD functions in MPIR are worthwhile targets for
 additional optimization work.
 
-The new Zen microarchtecture of AMD looks promising for scientific\\
-computation; an optimization effort here would be worthwhile.
+The new Zen microarchitecture of AMD was released towards the end of our
+project, and looks promising for scientific computation. An optimization
+effort here would be worthwhile; it will require to get access to such a
+machine.
 
-\subsubsection{Source code}\label{source-code}
+\section*{Source code}\label{source-code}
 
-The ajs superoptimizer can be found at
-\url{https://github.com/akruppa/ajs}\\
-The optimized functions for MPIR are merged into the main MPIR\\
-repository at \url{https://github.com/wbhart/mpir}
+The \texttt{ajs} superoptimizer can be found at
+\url{https://github.com/akruppa/ajs} . The optimized functions for
+\texttt{MPIR} are merged into the main \texttt{MPIR} repository at
+\url{https://github.com/wbhart/mpir} .
+
+\section*{Testing this code}\label{testing-this-code}
+
+Build instructions for MPIR are as follows:
+
+Download MPIR-3.0.0 from \url{http://mpir.org/}
+
+Note that you also need to have the latest yasm to build MPIR:
+\url{http://yasm.tortall.net/}
+
+To build yasm, download the tarball:
+
+\begin{verbatim}
+./configure
+make
+\end{verbatim}
+
+To test MPIR, download the tarball:
+
+\begin{verbatim}
+./configure --enable-gmpcompat --with-yasm=/path_to_yasm/yasm
+make
+make check
+\end{verbatim}
+
+A Haswell, Skylake, or Bulldozer CPU is required to test the changes
+referred to above.
+
+\subsection{Blog post}\label{blog-post}
+
+I have blogged about this project at
+\url{https://wbhart.blogspot.de/2017/02/assembly-superoptimisation-in-mpir.html}
+.
