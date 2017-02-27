@@ -1,3 +1,6 @@
+SageMathCloud Design Overview
+#############################
+
 SMC's README_ gives a very high level overview of its architecture.  However,
 it doesn't really explain much about the implementation details--what
 technologies are used, how, and why.  This is in part because a lot of it has
@@ -549,7 +552,7 @@ With all that said, let's consider a more complete picture of the current
 architecture (which still leaves a lot out, but incorporates some of the
 additional elements discussed above):
 
-.. image:: https://gist.github.com/embray/cfeedba5d814d12e123710a8f43603fa/raw/e9c9bdd933290d7efac756e6456082363bd7cde0/architecture.png
+.. image:: architecture.png
 
 A few explanations about this diagram:
 
