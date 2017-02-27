@@ -24,7 +24,7 @@ For the first six months of the project, we wrote the `ajs` superoptimizer (http
 
 For the second six months, we solved several problems with the `ajs` superoptimizer, especially erratic timings that had put the concept in jeopardy, and, with contributions from Jens Nurmann, wrote and/or optimized a set of core functions for MPIR and some auxiliary functions used internally (see below).
 
-# The `ajs` superoptimizer
+## The `ajs` superoptimizer
 
 The biggest problem with the superoptimizer was the highly erratic timings it measured for function executions. This made it practically impossible to have it automatically choose (one of) the fastest permutations for a given function.
 
@@ -46,7 +46,7 @@ Other problems that occurred within `ajs` and which were solved:
 All in all, fixing the aforementioned problems in `ajs` consumed well over 2 months of time on the project. The code to generate permutations that honour data dependencies is quite powerful; however, subtle interactions with the cpu hardware made it very time-consuming to get nearly cycle-accurate timings as we required.
 
 
-# Optimized functions for MPIR
+## Optimized functions for MPIR
 
 We now review the functions that have been optimized on various processor microarchitectures (Intel [Haswell](https://en.wikipedia.org/wiki/Haswell_(microarchitecture)) and [Skylake](https://en.wikipedia.org/wiki/Skylake_(microarchitecture)) and AMD [Bulldozer](https://en.wikipedia.org/wiki/Bulldozer_(microarchitecture))).
 
@@ -58,7 +58,7 @@ The only AMD CPU to which we could gain access was a Bulldozer which is a fairly
 
 We are very grateful to Jens Nurmann who contributed significant amounts of code and expertise on AVX2 programming, to Brian Gladman for porting the new code to the Microsoft Visual C build system, and to William Stein for granting us access to a Bulldozer machine.
 
-## Haswell microarchitecture
+### Haswell microarchitecture
 
 For Haswell, new AVX2 versions of `com_n`, `copyd`, `copyi`, `lshift`, `lshift1`, `rshift`, `rshift1` were written anew and super-optimized.
 
@@ -105,7 +105,7 @@ Program gcdext (weight 0.50) | Old | New
 
 The new code can be found in the directory https://github.com/akruppa/mpir/tree/master/mpn/x86_64/haswell .
 
-## Skylake microarchitecture
+### Skylake microarchitecture
 
 For Skylake, `add_n`, `sub_n`, `mul_1`, `add_err1_n` and `sub_err1_n` were written anew and super-optimized.  The `addmul_1`, `mul_basecase` and `sqr_basecase` functions were taken from GMP.  The other functions for Haswell are used as fall-backs.
 
@@ -145,7 +145,7 @@ Program gcdext (weight 0.50) | Old | New
 
 The new code can be found in the directory https://github.com/akruppa/mpir/tree/master/mpn/x86_64/skylake .
 
-## Bulldozer microarchitecture
+### Bulldozer microarchitecture
 
 On Bulldozer, the speed gains obtained are much more humble than on Haswell and Skylake, as relatively few functions were replaced by faster ones.  This microarchitecture is not a profitable target for code optimization any more.
 
@@ -185,7 +185,7 @@ Program gcdext (weight 0.50) | Old | New
 
 The new code can be found in the directory https://github.com/akruppa/mpir/tree/master/mpn/x86_64/bulldozer .
 
-# Additional work
+## Additional work
 
 Since the end of the project, we have added preliminary Broadwell CPU support. This does not include any superoptimisation at this point.  Broadwell is essentially a revision of Haswell, but with some Skylake features. We have added processor detection to MPIR and sped up this CPU by making use of the Haswell code written for this project. Work is underway to make some of the new Skylake code available to Broadwell chips, and to write new assembly code for Broadwell. Many thanks to our volunteers, Jens Nurmann and David Cleaver who have agreed to work on this.
 
@@ -222,7 +222,7 @@ To test MPIR, download the tarball:
 
 A Haswell, Skylake, or Bulldozer CPU is required to test the changes referred to above.
 
-## Blog post
+# Blog post
 
 I have blogged about this project at https://wbhart.blogspot.de/2017/02/assembly-superoptimisation-in-mpir.html .
 
