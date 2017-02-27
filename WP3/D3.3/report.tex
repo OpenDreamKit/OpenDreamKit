@@ -29,17 +29,17 @@
 
 {\sf SCSCP} stands for the 
 {\bf Symbolic Computation Software Composability Protocol}
--- the remote procedure call framework by which different
+-- a remote procedure call framework by which different
 software components (primarily mathematical software systems) 
 may offer computational services to a variety of possible
 clients, such as, for example:
 \begin{itemize}
-\item A computer algebra system (CAS) running on the same computer system or remotely
-\item Another instance of the same CAS (in a parallel computing context)
-\item A simplistic SCSCP client (e.g. C/C++/Python/etc. program) with a minimal 
-SCSCP support needed for a particular application
-\item An internet application providing user interface to the computational services
-\item A Web server which passes on the same services as Web services to other applications
+\item a computer algebra system (CAS) running on the same computer system or remotely;
+\item another instance of the same CAS (in a parallel computing context);
+\item a simplistic SCSCP client (e.g. C/C++/Python/etc. program) with a minimal 
+SCSCP support needed for a particular application;
+\item an internet application providing user interface to the computational services;
+\item a Web server which passes on the same services as Web services to other applications;
 \item Cloud middleware
 \end{itemize}
 using the OpenMath encoding (see \url{http://www.openmath.org/})
@@ -48,8 +48,8 @@ both for the data and protocol instructions.
 SCSCP has been developed in the EU FP6 project 026133 
 ``SCIEnce -- Symbolic Computation Infrastructure for Europe''
 (\url{http://www.symbolic-computing.org/}).
-In the duration of the project (2006-2011) and subsequent
-years, native implementations of SCSCP client and server appeared in
+Within the duration of that project (2006-2011) and over subsequent
+years, native implementations of SCSCP client and server have been developed in
 several CAS such as GAP, KANT, Macaulay2, Maple, Mathematica, MuPAD
 and TRIP; furthermore, APIs for Java, C and C++ were developed
 to facilitate SCSCP implementations in other applications
@@ -58,14 +58,14 @@ However, there were no Python implementations of OpenMath and SCSCP
 (except a prototype quality client supporting only lists of integers)
 and that hindered further extension of the SCSCP framework.
 
-In this report we give an overview of work under the task T3.2 
+In this report we give an overview of work under  task T3.2 
 to support SCSCP in all relevant components, necessary to be able
 to build interfaces between different systems. 
 
 
 \section{Systems}\label{systems}
 
-Under the task T3.2, our goal is to make SCSCP-compliant all
+Under task T3.2, our goal is to make SCSCP-compliant all
 relevant components. Since SCSCP is a protocol in which 
 both data and instructions are encoded in OpenMath, its
 implementation is typically split into two components: 
@@ -186,7 +186,7 @@ and allows users to extend it to support private OpenMath content
 dictionaries in case when the official OpenMath content dictionaries
 do not exist or provide too verbose and inefficient encoding.
 
-The SCSCP package implements SCSCP client and server. 
+The SCSCP package implements both an SCSCP client and a server. 
 The client is capable of establishing the connection with the specified server
 at the specified port; sending the {\tt procedure\_call} message to
 the server in both blocking and non-blocking moders; and fetching
@@ -215,7 +215,7 @@ and then had a major redevelopment under the SCIEnce project.
 However, they were not in active development after the SCIEnce
 project had finished.
 
-Under the OpenDreamKit,
+Under  OpenDreamKit,
 during the reported period we have prepared new versions of 
 both packages and migrated their development repositories and
 websites to host them under the GAP packages virtual organisation 
@@ -281,27 +281,46 @@ uniformly by \Singular and other systems.
 
 \subsection{MMT/MathHub}
 
-We have support for SCSCP and OpenMath inside of MMT.
-A seperate SCSCP functionality in MathHub is not neccessary, as it is already powered by MMT and thus any SCSCP communication can easily go via MMT instead.
+We have support for SCSCP and OpenMath inside of MMT.  A seperate
+SCSCP functionality in MathHub is not neccessary, as it is already
+powered by MMT and thus any SCSCP communication can easily go via MMT
+instead.
 
-Unlike other systems, where translating between system objects and OpenMath objects is a non-trivial process, MMT does not have to do much to translate content from and to OpenMath.
-MMT Terms are already OpenMath objects with a few custom extensions.
-As such, the translation from an MMT to an OpenMath object is just dropping the extra information provided by these extensions and the backward translation is simply the identity.
+Unlike other systems, where translating between system objects and
+OpenMath objects is a non-trivial process, MMT does not have to do
+much to translate content from and to OpenMath.  MMT Terms are already
+OpenMath objects with a few custom extensions.  As such, the
+translation from an MMT to an OpenMath object is just dropping the
+extra information provided by these extensions and the backward
+translation is simply the identity.
 
-We have added a data structure that represents these ``pure'' (i.e. standards-conform) OpenMath objects to MMT, the source code of which can be found at \url{https://github.com/UniFormal/MMT/tree/177a9fc3415856c426110a7e763c7d7843de4d5f/src/mmt-odk/src/info/kwarc/mmt/odk/OpenMath}.
-It in particular implements the translation procedure above as well as serialising and deserialising OpenMath from XML.
+We have added a data structure that represents these ``pure''
+(i.e. standards-conformant) OpenMath objects to MMT, the source code of
+which can be found at
+\url{https://github.com/UniFormal/MMT/tree/177a9fc3415856c426110a7e763c7d7843de4d5f/src/mmt-odk/src/info/kwarc/mmt/odk/OpenMath}.
+It in particular implements the translation procedure above as well as
+serialising and deserialising OpenMath from XML.
 
 On top of this, we have also implemented a custom SCSCP Client as well as Server inside of MMT.
 They are written in Scala.
 
-The client functionality allows MMT to first encode an MMT term (i.e. any object) as an OpenMath object, then have any  SCSCP server perform a computation on this object, and finally receive the response and translate it back into an MMT term.
-Furthermore, the server functionality allows MMT to expose computational funcionality to other systems.
-In this situation, it again receives an OpenMath object, translates it as an MMT object, performs some computation, and returns the result as an OpenMath object.
+The client functionality allows MMT to first encode an MMT term
+(i.e. any object) as an OpenMath object, then have any SCSCP server
+perform a computation on this object, and finally receive the response
+and translate it back into an MMT term.  Furthermore, the server
+functionality allows MMT to expose computational funcionality to other
+systems.  In this situation, it again receives an OpenMath object,
+translates it as an MMT object, performs some computation, and returns
+the result as an OpenMath object.
 
-Having SCSCP functionality written directly in Scala has the advantage that we can directly and easily embed it into our existing codebase.
-However, as we had to implement it from scratch, there are certain corner cases that we have not been able to take into account so far.
-Furthermore it might be difficult to have to maintain this implementation and update in the future.
-Thus we are considering to migrate away from our own implementation and instead simply write a Scala wrapper around the pre-existing Java Implementation.
+Having SCSCP functionality written directly in Scala has the advantage
+that we can directly and easily embed it into our existing codebase.
+However, as we had to implement it from scratch, there are certain
+corner cases that we have not been able to take into account so far.
+Furthermore it might be difficult to have to maintain this
+implementation and update in the future.  Thus we are considering to
+migrate away from our own implementation and instead simply write a
+Scala wrapper around the pre-existing Java Implementation.
 
 
 \section{Examples and use cases}\label{examples}
@@ -361,11 +380,11 @@ at all.
 
 \subsection{GAP SCSCP server in Docker container}\label{gap-docker}
 
-A very efficient and secure way to run public GAP SCSCP
+A very efficient and secure way to run a public GAP SCSCP
 server is to run it in the GAP Docker container. 
 We have established a pipeline of GAP Docker containers
-under the Task T3.1 (see \url{https://hub.docker.com/u/gapsystem/})
-to serve different use cases, and the one which i most
+under Task T3.1 (see \url{https://hub.docker.com/u/gapsystem/})
+to serve different use cases, and the one which is most
 suited for the SCSCP server is the {\tt gapsystem/gap-docker} 
 container available at \url{https://hub.docker.com/r/gapsystem/gap-docker/} and
 providing the most complete installation
@@ -406,7 +425,9 @@ container (see \ref{gap-docker}).
 
 Appendix \ref{Parallel-GAP-SCSCP} contains a quick start guide for setting
 up the environment for parallel search in the GAP Small Groups Library. This
-guide and supplementary files could be found at \url{https://github.com/alex-konovalov/scscp-demo}. The example used in this guide is based on the GAP Software Carpentry
+guide and supplementary files could be found at
+\url{https://github.com/alex-konovalov/scscp-demo}.
+The example used in this guide is based on the GAP Software Carpentry
 lesson (\url{http://alex-konovalov.github.io/gap-lesson/}). This material was
 included in the programme of two CoDiMa training schools in Computational
 Discrete Mathematics held in the UK in 2015 and 2016
