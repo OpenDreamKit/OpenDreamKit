@@ -1,10 +1,10 @@
-# Deliverable description, as taken from Github issue #44 on 2017-02-26 {.notoc}
+# Deliverable description, as taken from Github issue #44 on 2017-02-27 {.notoc}
 
 - **WP2:** [Community Building, Training, Dissemination, Exploitation, and Outreach](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP2)
 - **Lead Institution:** University of Sheffield
 - **Due:** 2017-02-28 (month 18)
 - **Nature:** Websites, Media, etc.
-- **Task:** T2.6 (#29)
+- **Task:** T2.6 (#29): Introduce OpenDreamKit to Researchers and Teachers
 - **Proposal:** [p. 39](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
 - **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP2/D2.4/report-final.pdf)**
 
