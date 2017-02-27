@@ -4,7 +4,7 @@
 - **Lead Institution:** University of Kaiserslautern
 - **Due:** 2017-02-28 (month 18)
 - **Nature:** Demonstrator
-- **Task:** T5.4 #102
+- **Task:** T5.4 (#102) Singular
 - **Proposal:** [P. 52](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
 - **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.6/report-final.pdf)**
 
