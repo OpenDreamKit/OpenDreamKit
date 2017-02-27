@@ -205,23 +205,27 @@ status report, ...) needs to be on the issue.
 - A report should be written, in LaTeX, and in WPX/DX.Z/report.tex using our
   [style file](Proposal/LaTeX-proposal/deliverablereport.cls). You may start
   with e.g. [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
-
-  The use of pictures and other visual material is strongly recommended.
+  The use of pictures and other visual material is strongly
+  recommended.
 
   The github issue description is semi-automatically included in the
   report. To fetch it from github, run the following command from
   ODK's main repository:
 
-      DIR=WP4/D4.4; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
+      DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
 
   For deliverables that are not reports by themselves, it's
   appropriate to put all the material in the github issue description.
 
-  In all cases, the report shall be self-contained. The deliverable
-  will be evaluated based upon its version submitted on the EU portal
-  without retrieving other resources. Links have no legal value, since
-  there is no guarantee that the referenced material will remain
-  unchanged.
+  In all cases, the report shall be self-contained. Indeed, the
+  deliverable will be evaluated based upon its version submitted on
+  the EU portal without retrieving other resources. Links have no
+  legal value, since there is no guarantee that the referenced
+  material will remain unchanged. One may typically want to add
+  relevant material as appendix (e.g. snapshots of software
+  documentation, websites, or other relevant documents); see e.g.
+  [WP5/D5.1/report.tex](WP5/D5.1/report.tex) or
+  [WP2/D2.1/report.tex](WP2/D2.1/report.tex).
 
 - Defining authorship is tricky, as most deliverable involve close
   collaboration with the community, and the report is often written by
