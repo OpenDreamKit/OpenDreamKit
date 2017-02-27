@@ -210,7 +210,8 @@ status report, ...) needs to be on the issue.
 
   The github issue description is semi-automatically included in the
   report. To fetch it from github, run the following command from
-  ODK's main repository:
+  ODK's main repository (no worry if this step fails for you; the
+  coordinator will anyway run it before submitting the deliverable):
 
       DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
 
