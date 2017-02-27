@@ -165,7 +165,8 @@ status report, ...) needs to be on the issue.
 ### Steps for the deliverable lead
 
 - Edit the github issue description (i.e. its first comment) to give
-  an overview (think the abstract of a paper) of the deliverable:
+  an overview (think abstract of a paper) of the deliverable. This
+  information will be included at the beginning of the report.
 
     - What was the original goal.
     - How it fits within the overall ODK picture.
@@ -201,16 +202,20 @@ status report, ...) needs to be on the issue.
     - Link to the relevant ODK task(s) and reciprocally.
     - (when times come): link to the report and presentation slides.
 
-- A report should be written, in latex, and in WPX/DX.Z/report.tex using our
-  [style file](Proposal/LaTeX-proposal/deliverablereport.cls).
+- A report should be written, in LaTeX, and in WPX/DX.Z/report.tex using our
+  [style file](Proposal/LaTeX-proposal/deliverablereport.cls). You may start
+  with e.g. [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
+
   The use of pictures and other visual material is strongly recommended.
 
+  The github issue description is semi-automatically included in the
+  report. To fetch it from github, run the following command from
+  ODK's main repository:
+
+      DIR=WP4/D4.4; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
+
   For deliverables that are not reports by themselves, it's
-  appropriate to have a relatively short report with a link to the
-  github issue, and a copy of the description of this issue. This is
-  essentially automatized: you just need to write a trivial latex file
-  starting from [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as
-  template.
+  appropriate to put all the material in the github issue description.
 
   In all cases, the report shall be self-contained. The deliverable
   will be evaluated based upon its version submitted on the EU portal
