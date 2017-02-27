@@ -91,7 +91,7 @@ The quadratic sieve functionality is made available by including qsieve.h, and t
 
 ## Blog post
 
-I have blogged about the improvements to the quadratic sieve in Flint [here](https://wbhart.blogspot.de/2017/02/integer-factorisation-in-flint.html).
+A blog post about the improvements to the quadratic sieve in Flint is available at https://wbhart.blogspot.de/2017/02/integer-factorisation-in-flint.html .
 
 # Report on parallel block Wiedemann
 
