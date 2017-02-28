@@ -1,0 +1,30 @@
+\begin{tikzpicture}
+  \pgfdeclareimage[width=1cm]{user}{user}
+  \pgfdeclareimage[width=1cm]{author}{author}
+  \tikzstyle{system} = [rectangle, draw, fill=blue!20, text width=1cm, text centered,
+                                    rounded corners, minimum height=1.6cm,shade, 
+                                    top color=white, bottom color=blue!20,
+                                    minimum width=2.2cm]
+   \tikzstyle{database} = [cylinder,cylinder uses custom fill,
+      cylinder body fill=yellow!50,cylinder end fill=yellow!50,
+      shape border rotate=90,
+      aspect=0.25,draw]
+\node (user) {\pgfuseimage{user}}; 
+\node[system,right=1.5cm of user] (browser) {Browser}; 
+\node[system,right=1.5cm of browser] (drupal) {Drupal};
+\node[system,above right=0cm and 1.6cm of drupal] (mmt) {MMT API}; 
+\node[system,right=1cm of mmt] (build) {MMT build}; 
+\node[system,below right=0cm and 1.6cm of drupal] (gl) {GitLab};
+\node[database,below left=-.6cm and 3cm of gl] (lib) {library};
+\node[below right=-1.2cm and 1.5cm of gl] (author) {\pgfuseimage{author}}; 
+\draw[<-,thick] (mmt) -- node[left]{load} (gl);
+\draw[<->,dotted] (user) -- node[above]{read} node[below]{interact} (browser);
+\draw[->,thick] (browser) -- node[above]{REST} (drupal);
+\draw[->,thick] (browser) to[loop above] node [above] (jobad) {JOBAD} (browser); 
+\draw[<->,dashed] (jobad) -- (mmt);
+\draw[<-,thick] (drupal) -- node[above]{present}(mmt); 
+\draw[->,thick] (drupal) -- node[above]{edit}(gl); 
+\draw[->,dotted] (author) -- node[above]{local} node[below]{edit} (gl);
+\draw[->,dotted] (lib) -- node[below]{import} (gl);
+\draw[<->,thick] (gl) -- (build);
+\end{tikzpicture}
