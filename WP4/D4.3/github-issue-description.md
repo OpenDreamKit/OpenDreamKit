@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #92 on 2017-02-27 {.notoc}\n
+# Deliverable description, as taken from Github issue #92 on 2017-02-27 
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
 - **Lead Institution:** Jacobs University Bremen
 - **Due:** 2016-08-31 (month 12) ->delay to be negotiated to month 18
@@ -7,7 +7,7 @@
 - **Proposal:** [p.48](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
 - **Final report**
 
-One of the most prominent features of a virtual research environment (VRE) is a unified user interface. The OpenDreamKit approach is to create a mathematical VRE by integrating various pre-existing mathematical software systems. There are two approaches that can serve as a basis for the \pn UI: ```computational notebooks``` and ```active documents```. The former allow mathematical text around the computation cells of a real-eval-print loop of a mathematical software system and the latter make semantically annotated documents semantic. 
+One of the most prominent features of a virtual research environment (VRE) is a unified user interface. The OpenDreamKit approach is to create a mathematical VRE by integrating various pre-existing mathematical software systems. There are two approaches that can serve as a basis for the OpenDreamKit UI: ```computational notebooks``` and ```active documents```. The former allow mathematical text around the computation cells of a real-eval-print loop of a mathematical software system and the latter make semantically annotated documents semantic. 
 
 MathHub is a portal for active mathematical documents ranging from formal libraries of theorem provers to informal – but rigorous – mathematical documents lightly marked up by preserving LaTeX markup. In the OpenDreamKit project MathHub acts as:
 
