@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #120 on 2017-02-27 {.notoc}
+# Deliverable description, as taken from Github issue #120 on 2017-02-28 {.notoc}
 
 - **WP5:** [High Performance Mathematical Computing](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5)
 - **Lead Institution:** University of Kaiserslautern
@@ -210,4 +210,8 @@ To test `MPIR`, download the tarball:
     make check
 
 A Haswell, Skylake, or Bulldozer CPU is required to test the changes referred to above.
+
+## Blog post
+
+A blog post about the design of the Flint FFT and the work done for this project is available at https://wbhart.blogspot.de/2017/02/parallelising-integer-and-polynomial.html.
 
