@@ -1,11 +1,12 @@
-# Deliverable description, as taken from Github issue #92 on 2017-02-27 
+# Deliverable description, as taken from Github issue #92 on 2017-02-27 {.notoc}
+
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
-- **Lead Institution:** Jacobs University Bremen
-- **Due:** 2016-08-31 (month 12) ->delay to be negotiated to month 18
+- **Lead Institution:** Friedrich-Alexander Universität Erlangen/Nürnberg (FAU), formerly Jacobs Universität Bremen
+- **Due:** 2017-02-28 (Month 18)
 - **Nature:** Demonstrator
-- **Task:** T4.7(#75), T4.8(#76)
+- **Task:** T4.7(#75) Active Documents Portal, T4.8(#76) Visualisation system for 3D data in web-notebook
 - **Proposal:** [p.48](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **Final report**
+- [**Final report**](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP4/D4.3/report-final.pdf)
 
 One of the most prominent features of a virtual research environment (VRE) is a unified user interface. The OpenDreamKit approach is to create a mathematical VRE by integrating various pre-existing mathematical software systems. There are two approaches that can serve as a basis for the OpenDreamKit UI: ```computational notebooks``` and ```active documents```. The former allow mathematical text around the computation cells of a real-eval-print loop of a mathematical software system and the latter make semantically annotated documents semantic. 
 
