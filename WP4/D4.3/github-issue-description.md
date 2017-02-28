@@ -4,7 +4,7 @@
 - **Lead Institution:** Friedrich-Alexander Universität Erlangen/Nürnberg (FAU), formerly Jacobs Universität Bremen
 - **Due:** 2017-02-28 (Month 18)
 - **Nature:** Demonstrator
-- **Task:** T4.7 (#75): Active Documents Portal, T4.8(#76): Visualisation system for 3D data in web-notebook
+- **Task:** T4.7 (#75): Active Documents Portal, T4.8 (#76): Visualisation system for 3D data in web-notebook
 - **Proposal:** [p. 48](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
 - [**Final report**](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP4/D4.3/report-final.pdf)
 
