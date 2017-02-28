@@ -82,6 +82,9 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
+final.pdata.yaml: final.pdata
+	../bin/pdata-latex-to-yaml $< > $@
+
 clean:
 	rm -f *.log *.blg *~ *.synctex.gz *.cut
 
