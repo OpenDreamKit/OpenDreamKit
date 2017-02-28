@@ -1,10 +1,12 @@
+# Deliverable description, as taken from Github issue #62 on 2017-02-28 {.notoc}
+
 - **WP3:** [Component Architecture](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP3)
 - **Lead Institution:** University of St Andrews
 - **Due:** 2016-08-31 (month 12)
 - **Nature:** Other
 - **Task:** T3.2 (#51)
 - **Proposal:** [p.43](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **Final report:** due 2017-02-27
+- **Final report:** due 2017-02-28
 
 **SCSCP** stands for the **Symbolic Computation Software Composability Protocol** - the remote procedure call framework by which different software components (primarily mathematical software systems) may offer computational services to a variety of possible clients using the [OpenMath](http://www.openmath.org/) encoding both for the data and protocol instructions (see the [**SCSCP specification**](http://www.symbolic-computing.org/scscp) for further details). 
 
@@ -31,10 +33,10 @@ In this deliverable, we have extended support for SCSCP to other relevant system
     - Website: https://gap-packages.github.io/scscp/
     - GitHub: https://github.com/gap-packages/scscp 
 - [x] Singular: via GAP and/or SageMath
-- [ ] MathHub: to be written by @tkw1536 
+- [x] MMT/MathHub: OpenMath and SCSCP client/server implementations in Scala
 
 
 ---
-Further notes:
+Remarks:
 - Relevant tickets in Sage: https://trac.sagemath.org/ticket/19970 and http://trac.sagemath.org/ticket/19971
 - In view of https://wbhart.blogspot.co.uk/2016/11/new-computer-algebra-system-oscar_20.html it's desirable to implement OpenMath and SCSCP in Julia and later use Singular through it. 
