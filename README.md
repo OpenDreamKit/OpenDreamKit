@@ -137,16 +137,16 @@ The purpose of those issues is:
 
 A first draft of each issue was created automatically using the
 metadata produced in Proposal/final.pdata. It should be further edited
-and maintained.
-
-The issue should be assigned to whoever will be leading it, in addition to the work package leader.
+and maintained. The issue should be assigned to whoever will be
+leading it, in addition to the work package leader.
 
 By convention, we use the first comment on the issue as a description
 of that issue (github is missing an explicit notion of issue
 description). It should contain and be continuously updated with:
+
 - a description of the task (taken from the proposal) or deliverable
 - a brief status overview
-- crosslinks to the corresponding task/deliverables
+- crosslinks to the corresponding tasks/deliverables
 - todo list, sketch of plan, references to relevant resources on the
   web, @mentions of people that could/should be involved.
 
@@ -155,7 +155,7 @@ description). It should contain and be continuously updated with:
 
 For examples, see #50, #87, #72.
 
-Alternatively, when natural, the issue can be just a pointer to an
+Alternatively, when natural, the issue can be a brief pointer to an
 issue of the relevant software where the actual discussion happens.
 In this case, only ODK specific info (link to task, delivery date,
 status report, ...) needs to be on the issue.
