@@ -1,22 +1,16 @@
-# Deliverable description, as taken from Github issue #91 on 2017-01-09 {.notoc}
+# Deliverable description, as taken from Github issue #97 on 2017-02-27 {.notoc}
 
 - **WP4:** [User Interfaces](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP4)
 - **Lead Institution:** Jacobs University Bremen
-- **Due:** 2016-02-29 (month 6)
-- **Nature:** Report
+- **Due:** 2017-02-28 (month 18)
+- **Nature:** Demonstrator
 - **Task:** T4.6 (#74)
-- **Proposal:** [p. 47](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP4/D4.2/report-final.pdf)**
+- **Proposal:** [p. 48](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP4/D4.9/report-final.pdf)**
 
-One of the most prominent features of a virtual research environment (VRE) is a unified user interface. The OpenDreamKit approach is to create a mathematical VRE by integrating various pre-existing mathematical software systems. There are two approaches that can serve as a basis for the OpenDreamKit UI: *computational notebooks* and *active documents*. The former allow mathematical text around the computation cells of a real-eval-print loop of a mathematical software system and the latter make semantically annotated documents semantic.
+One of the most prominent features of a virtual research environment (VRE) is a unified user interface (UI). There are two complementary approaches that can serve as a basis for OpenDreamKit's mathematical VRE UI: computational notebooks and active structured documents. The former allows for mathematical text around the computation cells of a real-eval-print loop of a mathematical computational system and the latter makes semantically annotated documents active.
 
-We report on two systems in the OpenDreamKit project: Jupyter -- a notebook server for various kernels, and MathHub.info -- a platform for active mathematical documents. We identify commonalities and differences and develop a vision for integrating their functionalitities.
+In D4.2 “Active/Structured Documents Requirements and existing Solutions” (#91) we reported on two systems in the OpenDreamKit project which follow respectively those two approaches: [Jupyter](http://jupyter.org) -- a notebook server for various computational systems -- and [MathHub.info](http://MathHub.info) -- a platform for active mathematical documents. We identified commonalities and differences and developed a vision for integrating their functionalities.
 
-Related projects:
-- MathBookXML: http://mathbook.pugetsound.edu/
-- Jupyter notebook exporter for Sphinx: https://github.com/sphinx-doc/sphinx/pull/2117
-- Jupyter javascript plugin for static sites: https://github.com/oreillymedia/thebe
-  See also: https://www.oreilly.com/ideas/jupyter-at-oreilly
-- ReST to IPython Notebook converter through pandoc and markdown: https://github.com/nthiery/rst-to-ipynb/
+As a first step into this direction we explore in this deliverable the requirements of integrating in-situ (i.e. in-document) computation – a forte and indeed the raison-d'être of notebooks – into conventional, narrative-structured mathematical documents. We present, analyze, and classify examples for in-situ computation and explore -- in particular in a [MathHub.info](http://MathHub.info) based prototype -- how the active documents technology has to be extended to accommodate this functionality as a semantic service.
 
-cc: @fcayre, @nthiery, @fangohr, @marcinofulus, @rbeezer

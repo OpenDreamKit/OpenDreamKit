@@ -7,7 +7,7 @@
 # possibly customize the following variables to your setting
 PROPOSAL = proposal.tex 		# the proposal
 BIB = bibliography.bib	        # bibTeX databases
-PROP.dir = LaTeX-Proposal
+PROP.dir = LaTeX-proposal
 ###########################################################################
 # the following are computed
 TSIMP = 			                  # pdflatex Targets without bibTeX
@@ -81,6 +81,9 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	   then $(PDFLATEX)  $<  || $(RM) $@; fi
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
+
+final.pdata.yaml: final.pdata
+	../bin/pdata-latex-to-yaml $< > $@
 
 clean:
 	rm -f *.log *.blg *~ *.synctex.gz *.cut

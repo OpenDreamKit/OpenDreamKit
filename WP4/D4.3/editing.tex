@@ -2,20 +2,20 @@
 
 For the \pn project, we have developed and are hosting on \sys
 \begin{compactenum}
-\item the ``Math-in-the-Middle ontology''~\cite{MitM:on}, which hosts a flexiformal
+\item the ``Math-in-the-Middle ontology''~\cite{MitM:on}, a flexiformal
   development of the mathematical knowledge for system interoperability in \pn
-  (see~\cite{DehKohKon:iop16,ODK-D6.2}),
+  (see~\cite{DehKohKon:iop16}, \delivref{dksbases}{design}),
 \item the ``ODK System ontologies''~\cite{ODKsysonto:on}, a collection of \omdoc/\mmt
-  theories and codecs that describe the mathematical content of the LMFDB and other data
-  sources, bridging the internal (i.e. system/database oriented) and external
-  (mathematical) views of the content.
+  theories and codecs that describe the mathematical content of (parts of) the
+  LMFDB~\cite{lmfdb:on}, OEIS~\cite{oeis} and other data sources, bridging the internal
+  (i.e. system/database oriented) and external (mathematical) views of the content.
 \end{compactenum}
 These two \sys libraries are in an early state currently and curating them is a major task
-in in work package \textbf{WP6} of the \pn project. Therefore the editing workflows are
-crucial to the project.
+in \pn's \longWPref{dksbases}. Therefore, the editing workflows we
+report on here are crucial to the \pn project.
 
 Given the distributed and collaborative nature of the \pn project, the editing facilities
-need to be as well. As experience in sortware engineering shows -- and flexiformal active
+need to be as well. As experience in software engineering shows -- and flexiformal active
 documents are like software in many respects -- this is only possible using (concepts of)
 revision control systems. In \sys we took the major design decision to use the distributed
 revision control system GIT~\cite{GIT:on} as the basis for all general storage,
@@ -29,7 +29,7 @@ We organize the content into \textbf{libraries} by area or intended application 
 e.g. the two libraries discussed at the top of this section and further divide them up
 into \textbf{math archives}~\cite{HorIacJuc:cscpnrr11}, which standardize the file system
 layout of all dimensions of mathematical representations: source, content, presentation,
-narration, \ldots. At the GitLab level, libraries are modeled as ``groups'' and individual
+narration, etc. At the GitLab level, libraries are modeled as ``groups'' and individual
 math archives as repositories. As GIT -- and thus repository managers like GitLab -- only
 allow authentification at the repository level, math archives are mostly used for
 authentification and access control in \sys.
@@ -42,11 +42,12 @@ contents of \sys:
 \item an offline editing/authoring workflow based on a GIT working copy.
 \end{compactenum}
 We will describe both separately in sections~\ref{sec:lmh} and \ref{sec:web}, after
-clarify the setting in \sys a bit more. 
+clarifying the setting in \sys a bit more.
 
-\subsection{Building a Math Knowledge Base by Editing Surface Language Documents}\label{sec:surface}
+\subsection{Building a Math Knowledge Base by Editing Surface Language
+  Documents}\label{sec:surface}
 
-The unifying representation format of the \sys system is flexiformal \omdoc/mmt, which is
+The unifying representation format of the \sys system is flexiformal \omdoc/\mmt, which is
 structured as a theory graph. As \omdoc/\mmt is optimized for machine processing, actual
 content is authored and edited as documents in a \textbf{surface format}: a human-oriented
 syntax that can be compiled into \omdoc/\mmt. \sys currently supports five surface formats 
@@ -70,7 +71,8 @@ state of the libraries and update the local \mmt API.
 \subsection{Local \sys Editing}\label{sec:lmh}
 
 The local editing workflow is important for power authors who want to edit more than one
-file simultaneously or have customized modes for the surface languages in their own
+file simultaneously or have customized modes for the surface languages
+in their preferred text
 editors. A user can fork or pull the relevant repositories from the \sys GitLab, edit them
 and submit them back to \sys either via a pull request to the repository masters or a
 direct commit/push. As the content is usually highly networked and distributed across
@@ -90,7 +92,7 @@ semantic document formats next.
 \subsection{Local Editing Support for Lightly Formalized Mathematical Content}
 
 \sTeX~\cite{Kohlhase:ulsmf08,sTeX:github:on} is an extension of the {\TeX/\LaTeX} that
-allows the annotation of semantic properties into the document source. These annotation
+allows the annotation of semantic properties into the document source. These annotations
 are largely invisible in the PDF output, but can be transferred into \omdoc/\mmt when
 formatted with the \sTeX plugin to {\LaTeX}ML~\cite{GinStaKoh:latexmldaemon11}. We call
 the process of adding such source annotations \textbf{semantic preloading}.
@@ -104,10 +106,10 @@ editor-based IDEs~\cite{JucKoh:sidesc10,,JucEth12:redsys}, the most important pr
 aspects of knowledge curation in \sys are well-handled by the \lmh tool, which provides
 archive curation functionalities such as basic link checking, pre-translation, and build
 system support. An advantage of this approach is that it is largely editor-independent and
-thus does not constrain the user in her choice of tools.
+thus does not constrain the user in their choice of tools.
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=12cm]{errorview}
+  \includegraphics[width=\textwidth]{errorview}
   \caption{The \sys Error Viewer}\label{fig:errorview}
 \end{figure}
 
@@ -119,18 +121,20 @@ have editor/IDE integration for the ensuing semantic debugging process, the main
 advantage\footnote{This effect may however be partially caused by the fact that we
   currently still also have errors in the transformation pipeline, which necessitates full
   rebuilding of the \sys libraries interleaved with source debugging.}  can already be
-reaped by a special, aggregating error viewer.  Figure~\ref{fig: errorview} shows a
+reaped by a special, error aggregating viewer.  Figure~\ref{fig:errorview} shows a
 fragment, where we see source errors (the first two) and error messages probably caused by
-compiler problems. In both cases, the user can click on a the particular occurrences and
+compiler problems. In both cases, the user can click on a particular occurrence and
 enter a web-based editing cycle which gives access to the logs and results of the
-respective transformation steps. Any source errors can directly be fixed using the web
-editing facilities (see~\ref{sec:web}).
+respective transformation steps. In particular, source errors can directly be fixed using the web
+editing facilities (see Section~\ref{sec:web}).
+
+% Nicolas: I want this feature in github pages :-)
 
 \subsection{Local Editing Support for Formal Mathematics}\label{sec:local-formal}
 
 Editing formal mathematical content poses a different set of challenges. As the content is
 formal (i.e expressed in a formal language with well-defined semantics), its syntax and
-semantics are fully machine-checkable, and this defines the standard of mathematical
+semantics are fully machine-checkable, and this defines the standards of mathematical
 quality. Consequently, an editing process that integrates syntax/semantics-checking --
 which takes the form of type-checking in \mmt -- is needed for editing formal mathematics.
 
@@ -140,15 +144,15 @@ see~\cite{Rabe:LII14} for details. In a nutshell, we can see the structural view
 files in the panel on the left and the source file in the central pane. Both are
 cross-linked for better structural and source navigation. In this example we also have a
 type checking error in line 51 of the file \texttt{algebra.mmt}. It is indicated by the
-red underline and the hovering the mouse over it gives the local error message, and the
+red underline and by hovering the mouse over it gives the local error message, and the
 error console at the bottom give additional details.
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=15cm]{jedit2}
+  \includegraphics[width=\textwidth]{jedit2}
   \caption{Local Editing of \mmt Surface Syntax in JEdit}\label{fig:jedit2}
 \end{figure}
 
-In our experience, a dedicated, tightly integraded IDE is indispensible for the
+In our experience, a dedicated, tightly integrated IDE is indispensable for the
 development of formal mathematical content. This is analogous to the development of
 software -- another form of formal content -- but for formal mathematical documents
 type-checking -- which includes proof checking via the Curry-Howard isomorphism -- puts
@@ -158,26 +162,26 @@ the author/maintainer.
 \subsection{Web-based \sys Editing}\label{sec:web}
 
 \begin{figure}[ht]\centering
-  \fbox{\includegraphics[width=8.5cm]{bijective}}\quad
-  \fbox{\includegraphics[width=6.5cm]{bijective-source}}
+  \fbox{\includegraphics[width=.52\textwidth]{bijective}}\quad
+  \fbox{\includegraphics[width=.42\textwidth]{bijective-source}}
   \caption{Presentation and Source Views of A Glossary Entry}\label{fig:bijective}
 \end{figure}
 
 In the web-based workflows, we have the same requirements for integrating editing and
 semantic correctness management as in the local workflows. In the current state of
-development of \sys, we aim for a courser granularity of integration: we integrate at the
+development of \sys, we aim for more granularity of integration: we integrate at the
 document level, which is commensurate with the fact that the quest for reusability in
 active documents leads to small documents overall. Figure~\ref{fig:bijective} shows the
-presentation of (the english language binding) of a glossary module for bijectivity. The
-breadcrumbs at the top localize it in the \textsf{sets} archive in the \textsf{SMGloM}
+presentation of (the english language binding of) a glossary module for bijectivity. The
+breadcrumbs at the top localize it in the \texttt{sets} of archive in the \textsf{SMGloM}
 library. The content presentation shows its dependencies and a human-oriented presentation
 of the definition of bijectivity. There are five tabs with different forms of the same
 content, the source view (expanded on the right of Figure~\ref{fig:bijective}), the
-generated \omdoc, and an edit tab. The latter is just a link to the the corresponding
-GitLab edit page; Figure~\ref{fig:bijective-edit}. 
+generated \omdoc, and an edit tab. The latter is just a link to the corresponding
+GitLab edit page; see Figure~\ref{fig:bijective-edit}.
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=10cm]{bijective-edit}
+  \includegraphics[width=\textwidth]{bijective-edit}
   \caption{Editing a Glossary Entry in GitLab}\label{fig:bijective-edit}
 \end{figure}
 
@@ -190,7 +194,7 @@ their changes to the archive maintainers in this way.
 But this delegation is not without technical challenges. An important concern is that the
 user identities of the Drupal and GitLab instances have to be synchronized. Fortunately,
 users can log into both systems with their GitHub account, which solves the problem at
-least for the \pn project, where GitHub is universally emploayed and thus all partners
+least for the \pn project, where GitHub is universally employed and thus all partners
 have GitHub accounts. Another problem is that GitLab only offers editing facilities for
 files it considers text files, and it considers \mmt syntax files as binary, since they
 contain lower ASCII symbols for component, declaration, and module separators.
@@ -206,7 +210,8 @@ release cycle of GitLab.
 
 %  LocalWords:  sec:editing MitM:on DehKohKon:iop16,ODK-D6.2 ODKsysonto:on omdoc textbf
 %  LocalWords:  GIT:on GitLab:on GitHub:on HorIacJuc:cscpnrr11 standardize ldots sec:lmh
-%  LocalWords:  sec:web sec:surface optimized fig:arch lmh ocal lmh:on lmh-docker:on
+%  LocalWords:  sec:web sec:surface optimized fig:arch lmh ocal lmh:on lmh-docker:on oeis
 %  LocalWords:  Formalized Kohlhase:ulsmf08 GinStaKoh:latexmldaemon11 JucKoh:sidesc10
 %  LocalWords:  JucEth12:redsys centering includegraphics fig:errorview fig:jedit2 jedit2
-%  LocalWords:  JEdit-based JEdit
+%  LocalWords:  JEdit-based JEdit lmfdb:on sec:local-formal fbox fig:bijective textsf
+%  LocalWords:  synchronized

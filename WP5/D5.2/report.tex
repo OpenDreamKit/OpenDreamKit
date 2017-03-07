@@ -1,31 +1,216 @@
 \documentclass{deliverablereport}
 
-\usepackage[style=alphabetic,backend=bibtex]{biblatex}
-\addbibresource{../../lib/kbibs/kwarcpubs.bib}
-\addbibresource{../../lib/kbibs/extpubs.bib}
-\addbibresource{../../lib/kbibs/kwarccrossrefs.bib}
-\addbibresource{../../lib/kbibs/extcrossrefs.bib}
-\addbibresource{../../lib/deliverables.bib}
-%\addbibresource{../../lib/publications.bib}
-\addbibresource{rest.bib}
-% temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
-\makeatletter\def\blx@maxline{77}\makeatother
-
 \deliverable{hpc}{pythran-sage}
 \deliverydate{02/27/2017}
-\duedate{02/27/2017 (Month 18)}
-\def\pn{OpenDreamKit}
-\author{ }
+\duedate{02/28/2017 (Month 18)}
+\author{Adrien Guinet et Clément Pernet}
 
 \begin{document}
+\enlargethispage{.5cm}
 \maketitle
-%\input{abstract}
 \strut\githubissuedescription
-\newpage\tableofcontents\newpage
+\tableofcontents\newpage
 
+\section{Introduction}
 
+The aim of this project is to optimize the overall performance of \Cython code
+that uses NumPy arrays.
 
-\printbibliography
+\Cython is a compiler for the \Python and \Cython language. It basically converts
+\Python code to a C/C++ module that calls directly the C \Python API. The \Cython
+language is an extension of \Python that allows to write C-like code within a
+\Python module. This code is directly inserted into the generated module. This
+allows to write C python module with the flexibility of a \Python script. This
+is used in numerous \Python project, with SageMath being one of them.
+
+In \Cython, when operations are done on NumPy arrays, \Cython relies on the
+original NumPy package to compute them. This involves a fall back to the \Python
+interpreter. It thus misses several optimisation opportunities, espacially with
+complex expressions. Optimizing these NumPy calls can improve the overall
+performances of applications that rely on NumPy to do their computation work.
+The interest for the OpenDreamKit project is the overall performance gain that
+could be achieve within various SageMath workload.
+
+The \Pythran project is a \Python to C++ compiler, that aims at optimizing
+scientific \Python. It thus supports only a subset of the \Python language.
+It includes a full C++ implementation of a major set of the NumPy API. Some of
+the advantage of this implementation is that it supports expression templates
+and SIMD instructions. Expression templates allow to "fuse" loops that can
+occurs when expressions with multiple operators are computed. For instance,
+the expression $a+b*c$ will originally be transformed by \Cython in two calls: one
+for the multiplication of $b$ by $c$, and one for the addition of the result of
+this multiplication and the addition by $a$. Each call will end-up in one loop,
+that will read memory, compute the operation and write back to memory. The
+second loop will have the same pattern. In nowadays architecture, memory
+bandwidth is often the limiting factor in this kind of operation. It is thus
+really interesting to merge these loops, and load/store the memory only once.
+Expression templating is a C++ technique that allows to evaluate expressions
+only when they are stored to memory. Thus, in this case, the two loops will be
+automatically "merged" by the C++ compiler, and we'll get an optimized version
+of this code. Note that this technique is used for instance by the C++ wrapper
+of the GMP library.
+
+\section{\Cython and \Pythran integration}
+
+The project has been focused on using this \Pythran backend for NumPy arrays in
+\Cython when possible. Indeed, \Pythran has a few limitations regarding the NumPy
+arrays it can handle:
+
+\begin{itemize}
+  \item array "views" are not supported. That means that arrays must be stored
+    in contiguous memory. Fortran and C-style formats are supported.
+  \item the endianess of the integers must be the same as the one of the
+    targeted architecture (note that \Cython has the same limitation)
+\end{itemize}
+
+We thus need to be able to fall back to the \Cython implementation if we are not
+in one of those cases.
+
+The integration within \Cython works this way:
+
+\begin{itemize}
+  \item at the function level, for every argument that is a NumPy array and
+    supported by \Pythran, we change its type by a fused type
+    \footnote{\url{http://cython.readthedocs.io/en/latest/src/userguide/fusedtypes.html}}.
+    This fused type is either a \Pythran NumPy buffer or the original \Cython
+    buffer type
+  \item for variables defined as NumPy array, we change them directly to a
+    \Pythran buffer, if their type and endianess are supported.
+\end{itemize}
+
+\Cython has a comprehensive suite test regarding the NumPy features it supports.
+This test suite is still valid after this integration.
+
+\section{Usage}
+
+A new flag {\tt --np-pythran} has been added to \Cython that enables the usage
+of \Pythran for NumPy operations. It will generate a C++ file that uses the
+optimized NumPy functions that are in \Pythran. 
+Then, when compiling the final extension, a path to an existing \Pythran
+installation must be provided.
+
+Here is an example of usage using {\tt distutils}:
+
+\begin{lstlisting}[language=python]
+from distutils.core import setup
+from Cython.Build import cythonize
+
+setup(
+    name = "My hello app",
+    ext_modules = cythonize('hello_pythran.pyx', np_pythran=True)
+)
+\end{lstlisting}
+
+Basically, a flag {\tt np\_pythran} has been added to the {\tt cythonize} call
+that will enable the usage of the \Pythran backend. It needs to have the \Pythran
+module installed.
+
+\section{Benchmarks}
+
+We did some benchmarks to see the benefits of the \Pythran integration for NumPy
+operations. These benchmarks have been done using an Intel Core i7-6700HQ.
+
+\subsection{Float computation}
+
+Here is a code snippet that does some computation on floating-point values:
+
+\begin{lstlisting}[language=python]
+import numpy
+cimport numpy
+def float_comp(numpy.ndarray[numpy.float_t, ndim=1] a, \
+             numpy.ndarray[numpy.float_t, ndim=1] b):
+    return numpy.sqrt(numpy.sqrt(a*a+b*b))
+\end{lstlisting}
+
+The figure~\ref{fig:float_bench} shows the compute time for various sizes for
+{\tt a} and {\tt b}, using the original \Cython mode, then \Cython with the
+\Pythran backend, and finally \Cython with the \Pythran backend and SIMD
+instructions.
+
+\begin{figure}[h]
+  \caption{\label{fig:float_bench} Float computation benchmark (logarithmic scales)}
+  \includegraphics{benchs/float/graph.pdf}
+\end{figure}
+
+For instance, for $N = 1000000$, we have a speedup of ~2.4x using the \Pythran
+backend (against the original \Cython version), and ~3.7x using SIMD
+instructions (still against the original \Cython version).
+
+\subsection{Harris}
+
+This benchmark is based on the code available here:
+\url{https://raw.githubusercontent.com/serge-sans-paille/numpy-benchmarks/master/benchmarks/harris.py}.
+
+The adapted \Cython code is the following:
+
+\begin{lstlisting}[language=python]
+import numpy
+cimport numpy
+
+def harris(numpy.ndarray[numpy.float_t, ndim=2] I):
+  cdef int m = I.shape[0]
+  cdef int n = I.shape[1]
+  cdef numpy.ndarray[numpy.float_t, ndim=2] dx = \
+    (I[1:, :] - I[:m-1, :])[:, 1:]
+  cdef numpy.ndarray[numpy.float_t, ndim=2] dy = \
+    (I[:, 1:] - I[:, :n-1])[1:, :]
+
+  cdef numpy.ndarray[numpy.float_t, ndim=2] A = dx * dx
+  cdef numpy.ndarray[numpy.float_t, ndim=2] B = dy * dy
+  cdef numpy.ndarray[numpy.float_t, ndim=2] C = dx * dy
+  cdef numpy.ndarray[numpy.float_t, ndim=2] tr = A + B
+  cdef numpy.ndarray[numpy.float_t, ndim=2] det = A * B - C * C
+  return det - tr * tr
+\end{lstlisting}
+
+The figure~\ref{fig:harris_bench} shows the compute time for various sizes of
+the 2D array I ($N \times N$). We've got a ~25 \% improvement with an array of
+$4096 \times 4096$ floats as input using the \Pythran backend. Moreover, in this
+case, it seems that this code does not really benefits from SIMD instructions.
+
+\begin{figure}[h]
+  \caption{\label{fig:harris_bench} Harris computation benchmark}
+  \includegraphics{benchs/harris/graph.pdf}
+\end{figure}
+
+\subsection{Convolution}
+
+We used this example from the \Cython documentation:
+\url{http://cython.readthedocs.io/en/latest/src/tutorial/numpy.html}.
+
+The input we use is the following:
+
+\begin{lstlisting}[language=python]
+import numpy as np
+N = 1000
+f = np.arange(N*N, dtype=np.int).reshape((N,N))
+g = np.arange(81, dtype=np.int).reshape((9, 9))
+\end{lstlisting}
+
+The results are the following:
+
+\begin{itemize}
+  \item for the classical \Cython version: 155ms
+  \item for the \Cython version using the \Pythran backend: 150ms
+  \item for the \Cython version using the \Pythran backend using SIMD instructions: 149ms
+\end{itemize}
+
+It seems the \Pythran backend don't manage to benefit a lot from SIMD
+instructions in this case. We thus still got an average speedup of ~3 \%.
+
+\section{Links}
+\label{sec:links}
+
+Modifications that were necessary to the \Pythran project have been accepted and
+merged into its master branch (see
+\url{https://github.com/serge-sans-paille/pythran/pull/629},
+\url{https://github.com/serge-sans-paille/pythran/pull/628},
+\url{https://github.com/serge-sans-paille/pythran/pull/616} and
+\url{https://github.com/serge-sans-paille/pythran/pull/614}).
+
+The modifications necessary within the \Cython project are currently being reviewed
+(see \url{https://github.com/cython/cython/pull/1607}).
+
 \end{document}
 
 %%% Local Variables:
