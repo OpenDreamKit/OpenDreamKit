@@ -1,15 +1,32 @@
 #!/usr/bin/python3
 
+# Converts a pdata database file as produced by latex on our proposal
+# into a yaml file containing a dictionnary that one can easily use
+# programmatically, e.g. in our web site.
+#
+# Each line:
+#     \@pdata@def{key1}{key2}{key3}{value}
+# contributes to the resulting directory `t` so that
+#     t["key1"]["key2"]["key3"] = value
+#
+# Furthermore, keys containing @ are split into subkeys:
+#     \@pdata@def{key1}{foo@bar}{key3}{value}
+# contributes
+#     t["key1"]["foo"]["bar"]["key3"] = value
+
 import fileinput
 import re
 import yaml
 
 db = {}
 separator = re.compile("}{|@")
+
 for line in fileinput.input():
-    match = re.match("\\\\@pdata@def{(.*)}", line)
+    match = re.match("\\\\@pdata@def{(.*)}{(.*)}", line)
     if match:
-        data = re.split(separator, match.group(1))
+        #print(match.group(1), "----", match.group(2))
+        data = re.split(separator, match.group(1))+[match.group(2)]
+        #print(data)
         ref = db
         while len(data) > 2:
             key = data[0]
