@@ -82,9 +82,6 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
-final.pdata.yaml: final.pdata
-	../bin/pdata-latex-to-yaml $< > $@
-
 clean:
 	rm -f *.log *.blg *~ *.synctex.gz *.cut
 
@@ -105,6 +102,14 @@ TOWRITE: *.tex */*.tex
 
 TAGS: *.tex */*.tex
 	etags *.tex */*.tex
+
+# Proposal metadata in YAML format, in particular for the web page
+final.pdata.yaml: final.pdata
+	../bin/pdata-latex-to-yaml $< > $@
+
+install-proposal-metadata: final.pdata.yaml
+	cp $< ../WWW/_data/proposal.yml
+	cd ../WWW/_data; git pull; git add proposal.yml; git commit -m "Updated proposal metadata" proposal.yml; git push
 
 CollaborativeWritingOfTheOpenDreamKitProposal.mp4:
 	gource -s .4 -1280x720 --auto-skip-seconds .4 --multi-sampling --stop-at-end --highlight-users --hide mouse,progress --file-idle-time 0 --max-files 80 --background-colour 111111 --font-size 20 --title "Collaborative writing of the OpenDreamKit European H2020 proposal" --output-ppm-stream - --output-framerate 60 | avconv -y -r 60 -f image2pipe -vcodec ppm -i - -b 8192K $@
