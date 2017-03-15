@@ -13,42 +13,14 @@ The system architecture has three main components:
 \end{compactenum}
 Specifically, we use the GitLab repository manager~\cite{GitLab:on} as the data store, the
 \mmt API~\cite{Rabe:MAGMS13,uniformal:on} as the semantic service provider and build
-system, and Drupal~\cite{drupal:on} as the user-pointing frontend.  Figure~\ref{fig:arch}
+system, and Drupal~\cite{drupal:on} as the user-pointing frontend. Figure~\ref{fig:arch}
 shows the overall architecture of the \sys system.
 
 \begin{figure}[ht]\centering
-\begin{tikzpicture}
-  \pgfdeclareimage[width=1cm]{user}{user}
-  \pgfdeclareimage[width=1cm]{author}{author}
-  \tikzstyle{system} = [rectangle, draw, fill=blue!20, text width=1cm, text centered,
-                                    rounded corners, minimum height=1.6cm,shade, 
-                                    top color=white, bottom color=blue!20,
-                                    minimum width=2.2cm]
-   \tikzstyle{database} = [cylinder,cylinder uses custom fill,
-      cylinder body fill=yellow!50,cylinder end fill=yellow!50,
-      shape border rotate=90,
-      aspect=0.25,draw]
-\node (user) {\pgfuseimage{user}}; 
-\node[system,right=1.5cm of user] (browser) {Browser}; 
-\node[system,right=1.5cm of browser] (drupal) {Drupal};
-\node[system,above right=0cm and 1.6cm of drupal] (mmt) {MMT API}; 
-\node[system,right=1cm of mmt] (build) {MMT build}; 
-\node[system,below right=0cm and 1.6cm of drupal] (gl) {GitLab};
-\node[database,below left=-.6cm and 3cm of gl] (lib) {library};
-\node[below right=-1.2cm and 1.5cm of gl] (author) {\pgfuseimage{author}}; 
-\draw[<-,thick] (mmt) -- node[left]{load} (gl);
-\draw[<->,dotted] (user) -- node[above]{read} node[below]{interact} (browser);
-\draw[->,thick] (browser) -- node[above]{REST} (drupal);
-\draw[->,thick] (browser) to[loop above] node [above] (jobad) {JOBAD} (browser); 
-\draw[<->,dashed] (jobad) -- (mmt);
-\draw[<-,thick] (drupal) -- node[above]{present}(mmt); 
-\draw[->,thick] (drupal) -- node[above]{edit}(gl); 
-\draw[->,dotted] (author) -- node[above]{local} node[below]{edit} (gl);
-\draw[->,dotted] (lib) -- node[below]{import} (gl);
-\draw[<->,thick] (gl) -- (build);
-\end{tikzpicture}
+\input{figures/arch.tex}
 \caption{The \sys Architecture}\label{fig:arch}
 \end{figure}
+
 In this setup, Drupal serves as a container management system\footnote{Drupal and similar
   systems self-describe as content management systems, but they actually only manage the
   documents without changing their internal structure.} that supplies uniform theming,
@@ -58,7 +30,7 @@ groups (math archives).
 
 The \mmt API provides semantic services (notation-based, presentation, definition lookup,
 relational navigation, dependency management, etc.) to the user, primarily by dedicated
-JOBAD~\cite{GLR:WebSvcActMathDoc09} modules.  Note that even though the active document
+JOBAD~\cite{GLR:WebSvcActMathDoc09} modules. Note that even though the active document 
 functionalities and semantic editing support in \sys are based on \omdoc/\mmt
 representation of the content, the authors interact with the content in the source
 format. Both of these representations are versioned in GitLab and are converted into
@@ -76,8 +48,8 @@ information, etc.).
 used for the \pn project, but has not been scaled yet much beyond 10\,000 documents and a
 couple dozens of users and repositories.
 
-Specifically, we are currently hosting a test set of formal and informal mathematical
-content to develop and evaluate system functionality; concretely:
+We are currently hosting a test set of formal and informal mathematical
+content to develop and evaluate system functionality, specifically consisting of:
 \begin{compactenum}[\em i\rm)]
 \item the SMGloM termbase with ca. 1500 small \sTeX files containing definitions of
   mathematical terminology and notation definitions.
@@ -88,30 +60,14 @@ content to develop and evaluate system functionality; concretely:
   definitions, and proofs, and
 \item a part of the HOL Light Library with 22 theories and over 2800 declarations.
 \end{compactenum}
-Already now, it is unique in its class in that it gives a unified interface to multiple
-theorem prover libraries together with linguistic and educational resources. Now that the
-ground work has been laid, we anticipate the rapid integration of new semantic services,
-editing support and new content.
+
+Already now, this set of archives is unique in its class in that it gives a
+unified interface to multiple theorem prover libraries together with linguistic
+and educational resources. Now that the ground work has been laid, we anticipate
+the rapid integration of new semantic services, editing support and new content.
 
 
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "report"
 %%% End: 
-
-% LocalWords:  maketitle KohDavGin pswads11 planetmath tntbase concl emph mkm05 lt92 ge
-% LocalWords:  printbibliography newpart ednote hlt08 btc07 Lawvere thy-grph tn biform tp
-% LocalWords:  seq ldots vdots noindent subtheory tikzpicture tdots thygraph cn funsat le
-% LocalWords:  cdots ts1 ts2 tsdots tsn realm-mk realmref textbf realmref circ funsattac
-% LocalWords:  compactenum highlevel wrapfigure vspace yscale textsf KohIan redge rcedge
-% LocalWords:  ssmk12 defemph subseteq tpc12 RabKoh hookrightarrow xscale leadsto atp ci2
-%  LocalWords:  KarMer ftg79 ttg59 slcirc circsl scriptscriptstyle invsl defeq mmtthy rm
-%  LocalWords:  flatthy boxedquote varphi varphi bigraph mmtar medskip includeleft nmmtar
-%  LocalWords:  pviewleft Kleisli mpd11 compactenumla overline lsl esl mapsto mapsto mapsto
-%  LocalWords:  StaKoh tlcspx10 ppte12 Rabe omdoc orga mmt athematical uments odular gl
-%  LocalWords:  CodHorKoh palai11 pgfdeclareimage tikzstyle pgfuseimage broswer Broswer
-%  LocalWords:  jobad footnotesize texttt lmh ocal ath ub SMGloM termbase sec:mathhub
-%  LocalWords:  Realization sec:arch realized Kohlhase:ppte12 GitLab:on fig:arch drupal
-%  LocalWords:  centering 8cm,shade cylinder,cylinder 50,cylinder 0.25,draw system,right
-%  LocalWords:  system,above system,below database,below GLR:WebSvcActMathDoc09 drupal:on
-%  LocalWords:  Rabe:MAGMS13,uniformal:on 8cm,shade 50,cylinder 0.25,draw

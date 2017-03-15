@@ -13,10 +13,9 @@
 \makeatletter\def\blx@maxline{77}\makeatother
 
 \deliverable{component-architecture}{scscp-sage}
-\deliverydate{02/27/2017}
-\duedate{02/27/2017 (Month 18)}
-\def\pn{OpenDreamKit}
-\author{ }
+\deliverydate{02/28/2017}
+\duedate{02/28/2017 (Month 18)}
+\author{Luca De Feo, Alexander Konovalov, Steve Linton, Tom Wiesing}
 
 \begin{document}
 \maketitle
@@ -189,7 +188,7 @@ do not exist or provide too verbose and inefficient encoding.
 The SCSCP package implements both an SCSCP client and a server. 
 The client is capable of establishing the connection with the specified server
 at the specified port; sending the {\tt procedure\_call} message to
-the server in both blocking and non-blocking moders; and fetching
+the server in both blocking and non-blocking modes; and fetching
 response in the form of the {\tt procedure\_completed} or
 {\tt procedure\_terminated} message. 
 
@@ -281,8 +280,8 @@ uniformly by \Singular and other systems.
 
 \subsection{MMT/MathHub}
 
-MMT supports both OpenMath syntax and the SCSCP protocol. A seperate SCSCP
-functionality for MathHub is not neccessary, as it is already powered by MMT and
+MMT supports both OpenMath syntax and the SCSCP protocol. A separate SCSCP
+functionality for MathHub is not necessary, as it is already powered by MMT and
 thus any SCSCP communication can easily go via MMT instead.
 
 Unlike with other systems MMT Terms are already OpenMath objects with a few
@@ -304,7 +303,7 @@ The client functionality allows MMT to first encode an MMT term
 (i.e. any object) as an OpenMath object, then have any SCSCP server
 perform a computation on this object, and finally receive the response
 and translate it back into an MMT term.  Furthermore, the server
-functionality allows MMT to expose computational funcionality to other
+functionality allows MMT to expose computational functionality to other
 systems.  In this situation, it again receives an OpenMath object,
 translates it as an MMT object, performs some computation, and returns
 the result as an OpenMath object.
@@ -318,10 +317,12 @@ implementation and update in the future.  Thus we are considering to
 migrate away from our own implementation and instead simply write a
 Scala wrapper around the pre-existing Java Implementation.
 
-
-%Appendices \ref{mmt-simple-example-SCSCP} and \ref{mmt-advanced-example} show two simple examples of the implemented SCSCP Client functionality. 
-%The first one showS how the Scala Implementation of the SCSCP Client can connect to an external server, the second one shows the translation from an MMT term into an OpenMath term, a computation with it, and a translation back into an MMT term. 
-Appendix \ref{mmt-simple-example-SCSCP} shows a simple example of how an SCSCP Client from within scala can connect to a GAP scscp server.  
+Appendices \ref{mmt-simple-example-SCSCP} and \ref{mmt-adv-example-SCSCP} 
+show two examples of the implemented SCSCP Client functionality. The first 
+one shows how the Scala implementation of the SCSCP Client can connect to an 
+external server, the second one again shows such a connection, but this time
+starts out within MMT, goes through the procedure described above and then 
+receives a result as an MMT term. 
 
 \section{Examples and use cases}\label{examples}
 
@@ -370,7 +371,7 @@ SCSCP client in GAP communicates with the Python 3 server
 to operate with matrices and polynomials using the NumPy
 library. For example, the calculation of the rank and
 determinant of an integer matrix also has a well-performing
-implementation in GAPr, but it may be interesting to run
+implementation in GAP, but it may be interesting to run
 it in Python to check the reproducibility of the result.
 The other example in this Appendix uses NumPy to calculate
 floating-point approximations of complex roots of a 
@@ -436,18 +437,29 @@ Discrete Mathematics held in the UK in 2015 and 2016
 
 \section{Conclusions and future work}
 
-TODO
+SCSCP implementation forms the 1st step of Task T3.2 ``Interfaces
+between systems'' and in particular builds foundation for D3.9
+``Semantic-aware \Sage interface to GAP'', as well as feeding into
+many activities under Workpackage~6. While undertaking this work, we
+have identified a number of new activities which may flow from
+it, either within Workpackage~2 (dissemination) or as part of other
+projects beyond OpenDreamKit, increasing the impact of the project.
 
-Write how this feeds into further workpackages
-
-Dissemination: reach out to wider Python communities,
-in particular to SciPy, SymPy, NumPy communities.
-
-Establishing implementations/APIs for Julia, maybe other languages?
-
-Transferred SCSCP specification to OpenMath society and license it 
-under \software{W3C Software and document notice and license}.
-
+First, due to establishing pure Python packages for OpenMath and SCSCP
+instead of implementing them directly in \Sage, we are now able to
+reach out to wider Python communities, in particular to users and
+developers of {\sf NumPy}, {\sf SciPy}, {\sf SymPy} and other
+scientific libraries that may need to provide or consume computational
+services via SCSCP. Also, we would like to establish similar
+implementations for other languages which may be used as interface
+languages to various scientific libraries. We plan to start this with the
+Julia language due to its importance for the new DFG-funded project
+``Symbolic Tools in Mathematics and Their Application'' which will
+develop the OSCAR system, based on Julia. Finally, to ensure that the
+SCSCP standard will be properly maintained in the future, we plan to
+publish the stable SCSCP specification through the OpenMath society
+and license it for general use
+under the terms of the ``W3C Software and document notice and license''.
 
 \printbibliography
 
@@ -469,7 +481,7 @@ under \software{W3C Software and document notice and license}.
 \section{Example: SCSCP client in \Sage connecting to GAP server}\label{SageMath-to-GAP}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{examples/SageMath-to-GAP.pdf}
 
-\section{Example: SCSCP client in Python3 calculates Groebner basis with \Singular}\label{Python3sympy-to-GAP-Singular}
+\section{Example: SCSCP client in Python3 calculates Gro\"obner basis with \Singular}\label{Python3sympy-to-GAP-Singular}
 \includepdf[pages=-,scale=0.85,pagecommand={}]{examples/Python3sympy-to-GAP-Singular.pdf}
 \includepdf[pages=-,scale=0.85,pagecommand={}]{examples/gap_singular_server.pdf}
 
@@ -486,13 +498,13 @@ under \software{W3C Software and document notice and license}.
 \label{Parallel-GAP-SCSCP}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{READMEs/Parallel-GAP-SCSCP.pdf}
 
-\section{Example: SCSCP Client from within  Scala}
+\section{Example: SCSCP Client in Scala connecting to GAP server}
 \label{mmt-simple-example-SCSCP}
 \includepdf[pages=-,scale=0.9,pagecommand={}]{examples/MMT_simple_client_example.pdf}
 
-%\section{Example: SCSCP Client from within MMT}
-%\label{mmt-advanced-example}
-%TODO: Finish this example
+\section{Example: SCSCP Client in MMT connecting to GAP server}
+\label{mmt-adv-example-SCSCP}
+\includepdf[pages=-,scale=0.9,pagecommand={}]{examples/MMT_adv_client_example.pdf}
 
 \end{document}
 

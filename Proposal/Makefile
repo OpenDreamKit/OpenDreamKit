@@ -46,7 +46,7 @@ draft:  $(SRC)
 
 grantagreement:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W proposal.tex all
-	pdftk grantagreement.pdf cat 1-32 58-end output grantagreement-striped.pdf
+	pdftk grantagreement.pdf cat 1-33 59-end output grantagreement-striped.pdf
 	mv grantagreement-striped.pdf grantagreement.pdf
 
 
@@ -102,6 +102,14 @@ TOWRITE: *.tex */*.tex
 
 TAGS: *.tex */*.tex
 	etags *.tex */*.tex
+
+# Proposal metadata in YAML format, in particular for the web page
+final.pdata.yaml: final.pdata
+	../bin/pdata-latex-to-yaml $< > $@
+
+install-proposal-metadata: final.pdata.yaml
+	cp $< ../WWW/_data/proposal.yml
+	cd ../WWW/_data; git pull; git add proposal.yml; git commit -m "Updated proposal metadata" proposal.yml; git push
 
 CollaborativeWritingOfTheOpenDreamKitProposal.mp4:
 	gource -s .4 -1280x720 --auto-skip-seconds .4 --multi-sampling --stop-at-end --highlight-users --hide mouse,progress --file-idle-time 0 --max-files 80 --background-colour 111111 --font-size 20 --title "Collaborative writing of the OpenDreamKit European H2020 proposal" --output-ppm-stream - --output-framerate 60 | avconv -y -r 60 -f image2pipe -vcodec ppm -i - -b 8192K $@

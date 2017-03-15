@@ -1,24 +1,48 @@
 #!/usr/bin/python3
 
+# Converts a pdata database file as produced by latex on our proposal
+# into a yaml file containing a dictionnary that one can easily use
+# programmatically, e.g. in our web site.
+#
+# Each line:
+#     \@pdata@def{key1}{key2}{key3}{value}
+# contributes to the resulting directory `t` so that
+#     t["key1"]["key2"]["key3"] = value
+#
+# Furthermore, keys containing @ are split into subkeys:
+#     \@pdata@def{key1}{foo@bar}{key3}{value}
+# contributes
+#     t["key1"]["foo"]["bar"]["key3"] = value
+
 import fileinput
 import re
 import yaml
 
 db = {}
 separator = re.compile("}{|@")
+strip_latex = re.compile(r"\\text(sc|bf|tt) *{|\\xspace *(?=['.,])|\\xspace |\\href *{[^}]*}|\\")
+
 for line in fileinput.input():
-    match = re.match("\\\\@pdata@def{(.*)}", line)
+    match = re.match(r"\\@pdata@def{(.*)}", line)
     if match:
-        data = re.split(separator, match.group(1))
+        s = match.group(1)
+        s = re.sub(strip_latex, "", s)
+        l = re.split("}{", s)
+        value = l.pop()
+        # Finish stripping latex from the value
+        value = re.sub("[{}]", "", value)
+        keys  = [k for key in l for k in re.split("@", key)]
+        #print(match.group(1), "----", match.group(2))
+        #print(keys, value)
         ref = db
-        while len(data) > 2:
-            key = data[0]
-            data = data[1:]
+        while len(keys) > 1:
+            key = keys[0]
+            keys = keys[1:]
             if key in ref:
                 ref = ref[key]
             else:
                 ref[key] = {}
                 ref = ref[key]
-        ref[data[0]] = data[1]
+        ref[keys[0]] = value
 
 print(yaml.dump(db))
