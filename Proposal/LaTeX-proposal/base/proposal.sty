@@ -54,13 +54,14 @@
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0.4pt}
 \else
-\fancyhead[RE,LO]{\prop@gen@acronym}
+\fancyhead[RE,LO]{\ifx\prop@gen@acronym\@empty\else\prop@gen@acronym\fi}
 \fancyhfoffset{0pt}
 \fi
 \fancyfoot[C]{}
 \newcommand\prop@of@pages[2]{page~#1\ifofpage~of~#2\fi}
 \ifgrantagreement
-\fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym\quad --\quad Part B}
+\fancyfoot[L]{\prop@gen@proposalnumber%
+\ifx\prop@gen@acronym\@empty\else\quad \prop@gen@acronym\fi\quad --\quad Part B}
 \fancyfoot[R]{\thepage}
 \else
 \fancyhead[LE,RO]{\prop@of@pages\thepage{\pdataref@num{prop}{page}{last}}}
@@ -72,7 +73,7 @@
 \begin{center}
   {\LARGE \prop@gen@instrument}\\[.2cm]
   {\LARGE\textbf{\prop@gen@title}}\\[.3cm]
-  {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+  \ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]\fi
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
     \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\
@@ -986,15 +987,12 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
        \jorga $\hat=$ organization, \jsoft $\hat=$ software/resource dev,
        \jsup $\hat=$ supervision}\\\hline
 \end{tabular}}
-
 \newskip\@bigflushglue \@bigflushglue = -100pt plus 1fil
-
 \def\bigcenter{\trivlist \bigcentering\item\relax}
 \def\bigcentering{\let\\\@centercr\rightskip\@bigflushglue%
 \leftskip\@bigflushglue
 \parindent\z@\parfillskip\z@skip}
 \def\endbigcenter{\endtrivlist}
-
 \define@key{coherencetable}{swsites}[true]{\def\cht@swsites{#1}}
 \define@key{coherencetable}{stretch}{\def\cht@stretch{#1}}
 \newcommand\coherencetable[1][]{%
