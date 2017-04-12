@@ -59,7 +59,7 @@
   \gdef\deliv@title{\csname deliv@#1@#2@title\endcsname}
   \gdef\deliv@lead{\csname deliv@#1@#2@lead\endcsname}
   \gdef\deliv@issue{\csname deliv@#1@#2@issue\endcsname}
-  \def\@title{{Report on \pn deliverable \deliv@label{}\\[.2cm]%
+  \def\@title{{Report on {\pn} deliverable \deliv@label{}\\[.2cm]%
       \deliv@title
     }}%
   \def\shorttitle{Report on \deliv@label}}
