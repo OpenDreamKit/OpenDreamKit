@@ -697,13 +697,14 @@
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0.4pt}
 \else
-\fancyhead[RE,LO]{\prop@gen@acronym}
+\fancyhead[RE,LO]{\ifx\prop@gen@acronym\@empty\else\prop@gen@acronym\fi}
 \fancyhfoffset{0pt}
 \fi
 \fancyfoot[C]{}
 \newcommand\prop@of@pages[2]{page~#1\ifofpage~of~#2\fi}
 \ifgrantagreement
-\fancyfoot[L]{\prop@gen@proposalnumber\quad \prop@gen@acronym\quad --\quad Part B}
+\fancyfoot[L]{\prop@gen@proposalnumber%
+\ifx\prop@gen@acronym\@empty\else\quad \prop@gen@acronym\fi\quad --\quad Part B}
 \fancyfoot[R]{\thepage}
 \else
 \fancyhead[LE,RO]{\prop@of@pages\thepage{\pdataref@num{prop}{page}{last}}}
@@ -851,7 +852,7 @@
 \begin{center}
   {\LARGE \prop@gen@instrument}\\[.2cm]
   {\LARGE\textbf{\prop@gen@title}}\\[.3cm]
-  {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+  \ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]\fi
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
     \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\
@@ -1533,6 +1534,8 @@
 \define@key{deliv}{short}{\def\deliv@short{#1}}
 \define@key{deliv}{lead}{\def\deliv@lead{#1}}
 \define@key{deliv}{issue}{\def\deliv@issue{#1}}
+\define@key{deliv}{status}{\def\deliv@status{#1}}
+\define@key{deliv}{blog}{\def\deliv@blog{#1}}
 %    \end{macrocode}
 % The |\wpdeliv| macro cycles over the due dates and generates the relevant entries into
 % the deliverables file. The first step is to write the general metadata to the pdata
@@ -1562,11 +1565,14 @@
 \@ifundefined{deliv@lead}
 {\protect\G@refundefinedtrue\@latex@warning{key 'lead' for Deliv \wpg@id  undefined}}
 {\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{lead}{\deliv@lead}}
+\@ifundefined{deliv@due}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{due}{\deliv@due}}
+\@ifundefined{deliv@issue}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
+\@ifundefined{deliv@status}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{status}{\deliv@status}}
+\@ifundefined{deliv@blog}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{blog}{\deliv@blog}}
 %    \end{macrocode}
 % Then we iterate over the due dates and generate an entry for teach of them.
 %    \begin{macrocode}
 \@ifundefined{deliv@due}{}{%
-\@ifundefined{deliv@issue}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
 {\@I}% due date
@@ -2470,16 +2476,24 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % 
 % \begin{macro}{\coherencetable}
 %    \begin{macrocode}
+\newskip\@bigflushglue \@bigflushglue = -100pt plus 1fil
+\def\bigcenter{\trivlist \bigcentering\item\relax}
+\def\bigcentering{\let\\\@centercr\rightskip\@bigflushglue%
+\leftskip\@bigflushglue
+\parindent\z@\parfillskip\z@skip}
+\def\endbigcenter{\endtrivlist}
 \define@key{coherencetable}{swsites}[true]{\def\cht@swsites{#1}}
 \define@key{coherencetable}{stretch}{\def\cht@stretch{#1}}
 \newcommand\coherencetable[1][]{%
 \def\cht@swsites{false}%
 \def\cht@stretch{1}%
 \setkeys{coherencetable}{#1}%
-\begin{table}[ht]\centering%
+\begin{table}[ht]%
 \small\setlength{\tabcolsep}{.5em}%
 \renewcommand{\arraystretch}{\cht@stretch}%
+\begin{bigcenter}%
 \coherencematrix%
+\end{bigcenter}%
 \caption{\coherence@caption}\label{tab:collaboration}
 \end{table}}
 %    \end{macrocode}
