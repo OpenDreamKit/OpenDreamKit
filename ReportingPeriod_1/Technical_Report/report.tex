@@ -350,29 +350,29 @@ Moreover, at Southampton, we have started to create interactive notebooks that s
 
   \subsubsection{WorkPackage 5}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
-  Key results for WorkPackage 5 are the following:
+
+  Workpackage 5 is about the developpment of high performance computing tools in
+  mathematical virtual research environments. It is first adressed at the level
+  of each kernel library composing the computational tools of the project (PARI,
+  GAP, LinBox, Singular, MPIR), but the question of interfacing and exposition
+  of core parallel features to higher level programming interfaces is also
+  adressed.
+  
+
+  Key results obtained over the period for WorkPackage 5 are the following:
   \begin{enumerate}
   \item fine grain parallelization of matrix Fast Fourier Transform code in
     \FLINT, delivering high and scalable performances.
   \item Parallelization of  relation  Sieving code in FLINT.
   \item Cython now relies on Pythran to compile and vectorize numpy code.
-  \item A new super-optimizer for vectorized assembly code and its ouput for
-    MPIR: code with improved perfomances.
+  \item A new super-optimizer for vectorized assembly code and its ouput for MPIR: code with improved perfomances.
   \end{enumerate}
 \paragraph{\longtaskref{hpc}{hpc-pari}}
 
 \paragraph{\longtaskref{hpc}{hpc-gap}}
 
 \paragraph{\longtaskref{hpc}{hpc-linbox}}
-As mentioned in the initial proposal, work on \taskref{hpc}{hpc-linbox} (LinBox) is just
-  starting in September 2016 instead of December 2015, as the members of this group had
-  already too many PM involved in other projects. However this will not not have any
-  impact on the workplan as the PM will be doubled in the three first trimesters of year
-  4.
 
-  A first workshop on HPC will be organized in March 2017 in Grenoble, France. A smaller
-  workshop may possibly be organized in December 2016, to gather participants involved in
-  the development and Pythran.
 
   \paragraph{\longtaskref{hpc}{hpc-singular}}
 
@@ -390,25 +390,43 @@ As mentioned in the initial proposal, work on \taskref{hpc}{hpc-linbox} (LinBox)
   \paragraph{\longtaskref{hpc}{hpc-combi}}
 
   \paragraph{\longtaskref{hpc}{hpc-pythran}}
-After \delivref{hpc}{sage-paral-tree} was delivered, \longtaskref{hpc}{pythran} is
-  making good progress towards the development of Pythran and its interaction with~\Sage.
-%
-  More precisely, Pythran's typing system (\delivref{hpc}{pythran-typing}) has been
-  improved in two ways: first, the compiler now more accurately tracks the identifier
-  $\leftrightarrow$ value binding, which in turns makes it possible to generate strongly
-  typed code for a wider class of Python kernels.  Second, an unsound type checker for
-  Pythran has been developed. It provides human-readable error report when a type error is
-  detected at compile time, when a cryptic internal error was previously reported. Both
-  algorithms have been extensively detailed in separated blog posts and the resulting
-  implementation is part of the official Pythran 0.8.0 release
-  (\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/117}{details}).
 
-  The start of Deliverable~\delivref{hpc}{pythran-sage} has been delayed from Month 12 to
-  Month 18 due to the difficulty of hiring an engineer for the task.  It is now making
-  good progress.
+Mathematical software, such as \Sagemath, intensively rely on the Python
+language for its expressivity. In order to harness most of a CPU computing
+efficiency, critical code in such interpreted languages need to be compiled into
+C code. This is precisely what \Cython and \Pythran are offering. the former
+supports a broad range Python constructs, while the latter focuses on optimizing
+numpy constructs for linear algebra.
+The purpose of this task is to
+\begin{enumerate}
+\item\label{pythran:cython} implement a convergence between these two compilers
+\item\label{pythran:sage} and expose the new capacity to optimize numpy code to the developers and
+  users of \SageMath.  
+\end{enumerate}
+
+Concerning target~\ref{pythran:cython}, the delivery of \delivref{hpc}{pythran-sage} successfully implements the
+proposed convergence: \Cython is now able to delegate compilation tasks to
+\Pythran whenever \Numpy code is detected. In practice, benchmark show that
+resulting code executes faster. For instance computing euclidean norm of a large
+floating point vector is sped up by a factor of 2.5 without vectorization and
+a factor 3.7 with AVX2 vectorization enabled.
+
+As for target~\ref{pythran:sage}, a technical lock is that \Pythran's analysis
+of \Python typing used to be too weak to support the breadth of Object Oriented
+programming style of \SageMath. Deliverable \delivref{hpc}{pythran-typing}
+addressed this issue by strongly enhancing \Pythran's type inference system in two ways: first, the compiler now more accurately tracks the identifier
+$\leftrightarrow$ value binding, which in turns makes it possible to generate strongly
+typed code for a wider class of Python kernels.  Second, an unsound type checker for
+Pythran has been developed. It provides human-readable error report when a type error is
+detected at compile time, when a cryptic internal error was previously reported. Both
+algorithms have been extensively detailed in separated blog posts and the resulting
+implementation is part of the official Pythran 0.8.0 release.
+
+Further work on \Pythran's intgeration to \SageMath and the exposition of
+parallelism via \Cilk++ is still in progress and should be delivered in
+\delivref{hpc}{cython-pythran-cilk} at M24.
 
   \paragraph{\longtaskref{hpc}{hpc-jupyter}}
-
   
 
   
