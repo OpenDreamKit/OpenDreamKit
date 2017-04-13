@@ -3,6 +3,17 @@
 \author{Luca De Feo, Michael Kohlhase, Min Ragan-Kelley, Dmitrii Pasechnik, Clément
   Pernet, Benoît Pilorget, Viviane Pons, and Nicolas M. Thiéry}
 
+\usepackage[style=alphabetic,backend=biber]{biblatex}
+\addbibresource{../../lib/kbibs/kwarcpubs.bib}
+\addbibresource{../../lib/kbibs/extpubs.bib}
+\addbibresource{../../lib/kbibs/kwarccrossrefs.bib}
+\addbibresource{../../lib/kbibs/extcrossrefs.bib}
+\addbibresource{../../lib/deliverables.bib}
+\addbibresource{../../lib/publications.bib}
+%\addbibresource{local.bib}
+% temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
+\makeatletter\def\blx@maxline{77}\makeatother
+
 \begin{document}
 \oldmaketitle
 \tableofcontents\newpage
@@ -317,24 +328,37 @@ The objective of WorkPackage 4 is to provide modern, robust, and flexible user i
 computation, supporting real-time sharing, integration with collaborative problem-solving,
 multilingual documents, paper writing and publication, links to databases, etc. This work is focused primarily around the \Jupyter project, in the form of:
 
+% TODO: for each item, add links to the relevant tasks / deliverables
 \begin{itemize}
     \item Enhancing existing \Jupyter tools
     \item Building new tools in the \Jupyter ecosystem
-    \item Improving the use of of \ODK projects in \Jupyter and \Sage environments
+    \item Improving the use of \ODK projects % projects or components? Maybe integration rather than use?
+      in \Jupyter and \Sage environments
     \item Work on Active Documents, which have some goals in common with \Jupyter notebooks
 \end{itemize}
 
 \paragraph{\longtaskref{UI}{ipython-kernels}}
 
-The first task for this workpackage is to enable the use of Jupyter as uniform notebook interface
-for the relevant computational components. \longdelivref{UI}{ipython-kernel-sage} has been
-delivered, providing a \Sage kernel for Jupyter. \delivref{UI}{ipython-kernels-basic} has been
-delivered, providing Jupyter kernels for GAP, Pari, and Singular. Progress was
-particularly fast for the \Sage kernel thanks to a very active involvement of the community; this
-will enable, in the coming months, a systematic transition from the legacy \Sage notebook system to
-\Jupyter; this is a particularly important achievement: beside all the benefits of a uniform and
-actively developed interface for the user, outsourcing the maintenance of the notebook interface
-will save the \Sage community much needed resources.
+The first task for this workpackage is to enable the use of \Jupyter
+as uniform notebook interface for the relevant computational
+components. \delivref{UI}{ipython-kernels-basic} has been delivered,
+providing basic \Jupyter kernels for \GAP, \Pari, \Sage, and
+\Singular. They are being further improved in preparation for
+\longdelivref{UI}{ipython-kernels}.
+
+\longdelivref{UI}{ipython-kernel-sage} has been delivered, further
+enhancing \Sage's \Jupyter integration and preparing for the
+systematic transition from the legacy custom-built \Sage notebook
+application to \Jupyter in the coming months. Beside all the benefits
+of a uniform and actively developed interface for the user,
+outsourcing the maintenance of this key but non disciplinary component
+will save the \Sage community much needed resources and is an
+important step toward the sustainability of \ODK's ecosystem
+(Objective 5).
+
+Progress was particularly fast thanks to a very active involvement of
+the \Sage community.
+
 
 
 \paragraph{\longtaskref{UI}{notebook-collab}}
@@ -346,7 +370,7 @@ and has been met with enthusiasm from the scientific Python community for its pr
 longstanding difficulty in working with notebooks.
 
 The JupyterHub package has received significant updates and further development, specifically a
-Services extension point, which enables shared workspaces for collaboration, a step on the path
+\emph{Services extension point}, which enables shared workspaces for collaboration, a step on the path
 toward real-time collaboration for \delivref{UI}{jupyter-live-collab}.
 
 \paragraph{\longtaskref{UI}{notebook-verification}}
@@ -356,14 +380,19 @@ which enables testing and verification of existing notebooks via a plugin to the
 framework pytest. nbval integrates with nbdime from \delivref{UI}{jupyter-collab} to deliver
 testable, reproducible notebooks via traditional software development testing practices.
 
+% TODO: could mention the relevant ODK objective
+
 \paragraph{\longtaskref{UI}{sage-sphinx}}
 
+% TODO: the wording could probably be improved a bit
 As part of the Sage Days 77 workshop, the opportunity was taken to bootstrap the long term work of
 \href{https://wiki.sagemath.org/days77/documentation}{refactoring the Sage documentation build
 system} for \longdelivref{UI}{sage-sphinx} in collaboration with a Sphinx developer. A great deal
 of work has been done toward the goal of sustainability \Sage's vast documentation, including
 improving reproducibility of builds, updating contents, and increasing reliance on
-community-standard tools instead of less maintainable bespoke implementations. Improving the maintainability of the \Sage documentation is an important part of ensuring high quality documentation going forward.
+community-standard tools instead of less maintainable bespoke
+implementations. Improving the maintainability of the \Sage
+documentation build system is an important part of ensuring high quality documentation going forward.
 
 % \paragraph{\longtaskref{UI}{dynamic-inspect}} Due M36 (D4.16)
 
@@ -574,7 +603,26 @@ updates \Sage to LinBox-1.4.2 after a long and technical review process).
 
   \paragraph{\longtaskref{hpc}{hpc-combi}}
 
-  TODO
+  The goal of this task is to use combinatorics as a source of challenges to
+  experiment on various HPC techniques. In the first
+  deliverable~\longdelivref{hpc}{sage-paral-tree}, we successfully implement a
+  MapReduce programming model one a large dataset described by a recursion
+  tree, which is to big to fit in memory. After chasing around some bug on
+  MacOS posix support, the code was integrated in Sage (Trac Ticket 13580) and
+  presented at the «journée du groupe de travail LaMHA» at Université Pierre et
+  Marie Curie on November the 26th of 2016.
+
+  Since it's written purely in Python, the code doesn't well perform when the
+  computation in each node is short. A good technology for this seems to be
+  Cilk++, and we are currently doing experiment whose goal is to have a two
+  stage parallel computation, where Cilk++ is doing the load balancing on a
+  machine (shared memory) and Python the load balancing among machines. As a
+  base for our experiment, we are working on a the enumeration of numerical
+  monoids; indeed, it is a very challenging problem as the explored recursion
+  tree is extremely unbalanced. We currently are able to have a code
+  generating and process 50Gio/s on a single 8 core i7 machine. When the
+  problem of re-balancing the work among several machines will be solved we
+  hope to be able to have throughput higher than 1To/s on a network of machines.
 
   \paragraph{\longtaskref{hpc}{pythran}}
 
@@ -766,8 +814,7 @@ TODO
 
   For \taskref{social-aspects}{social-input},
   \longdelivref{social-aspects}{social-datareport} analysing in particular the state of
-  affairs in our model system \Sage, is well on track to be delivered at Month 18, with
-  Part I ready.
+  affairs in our model system \Sage, has been delivered on time.
 
   For \longtaskref{social-aspects}{isocial-decisionmaking},
   \delivref{social-aspects}{social-tracaddon} is largely ready and is to be tested on the
@@ -778,7 +825,10 @@ TODO
   of reproducibility, crowdsourcing, and a VRE as a mean to test and control the former: a
   paper \cite{2016arXiv160100181C} analysing a concrete well-established area of
   combinatorics in this respect, and describing the implementation of the corresponding
-  meta-database in \Sage system has been published.
+  meta-database in \Sage system has been published. Another paper \cite{2016arXiv160301710P},
+  again touching upon reproducibility and correctness of mathematical results, and
+  utilizing extensive computations in \GAP has been published.
+  .
 
   \subsection{Impact}
   % Include in this section whether the information on section 2.1 of the DoA (how your
@@ -989,6 +1039,9 @@ had on them.
   % available by the third party respectively against payment or free of charges f)
   % explanation of the circumstances which caused the need for using these resources for
   % carrying out the work.
+
+\newpage
+\printbibliography
 
 \end{document}
 
