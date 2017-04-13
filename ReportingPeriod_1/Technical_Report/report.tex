@@ -229,7 +229,9 @@ We have organized the first Women in Sage conference in Europe, inviting 20 wome
 planned throughout the project. It gathered a large mathematic community in ICMS, Edinburgh, in collaboration with the CoDiMa project.
 \item \textbf{Jupyter Day in Orsay.} This one day training event in Orsay was fully booked shortly after it was announced, testifying of the growing interest of the community for the Jupyter project. It featured demos and talks from experts of the field as well as an afternoon of tutorials. 
 \item \textbf{Other training and communication activities.} The participants of OpenDreamKit are very active
-in spreading their knowledge and the project news to the different open source and mathematical communities they belong to. We count 11 talks on the website. We have been present to many major events: PyCon, EuroScyPy, CICM, CoDiMa school and more. 
+in spreading their knowledge and the project news to the different open source
+and mathematical communities they belong to. We count 11 talks on the
+website. We have been present to many major events: PyCon, EuroScyPy, CICM, ISSAC, CoDiMa school and more. 
 \end{compactitem}
 
 \paragraph{\longtaskref{dissem}{project-intro}}
@@ -507,20 +509,25 @@ will also be \Sage's default way of providing the \Pari interface.
 
   Workpackage 5 is about the development of high performance computing tools in
   mathematical virtual research environments. It is first adressed at the level
-  of each kernel library composing the computational tools of the project (PARI,
-  GAP, LinBox, Singular, MPIR), but the question of interfacing and exposing
+  of each kernel library composing the computational tools of the project (\Pari,
+  \GAP, \Linbox, \Singular, \MPIR), but the question of interfacing and exposing
   core parallel features to higher level programming interfaces is also
   adressed.
   
 
   Key results obtained over the period for WorkPackage 5 are the following:
-  \begin{enumerate}
-  \item fine grain parallelisation of matrix Fast Fourier Transform code in
+  \begin{compactitem}
+  \item A closer integration of \LinBox in \Sage with improved reliability and
+    computing efficiency.
+  \item A fine grain parallelisation of matrix Fast Fourier Transform code in
     \FLINT, delivering high and scalable performances.
-  \item Parallelization of  relation  Sieving code in FLINT.
-  \item \Cython now relies on \Pythran to compile and vectorize \Numpy code.
-  \item A new super-optimizer for vectorized assembly code and its ouput for MPIR: code with improved perfomances.
-  \end{enumerate}
+  \item Parallelization of relation  Sieving code in FLINT.
+  \item A new super-optimizer for vectorized assembly code and its ouput for
+    MPIR: code with improved perfomances.
+  \item A MapReduce framework implementation to parallelize huge (out of core) datasets from
+    combinatorics presented as recursion trees.
+  \item \Cython now relies on \Pythran to compile and vectorize \Numpy code.  
+  \end{compactitem}
 
 \paragraph{\longtaskref{hpc}{hpc-pari}}
 The generic paralellization engine in the \Pari C-library
@@ -529,6 +536,8 @@ and~\delivref{hpc}{pari-hpc1}
 will be delivered on time on month 24.
 
 \paragraph{\longtaskref{hpc}{hpc-gap}}
+
+TODO
 
 \paragraph{\longtaskref{hpc}{hpc-linbox}}
 
@@ -544,10 +553,10 @@ Progress on deliverable~\delivref{hpc}{LinBox-algo} is twofold:
 active (\href{https://trac.sagemath.org/ticket/17635}{Ticket \#17635} finally
 updates \Sage to LinBox-1.4.2 after a long and technical review process).
 \item Several algorithmic innovations have been produced: more efficient
-  representation for quasiseparable matrices, and the new developments on
+  representation for quasiseparable matrices~\cite{Per16}, and the new developments on
   interactive certificates for the security of large scale distributed
-  computations on unsafe resources. Both results have been presented at the
-  main conference in the field, ISSAC'17.
+  computations on unsafe resources~\cite{DKV16,DLP17}. Both results have or will be presented at the
+  main conference in the field, ISSAC'16 and ISSAC'17.
 \end{itemize}
 
   \paragraph{\longtaskref{hpc}{hpc-singular}}
@@ -572,9 +581,15 @@ updates \Sage to LinBox-1.4.2 after a long and technical review process).
   of Deliverable~\delivref{hpc}{MPIRsuperoptimiser}. Here again, experiments
   demonstrate a strong improvement in practice for the new code produced.
 
-  Deliverable~\delivref{hpc}{QS-linalg}
-  happens at several levels, and this
-  task focuses on
+  Deliverable~\delivref{hpc}{QS-linalg} now focuses one major type of
+  application of the library: relation sieving for factoring medium sized
+  integers. There, use of SIMD optimizations did not provide strong enough
+  improvements and the work mostly focused on the thread paralellization of the
+  reliation sieving. The resulting code in \Flint improves over \Pari's
+  implementation for lage enough integers (above 170 bits) in sequential already, and benefits
+  from a speed-up factor of a about 3 on 4 cores. On the contrary, the
+  parallelization of the block Wiedemann algorithm mostly benefitted from SIMD
+  optimizations and much less from multithreading.
 
   \paragraph{\longtaskref{hpc}{hpc-mpir}}
 
