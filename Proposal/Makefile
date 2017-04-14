@@ -46,7 +46,7 @@ draft:  $(SRC)
 
 grantagreement:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W proposal.tex all
-	pdftk grantagreement.pdf cat 1-33 59-end output grantagreement-striped.pdf
+	pdftk grantagreement.pdf cat 1-34 60-end output grantagreement-striped.pdf
 	mv grantagreement-striped.pdf grantagreement.pdf
 
 
