@@ -14,13 +14,16 @@
 % temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
 \makeatletter\def\blx@maxline{77}\makeatother
 
+\makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Styling: adapt amsart's subsubsection macro to put a newline after the title
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\makeatletter
 \renewcommand\subsubsection{\@startsection{subsubsection}{2}%
   \z@{.5\linespacing\@plus.7\linespacing}{.1\linespacing}%
   {\normalfont\bfseries}}
+
+% Variant of taskref that links to the section on the task in this file
+\newcommand\localtaskref[2]{\hyperref[#1@#2]{\csname task@#1@#2@label\endcsname}}
 \makeatother
 
 \begin{document}
@@ -34,8 +37,130 @@
 %(No page limit per workpackage but report shall be concise and readable. Any duplication should be avoided).
 
 \subsection{Objectives}
-
 %List the specific  objectives  for  the  project  as  described  in  section  1.1  of  Part B   and describe  the  work  carried  out  during  the  reporting  period  towards  the  achievement  of  each listed objective. Provide clear and measurable details.
+
+For reference, let us remind the three aims of \ODK.
+\begin{compactenum}[\textbf{Aim} 1:]
+\item \label{aim:collaboration} Improve the productivity of
+  researchers in pure mathematics and applications by promoting
+  collaborations based on mathematical \textbf{software},
+  \textbf{data}, and \textbf{knowledge}.
+\item \label{aim:vre} Make it easy for teams of researchers of any
+  size to set up custom, collaborative \emph{Virtual Research
+    Environments} tailored to their specific needs, resources and
+  workflows. The \VREs should support the entire life-cycle of
+  computational work in mathematical research, from initial
+  exploration to publication, teaching and outreach.
+  % and bridge the gaps between
+  % code, published results, and educational material.
+\item \label{aim:sharing} Identify and promote best practices in
+  computational mathematical research including: making results easily
+  reproducible; producing reusable and easily accessible
+  software; sharing data in a semantically sound way; exploiting and
+  supporting the growing ecosystem of computational tools.
+\item \label{aim:impact} Maximise sustainability and impact in
+  mathematics, neighbouring fields, and scientific computing.
+\end{compactenum}
+
+Those aims are backed up in our proposal by nine objectives; we now
+highlight our main contributions during this reporting period toward
+achieving each of them.
+
+\begin{compactenum}[\textbf{Objective} 1:]
+\item\label{objective:framework} ``To develop and standardise an
+  architecture allowing combination of mathematical, data and software
+  components with off-the-shelf computing infrastructure to produce
+  specialised \VREs for different communities.''
+
+
+\item\label{objectives:core} ``To develop open source core components
+  for \VREs where existing software is not suitable. These components
+  will support a variety of platforms, including standard cloud
+  computing and clusters. This primarily addresses Aim~\ref{aim:vre},
+  thereby contributing to Aim \ref{aim:collaboration}
+  and~\ref{aim:sharing}.''
+
+
+\item \label{objective:community} ``To bring together research
+  communities (e.g. users of \Jupyter, \Sage, \Singular, and \GAP) to
+  symbiotically exploit overlaps in tool creation building efforts,
+  avoid duplication of effort in different disciplines, and share best
+  practice. This supports Aims~\ref{aim:collaboration},
+  \ref{aim:sharing} and~\ref{aim:impact}.''
+
+
+
+\item \label{objective:updates} ``Update a range of existing open source
+  mathematical software systems for seamless deployment and efficient
+  execution within the VRE architecture of objective~\ref{objective:framework}.
+  This fulfills part of Aim~\ref{aim:vre}.''
+
+  Achievements include:
+  \begin{itemize}
+  \item Packaging efforts: Docker containers (delivered and
+    regularly updated), Debian and Conda packages (beta); see
+    \localtaskref{component-architecture@mod-packaging}.
+  \item Portability of \Sage and its dependencies on Windows (beta);
+    see \localtaskref{component-architecture}{portability}.
+  \item Integration of all the relevant mathematical software in the
+    uniform \Jupyter user interface, in particular for integration in
+    the VRE framework (delivered, ongoing); see
+    \localtaskref{UI}{ipython-kernels}.
+  \item Ongoing work in WorkPackage 5 to better support HPC in the
+    individual mathematical software system and combinations thereof;
+    see Section~\ref{wp5}.
+  \end{itemize}
+
+\item \label{objective:sustainable} ``Ensure that our ecosystem of
+  interoperable open source components is \emph{sustainable} by
+  promoting collaborative software development and outsourcing
+  development to larger communities whenever suitable. This fulfills
+  part of Aims~\ref{aim:sharing} and~\ref{aim:impact}.''
+
+  Achievements include:
+  \begin{itemize}
+  \item Outsourcing of the \Sage user interface by migrating to
+    \Jupyter (delivered); see \localtaskref{UI}{ipython-kernels};
+  \item Refactoring \Sage's documentation build system to contribute
+    many local developments upstream (\Sphinx)
+    \localtaskref{UI}{sage-sphinx} (ongoing);
+  \item Outsourcing and contributing upstream as \Python bindings the
+    existing \Sage bindings for many computational systems (delivered,
+    ongoing); see \taskref{UI}{pari-python}.
+  \end{itemize}
+
+\item \label{objective:social} ``Promote collaborative mathematics and
+  science by exploring the social phenomena that underpin these
+  endeavours: how do researchers collaborate in Mathematics and
+  Computational Sciences?  What can be the role of \VREs?  How can
+  collaborators within a VRE be credited and incentivised? This
+  addresses parts of Aims~\ref{aim:sharing}, \ref{aim:collaboration},
+  and~\ref{aim:vre}.''
+
+  \TODO{Dima}
+
+\item \label{objective:data} ``Identify and extend ontologies and
+  standards to facilitate safe and efficient storage, reuse,
+  interoperation and sharing of rich mathematical data whilst taking
+  account of provenance and citability. This fulfills parts of
+  Aims~\ref{aim:vre} and~\ref{aim:sharing}.''
+
+\item \label{objective:demo} ``Demonstrate the effectiveness of Virtual
+  Research Environments built on top of \ODK components for a
+  number of real-world use cases that traverse domains. This addresses
+  part of Aim~\ref{aim:vre} and through documenting best practice in
+  reproducible demonstrator documents Aim~\ref{aim:sharing}.''
+
+%Long term sustainability
+\item \label{objective:disseminate} ``Promote and disseminate
+  \ODK to the scientific community by active communication,
+  workshop organisation, and training in the spirit of open-source
+  software. This addresses Aim~\ref{aim:impact}.''
+
+  This objective is at the core of WorkPackage 2, with in particular
+  22 meetings, developer and training workshops organized during the
+  first reporting period. See Section~\ref{wp2} for details.
+\end{compactenum}
 
 \subsection{Explanation of the work carried per Work Package}
 \subsubsection{Work Package 1: Project Management}
@@ -156,6 +281,7 @@ According to the Consortium Agreement, all AB members have signed a Non-Disclosu
 
 \clearpage
   \subsubsection{WorkPackage 2:  Community Building, Training, Dissemination, Exploitation, and Outreach}
+\label{wp2}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
   As planned in \longtaskref{dissem}{dissemination-communication} and
@@ -282,6 +408,8 @@ common goals and main differences.
 
 \clearpage
   \subsubsection{WorkPackage 3:  Component Architecture}
+  \label{component-architecture@mod-packaging}
+  \label{component-architecture@portability}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
   The first task of this workpackage is to improve the portability of computational
   components \longtaskref{component-architecture}{portability}. A particular challenge is
@@ -527,12 +655,10 @@ is \Sage's default way of providing the \Pari interface.
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
   Workpackage 5 is about the development of high performance computing tools in
-  mathematical virtual research environments. It is first adressed at the level
+  mathematical virtual research environments. It is addressed at the level
   of each kernel library composing the computational tools of the project (\Pari,
-  \GAP, \Linbox, \Singular, \MPIR), but the question of interfacing and exposing
-  core parallel features to higher level programming interfaces is also
-  adressed.
-  
+  \GAP, \Linbox, \MPIR, \Sage, \Singular, ...), and also at the level of interfacing and exposing
+  core parallel features to higher level programming interfaces.
 
   Key results obtained over the period for WorkPackage 5 are the following:
   %% Only list deliverables produced in the reporting period
@@ -542,11 +668,11 @@ is \Sage's default way of providing the \Pari interface.
   \item A fine grain parallelisation of matrix Fast Fourier Transform code in
     \FLINT, delivering high and scalable performances.
   \item Parallelization of relation  Sieving code in FLINT.
-  \item A new super-optimizer for vectorized assembly code and its ouput for
-    MPIR: code with improved perfomances.
+  \item A new super-optimizer for vectorized assembly code and its
+    exploitation to improve the performances of the MPIR code.
   \item A MapReduce framework implementation to parallelize huge (out of core) datasets from
     combinatorics presented as recursion trees.
-  \item \Cython now relies on \Pythran to compile and vectorize \Numpy code.
+  \item \Cython can now use \Pythran to compile and vectorize \Numpy code.
   \item A new Sun Grid Engine notebook spawner for \Jupyter to drive
     interractive computations on HPC clusters from a Jupyter notebook.
   \end{compactitem}
@@ -556,48 +682,53 @@ is \Sage's default way of providing the \Pari interface.
 No deliverable is due for the reporting period.
 The generic paralellization engine in the \Pari C-library
 has reached its maturity. It is now part of the standard releases of \Pari
-and~\delivref{hpc}{pari-hpc1}
+and~\longdelivref{hpc}{pari-hpc1}
 will be delivered on time on month 24.
 
 \paragraph{\longtaskref{hpc}{hpc-gap}}
 
 No deliverable is due for the evaluation period but steady progress was made on
-Deliverable~\delivref{hpc}{GAP-HPC-report}. Over this period, 6 releases were cut
-incorporating contributions to Deliverable~\delivref{component-architecture}{hpc-configure}.
+Deliverable~\longdelivref{hpc}{GAP-HPC-report}. Over this period, six releases were cut
+incorporating contributions to Deliverable~\longdelivref{component-architecture}{hpc-configure}.
 
-Another major direction of efforts was HPC-GAP integration, and the first step
-towards this long-standing goal which is in the core of
-Task~\taskref{hpc}{hpc-gap} is the next
-major release of GAP 4.9, planned in 2017 and allowing compilation in HPC-GAP
-compatibility mode. The progress towards this release could be tracked in GAP
-4.9.0 milestone on GitHub: \url{https://github.com/gap-system/gap/milestone/4}. 
-A culmination of the work in this direction was merging of the new build system, 
-mainly developed by our external collaborator Max Horn (Giessen) into the master 
-branch during Sage-GAP-Days-85 in March 2017. Some GAP packages also required
-updates to work in GAP 4.9.
+Another major direction of efforts is the HPC-GAP integration:
+HPC-GAP is a fork of \GAP initiated during the \scienceproject project, which
+enables multithreaded calculations. Now that HPC-GAP has reached
+maturity, it's critical for its widespread use and long term
+maintenability to merge it back into \GAP's master branch.
+The first step towards this long-standing goal, which is at the core of
+Task~\taskref{hpc}{hpc-gap}, is the next
+major release of \GAP 4.9, planned in 2017 and allowing compilation in HPC-GAP
+compatibility mode. The progress towards this release can be tracked on the \GAP
+4.9.0 milestone on GitHub: \url{https://github.com/gap-system/gap/milestone/4}.
+A culmination of the work in this direction was the merge of a major
+refactorisation of \GAP's build system
+mainly developed by our external collaborator Max Horn (Giessen) into \GAP's master
+branch during the Sage-GAP-Days-85 we organized in March 2017. Some
+\GAP packages also required updates to work in \GAP 4.9.
 
 \paragraph{\longtaskref{hpc}{hpc-linbox}}
 
 %As initially scheduled, work on LinBox started in Fall 2016 and
-No deliverable
-is due for this evaluation period. The design of
-a domain specific language (DSL) exposing parallel features through the library
-stack up to the \Sage interface (deliverable~\delivref{hpc}{LinBox-DSL}) is
-making good progress, and the demonstrator code for matrix inverse over a finite field is under review.
+No deliverable is due for this evaluation period. The design of a
+domain specific language (DSL) exposing parallel features through the
+library stack up to the \Sage interface is making good progress
+(deliverable~\longdelivref{hpc}{LinBox-DSL}); the demonstrator code
+for matrix inverse over a finite field is under review.
 %
-Progress on deliverable~\delivref{hpc}{LinBox-algo} is twofold:
+Progress on deliverable~\longdelivref{hpc}{LinBox-algo} is twofold:
 \begin{compactitem}
 \item Maintenance, and close integration of the Library with \Sage has been
 active (\href{https://trac.sagemath.org/ticket/17635}{Ticket \#17635} finally
 updates \Sage to LinBox-1.4.2 after a long and technical review process).
 \item Several algorithmic innovations have been produced: a new matrix invariant
   for rank profiles~\cite{DumPerSul:fcrpmgbd16}, more efficient
-  representation for quasiseparable matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and the new developments on
+  representation for quasiseparable matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on
   interactive certificates for the security of large scale distributed
   computations on unsafe
   resources~\cite{DumKalTho:lticmpdsm16,DumLucPer:cftearp17}. These results have or will
-  be presented in the main journal of conference venue in the domain:
-  ISSAC'16-17 and the Journal of Symbolic computation.
+  be presented in the main venues in the domain:
+  the international conference ISSAC'16-17 and the Journal of Symbolic computation.
 \end{compactitem}
 
   \paragraph{\longtaskref{hpc}{hpc-singular}}
@@ -662,8 +793,8 @@ updates \Sage to LinBox-1.4.2 after a long and technical review process).
   The goal of this task is to use combinatorics as a source of challenges to
   experiment on various HPC techniques. In the first
   deliverable~\longdelivref{hpc}{sage-paral-tree}, we successfully implement a
-  MapReduce programming model one a large dataset described by a recursion
-  tree, which is too big to fit in memory. After chasing around some bug on
+  MapReduce programming model on large datasets described by a recursion
+  tree, which are too big to fit in memory. After chasing around some bug on
   MacOS posix support, the code was integrated in Sage (Trac Ticket 13580) and
   presented at the «journée du groupe de travail LaMHA» at Université Pierre et
   Marie Curie on November the 26th of 2016.
@@ -680,6 +811,8 @@ updates \Sage to LinBox-1.4.2 after a long and technical review process).
   generating and process 50Gio/s on a single 8 core i7 machine. When the
   problem of re-balancing the work among several machines will be solved we
   hope to be able to have throughput higher than 1To/s on a network of machines.
+  To this end, we are also experimenting with the \texttt{Spark}
+  technology for distributed computations.
 
   \paragraph{\longtaskref{hpc}{pythran}}
 
@@ -692,20 +825,20 @@ supports a broad range \Python constructs, while the latter focuses on optimizin
 The purpose of this task is to
 \begin{enumerate}
 \item\label{pythran:cython} implement a convergence between these two compilers
-\item\label{pythran:sage} and expose the new capacity to optimize numpy code to
+\item\label{pythran:sage} expose the new capacity to optimize \Numpy code to
   the developers and  users of~\Sage.
 \end{enumerate}
 
-Concerning target~\ref{pythran:cython}, the delivery of \delivref{hpc}{pythran-sage} successfully implements the
+Concerning target~\ref{pythran:cython}, the delivery of \longdelivref{hpc}{pythran-sage} successfully implements the
 proposed convergence: \Cython is now able to delegate compilation tasks to
-\Pythran whenever \Numpy code is detected. In practice, benchmark show that
+\Pythran whenever \Numpy code is detected. In practice, benchmarks show that
 resulting code executes faster. For instance computing euclidean norm of a large
 floating point vector is sped up by a factor of 2.5 without vectorization and
 a factor 3.7 with AVX2 vectorization enabled.
 
 As for target~\ref{pythran:sage}, a technical lock is that \Pythran's analysis
 of \Python typing used to be too weak to support the breadth of Object Oriented
-programming style of \Sage. Deliverable \delivref{hpc}{pythran-typing}
+programming style of \Sage. Deliverable \longdelivref{hpc}{pythran-typing}
 addressed this issue by strongly enhancing \Pythran's type inference system in two ways: first, the compiler now more accurately tracks the identifier
 $\leftrightarrow$ value binding, which in turns makes it possible to generate strongly
 typed code for a wider class of \Python kernels.  Second, an unsound type checker for
@@ -716,7 +849,7 @@ implementation is part of the official \Pythran 0.8.0 release.
 
 Further work on \Pythran's integration to \Sage and the exposition of
 parallelism via \software{Cilk++} is still in progress and should be delivered in
-\delivref{hpc}{cython-pythran-cilk} at M24.
+\longdelivref{hpc}{cython-pythran-cilk} at M24.
 
   \paragraph{\longtaskref{hpc}{hpc-jupyter}}
   
@@ -724,10 +857,10 @@ It is common for academic High Performance Computing (HPC) clusters to make
 use of schedulers based on Sun Grid Engine with Son of Grid Engine as one of
 the most popular. It is used, for example, on the institutional HPC systems
 in the Universities of Sheffield and Manchester in the UK. It is also used
-on the regional N8 HPC facility, a system shared by the 8 most research
+on the regional N8 HPC facility, a system shared by the eight most research
 intensive universities in the North of England.
 
-In deliverable~\delivref{hpc}{SGE-jupyter}, we have developed and demonstrated a Sun Grid Engine
+In deliverable~\longdelivref{hpc}{SGE-jupyter}, we have developed and demonstrated a Sun Grid Engine
 notebook spawner for Project Jupyter, allowing users to easily access
 Jupyter notebooks on HPC clusters directly from the web-browser. This
 development allows users with no background in High Performance Computing to
