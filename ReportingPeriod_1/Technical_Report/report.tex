@@ -1,7 +1,30 @@
 \documentclass{deliverablereport}
-\title{Periodic Technical Report I (18 Months)}
+\title{Periodic Technical Report I (18 Months), Part B}
 \author{Luca De Feo, Michael Kohlhase, Min Ragan-Kelley, Dmitrii Pasechnik, Clément
   Pernet, Benoît Pilorget, Viviane Pons, and Nicolas M. Thiéry}
+
+\usepackage[style=alphabetic,backend=biber]{biblatex}
+\addbibresource{../../lib/kbibs/kwarcpubs.bib}
+\addbibresource{../../lib/kbibs/extpubs.bib}
+\addbibresource{../../lib/kbibs/kwarccrossrefs.bib}
+\addbibresource{../../lib/kbibs/extcrossrefs.bib}
+\addbibresource{../../lib/deliverables.bib}
+\addbibresource{../../lib/publications.bib}
+%\addbibresource{local.bib}
+% temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
+\makeatletter\def\blx@maxline{77}\makeatother
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Styling: adapt amsart's subsubsection macro to put a newline after the title
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\subsubsection{\@startsection{subsubsection}{2}%
+  \z@{.5\linespacing\@plus.7\linespacing}{.1\linespacing}%
+  {\normalfont\bfseries}}
+
+% Variant of taskref that links to the section on the task in this file
+\newcommand\localtaskref[2]{\hyperref[#1@#2]{\csname task@#1@#2@label\endcsname}}
+\makeatother
 
 \begin{document}
 \oldmaketitle
@@ -14,11 +37,194 @@
 %(No page limit per workpackage but report shall be concise and readable. Any duplication should be avoided).
 
 \subsection{Objectives}
-
 %List the specific  objectives  for  the  project  as  described  in  section  1.1  of  Part B   and describe  the  work  carried  out  during  the  reporting  period  towards  the  achievement  of  each listed objective. Provide clear and measurable details.
 
+For reference, let us recall the aims of \ODK.
+\begin{compactenum}[\textbf{Aim} 1:]
+\item \label{aim:collaboration} Improve the productivity of
+  researchers in pure mathematics and applications by promoting
+  collaborations based on mathematical \textbf{software},
+  \textbf{data}, and \textbf{knowledge}.
+\item \label{aim:vre} Make it easy for teams of researchers of any
+  size to set up custom, collaborative \emph{Virtual Research
+    Environments} tailored to their specific needs, resources and
+  workflows. The \VREs should support the entire life-cycle of
+  computational work in mathematical research, from initial
+  exploration to publication, teaching and outreach.
+  % and bridge the gaps between
+  % code, published results, and educational material.
+\item \label{aim:sharing} Identify and promote best practices in
+  computational mathematical research including: making results easily
+  reproducible; producing reusable and easily accessible
+  software; sharing data in a semantically sound way; exploiting and
+  supporting the growing ecosystem of computational tools.
+\item \label{aim:impact} Maximise sustainability and impact in
+  mathematics, neighbouring fields, and scientific computing.
+\end{compactenum}
+
+Those aims are backed up in our proposal by nine objectives; we now
+highlight our main contributions during this reporting period toward
+achieving each of them.
+
+\begin{compactenum}[\textbf{Objective} 1:]
+\item\label{objective:framework} ``To develop and standardise an
+  architecture allowing combination of mathematical, data and software
+  components with off-the-shelf computing infrastructure to produce
+  specialised \VREs for different communities.''
+
+  This objective is by nature multilevel; achievements include:
+  \begin{itemize}
+  \item Collaborative workspaces: major \JupyterHub developments,
+    see~\longtaskref{UI}{notebook-collab}; study and documentation of
+    the \SMC architecture, see
+    \longtaskref{component-architecture}{extract-smc};
+  \item User interface level: enabling \Jupyter as uniform interface
+    for all computational components; see
+    \localtaskref{UI}{ipython-kernels}.
+  \item Interfaces between computational or database components: short
+    term: refactoring of existing ad-hoc interfaces, see
+    \localtaskref{UI}{pari-python}; long term: investigation of
+    patterns to share data, ontologies, and semantics uniformly across
+    components, see
+    \localtaskref{component-architecture}{interface-systems}, and
+    Section~\ref{dksbases} about \WPref{dksbases}.
+  \end{itemize}
+
+\item\label{objectives:core} ``To develop open source core components
+  for \VREs where existing software is not suitable. These components
+  will support a variety of platforms, including standard cloud
+  computing and clusters. This primarily addresses Aim~\ref{aim:vre},
+  thereby contributing to Aim \ref{aim:collaboration}
+  and~\ref{aim:sharing}.''
+
+  At this stage, it has been possible to implement most of the
+  required developments within existing components or extensions
+  thereof. New software components includes the tools nbmerge, nbdiff and nbval
+  (see \delivref{UI}{jupyter-test} and \delivref{UI}{jupyter-collab}).
+
+\item \label{objective:community} ``To bring together research
+  communities (e.g. users of \Jupyter, \Sage, \Singular, and \GAP) to
+  symbiotically exploit overlaps in tool creation building efforts,
+  avoid duplication of effort in different disciplines, and share best
+  practice. This supports Aims~\ref{aim:collaboration},
+  \ref{aim:sharing} and~\ref{aim:impact}.''
+
+  We have organized or coorganized a dozen users or developers
+  workshops (see~\localtaskref{dissem}{devel-workshops}) which brought
+  together several communities. Some key outcomes include:
+  \begin{itemize}
+  \item Enabling \Jupyter as uniform interface for all computational
+    components; see \localtaskref{UI}{ipython-kernels}.
+  \item Sharing best practices for packaging and building
+    containers;
+    see~\localtaskref{component-architecture}{mod-packaging};
+  \item A smooth collaboration between \JupyterHub and \SMC;
+    see~\localtaskref{component-architecture}{extract-smc} and
+    Section~\ref{infrastructures};
+  \item Work on interfaces between systems; see
+    \localtaskref{component-architecture}{interface-systems} and
+    \localtaskref{UI}{pari-python};
+  %\item Steps toward \localtaskref{UI}{sage-sphinx}
+  \item Sharing best practices when using VRE's like \SMC or \Jupyter
+    for research and education.
+  \end{itemize}
+
+\item \label{objective:updates} ``Update a range of existing open source
+  mathematical software systems for seamless deployment and efficient
+  execution within the VRE architecture of objective~\ref{objective:framework}.
+  This fulfills part of Aim~\ref{aim:vre}.''
+
+  Achievements include:
+  \begin{itemize}
+  \item Packaging efforts: Docker containers (delivered and
+    regularly updated), Debian and Conda packages (beta); see
+    \localtaskref{component-architecture}{mod-packaging}.
+  \item Portability of \Sage and its dependencies on Windows (beta);
+    see \localtaskref{component-architecture}{portability}.
+  \item Integration of all the relevant mathematical software in the
+    uniform \Jupyter user interface, in particular for integration in
+    the VRE framework (delivered, ongoing); see
+    \localtaskref{UI}{ipython-kernels}.
+  \item Ongoing work in \WPref{hpc} to better support HPC in the
+    individual mathematical software system and combinations thereof;
+    see Section~\ref{hpc}.
+  \end{itemize}
+
+\item \label{objective:sustainable} ``Ensure that our ecosystem of
+  interoperable open source components is \emph{sustainable} by
+  promoting collaborative software development and outsourcing
+  development to larger communities whenever suitable. This fulfills
+  part of Aims~\ref{aim:sharing} and~\ref{aim:impact}.''
+
+  Achievements include:
+  \begin{itemize}
+  \item Outsourcing of the \Sage user interface by migrating to
+    \Jupyter (delivered); see \localtaskref{UI}{ipython-kernels};
+  \item Refactoring \Sage's documentation build system to contribute
+    many local developments upstream (\Sphinx)
+    \localtaskref{UI}{sage-sphinx} (ongoing);
+  \item Outsourcing and contributing upstream as \Python bindings the
+    existing \Sage bindings for many computational systems (delivered,
+    ongoing); see \taskref{UI}{pari-python}.
+  \end{itemize}
+
+\item \label{objective:social} ``Promote collaborative mathematics and
+  science by exploring the social phenomena that underpin these
+  endeavours: how do researchers collaborate in Mathematics and
+  Computational Sciences?  What can be the role of \VREs?  How can
+  collaborators within a VRE be credited and incentivised? This
+  addresses parts of Aims~\ref{aim:sharing}, \ref{aim:collaboration},
+  and~\ref{aim:vre}.''
+
+  This objective is at the core of \WPref{social-aspects}; see
+  Section~\ref{social-aspects} for details.
+  Achievements include:
+  \begin{itemize}
+  \item Methodology, data, and tools needed to assess
+    development models of academic open-source systems have been surveyed in
+    \delivref{social-aspects}{social-datareport}.
+  \item Game-theoretic aspects of ways to incentivise
+  collaboration are studied---ongoing, also see \cite{Pavlou:2016:MCI:2936924.2936934}.
+  \item Implementing in \Sage constructions from the database of
+  strongly regular graphs by Andries Brouwer, see paper \cite{2016arXiv160100181C}.
+  \end{itemize}
+
+
+\item \label{objective:data} ``Identify and extend ontologies and
+  standards to facilitate safe and efficient storage, reuse,
+  interoperation and sharing of rich mathematical data whilst taking
+  account of provenance and citability. This fulfills parts of
+  Aims~\ref{aim:vre} and~\ref{aim:sharing}.''
+
+  This objective is at the core of \WPref{dksbases}; see
+  Section~\ref{dksbases} for details. \TODO{Michael: flesh up}
+
+\item \label{objective:demo} ``Demonstrate the effectiveness of Virtual
+  Research Environments built on top of \ODK components for a
+  number of real-world use cases that traverse domains. This addresses
+  part of Aim~\ref{aim:vre} and through documenting best practice in
+  reproducible demonstrator documents Aim~\ref{aim:sharing}.''
+
+  Most of the work toward this objective is by nature planned for
+  later in the project execution. Nevertheless, work has started e.g.
+  toward the OOMMF demonstrator; see
+  \localtaskref{dissem}{dissemination-of-oommf-nb-virtual-environment}
+  \localtaskref{dissem}{dissemination-of-oommf-nb-workshops},
+  \localtaskref{component-architecture}{oommf-python-interface}.
+
+%Long term sustainability
+\item \label{objective:disseminate} ``Promote and disseminate
+  \ODK to the scientific community by active communication,
+  workshop organisation, and training in the spirit of open-source
+  software. This addresses Aim~\ref{aim:impact}.''
+
+  This objective is at the core of \WPref{dissem}, with in particular
+  22 meetings, developer and training workshops organized during the
+  first reporting period. See Section~\ref{dissem} for details.
+\end{compactenum}
+
 \subsection{Explanation of the work carried per Work Package}
-\subsubsection{Work Package 1: Management}
+\subsubsection{Work Package 1: Project Management}
 
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
@@ -44,6 +250,18 @@ Key results of WP1 include:
 \item{An Advisory Board and Quality Review Board were set up to control the quality and the relevance of the software development relative to the end-user needs.}
 \end{itemize}
 
+Concerning the recruitment: the strategies we used (tayloring of the
+positions according to the known pool of potential candidates, in
+particular among previous related projects, strong advertisement, ...)
+seem to have paid off, and we are really happy with the top notch
+quality of our recruits. However, despite many steps to foster women
+applications to apply (e.g. through reaching personally toward
+potential candidates or including women in the committees), we had
+almost no female candidate, and none made it to the short list. This
+is alas unsurprising in the very tight segment of experienced research
+software engineers for mathematics on temporary positions which is
+highly gender imbalanced; this is nevertheless a failure.
+
 \paragraph{\longtaskref{management}{project-finance-management}}
 
 A consortium agreement was signed
@@ -67,31 +285,35 @@ breakdown of costs at the middle of the Reporting Period. This exercise aimed at
 from partners early on and to make sure partners do follow the EC
 rules for the eligibility of costs. The coordinator is therefore confident that all partners will be able to declare their costs for this Reporting Period.
 
-\site{PS} also lead the amendment number AMD-676541-5 which added to the consortium \site{UG}, and is currently leading the amendment number AMD-676541-13 for the addition of two new sites: Friedrich-Alexander Universität Erlangen-Nürnberg and the new laboratory European XFEL. The addition of these three new partners is due to the moving of key permanent and/or non-permanent researchers who are key personnel for the success of \ODK. A collateral effect is the termination of \site{SO}' participation to the consortium because no relevant staff for \ODK remained in this institution.
+\site{PS} also lead the amendment number AMD-676541-5 which added to the consortium \site{UG}, and is currently leading the amendment number AMD-676541-13 for the addition of two new sites: Friedrich-Alexander Universität Erlangen-Nürnberg and the new laboratory European XFEL. The addition of these three new partners is due to the moving of key permanent and/or non-permanent researchers who are key personnel for the success of \ODK. A collateral effect is the termination of \site{USO}'s participation to the consortium because no relevant staff for \ODK remained in this institution.
 \site{UG} has recently agreed to sign this Consortium Agreement
 without any modification to it.
 
 
-Concerning the communication, intern communication tools are explicated in \longdelivref{management}{infrastructure}.
-As for external communication the website for the project has been continuously
+Concerning the communication, intern communication tools are described
+in \longdelivref{management}{infrastructure}. As for external
+communication the website for the project has been continuously
 updated with new content, and virtually all work in progress is openly
 accessible on the Internet to external experts and contributors (for
-example through open source software on Github). A new version of the website was released on the 15/03/2017. Its end-user friendly interface and content makes it a tool turned towards dissemination rather than internal communication.
+example through open source software on Github). A new version of the
+website was released on the 15/03/2017. Its end-user friendly
+interface and content makes it a tool not only for internal
+communication but very much for dissemination and progress tracking by
+the reviewers and the community.
 
- 
 Furthermore \longdelivref{management}{data-plan1} gave a first version of the management of data produced \ODK. Propositions for the improvement of \delivref{management}{data-plan1}are made in Section 2 of this document. 
 
 
 \paragraph{\longtaskref{management}{project-quality-management}}
 
 
-TODO
-
 The Quality Assurance Plan is described in detail in \longdelivref{management}{ipr}. We will describe the main points below.
-\site{PS} launched a Quality Review Board which is chaired by Hans Fangohr. The four members of the board have a track record of caring about the quality in software for computational science. This board is responsible for ensuring key deliverables do reach their original goal and that best practice were in the writing process as well as in the innovation production process.
+\site{PS} launched a Quality Review Board which is chaired by Hans Fangohr. The four members of the board have a track record of caring about the quality of software in computational science. This board is responsible for ensuring key deliverables do reach their original goal and that best practice is followed in the writing process as well as in the innovation production process.
 The board will meet after the end of each Reporting Period (RP), and before the Review following that RP.
 
-The other tool enabling \ODK to ensure the quality of the infrastructure is the End-user group that is composed of some members of the Advisory Board (AB). It is composed of seven members:
+The other structure supporting \ODK to ensure the quality of the
+infrastructure is the End-user group that is composed of some members
+of the Advisory Board. It is composed of seven members:
 
 \begin{itemize}
 \item{Lorena Barba from the George Washington University}
@@ -103,39 +325,56 @@ The other tool enabling \ODK to ensure the quality of the infrastructure is the 
 \item{Paul Zimmermann from the INRIA}
 \end{itemize}
 
-This AB being composed of Academics and/or software developers from different backgrounds, countries and communities, it will be a strong asset to understand the needs of a variety of end-user profiles. This Technical Report for the first Reporting Period will be the first occasion to ask for their feedback on the potential of the VRE and of our strategy to promote its use around the world.
-According to the Consortium Agreement, all AB members have signed a Non-Disclosure Agreement with the consortium.
+This Advisory Board being composed of Academics and/or software
+developers from different backgrounds, countries and communities, it
+will be a strong asset to understand the needs of a variety of
+end-user profiles. This Technical Report for the first Reporting
+Period will be the first occasion to ask for their feedback on the
+potential of the VRE and our strategy to promote its use around the
+world. According to the Consortium Agreement, all Advisory Board
+members have signed a lightweight Non-Disclosure Agreement with the
+consortium.
 
-\site{PS} has also been managing risks. In \delivref{management}{ipr} all potential risks were assessed by the Coordinator. The risk concerning the recruitment of highly qualified staff has been globally well managed thanks to a flexible workplan enabling the delay of some tasks or deliverables, and thanks to legal actions taken by the Coordinator to allow key personnel permanent and non-permanent researchers to remain in the Consortium even though their positions changed. The addition of the three partners is representative of these actions.
-
-%+ other risks!!! @Nicolas 
+\site{PS} has also been managing risks. In \delivref{management}{ipr}
+all potential risks were assessed by the Coordinator at Month 12. Here
+is a brief update on Risk 1 concerning the recruitment of highly
+qualified staff. This risk has been globally well managed thanks to a
+flexible workplan enabling adjustments in the timing of some tasks or
+deliverables, and thanks to legal actions taken by the Coordinator to
+allow key personnel, permanent or not, to remain in the Consortium
+even though their positions changed. The addition of the three
+partners is representative of these actions. The assessment for the
+other risks remain valid at Month 18, and we refer to
+\delivref{management}{ipr} for details.
 
 \paragraph{\longtaskref{management}{project-innovation-management}}
 
 \longdelivref{management}{imp1} was produced at month 18 and is mainly focused on: 
 
 \begin{itemize}
-\item{The opensource aspect of the innovation produced within \ODK}
+\item{The open source aspect of the innovation produced within \ODK}
 \item{The various implementation processes the project is dealing with}
 \item{The strategy to match end-users needs with the promoted VRE}.
 \end{itemize}
 
   The second version of the Innovation Management Plan will add content to explain all the
-  innovations that the VRE is bringing to end-users. However the opensource approach and
-  the "by users for users" development process will not change.  As it was stated above,
-  one of the risks for \ODK is to have different groups not forming effective teams. Put
+  innovations that the VRE is bringing to end-users. However the open source approach and
+  the "by users for users" development process will not change.  One
+  of the assessed risks for \ODK is to have different groups not forming effective teams. Put
   in other words, having developers of the different pieces of software working solely for
   the benefit of the programme they were initially working on and for. This risk is
   tackled by the Coordinator in order to reach the final goals of the VRE which are the
-  unification of opensource tools with overlapping functionality, the simplification of
+  unification of open source tools with overlapping functionality, the simplification of
   the tools for end-users without coding expertise, and the development of user-friendly
-  interfaces. For this, the Scientific Coordinator is wilfully pushing for joint
-  workshops. Even if it takes time to bend old implementation processes and coding habits,
+  interfaces. For this, the Scientific Coordinator is for example willfully pushing
+  for joint actions and
+  workshops. Even if it takes time to bend some of the old implementation processes and coding habits,
   more and actions are taken by \ODK participants from different communities to work
   together. More information on joint workshops can be found in the section below.
 
-
-  \subsubsection{WorkPackage 2}
+\clearpage
+  \subsubsection{WorkPackage 2:  Community Building, Training, Dissemination, Exploitation, and Outreach}
+\label{dissem}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
   As planned in \longtaskref{dissem}{dissemination-communication} and
@@ -176,11 +415,12 @@ page listing the different software which could eventually host training materia
 each software has its own tag which links to all related project activities.
 
 \paragraph{\longtaskref{dissem}{devel-workshops}}
+\label{dissem@devel-workshops}
 
 Development workshops are a key aspect of OpenDreamKit development model. The aim of these workshops is to bring together developers from the different communities to design and implement some 
 of the wanted features. As reported in \longdelivref{dissem}{workshops-1}, we have organized
 or co-organized 5 of these workshops during year 1 of the project. Since then, 2 more have happened. The thematics varies
-for each event: packaging and portability, Sage and Jupyter, Sage-Gap days, PARI/GP, knowledge representation, etc. To this,
+for each event: packaging and portability, Sage and Jupyter, Sage-GAP days, PARI/GP, knowledge representation, etc. To this,
 we can add 4 project meetings which we always turn into an occasion for more coding sprints and development
 discussions.
 
@@ -218,7 +458,9 @@ We have organized the first Women in Sage conference in Europe, inviting 20 wome
 planned throughout the project. It gathered a large mathematic community in ICMS, Edinburgh, in collaboration with the CoDiMa project.
 \item \textbf{Jupyter Day in Orsay.} This one day training event in Orsay was fully booked shortly after it was announced, testifying of the growing interest of the community for the Jupyter project. It featured demos and talks from experts of the field as well as an afternoon of tutorials. 
 \item \textbf{Other training and communication activities.} The participants of OpenDreamKit are very active
-in spreading their knowledge and the project news to the different open source and mathematical communities they belong to. We count 11 talks on the website. We have been present to many major events: PyCon, EuroScyPy, CICM, CoDiMa school and more. 
+in spreading their knowledge and the project news to the different open source
+and mathematical communities they belong to. We count 11 talks on the
+website. We have been present to many major events: PyCon, EuroScyPy, CICM, ISSAC, CoDiMa school and more. 
 \end{compactitem}
 
 \paragraph{\longtaskref{dissem}{project-intro}}
@@ -229,10 +471,12 @@ work on some OpenDreamKit software such as \Sage and \Jupyter. In particular, it
 We are also looking at nbgrader: at Southampton, the Jupyter Notebook and nbgrader were used to support teaching of large (~500 students) and more specialized engineering design teaching modules for students in the first year of their engineering degree programs.
 
 \paragraph{\longtaskref{dissem}{dissemination-of-oommf-nb-virtual-environment}}
+\label{dissem@dissemination-of-oommf-nb-virtual-environment}
 
 We created a GitHub organisation named JOOMMF, where the micro-magnetic VRE code is publicly hosted (\href{https://github.com/joommf}{JOOMMF repo}). For each JOOMMF package we use \href{https://travis-ci.org/joommf/discretisedfield}{continuous integration on Travis CI} where we perform tests and monitor the test coverage, which we then make available on \href{https://codecov.io/}{Codecov}. Documentation for each package consists of APIs (automatically generated from the code) and different tutorials created in Jupyter notebooks. Both of them are tested on Travis CI. Documentation is build and made publicly available on \href{http://discretisedfield.readthedocs.io}{Read the Docs}. After every major milestone, we upload each package to the Python Package Index repository. We encourage the early use of our software and invite for feedback for which we provide several different communication channels: Google group (joommf-news), \href{https://gitter.im/joommf/}{Gitter channel}, \href{https://github.com/joommf/help}{GitHub help repository}, \href{https://twitter.com/joommf}{Twitter account}, and a \href{http://joommf.github.io/}{website}.
 
 \paragraph{\longtaskref{dissem}{dissemination-of-oommf-nb-workshops}}
+\label{dissem@dissemination-of-oommf-nb-workshops}
 
 We had several workshops and tutorials so far where we demonstrated the use of our Micromagnetic VRE, received feedback and feature requests from the community:
 
@@ -258,59 +502,150 @@ on the best course of action to follow. We are looking closely at the \href{http
 project to compare it with the \href{http://sageindex.lipn.univ-paris13.fr/}{SageIndex} and understand their
 common goals and main differences.
 
-  \subsubsection{WorkPackage 3}
+\clearpage
+  \subsubsection{WorkPackage 3:  Component Architecture}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
-  The first task of this workpackage is to improve the portability of computational
-  components \longtaskref{component-architecture}{portability}. A particular challenge is
-  the portability of \Sage\ (and therefore all its dependencies) on Windows, which has
-  remained elusive for a decade, despite many efforts of the community. We are happy to
-  report that, in particular thanks to months of intensive and expert work by our recruit
-  Erik Bray at \site{PS}, this challenge is about to be tackled, almost one year before
-  the expected delivery time.
 
-  Task \taskref{component-architecture}{interface-systems} on interfaces between
-  mathematical systems is progressing as expected. Experimental work on a semantic
-  interface between \GAP and \Sage
-  (\delivref{component-architecture}{semantic-interface-sage-gap}, due on month 36) has
-  started during the joint GAP-Sage days, and a working prototype is already
-  available. The current prototype uses \emph{ad hoc} language mechanisms to transfer the
-  semantics from one system to the other; these mechanisms will be replaced with a generic
-  API (Application programming Interface) once the MitM (Math-in-the-Middle) approach
-  developed in WP6 will be mature enough. Meanwhile, a purely technical piece of the
-  puzzle has been already achieved as part of
-  \delivref{component-architecture}{scscp-sage}, bringing support for the SCSCP
-  protocol\footnote{SCSCP, the
-    \href{http://www.symbolic-computing.org/science/index.php/SCSCP}{Symbolic Computation
-      Software Composability Protocol} is a web protocol based on OpenMath enabling remote
-    procedure calls across computer algebra systems} to the Python ecosystem, and thus to
-  \Sage and its subsystems. This is instrumental for supporting the MitM approach.
+  \paragraph{\longtaskref{component-architecture}{portability}}
+  \label{component-architecture@portability}
+  The first task of this workpackage is to improve the portability of
+  computational components. A particular challenge is the portability
+  of \Sage\ (and therefore all its dependencies) on Windows, which has
+  remained elusive for a decade, despite many efforts of the
+  community.
 
-  After \longdelivref{component-architecture}{virtual-machines} was delivered, a focused
-  workshop in March (Sage Days 77) also triggered much work and progress on the packaging
-  side (\taskref{component-architecture}{mod-packaging}), both by \ODK participants and
-  the community. There is now good hope to have proper packages for \Sage (and its
-  dependencies) on the Debian distribution in the coming months, a feature that has been
-  desperately longed for for over a decade.  The workshop was also the occasion to clarify
-  the modularization, packaging, and distribution needs and challenges. Internal notes on
-  the progress made have been taken in the
-  \href{https://wiki.sagemath.org/days77/packaging}{\Sage wiki}, and a
-  \href{https://groups.google.com/forum/#!forum/sage-packaging}{mailing list specifically
-    dedicated to packaging \Sage} has been created.
+  No deliverable is due for the evaluation period, but we are happy to
+  report that Erik Bray of \site{PS} has made considerable progress on
+  \delivref{component-architecture}{portability-cygwin} by producing a
+  one-click Windows installer based on Docker. Although the Docker
+  based installer has proven itself a viable solution, our plan is
+  still to deliver a Cygwin-based installer on month 24. This project
+  is at a very advanced stage: we have a patched version of \Sage
+  compiling and runnning in Cygwin, and a beta version of the
+  installer was made available in December. We expect to deliver
+  \delivref{component-architecture}{portability-cygwin} on time.
 
-  Task \longtaskref{component-architecture}{oommf-python-interface} was to
-  provide a Python interface to the Object Oriented Micromagnetic Framework
-  (OOMMF). This allows to access the capabilities of this package as one
-  component of a virtual research environment, together with the existing
-  ecosystem of scientific python libraries and tools. The task has been
-  completed and the resulting software is available online on
-  \href{https://github.com/joommf/oommfc}{github} and through the Python
-  packaging index under the name \texttt{oommfc}. The interface has been presented to users in the
-  micromagnetic community through our dissemination workshops 
-  (\taskref{dissem}{dissemination-of-oommf-nb-virtual-environment}). This task is part of of a
-  number of steps towards a virtual research environment for micromagnetic
-  simulations (\delivref{dissem}{oommfnb-vre-deliver}).
+  \paragraph{\longtaskref{component-architecture}{interface-systems}}
+  \label{component-architecture@interface-systems}
+  In this task we investigate patterns to share data, ontologies,
+  and semantics across computational systems, possibly connected
+  remotely.
 
-\subsubsection{WorkPackage 4}
+  The
+  \href{http://www.symbolic-computing.org/science/index.php/SCSCP}{Symbolic
+    Computation Software Composability Protocol (SCSCP)} is a remote
+  procedure call protocol by which a computer algebra system (CAS) may
+  offer services to a variety of possible clients, including e.g.\
+  another CAS running on the same computer system or remotely. The
+  goal of \delivref{component-architecture}{scscp-sage} was to bring
+  SCSCP support to all relevant components of \ODK. Thanks to the
+  joint efforts of \site{SA}, \site{UV}, \site{JU}, \site{UG} and
+  \site{UB}, SCSCP is now supported in \GAP, \Sage and \MathHub, and
+  plans have been made to extend support to \Singular and \PariGP at
+  an appropriate time. 
+
+  This task benefits from the work done in
+  Task~\taskref{UI}{pari-python} on low level interfaces to software
+  components. In particular, the results of
+  deliverables~\delivref{UI}{pari-python-lib1}
+  and~\delivref{UI}{pari-python-lib2} will be crucial to supporting
+  SCSCP in \PariGP.
+
+  Furthermore, experimental work on a semantic interface between \GAP
+  and \Sage
+  (\delivref{component-architecture}{semantic-interface-sage-gap}, due
+  on month 36) has started during the joint GAP-Sage days, and a
+  working prototype is already available. The current prototype uses
+  \emph{ad hoc} language mechanisms to transfer the semantics from one
+  system to the other; these mechanisms will be replaced with a
+  generic API (Application programming Interface) once the MitM
+  (Math-in-the-Middle) approach developed in WP6 will be mature
+  enough.
+
+  \paragraph{\longtaskref{component-architecture}{mod-packaging}}
+  \label{component-architecture@mod-packaging}
+  In this task we investigate best practices for composing, sharing
+  and interfacing computational components and data for connected
+  mathematical systems.
+
+  The first deliverable,
+  \longdelivref{component-architecture}{virtual-machines} was
+  delivered on time early in the project, producing the expected
+  results.
+
+  A focused workshop in March 2016 (Sage Days 77, followed by Sage
+  Days 85 in March 2017) also triggered much work and progress on the
+  packaging side, both by \ODK participants and the community. Partly
+  thanks to this, \Sage is now on its way to be available as a
+  standard package in major distributions such as Debian and
+  Anaconda. We stress the fact that this task is very much ahead of
+  schedule: having \Sage in Debian was the goal set for
+  \delivref{component-architecture}{sage-distribution}, which is only
+  due in month 48.
+
+  The workshops were also the occasion to clarify the modularization,
+  packaging, and distribution needs and challenges. This has paved the
+  way for \longdelivref{component-architecture}{sage-repository}, due
+  in month 24.
+  
+  \paragraph{\longtaskref{component-architecture}{simulagora-dev}}
+  The goal of this task is to deliver every six month a new Simulagora
+  VM image containing all the software components released over the
+  period.
+
+  To this date, three OpenDreamKit VMs have been released in
+  Simulagora.
+  
+  \paragraph{\longtaskref{component-architecture}{component-for-HPC}}
+  This task has not started yet.
+
+  \paragraph{\longtaskref{component-architecture}{extract-smc}}
+  \label{component-architecture@extract-smc}
+  From its inception in 2013, \SMC\ has quickly developed into a full
+  featured VRE.  Because of the tight
+  development cycles, it is quite difficult to keep track of \SMC's
+  structure and goals.  The goal of this task is to participate in the
+  evolution of \SMC, by helping with documentation and
+  interoperability.
+
+  The first deliverable of the task,
+  \longdelivref{component-architecture}{smc-documentation} was delayed
+  because of the slow recruitment process in \site{PS}. We were able
+  to catch up on time for the first reporting period, the result being
+  a remarkable
+  contribution\footnote{\url{https://github.com/sagemathinc/smc/blob/master/src/doc/design_overview/overview.rst}}
+  by Erik Bray to the internal documentation of \SMC.
+  
+  On the other hand,
+  \longdelivref{component-architecture}{personal-smc}, due in month
+  24, was achieved by the \SMC developers \emph{before the start of
+    \ODK}. We are currently evaluating the most useful way to
+  re-allocate the planned effort.
+  
+  \paragraph{\longtaskref{component-architecture}{workflow}}
+  This task seeks new ways of accepting contributions to mathematical
+  software in a scalable way.  No deliverable is due for the
+  evaluation period.
+  
+  \paragraph{\longtaskref{component-architecture}{oommf-python-interface}}
+  \label{component-architecture@oommf-python-interface}
+  This task provides a Python interface to the Object Oriented
+  Micromagnetic Framework (OOMMF). This allows to access the
+  capabilities of this package as one component of a virtual research
+  environment, together with the existing ecosystem of scientific
+  python libraries and tools. The task has been completed \cite{Beg2017a}, and the
+  resulting software is available online on
+  GitHub\footnote{\url{https://github.com/joommf/oommfc}} and through
+  the Python packaging index under the name \texttt{oommfc}. The
+  interface has been presented to users in the micromagnetic community
+  through our dissemination workshops
+  (\taskref{dissem}{dissemination-of-oommf-nb-virtual-environment}). This
+  task is part of a number of steps towards a virtual research
+  environment for micromagnetic simulations
+  (\delivref{dissem}{oommfnb-vre-deliver}).
+
+\clearpage
+\subsubsection{WorkPackage 4: User Interfaces}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
 The objective of WorkPackage 4 is to provide modern, robust, and flexible user interfaces for
@@ -318,24 +653,38 @@ computation, supporting real-time sharing, integration with collaborative proble
 multilingual documents, paper writing and publication, links to databases, etc. This work is focused primarily around the \Jupyter project, in the form of:
 
 \begin{itemize}
-    \item Enhancing existing \Jupyter tools
-    \item Building new tools in the \Jupyter ecosystem
-    \item Improving the use of of \ODK projects in \Jupyter and \Sage environments
-    \item Work on Active Documents, which have some goals in common with \Jupyter notebooks
+    \item Enhancing existing \Jupyter tools (\taskref{UI}{notebook-collab})
+    \item Building new tools in the \Jupyter ecosystem (\taskref{UI}{notebook-verification}, \taskref{UI}{notebook-collab}, \taskref{UI}{vis3d})
+    \item Improving the use of \ODK components in \Jupyter and \Sage environments (\taskref{UI}{ipython-kernels}, \taskref{UI}{sage-sphinx}, \taskref{UI}{dynamic-inspect}, \taskref{UI}{pari-python})
+    \item Demonstrating effectiveness of WorkPackage 4 results in specific scientific applications (\taskref{UI}{cfd-vis}, \taskref{UI}{oommf-py-ipython-attributes}, \taskref{UI}{oommf-nb-ve}, \taskref{UI}{oommf-tutorial-and-documentation})
+    \item Work on Active Documents, which have some goals in common with \Jupyter notebooks (\taskref{UI}{structdocs}, \taskref{UI}{mathhub})
 \end{itemize}
 
+Progress across WorkPackage 4 has been highly successful thus far.
+Several new software packages have been created,
+and existing projects in the \Sage and \Jupyter communities have been improved toward sustainability to serve \ODK objectives.
+
 \paragraph{\longtaskref{UI}{ipython-kernels}}
+\label{UI@ipython-kernels}
+The first task for this workpackage is to enable the use of \Jupyter
+as uniform notebook interface for the relevant computational
+components. \delivref{UI}{ipython-kernels-basic} has been delivered,
+providing basic \Jupyter kernels for \GAP, \Pari, \Sage, and
+\Singular. They are being further improved in preparation for
+\longdelivref{UI}{ipython-kernels}.
 
-The first task for this workpackage is to enable the use of Jupyter as uniform notebook interface
-for the relevant computational components. \longdelivref{UI}{ipython-kernel-sage} has been
-delivered, providing a \Sage kernel for Jupyter. \delivref{UI}{ipython-kernels-basic} has been
-delivered, providing Jupyter kernels for GAP, Pari, and Singular. Progress was
-particularly fast for the \Sage kernel thanks to a very active involvement of the community; this
-will enable, in the coming months, a systematic transition from the legacy \Sage notebook system to
-\Jupyter; this is a particularly important achievement: beside all the benefits of a uniform and
-actively developed interface for the user, outsourcing the maintenance of the notebook interface
-will save the \Sage community much needed resources.
+\longdelivref{UI}{ipython-kernel-sage} has been delivered, further
+enhancing \Sage's \Jupyter integration and preparing for the
+systematic transition from the legacy custom-built \Sage notebook
+application to \Jupyter in the coming months. Beside all the benefits
+of a uniform and actively developed interface for the user,
+outsourcing the maintenance of this key but non disciplinary component
+will save the \Sage community much needed resources and is an
+important step toward the sustainability of \ODK's ecosystem
+(Objective 5).
 
+Progress was particularly fast thanks to a very active involvement of
+the \Sage community.
 
 \paragraph{\longtaskref{UI}{notebook-collab}}
 
@@ -345,8 +694,8 @@ was presented at the major Scientific Python conferences SciPy US in July 2016 a
 and has been met with enthusiasm from the scientific Python community for its prospect of solving a
 longstanding difficulty in working with notebooks.
 
-The JupyterHub package has received significant updates and further development, specifically a
-Services extension point, which enables shared workspaces for collaboration, a step on the path
+The \JupyterHub package has received significant updates and further development, specifically a
+\emph{Services extension point}, which enables shared workspaces for collaboration, a step on the path
 toward real-time collaboration for \delivref{UI}{jupyter-live-collab}.
 
 \paragraph{\longtaskref{UI}{notebook-verification}}
@@ -355,74 +704,71 @@ toward real-time collaboration for \delivref{UI}{jupyter-live-collab}.
 which enables testing and verification of existing notebooks via a plugin to the Python testing
 framework pytest. nbval integrates with nbdime from \delivref{UI}{jupyter-collab} to deliver
 testable, reproducible notebooks via traditional software development testing practices.
+This work furthers \ODK objective 5 of promoting sustainable software in math and science.
 
 \paragraph{\longtaskref{UI}{sage-sphinx}}
+\label{UI@sage-sphinx}
 
-As part of the Sage Days 77 workshop, the opportunity was taken to bootstrap the long term work of
+As part of the Sage Days 77 workshop, we began the long-term work of
 \href{https://wiki.sagemath.org/days77/documentation}{refactoring the Sage documentation build
 system} for \longdelivref{UI}{sage-sphinx} in collaboration with a Sphinx developer. A great deal
 of work has been done toward the goal of sustainability \Sage's vast documentation, including
 improving reproducibility of builds, updating contents, and increasing reliance on
-community-standard tools instead of less maintainable bespoke implementations. Improving the maintainability of the \Sage documentation is an important part of ensuring high quality documentation going forward.
+community-standard tools instead of less maintainable bespoke
+implementations. Improving the maintainability of the \Sage
+documentation build system is an important part of ensuring high quality documentation going forward.
 
-% \paragraph{\longtaskref{UI}{dynamic-inspect}} Due M36 (D4.16)
+\paragraph{\longtaskref{UI}{dynamic-inspect}} Due M36 (D4.16)
+Not applicable for this period.
 
 \paragraph{\longtaskref{UI}{structdocs}}
 
-Active structured documents are a common need with many use cases, and as many potential
-solutions.  Requirements and venues for collaborations were explored through discussions
-between participants, in particular at the occasion of
-\href{https://wiki.sagemath.org/days77/}{Sage Days 77} workshop (see the
-\href{https://wiki.sagemath.org/days77/live-structured-documents}{notes}), and June's ODK
+Active structured documents are a common need with many use cases, and has many potential solutions.
+Requirements and venues for collaborations were explored through discussions between participants,
+in particular at the occasion of \href{https://wiki.sagemath.org/days77/}{Sage Days 77} workshop
+(see the \href{https://wiki.sagemath.org/days77/live-structured-documents}{notes}), and June's ODK
 meeting in Bremen. The findings were reported in \longdelivref{UI}{adstex}.
 
-In \longdelivref{UI}{adcomp}, We have presented a general framework for in-situ
-computation in active documents. This is a contribution towards using mathematical
-documents -- the traditional form mathematicians interact with mathematical knowledge and
-computations -- as a user interface for a mathematical virtual research environments. This
-is also a step towards integrating the two main UI frameworks under investigation in the
-\ODK project: Jupyter notebooks and active documents -- see~\delivref{UI}{adstex} -- at a
-conceptual level. The system is prototypical at the moment, but can already be embedded
-into active documents via a Javascript framework and is ready for use in the \ODK
-project. The user interface and SCSCP connections are quite fresh and need substantial
-testing and optimizations.
+In \longdelivref{UI}{adcomp}, We have presented a general framework for in-situ computation in active documents. This is
+a contribution towards using mathematical documents -- the traditional form mathematicians
+interact with mathematical knowledge and computations -- as a user interface for a
+mathematical virtual research environments. This is also a step towards integrating the
+two main UI frameworks under investigation in the \ODK project: \Jupyter notebooks and
+active documents -- see~\delivref{UI}{adstex} -- at a conceptual level. The system is
+prototypical at the moment, but can already be embedded into active documents via a
+Javascript framework and is ready for use in the \ODK project. The user interface and \SCSCP
+connections are quite fresh and need substantial testing and optimizations.
 
 
 \paragraph{\longtaskref{UI}{mathhub}}
 
-One of the most prominent features of a virtual research environment (VRE) is a unified
-user interface. The OpenDreamKit approach is to create a mathematical VRE by integrating
-various pre-existing mathematical software systems. There are two approaches that can
-serve as a basis for the OpenDreamKit UI: computational notebooks and active
-documents. The former allows for mathematical text around the computation cells of a
-real-eval-print loop of a mathematical software system and the latter makes semantically
-annotated documents active.
+One of the most prominent features of a virtual research environment (VRE) is a unified user interface. The \ODK approach is to create a mathematical VRE by integrating various pre-existing mathematical software systems. There are two approaches that can serve as a basis for the \ODK UI: computational notebooks and active documents. The former allows for mathematical text around the computation cells of a real-eval-print loop of a mathematical software system and the latter makes semantically annotated documents active.
 
-MathHub is a portal for active mathematical documents ranging from formal libraries of
-theorem provers to informal – but rigorous – mathematical documents lightly marked up by
-preserving LaTeX markup.
+\MathHub is a portal for active mathematical documents ranging from formal libraries of theorem provers to informal – but rigorous – mathematical documents lightly marked up by preserving LaTeX markup.
 
-As the authoring, maintenance, and curation of theory-structured mathematical ontologies
-and the transfer of mathematical knowledge via active documents are an important part of
-the OpenDreamKit VRE toolkit, the editing facilities in MathHub play a great role for the
-project, as delivered in \longdelivref{UI}{mathhub-editing}.
+As the authoring, maintenance, and curation of theory-structured mathematical ontologies and the transfer of mathematical knowledge via active documents are an important part of the \ODK VRE toolkit, the editing facilities in \MathHub play a great role for the project,
+as delivered in \longdelivref{UI}{mathhub-editing}.
 
 \paragraph{\longtaskref{UI}{vis3d}}
 
 The current landscape for 3D visualization in Jupyter has been explored and reported on,
-in order to identify where OpenDreamKit can best contribute to 3D visualization in the notebook, towards \longdelivref{UI}{vis3d}. There have been many community-led developments in this area, including the ipyvolume and K3D packages, and OpenDreamKit will further enhance existing community tools to best serve the needs of the community. In particular, developing tools for unstructured mesh visualization and CFD simulations. The SciViJS tool for interactive visualization in a webbrowser has been developed, and will gain better support for use in Jupyter, also as part of \delivref{UI}{vis3d}.
+in order to identify where \ODK can best contribute to 3D visualization in the notebook, towards \longdelivref{UI}{vis3d}. There have been many community-led developments in this area, including the ipyvolume and K3D packages, and \ODK will further enhance existing community tools to best serve the needs of the community. In particular, developing tools for unstructured mesh visualization and CFD simulations. The SciViJS tool for interactive visualization in a webbrowser has been developed, and will gain better support for use in \Jupyter, also as part of \delivref{UI}{vis3d}.
 
-% \paragraph{\longtaskref{UI}{cfd-vis}} % M12-36
+\paragraph{\longtaskref{UI}{cfd-vis}} % M12-36
 
-% \paragraph{\longtaskref{UI}{Sage-display}} % M24, no deliverables
+Not applicable for this period.
+
+\paragraph{\longtaskref{UI}{Sage-display}} % M24, no deliverables
+
+Not applicable for this period.
 
 \paragraph{\longtaskref{UI}{oommf-py-ipython-attributes}} % M13-19 
 
-The micromagnetic virtual research environment is hosted in the Jupyter
-Notebook. The computational engine is the (existing) OOMMF (Object Oriented
+The micromagnetic virtual research environment is hosted in the \Jupyter
+Notebook. The computational engine is the (existing) \OOMMF (Object Oriented
 MicroMagnetic Framework) which is accessible through the new Python interface
-that has been created as part of OpenDreamKit  
-(\taskref{component-architecture}{oommf-python-interface}). The Jupyter Notebook allows us to
+that has been created as part of \ODK  
+(\taskref{component-architecture}{oommf-python-interface}). The \Jupyter Notebook allows us to
 integrate the problem specification, the execution of the calculation, and the
 postprocessing and data representation within a single executable document;
 providing a new computational research environment for micromagnetic
@@ -434,7 +780,7 @@ appear rendered as \LaTeX{} in the notebook. It allows users to interactively
 compose and explore computational models, and to be able to inspect what they
 have put together in the language of the scientist (i.e. through equations)
 rather than through the language of the computer (i.e. code). The addition of
-this representation options does not stop the code from being valid Python
+this representation options does not stop the code from being valid \Python
 than can be run outside the notebook. We have also provided a graphical
 representation of the mesh and discretisation cell as the appropriate
 representation of a finite difference mesh to further assist the effective
@@ -443,6 +789,7 @@ vector field objects, and GUI elements for data exploration. We have used dissem
 to seek feedback from users and to refine interface.
 
 \paragraph{\longtaskref{UI}{pari-python}}
+\label{UI@pari-python}
 
 Completing \longdelivref{UI}{pari-python-lib1} happened to be more difficult than
 originally planned. The high level of coupling between \Sage internals
@@ -477,76 +824,180 @@ The end results of this work are the packages
 \href{https://github.com/sagemath/cypari2}{CyPari2}, both installable
 in a pure \Python environment via the standard tool
 \texttt{pip}. Starting from version 7.6, installation via \texttt{pip}
-will also be \Sage's default way of providing the \Pari interface.
- 
+is \Sage's default way of providing the \Pari interface.
 
-% \paragraph{\longtaskref{UI}{oommf-nb-ve}} M25-28
+\paragraph{\longtaskref{UI}{oommf-tutorial-and-documentation}} % M19-25
 
-% \paragraph{\longtaskref{UI}{oommf-tutorial-and-documentation}} M19-25
+Not applicable for this period.
 
+\paragraph{\longtaskref{UI}{oommf-nb-ve}} % M25-28
 
-  \subsubsection{WorkPackage 5}
+Not applicable for this period.
+
+\clearpage
+  \subsubsection{WorkPackage 5: High Performance Mathematical Computing}
+  \label{hpc}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
   Workpackage 5 is about the development of high performance computing tools in
-  mathematical virtual research environments. It is first adressed at the level
-  of each kernel library composing the computational tools of the project (PARI,
-  GAP, LinBox, Singular, MPIR), but the question of interfacing and exposing
-  core parallel features to higher level programming interfaces is also
-  adressed.
-  
+  mathematical virtual research environments. It is addressed at the level
+  of each kernel library composing the computational tools of the project (\Pari,
+  \GAP, \Linbox, \MPIR, \Sage, \Singular, ...), and also at the level of interfacing and exposing
+  core parallel features to higher level programming interfaces.
 
   Key results obtained over the period for WorkPackage 5 are the following:
-  \begin{enumerate}
-  \item fine grain parallelisation of matrix Fast Fourier Transform code in
+  %% Only list deliverables produced in the reporting period
+  \begin{compactitem}
+  %% \item A closer integration of \Linbox in \Sage with improved reliability and
+  %%   computing efficiency.
+  \item A fine grain parallelisation of matrix Fast Fourier Transform code in
     \FLINT, delivering high and scalable performances.
-  \item Parallelization of  relation  Sieving code in FLINT.
-  \item Cython now relies on Pythran to compile and vectorize numpy code.
-  \item A new super-optimizer for vectorized assembly code and its ouput for MPIR: code with improved perfomances.
-  \end{enumerate}
+  \item Parallelization of relation  Sieving code in FLINT.
+  \item A new super-optimizer for vectorized assembly code and its
+    exploitation to improve the performances of the MPIR code.
+  \item A MapReduce framework implementation to parallelize huge (out of core) datasets from
+    combinatorics presented as recursion trees.
+  \item \Cython can now use \Pythran to compile and vectorize \Numpy code.
+  \item A new Sun Grid Engine notebook spawner for \Jupyter to drive
+    interractive computations on HPC clusters from a Jupyter notebook.
+  \end{compactitem}
 
 \paragraph{\longtaskref{hpc}{hpc-pari}}
+
+No deliverable is due for the reporting period.
 The generic paralellization engine in the \Pari C-library
 has reached its maturity. It is now part of the standard releases of \Pari
-and~\delivref{hpc}{pari-hpc1}
+and~\longdelivref{hpc}{pari-hpc1}
 will be delivered on time on month 24.
 
 \paragraph{\longtaskref{hpc}{hpc-gap}}
 
+No deliverable is due for the evaluation period but steady progress was made on
+Deliverable~\longdelivref{hpc}{GAP-HPC-report}. Over this period, six releases were cut
+incorporating contributions to Deliverable~\longdelivref{component-architecture}{hpc-configure}.
+
+Another major direction of efforts is the HPC-GAP integration:
+HPC-GAP is a fork of \GAP initiated during the \scienceproject project, which
+enables multithreaded calculations. Now that HPC-GAP has reached
+maturity, it's critical for its widespread use and long term
+maintenability to merge it back into \GAP's master branch.
+The first step towards this long-standing goal, which is at the core of
+Task~\taskref{hpc}{hpc-gap}, is the next
+major release of \GAP 4.9, planned in 2017 and allowing compilation in HPC-GAP
+compatibility mode. The progress towards this release can be tracked on the \GAP
+4.9.0 milestone on GitHub: \url{https://github.com/gap-system/gap/milestone/4}.
+A culmination of the work in this direction was the merge of a major
+refactorisation of \GAP's build system
+mainly developed by our external collaborator Max Horn (Giessen) into \GAP's master
+branch during the Sage-GAP-Days-85 we organized in March 2017. Some
+\GAP packages also required updates to work in \GAP 4.9.
+
 \paragraph{\longtaskref{hpc}{hpc-linbox}}
 
-
-As initially scheduled, work on LinBox started in Fall 2016. The design of
-a domain specific language (DSL) exposing parallel features through the library
-stack up to the \Sage interface (deliverable~\delivref{hpc}{LinBox-DSL}) is
-making good progress, and the demonstrator code for matrix inverse over a finite field is under review.
-
-Progress on deliverable~\delivref{hpc}{LinBox-algo} is twofold:
-\begin{itemize}
+%As initially scheduled, work on LinBox started in Fall 2016 and
+No deliverable is due for this evaluation period. The design of a
+domain specific language (DSL) exposing parallel features through the
+library stack up to the \Sage interface is making good progress
+(deliverable~\longdelivref{hpc}{LinBox-DSL}); the demonstrator code
+for matrix inverse over a finite field is under review.
+%
+Progress on deliverable~\longdelivref{hpc}{LinBox-algo} is twofold:
+\begin{compactitem}
 \item Maintenance, and close integration of the Library with \Sage has been
 active (\href{https://trac.sagemath.org/ticket/17635}{Ticket \#17635} finally
 updates \Sage to LinBox-1.4.2 after a long and technical review process).
-\item Several algorithmic innovations have been produced: more efficient
-  representation for quasiseparable matrices, and the new developments on
+\item Several algorithmic innovations have been produced: a new matrix invariant
+  for rank profiles~\cite{DumPerSul:fcrpmgbd16}, more efficient
+  representation for quasiseparable matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on
   interactive certificates for the security of large scale distributed
-  computations on unsafe resources. Both results have been presented at the
-  main conference in the field, ISSAC'17.
-\end{itemize}
+  computations on unsafe
+  resources~\cite{DumKalTho:lticmpdsm16,DumLucPer:cftearp17}. These results have or will
+  be presented in the main venues in the domain:
+  the international conference ISSAC'16-17 and the Journal of Symbolic computation.
+\end{compactitem}
 
   \paragraph{\longtaskref{hpc}{hpc-singular}}
 
+  The \Singular library, for commutative algebra, already has a framework to
+  design high level parallel algorithms and handle shared memory safely.
+  Yet, a few kernel routines, such as matrix Fast Fourier
+  transform, relation  sieving algorithms need a special attention as they have
+  to rely on a highly optimized fine grained
+  parallelization. Deliverables~\delivref{hpc}{FFT}
+  and~\delivref{hpc}{QS-linalg} for this reporting period only deal with these
+  kernel routines, in the \FLINT library, a dependency of \Singular.
+
+  Deliverable~\delivref{hpc}{FFT} is a parallelization of the matrix fast
+  Fourier transform in two ways: using Open-MP standard for shared memory
+  multi-core parallelization on one hand and the SIMD vectorized instructions of
+  each core on the other hand. Performance experiments demonstrate the
+  effectiveness of the design of thread parallelization, reaching speed-up
+  factors up to 3 on 4 cores, and up to 5 on 8 cores, which is remarkable given
+  the high memory bandwidth of the kind task considered here. The SIMD
+  optimization of the FFT butterfly partly relies on the super-optimizer results
+  of Deliverable~\delivref{hpc}{MPIRsuperoptimiser}. Here again, experiments
+  demonstrate a strong improvement in practice for the new code produced.
+
+  Deliverable~\delivref{hpc}{QS-linalg} now focuses one major type of
+  application of the library: relation sieving for factoring medium sized
+  integers. There, use of SIMD optimizations did not provide strong enough
+  improvements and the work mostly focused on the thread paralellization of the
+  reliation sieving. The resulting code in \FLINT improves over \Pari's
+  implementation for lage enough integers (above 170 bits) in sequential already, and benefits
+  from a speed-up factor of a about 3 on 4 cores. On the contrary, the
+  parallelization of the block Wiedemann algorithm mostly benefitted from SIMD
+  optimizations and much less from multithreading.
 
   \paragraph{\longtaskref{hpc}{hpc-mpir}}
-  Deliverable~\longdelivref{hpc}{MPIRsuperoptimiser} is making progress but has hit a
-  major blocker: it requires to use a precise clock cycle counter, for which a kernel
-  module has been proposed in this deliverable. However a bug in the Linux kernel seem to
-  automatically disable these counters. It has been reported upstream but the long delay
-  to have a patch incorporated into the kernel will impact the delivery of this
-  deliverable. There is no dependency to this deliverable, and the problem is now well
-  understood and its solution is underway
-  (\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/118}{details}).
+
+  The \MPIR library is  a core component of many computational mathematics
+  software providing highly optimized  basic arithmetic over multiprecision
+  integers.
+  
+  Deliverable~\delivref{hpc}{MPIRsuperoptimiser} is a super-optimizer, performing
+  exhaustive search of permutations in a sequence of assembly instructions,
+  combined with a fine clock cycle count to elect the most efficient variant.
+
+  The main unexpected obstacle has been to produce a precise clock cycle
+  counter, on which to base the benchmarks: recent. Frequency scaling strategies
+  of the CPU led to noise in the  measurements, while the real CPU cycle counter
+  would require patching a kernel module to allow access in user mode.
+  This problem has been solved thanks to the pmu-tools API to the  performance system of the
+  Linux kernel.
+
+  Then super-optimizer could reliably produce optimized code for
+  the main functions of the MPIR library (multiplication, gcd, and extended gcd)
+  on the most common recent vectorized architectures: AMD Bulldozer, Intel
+  Skylake and Haswell. Experiments comparing the resulting new routines with the
+  current ones, showed a significant improvement in performances in almost all
+  cases, thus validating this approach and motivating its application to a
+  broader set of routines.
 
   \paragraph{\longtaskref{hpc}{hpc-combi}}
+
+  The goal of this task is to use combinatorics as a source of challenges to
+  experiment on various HPC techniques. In the first
+  deliverable~\longdelivref{hpc}{sage-paral-tree}, we successfully implement a
+  MapReduce programming model on large datasets described by a recursion
+  tree, which are too big to fit in memory. After chasing around some bug on
+  MacOS posix support, the code was integrated in Sage (Trac Ticket 13580) and
+  presented at the «journée du groupe de travail LaMHA» at Université Pierre et
+  Marie Curie on November the 26th of 2016.
+
+  Since it is written purely in Python, the code doesn't perform well when the
+  computation in each node is short. A good technology for handling such
+  situations with fine grain parallelism, seems to be the 
+  \software{Cilk++} runtime, and we are currently doing experiment which goal is to have a two
+  stage parallel computation, where \software{Cilk++} is doing the load balancing on a
+  machine (shared memory) and Python the load balancing among machines. As a
+  base for our experiment, we are working on a the enumeration of numerical
+  monoids; indeed, it is a very challenging problem as the explored recursion
+  tree is extremely unbalanced. We currently are able to have a code
+  generating and process 50Gio/s on a single 8 core i7 machine. When the
+  problem of re-balancing the work among several machines will be solved we
+  hope to be able to have throughput higher than 1To/s on a network of machines.
+  To this end, we are also experimenting with the \texttt{Spark}
+  technology for distributed computations.
 
   \paragraph{\longtaskref{hpc}{pythran}}
 
@@ -554,42 +1005,56 @@ Mathematical software, such as \Sage, intensively rely on the Python
 language for its expressivity. In order to harness most of a CPU computing
 efficiency, critical code in such interpreted languages need to be compiled into
 C code. This is precisely what \Cython and \Pythran are offering. the former
-supports a broad range Python constructs, while the latter focuses on optimizing
-numpy constructs for linear algebra.
+supports a broad range \Python constructs, while the latter focuses on optimizing
+\Numpy constructs for linear algebra.
 The purpose of this task is to
 \begin{enumerate}
 \item\label{pythran:cython} implement a convergence between these two compilers
-\item\label{pythran:sage} and expose the new capacity to optimize numpy code to the developers and
-  users of \Sage.  
+\item\label{pythran:sage} expose the new capacity to optimize \Numpy code to
+  the developers and  users of~\Sage.
 \end{enumerate}
 
-Concerning target~\ref{pythran:cython}, the delivery of \delivref{hpc}{pythran-sage} successfully implements the
+Concerning target~\ref{pythran:cython}, the delivery of \longdelivref{hpc}{pythran-sage} successfully implements the
 proposed convergence: \Cython is now able to delegate compilation tasks to
-\Pythran whenever \Numpy code is detected. In practice, benchmark show that
+\Pythran whenever \Numpy code is detected. In practice, benchmarks show that
 resulting code executes faster. For instance computing euclidean norm of a large
 floating point vector is sped up by a factor of 2.5 without vectorization and
 a factor 3.7 with AVX2 vectorization enabled.
 
 As for target~\ref{pythran:sage}, a technical lock is that \Pythran's analysis
 of \Python typing used to be too weak to support the breadth of Object Oriented
-programming style of \Sage. Deliverable \delivref{hpc}{pythran-typing}
+programming style of \Sage. Deliverable \longdelivref{hpc}{pythran-typing}
 addressed this issue by strongly enhancing \Pythran's type inference system in two ways: first, the compiler now more accurately tracks the identifier
 $\leftrightarrow$ value binding, which in turns makes it possible to generate strongly
-typed code for a wider class of Python kernels.  Second, an unsound type checker for
-Pythran has been developed. It provides human-readable error report when a type error is
+typed code for a wider class of \Python kernels.  Second, an unsound type checker for
+\Pythran has been developed. It provides human-readable error report when a type error is
 detected at compile time, when a cryptic internal error was previously reported. Both
 algorithms have been extensively detailed in separated blog posts and the resulting
-implementation is part of the official Pythran 0.8.0 release.
+implementation is part of the official \Pythran 0.8.0 release.
 
 Further work on \Pythran's integration to \Sage and the exposition of
 parallelism via \software{Cilk++} is still in progress and should be delivered in
-\delivref{hpc}{cython-pythran-cilk} at M24.
+\longdelivref{hpc}{cython-pythran-cilk} at M24.
 
   \paragraph{\longtaskref{hpc}{hpc-jupyter}}
   
+It is common for academic High Performance Computing (HPC) clusters to make
+use of schedulers based on Sun Grid Engine with Son of Grid Engine as one of
+the most popular. It is used, for example, on the institutional HPC systems
+in the Universities of Sheffield and Manchester in the UK. It is also used
+on the regional N8 HPC facility, a system shared by the eight most research
+intensive universities in the North of England.
 
+In deliverable~\longdelivref{hpc}{SGE-jupyter}, we have developed and demonstrated a Sun Grid Engine
+notebook spawner for Project Jupyter, allowing users to easily access
+Jupyter notebooks on HPC clusters directly from the web-browser. This
+development allows users with no background in High Performance Computing to
+easily migrate workflows from laptop to HPC cluster, allowing them to access
+greater resources with no additional training required.
   
-  \subsubsection{WorkPackage 6}
+\clearpage
+  \subsubsection{WorkPackage 6:  Data/Knowledge/Software-Bases}
+  \label{dksbases}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
   In a series of workshops (September 2015 in Paris, January 2016 in St. Andrews, June
   2016 in Bremen, and July 2016 in Bia{\l}ystok) the participants working on
@@ -608,13 +1073,13 @@ parallelism via \software{Cilk++} is still in progress and should be delivered i
   ``Math-in-the-Middle'' (MitM) paradigm~\cite{DehKohKon:iop16}, which gives a
   representational basis for specification-based interoperability of mathematical software
   systems -- so that they can be integrated in a VRE toolkit. In the MitM paradigm, the
-  mathematical knowledge underlying the VREs (K) and the the interface of the for each
+  mathematical knowledge underlying the VREs (K) and the interface for each
   system (S) are represented as modular theory graphs in the OMDoc/MMT format. For the
   data aspect (D) we have extended the concept of OMDoc/MMT theories to ``virtual
   theories'' that allow the practical management of possibly infinite theories,
   see~\cite{ODK-D6.2} for details.
 
-  A side effect of the \textbf{R1.} is that the verification aspects anticipated in the
+  A side effect of \textbf{R1.} is that the verification aspects anticipated in the
   proposal are non-critical to the \pn project. In particular the value of the exemplary
   verification of an LMFDB algorithm in \taskref{dksbases}{data-LMFDB} and
   deliverable~\delivref{dksbases}{lfmverif} seems highly questionable.
@@ -655,27 +1120,29 @@ parallelism via \software{Cilk++} is still in progress and should be delivered i
   the development of computational foundations and verification towards API/Interface
   function specifications to enable semantic system interoperability via the
   Math-in-the-Middle Ontology. Consequently, emphasis has changed to the generation of API
-  Content Dictionaries (API CDs) for GAP, LMFDB and SageMath. We have a prototypical set
-  of GAP and Sage Content Dictionaries in OMDoc/MMT form (GAP: 218 CDs, 2996 entries;
-  Sage: 512 CDs, 2800 entries overall). The computational foundations exist but are rather
+  Content Dictionaries (API CDs) for \GAP, \LMFDB and \Sage. We have a prototypical set
+  of \GAP and \Sage Content Dictionaries in OMDoc/MMT form (\GAP: 218 CDs, 2996 entries;
+  \Sage: 512 CDs, 2800 entries overall). The computational foundations exist but are rather
   more simple than originally anticipated. Much of the functionality has been offloaded to
   the SCSCP standard -- remote procedure call with OpenMath representations of the
   mathematical objects -- developed in the SCIENCE Project. As a direct consequence of the
-  work in \pn the OpenMath Society has promoted the SCSCP protocol into as an OpenMath
+  work in \pn the OpenMath Society has promoted the \SCSCP protocol into as an OpenMath
   Standard.
   
-  Conversely, the GAP/Sage CDs are rather more elaborated than anticipated in the
+  Conversely, the \GAP and \Sage CDs are rather more elaborated than anticipated in the
   proposal, and thus form a viable basis for alignment with the MitM Ontology.
 
   \paragraph{\longtaskref{dksbases}{research-categories}}
   This task has just started, and the MitM architecture developed in \WPref{dksbases} has
-  given important impulses to make the code infrastructure of Sage and GAP more
-  declarative (knowledge-based). In Sage, the category infrastructure was validated (it
+  given important impulses to make the code infrastructure of \Sage and \GAP more
+  declarative (knowledge-based). In \Sage, the category infrastructure was validated (it
   seems to be the right level of abstraction to generate API CDs) and extended; further
-  annotations were added into the Sage code base and accepted by the community. In GAP,
+  annotations were added into the \Sage code base and accepted by the
+  community. % TODO: not yet
+  In \GAP,
   the facilities for ``constructors'' was reformed, extended by an infrastructure for
   documentation and static typing/type analysis, and the code base refactored for 6000
-  constructors. Similarly, the online documentation subsystem for GAP has been regularized
+  constructors. Similarly, the online documentation subsystem for \GAP has been regularized
   and synchronized with the constructor level. Already at this early stage of the task the
   new ``knowledge-based perspective'' has revealed a plethora of errors and inefficiencies
   and has contributed to the code quality in both systems. 
@@ -722,8 +1189,9 @@ parallelism via \software{Cilk++} is still in progress and should be delivered i
   engine. The main problem here is to devise intuitive query interfaces and integrate them
   into the \pn VRE framework.
 
-
-  \subsubsection{WorkPackage 7}
+\clearpage
+  \subsubsection{WorkPackage 7: Social Aspects}
+  \label{social-aspects}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
   Ursula Martin has stepped down in anticipation of her upcoming retirement, and Dmitrii
   Pasechnik has become the lead PI for this work package.  This somewhat slowed down the
@@ -731,26 +1199,39 @@ parallelism via \software{Cilk++} is still in progress and should be delivered i
   ahead of schedule. Nevertheless, the consortium may need to request for a new amendment
   after the Review of the 1st Reporting Period to clarify the situation.
 
-  As planned, the work was focused on bootstrapping
-  \longtaskref{social-aspects}{social-input} and
-  \longtaskref{social-aspects}{isocial-decisionmaking} whose early outcomes will nurture
-  the design of \ODK's VREs in other work packages.
+  As planned, the work was mainly focused on bootstrapping
+  \taskref{social-aspects}{social-input} and
+  \taskref{social-aspects}{isocial-decisionmaking} whose early outcomes will nurture
+  the design of \ODK's VREs in other work packages. As well, good progress was booked
+  on  \taskref{social-aspects}{social-output}.
 
-  For \taskref{social-aspects}{social-input},
-  \longdelivref{social-aspects}{social-datareport} analysing in particular the state of
-  affairs in our model system \Sage, is well on track to be delivered at Month 18, with
-  Part I ready.
+  \paragraph{\longtaskref{social-aspects}{social-input}} % T1
+  For deliverable \longdelivref{social-aspects}{social-datareport},
+  we surveyed the methodology, data, and tools needed to assess
+  development models of large-scale academic open-source systems
+  like model system \Sage.
+  Part I of \longdelivref{social-aspects}{social-report-three} is also ready and available
+  as an internal publication.
 
-  For \longtaskref{social-aspects}{isocial-decisionmaking},
-  \delivref{social-aspects}{social-tracaddon} is largely ready and is to be tested on the
-  system \Sage; a paper \cite{Pavlou:2016:MCI:2936924.2936934} forming a part of
-  \delivref{social-aspects}{social-gametheoretic} has been published.
-
-  Finally, early work was done for \taskref{social-aspects}{social-output} on connections
+  \paragraph{\longtaskref{social-aspects}{social-output}} % T2
+  Early work was done on connections
   of reproducibility, crowdsourcing, and a VRE as a mean to test and control the former: a
   paper \cite{2016arXiv160100181C} analysing a concrete well-established area of
   combinatorics in this respect, and describing the implementation of the corresponding
-  meta-database in \Sage system has been published.
+  meta-database in \Sage system, has been published. Another paper \cite{2016arXiv160301710P},
+  again touching upon reproducibility and correctness of mathematical results, and
+  utilizing extensive computations in \GAP, has been published.
+
+  \paragraph{\longtaskref{social-aspects}{isocial-decisionmaking}} % T3
+  Deliverable \longdelivref{social-aspects}{social-tracaddon}
+  is largely ready and is to be tested on the
+  system \Sage; a paper \cite{Pavlou:2016:MCI:2936924.2936934}, forming a part of
+  \longdelivref{social-aspects}{social-gametheoretic} has been published.
+
+  \paragraph{\longtaskref{social-aspects}{oommf-nb-evaluation}} % T4
+  Not applicable for this period.
+
+
 
   \subsection{Impact}
   % Include in this section whether the information on section 2.1 of the DoA (how your
@@ -766,6 +1247,8 @@ parallelism via \software{Cilk++} is still in progress and should be delivered i
 % If access to research infrastructures has been provided under the grant please include
 % access provision activities
 
+\label{infrastructures}
+
 Per design, \ODK focuses on delivering ``a flexible toolkit enabling
 research groups to set up Virtual Research Environments''. As such,
 there is no e-infrastructure deployed and managed by \ODK. Instead,
@@ -779,9 +1262,50 @@ informal information and figures on the main existing deployments and
 their typical public, together with some assessment of the impact we
 had on them.
 
-% TODO!
+\begin{itemize}
+\item[cloud.sagemath.org] With 500k accounts worldwide and 30k active
+  projects both for research and education, \SMC is the largest
+  Virtual Research Environment based on the ecosystem \ODK contributes
+  to. Predating \ODK, it benefits back from most of our actions. \ODK
+  has been contributing to a healthy collaboration/competition
+  relation between \JupyterHub and \SMC, with the competition
+  occurring only at the level of specific individual components and
+  both teams learning from each other.
 
-  \subsubsection{Trans-national Access Activities (TA)}
+\item[jupyter.math.cnrs.fr] We have helped setup this \JupyterHub
+  service, deployed by the French CNRS for the benefit of the
+  personnel of all math labs in France. This service includes all the
+  \ODK computational components.
+
+\item[mybinder.org] Binder is a web service that makes it easy for any
+  user to publish live notebooks based on an arbitrary reproducible
+  executable environments. It thus fosters dissemination and
+  reproducible research. The current main instance
+  (\url{http://mybinder.org/}) is overloaded by the demand, proving
+  that it has identified just the right service for a critical need.
+
+  Our work on packaging
+  \localtaskref{component-architecture}{mod-packaging} and \Jupyter
+  integration \localtaskref{UI}{ipython-kernels} is about to enable
+  the easy definition of executable environments including \ODK's
+  computational math software.
+
+  We are further reaching toward EGI/EUDAT to use their
+  e-infrastructure to contribute additional computing resources to the
+  main mybinder instance or setup a new one for the EC community.
+  \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/205}
+
+\item [JupyterHub@USheffield]
+  \href{http://docs.iceberg.shef.ac.uk/en/latest/using-iceberg/accessing/jupyterhub.html}{\JupyterHub}
+  instance deployed on USheffield's HPC system.
+\end{itemize}
+
+Many other instances are being deployed by universities (e.g.
+university Paris Sud) for their personnel. We are keeping track of
+those we are aware of at
+\url{https://github.com/OpenDreamKit/OpenDreamKit/issues/174}.
+
+%  \subsubsection{Trans-national Access Activities (TA)}
 
   % Provide for the set of TA Work Packages, the integrated information described below.
 
@@ -862,7 +1386,7 @@ had on them.
   % meeting and the overall number of attendees.
 
 
-  \subsubsection{Virtual Access Activities (VA)}
+%  \subsubsection{Virtual Access Activities (VA)}
 
   % Provide for the set of VA Work Packages, the integrated information described below..
 
@@ -883,14 +1407,49 @@ had on them.
 
   \section{Update of the plan for exploitation and dissemination of result (if
     applicable)}
-  % Include in this section whether the plan for exploitation and dissemination of results
+ Not applicable
+ % Include in this section whether the plan for exploitation and dissemination of results
   % as described in the DoA needs to be updated and give details.
 
 
 
   \section{4. Follow-up of recommendations and comments from previous review(s) (if
     applicable)}
-  % Include in this section the list of recommendations and comments from previous reviews
+  
+\paragraph{Recommendation 1}
+
+(i) "An advisory statement should be present at the beginning of each document stating that any links given were in 
+place and reference-able as at the date of submission of the deliverable."
+
+Each delirable ends with a disclaimer saying "Disclaimer: this report, together with its annexes and the reports for the earlier deliverables,
+is self contained for auditing and reviewing purposes. Hyperlinks to external resources are
+meant as a convenience for casual readers wishing to follow our progress; such links have
+been checked for correctness at the time of submission of the deliverable, but there is no
+guarantee implied that they will remain valid."
+
+
+\paragraph{Recommendations 2 and 3}
+
+(ii) "All links should be fully expanded and given in the text, together with an outline of their significance and 
+relevance/importance to the project. If a document uses links as references, this should be treated as if they were 
+normal academic references and should be set out in a separate section as if they were academic references in 
+conformance with current best academic practice for such links."
+
+(iii) "The same should also apply to change requests/records (eg Trac Records) with their effect being set out in detail. 
+This is particularly important for links to external databases of changes."
+
+Reports are now fully consistent for the understanding for the work carried out. Hyperlinks are now meant merely
+as convenience for the reader if they wish to go into further details. Furthermore, all referred work is now presented according
+to academic norms of bibliography.
+
+\paragraph{Recommendation 4}
+(iv) "Efforts should be made by the project and the Commission to find a mechanism to ensure the long-term 
+sustainability of the outputs and results beyond the lifetime of the project. This may necessitate maintaining 
+duplicates of these databases by the Commission."
+
+Not in the hands of the consortium.
+
+% Include in this section the list of recommendations and comments from previous reviews
   % and give information on how they have been followed up
 
 
@@ -898,14 +1457,7 @@ had on them.
   % Explain the reasons for deviations from the DoA, the consequences and the proposed
   % corrective actions
 
-
-
-  \subsection{Tasks}
-  % Include explanations for tasks not fully implemented, critical objectives not fully
-  % achieved and/or not being on schedule.  Explain also the impact on other tasks on the
-  % available resources and the planning
-
-  There was no major deviation from Annex 1. All deliverables due for M18 were delivered
+There was no major deviation from Annex 1. All deliverables due for M18 were delivered
   within the timeframe of the 1st Reporting Period, and all milestones in this period were
   reached.  Slight modifications were brought to \WPref{hpc} and \WPref{dksbases} and were
   included in the AMD-676541-13.
@@ -937,17 +1489,27 @@ had on them.
   \longdelivref{dksbases}{psfoundation}, \longdelivref{dksbases}{pssem}, and
   \longdelivref{dksbases}{lfmverif}
 
+  \subsection{Tasks}
+
+No deviation from the tasks. All workplan is on time at the end of the Reporting Period.
+% Include explanations for tasks not fully implemented, critical objectives not fully
+  % achieved and/or not being on schedule.  Explain also the impact on other tasks on the
+  % available resources and the planning
 
   \subsection{Use of resources}
   % Include explanations on deviations of the use of resources between actual and planned
   % use of resources in Annex 1, especially related to person-months per work package.
 
-  -Addition of two partners which will not bring any modification to the life of the
-  project
+All changes of use of resources were included in the two amendments previously cited and were
+due to modifications in the personnel. Those adjustments were due to the change of positions
+of some key \ODK participants and expected difficulties in hiring planned
+staff. The work plan has been updated accordingly, with no foreseeable
+impact on the achievement of tasks, deliverables, and milestones.
 
   \subsection{Unforeseen subcontracting (if applicable)}
 
-  % Specify in this section: a) the work (the tasks) performed by a subcontractor which
+Not applicable.
+% Specify in this section: a) the work (the tasks) performed by a subcontractor which
   % may cover only a limited part of the project; b) explanation of the circumstances
   % which caused the need for a subcontract, taking into account the specific
   % characteristics of the project; c) the confirmation that the subcontractor has been
@@ -957,10 +1519,14 @@ had on them.
   \subsection{Unforeseen use of in kind contribution from third party against payment or
     free of charges (if applicable)}
 
-  % Specify in this section: d) the identity of the third party; e) the resources made
+ Not applicable. 
+ % Specify in this section: d) the identity of the third party; e) the resources made
   % available by the third party respectively against payment or free of charges f)
   % explanation of the circumstances which caused the need for using these resources for
   % carrying out the work.
+
+\newpage
+\printbibliography
 
 \end{document}
 
