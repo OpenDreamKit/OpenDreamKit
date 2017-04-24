@@ -1,7 +1,8 @@
 \documentclass{beamer}
 
 \usepackage[utf8]{inputenc}
-\usepackage{tikz}
+\usepackage{tikz}\usetikzlibrary{trees}
+\usepackage{commath}
 
 \usepackage{booktabs}
 \usepackage{listings}
@@ -256,8 +257,136 @@ No substantial speedups were found for the older, less sophisticated Bulldozer o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Task 5.6: Combinatorics}
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Task 5.6: Combinatorics}
+%\begin{frame}[fragile]{Today: Map/Reduce of RESets}
+
+  \begin{center}
+    {%
+      \begin{minipage}{9cm}\Large\bf
+        Perform a {\color{red}map/reduce} operation on a very large set
+        described {\color{blue}recursively}.
+      \end{minipage}
+    }
+  \end{center}
+  \begin{block}{Large range of intensive applications in combinatorics:}
+  \begin{itemize}
+  \item Compute the cardinality, or more generally any kind of generating series
+  \item Test a conjecture: i.e. find an element of $S$ satisfying a specific
+    property, or check that all of them do
+  \item Count/list the elements of $S$ having this property
+  \end{itemize}
+\end{block}
+
+  \begin{block}{Specificity of combinatorics:}
+  \begin{itemize}
+  \item Typically the sets \emph{doesn't fit in the computers} memory / disks
+    and is enumerated on the fly (example of value: $10^{17}$~bytes).
+  \item Easy to parallelize, if the set is flat (a list, a file, stored on a disk).
+    \bigskip
+  \end{itemize}
+\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{A Challenge: The tree of numerical semigroups}
+\newcommand{\sgnode}[1]{{\bf \left<#1\right>}}
+\newcommand{\gr}[1]{{\color{gray} #1}}
+
+Extremely unbalanced. Need for an \textbf{efficient load balancing algorithm}.
+\[\tiny
+\begin{tikzpicture}[baseline={([yshift=-5cm]current bounding box.north)},
+  scale=0.7,
+  level distance=1.5cm, 
+  inner sep=2mm,
+  level/.style={sibling distance=1.55cm}]
+    \node {$\sgnode{1}$}
+    child {node {$\sgnode{2,3}$}
+      child [sibling distance=4.5cm] {node {$\sgnode{3,4,5}$}
+        child {node {$\sgnode{4,5,6,7}$}
+          child [sibling distance=2cm]{node {$\sgnode{5,6,7,8,9}$}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            edge from parent node [left] {4}}
+          child [sibling distance=1.9cm]{node {$\sgnode{\gr 4,6,7,9}$}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            edge from parent node [left] {5}}
+          child {node {$\sgnode{\gr 4,\gr 5,7}$}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            edge from parent node [right] {6}}
+          child {node {$\sgnode{\gr 4,\gr 5,\gr 6}$}
+            edge from parent node [right] {7}}
+          edge from parent node [left] {3}
+        }
+        child{{} edge from parent[draw=none]}
+        child{{} edge from parent[draw=none]}
+        child {node {$\sgnode{\gr 3,5,7}$}
+          child {node {$\sgnode{\gr 3,7,8}$}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            edge from parent node [left] {5}}
+          child {node {$\sgnode{\gr 3,\gr 5}$} edge from parent node [right] {7}}
+          edge from parent node [left] {4}
+        }
+        child {node {$\sgnode{\gr 3,\gr 4}$}
+          edge from parent node [right] {5}
+        }
+        edge from parent node [left] {2}
+      }
+      child [sibling distance=4.5cm] {node {$\sgnode{\gr2,5}$}
+        child {node {$\sgnode{\gr2,7}$}
+          child {node {$\sgnode{\gr2,9}$}
+            child[sibling distance=0.5cm] {node {$\dots$} edge from parent}
+            edge from parent node [right] {7}
+          }
+          edge from parent node [right] {5}
+        }
+        edge from parent node [right] {3}
+      }
+      edge from parent node [left] {1}
+    }
+   ;
+  \end{tikzpicture}
+\]
+\pause
+
+$  \leadsto$ need for a high level task parallelization framework. 
+\end{frame}
+
+
+
+%% \begin{frame}{Work-Stealing System Architecture}
+%%   Work stealing algorithm (Leiserson-Blumofe / Cilk):
+
+%% \[\hspace{-0.7cm}\includegraphics[width=12.5cm]{scheme.pdf}\]
+%% \end{frame}
+
+\begin{frame}{Work-Stealing System Architecture}
+  
+  \begin{block}{A Python implementation}
+    \begin{itemize}
+    \item Work stealing algorithm (Leiserson-Blumofe / Cilk)
+    \item Esay to use, easy to call from sage
+    \item Already, a dozen of use case
+    \item Scale well with the number of CPU cores
+    \item Reasonably efficient (knowing that this is Python code).
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{References}
+\begin{itemize}  \item Trac Ticket $13580$ \url{http://trac.sagemath.org/ticket/13580}
+    \bigskip
+    
+  \item \textit{Exploring the Tree of Numerical Semigroups} Jean Fromentin
+    and Florent Hivert \url{https://hal.inria.fr/UNIV-ROUEN/hal-00823339v3}
+\end{itemize}
+  \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -278,11 +407,11 @@ No substantial speedups were found for the older, less sophisticated Bulldozer o
   \item High level VRE rely on the Python language
   \item High performance is achieved mostly by the C language\pause
   \item Python to C compilers: 
-    \begin{itemize}
-    \item Cython: general purpose
-    \item Pythran: narrower scope, better at optimizing Numpy code (Linear
+    \begin{description}
+    \item[Cython:] general purpose
+    \item[Pythran:] narrower scope, better at optimizing Numpy code (Linear
       algebra)
-    \end{itemize}
+    \end{description}
   \end{itemize}
     \end{column}
   \end{columns}
