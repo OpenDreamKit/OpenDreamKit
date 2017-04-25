@@ -6,7 +6,7 @@ with open('glossary.json') as f:
     l = json.load(f)
 
 output = open('glossary.tex', 'w')
-output.write("\\documentclass[landscape]{article}\n\n")
+output.write("\\documentclass[9pt,landscape]{extarticle}\n\n")
 output.write("\\usepackage{array}\n")
 output.write("\\usepackage{url}\n")
 output.write("\\usepackage{graphicx}\n")
@@ -14,7 +14,7 @@ output.write("\\usepackage[hmargin=0.5cm,vmargin=1.3cm]{geometry}\n")
 output.write("\\usepackage{stix}\n")
 # output.write("\\usepackage{avant}\n")
 output.write("\\setlength{\\extrarowheight}{.5pt}\n")
-output.write("\\newcommand{\\CC}{C\\nolinebreak\\hspace{-.05em}\\raisebox{.4ex}{\\tiny\\bf +}\\nolinebreak\\hspace{-.10em}\\raisebox{.4ex}{\\tiny\\bf +}}")
+output.write("\\newcommand{\\CC}{C\\nolinebreak\\hspace{-.05em}\\raisebox{.3ex}{\\footnotesize +}\\nolinebreak\\raisebox{.3ex}{\\footnotesize +}}")
 output.write("\\renewcommand*{\\UrlFont}{\\ttfamily\\small\\relax}")
 
 output.write("\\begin{document}\n")
@@ -26,7 +26,7 @@ l2 = l[len(l)//2:]
 for l in (l1,l2):
     output.write("\\begin{minipage}{.5\\textwidth}\n")
     if l is l1:
-        output.write("\\begin{minipage}{.65\\textwidth}{\\Huge OpenDreamKit Glossary}\end{minipage}")
+        output.write("\\begin{minipage}{.55\\textwidth}{\\Huge OpenDreamKit Glossary}\end{minipage}")
         output.write("\\hspace{.03\\textwidth}")
         output.write("\\begin{minipage}{.3\\textwidth}")
         output.write("\\includegraphics[scale=0.12]{logos/odk.png}")
