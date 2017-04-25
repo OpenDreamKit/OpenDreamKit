@@ -1,6 +1,3 @@
-# OpenMP
-# chips: Haswell, Skylake, Bulldozer
-
 import json
 with open('glossary.json') as f:
     l = json.load(f)
@@ -13,18 +10,18 @@ output.write("\\usepackage{graphicx}\n")
 output.write("\\usepackage[hmargin=0.5cm,vmargin=1.3cm]{geometry}\n")
 output.write("\\usepackage{stix}\n")
 # output.write("\\usepackage{avant}\n")
-output.write("\\setlength{\\extrarowheight}{.1pt}\n")
+output.write("\\setlength{\\extrarowheight}{.2pt}\n")
 output.write("\\newcommand{\\CC}{C\\nolinebreak\\hspace{-.05em}\\raisebox{.3ex}{\\footnotesize +}\\nolinebreak\\raisebox{.3ex}{\\footnotesize +}}")
 output.write("\\renewcommand*{\\UrlFont}{\\ttfamily\\small\\relax}")
 
-output.write("\\begin{document}\n")
-output.write("\\thispagestyle{empty}\n")
+output.write("\\begin{document}%\n")
+output.write("\\thispagestyle{empty}%\n")
 
-l1 = l[:len(l)//2]
-l2 = l[len(l)//2:]
+l1 = l[:len(l)//2-1]
+l2 = l[len(l)//2-1:]
 
 for l in (l1,l2):
-    output.write("\\begin{minipage}{.5\\textwidth}\n")
+    output.write("\\begin{minipage}{.5\\textwidth}%\n")
     if l is l1:
         output.write("\\begin{minipage}{.52\\textwidth}{\\Huge OpenDreamKit Glossary}\end{minipage}")
         output.write("\\begin{minipage}{.3\\textwidth}")
@@ -32,9 +29,9 @@ for l in (l1,l2):
         output.write("\\hspace{.2\\textwidth}")
         output.write("\\includegraphics[scale=0.08]{logos/europe.png}")
         output.write("\\end{minipage}")
-        output.write("\\vspace{.3cm}\n\n")
+        output.write("\\vspace{.2cm}%\n\n")
 
-    output.write("\\noindent \\begin{tabular}{m{.15\\textwidth}p{.7\\textwidth}}\n")
+    output.write("\\begin{tabular}{@{}m{.13\\textwidth}p{.77\\textwidth}@{}}\n")
     output.write("\\hline\n")
     for dat in l:
         name = dat['acronym'] if 'acronym' in dat else dat['name']
@@ -59,15 +56,15 @@ for l in (l1,l2):
                 desc = dat['name'] + ": " + desc
             else:
                 desc = dat['name']
-        output.write('\\begin{tabular}{p{.7\\textwidth}}\n')
+        output.write('\\begin{tabular}{@{}p{.77\\textwidth}@{}}\n')
         output.write('{}\n'.format(desc))
         if 'url' in dat:
             output.write('\\\\ \\url{{{}}}'.format(dat['url']))
         output.write('\\end{tabular}\n')
 
         output.write('\\\\\hline\n')
-    output.write("\\end{tabular}\n")
-    output.write("\\end{minipage}\n")
+    output.write("\\end{tabular}%\n")
+    output.write("\\end{minipage}%\n")
 
 output.write("\\end{document}\n")
 
