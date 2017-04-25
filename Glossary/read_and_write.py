@@ -23,7 +23,7 @@ l2 = l[len(l)//2-1:]
 for l in (l1,l2):
     output.write("\\begin{minipage}{.5\\textwidth}%\n")
     if l is l1:
-        output.write("\\begin{minipage}{.52\\textwidth}{\\Huge OpenDreamKit Glossary}\end{minipage}")
+        output.write("\\begin{minipage}{.58\\textwidth}{\\Huge OpenDreamKit (ODK) Glossary}\end{minipage}")
         output.write("\\begin{minipage}{.3\\textwidth}")
         output.write("\\includegraphics[scale=0.14]{logos/odk.png}")
         output.write("\\hspace{.2\\textwidth}")
