@@ -6,14 +6,15 @@ with open('glossary.json') as f:
     l = json.load(f)
 
 output = open('glossary.tex', 'w')
-output.write("\\documentclass[landscape,8pt]{article}\n\n")
+output.write("\\documentclass[landscape]{article}\n\n")
 output.write("\\usepackage{array}\n")
 output.write("\\usepackage{url}\n")
 output.write("\\usepackage{graphicx}\n")
-output.write("\\usepackage[hmargin=1cm,vmargin=1.3cm]{geometry}\n")
+output.write("\\usepackage[hmargin=0.6cm,vmargin=1.3cm]{geometry}\n")
 output.write("\\usepackage{lmodern}\n")
 # output.write("\\usepackage{avant}\n")
-output.write("\\setlength{\\extrarowheight}{1pt}\n")
+output.write("\\setlength{\\extrarowheight}{.5pt}\n")
+output.write("\\newcommand{\\CC}{C\\nolinebreak\\hspace{-.05em}\\raisebox{.4ex}{\\tiny\\bf +}\\nolinebreak\\hspace{-.10em}\\raisebox{.4ex}{\\tiny\\bf +}}")
 
 output.write("\\begin{document}\n")
 output.write("\\thispagestyle{empty}\n")
