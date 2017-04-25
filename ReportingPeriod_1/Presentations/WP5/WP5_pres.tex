@@ -26,7 +26,7 @@
 
 \institute[ODK Project review]{First OpenDreamKit Project review}
 
-\date{Brussels, \today}
+\date{Brussels, April 26, 2017}
 
 \begin{document}
 \maketitle
@@ -35,10 +35,32 @@
 \section*{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
+  \frametitle{High performance mathematical computing}
+
+  \begin{block}{Computer algebra}
+    Typical computation domains:
+    \begin{itemize}
+    \item $\mathbb{Z}, \mathbb{Q}$: $\leadsto$ multiprecision integers
+    \item $\mathbb{Z}/p\mathbb{Z}, \mathbb{F}_q$: $\leadsto$ machine ints or
+      floating point, multiprecision
+    \item $K[X], K^{m\times n}$, $K[X]^{m\times n}$ for $K=\mathbb{Z},\mathbb{Q},\mathbb{Z}/p\mathbb{Z}$
+    \end{itemize}
+  \end{block}
+
+  \begin{block} {High performance computing}
+    \begin{itemize}
+    \item Decades of development for numerical computations
+    \item Still at an early development stage for computer algebra
+    \item Specificites: cannot blindly benefit from numerical HPC experience
+    \end{itemize}
+  \end{block}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
   \frametitle{Goal: delivering high performance to maths users}
 
-
-  \only<1>{
+\uncover<2->{
+  \only<1,2>{
     \begin{block}{Harnessing modern hardware $\leadsto$ parallelisation}
   \begin{itemize}
     \item in-core parallelism (SIMD vectorisation)
@@ -48,18 +70,23 @@
   \end{block}
   }
   
-  \only<2>{
+  \only<3>{
     \begin{block}{Languages}
     \begin{itemize}
-    \item Computational Maths software use high level languages (e.g. Python)
+    \item Computational Maths software uses high level languages (e.g. Python)
     \item High performance delivered by languages close to the metal (C, assembly)
     \end{itemize}
     $\leadsto$ compilation,  automated optimisation
   \end{block}
   }
+  }
   \begin{center}
-    \includegraphics[width=0.8\textwidth]{software_stack}
-  \end{center}
+    \only<1>{\includegraphics[width=0.8\textwidth]{software_stack_3}}
+
+    \only<2>{\includegraphics[width=0.8\textwidth]{software_stack_2}}
+    
+    \only<3>{\includegraphics[width=0.8\textwidth]{software_stack}}
+\end{center}
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,7 +123,7 @@
 
   \begin{itemize}
   \item Already has a generic parallelization framework
-  \item Focus on optimizing  kernel routines for fine grain parallelism
+  \item Focus on optimising  kernel routines for fine grain parallelism
   \end{itemize}
 
   \begin{description}
@@ -127,7 +154,7 @@
       \begin{itemize}
       \item Completed and debugged implementation of large prime variant
       \item Parallelised sieving component of implementation using OpenMP
-      \item Experimented with a parallel implementation of Block Wiedemann
+      \item Experimented with a parallel implementation of Block Wiedemann algorithm
       \end{itemize}
 \end{block}
 \begin{block}{Results}
@@ -143,7 +170,7 @@
 \vspace{-1.5em}
       \begin{center}
         \begin{table}
-          \caption{Speedup for four cores (c/f single core): }
+          \caption{Speedup for 4 cores (c/f single core): }
         \begin{tabular}{c|ccccc}
         \toprule
             {Digits} & 50 & 60 & 70 & 80 & 90\\
@@ -158,13 +185,13 @@
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-  \frametitle{D5.7: Parallelise and assembly optimize FFT}
+  \frametitle{D5.7: Parallelise and assembly optimise FFT}
 
   \begin{block}    {FFT: Fast Fourier Transform over $\mathbb{Z}/p\mathbb{Z}$}
     \begin{itemize}
     \item Among the top 10 most important algorithms
     \item Key to fast arithmetic (integers, polynomials)
-    \item Difficult to optimize: high memory bandwidth requirement
+    \item Difficult to optimise: high memory bandwidth requirement
     \end{itemize}
     \begin{description}
     \item[Earlier status:]\
@@ -177,11 +204,11 @@
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-  \frametitle{D5.7: Parallelise and assembly optimize FFT}
+  \frametitle{D5.7: Parallelise and assembly optimise FFT}
   \begin{block} {Achievements}
   \begin{itemize}
-\item Parallelised Matrix Fourier implementation using OpenMP
-\item Assembly optimised butterfly operations in MPIR
+  \item Parallelised Matrix Fourier implementation using OpenMP
+  \item Assembly optimised butterfly operations in MPIR
 \end{itemize}
   \end{block}
 
@@ -219,7 +246,7 @@
   \end{itemize}
 
   \begin{block}
-    {D5.5: Assembly superoptimization}
+    {D5.5: Assembly superoptimisation}
     \begin{itemize}
     \item MPIR contains assembly language routines for bignum operations
     \\ $\leadsto$ hand optimised for every new microprocessor architecture
@@ -308,27 +335,31 @@ s $= 512$ bits, m $= 8192$ bits, big $= 100$K bits
 
   \begin{center}
     {%
-      \begin{minipage}{9cm}\Large\bf
-        Perform a {\color{red}map/reduce} operation on a very large set
-        described {\color{blue}recursively}.
-      \end{minipage}
+      %      \begin{minipage}{9cm}
+      \Large\bf
+        Perform a {\color{red}map/reduce} on huge % a very large set
+         {\color{blue}recursive} datasets.
+ %     \end{minipage}
     }
   \end{center}
   \begin{block}{Large range of intensive applications in combinatorics:}
   \begin{itemize}
-  \item Compute the cardinality, or more generally any kind of generating series
+%  \item Compute the cardinality, or more generally any kind of generating series
   \item Test a conjecture: i.e. find an element of $S$ satisfying a specific
     property %or check that all of them do
   \item Count/list the elements of $S$ having this property
   \end{itemize}
 \end{block}
 
-  \begin{block}{Specificity of combinatorics:}
+  \pause
+  \begin{block}{Specificities of combinatorics:}
   \begin{itemize}
-  \item Typically the sets \emph{don't fit in the computers} memory / disks
-    and are enumerated on the fly (example of value: $10^{17}$~bytes).
-  \item Easy to parallelize, if the set is flat (a list, a file, stored on a disk).
-    \bigskip
+  \item Sets often \emph{don't fit in the computer's} memory / disks
+    and are enumerated \textbf{on the fly} (example of value: $10^{17}$~bytes).
+  \item \textbf{Embarassingly parallel}, if the set is flat (a list, a file, stored on a
+    disk).
+  \item Recursive data-structures may be \textbf{heavily unbalanced}
+    
   \end{itemize}
 \end{block}
 \end{frame}
@@ -338,8 +369,7 @@ s $= 512$ bits, m $= 8192$ bits, big $= 100$K bits
 \begin{frame}[fragile]{A Challenge: The tree of numerical semigroups}
 \newcommand{\sgnode}[1]{{\bf \left<#1\right>}}
 \newcommand{\gr}[1]{{\color{gray} #1}}
-
-Extremely unbalanced. Need for an \textbf{efficient load balancing algorithm}.
+%Extremely unbalanced.
 \[\tiny
 \begin{tikzpicture}[baseline={([yshift=-5cm]current bounding box.north)},
   scale=0.7,
@@ -400,8 +430,11 @@ Extremely unbalanced. Need for an \textbf{efficient load balancing algorithm}.
   \end{tikzpicture}
 \]
 \pause
-
-$  \leadsto$ need for a high level task parallelization framework. 
+Need for
+\begin{itemize}
+\item an \textbf{efficient load balancing algorithm}.
+\item a high level task parallelization framework. 
+\end{itemize}
 \end{frame}
 
 
@@ -417,20 +450,31 @@ $  \leadsto$ need for a high level task parallelization framework.
   \begin{block}{A Python implementation}
     \begin{itemize}
     \item Work stealing algorithm (Leiserson-Blumofe / Cilk)
-    \item Easy to use, easy to call from sage
-    \item Already, a dozen  use case
+    \item Easy to use, easy to call from SageMath
+    \item Already, a dozen  use cases
     \item Scale well with the number of CPU cores
     \item Reasonably efficient (knowing that this is Python code).
     \end{itemize}
   \end{block}
 
+  \begin{center}
+      \begin{tabular}{c|cccc}
+    \toprule
+    \# processors & 1 & 2 & 4 & 8\\
+    \midrule
+    Time (s) & 250 & 161 & 103 & 87
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
   \begin{block}{References}
-\begin{itemize}  \item Trac Ticket $13580$ \url{http://trac.sagemath.org/ticket/13580}
-    \bigskip
-    
-  \item \textit{Exploring the Tree of Numerical Semigroups} Jean Fromentin
-    and Florent Hivert \url{https://hal.inria.fr/UNIV-ROUEN/hal-00823339v3}
-\end{itemize}
+    {\footnotesize
+      \begin{itemize}  \item Trac Ticket $13580$ \url{http://trac.sagemath.org/ticket/13580}
+%    \bigskip
+      \item \textit{Exploring the Tree of Numerical Semigroups} J. Fromentin
+        and F. Hivert %\url{https://hal.inria.fr/UNIV-ROUEN/hal-00823339v3}
+      \end{itemize}
+      }
   \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -449,12 +493,12 @@ $  \leadsto$ need for a high level task parallelization framework.
     \begin{column}
       {.48\textwidth }
   \begin{itemize}
-  \item Many High level VRE rely on the Python language
+  \item Many high level VREs rely on the Python language
   \item High performance is most often achieved  by the C language\pause
   \item Python to C compilers: 
     \begin{description}
     \item[Cython:] general purpose
-    \item[Pythran:] narrower scope, better at optimizing Numpy code (Linear algebra)
+    \item[Pythran:] narrower scope, better at optimising Numpy code (Linear algebra)
     \end{description}
   \end{itemize}
     \end{column}
@@ -465,7 +509,7 @@ $  \leadsto$ need for a high level task parallelization framework.
 
     \begin{description}
       \item[D5.4] Improve Pythran typing system
-      \item[D5.2] Make Cython use Pythran backend to optimize Numpy code
+      \item[D5.2] Make Cython use Pythran backend to optimise Numpy code
     \end{description}
   \end{center}
 
@@ -475,14 +519,14 @@ $  \leadsto$ need for a high level task parallelization framework.
   \frametitle{D5.2: Make Cython use Pythran backend for NumPy code}
 
   \begin{center}
-    \includegraphics[width=.75\textwidth]{float_graph}\\
+    \includegraphics[width=.7\textwidth]{float_graph}\\
   \end{center}
   \begin{lstlisting}
 import numpy
 cimport numpy
 def float_comp (numpy.ndarray[numpy.float_t, ndim=1] a,
                  numpy.ndarray[numpy.float_t, ndim=1] b):
-     return numpy.sqrt(numpy.sqrt(a*a+b*b))
+     return numpy.sum(numpy.sqrt(a*a+b*b))
 \end{lstlisting}
 
 \end{frame}
@@ -491,9 +535,9 @@ def float_comp (numpy.ndarray[numpy.float_t, ndim=1] a,
   \frametitle{D5.2: Make Cython use Pythran backend for NumPy code}
 
   \begin{center}
-    \includegraphics[width=.65\textwidth]{harris_graph}
+    \includegraphics[width=.7\textwidth]{harris_graph}
   \end{center}
-
+\vspace{-1em}
   \begin{lstlisting}[basicstyle=\tiny]
 def harris(numpy.ndarray[numpy.float_t, ndim=2] I):
   cdef int m = I.shape[0]
@@ -518,7 +562,7 @@ def harris(numpy.ndarray[numpy.float_t, ndim=2] I):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Task 5.8: SunGridEngine in JupyterHub}
 \begin{frame}
-  \frametitle{Task 5.8: SunGridEngine integration in JupytherHub}
+  \frametitle{Task 5.8: SunGridEngine integration in JupyterHub}
   \begin{block}{Access to big compute}
    \begin{itemize}
    \item Traditional access to supercomputers is difficult
@@ -549,14 +593,14 @@ def harris(numpy.ndarray[numpy.float_t, ndim=2] I):
 \begin{frame}
   \frametitle{Progress report on other tasks}
 
-  \begin{block}{T5.1: Pari}
+  \begin{block}{T5.1: PARI}
     \begin{itemize}
     \item Generic parallelization engine is now mature, released (D5.10, due M24)
     \end{itemize}
   \end{block}
   \begin{block}{T5.2: GAP}
     \begin{itemize}
-    \item 6 releases were cut integrating contributions of D3.11 and D5.15
+    \item 6 releases were published integrating contributions of D3.11 and D5.15
     \item Build system refactoring for integration of HPC GAP
     \end{itemize}
   \end{block}
@@ -568,6 +612,26 @@ def harris(numpy.ndarray[numpy.float_t, ndim=2] I):
     \end{itemize}
   \end{block}
 \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{WP5 highlights}
+  \begin{description}
+  \item[Sites involved:] UPSud, CNRS, UJF, UNIKL, USFD, USTAN, Logilab
+  \item[Workforce:] 49.58 PM (consumed) / 200 PM (total)
+  \item[Delivered:] 7 deliverables
+  \end{description}
+
+  \begin{itemize}
+  \item Optimized parallel kernels: FFT, factorization, bignum arithmetic.
+  \item New assembly superoptimizer supporting last generation CPUs
+  \item Workstealing based task parallelization for combinatorics exploration
+  \item Cython can use Pythran backend to compile Numpy Code
+  \item Jupyter can be run on Cluster nodes using SunGridEngine scheduler
+  \end{itemize}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% \subsection{Task 5.1: Pari}
 %% \begin{frame}
