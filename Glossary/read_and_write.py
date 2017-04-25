@@ -13,7 +13,7 @@ output.write("\\usepackage{graphicx}\n")
 output.write("\\usepackage[hmargin=0.5cm,vmargin=1.3cm]{geometry}\n")
 output.write("\\usepackage{stix}\n")
 # output.write("\\usepackage{avant}\n")
-output.write("\\setlength{\\extrarowheight}{.5pt}\n")
+output.write("\\setlength{\\extrarowheight}{.1pt}\n")
 output.write("\\newcommand{\\CC}{C\\nolinebreak\\hspace{-.05em}\\raisebox{.3ex}{\\footnotesize +}\\nolinebreak\\raisebox{.3ex}{\\footnotesize +}}")
 output.write("\\renewcommand*{\\UrlFont}{\\ttfamily\\small\\relax}")
 
@@ -32,7 +32,7 @@ for l in (l1,l2):
         output.write("\\hspace{.2\\textwidth}")
         output.write("\\includegraphics[scale=0.08]{logos/europe.png}")
         output.write("\\end{minipage}")
-        output.write("\\vspace{.4cm}\n\n")
+        output.write("\\vspace{.3cm}\n\n")
 
     output.write("\\noindent \\begin{tabular}{m{.15\\textwidth}p{.7\\textwidth}}\n")
     output.write("\\hline\n")
