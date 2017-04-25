@@ -26,14 +26,13 @@ l2 = l[len(l)//2:]
 for l in (l1,l2):
     output.write("\\begin{minipage}{.5\\textwidth}\n")
     if l is l1:
-        output.write("\\begin{minipage}{.55\\textwidth}{\\Huge OpenDreamKit Glossary}\end{minipage}")
-        output.write("\\hspace{.03\\textwidth}")
+        output.write("\\begin{minipage}{.52\\textwidth}{\\Huge OpenDreamKit Glossary}\end{minipage}")
         output.write("\\begin{minipage}{.3\\textwidth}")
-        output.write("\\includegraphics[scale=0.12]{logos/odk.png}")
-        output.write("\\hspace{.18\\textwidth}")
-        output.write("\\includegraphics[scale=0.06]{logos/europe.png}")
+        output.write("\\includegraphics[scale=0.14]{logos/odk.png}")
+        output.write("\\hspace{.2\\textwidth}")
+        output.write("\\includegraphics[scale=0.08]{logos/europe.png}")
         output.write("\\end{minipage}")
-        output.write("\\vspace{.7cm}\n\n")
+        output.write("\\vspace{.4cm}\n\n")
 
     output.write("\\noindent \\begin{tabular}{m{.15\\textwidth}p{.7\\textwidth}}\n")
     output.write("\\hline\n")
