@@ -52,7 +52,10 @@ for l in (l1,l2):
 
         desc = dat.get('description', '')
         if 'acronym' in dat:
-            desc = '({}) '.format(dat['name']) + desc
+            if desc:
+                desc = dat['name'] + ": " + desc
+            else:
+                desc = dat['name']
         output.write('\\begin{tabular}{p{.7\\textwidth}}\n')
         output.write('{}\n'.format(desc))
         if 'url' in dat:
