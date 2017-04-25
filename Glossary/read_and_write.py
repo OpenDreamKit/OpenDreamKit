@@ -3,14 +3,14 @@ with open('glossary.json') as f:
     l = json.load(f)
 
 output = open('glossary.tex', 'w')
-output.write("\\documentclass[9pt,landscape]{extarticle}\n\n")
+output.write("\\documentclass[9pt,a4paper,landscape]{extarticle}\n\n")
 output.write("\\usepackage{array}\n")
 output.write("\\usepackage{url}\n")
 output.write("\\usepackage{graphicx}\n")
-output.write("\\usepackage[hmargin=0.5cm,vmargin=1.3cm]{geometry}\n")
+output.write("\\usepackage[hmargin=0.5cm,vmargin=1.cm]{geometry}\n")
 output.write("\\usepackage{stix}\n")
 # output.write("\\usepackage{avant}\n")
-output.write("\\setlength{\\extrarowheight}{.2pt}\n")
+output.write("\\setlength{\\extrarowheight}{.3pt}\n")
 output.write("\\newcommand{\\CC}{C\\nolinebreak\\hspace{-.05em}\\raisebox{.3ex}{\\footnotesize +}\\nolinebreak\\raisebox{.3ex}{\\footnotesize +}}")
 output.write("\\renewcommand*{\\UrlFont}{\\ttfamily\\small\\relax}")
 
