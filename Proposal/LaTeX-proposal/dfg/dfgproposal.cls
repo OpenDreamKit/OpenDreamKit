@@ -42,7 +42,7 @@
 \begin{center}
 {\LARGE \prop@gen@instrument}\\[.2cm]
 {\LARGE\textbf{\prop@gen@title}}\\[.3cm]
-{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+\ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]\fi
 {\large\today}\\[1em]
 \WAauthorblock[aff]\prop@gen@PIs\\[2cm]
 \end{center}
