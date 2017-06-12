@@ -18,11 +18,13 @@
 \newif\if@RAM\@RAMfalse
 \newif\if@svninfo\@svninfofalse
 \newif\if@gitinfo\@gitinfofalse
+\newif\if@numericcites\@numericcitesfalse
 \def\proposal@class{article}
 \DeclareOption{wpsubsection}{\@wpsubsectiontrue}
 \DeclareOption{submit}{\submittrue}
 \DeclareOption{grantagreement}{\grantagreementtrue}
 \DeclareOption{gitinfo}{\@gitinfotrue}
+\DeclareOption{numericcites}{\@numericcitestrue}
 \DeclareOption{svninfo}{\@svninfotrue}
 \DeclareOption{public}{\publictrue}
 \DeclareOption{noworkareas}{\work@areasfalse\PassOptionsToClass{\CurrentOption}{pdata}}
