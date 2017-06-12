@@ -29,6 +29,7 @@ bib.sty				= $(ltxml.src)kwarcbibs.sty
 html.script 			= $(html.src)generate-html
 CRXSL				= $(ltxml.src)crossrefs.xsl
 PLXSL				= $(pubs.src)publist.xsl
+PLXSLA				= $(pubs.src)publist-all.xsl
 
 ### </CONFIG> ###
 
@@ -87,11 +88,14 @@ clean-html:
 	-rm -r ${tex.dist}
 
 # pubs --> xsltproc
-pubs: setup-pubs html $(bib.people)
+pubs: setup-pubs html $(bib.people) $(pubs.dist)/index.html
+$(pubs.dist)/index.html: setup-pubs html
+	xsltproc --path $(html.dist) -o $(pubs.dist)/index.html $(PLXSLA) $(PLXSLA)
 setup-pubs:
 	mkdir -p $(pubs.dist)
 clean-pubs:
 	-rm -r $(pubs.dist)
+
 $(bib.people): %: $(PLXSL)
 	mkdir -p $(pubs.dist)$@
 	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(PLXSL) $(PLXSL)
