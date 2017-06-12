@@ -72,7 +72,7 @@ specialized to particular funding bodies that have their own styles.
 The best way to write a collaborative proposal is to use a revision control system. It is
 usually a good idea to make this repository into an external sub-repository that can be
 updated as necessary. In the instructions below we assume that you - as the paper repos
-maintainer - want to add the KWARC bibs as a sub-repository at path
+maintainer - want to add the proposal classes as a sub-repository at path
 ```lib/LaTeX-proposal``` from the top of the paper repository.
 
 ## The best way for GIT
@@ -80,19 +80,19 @@ maintainer - want to add the KWARC bibs as a sub-repository at path
 is via the ```git-subrepo``` extension of ```git```. Unfortunately this is not part of git
 (yet). So you as the paper repos maintainer have to
 [install it first](https://github.com/git-commands/git-subrepo#readme) if you want to
-install the KWARC bibs as a subrepos. Your users do not, they will get the subrepos
+install the proposal classes as a subrepos. Your users do not, they will get the subrepos
 automatically on ```git clone``` or ```git pull```.
 
 1. go to the top of your paper prehistory: ```cd path/to/top``` (you can only make a
   "subrepo" from there) 
-2. add the LaTeX-proposal distribution repos as a "subrepo": ```git subrepo clone git@github.com:KWARC/bibs.git LaTeX-proposal```
+2. add the LaTeX-proposal distribution repos as a "subrepo": ```git subrepo clone git@github.com:KWARC/LaTeX-proposal.git LaTeX-proposal```
 
 Note that under ```git-subrepo``` the "external" is not updated automatically, a
 maintainer has to "pull" it. This can be seen as a feature and not a bug (there is less of
 a chance to break things).
 
 1. go to the top of your paper repository: ```cd path/to/top``` (you can only pull from there)
-2. pull the KWARC bibs repos as a "subrepo": ```git subrepo pull LaTeX-proposal```
+2. pull the proposal classes repos as a "subrepo": ```git subrepo pull LaTeX-proposal```
 
 To contribute changes back to the the LaTeX-proposal  repository, you analogously do 
 
@@ -105,16 +105,16 @@ easypeasy!
 is via ```git subtree```. 
 
 1. go to the top of your paper repository: ```cd path/to/top```
-2. add the LaTeX-proposal  repos as a remote: ```git remote add kbibs
-    git@github.com:KWARC/bibs.git``` under the name ```kbibs```.
-3. add the remote ```kbibs```  as a subtree: ```git subtree add --prefix=LaTeX-proposal kbibs master --squash```
+2. add the LaTeX-proposal  repos as a remote: ```git remote add LaTeX-proposal
+    git@github.com:KWARC/LaTeX-proposal.git``` under the name ```LaTex-proposal```.
+3. add the remote ```LaTeX-proposal```  as a subtree: ```git subtree add --prefix=LaTeX-proposal LaTeX-proposal master --squash```
   (here under the path ```LaTeX-proposal```). The ```--squash``` reduces history noise. 
 
 When you want to update the subrepository to the newest version, you have to "subtree
 pull" as above: 
 
 1. go to the top of your paper repository: ```cd path/to/top```
-2. subtree-pull: ```git subtree pull --prefix=LaTeX-proposal kbibs master --squash```
+2. subtree-pull: ```git subtree pull --prefix=LaTeX-proposal LaTeX-proposal master --squash```
   this is a bit inconvenient, but works well.
 
 Contributing back to the LaTeX-proposal  repository is somewhat more complex; RTFM!
@@ -125,7 +125,7 @@ In a subversion repository you can must make an external by
 1. go to the top of your paper prehistory: ```cd path/to/top```
 2. make the ```lib``` subdir if necessary: ```mkdir lib```
 3. add the external: ```svn propedit svn:externals lib```
-4. an editor will appear, add the line ```kbibs bibs https://github.com/KWARC/bibs/trunk```
+4. an editor will appear, add the line ```LaTeX-proposal LaTeX-proposal https://github.com/KWARC/LaTeX-proposal/trunk```
 5. commit your work: ```svn commit -m'adding external for the LaTeX-proposal '```
 
 Note that in SVN any ```svn update``` will update the LaTeX-proposal repository in the
