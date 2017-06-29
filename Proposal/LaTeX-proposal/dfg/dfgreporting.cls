@@ -41,7 +41,7 @@
 \begin{center}
   {\LARGE Final Project Report}\\[.2cm]
   {\LARGE\textbf{\prop@gen@title}}\\[.3cm]
-  {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+\ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]\fi
   {\large Reference number(s): \show@prop@gen@keys}\\[.2cm]
   {\large\today}\\[1em]
  \begin{tabular}{c*{\the@PIs}{c}}

@@ -38,11 +38,12 @@
 \dfg@applicants@private@lines\hline
 \end{tabular}}
 \renewenvironment{prop@proposal}
-{\thispagestyle{empty}%
+{\ifsubmit\setcounter{page}{1}\else
+\thispagestyle{empty}%
 \begin{center}
 {\LARGE \prop@gen@instrument}\\[.2cm]
 {\LARGE\textbf{\prop@gen@title}}\\[.3cm]
-{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+\ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]\fi
 {\large\today}\\[1em]
 \WAauthorblock[aff]\prop@gen@PIs\\[2cm]
 \end{center}
@@ -74,7 +75,8 @@
 { (\ifdeutsch Mittel reichen bis\else funds last until\fi\ \prop@gen@fundsuntil)}
 \ifdeutsch\else\selectlanguage{USenglish}\fi
 \newpage\fi%ifgeneral
-\setcounter{page}{0}}
+\setcounter{page}{0}%
+\fi}% ifsubmit
 {}
 \ifdeutsch
 \def\prop@warnpubs@message{Viele der Publikationen der Antragsteller sind verf\"ugbar unter folgenden URLs:}

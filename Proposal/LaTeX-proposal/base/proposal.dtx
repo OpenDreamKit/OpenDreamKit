@@ -133,7 +133,7 @@
 % \subsection{Package Options}\label{sec:user:options}
 %
 % The |proposal| package takes the options |submit|, |noworkareas|, |RAM|, |deliverables|,
-% |wpsubsection|, |keys|, |svninfo|, |gitinfo|, and |public|.
+% |wpsubsection|, |keys|, |svninfo|, |gitinfo|, |numericcites|, and |public|.
 % 
 % The \DescribeMacro{submit}|submit| option will disable various proposal management decorations
 % which are enabled by default for submission.
@@ -170,6 +170,9 @@
 % Analogously, the \DescribeMacro{gitinfo}|gitinfo| option uses the |gitinfo2| package for
 % GIT metadata. Note that you will need to install the post-commit hooks in your working
 % copy according to~\cite{gitinfo2:on} for this to work.
+% 
+% The \DescribeMacro{numericcites}|numericcites| option changes citations to numeric from
+% the default |alphabetic|.
 %
 % Finally, the \DescribeMacro{public}|public| option allows to hide certain sensitive
 % (e.g. financial) parts of the proposal. For this, the |proposal| class provides the
@@ -602,11 +605,13 @@
 \newif\if@RAM\@RAMfalse
 \newif\if@svninfo\@svninfofalse
 \newif\if@gitinfo\@gitinfofalse
+\newif\if@numericcites\@numericcitesfalse
 \def\proposal@class{article}
 \DeclareOption{wpsubsection}{\@wpsubsectiontrue}
 \DeclareOption{submit}{\submittrue}
 \DeclareOption{grantagreement}{\grantagreementtrue}
 \DeclareOption{gitinfo}{\@gitinfotrue}
+\DeclareOption{numericcites}{\@numericcitestrue}
 \DeclareOption{svninfo}{\@svninfotrue}
 \DeclareOption{public}{\publictrue}
 \DeclareOption{noworkareas}{\work@areasfalse\PassOptionsToClass{\CurrentOption}{pdata}}
@@ -646,7 +651,11 @@
 \renewcommand{\familydefault}{\sfdefault}
 \RequirePackage[scaled=.90]{helvet}
 \RequirePackage{textcomp}
-\RequirePackage[hyperref=auto,style=alphabetic,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\if@numericcites
+\RequirePackage[style=numeric,hyperref=auto,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\else
+\RequirePackage[style=alphabetic,hyperref=auto,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\fi
 \RequirePackage{csquotes}
 \RequirePackage{mdframed}
 %    \end{macrocode}
@@ -935,7 +944,7 @@
 {\begin{center}
   {\LARGE Final Project Report}\\[.2cm]
   {\LARGE\textbf{\prop@gen@title}}\\[.3cm]
-  {\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]
+  \ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[.2cm]\fi
   {\large\today}\\[1em]
   \begin{tabular}{c*{\the@PIs}{c}}
     \prop@tl\prop@gen@PIs{\wa@ref3{person}\tl@ext{name}}\\

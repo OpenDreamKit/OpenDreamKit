@@ -35,7 +35,7 @@ ssh-add src/travis/keys/deploy_key
 echo "Done. "
 
 echo "Configuring Git ..."
-git config --global user.email "t.wiesing@jacobs-university.de"
+git config --global user.email "tkw1536@users.noreply.github.com"
 git config --global user.name "Tom Wiesing (via Travis)"
 echo "Done. "
 
