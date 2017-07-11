@@ -45,8 +45,16 @@ to retain their high level approach.
    * [D5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/120)
    * [D5.13](https://github.com/OpenDreamKit/OpenDreamKit/issues/111)
  - [T5.5](https://github.com/OpenDreamKit/OpenDreamKit/issues/103) MPIR
+   * [D5.5](https://github.com/OpenDreamKit/OpenDreamKit/issues/118)
+   * [D5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/120)
  - [T5.6](https://github.com/OpenDreamKit/OpenDreamKit/issues/104) HPC infrastructure for Combinatorics
+   * [D5.1](https://github.com/OpenDreamKit/OpenDreamKit/issues/107)
+   * [D5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/106)
+   * [D5.11](https://github.com/OpenDreamKit/OpenDreamKit/issues/109)
  - [T5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/105) Pythran
+   * [D5.2](https://github.com/OpenDreamKit/OpenDreamKit/issues/115)
+   * [D5.4](https://github.com/OpenDreamKit/OpenDreamKit/issues/117) 
  - [T5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/106) Sun Grid Engine integration in Jupyter Hub
+   * [D5.3](https://github.com/OpenDreamKit/OpenDreamKit/issues/116)
 
 See page 49 of the [proposal](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf) for the full description.
