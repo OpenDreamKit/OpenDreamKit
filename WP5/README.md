@@ -31,22 +31,22 @@ to retain their high level approach.
 
 ## Tasks
 
- - T5.1 (#99) PARI
-   * D5.10 (#108)
-   * D5.16 (#114)
- - T5.2 (#100) GAP
-   * D5.15 (#113)
- - T5.3 (#101) LinBox
-   * D5.9 (#122)
-   * D5.12 (#110)
-   * D5.14 (#112)
- - T5.4 (#102) Singular
-   * D5.6 (#119)
-   * D5.7 (#120)
-   * D5.13 (#111)
- - T5.5 (#103) MPIR
- - T5.6 (#104) HPC infrastructure for Combinatorics
- - T5.7 (#105) Pythran
- - T5.8 (#106) Sun Grid Engine integration in Jupyter Hub
+ - [T5.1](https://github.com/OpenDreamKit/OpenDreamKit/issues/99) PARI
+   * [D5.10](https://github.com/OpenDreamKit/OpenDreamKit/issues/108)
+   * [D5.16](https://github.com/OpenDreamKit/OpenDreamKit/issues/114)
+ - [T5.2](https://github.com/OpenDreamKit/OpenDreamKit/issues/100) GAP
+   * [D5.15](https://github.com/OpenDreamKit/OpenDreamKit/issues/113)
+ - [T5.3](https://github.com/OpenDreamKit/OpenDreamKit/issues/101) LinBox
+   * [D5.9](https://github.com/OpenDreamKit/OpenDreamKit/issues/122)
+   * [D5.12](https://github.com/OpenDreamKit/OpenDreamKit/issues/110)
+   * [D5.14](https://github.com/OpenDreamKit/OpenDreamKit/issues/112)
+ - [T5.4](https://github.com/OpenDreamKit/OpenDreamKit/issues/102) Singular
+   * [D5.6](https://github.com/OpenDreamKit/OpenDreamKit/issues/119)
+   * [D5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/120)
+   * [D5.13](https://github.com/OpenDreamKit/OpenDreamKit/issues/111)
+ - [T5.5](https://github.com/OpenDreamKit/OpenDreamKit/issues/103) MPIR
+ - [T5.6](https://github.com/OpenDreamKit/OpenDreamKit/issues/104) HPC infrastructure for Combinatorics
+ - [T5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/105) Pythran
+ - [T5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/106) Sun Grid Engine integration in Jupyter Hub
 
 See page 49 of the [proposal](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf) for the full description.
