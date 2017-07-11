@@ -49,7 +49,7 @@ to retain their high level approach.
    * [D5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/120)
  - [T5.6](https://github.com/OpenDreamKit/OpenDreamKit/issues/104) HPC infrastructure for Combinatorics
    * [D5.1](https://github.com/OpenDreamKit/OpenDreamKit/issues/107)
-   * [D5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/106)
+   * [D5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/121)
    * [D5.11](https://github.com/OpenDreamKit/OpenDreamKit/issues/109)
  - [T5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/105) Pythran
    * [D5.2](https://github.com/OpenDreamKit/OpenDreamKit/issues/115)
