@@ -22,6 +22,7 @@
       <xsl:when test="$id='cmueller'"><xsl:text>Christine Müller</xsl:text></xsl:when>
       <xsl:when test="$id='nmueller'"><xsl:text>Normen Müller</xsl:text></xsl:when>
       <xsl:when test="$id='fhorozal'"><xsl:text>Fulya Horozal</xsl:text></xsl:when>
+      <xsl:otherwise><xsl:value-of select="$id"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
 
@@ -123,121 +124,121 @@
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/>
       </head>
       <body>
-				<div class="container">
-
-					<!-- Header -->
-					<div class="row">
-			      <div class="col s12">
-							<h1><xsl:value-of select="$name"/>: Selected Publications</h1>
-
-							<blockquote>
-								Please respect any copyrights when downloading
-							</blockquote>
-
-							<ol>
-								<xsl:if test="$article!='' or $incollection!='' or $conference!='' or $book!='' or $proceedings!=''">
-									<li>
-										<a href="#archival">Archival Literature</a>
-										<ol>
-											<xsl:if test="$article!=''"><li><a href="#article">Articles in Journals</a></li></xsl:if>
-											<xsl:if test="$incollection!=''"><li><a href="#incollection">Articles in Collections</a></li></xsl:if>
-											<xsl:if test="$conference!=''"><li><a href="#conference">Papers at International, Peer-Reviewed Conferences</a></li></xsl:if>
-											<xsl:if test="$book!=''"><li><a href="#book">Monographs</a></li></xsl:if>
-											<xsl:if test="$cproceedings!=''"><li><a href="#proceedings">Conference Proceedings Edited</a></li></xsl:if>
-										</ol>
-									</li>
-								</xsl:if>
-								<xsl:if test="$thesis!=''">
-									<li><a href="#thesis">Theses</a></li>
-								</xsl:if>
-								<xsl:if test="$wproceedings!='' or $workshop!='' or $report!=''">
-									<li>
-											<a href="#gray">Gray Literature</a>
-											<ol>
-												<xsl:if test="$wproceedings!=''"><li><a href="#wproceedings">Worskhop Proceedings Edited</a></li></xsl:if>
-												<xsl:if test="$workshop!=''"><li><a href="#workshop">Papers at Peer-Reviewed Workshops</a></li></xsl:if>
-												<xsl:if test="$report!=''"><li><a href="#report">Technical Reports</a></li></xsl:if>
-											</ol>
-									</li>
-								</xsl:if>
-								<xsl:if test="$unpublished!=''"><li><a href="#unpublished">Unpublished</a></li></xsl:if>
-								<xsl:if test="$misc!=''"><li><a href="#misc">Miscellaneous</a></li></xsl:if>
-							</ol>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="col s12">
-
-							<!-- important -->
-							<xsl:if test="$article!='' or $incollection!='' or $conference!='' or $book!='' or $cproceedings!=''">
-								<h2 id="archival">Archival Literature</h2>
-
-							  <xsl:if test="$article!=''">
-									<h3 id="article">Articles in Journals</h3>
-					    		<ol class="ltx_biblist"><xsl:copy-of select="$article"/></ol>
-							  </xsl:if>
-
-								<xsl:if test="$incollection!=''">
-									<h3 id="incollection">Articles in Collections</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$incollection"/></ol>
-							  </xsl:if>
-
-								<xsl:if test="$conference!=''">
-									<h3 id="conference">Papers at International, Peer-Reviewed Conferences</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$conference"/></ol>
-							  </xsl:if>
-
-								<xsl:if test="$book!=''">
-							  	<h3 id="book">Monographs</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$book"/></ol>
-							  </xsl:if>
-
-								<xsl:if test="$cproceedings!=''">
-									<h3 id="cproceedings">Conference Proceedings Edited</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$cproceedings"/></ol>
-							  </xsl:if>
-							</xsl:if>
-
-							<!-- important, but not archival -->
-							<xsl:if test="$thesis!=''">
-								<h2 id="thesis">Theses</h2>
-								<ol class="ltx_biblist"><xsl:copy-of select="$thesis"/></ol>
-							</xsl:if>
-
-							<!-- the gray literature -->
-							<xsl:if test="$wproceedings!='' or $workshop!='' or $report!=''">
-								<h2 id="gray">Gray Literature</h2>
-
-								<xsl:if test="$wproceedings!=''">
-									<h3 id="wproceedings">Worskhop Proceedings Edited</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$wproceedings"/></ol>
-								</xsl:if>
-
-								<xsl:if test="$workshop!=''">
-									<h3 id="workshop">Papers at Peer-Reviewed Workshops</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$workshop"/></ol>
-								</xsl:if>
-
-								<xsl:if test="$report!=''">
-									<h3 id="report">Technical Reports</h3>
-									<ol class="ltx_biblist"><xsl:copy-of select="$report"/></ol>
-								</xsl:if>
-							</xsl:if>
-
-							<!-- not even published -->
-							<xsl:if test="$unpublished!=''">
-								<h2 id="unpublished">Unpublished</h2>
-								<ol class="ltx_biblist"><xsl:copy-of select="$unpublished"/></ol>
-							</xsl:if>
-
-							<xsl:if test="$misc!=''">
-								<h2 id="misc">Miscellaneous</h2>
-								<ol class="ltx_biblist"><xsl:copy-of select="$misc"/></ol>
-							</xsl:if>
-						</div>
-					</div>
-				</div>
+	<div class="container">
+	  
+	  <!-- Header -->
+	  <div class="row">
+	    <div class="col s12">
+	      <h1><xsl:value-of select="$name"/>: Selected Publications</h1>
+	      
+	      <blockquote>
+		Please respect any copyrights when downloading
+	      </blockquote>
+	      
+	      <ol>
+		<xsl:if test="$article!='' or $incollection!='' or $conference!='' or $book!='' or $cproceedings!=''">
+		  <li>
+		    <a href="#archival">Archival Literature</a>
+		    <ol>
+		      <xsl:if test="$article!=''"><li><a href="#article">Articles in Journals</a></li></xsl:if>
+		      <xsl:if test="$incollection!=''"><li><a href="#incollection">Articles in Collections</a></li></xsl:if>
+		      <xsl:if test="$conference!=''"><li><a href="#conference">Papers at International, Peer-Reviewed Conferences</a></li></xsl:if>
+		      <xsl:if test="$book!=''"><li><a href="#book">Monographs</a></li></xsl:if>
+		      <xsl:if test="$cproceedings!=''"><li><a href="#proceedings">Conference Proceedings Edited</a></li></xsl:if>
+		    </ol>
+		  </li>
+		</xsl:if>
+		<xsl:if test="$thesis!=''">
+		  <li><a href="#thesis">Theses</a></li>
+		</xsl:if>
+		<xsl:if test="$wproceedings!='' or $workshop!='' or $report!=''">
+		  <li>
+		    <a href="#gray">Gray Literature</a>
+		    <ol>
+		      <xsl:if test="$wproceedings!=''"><li><a href="#wproceedings">Worskhop Proceedings Edited</a></li></xsl:if>
+		      <xsl:if test="$workshop!=''"><li><a href="#workshop">Papers at Peer-Reviewed Workshops</a></li></xsl:if>
+		      <xsl:if test="$report!=''"><li><a href="#report">Technical Reports</a></li></xsl:if>
+		    </ol>
+		  </li>
+		</xsl:if>
+		<xsl:if test="$unpublished!=''"><li><a href="#unpublished">Unpublished</a></li></xsl:if>
+		<xsl:if test="$misc!=''"><li><a href="#misc">Miscellaneous</a></li></xsl:if>
+	      </ol>
+	    </div>
+	  </div>
+	  
+	  <div class="row">
+	    <div class="col s12">
+	      
+	      <!-- important -->
+	      <xsl:if test="$article!='' or $incollection!='' or $conference!='' or $book!='' or $cproceedings!=''">
+		<h2 id="archival">Archival Literature</h2>
+		
+		<xsl:if test="$article!=''">
+		  <h3 id="article">Articles in Journals</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$article"/></ol>
+		</xsl:if>
+		
+		<xsl:if test="$incollection!=''">
+		  <h3 id="incollection">Articles in Collections</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$incollection"/></ol>
+		</xsl:if>
+		
+		<xsl:if test="$conference!=''">
+		  <h3 id="conference">Papers at International, Peer-Reviewed Conferences</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$conference"/></ol>
+		</xsl:if>
+		
+		<xsl:if test="$book!=''">
+		  <h3 id="book">Monographs</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$book"/></ol>
+		</xsl:if>
+		
+		<xsl:if test="$cproceedings!=''">
+		  <h3 id="cproceedings">Conference Proceedings Edited</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$cproceedings"/></ol>
+		</xsl:if>
+	      </xsl:if>
+	      
+	      <!-- important, but not archival -->
+	      <xsl:if test="$thesis!=''">
+		<h2 id="thesis">Theses</h2>
+		<ol class="ltx_biblist"><xsl:copy-of select="$thesis"/></ol>
+	      </xsl:if>
+	      
+	      <!-- the gray literature -->
+	      <xsl:if test="$wproceedings!='' or $workshop!='' or $report!=''">
+		<h2 id="gray">Gray Literature</h2>
+		
+		<xsl:if test="$wproceedings!=''">
+		  <h3 id="wproceedings">Worskhop Proceedings Edited</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$wproceedings"/></ol>
+		</xsl:if>
+		
+		<xsl:if test="$workshop!=''">
+		  <h3 id="workshop">Papers at Peer-Reviewed Workshops</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$workshop"/></ol>
+		</xsl:if>
+		
+		<xsl:if test="$report!=''">
+		  <h3 id="report">Technical Reports</h3>
+		  <ol class="ltx_biblist"><xsl:copy-of select="$report"/></ol>
+		</xsl:if>
+	      </xsl:if>
+	      
+	      <!-- not even published -->
+	      <xsl:if test="$unpublished!=''">
+		<h2 id="unpublished">Unpublished</h2>
+		<ol class="ltx_biblist"><xsl:copy-of select="$unpublished"/></ol>
+	      </xsl:if>
+	      
+	      <xsl:if test="$misc!=''">
+		<h2 id="misc">Miscellaneous</h2>
+		<ol class="ltx_biblist"><xsl:copy-of select="$misc"/></ol>
+	      </xsl:if>
+	    </div>
+	  </div>
+	</div>
       </body>
     </html>
   </xsl:template>
