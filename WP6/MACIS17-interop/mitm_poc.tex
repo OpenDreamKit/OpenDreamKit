@@ -5,11 +5,10 @@ servers to go online and offline independently of the MitM server. Below is the
 specification of the protocol.
 
 \subsubsection{Peers}
-One of the systems in the dialog must initially 
-act as a server. This server will be called the MitM server and expose a strict 
-set of function headers to clients upon startup. The other system will be referred
-to from now on as CAS (Computer Algebra System) and can expose an arbitrary set
-of function headers.
+One of the systems in the dialog must initially act as a server. This server will 
+be called the MitM server and expose a strict set of function headers to clients 
+upon startup. The other system will be referred to from now on as CAS (Computer 
+Algebra System) and can expose an arbitrary set of function headers.
 
 \subsubsection{Interaction}
 The MitM server must, upon boot-up, expose the symbol "eq" from the CD 
@@ -46,10 +45,10 @@ over SCSCP:
 
 \section{GAP/Singular MitM Case Study}
 \subsection{Overview of the System}
-In order to apply the MitM paradigm to practice, we have created a case study in 
-which a user is able to access the functionality of two very different computer 
-algebra systems by querying the MitM server that is implemented by an extension in
-MMT. The study consists of five components:
+In order to apply the MitM paradigm to practice, we have created a case study 
+\cite{MitM-PoC} in which a user is able to access the functionality of two very 
+different computer algebra systems by querying the MitM server that is 
+implemented by an extension in MMT. The study consists of five components:
 \begin{itemize}
   \item MitM server (as an MMT extension)
   \item GAP SCSCP server that specializes on computations in group theory
@@ -95,10 +94,12 @@ member of the symmetric group that is obtained by applying that member to every
 item of the list.
 
 \subsubsection{Singular SCSCP Server}
-Since Singular currently doesn't have any support for SCSCP, the Singular SCSCP server is
-written in Python and uses the \lstinline|scscp and \lstinline|PySingular| python
-modules. The only function exposed by this server is the evaluation of equality of two
-applications of the DMP symbol.
+Since Singular currently doesn't have any support for SCSCP, the Singular SCSCP 
+server is written in Python using the 
+\lstinline|scscp and \lstinline|PySingular| python modules and is adapted from 
+the example code on the py-scscp repository\cite{PySCSCP}. The only function 
+exposed by this server is the evaluation of equality of two applications of the 
+DMP symbol.
 
 \subsubsection{Controlling Client Script}
 In the long term, the function alignment will be done automatically when a CAS 
@@ -127,6 +128,34 @@ polynomial, it showcases the ability of the client to query the MitM server that
 is then forced to use multiple CAS without the client needing any knowledge of the
 underlying systems.
 
+\subsection{Using the System}
+\subsubsection{Dependencies}
+The dependencies of the software in subject of the study and instructions on
+acquiring them:
+\begin{itemize}
+  \item \textbf{Jupyter}- installed via pip
+  \item \textbf{GAP}- installed from https://github.com/gap-system/gap
+  \item \textbf{Singualar}- installed via package manager or from
+    https://www.singular.uni-kl.de/index.php/singular-download.html
+  \item \textbf{MMT}- installed from https://github.com/Uniformal/MMT
+  \item \textbf{Py-SCSCP}- installed via pip
+  \item \textbf{PySingular}- installed via pip or from 
+    https://github.com/sebasguts/SingularPython
+\end{itemize}
+
+\subsubsection{Execution}
+Instructions on running the system:
+\begin{itemize}
+  \item Run singular\_server.py script using python, the gap\_server.g script
+    using GAP, and start MMT. From the MMT shell prompt, run 
+    "file mitm\_server.msl".
+  \item Run ControllingClient.py using python to set up alignments between
+    MitM server and CAS servers.
+  \item Start a Jupyter kernel using "jupyter notebook" and open the 
+    QueryingClient.ipynb notebook. This is the example procedure that showcases
+    a few examples of calculations of orbits of polynomials.
+\end{itemize}
+
 \subsection{Evaluation of the Study}
 This study has implemented the MitM approach using SCSCP, showing that the MitM 
 paradigm is an achievable goal. Currently, however, the MitM server acts as 
@@ -154,6 +183,13 @@ changes must be made:
     a routing proxy, as it would be able to typecheck the arguments of incoming
     requests, making the MitM system more rigid.
 \end{itemize}
+
+\begin{thebibliography}{1}
+  \bibitem{MitM-PoC}  \href{https://github.com/vv20/mitm\_proof\_of\_concept}
+    {GitHub repository containing the MitM proof of concept project}
+
+  \bibitem{PySCSCP} \href{https://github.com/OpenMath/py-scscp/blob/master/examples/demo\_server.py}{Python SCSCP package}
+\end{thebibliography}
 
 %%% Local Variables:
 %%% mode: latex
