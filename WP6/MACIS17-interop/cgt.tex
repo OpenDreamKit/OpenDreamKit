@@ -6,22 +6,78 @@
 \end{todolist}
 
 To create a working example, we turned towards one of the topics best
-understood by GAP: Computation with (permutation) groups, and formalise them in
+understood by GAP: Computation with (permutation) groups, and formalise it in
 MMT.
+This a first part of the MitM Ontology.
 
-Starting from the theory of groups, we formalised the notions of
-subgroups, homomorphisms, group actions, stabilisers, orbits, and some more
-advanced concepts such as normalisers, and p-Sylow-subgroups.\footnote{we could
-  also mention that we created views that ``prove''(?) equivalence of two
-  different formal definitions of group actions, one via an action map, the
-  other via an action homomorphism; both concepts exist in GAP, too }
 
-Since GAP\footnote{any computational system needs to} knows about different
-concrete representations of groups, for example universal representations such
-as permutation groups, matrix groups (over finite fields), or finitely presented
-groups, or specialised representations such as polyclically presented groups
-there needs to be a layer of formalisation that
-understands these representations.
+\subsection{Layers of Abstraction}\ednote{MP@DM this could do with a picture a
+  bit like the one in your Alignments paper; if you have the source for it, I
+  coudl adapt it}
+The layers: abstract, representation, canonical(?), system dialect
+
+We discovered that formalisation of CGT requires different levels of
+abstraction\ednote{MP: This will probably be true for any type of object
+  in this game}. At the highest level there is the theory of \emph{Groups}: the
+group axioms, generating sets, homomorphisms, group actions, stabilisers,
+and orbits. This also easily leads into definitions of
+centralisers\footnote{stabilisers of elements under conjugation} and
+normalisers\footnote{stabilisers of subgroups under
+conjugation}, stabiliser chains,  Sylow-$p$ subgroups, Hall subroups, and many
+other concepts. 
+
+MMT also allows expressing that there are different equivalent definitions of a
+concept: We defined group actions in two ways and used \emph{views} to show
+their equivalence.
+
+\ednote{MP: We need to be able to talk about elements/subsets of groups,
+  elements/subsets of $S_n$ that generate groups}
+
+\medskip
+
+Abstract groups can be represented in many ways as more concrete mathematical
+objects: as groups of permutations, groups of matrices, finitely presented
+groups, or as a polycyclic presentation.\ednote{MP: Not sure this is relevant but the first
+three of these are universal: every group has a representation as such an
+object, whereas the last is a specialised representation for polycyclic groups}
+
+Additionally, mathematicians often compute with canonical representatives of an
+isomorphism class of groups: When a group theorist talks about the ``Dihedral
+group of order 8'', they often have a particular canonical representation in
+mind, for example as a permutation group that acts on the square by rotations
+and reflections, but in GAP this group would be represented as a group of
+permutations of (usually) the corners of the square, or a polycyclic
+presentation.\ednote{MP: I think this needs better explanation}
+
+These representations also arise naturally from \emph{group actions}: If we are
+considering symmetry in a setting where we want to apply group theory, we start
+with a group action.\ednote{MP: More concrete? More ``gripping''? I already
+talked about the canonical example with the dihedral group}
+
+The universal tool to bridge the gap between groups, representations and
+canonical representatives are group homomorphisms.
+
+\medskip
+
+At the lowest level there are implementation details: Permutation groups in GAP
+are considered as finite subgroups of the group $S_{\mathbb{N}+}$, and defined by
+providing a set of generating permutations. GAP then computes a stabiliser chain
+for a group that was defined this way, and naturally considers the group to be a
+subgroup of $S_{[1..n]}$, where $n$ is the largest point moved.
+
+\ednote{MP: There might have to be more layers, but these are the main ones I
+  can think about right now}
+
+\subsection{Alignments}
+
+Alignments are currently produced by hand: \ednote{MP: potential for
+  automated or semi-automated production of alignments from our exports}
+For example the filter \texttt{IsGroup} is aligned with \texttt{Group}, and the
+filter \texttt{IsPermGroup} is aligned with \texttt{Subgroup SymmetricGroup
+  [1..n]}.
+\ednote{MP: Need to be more concrete here, in particular we should maybe
+  describe how GAP's notion of an action homomorphism tranlates through this?
+  Also is this even correct?}
 
 We formalised the theory of symmetric groups of a set; in GAP permutation groups
 are represented as subgroups (with finite support) of the symmetric group of
@@ -29,15 +85,17 @@ $\mathbb{N}$, and often one concretely has an isomorphism between the group one
 is interested in and a subgroup of $S_{\mathbb{N}}$, for example
 via a group action.
 
-Most of this information is encoded in GAP as well, but some of it is much less
-explicit.
+\texttt{SylowSubgroup} are more difficult: They are special groups in their
+own right, namely groups whose size is a prime-power, but we also want them
+to be identified with a certain subgroup of the group we are working
+with.\ednote{MP: While I believe this to be an excellent additional example
+  for MMT formalisation, this could be going too far for this paper}
 
-\footnote{Do we mention that this attempt at formalising group theory lead to
-  improvements in MMT?}
-\footnote{We might want to be a bit careful/mention implementations of group
+
+\ednote{MP+FR+DM: Mention that this attempt at formalising group theory
+  lead to improvements in MMT?}
+\ednote{MP@ALL: We might want to be a bit careful/mention implementations of group
   theory for example in COQ where they did the Odd-Order-Proof?}
-\footnote{We need to describe how we'd do alignments now; by hand?
-  semi-automated? automated? what do we actually align!}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "paper"
