@@ -1,9 +1,10 @@
 \documentclass{llncs}
 \pagestyle{plain}
-\usepackage[show]{ed}
+\usepackage[hide]{ed}
 \usepackage[utf8]{inputenc}
 \usepackage{xspace}
 \usepackage{amssymb}
+\usepackage{wrapfig}
 \usepackage[style=alphabetic,backend=bibtex,isbn=false]{biblatex}
 \addbibresource{../../lib/kbibs/kwarcpubs.bib}
 \addbibresource{../../lib/kbibs/extpubs.bib}
@@ -23,6 +24,43 @@
   \iftoggle{bbx:url}
     {\usebibmacro{url+urldate}}
     {}}
+
+% identifiers and URIs
+\providecommand{\identifier}[1]{%
+  \StrSubstitute{#1}{\_}{_}[\identifiertmp]
+  \expandafter\path\expandafter{\identifiertmp}%
+}
+\let\uri\identifier
+
+% TIKZ
+\usepackage{tikz}
+\def\thmo#1#2{\mathsf{#1}\colon\kern-.15em{#2}}% for theories
+\usetikzlibrary{shapes,arrows,fit,shadows}
+
+% Abbreviations
+\providecommand{\mmt}{MMT}
+\providecommand{\omdocmmt}{OMDoc/MMT}
+\providecommand{\lmfdb}{LMFDB}
+
+% code snippets
+\usepackage{listings}
+\lstdefinelanguage{qmt}{
+    basicstyle=\footnotesize\ttfamily,
+    showstringspaces=false,
+    frame=single, 
+    mathescape, 
+    columns=fullflexible,
+    breaklines=true
+}
+\providecommand{\inlinecode}[1]{{\lstinline[language=qmt]|#1|}}
+
+\def\meta#1{\ensuremath{\langle\kern-.25em\langle}#1\ensuremath{\rangle\kern-.2em\rangle}}
+
+% More abbreviatons for diagrams and things
+\def\plaintt#1{\ifmmode\mathrm{\texttt{#1}}\else\texttt{#1}\fi}
+\def\typett{\plaintt{type}}
+\def\codectt{\plaintt{codec}}
+
 
 \usepackage{hyperref}
 \title{REGULAR-T1: Virtual Theories -- A Uniform Interface to Mathematical Knowledge Bases}
@@ -48,23 +86,16 @@ Florian Rabe\inst{2}
   the HOL systems.\ednote{continue}
 \end{abstract}
 
-\section{Introduction}\label{sec:intro}
-\begin{todolist}{follow this}
-\item mathematical knowledge bases are non-interoperable, and usually only accessible to
-  humans (not programmatically; state of the art is to export data, manually massage it
-  into SageMath form and make a SageMath module (PIP) to be included into SageMath). 
-\item If they are, then they only expose the internal database records, not the
-  mathematical objects. e.g. elliptic curves over the rationals as number quadruples where
-  one of the numbers is represented as a string.
-\item we want to compute with them, e.g. to find new relations between sequences in the
-  OEIS (see~\cite{LuzKoh:fsarfo16}), or to find all elliptic curves in the LMFDB whose
-  conductor is divisible by 5. 
-\item we want to link them, so the contents must be interoperable $\leadsto$ Idea: use
-  the MitM approach introduced in \cite{DehKohKon:iop16}, and view math knowledge bases as
-  OMDoc/MMT theory graphs (the ABox component of the MitM ontology).
-\item 
-\end{todolist}
+\ednote{Target Size: 15 pages}
+
+\input{intro.tex}
+\input{sota.tex}
+\input{mmtmitm.tex}
+\input{vt.tex}
+
 \section{Conclusion}\label{sec:concl}
+
+\ednote{Write me}
 \printbibliography
 \end{document}
 %%% Local Variables:
