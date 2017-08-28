@@ -2,7 +2,7 @@
 
 Lead Institution: Université Joseph Fourier Grenoble
 
-- Objectives:
+## Objectives:
 
 The objective of this work package is to improve the performance of the computational components of OpenDreamKit,
 in particular on massively parallel architectures. This includes notably:
@@ -12,7 +12,7 @@ in particular on massively parallel architectures. This includes notably:
 • Develop novel HPC infrastructure in the context of combinatorics.
 A key aspect will be to foster further sharing expertise and best practices between computational components.
 
-- Description:
+## Description:
 
 As in all other areas of science, properly supporting massively parallel architectures is a major challenge. Many of
 the computational components in OpenDreamKit have already gone a long way in this direction. For example, parallel
@@ -28,5 +28,33 @@ language for their library. Performance is achieved by rewriting or compiling cr
 SAGE uses the CYTHON PYTHON-to-C compiler; GAP has some more basic support. In Tasks T5.2 and T5.7, we will
 also boost performance by further developing and applying such compilation tools, allowing the application programmer
 to retain their high level approach.
+
+## Tasks
+
+ - [T5.1](https://github.com/OpenDreamKit/OpenDreamKit/issues/99) PARI
+   * [D5.10](https://github.com/OpenDreamKit/OpenDreamKit/issues/108)
+   * [D5.16](https://github.com/OpenDreamKit/OpenDreamKit/issues/114)
+ - [T5.2](https://github.com/OpenDreamKit/OpenDreamKit/issues/100) GAP
+   * [D5.15](https://github.com/OpenDreamKit/OpenDreamKit/issues/113)
+ - [T5.3](https://github.com/OpenDreamKit/OpenDreamKit/issues/101) LinBox
+   * [D5.9](https://github.com/OpenDreamKit/OpenDreamKit/issues/122)
+   * [D5.12](https://github.com/OpenDreamKit/OpenDreamKit/issues/110)
+   * [D5.14](https://github.com/OpenDreamKit/OpenDreamKit/issues/112)
+ - [T5.4](https://github.com/OpenDreamKit/OpenDreamKit/issues/102) Singular
+   * [D5.6](https://github.com/OpenDreamKit/OpenDreamKit/issues/119)
+   * [D5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/120)
+   * [D5.13](https://github.com/OpenDreamKit/OpenDreamKit/issues/111)
+ - [T5.5](https://github.com/OpenDreamKit/OpenDreamKit/issues/103) MPIR
+   * [D5.5](https://github.com/OpenDreamKit/OpenDreamKit/issues/118)
+   * [D5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/120)
+ - [T5.6](https://github.com/OpenDreamKit/OpenDreamKit/issues/104) HPC infrastructure for Combinatorics
+   * [D5.1](https://github.com/OpenDreamKit/OpenDreamKit/issues/107)
+   * [D5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/121)
+   * [D5.11](https://github.com/OpenDreamKit/OpenDreamKit/issues/109)
+ - [T5.7](https://github.com/OpenDreamKit/OpenDreamKit/issues/105) Pythran
+   * [D5.2](https://github.com/OpenDreamKit/OpenDreamKit/issues/115)
+   * [D5.4](https://github.com/OpenDreamKit/OpenDreamKit/issues/117) 
+ - [T5.8](https://github.com/OpenDreamKit/OpenDreamKit/issues/106) Sun Grid Engine integration in Jupyter Hub
+   * [D5.3](https://github.com/OpenDreamKit/OpenDreamKit/issues/116)
 
 See page 49 of the [proposal](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf) for the full description.

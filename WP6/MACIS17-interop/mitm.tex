@@ -1,0 +1,132 @@
+\section{Math-in-the-Middle Interoperability}\label{sec:mitm}
+
+To build a VRE toolkit from open-source (or open-API\footnote{It turns out that it is
+  sufficient to have a well-documented API that gives access to the internal
+  (mathematical) data structures and functionality, so closed-source systems can also be
+  part of the MitM paradigm if they do.}) systems, we need a joint user interface -- the
+OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active
+documents~\cite{KohDavGin:psewads11} -- and an interoperability layer that allows to pass
+problems and results between the disparate systems. 
+
+For the latter -- and that is the topic of this paper -- we need a way to mediate between
+the interaction layers of the respective systems. Generally, mathematical software systems
+have apply operations on mathematical objects, which can be expressed as domain-specific
+constructors to primitive objects like numbers. The results of these operations are again
+such objects. If we abstract from issues of surface syntax -- which we can by assuming
+that the systems use a standard like OpenMath~\cite{BusCapCar:2oms04}, the interface
+languages differ in their vocabularies -- the operations and constructors. The difficulty
+in the translation of objects and functionalities between systems is to align the
+respective vocabularies: constructors of system $A$ can be operations in $B$ and vice
+versa, even when $A$ and $B$ deal with the mathematically ``same objects'', these may be
+constructed differently, and even if $A$ and $B$ share constructors and operations, these
+can differ in argument order/number, types, etc.
+
+\subsection{The MitM Paradigm}\label{sec:mitm:recap}
+
+Obviously, a P2P translation regime ($n^2$ translations between all systems) is already
+intractable for the systems in the OpenDreamKit project (more than a dozen), and a
+``industry standard'' regime where one interaction language is declared as a ``standard''
+is infeasible, since no system subsumes the others in terms of coverage -- apart from the
+political problems such a standardization would induce. Instead we have proposed the
+``Math-in-the-Middle'' (MitM) approach, where we use ``mathematical knowledge'' as an
+independent mediating vocabulary, and all system vocabularies are aligned to that. After
+all, the mathematics behind the systems is published using this vocabulary.
+
+\begin{wrapfigure}r{4.3cm}\vspace*{-2em}
+  \tikzinput{mistargraph}\vspace*{-1em}
+  \caption{MitM Paradigm}\label{fig:mitm}\vspace*{-1.5em}
+\end{wrapfigure}
+Figure~\ref{fig:mitm} shows the setup of the MitM paradigm -- see~\cite{DehKohKon:iop16}
+for details. In the center, we have the \textbf{MitM Ontology}, which is a modular
+flexiformalization of the mathematical knowledge behind the systems $A$ to $H$ as a theory
+graph in the OMDoc/MMT Format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. For
+each of the systems $A$ to $H$, we generate a theory graph \textbf{API Content
+  Dictionaries}\footnote{In~\cite{DehKohKon:iop16} we had called these ``interface
+  theories'', but we would like to reserve this term for certain theories in the MitM
+  ontology.}\ednote{MK: we may want to change this term before we submit; let's discuss!}
+in OMDoc/MMT which is aligned with the corresponding symbols in the MitM ontology. As the
+API CDs and the MitM Ontology are both in OMDoc/MMT -- inside the cloud in
+Figure~\ref{fig:mitm} -- we can make use of \textbf{OMDoc/MMT
+  alignments}~\cite{MueGauKal:cacfms17} which have been developed in the meantime for the
+MitM alignment relation.\ednote{MK: talk about interface theories somewhere below}
+
+\subsection{OpenMath System Dialects and Alignment-based Translation}\label{sec:mitm:dialect}
+
+Given the collection $s$ of API CDs of a system $S$ (see section~\ref{sec:apit} for
+examples), we can express all the API objects in the interface language of $S$ as OpenMath
+objects that only use symbols from $s$. 
+We call this language the \textbf{OpenMath system dialect} for $S$ and refer to OM objects in this language as $S$-objects. 
+Given an OpenMath \textbf{phrasebook}, i.e. an OpenMath interface that allows to serialize
+and parse all API objects of $S$ as OpenMath objects in the system dialect of $S$ (see~\cite[Section
+1.5]{BusCapCar:2oms04}).
+
+Note that as we have included the operations in the system API CDs of $S$, we can express all the functionality of $S$ in terms of OpenMath objects: if we want GAP to compute the normalizer of a group $G$, we can express this by the OpenMath object $\mathcal{O}$ which is the application of the symbol $n$ to the OM object representing $G$, where $n$ is the symbol from the GAP API CDs that represents the ``compute-the-normalizer'' operation. 
+Thus we can request GAP to compute the normalizer of $G$ by sending $\mathcal{O}$ to GAP, which then decodes it in its phrasebook into a GAP term, which it then computes, returning the result as an OM object $\mathcal{O}'$, again via the GAP phrasebook.
+
+Note that having OpenMath phrasebooks for all systems involved does not give us system interoperability yet, since all systems have different system dialects: 
+To delegate a computation from $A$ to $B$, we need to translate $A$-objects into $B$-objects for the ``remote procedure call'' and vice versa for the results. This is where the OMDoc/MMT alignments come into play. 
+Given a sufficiently complete set of MitM alignments we can translate between systems dialects using techniques from~\cite{MueRoYuRa:abtafs17}. This translation has been implemented in the MMT system~\cite{Rabe:MAGMS13,uniformal:on}   -- an implementation of the OMDoc/MMT format and a set of mathematical knowlege management algorithms. 
+Thus we can reduce the problem of  interfacing $n^2$ systems to
+\begin{inparaenum}[\em i\rm)]
+\item curating a MitM ontology for the joint mathematical domain,
+\item generating $n$ collections of API CDs, and 
+\item maintaining $n$ collections of alignments into the MitM ontology.
+\end{inparaenum}
+
+\subsection{MitM-based Distributed Computation}\label{sec:mitm:comms}
+
+The final missing piece for a system interoperability layer for a VRE toolkit is a way of transporting OM objects between systems. 
+In the OpenDreamKit project we use the OpenMath SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 
+SCSCP is essentially a distributed remote-procedure-call system based on OpenMath. 
+Procedure calls and results are expressed as OM objects as exemplified above; systems with an OpenMath phrasebooks can be extended to  SCSCP clients/servers by implementing the SCSCP protocol on top of e.g. sockets (or use a SCSCP library). 
+
+The situation is best illustrated by an example. Say John wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE?  
+John realizes that the LMFDB database contains a set of known abelian transitive groups.
+Furthermore, she realizes that the GAP system can check if a given group is cyclic. 
+To check his hypothesis, he could first retrieve all relevant groups from LMFDB, and then use GAP to check if each of these is cyclic. 
+
+As John is most familiar with the SageMath CAS, we expresses the this operation as \ednote{MK@NT: this is made up, can you make it more Sagey?}
+\begin{lstlisting}
+every ([g] scscp(gap|mmt,is_cyclic(g)),scscp(lmfdb|mmt,query("transitivegroup"))) 
+\end{lstlisting}
+
+\begin{wrapfigure}r{6.6cm}\vspace*{-2em}
+  \tikzinput{mitmcomm}\vspace*{-1em}
+  \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
+\end{wrapfigure}
+At the SageMath level, the \lstinline|every| predicate maps the first argument, interpreted as a predicate over the list in the second argument. 
+The arguments are the results of remote procedure calls via SCSCP. 
+The second one sends the query for transitive groups to the LMFDB SCSCP server, via SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
+At the system level, the interaction is mediated by the MMT system and we have the following atomic communication acts: 
+\begin{compactenum}
+\item SageMath sends a SCSCP remote procedure call for 
+  \begin{lstlisting}[mathescape]
+    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnote {We are assuming that \textsf{every} in SageMath is extended to produce the map term when it has \textsf{scscp} arguments.}}$
+\end{lstlisting}
+  to MMT as an OM object $Q$ in SageMath dialect.  
+\item MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB SCSCP server via SCSCP. 
+\item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
+\item MMT translates $34G$ into the GAP dialect and synthesizes a the OM object $M$ that calls the GAP map operation of the (GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to GAP. 
+\item GAP interprets $G$, and returns a list of 34 (GAP) truth values to MMT. 
+\item MMT translates them into a list of 34 SageMath truth values, which it sends back to SageMath. 
+\item SageMath interprets this list as a Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
+\end{compactenum}
+
+
+\begin{todolist}{MK@MK: recap from CICM paper}
+\item copy the running example from Tom's thesis as a didactically motivated example:
+  three-party computation, mathematically somewhat trivial, but informative; and it
+  involves SageMath
+\item introduce the GAP/Singular case study as a running example and make it concrete in
+  the MitM paradigm -- this example is mathematically
+\end{todolist}
+
+\input{mitm_poc}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:
+
+%  LocalWords:  sec:mitm Jupyter jupyter-project:on KohDavGin:psewads11 BusCapCar:2oms04 standardization DehKohKon:iop16 textbf RabKoh:WSMSML13,uniformal:on MueGauKal:cacfms17 sec:apit serialize normalizer mathcal compute-the-normalizer MitM-based centering mitmcomm MueRoYuRa:abtafs17 Rabe:MAGMS13,uniformal:on inparaenum Sagey lstlisting scscp mmt,is_cyclic scscp lmfdb mmt,query transitivegroup lstinline gap,is_cyclic,scscp lmfdb,query synthesizes mathescape
+%  LocalWords:  wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc

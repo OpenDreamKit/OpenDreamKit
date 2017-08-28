@@ -7,6 +7,8 @@ bib.kcr 			= kwarcpubs.bib $(bib.cr)
 bib.ext				= extpubs.bib $(bib.kcr)
 bib.all				= preamble.bib $(bib.ext)
 bib.people			= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
+bib.systems			= sissi tetrapod TNTBase arXMLiv cpoint jomdoc kat krextor llamapun mathhub mmt mws omdoc openmathmap sTeX sally smglom swim
+bib.projects			= FormalCAD jem latin logosphere mamored mathsearch oaf odk omoc once-cs openmath-tn
 
 # Sources
 src				= src/
@@ -78,7 +80,7 @@ $(kcr.ltxml.out): $(kcr.ltxml.in)
 
 # *.html --> custom script (xsltproc + latexml)
 html: setup-html $(kcr.ltxml.out)
-	$(SHELL) $(html.script) $(src) $(dist) "$(bib.people)"
+	$(SHELL) $(html.script) $(src) $(dist) "$(bib.people) $(bib.projects) $(bib.systems)"
 setup-html:
 	mkdir -p $(html.dist)
 	mkdir -p ${tex.dist}
@@ -88,7 +90,7 @@ clean-html:
 	-rm -r ${tex.dist}
 
 # pubs --> xsltproc
-pubs: setup-pubs html $(bib.people) $(pubs.dist)/index.html
+pubs: setup-pubs html $(bib.people) $(bib.projects) $(bib.systems) $(pubs.dist)/index.html
 $(pubs.dist)/index.html: setup-pubs html
 	xsltproc --path $(html.dist) -o $(pubs.dist)/index.html $(PLXSLA) $(PLXSLA)
 setup-pubs:
@@ -100,6 +102,13 @@ $(bib.people): %: $(PLXSL)
 	mkdir -p $(pubs.dist)$@
 	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(PLXSL) $(PLXSL)
 
+$(bib.projects): %: $(PLXSL)
+	mkdir -p $(pubs.dist)$@
+	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(PLXSL) $(PLXSL)
+
+$(bib.systems): %: $(PLXSL)
+	mkdir -p $(pubs.dist)$@
+	xsltproc --path $(html.dist) --stringparam id $@ -o $(pubs.dist)$@/index.html $(PLXSL) $(PLXSL)
 
 ######## testing
 test: $(kcr.ltxml.out)
