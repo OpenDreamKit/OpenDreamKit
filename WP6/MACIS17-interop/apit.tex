@@ -13,11 +13,9 @@
 \ednote{MK@MP+DM: describe the GAP API theory and how they are generated; give the numbers, but only give the diffs to the CICM16 paper.}
 
 In \cite{DehKohKon:iop16} we describe our approach to export knowledge in the
-form of type information from the GAP system. We export all created types
-together with relationships between them to a json file, which is then imported
-into MMT.
+form of type information from the GAP system and produce a full GAP API CD.
 
-We also defined the primitives of GAP's type system in OMDoc/MMT, and it is
+We defined the primitives of GAP's type system in OMDoc/MMT, and it is
 subject to future investigation whether MMT can serve as an external typechecker
 for GAP.
 
@@ -27,27 +25,36 @@ properties, meaning its type is refined: A group can learn that it is abelian or
 nilpotent and hence its type changes.
 
 For a successful implementation of an MitM system it is necessary to know how
-a given object in an ongoing session has been created. In GAP we achieve this by
+a given object in an ongoing session has been created. Formally objects are
+created by applying a \emph{constructor} to a list of arguments which are
+themselves objects.
+Since GAP has only a weak notion of object construction, we achieve this by
 identifying functions that create objects, and then instrumenting them to store
-their arguments. The instrumentation itself is minimal (57 lines of GAP code,
-plus 100 lines for printing objects as OpenMath). The main challenge was
-to identify functions that construct objects. In GAP objects come to be by
-calling the function \texttt{Objectify} with a type and some data, and hence all
-that was needed was an analysis of call-sites to this function and some light
-inference of the enclosing function.
+the relevant arguments they were called with.
+The instrumentation itself is minimal (57 lines of GAP code, plus 100 lines for
+printing objects as OpenMath). The main challenge was
+to identify functions that construct objects, and which arguments of those
+functions are then stored in the object.
+In GAP objects are created by calling the function \texttt{Objectify} with a
+type and some data, hence all that was needed was an analysis of call-sites to
+this function and some light inference of the enclosing function.
 Developing the instrumentation lead to many improvements of type-handling
 infrastructure in GAP itself, and the instrumentation will be integrated into a
 future version of GAP, making GAP fully MitM capable.
+\ednote{@MP think about
+  ``why not just'' using the arguments to Objectify, this would of course also
+  be stored, but looks even more minimal}
 
 In the GAP library there are 665 calls to Objectify, and in the standard package
-distribution there are 1664.
+distribution there are an additional 1664.
 
 With the constructor annotation in place it is possible to have GAP represent
-any object in the workspace as either a primitive type, for which standard
+any object in a running session as either a primitive type (integers,
+permutations, transformations, lists, floats, strings), for which standard
 OpenMath CDs are used, or a constructor applied to a list of arguments. This
 lends itself perfectly to a representation in the GAP API CD.
 
-\ednote{MP: Put an example of OM_Print here, maybe for a group, or for Cosets
+\ednote{MP: Put an example of OM\_Print here, maybe for a group, or for Cosets
   (as they are something that the standard OpenMath CDs in GAP cannot do)}
 
 \ednote{MK@MP: we also need to talk about the OM Phrasebook (see
@@ -62,6 +69,12 @@ paper. What is the state of the OM Phrasebook for SageMath?}
 \subsection{Creation Of Singular API CDs}
 \ednote{MK: it would be great, if we could do this and als have an estimation of
 the time used for this.}
+
+For Singular we used standard OpenMath CDs for polynomials and wrapped
+\texttt{Singular} in a thin layer of python code that provides SCSCP
+communication. This work was undertaken by the sixth author as part of a summer
+nternship in about a week without prior expert
+knowledge of the system.\ednote{MP@MK What is the correct way of phrasing this?}
 
 \subsection{Comparison of Approaches}
 
