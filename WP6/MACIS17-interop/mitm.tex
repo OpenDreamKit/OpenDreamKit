@@ -92,14 +92,28 @@ In the OpenDreamKit project we use the OpenMath SCSCP (Symbolic Computation Soft
 SCSCP is essentially a distributed remote-procedure-call system based on OpenMath. 
 Procedure calls and results are expressed as OM objects as exemplified above; systems with an OpenMath phrasebooks can be extended to  SCSCP clients/servers by implementing the SCSCP protocol on top of e.g. sockets (or use a SCSCP library). 
 
-The situation is best illustrated by an example. Say John wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE?  
+\ednote{John or Jane?}
+The situation is best illustrated by an example. Say John wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE.
 John realizes that the LMFDB database contains a set of known abelian transitive groups.
 Furthermore, she realizes that the GAP system can check if a given group is cyclic. 
 To check his hypothesis, he could first retrieve all relevant groups from LMFDB, and then use GAP to check if each of these is cyclic. 
 
-As John is most familiar with the SageMath CAS, we expresses the this operation as \ednote{MK@NT: this is made up, can you make it more Sagey?}
+As John is most familiar with the SageMath CAS, we expresses this operation as
 \begin{lstlisting}
 every ([g] scscp(gap|mmt,is_cyclic(g)),scscp(lmfdb|mmt,query("transitivegroup"))) 
+\end{lstlisting}
+\ednote{MK@NT: this is made up, can you make it more Sagey?}
+
+\ednote{NT@MK: here is a first step; I am not sure yet in which form
+  to introduce the mmt and scscp pieces. What exactly do we want to
+  convey about them?}
+
+\begin{lstlisting}
+  gap   = server(system="gap", transport="scscp", mediator="mmt")
+  lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
+
+  all( gap.is_cyclic(g)
+       for g in lmfdb.query("transitive_groups", abelian=True) )
 \end{lstlisting}
 
 \begin{wrapfigure}r{6.6cm}\vspace*{-2em}
