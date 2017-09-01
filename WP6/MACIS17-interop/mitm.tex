@@ -9,16 +9,14 @@ documents~\cite{KohDavGin:psewads11} -- and an interoperability layer that allow
 problems and results between the disparate systems. 
 
 For the latter -- and that is the topic of this paper -- we need a way to mediate between
-the interaction layers of the respective systems.  \ednote{NT: Some grammar issues in the
-  following sentence which make it a bit confusing; not sure how to fix it myself.}
-Generally, mathematical software systems apply operations on mathematical objects, which
-can be expressed as applications of domain-specific constructors to primitive objects like
-numbers and other objects. The results of these operations are again such objects. If we
-abstract from issues of surface syntax -- which we can by assuming that the systems use a
-standard like OpenMath~\cite{BusCapCar:2oms04}, the interface languages differ in their
-vocabularies -- the operations and constructors. The difficulty in the translation of
-objects and functionalities between systems is to \emph{align} the respective
-vocabularies:
+the interaction layers of the respective systems.  Generally, mathematical software
+systems apply operations on mathematical objects, which can be expressed as applications
+of domain-specific constructors to primitive objects like numbers and other objects. The
+results of these operations are again such objects. If we abstract from issues of surface
+syntax -- which we can by assuming that the systems use a standard like
+OpenMath~\cite{BusCapCar:2oms04}, the interface languages differ in their vocabularies --
+the operations and constructors. The difficulty in the translation of objects and
+functionalities between systems is to \emph{align} the respective vocabularies:
 
 Even when $A$ and $B$ deal with the mathematically ``same objects'',
 these may be constructed differently; e.g. using constructors in
@@ -49,10 +47,9 @@ graph in the OMDoc/MMT Format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:
 each of the systems $A$ to $H$, we generate a theory graph \textbf{API Content
   Dictionaries}\footnote{In~\cite{DehKohKon:iop16} we had called these ``interface
   theories'', but we would like to reserve this term for certain theories in the MitM
-  ontology.}\ednote{MK: we may want to change this term before we submit; let's discuss!}
-in OMDoc/MMT which is aligned with the corresponding symbols in the MitM ontology. As the
-API CDs and the MitM Ontology are both in OMDoc/MMT -- inside the cloud in
-Figure~\ref{fig:mitm} -- we can make use of \textbf{OMDoc/MMT
+  ontology.}  in OMDoc/MMT which is aligned with the corresponding symbols in the MitM
+ontology. As the API CDs and the MitM Ontology are both in OMDoc/MMT -- inside the cloud
+in Figure~\ref{fig:mitm} -- we can make use of \textbf{OMDoc/MMT
   alignments}~\cite{MueGauKal:cacfms17} which have been developed in the meantime for the
 MitM alignment relation.\ednote{MK: talk about interface theories somewhere below}
 
@@ -92,44 +89,39 @@ In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Sof
 \SCSCP is essentially a distributed remote-procedure-call system based on OpenMath. 
 Procedure calls and results are expressed as OM objects as exemplified above; systems with an OpenMath phrasebooks can be extended to  \SCSCP clients/servers by implementing the \SCSCP protocol on top of e.g. sockets (or use a \SCSCP library). 
 
-\ednote{John or Jane?}
-The situation is best illustrated by an example. Say John wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE.
-John realizes that the LMFDB database contains a set of known abelian transitive groups.
+The situation is best illustrated by (still partly fictional) example. Say Jane wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE.
+Jane realizes that the LMFDB database contains a set of known abelian transitive groups.
 Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
 To check his hypothesis, he could first retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
 
-As John is most familiar with the \Sage CAS, we expresses this operation as
+As Jane is most familiar with the \Sage CAS, she expresses this operation as
+\ednote{MK@NT: indeed this looks much better. We want to show an imaginary syntax that
+  allows to conveniently deletate.}
 \begin{lstlisting}
-every ([g] scscp(gap|mmt,is_cyclic(g)),scscp(lmfdb|mmt,query("transitivegroup"))) 
-\end{lstlisting}
-\ednote{MK@NT: this is made up, can you make it more Sagey?}
-
-\ednote{NT@MK: here is a first step; I am not sure yet in which form
-  to introduce the mmt and scscp pieces. What exactly do we want to
-  convey about them?}
-
-\begin{lstlisting}
-  gap   = server(system="gap", transport="scscp", mediator="mmt")
-  lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
-
-  all( gap.is_cyclic(g)
-       for g in lmfdb.query("transitive_groups", abelian=True) )
+gap   = server(system="gap", transport="scscp", mediator="mmt")
+lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
+all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
 \end{lstlisting}
 
 \begin{wrapfigure}r{6.6cm}\vspace*{-2em}
   \tikzinput{mitmcomm}\vspace*{-1em}
   \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
 \end{wrapfigure}
-At the \Sage level, the \lstinline|every| predicate maps the first argument, interpreted as a predicate over the list in the second argument. 
+At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is ``all'' something that
+already existsin \Sage? Does it behave like this? Please make sure that the text in this
+paragraph makes sense.}
+ maps the first argument, interpreted as a predicate over the list in the second argument. 
 The arguments are the results of remote procedure calls via \SCSCP. 
 The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
 At the system level, the interaction is mediated by the MMT system and we have the following atomic communication acts: 
 \begin{compactenum}
 \item \Sage sends a \SCSCP remote procedure call for 
   \begin{lstlisting}[mathescape]
-    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnote {We are assuming that \textsf{every} in \Sage is extended to produce the map term when it has \textsf{scscp} arguments.}}$
+    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
 \end{lstlisting}
-  to MMT as an OM object $Q$ in \Sage dialect.  
+  \footnotetext {We are assuming that \textsf{all} in \Sage is extended to produce the
+    map term when it has \textsf{scscp} arguments.}  to MMT as an OM object $Q$ in \Sage
+  dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
 \item MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
 \item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
 \item MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
