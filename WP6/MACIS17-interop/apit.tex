@@ -1,9 +1,10 @@
 \section{API Content Dictionaries for \GAP and \Sage}\label{sec:apit}
 In our case study, we want to show integration of the \GAP, \Singular, and \Sage systems
-in the MitM paradigm, so we need API CDs for all of them. The three systems are
-sufficiently different that we can consider the developmen presented in this section a
-meaningful case study in the methodology and investment of exposing the APIs of real-world
-systems in the form of OMDoc/MMT content dictionaries.
+in the MitM paradigm, so we need to generate API CDs for all of them and equip them with
+OpenMath phrasebooks. The three systems are sufficiently different that we can consider
+the development presented in this section a meaningful case study in the methodology and
+investment of exposing the APIs of real-world systems in the form of OMDoc/MMT content
+dictionaries.
 
 \begin{todolist}{MK: some of this has already been discussed in the CICM16 paper, }
 \item MK@NT+DM: describe the \Sage API theory and how it is generated; this is
@@ -15,59 +16,57 @@ systems in the form of OMDoc/MMT content dictionaries.
 \end{todolist}
 
 
+\begin{newpart}{MK: I have completely reworked this and tried to tell a consistent story
+    here. @MP: please re-read and correct.}
 \subsection{\GAP API Content Dictionaries}
-\ednote{MK@MP+DM: describe the \GAP API theory and how they are generated; give the numbers, but only give the diffs to the CICM16 paper.
 
-DM: the diff should actually be zero, since as far as I know we haven't expanded the export by additional symbols in the meantime. @MP correct me if I'm wrong}
+In \cite{DehKohKon:iop16} we describe our approach to export knowledge in the form of type
+information from the \GAP system and produce a full \GAP API CD. This has been
+considerably improved in the meantime. 
 
-In \cite{DehKohKon:iop16} we describe our approach to export knowledge in the
-form of type information from the \GAP system and produce a full \GAP API CD.
+One of the measures is that since then the \emph{MitM foundation\ednote{MK@DM: introduce
+    that in CGT above} as improved so that the primitives of \GAP's type system can be
+  expressed in OMDoc/MMT natively}\footnote{It is subject to future investigation whether
+  MMT can serve as an external type-checker for \GAP.}: \GAP's type system is based on
+sub-typing: \emph{Filters} express finer and finer subtypes of the universal
+\emph{IsObject}. An object in \GAP can learn about its properties, meaning its type is
+refined at runtime: A group can learn that it is Abelian or nilpotent and hence its type
+changes.
 
-We defined the primitives of \GAP's type system in OMDoc/MMT, and it is
-subject to future investigation whether MMT can serve as an external type-checker
-for \GAP.
+The second measure was to \emph{upgrade the pre-existing \GAP phrasebook from the standard
+  OpenMath CDs to the \GAP system dialect}. For this we needed to devise and implement a
+special treatment of the \GAP constructors used to represent native \GAP objects. As \GAP
+only had a weak notion of object construction, we achieve this by identifying functions
+that create objects in the \GAP code base and then instrumenting them to store the
+relevant arguments they were called with.  The instrumentation itself is minimal -- 57
+lines of \GAP code, plus 100 lines for serializing and parsing \GAP objects as OpenMath
+objects: this is all that was needed for the phrasebook.  The main -- and indeed
+considerable -- challenge was to identify functions that construct objects, and which
+arguments of those functions are then stored in the object.  In \GAP, objects are created
+by calling the function \lstinline|Objectify| with a type and some data, hence we analyzed
+all call-sites to this function and some light inference of the enclosing function. In the
+\GAP library there are 665 calls to Objectify, and in the standard package distribution
+there are an additional 1664.
 
-\GAP's type system is based on sub-typing: \emph{Filters} express finer and finer
-subtypes of the universal \emph{IsObject}. An object in \GAP can learn about its
-properties, meaning its type is refined: A group can learn that it is abelian or
-nilpotent and hence its type changes.
-
-For a successful implementation of an MitM system it is necessary to know how
-a given object in an ongoing session has been created. Formally objects are
-created by applying a \emph{constructor} to a list of arguments which are
-themselves objects.
-Since \GAP has only a weak notion of object construction, we achieve this by
-identifying functions that create objects, and then instrumenting them to store
-the relevant arguments they were called with.
-The instrumentation itself is minimal (57 lines of \GAP code, plus 100 lines for
-printing objects as OpenMath). The main challenge was
-to identify functions that construct objects, and which arguments of those
-functions are then stored in the object.
-In \GAP objects are created by calling the function \texttt{Objectify} with a
-type and some data, hence all that was needed was an analysis of call-sites to
-this function and some light inference of the enclosing function.
-Developing the instrumentation lead to many improvements of type-handling
-infrastructure in \GAP itself, and the instrumentation will be integrated into a
-future version of \GAP, making \GAP fully MitM capable.
-\ednote{@MP think about
-  ``why not just'' using the arguments to Objectify, this would of course also
-  be stored, but looks even more minimal}
-
-In the \GAP library there are 665 calls to Objectify, and in the standard package
-distribution there are an additional 1664.
-
-With the constructor annotation in place it is possible to have \GAP represent
-any object in a running session as either a primitive type (integers,
-permutations, transformations, lists, floats, strings), for which standard
-OpenMath CDs are used, or a constructor applied to a list of arguments. This
-lends itself perfectly to a representation in the \GAP API CD.
+Developing the instrumentation lead to many improvements of type-handling infrastructure
+in \GAP itself, and the instrumentation will be integrated into a future version of \GAP,
+making \GAP fully MitM capable\footnote{We expect to reap a considerable fringe benefit of
+  the type information in the constructor annotations: static type analysis can be used to
+  optimize the dynamic method dispatch and thus hopefully lead to efficiency gains in the
+  system.}\ednote{@MP think about ``why not just'' using the arguments to Objectify, this
+  would of course also be stored, but looks even more minimal} With the constructor
+annotation in place it is possible to have \GAP represent any object in a running session
+as either a primitive type (integers, permutations, transformations, lists, floats,
+strings), for which standard OpenMath CDs are used, or a constructor applied to a list of
+arguments. This lends itself perfectly to a representation in the \GAP API CD.
+ 
+Finally, for the \GAP operations, we needed to develop a new regime for disambiguating
+names between generic methods and their type instances\ednote{MK@MP: I think you can say a
+  little bit more here. Else delete this sentence.}
 
 \ednote{MP: Put an example of OM\_Print here, maybe for a group, or for Cosets
   (as they are something that the standard OpenMath CDs in \GAP cannot do)}
-
-\ednote{MK@MP: we also need to talk about the OM Phrasebook (see
-  Section~\ref{sec:mitm}), and how that works. Actually I think that this is
-  really the new part we want to discuss here.}
+\end{newpart}
 
 \subsection{\Sage API Content Dictionaries}
 \ednote{MK@NT: please write something here, this can be a bit more elaborate
@@ -95,41 +94,42 @@ together with explicitly represented mathematical knowledge, in a
 so-called \emph{category} (e.g that of \texttt{Groups}).
 See~\ref{Sage,Sage.Categories} for details.
 
-In \cite{DehKohKon:iop16} we describe the use of annotations in the
-code to enrich the mathematical knowledge in \Sage's categories with
-alignments with other systems, notably MMT. This knowledge is then
-exported to generate interfaces theories. We also describe how this
-can be used to automatically generate \emph{handle interfaces} with
-other systems like e.g. \GAP.
+In \cite{DehKohKon:iop16} we describe the use of annotations in the code to enrich the
+mathematical knowledge in \Sage's categories with alignments with other systems, notably
+MMT. This knowledge is then exported to generate interfaces theories. We also describe how
+this can be used to automatically generate \emph{handle interfaces} with other systems
+like e.g. \GAP.
+\begin{todolist}{NT@NT}
+\item explain what a handle interface is; advantages and limitations.\ednote{MK@NT: there
+    is something about handles in the CICM16 paper, do you have more now? }
+\item next step: also export constructors to enable non-handle interfaces where objects
+  are actually exchanged. Besides, by nature certain areas of \Sage (e.g. graph theory,
+  elliptic curves, ...) have shallow hierarchy of classes; there categories become
+  irrelevant and are not used. \ednote{statistics would be useful here}
+\item using introspection to export the information; instrument TestSuite to export all
+  objects; parents and unique representation objects have a constructor method. pickling
+  by construction, ...
+\end{todolist}
 
-TODO: explain what a handle interface is; advantages and limitations.
+\subsection{Standard OpenMath CDs as a \Singular API}
 
-TODO: next step: also export constructors to enable non-handle
-interfaces where objects are actually exchanged. Besides, by nature
-certain areas of \Sage (e.g. graph theory, elliptic curves, ...) have
-shallow hierarchy of classes; there categories become irrelevant and
-are not used. \ednote{statistics would be useful here}
-
-TODO: using introspection to export the information; instrument
-TestSuite to export all objects; parents and unique representation
-objects have a constructor method. pickling by construction, ...
-
-\subsection{\Singular API Content Dictionaries}
-\ednote{MK: it would be great, if we could do this and als have an estimation of
-the time used for this.}
-
-For \Singular we used standard OpenMath CDs for polynomials and wrapped
-\Singular in a thin layer of python code that provides \SCSCP
-communication. This work was undertaken by the sixth author as part of a summer
-internship in about a week without prior expert
-knowledge of the system.\ednote{MP@MK What is the correct way of phrasing this?}
+As we only need a very small part of \Singular for our case study, we were able to get by
+with the OpenMath CDs for polynomials~\cite{OMCD:poly:on}. These are part of the standard
+OpenMath CDs, a group of content dictionaries that describe (some) mathematical objects at
+a high level of abstraction to be universally applicable. Building on the OpenMath
+toolkits for OpenMath phrasebooks~\cite{py-openmath:on} and SCSCP
+communication~\cite{py-scscp:on} in \Python -- which were developed for \Sage in the
+OpenDreamKit project, we wrapped \Singular in a thin layer of python code that provides
+\SCSCP communication. This work was undertaken by the sixth author as part of a summer
+internship in about a week without prior expert knowledge of the system.
 
 \subsection{Comparison of Approaches}
-
+\ednote{MK@MK: }
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "paper"
 %%% End:
 
-%  LocalWords:  sec:apit DehKohKon:iop16 json emph emph sec:mitm fig:cgtontology
-%  LocalWords:  GroupHomset
+%  LocalWords:  sec:apit DehKohKon:iop16 json emph emph sec:mitm fig:cgtontology newpart
+%  LocalWords:  GroupHomset serializing lstinline analyzed
+, 
