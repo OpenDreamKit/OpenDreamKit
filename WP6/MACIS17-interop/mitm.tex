@@ -67,13 +67,13 @@ and parse all API objects of $S$ as OpenMath objects in the system dialect of $S
 (see~\cite[Section 1.5]{BusCapCar:2oms04}) -- then $S$ can use OpenMath (concretely
 $S$-objects) for communication. As we have included the operations in the system API CDs
 of $S$, we can express all the functionality of $S$ in terms of OpenMath objects as well :
-if we want GAP to compute the normalizer of a group $G$, we can express this by the
+if we want \GAP to compute the normalizer of a group $G$, we can express this by the
 OpenMath object $\mathcal{O}$ which is the application of the symbol $n$ to the OM object
-representing $G$, where $n$ is the symbol from the GAP API CDs that represents the
-``compute-the-normalizer'' operation.  Thus we can request GAP to compute the normalizer
-of $G$ by sending $\mathcal{O}$ to GAP, which then decodes it in its phrasebook into a GAP
+representing $G$, where $n$ is the symbol from the \GAP API CDs that represents the
+``compute-the-normalizer'' operation.  Thus we can request \GAP to compute the normalizer
+of $G$ by sending $\mathcal{O}$ to \GAP, which then decodes it in its phrasebook into a \GAP
 term, which it then computes, returning the result as an OM object $\mathcal{O}'$, again
-via the GAP phrasebook.
+via the \GAP phrasebook.
 
 Note that having OpenMath phrasebooks for all systems involved does not give us system interoperability yet, since all systems have different system dialects: 
 To delegate a computation from $A$ to $B$, we need to translate $A$-objects into $B$-objects for the ``remote procedure call'' and vice versa for the results. This is where the OMDoc/MMT alignments come into play. 
@@ -88,17 +88,17 @@ Thus we can reduce the problem of  interfacing $n^2$ systems to
 \subsection{MitM-based Distributed Computation}\label{sec:mitm:comms}
 
 The final missing piece for a system interoperability layer for a VRE toolkit is a way of transporting OM objects between systems. 
-In the OpenDreamKit project we use the OpenMath SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 
-SCSCP is essentially a distributed remote-procedure-call system based on OpenMath. 
-Procedure calls and results are expressed as OM objects as exemplified above; systems with an OpenMath phrasebooks can be extended to  SCSCP clients/servers by implementing the SCSCP protocol on top of e.g. sockets (or use a SCSCP library). 
+In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 
+\SCSCP is essentially a distributed remote-procedure-call system based on OpenMath. 
+Procedure calls and results are expressed as OM objects as exemplified above; systems with an OpenMath phrasebooks can be extended to  \SCSCP clients/servers by implementing the \SCSCP protocol on top of e.g. sockets (or use a \SCSCP library). 
 
 \ednote{John or Jane?}
 The situation is best illustrated by an example. Say John wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE.
 John realizes that the LMFDB database contains a set of known abelian transitive groups.
-Furthermore, she realizes that the GAP system can check if a given group is cyclic. 
-To check his hypothesis, he could first retrieve all relevant groups from LMFDB, and then use GAP to check if each of these is cyclic. 
+Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
+To check his hypothesis, he could first retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
 
-As John is most familiar with the SageMath CAS, we expresses this operation as
+As John is most familiar with the \Sage CAS, we expresses this operation as
 \begin{lstlisting}
 every ([g] scscp(gap|mmt,is_cyclic(g)),scscp(lmfdb|mmt,query("transitivegroup"))) 
 \end{lstlisting}
@@ -120,22 +120,22 @@ every ([g] scscp(gap|mmt,is_cyclic(g)),scscp(lmfdb|mmt,query("transitivegroup"))
   \tikzinput{mitmcomm}\vspace*{-1em}
   \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
 \end{wrapfigure}
-At the SageMath level, the \lstinline|every| predicate maps the first argument, interpreted as a predicate over the list in the second argument. 
-The arguments are the results of remote procedure calls via SCSCP. 
-The second one sends the query for transitive groups to the LMFDB SCSCP server, via SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
+At the \Sage level, the \lstinline|every| predicate maps the first argument, interpreted as a predicate over the list in the second argument. 
+The arguments are the results of remote procedure calls via \SCSCP. 
+The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
 At the system level, the interaction is mediated by the MMT system and we have the following atomic communication acts: 
 \begin{compactenum}
-\item SageMath sends a SCSCP remote procedure call for 
+\item \Sage sends a \SCSCP remote procedure call for 
   \begin{lstlisting}[mathescape]
-    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnote {We are assuming that \textsf{every} in SageMath is extended to produce the map term when it has \textsf{scscp} arguments.}}$
+    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnote {We are assuming that \textsf{every} in \Sage is extended to produce the map term when it has \textsf{scscp} arguments.}}$
 \end{lstlisting}
-  to MMT as an OM object $Q$ in SageMath dialect.  
-\item MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB SCSCP server via SCSCP. 
+  to MMT as an OM object $Q$ in \Sage dialect.  
+\item MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
 \item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
-\item MMT translates $34G$ into the GAP dialect and synthesizes a the OM object $M$ that calls the GAP map operation of the (GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to GAP. 
-\item GAP interprets $G$, and returns a list of 34 (GAP) truth values to MMT. 
-\item MMT translates them into a list of 34 SageMath truth values, which it sends back to SageMath. 
-\item SageMath interprets this list as a Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
+\item MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
+\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to MMT. 
+\item MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
+\item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
 \end{compactenum}
 
 In the next sections, we will present a case study that instantiates the general paradigm

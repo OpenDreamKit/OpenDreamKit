@@ -1,11 +1,11 @@
-\section{GAP/Singular MitM Case Study}\label{sec:mitm_poc}
-\subsection{MitM Protocol}\ednote{MK: Victor has connected GAP and Singular
+\section{\GAP/\Singular MitM Case Study}\label{sec:mitm_poc}
+\subsection{MitM Protocol}\ednote{MK: Victor has connected \GAP and \Singular
   through standard OpenMath CDs and trivially aligning the systems, in
   particular the interface theory consists of an implementation of OpenMath CDs
   for polynomials and permutations}
 
-For modular interaction between a Maths-in-the-Middle server, CAS SCSCP servers 
-and naive clients, we have developed the MitM/SCSCP protocol that allows CAS 
+For modular interaction between a Maths-in-the-Middle server, CAS \SCSCP servers 
+and naive clients, we have developed the MitM/\SCSCP protocol that allows CAS 
 servers to go online and offline independently of the MitM server. Below is the 
 specification of the protocol.
 
@@ -18,12 +18,12 @@ Algebra System) and can expose an arbitrary set of function headers.
 \subsubsection{Interaction}
 The MitM server must, upon boot-up, expose the symbol "eq" from the CD 
 "relation", as well as the following symbols from the CD "mitm\_transient"
-over SCSCP:
+over \SCSCP:
 \begin{itemize}
   \item \textbf{registerServer}, taking one compulsory argument, the address of the
     CAS server as a string, and one optional argument, the port at which the CAS
-    serves SCSCP. If a port is not provided, it should default to 26133. This
-    function should establish an SCSCP connection with the CAS server at that 
+    serves \SCSCP. If a port is not provided, it should default to 26133. This
+    function should establish an \SCSCP connection with the CAS server at that 
     address and return the name/handler that the MitM server assigns to the 
     CAS instance as a string. This name is used when aligning functions.
   \item \textbf{registerFunction}, taking three arguments: the handler of the 
@@ -37,7 +37,7 @@ over SCSCP:
     and a symbol that that CAS exposes. After the call to this function no 
     requests should be redirected to that symbol on that CAS.
   \item \textbf{removeServer}, taking one argument- the name/handler that refers
-    to the client connected to the CAS. This function should close the SCSCP client
+    to the client connected to the CAS. This function should close the \SCSCP client
     to that CAS and stop serving functions that depend on symbols exposed by
     that CAS.
   \item \textbf{registerEquality}, taking three arguments: the handler of the 
@@ -55,25 +55,25 @@ different computer algebra systems by querying the MitM server that is
 implemented by an extension in MMT. The study consists of five components:
 \begin{itemize}
   \item MitM server (as an MMT extension)
-  \item GAP SCSCP server that specializes on computations in group theory
-  \item Singular SCSCP server that specializes on polynomial calculations
-  \item Python client that uses the SCSCP package
-  \item Python script that lines up the interactions between the MitM server and CAS servers
+  \item \GAP \SCSCP server that specializes on computations in group theory
+  \item \Singular \SCSCP server that specializes on polynomial calculations
+  \item \Python client that uses the \SCSCP package
+  \item \Python script that lines up the interactions between the MitM server and CAS servers
 \end{itemize}
 
 \begin{figure}[ht]\centering
   \input{gap_singular_mitm_fig}
-  \caption[GAP-Singular MitM Interaction]{
+  \caption[\GAP-\Singular MitM Interaction]{
     System Designed to Prove the Concept of the MitM Protocol
   }\label{fig:mitmpoc}
 \end{figure}
 
 The procedure illustrated in figure \ref{fig:mitmpoc} is as follows:
 \begin{enumerate}
-  \item The control script establishes an SCSCP connection with the MMT MitM 
-    server and aligns the functions exposed by the CAS (GAP and Singular) with
+  \item The control script establishes an \SCSCP connection with the MMT MitM 
+    server and aligns the functions exposed by the CAS (\GAP and \Singular) with
     global symbols.
-  \item The MitM server establishes SCSCP connections with the CAS server at
+  \item The MitM server establishes \SCSCP connections with the CAS server at
     provided addresses.
   \item The query client queries the MitM server for symbols from public CDs
     without any knowledge of the CAS in operation to calculate orbits of 
@@ -86,20 +86,20 @@ The procedure illustrated in figure \ref{fig:mitmpoc} is as follows:
 \subsubsection{MMT MitM Server}
 The MitM server is implemented as an MMT-shell extension. The integration into the
 MMT ecosystem will be useful in the future for the automation of function 
-alignment and type-checking of arguments. It is also queried via SCSCP as opposed 
-to QMT, because currently SCSCP is more widely supported, e.g. by the GAP and 
-Python packages.
+alignment and type-checking of arguments. It is also queried via \SCSCP as opposed 
+to QMT, because currently \SCSCP is more widely supported, e.g. by the \GAP and 
+\Python packages.
 
-\subsubsection{GAP SCSCP Server}
-GAP server uses the GAP SCSCP package to expose the minimal functions needed for 
+\subsubsection{\GAP \SCSCP Server}
+\GAP server uses the \GAP \SCSCP package to expose the minimal functions needed for 
 this study- the constructor for a symmetric group of size N, and a function that
 takes a list and a symmetric group and returns a permutation of the list for every 
 member of the symmetric group that is obtained by applying that member to every
 item of the list.
 
-\subsubsection{Singular SCSCP Server}
-Since Singular currently doesn't have any support for SCSCP, the Singular SCSCP server is
-written in Python using the \lstinline|scscp| and \lstinline|PySingular| python modules
+\subsubsection{\Singular \SCSCP Server}
+Since \Singular currently doesn't have any support for \SCSCP, the \Singular \SCSCP server is
+written in \Python using the \lstinline|scscp| and \lstinline|PySingular| python modules
 and is adapted from the example code on the py-scscp repository\cite{PySCSCP}. The only
 function exposed by this server is the evaluation of equality of two applications of the
 DMP symbol.
@@ -111,7 +111,7 @@ type systems is still a work in progress, so the function alignment is done
 via the MitM protocol. The job of the controlling script is thus to align the 
 constructor of symmetric group of size N and the orbit of a list to their 
 respective symbols in public CDs, as well as registering the ability of the 
-Singular server to equate polynomials.
+\Singular server to equate polynomials.
 
 \subsubsection{Naive Client}
 The main client that queries the MitM server has no knowledge of the underlying 
@@ -137,8 +137,8 @@ The dependencies of the software in subject of the study and instructions on
 acquiring them:
 \begin{itemize}
   \item \textbf{Jupyter}- installed via pip
-  \item \textbf{GAP}- installed from https://github.com/gap-system/gap
-  \item \textbf{Singular}- installed via package manager or from
+  \item \textbf{\GAP}- installed from https://github.com/gap-system/gap
+  \item \textbf{\Singular}- installed via package manager or from
     https://www.singular.uni-kl.de/index.php/singular-download.html
   \item \textbf{MMT}- installed from https://github.com/Uniformal/MMT
   \item \textbf{Py-SCSCP}- installed via pip
@@ -150,7 +150,7 @@ acquiring them:
 Instructions on running the system:
 \begin{itemize}
   \item Run singular\_server.py script using python, the gap\_server.g script
-    using GAP, and start MMT. From the MMT shell prompt, run 
+    using \GAP, and start MMT. From the MMT shell prompt, run 
     "file mitm\_server.msl".
   \item Run ControllingClient.py using python to set up alignments between
     MitM server and CAS servers.
@@ -160,9 +160,9 @@ Instructions on running the system:
 \end{itemize}
 
 \subsection{Evaluation of the Study}
-This study has implemented the MitM approach using SCSCP, showing that the MitM 
+This study has implemented the MitM approach using \SCSCP, showing that the MitM 
 paradigm is an achievable goal. Currently, however, the MitM server acts as 
-merely a proxy, redirecting SCSCP requests to CAS that know how to evaluate them.
+merely a proxy, redirecting \SCSCP requests to CAS that know how to evaluate them.
 For MitM to be a truly modular abstract algebra environment, the following
 changes must be made:
 \begin{itemize}
@@ -172,7 +172,7 @@ changes must be made:
     this particular case, it would be cleaner if, instead of asking MitM to 
     produce permutations of a list, the client simply queries MitM for the orbit 
     of a polynomial by defining an action of a member of the symmetric group on a 
-    polynomial. GAP would then be able to calculate the orbit by making the group 
+    polynomial. \GAP would then be able to calculate the orbit by making the group 
     act on the polynomial with the described action and querying MitM for 
     equality of polynomials, resulting in a linear-time algorithm instead of
     quadratic-time behaviour displayed by the current client.
