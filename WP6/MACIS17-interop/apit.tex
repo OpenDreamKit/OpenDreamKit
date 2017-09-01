@@ -68,7 +68,47 @@ lends itself perfectly to a representation in the GAP API CD.
 than the GAP part above, since GAP has already been described in the CICM16
 paper. What is the state of the OM Phrasebook for SageMath?}
 
-\subsection{Creation Of Singular API CDs}
+As in \GAP, a large part of the mathematical knowledge embedded in the
+\Sage library is encoded using its type system. This library is
+written in the \Python programming language which comes with a
+traditional object oriented dynamic type system.
+For example The MiTM ontology of Figure~\ref{fig:cgtontology}
+translates into a hierarchy of four abstract classes (\texttt{Group},
+\texttt{PermutationGroup}, \texttt{MatrixGroup},
+\texttt{FinitelyPresentedGroup}) and concrete classes
+(\texttt{SymmetricGroup}, \texttt{MathieuGroup},
+\texttt{LinearMatrixGroup}, ...).
+
+Altogether, the hierarchy of classes of \Sage contains thousands of
+abstract and concrete classes, with heavy use of multiple inheritance.
+To tame code bloat and make such a deep and large hierarchy
+maintainable, Python's type system is enriched with a category system
+that collects closely related abstract classes (e.g. \texttt{Group},
+\texttt{GroupElement}, \texttt{GroupMorphism}, \texttt{GroupHomset}),
+together with explicitly represented mathematical knowledge, in a
+so-called \emph{category} (e.g that of \texttt{Groups}).
+See~\ref{Sage,Sage.Categories} for details.
+
+In \cite{DehKohKon:iop16} we describe the use of annotations in the
+code to enrich the mathematical knowledge in Sage's categories with
+alignments with other systems, notably MMT. This knowledge is then
+exported to generate interfaces theories. We also describe how this
+can be used to automatically generate \emph{handle interfaces} with
+other systems like e.g. \GAP.
+
+TODO: explain what a handle interface is; advantages and limitations.
+
+TODO: next step: also export constructors to enable non-handle
+interfaces where objects are actually exchanged. Besides, by nature
+certain areas of \Sage (e.g. graph theory, elliptic curves, ...) have
+shallow hierarchy of classes; there categories become irrelevant and
+are not used. \ednote{statistics would be useful here}
+
+TODO: using introspection to export the information; instrument
+TestSuite to export all objects; parents and unique representation
+objects have a constructor method. pickling by construction, ...
+
+\subsection{Singular API Content Dictionaries}
 \ednote{MK: it would be great, if we could do this and als have an estimation of
 the time used for this.}
 
