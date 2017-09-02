@@ -1,7 +1,14 @@
 \section{Computational Group Theory Case Study}\label{sec:case}
 Based on the MitM ontology fragment, the API CDs, and the alignments above, we build a
 distributed group theory computation system from \GAP and \Singular
-systems. Figure~\ref{fig:mitmpoc} shows the overall architecture. The MathHub
+systems.
+
+\begin{figure}[ht]\centering
+  \tikzinput{gap_singular_mitm_fig}
+  \caption{MitM Interaction for \GAP-\Singular}\label{fig:mitmpoc}
+\end{figure}
+
+Figure~\ref{fig:mitmpoc} shows the overall architecture. The MathHub
 system~\cite{IanJucKoh:sdm14,MathHub:on} acts as a versioned repository for the \OMMT
 resources and includes an instance of the \MMT system~\cite{Rabe:MAGMS13} that provides
 mathematical knowledge management services (type checking, HTML5 presentation,
@@ -9,12 +16,40 @@ alignment-based transation, etc.) for \OMMT resources. For the purposes of the M
 architecture, \MMT has been extended with a \SCSCP client/server
 implementation~\cite{twiesing:msc17}. For the \GAP server, we could build on pre-existing
 \SCSCP support, but \Singular does not have it, so we wrapped it in a python script that
-includes the \lstinline|pyscscp| library~\cite{py-scscp:on}. Finally, we 
+includes the \lstinline|pyscscp| library~\cite{py-scscp:on}. Finally, we add a \Python
+control script~\cite{MitM-PoC} as an example how to directly program the interaction and a
+\Sage client. Both allow to specify the computation.
 
-\begin{figure}[ht]\centering
-  \tikzinput{gap_singular_mitm_fig}
-  \caption{MitM Interaction for \GAP-\Singular}\label{fig:mitmpoc}
-\end{figure}
+\begin{oldpart}{MK: just copied here; Victor writes\\
+    ``\emph{A peer-to-peer connection must be made with the CAS servers, so that CAS
+      servers can, in turn, query MitM if during a computation they encounter a concept
+      that lies outside their field of knowledge. In application to this particular case,
+      it would be cleaner if, instead of asking MitM to produce permutations of a list,
+      the client simply queries MitM for the orbit of a polynomial by defining an action
+      of a member of the symmetric group on a polynomial. \GAP would then be able to
+      calculate the orbit by making the group act on the polynomial with the described
+      action and querying MitM for equality of polynomials, resulting in a linear-time
+      algorithm instead of quadratic-time behaviour displayed by the current client.}''  I
+    do not quite understand the maths here, maybe we can stillmake this happen?}
+  The control script follows the procedure:
+\begin{enumerate}
+  \item Create an OpenMath polynomial.
+  \item Obtain a symmetric group of size that is equal to the number of variables 
+    in the polynomial from MitM.
+  \item Using the obtained group, query MitM for all permutations of the list 
+    of variables.
+  \item Create polynomials from the permutations of the list of variables.
+  \item Filter out the duplicate polynomials by querying MitM for equality of 
+    polynomials.
+\end{enumerate}
+While this is very much a brute-force algorithm to calculate an orbit of a
+polynomial, it showcases the ability of the client to query the MitM server that 
+is then forced to use multiple CAS without the client needing any knowledge of the
+underlying systems.
+\end{oldpart}
+The \Sage client behaves exactly as described in
+Section~\ref{sec:mitm:comms}\ednote{MK@NT/TW; it seems that we will have time to
+  implemtent this after the extension. So we should make it happen.}
 
 %%% Local Variables:
 %%% mode: latex
