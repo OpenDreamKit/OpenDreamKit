@@ -43,13 +43,13 @@ all, the mathematics behind the systems is published using this vocabulary.
 Figure~\ref{fig:mitm} shows the setup of the MitM paradigm -- see~\cite{DehKohKon:iop16}
 for details. In the center, we have the \textbf{MitM Ontology}, which is a modular
 flexiformalization of the mathematical knowledge behind the systems $A$ to $H$ as a theory
-graph in the OMDoc/MMT Format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. For
+graph in the \OMMT Format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. For
 each of the systems $A$ to $H$, we generate a theory graph \textbf{API Content
   Dictionaries}\footnote{In~\cite{DehKohKon:iop16} we had called these ``interface
   theories'', but we would like to reserve this term for certain theories in the MitM
-  ontology.}  in OMDoc/MMT which is aligned with the corresponding symbols in the MitM
-ontology. As the API CDs and the MitM Ontology are both in OMDoc/MMT -- inside the cloud
-in Figure~\ref{fig:mitm} -- we can make use of \textbf{OMDoc/MMT
+  ontology.}  in \OMMT which is aligned with the corresponding symbols in the MitM
+ontology. As the API CDs and the MitM Ontology are both in \OMMT -- inside the cloud
+in Figure~\ref{fig:mitm} -- we can make use of \textbf{\OMMT
   alignments}~\cite{MueGauKal:cacfms17} which have been developed in the meantime for the
 MitM alignment relation.\ednote{MK: talk about interface theories somewhere below}
 
@@ -73,8 +73,8 @@ term, which it then computes, returning the result as an OM object $\mathcal{O}'
 via the \GAP phrasebook.
 
 Note that having OpenMath phrasebooks for all systems involved does not give us system interoperability yet, since all systems have different system dialects: 
-To delegate a computation from $A$ to $B$, we need to translate $A$-objects into $B$-objects for the ``remote procedure call'' and vice versa for the results. This is where the OMDoc/MMT alignments come into play. 
-Given a sufficiently complete set of MitM alignments we can translate between systems dialects using techniques from~\cite{MueRoYuRa:abtafs17}. This translation has been implemented in the MMT system~\cite{Rabe:MAGMS13,uniformal:on}   -- an implementation of the OMDoc/MMT format and a set of mathematical knowlege management algorithms. 
+To delegate a computation from $A$ to $B$, we need to translate $A$-objects into $B$-objects for the ``remote procedure call'' and vice versa for the results. This is where the \OMMT alignments come into play. 
+Given a sufficiently complete set of MitM alignments we can translate between systems dialects using techniques from~\cite{MueRoYuRa:abtafs17}. This translation has been implemented in the \MMT system~\cite{Rabe:MAGMS13,uniformal:on}   -- an implementation of the \OMMT format and a set of mathematical knowlege management algorithms. 
 Thus we can reduce the problem of  interfacing $n^2$ systems to
 \begin{inparaenum}[\em i\rm)]
 \item curating a MitM ontology for the joint mathematical domain,
@@ -113,20 +113,20 @@ paragraph makes sense.}
  maps the first argument, interpreted as a predicate over the list in the second argument. 
 The arguments are the results of remote procedure calls via \SCSCP. 
 The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
-At the system level, the interaction is mediated by the MMT system and we have the following atomic communication acts: 
+At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
 \begin{compactenum}
 \item \Sage sends a \SCSCP remote procedure call for 
   \begin{lstlisting}[mathescape]
     map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
 \end{lstlisting}
-  \footnotetext {We are assuming that \textsf{all} in \Sage is extended to produce the
-    map term when it has \textsf{scscp} arguments.}  to MMT as an OM object $Q$ in \Sage
+  \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
+    map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
   dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
-\item MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
+\item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
 \item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
-\item MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
-\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to MMT. 
-\item MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
+\item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
+\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
+\item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
 \item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
 \end{compactenum}
 
