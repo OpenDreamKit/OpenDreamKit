@@ -1,102 +1,113 @@
-\section{Math-in-the-Middle Interoperability}\label{sec:mitm}
-
 To build a VRE toolkit from open-source (or open-API\footnote{It turns out that it is
   sufficient to have a well-documented API that gives access to the internal
   (mathematical) data structures and functionality, so closed-source systems can also be
-  part of the MitM paradigm if they do.}) systems, we need a joint user interface -- the
+  part of the MitM paradigm if they do.}) systems, we need a joint user interface --- the
 OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active
-documents~\cite{KohDavGin:psewads11} -- and an interoperability layer that allows to pass
+documents~\cite{KohDavGin:psewads11} --- and an interoperability layer that allows to pass
 problems and results between the disparate systems. 
-
-For the latter -- and that is the topic of this paper -- we need a way to mediate between
-the interaction layers of the respective systems.  Generally, mathematical software
-systems apply operations on mathematical objects, which can be expressed as applications
-of domain-specific constructors to primitive objects like numbers and other objects. The
-results of these operations are again such objects. If we abstract from issues of surface
-syntax -- which we can by assuming that the systems use a standard like
-OpenMath~\cite{BusCapCar:2oms04}, the interface languages differ in their vocabularies --
-the operations and constructors. The difficulty in the translation of objects and
-functionalities between systems is to \emph{align} the respective vocabularies:
-
-Even when $A$ and $B$ deal with the mathematically ``same objects'',
-these may be constructed differently; e.g. using constructors in
-system $A$ and operations in $B$ or vice versa. Even if $A$ and $B$
-share the same constructors and operations, these can differ in
-argument order/number, types, etc.
-
-\subsection{The MitM Paradigm}\label{sec:mitm:recap}
-
-Obviously, a P2P translation regime ($n^2$ translations between all systems) is already
-intractable for the systems in the OpenDreamKit project (more than a dozen), and an
-``industry standard'' regime where one interaction language is declared as a ``standard''
-is infeasible, since no system subsumes the others in terms of
-coverage -- not mentioning the
-political problems such a standardization would induce. Instead we have proposed the
-``Math-in-the-Middle'' (MitM) approach, where we use ``mathematical knowledge'' as an
-independent mediating vocabulary, and all system vocabularies are aligned to that. After
-all, the mathematics behind the systems is published using this vocabulary.
+The MitM paradigm provides the latter.
 
 \begin{wrapfigure}r{4.3cm}\vspace*{-2em}
   \tikzinput{mistargraph}\vspace*{-1em}
   \caption{MitM Paradigm}\label{fig:mitm}\vspace*{-1.5em}
 \end{wrapfigure}
-Figure~\ref{fig:mitm} shows the setup of the MitM paradigm -- see~\cite{DehKohKon:iop16}
-for details. In the center, we have the \textbf{MitM Ontology}, which is a modular
-flexiformalization of the mathematical knowledge behind the systems $A$ to $H$ as a theory
-graph in the \OMMT Format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. For
-each of the systems $A$ to $H$, we generate a theory graph \textbf{API Content
-  Dictionaries}\footnote{In~\cite{DehKohKon:iop16} we had called these ``interface
-  theories'', but we would like to reserve this term for certain theories in the MitM
-  ontology.}  in \OMMT which is aligned with the corresponding symbols in the MitM
-ontology. As the API CDs and the MitM Ontology are both in \OMMT -- inside the cloud
-in Figure~\ref{fig:mitm} -- we can make use of \textbf{\OMMT
-  alignments}~\cite{MueGauKal:cacfms17} which have been developed in the meantime for the
-MitM alignment relation.\ednote{MK: talk about interface theories somewhere below}
+Figure~\ref{fig:mitm} shows the basic problem and the MitM design --- see~\cite{DehKohKon:iop16} for details.
+We want to make the systems $A$ to $H$ interoperable.
+A P2P translation regime ($n^2$ translations between $n$ systems) is already intractable for the systems in the OpenDreamKit project (more than a dozen).
+Alternatively, an ``industry standard'' regime, where one system's language is declared as the standard is infeasible, since no system subsumes the others in terms of coverage --- not to mention the political problems such a standardization would induce.
+Instead, MitM uses a central mathematical ontology that provides an independent mediating vocabulary, via which all participating systems are aligned.
+All mathematical knowledge shared between the systems and exposed to the high-level VRE user is expressed using the vocabulary of this ontology.
 
-\subsection{OpenMath System Dialects and Alignment-based Translation}\label{sec:mitm:dialect}
+The following sections describe the three components of the MitM paradigm in more detail.
 
-Given the collection $s$ of API CDs of a system $S$ (see section~\ref{sec:apit} for
-examples), we can express all the API objects in the interface language of $S$ as OpenMath
-objects that only use symbols from $s$.  We call this language the \textbf{OpenMath system
-  dialect} for $S$ and refer to OM objects in this language as $S$-objects.  If system $S$
-has an OpenMath \textbf{phrasebook} -- i.e. an OpenMath interface that allows to serialize
-and parse all API objects of $S$ as OpenMath objects in the system dialect of $S$
-(see~\cite[Section 1.5]{BusCapCar:2oms04}) -- then $S$ can use OpenMath (concretely
-$S$-objects) for communication. As we have included the operations in the system API CDs
-of $S$, we can express all the functionality of $S$ in terms of OpenMath objects as well :
-if we want \GAP to compute the normalizer of a group $G$, we can express this by the
-OpenMath object $\mathcal{O}$ which is the application of the symbol $n$ to the OM object
-representing $G$, where $n$ is the symbol from the \GAP API CDs that represents the
-``compute-the-normalizer'' operation.  Thus we can request \GAP to compute the normalizer
-of $G$ by sending $\mathcal{O}$ to \GAP, which then decodes it in its phrasebook into a \GAP
-term, which it then computes, returning the result as an OM object $\mathcal{O}'$, again
-via the \GAP phrasebook.
+\subsection{The MitM Ontology}\label{sec:mitm:recap}
 
-Note that having OpenMath phrasebooks for all systems involved does not give us system interoperability yet, since all systems have different system dialects: 
-To delegate a computation from $A$ to $B$, we need to translate $A$-objects into $B$-objects for the ``remote procedure call'' and vice versa for the results. This is where the \OMMT alignments come into play. 
-Given a sufficiently complete set of MitM alignments we can translate between systems dialects using techniques from~\cite{MueRoYuRa:abtafs17}. This translation has been implemented in the \MMT system~\cite{Rabe:MAGMS13,uniformal:on}   -- an implementation of the \OMMT format and a set of mathematical knowlege management algorithms. 
-Thus we can reduce the problem of  interfacing $n^2$ systems to
+In the center, we have the \textbf{MitM Ontology}, which is a formalization of the mathematical knowledge behind the systems $A$ to $H$ as a theory graph in the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}.
+We do not go into the details of \OMMT theory graphs here.
+For our purposes, it suffices to assume that they declare a set of typed symbols.
+Thus, a theory graph formalizes a language for mathematical objects.
+
+For example, the symbol $norm: Group \to ???$ declares the function that returns the normalizer of a group.
+\ednote{@(MP,VV): clean this up and make sure it corresponds to the symbol names actually used in the ontology}
+
+Note that the purpose of the MitM ontology is not the formal verification of mathematical theorems (as for most formalizations such as \cite{Gonthier+:mcpoot13} for group theory), but to act as a pivot point for integrating systems.
+This means that it can be much nearer to the informal but rigorous presentation of mathematical knowledge in the literature.
+While each system makes compromises and optimizations needed for a particular application domain, the MitM ontology follows existing and already informally standardized mathematical knowledge and can thus serve as a standard interface layer between systems
+
+Importantly, the MitM ontology does not have to include any definitions or proofs --- it only has to declare the types of all relevant symbols and state (but not prove) the relevant theorems.
+This makes it possible for users like Jane to write and extend MitM ontologies quickly, whereas other formalizations usually require extensive efforts by specialists.
+
+\subsection{Individual System Dialects}\label{sec:mitm:dialect}
+
+\paragraph{System Dialects}
+Each system induces a separate language for mathematical objects.
+It is possible and in fact necessary to abstract from the surface syntax of these languages: scalable interoperability can only be achieved by acting on the internal data structures of the systems, which follow the abstract syntax.
+
+The abstract syntax trees are formed from symbols, which can be split into two kinds: \emph{constructors} which build primitive objects, and \emph{operations} compute objects from other objects (including predicates, which we see as operations that return booleans).
+For purposes of interoperability it is possible to abstract from this distinction and consider both as typed symbols.
+This abstraction is important because systems often disagree on the choice of primitive objects.
+Thus, we can represent the interfaces of the systems $A$ to $H$ as \OMMT theory graphs $a$ to $h$ that declare the constructors and operations (but omit all implementations of the operations) of the respective system.
+
+Given the theory graph $a$, we can express all objects in the language of $A$ as \OMMT objects using the symbols of $a$.
+We call this language the \textbf{\OMMT system dialect} for $A$ and refer to these objects as $A$-objects.
+It is relatively straightforward to write (or even automatically generate) the theory graph $a$ and to implement a serializer and parser for $A$-objects as a part of $A$.
+This is because no consideration of interoperability and thus no communication with the developers of other systems is needed.
+
+For example, the theory graph for \GAP contains an operation
+\ednote{@MP,VV clean this up, using the actual symbols of the GAP interface; make sure this relates to the example in the previous section}
+
+\paragraph{Alignments with the Ontology}
+Thus, the interoperability problem is reduced to relating each system dialect to the MitM ontology.
+Each system dialect overlaps with the language of the ontology: some system symbols are related to corresponding symbols in the MitM ontology.
+Then we can use the MitM ontology as an intermediate representation to bridge between any two systems, e.g., by translating $A$-objects to the corresponding ontology objects and then those to the corresponding $B$-objects.
+
+However, even when $A$ and $B$ deal with the ``same mathematical objects'', these may be constructed and represented differently, e.g., symbols can differ in name,
+argument order/number, types, etc.
+A major difficulty for system interoperability is bridging these differences.
+To formalize the details of this relation, \cite{MueGauKal:cacfms17} introduced \textbf{\OMMT alignments}.
+These are essentially pairs of \OMMT symbol identifiers decorated by a set of key-value pairs.
+Whenever two systems' APIs declare symbols for the same mathematics operation, the alignments with the MitM ontology determine which ontology objects correspond to system objects.
+
+The alignment of $a$-symbols to ontology symbols must be spelled out manually.
+But this is usually straightforward and easy even for inexperienced users.
+\ednote{@MP,VV: state the alignment between the two operations for the normalizer}
+
+Thus we can reduce the problem of interfacing $n$ systems to
 \begin{inparaenum}[\em i\rm)]
 \item curating a MitM ontology for the joint mathematical domain,
-\item generating $n$ collections of API CDs, and 
+\item generating $n$ theory graphs for system dialects,
 \item maintaining $n$ collections of alignments into the MitM ontology.
 \end{inparaenum}
 
+Alignments form an independent part of the MitM interoperability infrastructure.
+Incidentally they obey a distinct development schedule: the MitM ontology will be under continuous development --- it formalizes the common knowledge of the community about a mathematical domain.
+The system dialects are released together with the systems according to their respective development cycle.
+The alignments bridge between them and have to mediate these cycles.
+
 \subsection{MitM-based Distributed Computation}\label{sec:mitm:comms}
 
-The final missing piece for a system interoperability layer for a VRE toolkit is a way of transporting OM objects between systems. 
-In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 
-\SCSCP is essentially a distributed remote-procedure-call system based on OpenMath. 
-Procedure calls and results are expressed as OM objects as exemplified above; systems with an OpenMath phrasebooks can be extended to  \SCSCP clients/servers by implementing the \SCSCP protocol on top of e.g. sockets (or use a \SCSCP library). 
+The final missing piece for a system interoperability layer for a VRE toolkit is a practical way of transporting objects between systems.
+This requires two steps.
 
-The situation is best illustrated by (still partly fictional) example. Say Jane wishes to check the hypothesis that all abelian transitive groups are cyclic\footnote{This example is mathematically trivial; we have chosen it because it shows complex system interaction rather than mathematical plausibility; a realistic, mathematically motivated example will be discussed below.} using a MitM-based mathematical VRE.
-Jane realizes that the LMFDB database contains a set of known abelian transitive groups.
+Firstly, if the system theory graphs and alignments are known, any system can automatically translate $A$-objects to $B$-objects in two step: $A$ to ontology and ontology to $B$
+This translation has been implemented in \cite{MueRoYuRa:abtafs17} based on the \MMT system~\cite{Rabe:MAGMS13,uniformal:on} --- an implementation of the \OMMT format and a set of mathematical knowledge management algorithms.
+
+Secondly, each system $A$ has to send/receive $A$-objects to/from \MMT (or any other system that implements the translations).
+In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 
+\SCSCP is essentially a distributed remote-procedure-call system based on OpenMath, which is itself the fragment of \OMMT used for representing objects.
+It is straightforward to extend a parser/serializer for $A$-objects to an \SCSCP clients/server by implementing the \SCSCP protocol on top of, e.g., sockets or using an existing \SCSCP library. 
+
+\begin{oldpart}{FR: all of this are new results and should be moved to the next section. In any case, this example does not fit well with the case study and maybe should be removed altogether. Instead, I think we should specify the problem solved by the case study in the following sections.}
+For example, say Jane wishes to check the hypothesis that all Abelian transitive groups are cyclic.\footnote{This example is mathematically trivial.
+We have chosen it because it shows complex system interaction rather than mathematical plausibility.
+A realistic, mathematically motivated example will be discussed below.}
+using a MitM-based mathematical VRE.
+Jane realizes that the LMFDB database contains a set of known Abelian transitive groups.
 Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
-To check his hypothesis, he could first retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
+To check his hypothesis, she could retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
 
 As Jane is most familiar with the \Sage CAS, she expresses this operation as
-\ednote{MK@NT: indeed this looks much better. We want to show an imaginary syntax that
-  allows to conveniently delegate.}
+\ednote{MK@NT: indeed this looks much better. We want to show an imaginary syntax that allows to conveniently delegate.}
 \begin{lstlisting}
 gap   = server(system="gap", transport="scscp", mediator="mmt")
 lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
@@ -129,10 +140,7 @@ At the system level, the interaction is mediated by the \MMT system and we have 
 \item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
 \item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
 \end{compactenum}
-
-In the next sections, we will present a case study that instantiates the general paradigm
-presented in this section with a concrete domain, systems, and a general implementation. 
-
+\end{oldpart}
 
 %%% Local Variables:
 %%% mode: latex

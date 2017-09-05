@@ -1,4 +1,5 @@
 \section{\GAP/\Singular MitM Case Study}\label{sec:mitm_poc}
+
 \subsection{MitM Protocol}\ednote{MK: Victor has connected \GAP and \Singular
   through standard OpenMath CDs and trivially aligning the systems, in
   particular the interface theory consists of an implementation of OpenMath CDs
@@ -49,16 +50,20 @@ over \SCSCP:
 \end{itemize}
 
 \subsection{Overview of the System}
-In order to apply the MitM paradigm to practice, we have created a case study 
-\cite{MitM-PoC} in which a user is able to access the functionality of two very 
-different computer algebra systems by querying the MitM server that is 
-implemented by an extension in \MMT. The study consists of five components:
+<<<<<<< .mine
+
+In order to apply the MitM paradigm in practice, we have created a case study 
+\cite{MitM-PoC}, in which a user can access the functionality of two very 
+different computer algebra systems by querying a central \MMT-based server.
+\MMT maintains the MitM ontology and the systems' API theories as well as the alignments between them, and our server uses them to translate objects between systems.
+The case study consists of five components:
+
 \begin{itemize}
-  \item MitM server (as an \MMT extension)
-  \item \GAP \SCSCP server that specializes on computations in group theory
-  \item \Singular \SCSCP server that specializes on polynomial calculations
-  \item \Python client that uses the \SCSCP package
-  \item \Python script that lines up the interactions between the MitM server and CAS servers
+  \item an \MMT plugin that provides the server
+  \item an \SCSCP server for GAP, which specializes on computations in group theory
+  \item an \SCSCP server for Singular, which specializes on polynomial calculations
+  \item an \SCSCP client in Python that calls our server
+  \item a Python script that lines up the interactions between the MitM server and CAS servers
 \end{itemize}
 
 \begin{figure}[ht]\centering
@@ -83,7 +88,9 @@ The procedure illustrated in figure \ref{fig:mitmpoc} is as follows:
 \end{enumerate}
 
 \subsection{Components of the Study System}
+
 \subsubsection{MMT MitM Server}
+
 The MitM server is implemented as an \MMT-shell extension. The integration into the
 MMT ecosystem will be useful in the future for the automation of function 
 alignment and type-checking of arguments. It is also queried via \SCSCP as opposed 
@@ -91,6 +98,7 @@ to QMT, because currently \SCSCP is more widely supported, e.g. by the \GAP and
 \Python packages.
 
 \subsubsection{\GAP \SCSCP Server}
+
 \GAP server uses the \GAP \SCSCP package to expose the minimal functions needed for 
 this study- the constructor for a symmetric group of size N, and a function that
 takes a list and a symmetric group and returns a permutation of the list for every 
@@ -98,6 +106,7 @@ member of the symmetric group that is obtained by applying that member to every
 item of the list.
 
 \subsubsection{\Singular \SCSCP Server}
+
 Since \Singular currently doesn't have any support for \SCSCP, the \Singular \SCSCP server is
 written in \Python using the \lstinline|scscp| and \lstinline|PySingular| python modules
 and is adapted from the example code on the py-scscp repository\cite{PySCSCP}. The only
@@ -105,6 +114,7 @@ function exposed by this server is the evaluation of equality of two application
 DMP symbol.
 
 \subsubsection{Controlling Client Script}
+
 In the long term, the function alignment will be done automatically when a CAS 
 informs the MitM server of its presence. Currently, however, the export of CAS 
 type systems is still a work in progress, so the function alignment is done
@@ -114,6 +124,7 @@ respective symbols in public CDs, as well as registering the ability of the
 \Singular server to equate polynomials.
 
 \subsubsection{Naive Client}
+
 The main client that queries the MitM server has no knowledge of the underlying 
 CAS. It follows the procedure:
 \begin{enumerate}
@@ -132,6 +143,7 @@ is then forced to use multiple CAS without the client needing any knowledge of t
 underlying systems.
 
 \subsection{Using the System}
+
 \subsubsection{Dependencies}
 The dependencies of the software in subject of the study and instructions on
 acquiring them:
@@ -147,6 +159,7 @@ acquiring them:
 \end{itemize}
 
 \subsubsection{Execution}
+
 Instructions on running the system:
 \begin{itemize}
   \item Run singular\_server.py script using python, the gap\_server.g script
@@ -160,6 +173,7 @@ Instructions on running the system:
 \end{itemize}
 
 \subsection{Evaluation of the Study}
+
 This study has implemented the MitM approach using \SCSCP, showing that the MitM 
 paradigm is an achievable goal. Currently, however, the MitM server acts as 
 merely a proxy, redirecting \SCSCP requests to CAS that know how to evaluate them.
