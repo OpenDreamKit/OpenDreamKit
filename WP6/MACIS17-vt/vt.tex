@@ -1,44 +1,20 @@
 % !TEX root = ../thesis.tex
-\section{Virtual Theories as a Uniform Conceptual Interface for Mathematical Databases}\label{sec:vt}
+\section{Using Codecs To Implement an LMFDB Virtual Theory}\label{sec:vt}
 
-As has been shown, it is necessary in the Math-In-The-Middle approach to create interface theories that model the knowledge in specific theories. 
-Recall that one approach to achieving this is to export the knowledge and represent is as \omdocmmt, the language powering the \mmt\ system. 
-Such an approach generates a set of XML files that are loaded by the \mmt\ system on startup. 
+We want to solve this problem using Virtual Theories. 
+This means that we need to represent \lmfdb\ as a set of \omdocmmt\ theories. 
+Since each sub-database in \lmfdb\ contains records of similar structure, it only makes sense to create a single virtual theory for each of these sub-databases. 
 
-Recall that we instead introduced a second type of theory to \mmt, the so-called virtual theory.
-virtual theories are just like concrete theories, but without the assumption of loading all declarations from a file on disk at system startup. 
+Moreover, each entry inside of \lmfdb\ should correspond to a single declaration inside of \mmt. 
+To achieve this, we first need to make a difference between the meaning of the values in the database, and how they are represented.
+We refer to the meaningful, knowledge carrying, version of these objects as their \textit{semantic representation} and the database version as the \textit{physical representation}. 
 
-\subsection{The Structure of LMFDB}\label{sec:vt:lmfdb}
-
-As a running example of a virtual theory, we will use \lmfdb. 
-As explained, \lmfdb\ has several sub-databases - each of which contains different kinds of objects. 
-Within each database, each curve is stored as a single JSON object with common keys\footnote{
-  JSON \cite{JSON:web} is a data interchange format that can easily be written and read by humans. 
-  The abbreviation stands for JavaScript Object Notation. 
-  JSON values are either \identifier{null}, \identifier{undefined}, booleans, numbers, strings, (non-homogenous) lists of JSON values or JSON objects. 
-  JSON objects are key-value pairs, with keys being strings and values being any kind of JSON values. 
-}.
-
-%\input{figs/lmfdbexample.tex}
-In the following, we will use the elliptic curve database as an example. 
-An example of how an elliptic curve is represented inside of \lmfdb\ can be found in Figure~\ref{fig:lmfdbexample}.
-
-It can be seen that this entry is a record, i.e. a mapping from keys (in this case strings) to values (any kind of JSON values). 
-This representation encodes for some kind of mathematical object, for example in the case of \identifier{isogeny\_matrix} this is a matrix -- displayed as a list of lists.
-In the \identifier{x-coordinates\_of\_integral\_points} field, this is a little bit more complicated, we are representing a list of integers as a list of strings.
-
-For each entry in \lmfdb\ one \omdocmmt\ declaration has to be generated. 
-To achieve this, the record has to be represented inside of \mmt. 
-This in turn requires each JSON value for each key of these records to be translated into an appropriate \mmt\ term, understandable by MMT. 
 
 \subsection{Translating between Physical and Semantic Representations}\label{sec:vt:translation}
 
-To understand how this is achieved, we need to make a difference between the meaning of the values in the database, and how they are represented.
-We refer to the meaningful, knowledge carrying, version of these objects as their \textit{semantic representation} and the database version as the \textit{physical representation}. 
-
 Consider, for example the \identifier{degree} field from the example above. 
-This represents the degree of a curve and is an integer value, in this case the integer $1$. 
-Inside a database like \lmfdb, integer values will usually be represented as a JSON number, i.e. an \identifier{IEEE 754} $64$ bit floating point number. 
+We have already seen that this represents the degree of a curve and is an integer value, in this case the integer $1$. 
+Technically speaking, inside a database like \lmfdb, integer values will usually be represented as a JSON number, i.e. an \identifier{IEEE 754} $64$ bit floating point number. 
 Here this is the floating point value $1.0$. 
 But IEEE floats are not able to encode all integers -- they have a maximum possible value of $2^{53}-1$ -- so what happens when the semantic representation exceeds that?
 
@@ -48,15 +24,47 @@ This would enable storing much larger numbers.
 
 This is where Codecs come into play. 
 Codecs are mappings between the semantic representation (here the integer $1$) and the actual representation (the JSON number $1.0$). 
-Given a semantic representation of a value it codecs turn it into the corresponding physical representation, and vice-versa. 
+Given a semantic representation of a value, codecs turn it into the corresponding physical representation, and vice-versa. 
 
-The set of objects in semantic representation is called the \textit{semantic type}, the set of objects in the physical representation is called the \textit{realized type}. 
+We call the set of objects in semantic representation the \textit{semantic type}, and the set of objects in the physical representation the \textit{realized type}. 
 Semantic types reside in the MiTM ontology, whereas realized types resides in the systems themselves. 
-The process of converting between the two representations is called \textit{coding}, specifically coding into a semantic representation is called \textit{encoding}, the reverse is called \textit{decoding}. 
+Corresponding with intuition, the process of converting between the two representations is called \textit{coding}, specifically coding into a semantic representation is called \textit{encoding}, the reverse is called \textit{decoding}. 
 
 \subsection{Implementing Codecs In \mmt}\label{sec:vt:mmt}
 
-%\input{figs/codecs.tex}
+\begin{figure}[h!]
+  \begin{center}
+    \begin{tikzpicture}\footnotesize
+      \node[thy] (codecs) at (0,0) {
+        \begin{tabularx}{\textwidth}{lll|X}
+          \multicolumn{4}{l}{\textsf{Codecs}} \\\hline\hline   
+          \identifier{codec}    & : & \multicolumn{1}{l}{$\typett\rightarrow\typett$} & \\\hline
+          \identifier{StandardPos}    & : & $\codectt\ \mathbb{Z}^{+}$   & \multirow{3}{*}{\begin{minipage}{3.8in}
+                                                                                        JSON number if small enough, \\
+                                                                                        else JSON string of decimal expansion
+                                                                                        \end{minipage}}\\
+          \identifier{StandardNat}    & : & $\codectt\ \mathbb{N}$       & \\
+          \identifier{StandardInt}    & : & $\codectt\ \mathbb{Z}$       & \\\hline
+          \identifier{IntAsArray}     & : & $\codectt\ \mathbb{Z}$       & JSON List of Numbers\\
+          \identifier{IntAsString}    & : & $\codectt\ \mathbb{Z}$       & JSON String of decimal expansion\\\hline
+          \identifier{StandardBool}   & : & $\codectt\ \mathbb{B}$       & JSON Booleans \\
+          \identifier{BoolAsInt}      & : & $\codectt\ \mathbb{B}$       & JSON Numbers $0$ or $1$ \\\hline
+          \identifier{StandardString} & : & $\codectt\ \mathbb{S}$       & JSON Strings \\
+        \end{tabularx}
+      };
+    \end{tikzpicture}
+  \end{center}
+
+  \caption[List of Codecs]{
+    An annotated subset of the Codecs theory containing a selection of codecs found in \mmt. 
+    Here $\mathbb{N}$ represents natural numbers (including $0$), 
+    $\mathbb{Z}$ integers, 
+    $\mathbb{Z}^{+}$ positive integers, 
+    $\mathbb{B}$ booleans and
+    $\mathbb{S}$ (unicode character) strings. 
+  }
+  \label{fig:codecs}
+\end{figure}
 The example above corresponds to the \identifier{StandardInt} codec, which is commonly used to code integers. 
 A list of codecs along with their realized and semantic types can be found in Figure~\ref{fig:codecs}. 
 
@@ -81,15 +89,17 @@ The semantic representation of the value of this field is the matrix $$M = \left
 25 & 5 & 1 \end{array} \right) $$. 
 In mathematics in general, many objects have a more complex structure, such as tuples, vectors, or matrices (like in this case). 
 
-Matrices are characterized three two parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
+Matrices are characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
 In principle, one could construct a codec for each type of matrices by hand. 
 This would mean generating one codec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices, $1 \times 2$ integer matrices, $1 \times  2$ real matrices, and so on. 
 For the representation of codecs in \mmt, this would require generating one symbol and one Scala function for each different kind of matrix. 
 This quickly becomes a mess. 
 
-If one has a codec for integers, one can easily generate a codec for any kind of integer matrices. 
+Given a codec for integers, one can easily generate a codec for any kind of integer matrices. 
 One can encode each integer as a value and then take this set of representations and store them inside a list of JSON lists.
-In fact, this is done in the example above and the matrix $M$ is encoded as \inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}. 
+In fact, this is done in the example above and the matrix $M$ is encoded as
+% HACK HACK HACK overfull box
+\\\noindent\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}. 
 
 The procedure of generating codecs is formalized by the concept of codec operators. 
 Essentially codec operators are functors on codecs. 
@@ -98,7 +108,33 @@ The simple codec operator described here is called \identifier{StandardMatrix}.
 
 \subsection{Codec Operators in MMT}\label{sec:vt:operatormmt}
 
-%\input{figs/codecops.tex}
+% !TEX root = ../thesis.tex
+\begin{figure}[h!]
+  \begin{center}
+    \begin{tikzpicture}\footnotesize
+      \node[thy] (codecs) at (0,0) {
+        \begin{tabularx}{\textwidth}{lll|X}
+          \multicolumn{4}{l}{\textsf{Codecs (continued)}} \\\hline\hline   
+          \identifier{StandardList}    & : & 
+                      $\left\{T\right\} \codectt\ T \rightarrow \codectt\ \mathrm{List}(T)$ & 
+                      JSON list, recursively coding each element of the list\\\hline
+          \identifier{StandardVector}    & : & 
+                      $\left\{T, n\right\} \codectt\ T \rightarrow \codectt\ \mathrm{Vector}(n, T)$ & 
+                      JSON list of fixed length $n$\\\hline
+          \identifier{StandardMatrix}    & : & 
+                      $\left\{T, n, m\right\} \codectt\ T \rightarrow \codectt\ \mathrm{Matrix}(n, m, T)$ & 
+                      JSON list of $n$ lists of length $m$\\
+        \end{tabularx}
+      };
+    \end{tikzpicture}
+  \end{center}
+
+  \caption[List of Codec Operators]{
+    Second annotated subset of the codecs theory containing a selection of codec operators found in \mmt. 
+    Compare with Figure~\ref{fig:codecs}. 
+  }
+  \label{fig:codecops}
+\end{figure}
 A list of codec operators can be found in Figure~\ref{fig:codecops}. 
 Codec Operators in \mmt\ are again represented in two ways, as declarations inside the \identifier{Codec} Theory and inside a Scala implementation. 
 
@@ -121,21 +157,128 @@ Similarly the same codec operator can be used to for example generate a codec fo
 
 \subsection{Declaring Schemas to Translate Records and Implement virtual theories}\label{sec:vt:schemas}
 
-%\input{figs/vtarch.tex}
+% !TEX root = ../thesis.tex
+\begin{figure}[h!]
+  \begin{center}
+    \begingroup
+    \pgfdeclarelayer{background}
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,foreground}
+    
+    \resizebox{\textwidth}{0.75\textwidth}{
+      \begin{tikzpicture}[xscale=4,yscale=3]\footnotesize
+        \begin{pgfonlayer}{foreground}
+          \tikzstyle{human}    = [red,dashed,thick]
+          \tikzstyle{withshadow}  = [draw,drop shadow={opacity=.5},fill=white]
+          \tikzstyle{interface}   = [fill=blue!30]
+          \tikzstyle{database}    = [cylinder,cylinder uses custom fill,
+            cylinder body fill=yellow!50,cylinder end fill=yellow!50,
+            shape border rotate=90,
+            aspect=0.25,draw]
+          
+          % Ontology layer
+          \node[thy] (numbers) at (0,1) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Numbers}}\\\hline\hline
+              $\mathbb{Z}^{+}$        & : & \typett\\
+              $\mathbb{Z}$            & : & \typett\\\hline
+              \multicolumn{3}{l}{$\mathbb{Z}^{+} \subset \mathbb{Z}$}
+            \end{tabular}
+          };
+
+          \node[thy] (matrices) at (1.5,1) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Matrices}}\\\hline\hline
+              \plaintt{matrix} & : & $\typett\ \rightarrow \mathbb{Z}^{+}\rightarrow \mathbb{Z}^{+} \rightarrow \typett$
+            \end{tabular}
+          };
+
+          \node[thy] (codecs) at (0.75,0) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Codecs}}\\\hline\hline
+              \codectt                  & : & $\typett \rightarrow \typett$\\\hline
+              \plaintt{standardInt}     & : & $\codectt\ \mathbb{Z}$\\
+              \plaintt{standardMatrix}  & : & $\left\{T, n, m\right\} \codectt\ T \rightarrow \codectt\ \plaintt{matrix}(n, m, T)$\\
+            \end{tabular}
+          };
+
+          \draw[include] (numbers) -- (matrices);
+          \draw[include] (matrices) -- (codecs);
+          
+          \begin{pgfonlayer}{background}
+            \node[draw=none,fill=green!30,rounded corners=1cm,fit=(numbers) (matrices) (codecs),inner sep=15pt] {};
+          \end{pgfonlayer}
+        
+          % Model Layer
+          \node[thy] (ec) at (2.25,-1.20) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Elliptic Curve}}\\\hline\hline
+              \plaintt{ec}            & : & \typett\\\hline
+              \plaintt{from\_record}  & : & $\plaintt{record} \rightarrow \plaintt{ec}$ \\\hline
+              \plaintt{curveDegree}   & : & $\plaintt{ec} \rightarrow \mathbb{Z}$ \\
+              \plaintt{isogenyMatrix} & : & $\plaintt{ec} \rightarrow \plaintt{matrix}(3, 3, \mathbb{Z})$ 
+            \end{tabular}
+          };
+
+          \node[thy,interface] (ecschema) at (2.0,-2.5) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Elliptic Curve Schema}}\\\hline\hline
+              $\plaintt{degree}$            & \uri{?implements}  & \plaintt{curveDegree} \\
+                                            & \uri{?codec}       & \plaintt{StandardInt} \\\hline
+              $\plaintt{isogeny\_matrix}$   & \uri{?implements}  & \plaintt{isogenyMatrix} \\
+                                            & \uri{?codec}       & $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$ 
+            \end{tabular}
+          };
+          
+          \begin{pgfonlayer}{background}
+            \node[draw,cloud,fit=(ec),aspect=4,withshadow,inner sep=-4pt,purple!30] {};
+          \end{pgfonlayer}
+
+          % Database Layer
+          \node[database] (mongodb) at (-.5,-2.5) {
+            \textsf{\lmfdb\ Elliptic Curves}
+          };
+
+          \node[thy,interface] (dbtheory) at (0,-1.20) {
+            \begin{tabular}{lllll}
+              \multicolumn{5}{l}{\textsf{Elliptic Curve Database Theory}}\\\hline\hline
+              \plaintt{11a1} & : & $\plaintt{ec}$ & $=$ & \dots\\
+              \plaintt{11a2} & : & $\plaintt{ec}$ & $=$ & \dots\\
+              \dots
+            \end{tabular}
+          };
+          \draw[include] (matrices.south)+(.75,0) -- (ec.north);
+          \draw[include] (ec) -- (dbtheory);
+          
+          \draw[human,->] (dbtheory) -- node[right]{\scriptsize {lazily loads from}} (mongodb);
+          \draw[human,->] (ecschema) -- node[right]{\scriptsize {implements}} (ec);
+          \draw[human,->] (ecschema) -- node[above]{\scriptsize {describes}} (mongodb);
+        \end{pgfonlayer}
+      \end{tikzpicture}
+    }
+    \endgroup
+  \end{center}
+
+  \caption[Virtual Theory Architecture]{
+    A sketch of the architecture for a virtual theory connecting to \lmfdb. 
+    Solid edges represent imports. 
+    Several declarations have been omitted for simplicity. 
+  }
+  \label{fig:vtarch}
+\end{figure}
 Codecs enable creation of individual values within \lmfdb\ and mathematical databases in general. 
-This is not enough -- a mechanism to translate entire records as a whole is needed to solve aspect~\ref{intro:rq:vt}. 
+This is not enough -- a mechanism to translate entire records as a whole is needed to implement a Virtual Theory. 
 
 The architecture of a virtual theory for \lmfdb\ elliptic curves is illustrated in Figure~\ref{fig:vtarch}. 
-The figure is split into four major parts, colored analogous to the ontology parts in Figure~\ref{fig:mitmontology}. 
-These parts are the foundational ontology theories (green), mathematical model ontology (red), database interface theories (blue) and \lmfdb\ itself (yellow). 
+It consists of four different parts, the foundational ontology theories (colored in green), mathematical model ontology (colored in red), database interface theories (colored in blue) and \lmfdb\ itself (colored in yellow). 
+These aspects originate from the Math-In-The-Middle approach. 
 
-Recall that the foundational ontology theories provide a system-independent basis for the remainder of the approach. 
+The foundational ontology theories provide a system-independent basis for the remainder of the approach. 
 In this example, they first define a type of integers $\mathbb{Z}$ and positive integers $\mathbb{Z}^{+}$ and then proceed to define a \identifier{matrix} type. 
 This type takes three parameters, a type of elements in the matrix, and then a row and column count. 
 Next, the codec \identifier{standardInt} and codec operator \identifier{standardMatrix} are defined as previously. 
 
 Next, the \textit{Elliptic Curve} theory is described. 
-It is contained in the mathematical models part of the ontology. 
 It models an elliptic curve in a very simple fashion, by just declaring a type \identifier{ec}. 
 Next, it defines a \identifier{from\_record} constructor that takes an \mmt\ record and returns an elliptic curve. 
 Notice that these definitions are independent of the \lmfdb\ database. 
@@ -152,20 +295,19 @@ As explained, this choice was made deliberately so that this Virtual Theory appr
 Notice however, how the properties make use of integers and matrices. 
 Thus the elliptic curve theory includes the Matrices and Numbers theories, making use of the foundations. 
 
-Next, we investigate the interface theories that interact with \lmfdb. 
-The mechanism here is flexible to be extensible to other systems. 
-It consists of two theories, the so-called \textit{schema theory} and the \textit{database theory}. 
+Next, we investigate the theories that connect \lmfdb\ to the Math-In-The-Middle approach, called the interface theories. 
+These consists of two theories, the so-called \textit{schema theory} and the \textit{database theory}. 
 
 The schema theory, as the name suggests, describes the schema of the \lmfdb\ elliptic curve database. 
 This is the only place in the entire architecture of virtual theories which relies on the structure of \lmfdb. 
-The schema theory has the URI \uri{lmfdb:schema/elliptic\_curves?curves} and contains declarations for each field within an \lmfdb\ record. 
+The schema theory contains declarations for each field within an \lmfdb\ record. 
 The name of these declarations corresponds to the name of the field inside the record. 
 Each declaration is annotated using \mmt\ meta-data with two pieces of information, the property of an elliptic curve it implements and the codec that is used to encode it inside \lmfdb. 
 For example, the \identifier{degree} field implements the \identifier{curveDegree} property in the elliptic curve theory and uses the \identifier{StandardInt} codec. 
 
 Next comes the database theory. 
-This is the truly virtual theory -- it is not stored on disk and generated dynamically -- and has the URI \uri{lmfdb:db/elliptic\_curves?curves}.
-It contains one declaration per record in \lmfdb. 
+This is the truly virtual theory -- it is not stored on disk and generated dynamically. 
+As designed, it contains one declaration per record in \lmfdb. 
 
 \subsection{Translation of the 11a1 Curve}\label{sec:vt:11a1}
 
@@ -219,11 +361,8 @@ This example only shows the translation of two fields.
 But this can obviously be extended to more than these two -- for example the other ones contained in the JSON received from \lmfdb. 
 One only needs to add the appropriate declaration in the schema theory. 
 
-Furthermore, this can also be extended to more than a single \lmfdb\ sub-database, by adding appropriate new Schema and Database theories along with mathematical models. 
-Recall that aspect~\ref{intro:rq:vt} of the solution of the research question requires a generic, extensible mechanism to manage knowledge stored in different systems. 
-This is exactly achieved here, by separating physical representation (Codecs), database
-structure (Schema Theory) and Semantics (Elliptic Curve Theory in the Math of
-Math-In-The-Middle). 
+Furthermore, this can easily be extended to more than a single \lmfdb\ sub-database, by adding appropriate new Schema and Database theories along with mathematical models. 
+\ednote{Possibly move this into conclusion; or add another section}
 
 %%% Local Variables:
 %%% mode: latex

@@ -1,119 +1,109 @@
-\section{The MMT System, the OpenDreamKit project, and The Math-In-The-Middle approach}
+\section{The MMT System, the OpenDreamKit project, and The Math-In-The-Middle approach}\label{sec:mmtmitm}
 
-\subsection{MMT System}
-\ednote{High level overview of MMT}
+We start by giving the reader an overview of the underlying of the \omdocmmt\ theory graphs. 
+This is a flexiformal representation of mathematical knowledge, which is represented in the the \omdocmmt language, mechanized by the MMT system, and stored in the MathHub information system. 
 
-\subsection{The Math-In-The-Middle Approach}\label{sec:mitm:mitm}
+\mmt\ \cite{Rabe:MMTLanguageSystem09} is a language and framework that was developed to manage (mainly) mathematical knowledge. 
+It can handle both formal and informal content. 
+\mmt\ is under active development and the project home page can be found at \cite{uniformal:on}. 
 
-\ednote{Rewrite this: we did ad-hoc in mmt, now we want to do MiTm}
-We commonly create an exporter from the external system that turns the knowledge representation of the external system directly into \omdocmmt. 
-This knowledge is then stored by the \mmt\ system in a set of XML files representing \omdocmmt. 
-These XML files are then used by \mmt\ just like any other concrete theory is used. 
+\subsection{Knowledge Representation In \omdocmmt}\label{sec:mmtmitm:kr}
 
-Both approaches are one-way and not scaleable. 
-If one wishes to reverse the integration, one has to build a completely new integration. 
-Furthermore, to extend this model to $n$ different systems that all make their knowledge available to each other, one has to build connections between any two. 
-This results in $n (n - 1) = O(n^2)$ total connections having to be built. 
-Recall that this can be seen in Figure~\ref{fig:classicalconnect}. 
-This does not scale well with a large number of systems. 
+Knowledge inside of \mmt\ employs the theory graph paradigm supported by the underlying \omdocmmt\ language. 
+This means that knowledge is organized in distinct theories which are related by different relations in a graph-like manner. 
+One of these relations is a so-called view, which can be used to translate knowledge from one theory to another. 
+Definiens within each theory are identified by a URI (the so-called \mmt\ URI) whereas the definitions are represented by what amounts to OpenMath \cite{BusCapCar:oms04} objects. 
+Apart from making purely formal declarations, it is also possible to annotate the declarations with human-readable, narrative elements. 
 
-Furthermore recall that we model the true, underlying mathematics inside of \mmt\ along with the knowledge contained in the systems themselves. Making use of theory graphs, this allows us to model translation between this knowledge and the different systems using views. 
+Commonly all knowledge in \mmt\ is manifested on disk and loaded by the system in its entirety on startup. 
+This means that there is a set of files, specifically XML files, on disk containing the appropriate theories and declarations. 
+We refer to theories stored in this form as \textit{concrete theories}. 
 
-We call this approach the Math-In-The-Middle approach (or MiTM for short) and it directly solves the scalability problem mentioned above. 
-When adding a new system, we no longer need to build translations between the new system and all other systems, instead we only need to model the knowledge with the help of the Math-In-The-Middle ontology. 
-Thus for a set of $n$ systems, we only need to implement $2n$ translations, one from and one to the underlying mathematical knowledge for each of the systems. 
-Recall that this can be seen in Figure~\ref{fig:mitmconnect}. 
+Knowledge in \mmt\ can be accessed by either giving it's name -- i.e. it's \mmt\ URI, 
+or by giving a set of conditions that has to fulfilled by the knowledge in question. 
+The achieve the latter, \mmt\ has a Query Language called QMT, which allows even complex conditions to be specified. 
 
-\subsection{Systems in the OpenDreamKit Project}\label{sec:mitm:systems}
+This modeling of mathematical knowledge has proven very effective. 
+On top of pure mathematical knowledge modeling, it is also possible to annotate declarations. 
+This means one can give them human-readable descriptions.
+The other direction, giving informal knowledge (for example a paper) a partially formal meaning is also possible.
 
-\ednote{Rewrite: This fits into the OpenDreamKit project}
+This has allowed us to develop and populate a system called MathHub \cite{MathHub:on}. 
+The system altogether forms a big theory graph totaling at about 10000 theories. 
+MathHub is far more than just a theory graph however, it allows creating and editing of existing libraries and offers possibilities for integrating semantic services.
+The deatils of this are not relevant to the topic at hand -- we refer the interested reader to \cite{Iancu:phd} instead.
 
-Recall that the OpenDreamKit \cite{OpenDreamKit:on} is an EU-funded project that aims to create Virtual Research Environments enabling mathematicians to make efficient use of existing Open-Source mathematical software systems.
-We briefly introduce the main systems used in the OpenDreamKit project, as these are the use-case for cross-system communication. 
+Notable projects available on MathHub include SMGloM \cite{SMGloM:on} -- a semantic glossary of mathematical knowledge -- LATIN \cite{LATIN:online} -- a logical atlas of several different formalizations  -- as well as parts of the PVS \cite{PVSlibraries:on}, MiZar \cite{mizar:online} and HOL Light \cite{KalRab:hollight:14} libraries.
 
-For more details, as well as a comprehensive list of other projects in the project and in particular the Math-In-The-Middle approach we refer the interested reader to the OpenDreamKit project proposal \cite{ODKproposal:on} as well as reports on the Math-In-The-Middle approach \cite{DehKohKon:iop16}.
+\subsection{Virtual Theories In The Math-In-The-Middle approach}\label{sec:mmtmitm:odk}
 
-\begin{description}
-  \item[LMFDB]
-    The \lmfdb\ \cite{lmfdb} project is a mathematical database. 
-    It is implemented in Python with a MongoDB backend. 
-    The project contains several thousand L-Functions and curves as well as their properties.
-    These mathematical objects are stored inside of several sub-databases, for example the elliptic curves database or the Galois groups database
-    \footnote{We will go into more details on this in Section~\ref{sec:vt:lmfdb} where \lmfdb\ will serve as one of our main examples for virtual theories. }. 
-  \item[GAP]
-    The GAP system \cite{gap} is a computer algebra system. 
-    It is written in C. 
-    The abbreviation stands for ``Groups, Algorithms and Programming'' and the system focuses on content from group theory. 
-  \item[SageMath]
-    SageMath \cite{sagemath} is a project which has built a mathematical knowledge system written in Python. 
-    It combines multiple pre-existing projects and allows them to interact via a common interface using Python. 
-  \item[OEIS]
-    The On-Line Encyclopedia of Integer Sequences \cite{oeis} is a website that collects and indexes sequences of integers. 
-    Each sequence is represented by a text file containing informally specified key-value pairs. 
-    The entire dataset encompasses about 280000 hand curated sequences. 
-\end{description}
+The OpenDreamKit \cite{OpenDreamKit:on} project is an EU-funded project that aims to create Virtual Research Environments enabling mathematicians to make efficient use of existing Open-Source mathematical knowledge systems. 
+These systems include Sage, GAP and \lmfdb\ systems, along with others. 
 
-\subsection{The Math-In-The-Middle Ontology}\label{sec:mitm:ontology}
+Aiming to create such environments, as part of the OpenDreamKit project it is necessary for the different systems to interoperate. 
+Similar to the Mathematical Knowledge Bases problem here, the State-Of-The-Art of such system interaction is basically non-existent: 
+Connections between different systems only exist on an ad-hoc, system-specific basis. 
+These interactions both require significant work to maintain, and result in a large number of one-to-one system connections. 
 
-\ednote{If we keep this, we need the figure back}
-We give a short overview of the structure of the Math-In-The-Middle ontology and how it is created. 
-An overview can be seen in Figure~\ref{fig:mitmontology}. 
+\begin{wrapfigure}{l}{0.3\textwidth}
+  \begin{center}
+    \begin{tikzpicture}[xscale=1.3,yscale=1.3]\normalsize
+      \tikzstyle{withshadow}=[draw,drop shadow={opacity=.5},fill=white]
+      \tikzstyle{system}=[draw]
+      \tikzstyle{standard}=[circle,fill=blue!30]
+      \tikzstyle{interface}=[circle,fill=purple!30,inner sep = 1pt,]
+      \node[system] (a) at (0,.3) {A};
+      \node[system] (b) at (1,.3) {B};
+      \node[system] (c) at (1.7,1) {C};
+      \node[system] (d) at (1.7,2) {D};
+      \node[system] (e) at (1,2.7) {E};
+      \node[system] (f) at (0,2.7) {F};
+      \node[system] (g) at (-.7,2) {G};
+      \node[system] (h) at (-.7,1) {H};
+      \node[standard] (m) at (.5,1.5) {S};
+      \node[interface] (ia) at (0.2,.9) {a};
+      \node[interface] (ib) at (.8,.9) {b};
+      \node[interface] (ic) at (1.1,1.2) {c};
+      \node[interface] (id) at (1.1,1.75) {d};
+      \node[interface] (ie) at (.8,2.1) {e};
+      \node[interface] (if) at (0.2,2.1) {f};
+      \node[interface] (ig) at (-.1,1.75) {g};
+      \node[interface] (ih) at (-.1,1.2) {h};
+      \draw (m) -- (ia) -- (a);
+      \draw (m) -- (ib) -- (b);
+      \draw (m) -- (ic) -- (c);
+      \draw (m) -- (id) -- (d);
+      \draw (m) -- (ie) -- (e);
+      \draw (m) -- (if) -- (f);
+      \draw (m) -- (ig) -- (g);
+      \draw (m) -- (ih) -- (h);
+      \end{tikzpicture}
+  \end{center}
 
-It illustrates the Math-In-The-Middle ontology and its interaction with three of the involved systems -- Sage, \lmfdb\ and GAP. 
-Furthermore, we only show the concept of elliptic curves (or EC for short). 
-This has been chosen because it can be found in all three systems in a well-developed form. 
+  \caption[The MITM Approach to Connecting Systems]{
+    The MiTM Approach to Connecting Systems. 
+  }
+  \label{fig:mitmconnect}
+\end{wrapfigure}
+To address these problems, we have introduced the Math-In-The-Middle approach, which is illustrated in Figure~\ref{fig:mitmconnect}. 
+It models the true, underlying mathematical semantics in \mmt\ and allows translation between this centrally formalized knowledge and the systems on the boundary.
+This mathematical knowledge is modeled using the well-established theory graph paradigm and is stored inside our MathHub / \mmt\ architecture. 
 
-Recall that everything is represented as a theory graph -- each rounded box inside the image represents a theory. 
-Includes are shown as solid edges, meta-theory relations as dotted edges and views as wavy edges. 
-Everything else represents explanation elements and are not part of the theory graph itself. 
+The knowledge in the systems themselves is also modeled via theories in a theory graph.
+This allows us to implement translation with the help of bi-views -- views in both directions -- between the central knowledge -- the Math-In-The-Middle -- and each of the systems. 
 
-The ontology is split into three parts. 
-\begin{description}
-  \item[Foundations]
-    As the title suggests, this part of the MiTM ontology forms the basis for the others. 
-    In the figure it is colored in green. 
-    This part of the ontology defines the basic data types and knowledge types needed to formalize the other parts. 
-    This in itself it split up in two parts, the mathematical foundations, and the system / programming language specific computational specific foundations. 
+As part of this approach, the integrated systems include the systems of the OpenDreamKit project, along with several Mathematical Knowledge Bases. 
+Within this approach, the knowledge in these has to be modelled using a theory graph. 
+Here we have made of Virtual Theories. 
 
-    On one hand, the mathematical foundations provide the basic mathematical objects needed -- logics and booleans, as well as arithmetics and (real) numbers. 
-    This also includes a basic representation of Quantity Expressions such as $5 \frac{\mathrm{m}}{\mathrm{s}}$. 
+In a nutshell, virtual theories are just like concrete theories, but without the assumption of loading all declarations from a file on disk at system startup. 
+Instead of loading all knowledge from an XML file, virtual theories load declarations in a lazy fashion when they are required. 
+Here we do not even restrict ourselves to lazily reading an XML file, on the contrary, in most use cases we actually create the \omdocmmt\ representation on demand. 
 
-    On the other hand computational foundations define the programming language equivalent of these, such as boolean values and IEEE floats. 
-    On top of these, we define foundations for each of the systems. 
-    This is again a layered approach, we start by defining the foundations of the given programming languages, e.g. in the case of python defining how inheritance works. 
-    We then continue by formalising the system foundation on top of this. 
-    For example, we define how filters\footnote{In rough terms, filters are the GAP equivalent of classes. } in GAP function. 
+We will not go into much detail more detail of either the OpenDreamKit project, or the Math-In-The-Middle approach as a whole here. 
+Instead, we will focus only on Virtual Theories. 
+We refer the interested reader to \ednote{Cite MACIS17-interop}, a paper submitted by a superset of the authors of this paper, describing the approach in detail. 
 
-  \item[Mathematics]
-    This part of the MiTM ontology is the largest and colored in blue. 
-    It contains the mathematical representation of objects that used by the systems. 
-    This is the core idea behind Math-In-The-Middle, and as such they are not based on any specific system foundation, but instead use only the system independent mathematical and computational foundations. 
-    
-    In the figure, it can be seen that the mathematical concept of elliptic curves is defined. 
-    Although not explicitly shown, this makes use of other concepts within the Math of MiTM. 
-
-  \item[System Interfaces]
-    This part of the ontology is the one most related to the systems themselves. 
-    For each of the systems involved, a separate set of theories exists. 
-    Each of these are shown in a separate purple cloud. 
-
-    Consider for example the Sage System Interface (in purple on the left). 
-    This defines a Sage specific representation of elliptic curves along with a view from the mathematical representation to it
-    There is actually a partial view back from \identifier{Sage EC} back to the mathematical \identifier{EC}. 
-    This is not shown here, but together with the depicted view this enables bi-directional translation of objects in Sage and objects
-    in the Math part of the ontology. 
-    This representation has the Sage Foundation as a meta theory, and can thus make use of Sage specific concepts. 
-    
-    A similar situation is the case for the GAP system, here of course we make use of the GAP meta-theory instead. 
-    This is different for \lmfdb\ however. 
-    Notice that there is no existing foundation for it. 
-    This is because unlike the other systems, \lmfdb\ consists only a database and thus never performs any kind of computation and thus no computational foundation is needed. 
-    Nonetheless, an interface theory for \lmfdb\ is needed. 
-    
-\end{description}
-
-But how is this ontology created and maintained?
-\ednote{introduce the idea of virtual theories here}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "paper"

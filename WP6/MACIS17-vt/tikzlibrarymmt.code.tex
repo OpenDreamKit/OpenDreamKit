@@ -1,0 +1,96 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A TIKZ library for MMT Theory Graphs
+% copyright 2014 Michael Kohlhase; Released under the LPPL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% this library provides some standardized node and arrow styles for formatting MMT graph
+% diagrams in tikz. The advantage is that we can classify the arrows and nodes
+% symbolically and with the styles in this library achieve a uniform look that helps
+% readability. 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% 1. Theories
+% a generic theory
+\def\outerthysep{.3mm}
+\def\innerthysep{.5mm}
+\tikzstyle{thy}=[draw,outer sep=\outerthysep,rounded corners,inner sep=\innerthysep]
+% a primitive theory
+\tikzstyle{primthy}=[thy,double]
+% a theory graph 
+\tikzstyle{thygraph}=[draw,outer sep=1mm,rounded corners,dashed]
+
+%%% 2. Arrows 
+%%% 2.1. Arrowtips (only internal)
+\usetikzlibrary{arrows}
+\newcommand{\@mmtarrowtip}{angle 45}
+\newcommand{\@mmtreversearrowtip}{angle 45 reversed}
+\newcommand{\@mmtarrowtipepi}{triangle 45}
+\newcommand{\@mmtarrowtipmonoright}{right hook}
+\newcommand{\@mmtarrowtipmonoleft}{left hook}
+\newcommand{\@mmtarrowtippartial}{right to}
+\newcommand{\@mmtarrowtippartialleft}{left to}
+\newcommand{\@mmtreversearrowtippartial}{right to reversed}
+\newcommand{\@mmtreversearrowtippartialleft}{left to reversed}
+
+%%% 2.2 the arrow sstyles in graphs
+\usetikzlibrary{decorations,decorations.pathmorphing,decorations.markings}
+% any morphism 
+\tikzstyle{morph}=[-\@mmtarrowtip,thick] 
+\tikzstyle{mapsto}=[|-\@mmtarrowtip] %| any morphism 
+% structures
+\tikzstyle{struct}=[-\@mmtarrowtip,thick]
+% inclusions: regular, partial, and left variants
+\tikzstyle{include}=[\@mmtarrowtipmonoright-\@mmtarrowtip,thick]
+\tikzstyle{revinclude}=[\@mmtarrowtip-\@mmtarrowtipmonoright,thick]
+\tikzstyle{pinclude}=[\@mmtarrowtipmonoright-\@mmtarrowtippartial,thick]
+\tikzstyle{includeleft}=[\@mmtarrowtipmonoleft-\@mmtarrowtip,thick]
+\tikzstyle{pincludeleft}=[\@mmtarrowtipmonoleft-\@mmtarrowtippartialleft,thick]
+% views: regular, mono, partial, and left variants
+\tikzstyle{preview}=[decorate,
+                                decoration={coil,aspect=0,amplitude=1pt,
+                                                    segment length=6pt,
+                                                    pre=lineto,pre length=3pt,
+                                                    post=lineto,post length=5pt},
+                                thick]
+\tikzstyle{view}=[preview,-\@mmtarrowtip]
+\tikzstyle{mview}=[preview,\@mmtarrowtipmonoright-\@mmtarrowtip]
+\tikzstyle{pview}=[preview,-\@mmtarrowtippartial]
+\tikzstyle{pmview}=[preview,\@mmtarrowtipmonoright-\@mmtarrowtippartial]
+\tikzstyle{viewleft}=[preview,-\@mmtarrowtip]
+\tikzstyle{mviewleft}=[preview,\@mmtarrowtipmonoleft-\@mmtarrowtip]
+\tikzstyle{pviewleft}=[preview,-\@mmtarrowtippartialleft]
+\tikzstyle{pmviewleft}=[preview,\@mmtarrowtipmonoleft-\@mmtarrowtippartialleft]
+\tikzstyle{adoption}=[preview,thin,double,-\@mmtarrowtip]
+% biviews: regular, partial, and left variants
+\tikzstyle{biview}=[preview,\@mmtarrowtip-\@mmtarrowtip]
+\tikzstyle{pbiview}=[preview,\@mmtreversearrowtippartial-\@mmtarrowtippartial]
+\tikzstyle{pbiviewleft}=[preview,\@mmtreversearrowtippartialleft-\@mmtarrowtippartialleft]
+% defining views (experimental)
+\tikzstyle{defview}=[preview,densely dotted,-\@mmtarrowtip]
+% meta-theory inclusion
+\tikzstyle{meta}=[dotted,-\@mmtarrowtip,thick]
+% conservative extensions (abbreviation)
+\tikzstyle{conservative}=[hooks-\@mmtarrowtip,double] 
+% conservative development
+\tikzstyle{conservdev}=[hooks-\@mmtarrowtip,dashed,double] 
+
+% antimorphisms as striktthroughs
+\tikzset{anti/.style={
+    decoration={markings, mark=between positions 0.2 and 0.8 step 4mm with {
+        \draw [thick,-] ++ (-3pt,-3pt) -- (3pt,3pt);}},
+    postaction={decorate}}}
+
+% parallel markup
+\tikzstyle{parallel}=[\@mmtarrowtip-\@mmtarrowtip,dashed]
+
+%%% 3. convenience macros
+%%% 3.1 the \mmtthy macro takes three arguments, name, decl, axioms and makes a 
+% table-like structure
+\newcommand\mmtthy[3]{\def\@test{#3}%
+\begin{array}{l}\textsf{#1}\\\hline #2\ifx\@test\@empty\else\\\hline #3\fi\end{array}}
+%%% 3.2 the \mmtar takes two arguments, some tikz options, and an arrow style. \nmmtar
+% is a variant that also has a name on top.
+\newcommand\mmtar[2][]{\raisebox{.5ex}{\tikz[#1]{\draw[#2] (0,0) -- (.6,0);}}}
+\newcommand\nmmtar[3][]{\raisebox{.4ex}{\tikz[#1]{\draw[#2] (0,0) --
+      node[above]{\ensuremath{\scriptstyle #3}} (.8,0);}}}

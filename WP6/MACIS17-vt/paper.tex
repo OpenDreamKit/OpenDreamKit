@@ -32,18 +32,30 @@
 }
 \let\uri\identifier
 
+% Jay, tables
+\usepackage{tabularx}
+\usepackage{multirow}
+
 % TIKZ
 \usepackage{tikz}
 \def\thmo#1#2{\mathsf{#1}\colon\kern-.15em{#2}}% for theories
-\usetikzlibrary{shapes,arrows,fit,shadows}
+\usetikzlibrary{shapes,arrows,mmt,fit,shadows}
 
 % Abbreviations
 \providecommand{\mmt}{MMT}
 \providecommand{\omdocmmt}{OMDoc/MMT}
 \providecommand{\lmfdb}{LMFDB}
 
+% colors for syntax highlighting
+\usepackage{xcolor}
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+
 % code snippets
 \usepackage{listings}
+% QMT
 \lstdefinelanguage{qmt}{
     basicstyle=\footnotesize\ttfamily,
     showstringspaces=false,
@@ -52,6 +64,32 @@
     columns=fullflexible,
     breaklines=true
 }
+% JSON syntax
+\lstdefinelanguage{json}{
+    basicstyle=\footnotesize\sffamily,
+    numberstyle=\scriptsize,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single, 
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
 \providecommand{\inlinecode}[1]{{\lstinline[language=qmt]|#1|}}
 
 \def\meta#1{\ensuremath{\langle\kern-.25em\langle}#1\ensuremath{\rangle\kern-.2em\rangle}}
@@ -78,32 +116,21 @@ Florian Rabe\inst{2}
 \begin{document}
 \maketitle
 \begin{abstract}
-  There are various mathematical knowledge collections and information systems
-  available. They range from completely informal ones like Wikipedia or the Cornell arXiv,
-  zbMath, and MathSciNet via mathematical object databases like the GAP group libraries,
-  the Online Encyclopedia of Integer sequences (OEIS), and the L-functions and Modular
-  Forms Database (LMFDB) to theorem prover libraires like those of Mizar, Coq, PVS, and
-  the HOL systems. 
+  There are various mathematical knowledge collections and information systems available. 
+  They range from completely informal ones like Wikipedia or the Cornell arXiv, zbMath, and MathSciNet via mathematical object databases like the GAP group libraries, the Online Encyclopedia of Integer sequences (OEIS), and the L-functions and Modular Forms Database (LMFDB) to theorem prover libraires like those of Mizar, Coq, PVS, and the HOL systems. 
 
-  Unfortunately, these systems are often only accessible via a dedicated web information
-  system or a low-level API at the level of the raw database content.  What we would want
-  is a ``programmatic, mathematical API'' which would give access to the knowledge-bases
-  programmatically via their mathematical constructions and properties. 
+  Unfortunately, these systems are often only accessible via a dedicated web information system or a low-level API at the level of the raw database content. 
+  What we would want is a ``programmatic, mathematical API'' which would give access to the knowledge-bases programmatically via their mathematical constructions and properties. 
 
-  This paper takes a step into this direction by interpreting knowledge bases as \omdocmmt
-  theory graphs -- modular, flexiformal representations of mathematical objects, their
-  properties, and relations. We update \omdocmmt theories to ``virtual theories'' and
-  update knowledge management algorithms so that they can cope with theories that do not
-  fit into main memory but directly deal with the underlying databases as backends
-  employing a modular system of codecs to bridge the gap between the database schema and
-  the mathematical construction of objects.
+  This paper takes a step into this direction by interpreting knowledge bases as \omdocmmt\ theory graphs -- modular, flexiformal representations of mathematical objects, their properties, and relations. 
+  We update \omdocmmt\ theories to ``virtual theories'' and update knowledge management algorithms so that they can cope with theories that do not fit into main memory but directly deal with the underlying databases as backends employing a modular system of codecs to bridge the gap between the database schema and the mathematical construction of objects.
 \end{abstract}
 
-\ednote{Target Size: 15 pages}
+%\ednote{Target Size: 15 pages}
 
 \input{intro}
-\input{sota}
 \input{mmtmitm}
+\input{sota}
 \input{vt}
 \input{concl}
 \printbibliography
