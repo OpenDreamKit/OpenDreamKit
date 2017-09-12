@@ -22,44 +22,73 @@ The following sections describe the three components of the MitM paradigm in mor
 
 \subsection{The MitM Ontology}\label{sec:mitm:recap}
 
-In the center, we have the \textbf{MitM Ontology}, which is a formalization of the mathematical knowledge behind the systems $A$ to $H$ as a theory graph in the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}.
-We do not go into the details of \OMMT theory graphs here.
-For our purposes, it suffices to assume that they declare a set of typed symbols.
-Thus, a theory graph formalizes a language for mathematical objects.
+In the center, we have the \textbf{MitM Ontology}, which is a formalization of
+the mathematical knowledge behind the systems $A$ to $H$ as a theory graph in
+the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. We do
+not go into the details of \OMMT theory graphs here. For our purposes, it
+suffices to assume that they declare a set of typed symbols. Thus, a theory
+graph formalizes a language for mathematical objects.
 
-For example, the symbol $norm: Group \to ???$ declares the function that returns the normalizer of a group.
-\ednote{@(MP,VV): clean this up and make sure it corresponds to the symbol names actually used in the ontology}
+For example, the symbol
+$Normaliser : (G : Group) \to (U : Subgroups G) \to (Subgroups G)$ declares the
+function that returns the normalizer of a subgroup $U$ of a group $G$.
 
-Note that the purpose of the MitM ontology is not the formal verification of mathematical theorems (as for most formalizations such as \cite{Gonthier+:mcpoot13} for group theory), but to act as a pivot point for integrating systems.
-This means that it can be much nearer to the informal but rigorous presentation of mathematical knowledge in the literature.
-While each system makes compromises and optimizations needed for a particular application domain, the MitM ontology follows existing and already informally standardized mathematical knowledge and can thus serve as a standard interface layer between systems
+Note that the purpose of the MitM ontology is not the formal verification of
+mathematical theorems (as for most formalizations such as
+\cite{Gonthier+:mcpoot13} for group theory), but to act as a pivot point for
+integrating systems. This means that it can be much nearer to the informal but
+rigorous presentation of mathematical knowledge in the literature. While each
+system makes compromises and optimizations needed for a particular application
+domain, the MitM ontology follows existing and already informally standardized
+mathematical knowledge and can thus serve as a standard interface layer between
+systems
 
-Importantly, the MitM ontology does not have to include any definitions or proofs --- it only has to declare the types of all relevant symbols and state (but not prove) the relevant theorems.
-This makes it possible for users like Jane to write and extend MitM ontologies quickly, whereas other formalizations usually require extensive efforts by specialists.
+Importantly, the MitM ontology does not have to include any definitions or
+proofs --- it only has to declare the types of all relevant symbols and state
+(but not prove) the relevant theorems. This makes it possible for users like
+Jane to write and extend MitM ontologies quickly, whereas other formalizations
+usually require extensive efforts by specialists.
 
 \subsection{Individual System Dialects}\label{sec:mitm:dialect}
 
 \paragraph{System Dialects}
-Each system induces a separate language for mathematical objects.
-It is possible and in fact necessary to abstract from the surface syntax of these languages: scalable interoperability can only be achieved by acting on the internal data structures of the systems, which follow the abstract syntax.
+Each system induces a separate language for mathematical objects. It is possible
+and in fact necessary to abstract from the surface syntax of these languages:
+scalable interoperability can only be achieved by acting on the internal data
+structures of the systems, which follow the abstract syntax.
 
-The abstract syntax trees are formed from symbols, which can be split into two kinds: \emph{constructors} which build primitive objects, and \emph{operations} compute objects from other objects (including predicates, which we see as operations that return booleans).
-For purposes of interoperability it is possible to abstract from this distinction and consider both as typed symbols.
-This abstraction is important because systems often disagree on the choice of primitive objects.
-Thus, we can represent the interfaces of the systems $A$ to $H$ as \OMMT theory graphs $a$ to $h$ that declare the constructors and operations (but omit all implementations of the operations) of the respective system.
+The abstract syntax trees are formed from symbols, which can be split into two
+kinds: \emph{constructors} which build primitive objects, and \emph{operations}
+compute objects from other objects (including predicates, which we see as
+operations that return booleans). For purposes of interoperability it is
+possible to abstract from this distinction and consider both as typed symbols.
+This abstraction is important because systems often disagree on the choice of
+primitive objects. Thus, we can represent the interfaces of the systems $A$ to
+$H$ as \OMMT theory graphs $a$ to $h$ that declare the constructors and
+operations (but omit all implementations of the operations) of the respective
+system.
 
-Given the theory graph $a$, we can express all objects in the language of $A$ as \OMMT objects using the symbols of $a$.
-We call this language the \textbf{\OMMT system dialect} for $A$ and refer to these objects as $A$-objects.
-It is relatively straightforward to write (or even automatically generate) the theory graph $a$ and to implement a serializer and parser for $A$-objects as a part of $A$.
-This is because no consideration of interoperability and thus no communication with the developers of other systems is needed.
+Given the theory graph $a$, we can express all objects in the language of $A$ as
+\OMMT objects using the symbols of $a$. We call this language the \textbf{\OMMT
+system dialect} for $A$ and refer to these objects as $A$-objects. It is
+relatively straightforward to write (or even automatically generate) the theory
+graph $a$ and to implement a serializer and parser for $A$-objects as a part of
+$A$. This is because no consideration of interoperability and thus no
+communication with the developers of other systems is needed.
 
 For example, the theory graph for \GAP contains an operation
-\ednote{@MP,VV clean this up, using the actual symbols of the GAP interface; make sure this relates to the example in the previous section}
+\lstinline|Normaliser|.
+
+\ednote{@MP,VV clean this up, using the actual symbols of the GAP interface;
+make sure this relates to the example in the previous section}
 
 \paragraph{Alignments with the Ontology}
-Thus, the interoperability problem is reduced to relating each system dialect to the MitM ontology.
-Each system dialect overlaps with the language of the ontology: some system symbols are related to corresponding symbols in the MitM ontology.
-Then we can use the MitM ontology as an intermediate representation to bridge between any two systems, e.g., by translating $A$-objects to the corresponding ontology objects and then those to the corresponding $B$-objects.
+Thus, the interoperability problem is reduced to relating each system dialect to
+the MitM ontology. Each system dialect overlaps with the language of the
+ontology: some system symbols are related to corresponding symbols in the MitM
+ontology. Then we can use the MitM ontology as an intermediate representation to
+bridge between any two systems, e.g., by translating $A$-objects to the
+corresponding ontology objects and then those to the corresponding $B$-objects.
 
 However, even when $A$ and $B$ deal with the ``same mathematical objects'', these may be constructed and represented differently, e.g., symbols can differ in name,
 argument order/number, types, etc.
