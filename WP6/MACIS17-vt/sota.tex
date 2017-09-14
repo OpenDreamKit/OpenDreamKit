@@ -1,19 +1,21 @@
-\section{State-Of-The-Art by Example: The API and Structure of LMFDB}\label{sec:sota}
+\section{Example: The API and Structure of LMFDB}\label{sec:sota}
 
-L-functions and Modular Forms Database \cite{lmfdb}, or \lmfdb for short, is a project is a mathematical database. 
-It is implemented in Python with a MongoDB backend. 
-The project contains several thousand L-Functions and curves along with their properties. 
-
-We use this as an example of a Virtual Theory. 
-Before we go into this in more detail, we first have a closer look at the structure and existing APIs to communicate with it. 
+The ``L-functions and Modular Forms Database'' (\lmfdb~\cite{lmfdb}) is a Python web
+application with a MongoDB backend.  The project contains several thousand L-Functions and
+curves along with their properties. We use this as an example of a Virtual Theory.  Before
+we go into this in more detail, we first have a closer look at the structure and existing
+APIs to communicate with it.
 
 \subsection{The Structure of LMFDB}\label{sec:sota:struct}
 
-\lmfdb has several sub-databases - each of which contains different kinds of objects. 
-These databases include e.g. a database of elliptic curves or a database of transitive groups. 
+\lmfdb has several sub-databases -- each of which contains different kinds of objects.
+These databases include e.g. a database of elliptic curves or a database of transitive
+groups.  Within each database, each curve is stored as a single JSON record with common
+keys, Figure~\ref{fig:lmfdbexample} shows one: each property of this JSON object corresponds to a property of the underlying mathematical object. 
+For example, the \identifier{degree} property -- here $1$ -- of the JSON objects corresponds to the degree of the underlying elliptic curve. 
 
-\begin{figure}[h]
-  \begin{center}
+
+\begin{figure}[h]\centering
       \begin{lstlisting}[language=json]
 {
     "degree": 1,
@@ -41,40 +43,29 @@ These databases include e.g. a database of elliptic curves or a database of tran
     "iso": "11a",
     "_id": "ObjectId('4f71d4304d47869291435e6e')"
 }
-      \end{lstlisting}
-  \end{center}
-  
-  \vspace*{-1.5em}
-  
-
-  \caption[An elliptic curve within lmfdb]{
+      \end{lstlisting}\vspace*{-1.5em}
+  \caption[An elliptic curve from \lmfdb]{
     An elliptic curve, as found within \lmfdb. 
     Some key-value pairs are omitted for readability. 
   }
   \label{fig:lmfdbexample}
 \end{figure}
 
-Within each database, each curve is stored as a single JSON object with common keys. 
-An example of a single entry in the elliptic curve can be seen in Figure~\ref{fig:lmfdbexample}.
-
-When a mathematician looks at this representation of a curve, they can be easily confused; it is not immediately obvious which mathematical object is depicted here. 
-After a closer look, it becomes clear that this curve is shown as a record, i.e. a mapping from keys (in this case strings) to values (any kind of JSON values). 
-
-This leads to the conclusion that each property of this JSON object has to correspond to a single property of the underlying mathematical object. 
-For example, the \identifier{degree} property -- here $1$ -- of the JSON objects corresponds to the degree of the underlying elliptic curve. 
-
-Other properties are more complicated. 
-Whereas the value of the \identifier{degree} property is a simple integer, the value of the \identifier{isogeny\_matrix} property is a list of lists. 
-Obviously, as a mathematician this is to be interpreted as a matrix. 
+Other properties are more complex.
+Whereas the value of the \identifier{degree} property is a simple integer, the value of
+the \identifier{isogeny\_matrix} property is a list of lists, which represents a matrix. 
 This can become even more technical. 
-For example the \identifier{x-coordinates\_of\_integral\_points} field, \lmfdb represents a list of integers as a list of strings.
+For example the \identifier{x-coordinates\_of\_integral\_points} field, \lmfdb represents
+a list of integers as a list of strings as the integers can exceed the range of MongoDB system
+integers.  This already shows that it is non-trivial to get from a MongoDB encoding of an elliptic
+curve in \lmfdb to the representation of a mathematical object. 
 
-\subsection{An API for LMFDB Objects}\label{sec:sota:api}
 
-This already shows that it is non-trivial to get from a representation of elliptic curve inside of \lmfdb to a mathematical object. 
-However, being a mathematical knowledge base, one use case of \lmfdb is to find elliptic curves subject to specific criteria. 
-As a very simple example, suppose a mathematician wants to find all abelian elliptic curves. 
-How can this be achieved using the \lmfdb API?
+\subsection{An API for  \lmfdb Objects}\label{sec:sota:api}
+
+As \lmfdb is is a mathematical knowledge base, one important use case is to find elliptic
+curves subject to specific criteria. As a very simple example, suppose a mathematician
+wants to find all Abelian elliptic curves.  How can this be achieved using the \lmfdb API?
 
 \begin{figure}[h]
   \begin{center}
@@ -89,22 +80,25 @@ How can this be achieved using the \lmfdb API?
 \ednote{Would like to show a search screenshot here, but since the lmfdb API breakage this is not possible. }
 The \lmfdb API can be found at \ednote{cite url} and has two basic modes. 
 
-In one mode, it is possible to make searches using the web-browser. 
-Users can manually enter a query, and see a list of results displayed. 
-A screenshot of this interface is shown in Figure~\ref{fig:apiscreenshot}. 
-In a second mode, it is possible to request the results of the query directly as JSON. 
-This can be used in automated scenarios. 
+The first allows allows to make searches using the web-browser.  Users can manually enter
+a query, and see a list of results displayed.  A screenshot of this interface is shown in
+Figure~\ref{fig:apiscreenshot}.  In the other mode queries can be given as JSON
+directly\ednote{MK: was: ``it is possible to request the results of the query directly as
+  JSON''}.  This can be used in automated scenarios.
 
-However both of these approach require queries to be formulated in a specific format.
-For example, to search for all abelian elliptic cuves, the person querying \lmfdb needs to first encode this query. 
-They need to realize that the \identifier{ab} key corresponds to the abelian property. 
-Next, they need to realize that the property is boolean -- it's value is either \inlinecode{true} or \inlinecode{false}. 
-Furthermore, \inlinecode{true} corresponds to $1$, and \inlinecode{false} corresponds to $0$. 
-This information can then be used to make the query \inlinecode{?ab=1} to find all abelian transitive groups. 
+In both of these mods queries must be formulated in terms of the underlying MongoDB
+schema. For example, to search for all Abelian elliptic cuves, we must know that the
+\identifier{ab} key\ednote{MK@TW: this (i.e. ``ab'') should be visible in Figure 3!!!!!}
+corresponds to the commutativity property and is Boolean and MongoDB encodes
+\inlinecode{true} as \inlinecode{1}, and \inlinecode{false} as \inlinecode{0}. This
+information can then be used to make the query \inlinecode{?ab=1} to find all Abelian
+transitive\ednote{MK; where does this come from?} groups.
 
 In this example, each of the steps are relatively straightforward. 
-In a general setting, e.g. when all elliptic curves with a specific isogeny matrix are sought for, this is no longer as simple. 
-Moreover, this API has the problem that to use it one needs to be familiar with both the mathematical background and the internal structure of \lmfdb. 
+In a general setting, e.g. when searching for all elliptic curves with a specific isogeny
+matrix, this not only requires a good familiarity with the mathematical background but
+also with the system internals of the particular \lmfdb sub-database; a skillset commonly
+found in neither research programmers nor average mathematicians.   
 
 %%% Local Variables:
 %%% mode: latex
@@ -114,3 +108,4 @@ Moreover, this API has the problem that to use it one needs to be familiar with 
 %  LocalWords:  sec:sota lmfdb lmfdb lstlisting json ainvs iwp0 2adic_gens isogeny_matrix
 %  LocalWords:  tamagawa_product 2adic_index anlist 4f71d4304d47869291435e6e vspace
 %  LocalWords:  fig:lmfdbexample isogeny includegraphics textwidth fig:apiscreenshot
+%  LocalWords:  centering
