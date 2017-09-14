@@ -2,10 +2,10 @@
 \section{Using Codecs To Implement an LMFDB Virtual Theory}\label{sec:vt}
 
 We want to solve this problem using Virtual Theories. 
-This means that we need to represent \lmfdb\ as a set of \omdocmmt\ theories. 
-Since each sub-database in \lmfdb\ contains records of similar structure, it only makes sense to create a single virtual theory for each of these sub-databases. 
+This means that we need to represent \lmfdb as a set of \ommt theories. 
+Since each sub-database in \lmfdb contains records of similar structure, it only makes sense to create a single virtual theory for each of these sub-databases. 
 
-Moreover, each entry inside of \lmfdb\ should correspond to a single declaration inside of \mmt. 
+Moreover, each entry inside of \lmfdb should correspond to a single declaration inside of \mmt. 
 To achieve this, we first need to make a difference between the meaning of the values in the database, and how they are represented.
 We refer to the meaningful, knowledge carrying, version of these objects as their \textit{semantic representation} and the database version as the \textit{physical representation}. 
 
@@ -19,7 +19,7 @@ Here this is the floating point value $1.0$.
 But IEEE floats are not able to encode all integers -- they have a maximum possible value of $2^{53}-1$ -- so what happens when the semantic representation exceeds that?
 
 Obviously, it is no longer possible to represent the value numerically. 
-Because all values in \lmfdb\ have to be some JSON value, one could encode the integer into a JSON string by making use of the decimal expansion. 
+Because all values in \lmfdb have to be some JSON value, one could encode the integer into a JSON string by making use of the decimal expansion. 
 This would enable storing much larger numbers. 
 
 This is where Codecs come into play. 
@@ -39,17 +39,17 @@ Corresponding with intuition, the process of converting between the two represen
         \begin{tabularx}{\textwidth}{lll|X}
           \multicolumn{4}{l}{\textsf{Codecs}} \\\hline\hline   
           \identifier{codec}    & : & \multicolumn{1}{l}{$\typett\rightarrow\typett$} & \\\hline
-          \identifier{StandardPos}    & : & $\codectt\ \mathbb{Z}^{+}$   & \multirow{3}{*}{\begin{minipage}{3.8in}
+          \identifier{StandardPos}    & : & $\codectt \mathbb{Z}^{+}$   & \multirow{3}{*}{\begin{minipage}{3.8in}
                                                                                         JSON number if small enough, \\
                                                                                         else JSON string of decimal expansion
                                                                                         \end{minipage}}\\
-          \identifier{StandardNat}    & : & $\codectt\ \mathbb{N}$       & \\
-          \identifier{StandardInt}    & : & $\codectt\ \mathbb{Z}$       & \\\hline
-          \identifier{IntAsArray}     & : & $\codectt\ \mathbb{Z}$       & JSON List of Numbers\\
-          \identifier{IntAsString}    & : & $\codectt\ \mathbb{Z}$       & JSON String of decimal expansion\\\hline
-          \identifier{StandardBool}   & : & $\codectt\ \mathbb{B}$       & JSON Booleans \\
-          \identifier{BoolAsInt}      & : & $\codectt\ \mathbb{B}$       & JSON Numbers $0$ or $1$ \\\hline
-          \identifier{StandardString} & : & $\codectt\ \mathbb{S}$       & JSON Strings \\
+          \identifier{StandardNat}    & : & $\codectt \mathbb{N}$       & \\
+          \identifier{StandardInt}    & : & $\codectt \mathbb{Z}$       & \\\hline
+          \identifier{IntAsArray}     & : & $\codectt \mathbb{Z}$       & JSON List of Numbers\\
+          \identifier{IntAsString}    & : & $\codectt \mathbb{Z}$       & JSON String of decimal expansion\\\hline
+          \identifier{StandardBool}   & : & $\codectt \mathbb{B}$       & JSON Booleans \\
+          \identifier{BoolAsInt}      & : & $\codectt \mathbb{B}$       & JSON Numbers $0$ or $1$ \\\hline
+          \identifier{StandardString} & : & $\codectt \mathbb{S}$       & JSON Strings \\
         \end{tabularx}
       };
     \end{tikzpicture}
@@ -76,7 +76,7 @@ As seen in the Figure, this is achieved by first declaring \identifier{codec} as
 This semantic type is represented as a term inside the Math-In-The-Middle ontology. 
 
 Second, it is accompanied by a Scala class that implements the translation between semantic and realized type. 
-In the case of \lmfdb, this is always a JSON value -- so that \mmt\ can understand each value inside each \lmfdb\ record. 
+In the case of \lmfdb, this is always a JSON value -- so that \mmt can understand each value inside each \lmfdb record. 
 The concept of codecs however is general and not restricted to JSON objects (or Math-In-The-Middle objects). 
 
 \subsection{Building Advanced Codecs Using Codec Operators}\label{sec:vt:operators}
@@ -116,13 +116,13 @@ The simple codec operator described here is called \identifier{StandardMatrix}.
         \begin{tabularx}{\textwidth}{lll|X}
           \multicolumn{4}{l}{\textsf{Codecs (continued)}} \\\hline\hline   
           \identifier{StandardList}    & : & 
-                      $\left\{T\right\} \codectt\ T \rightarrow \codectt\ \mathrm{List}(T)$ & 
+                      $\left\{T\right\} \codectt T \rightarrow \codectt \mathrm{List}(T)$ & 
                       JSON list, recursively coding each element of the list\\\hline
           \identifier{StandardVector}    & : & 
-                      $\left\{T, n\right\} \codectt\ T \rightarrow \codectt\ \mathrm{Vector}(n, T)$ & 
+                      $\left\{T, n\right\} \codectt T \rightarrow \codectt \mathrm{Vector}(n, T)$ & 
                       JSON list of fixed length $n$\\\hline
           \identifier{StandardMatrix}    & : & 
-                      $\left\{T, n, m\right\} \codectt\ T \rightarrow \codectt\ \mathrm{Matrix}(n, m, T)$ & 
+                      $\left\{T, n, m\right\} \codectt T \rightarrow \codectt \mathrm{Matrix}(n, m, T)$ & 
                       JSON list of $n$ lists of length $m$\\
         \end{tabularx}
       };
@@ -136,7 +136,7 @@ The simple codec operator described here is called \identifier{StandardMatrix}.
   \label{fig:codecops}
 \end{figure}
 A list of codec operators can be found in Figure~\ref{fig:codecops}. 
-Codec Operators in \mmt\ are again represented in two ways, as declarations inside the \identifier{Codec} Theory and inside a Scala implementation. 
+Codec Operators in \mmt are again represented in two ways, as declarations inside the \identifier{Codec} Theory and inside a Scala implementation. 
 
 Unlike simple codecs, codec operators do not directly specify a semantic type. 
 As can be seen in the Figure, they take several parameters used for the resulting semantic type. 
@@ -144,13 +144,13 @@ These are shown in curly brackets.
 For the \identifier{StandardMatrix} codec above these are \meta{T} (the type of elements in the matrix), \meta{n} and \meta{m} (row and column counts).
 The codec then also takes a codec for \meta{T}, to then finally return a codec for a composite semantic type. 
 
-As each operator is an \mmt\ declaration, with appropriate type, \mmt\ terms can be used to represent codecs created by codec operators. 
+As each operator is an \mmt declaration, with appropriate type, \mmt terms can be used to represent codecs created by codec operators. 
 Consider now the codec used to encode the $3 \times 3$ integer matrix $M$ above. 
-This corresponds to the \mmt\ term \\$\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$ \footnote{
+This corresponds to the \mmt term \\$\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$ \footnote{
   The observant reader will have noticed that the way codec operators have been declared, the codec in question actually corresponds to the term $\plaintt{StandardMatrix}(\mathbb{Z}, 3, 3, \plaintt{StandardInt})$. 
   This has an additional $\mathbb{Z}$ as the first argument. 
   However, the last argument is a codec for a specific semantic type and thus fully determines the first argument. 
-  \mmt\ is capable of transparently inferring the first argument, thus it can be omitted for readability without needing any kind of special treatment implementation wise.  
+  \mmt is capable of transparently inferring the first argument, thus it can be omitted for readability without needing any kind of special treatment implementation wise.  
 }. 
 Similarly the same codec operator can be used to for example generate a codec for $2 \times 2$ boolean matrices, which corresponds to 
 \\$\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$. 
@@ -189,7 +189,7 @@ Similarly the same codec operator can be used to for example generate a codec fo
           \node[thy] (matrices) at (1.5,1) {
             \begin{tabular}{lll}
               \multicolumn{3}{l}{\textsf{Matrices}}\\\hline\hline
-              \plaintt{matrix} & : & $\typett\ \rightarrow \mathbb{Z}^{+}\rightarrow \mathbb{Z}^{+} \rightarrow \typett$
+              \plaintt{matrix} & : & $\typett \rightarrow \mathbb{Z}^{+}\rightarrow \mathbb{Z}^{+} \rightarrow \typett$
             \end{tabular}
           };
 
@@ -197,8 +197,8 @@ Similarly the same codec operator can be used to for example generate a codec fo
             \begin{tabular}{lll}
               \multicolumn{3}{l}{\textsf{Codecs}}\\\hline\hline
               \codectt                  & : & $\typett \rightarrow \typett$\\\hline
-              \plaintt{standardInt}     & : & $\codectt\ \mathbb{Z}$\\
-              \plaintt{standardMatrix}  & : & $\left\{T, n, m\right\} \codectt\ T \rightarrow \codectt\ \plaintt{matrix}(n, m, T)$\\
+              \plaintt{standardInt}     & : & $\codectt \mathbb{Z}$\\
+              \plaintt{standardMatrix}  & : & $\left\{T, n, m\right\} \codectt T \rightarrow \codectt \plaintt{matrix}(n, m, T)$\\
             \end{tabular}
           };
 
@@ -236,7 +236,7 @@ Similarly the same codec operator can be used to for example generate a codec fo
 
           % Database Layer
           \node[database] (mongodb) at (-.5,-2.5) {
-            \textsf{\lmfdb\ Elliptic Curves}
+            \textsf{\lmfdb Elliptic Curves}
           };
 
           \node[thy,interface] (dbtheory) at (0,-1.20) {
@@ -266,11 +266,11 @@ Similarly the same codec operator can be used to for example generate a codec fo
   }
   \label{fig:vtarch}
 \end{figure}
-Codecs enable creation of individual values within \lmfdb\ and mathematical databases in general. 
+Codecs enable creation of individual values within \lmfdb and mathematical databases in general. 
 This is not enough -- a mechanism to translate entire records as a whole is needed to implement a Virtual Theory. 
 
-The architecture of a virtual theory for \lmfdb\ elliptic curves is illustrated in Figure~\ref{fig:vtarch}. 
-It consists of four different parts, the foundational ontology theories (colored in green), mathematical model ontology (colored in red), database interface theories (colored in blue) and \lmfdb\ itself (colored in yellow). 
+The architecture of a virtual theory for \lmfdb elliptic curves is illustrated in Figure~\ref{fig:vtarch}. 
+It consists of four different parts, the foundational ontology theories (colored in green), mathematical model ontology (colored in red), database interface theories (colored in blue) and \lmfdb itself (colored in yellow). 
 These aspects originate from the Math-In-The-Middle approach. 
 
 The foundational ontology theories provide a system-independent basis for the remainder of the approach. 
@@ -280,8 +280,8 @@ Next, the codec \identifier{standardInt} and codec operator \identifier{standard
 
 Next, the \textit{Elliptic Curve} theory is described. 
 It models an elliptic curve in a very simple fashion, by just declaring a type \identifier{ec}. 
-Next, it defines a \identifier{from\_record} constructor that takes an \mmt\ record and returns an elliptic curve. 
-Notice that these definitions are independent of the \lmfdb\ database. 
+Next, it defines a \identifier{from\_record} constructor that takes an \mmt record and returns an elliptic curve. 
+Notice that these definitions are independent of the \lmfdb database. 
 
 The theory then moves on to define the two important properties of elliptic curves. 
 These are \textit{degree}, an integer, and the \textit{isogeny matrix}, an integer matrix of size $3 \times 3$. 
@@ -290,19 +290,19 @@ In reality there are of course more than these two -- the others can be implemen
 The two properties are modeled as functions that take an elliptic curve and return the appropriate type. 
 Recall that the Math-In-The-Middle approach aims to model mathematical knowledge ``in the middle'' independent of any particular system.  
 This is exactly the case here -- the model of elliptic curves does not rely on \lmfdb, nor any other system. 
-As explained, this choice was made deliberately so that this Virtual Theory approach can eventually be extended to include other systems or can be easily updated, should the structure of \lmfdb\ be changed. 
+As explained, this choice was made deliberately so that this Virtual Theory approach can eventually be extended to include other systems or can be easily updated, should the structure of \lmfdb be changed. 
 
 Notice however, how the properties make use of integers and matrices. 
 Thus the elliptic curve theory includes the Matrices and Numbers theories, making use of the foundations. 
 
-Next, we investigate the theories that connect \lmfdb\ to the Math-In-The-Middle approach, called the interface theories. 
+Next, we investigate the theories that connect \lmfdb to the Math-In-The-Middle approach, called the interface theories. 
 These consists of two theories, the so-called \textit{schema theory} and the \textit{database theory}. 
 
-The schema theory, as the name suggests, describes the schema of the \lmfdb\ elliptic curve database. 
+The schema theory, as the name suggests, describes the schema of the \lmfdb elliptic curve database. 
 This is the only place in the entire architecture of virtual theories which relies on the structure of \lmfdb. 
-The schema theory contains declarations for each field within an \lmfdb\ record. 
+The schema theory contains declarations for each field within an \lmfdb record. 
 The name of these declarations corresponds to the name of the field inside the record. 
-Each declaration is annotated using \mmt\ meta-data with two pieces of information, the property of an elliptic curve it implements and the codec that is used to encode it inside \lmfdb. 
+Each declaration is annotated using \mmt meta-data with two pieces of information, the property of an elliptic curve it implements and the codec that is used to encode it inside \lmfdb. 
 For example, the \identifier{degree} field implements the \identifier{curveDegree} property in the elliptic curve theory and uses the \identifier{StandardInt} codec. 
 
 Next comes the database theory. 
@@ -312,32 +312,32 @@ As designed, it contains one declaration per record in \lmfdb.
 \subsection{Translation of the 11a1 Curve}\label{sec:vt:11a1}
 
 But how is this database theory generated?
-It uses a so-called \identifier{Backend} -- an \mmt\ abstraction used to load declarations into memory. 
+It uses a so-called \identifier{Backend} -- an \mmt abstraction used to load declarations into memory. 
 Upon being given a URI, it is responsible for loading the underlying definition.
 For the elliptic curve theories these URIs are of the form \uri{lmfdb:db/transitivegroups?groups?11A1}. 
 
-The backend first retrieves the appropriate record from \lmfdb\ -- in the case of \identifier{11A1} this corresponds to retrieving the JSON found in Figure~\ref{fig:lmfdbexample}. 
-Next, the backend attempts to turn this JSON into an \mmt\ record so that it can be passed to the \identifier{from\_record} constructor. 
+The backend first retrieves the appropriate record from \lmfdb -- in the case of \identifier{11A1} this corresponds to retrieving the JSON found in Figure~\ref{fig:lmfdbexample}. 
+Next, the backend attempts to turn this JSON into an \mmt record so that it can be passed to the \identifier{from\_record} constructor. 
 
 For this, it needs all declarations in the schema theory. 
-Each of these declarations corresponds to a single field in the JSON, that can be turned into a field of the \mmt\ record. 
+Each of these declarations corresponds to a single field in the JSON, that can be turned into a field of the \mmt record. 
 In the example provided here, we only consider two fields, \identifier{degree} and \identifier{isogeny_matrix}. 
 
-For each of these two fields, the backend knows which field to create in the \mmt\ record that it has to construct. 
+For each of these two fields, the backend knows which field to create in the \mmt record that it has to construct. 
 They are given by the \identifier{?implements} meta-datum, here \identifier{curveDegree} and \identifier{isogenyMatrix}. 
 But this information is not enough. 
-The JSON values of the fields can not be used as values inside an \mmt\ record, they need to be assigned their correct semantics first. 
+The JSON values of the fields can not be used as values inside an \mmt record, they need to be assigned their correct semantics first. 
 
 This is where codecs and the \identifier{?codec} meta-datum come into play. 
 The physical representation of the \identifier{degree} field is $1$, a JSON integer. 
 The schema theory says that this is encoded using the \identifier{StandardInt} codec from above. 
-To generate an \mmt\ value for the record, this codec can be used to decode it. 
+To generate an \mmt value for the record, this codec can be used to decode it. 
 In this case the decoded value is the integer $1$\footnote{
   In this document, the physical and semantic representation are rendered in the same fashion. 
   It is important to realize that they are not in fact the same. 
   The physical representation is a 64-bit floating point JSON Number $1$, whereas the semantic representation is the integer $1$. 
-  Technically, the semantic representation is actually the \omdocmmt\ integer literal $1$. 
-  We skim over this detail here, as the \omdocmmt\ literals are designed to precisely represent this value. 
+  Technically, the semantic representation is actually the \ommt integer literal $1$. 
+  We skim over this detail here, as the \ommt literals are designed to precisely represent this value. 
 }. 
 
 The physical representation of \identifier{isogenyMatrix} is \\\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}. 
@@ -345,7 +345,7 @@ Here, the schema theory contains a codec that is constructed using the \identifi
 To apply this codec, the Backend has to first construct the concrete codec, which can then used to decode the physical representation. 
 Since this is a codec operator, first each entry of the matrix has to be decoded using $\plaintt{StandardInt}$ -- turning the JSON number $1.0$ into the integer $1$, the JSON Number $5.0$ into the number $5$, etc. 
 Then these decoded values can be placed inside a matrix to arrive at the semantic representation\footnote{
-  Similar to the semantic representation above, the matrix $M$ is technically different from the \omdocmmt\ representation. 
+  Similar to the semantic representation above, the matrix $M$ is technically different from the \ommt representation. 
   We could again represent this using a matrix literal, but instead the implementation actually uses a constructor containing integer literals. 
   For simplicity, and as literals are designed to precisely represent mathematical objects, we omit this detail. 
 } $$M = \left( \begin{array}{ccc}
@@ -353,15 +353,15 @@ Then these decoded values can be placed inside a matrix to arrive at the semanti
 5 & 1 & 5 \\
 25 & 5 & 1 \end{array} \right) $$. 
 
-This gives the Backend all the information it needs to construct an \mmt\ record which can then be turned into an elliptic curve using the \identifier{from\_record} constructor. 
+This gives the Backend all the information it needs to construct an \mmt record which can then be turned into an elliptic curve using the \identifier{from\_record} constructor. 
 The \identifier{degree} field is assigned the value $1$ and the \identifier{isogenyMatrix} is assigned the value of the matrix $M$. 
-Finally, this \mmt\ term can be used to define a new constant inside the database theory. 
+Finally, this \mmt term can be used to define a new constant inside the database theory. 
 
 This example only shows the translation of two fields. 
 But this can obviously be extended to more than these two -- for example the other ones contained in the JSON received from \lmfdb. 
 One only needs to add the appropriate declaration in the schema theory. 
 
-Furthermore, this can easily be extended to more than a single \lmfdb\ sub-database, by adding appropriate new Schema and Database theories along with mathematical models. 
+Furthermore, this can easily be extended to more than a single \lmfdb sub-database, by adding appropriate new Schema and Database theories along with mathematical models. 
 
 
 %%% Local Variables:
