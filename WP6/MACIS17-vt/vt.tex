@@ -26,25 +26,37 @@ these sub-databases and use \ommt declarations for each of the objects. We addre
 
 \subsection{Translating between Physical and Semantic Representations}\label{sec:vt:translation}
 
-Consider, for example the \identifier{degree} field from the example above. 
-We have already seen that this represents the degree of a curve and is an integer value, in this case the integer $1$. 
-Technically speaking, inside a database like \lmfdb, integer values will usually be represented as a JSON number, i.e. an \identifier{IEEE 754} $64$ bit floating point number. 
-Here this is the floating point value $1.0$. 
-But IEEE floats are not able to encode all integers -- they have a maximum possible value of $2^{53}-1$ -- so what happens when the semantic representation exceeds that?
+Consider, for example the \identifier{degree} field from the example above.  We have
+already seen that this represents the degree of a curve and is an integer value, in this
+case the integer $1$.  As \lmfdb uses MongoDB, which is based on JSON, integer values will
+usually be represented as a JSON numbers, i.e. an \identifier{IEEE 754} $64$ bit floating
+point number.  Here this is the floating point value $1.0$. But when the semantic
+representations can exceed the have a maximum possible value $2^{53}-1$ of IEEE floats,
+\lmfdb usese a different encoding, e.g. JSON strings that have no hard upper limit.
 
-Obviously, it is no longer possible to represent the value numerically. 
-Because all values in \lmfdb have to be some JSON value, one could encode the integer into a JSON string by making use of the decimal expansion. 
-This would enable storing much larger numbers. 
+Let us call the set of objects in semantic representation the \textbf{semantic type}, and
+the set of objects in the physical representation the \textbf{realized type}.  Semantic
+types reside in the MiTM ontology, whereas realized types resides in the systems
+themselves. Corresponding with intuition, the process of converting between the two
+representations is called \textbf{coding}, specifically coding into a semantic
+representation is called \textbf{encoding}, the reverse is called \textbf{decoding}. We
+will call system components that do the necessary translation -- \underline{co}ding and
+\underline{dec}oding -- \textbf{CoDec}s. 
 
-This is where Codecs come into play. 
-Codecs are mappings between the semantic representation (here the integer $1$) and the actual representation (the JSON number $1.0$). 
-Given a semantic representation of a value, codecs turn it into the corresponding physical representation, and vice-versa. 
+As \ommt is a typed framework, we can directly use \ommt types from the MitM ontology for
+the semantic types. Simple realized types are usually atomic database types whereas
+complex realized types correspond to database tables or views; the details of this setup
+are determined by the database schema. To arrive at a tight integration with the \ommt
+functionality we will represent as much of this information in \ommt as possible.
 
-We call the set of objects in semantic representation the \textit{semantic type}, and the set of objects in the physical representation the \textit{realized type}. 
-Semantic types reside in the MiTM ontology, whereas realized types resides in the systems themselves. 
-Corresponding with intuition, the process of converting between the two representations is called \textit{coding}, specifically coding into a semantic representation is called \textit{encoding}, the reverse is called \textit{decoding}. 
-
-\subsection{Implementing Codecs In \mmt}\label{sec:vt:mmt}
+Therefore we introduce a new \ommt theory \texttt{Codecs} in the foundational part of the
+MitM ontology. See Figure~\ref{fig:vtarch} for details how this plays in the overall
+information architecture and Figure~\ref{fig:codecs} for elementary content. This theory
+introduces a type constructor \codectt, which given a semantic type constructs the type of
+codecs for this type. For instance, the object \identifier{StandardPos} is (a CoDec) of
+type $\codectt\;\mathbb{Z}^+$, i.e. a CoDec that parses database objects (for \lmfdb a
+IEEE floats) into \ommt terms that can be typed as MitM positive integers and serializes
+them back.
 
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
@@ -76,25 +88,13 @@ Corresponding with intuition, the process of converting between the two represen
   }
   \label{fig:codecs}
 \end{figure}
-The example above corresponds to the \identifier{StandardInt} codec, which is commonly used to code integers. 
-A list of codecs along with their realized and semantic types can be found in Figure~\ref{fig:codecs}. 
+The \identifier{degree} we used as an example above would use the \identifier{StandardInt}
+codec. Additionally the \textsf{CoDecs} theory associates with each codec a Scala class
+that implements the translation between semantic and realized type.
 
-In \mmt, each codec is present in two ways.
-First, it exists inside a \identifier{Codec} theory inside the foundation part of the MiTM ontology. 
-Each codec is declared along with its' semantic type and corresponds to a single declaration. 
-
-As seen in the Figure, this is achieved by first declaring \identifier{codec} as taking a \identifier{type}, and then declaring each codec with a specific type. 
-This semantic type is represented as a term inside the Math-In-The-Middle ontology. 
-
-Second, it is accompanied by a Scala class that implements the translation between semantic and realized type. 
-In the case of \lmfdb, this is always a JSON value -- so that \mmt can understand each value inside each \lmfdb record. 
-The concept of codecs however is general and not restricted to JSON objects (or Math-In-The-Middle objects). 
-
-\subsection{Building Advanced Codecs Using Codec Operators}\label{sec:vt:operators}
-
-Building codecs for these simple objects is not enough. 
-Consider for example the \identifier{isogeny\_matrix} field. 
-The semantic representation of the value of this field is the matrix
+But codecs for basic types (semantic and realized) is not sufficient for our application.
+Consider for example the \identifier{isogeny\_matrix} field of an elliptic curve
+representation.  The semantic representation of the value of this field is the matrix
 \[M = \left(
     \begin{array}{ccc}
       1 & 5 & 25 \\
@@ -102,28 +102,22 @@ The semantic representation of the value of this field is the matrix
       25 & 5 & 1 \end{array} 
   \right)
 \]
-In mathematics in general, many objects have a more complex structure, such as tuples, vectors, or matrices (like in this case). 
+Matrices are characterized with three parameters, the type of object they contain
+(integers in this case) along their row and column count ($3 \times 3$ in this case).  In
+principle, one could construct a codec for each type of matrices by hand.  This would mean
+generating one codec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices,
+$1 \times 2$ integer matrices, $1 \times 2$ real matrices, and so on.  For the
+representation of codecs in \mmt, this would require generating one symbol and one Scala
+function for each different kind of matrix.  This quickly becomes a mess.
 
-Matrices are characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
-In principle, one could construct a codec for each type of matrices by hand. 
-This would mean generating one codec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices, $1 \times 2$ integer matrices, $1 \times  2$ real matrices, and so on. 
-For the representation of codecs in \mmt, this would require generating one symbol and one Scala function for each different kind of matrix. 
-This quickly becomes a mess. 
+Instead we use the fact that both Scala and \ommt allow higher-order functions: We can
+define a \textbf{codec operator} that given a codec the parameter type $\tau$ and values
+for the number $n$ of rows and $m$ of columns, generate a codec of $n\times m$ matrices of
+$\tau$ objects. In the example above and the matrix $M$ is encoded as a list of $n$ lists
+of $m$ integers ($\tau$):
+% HACK HACK HACK overfull box\\\noindent
+\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}
 
-Given a codec for integers, one can easily generate a codec for any kind of integer matrices. 
-One can encode each integer as a value and then take this set of representations and store them inside a list of JSON lists.
-In fact, this is done in the example above and the matrix $M$ is encoded as
-% HACK HACK HACK overfull box
-\\\noindent\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}. 
-
-The procedure of generating codecs is formalized by the concept of codec operators. 
-Essentially codec operators are functors on codecs. 
-These take a codec, along with several parameters, and generate a composite codec. 
-The simple codec operator described here is called \identifier{StandardMatrix}. 
-
-\subsection{Codec Operators in MMT}\label{sec:vt:operatormmt}
-
-% !TEX root = ../thesis.tex
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
     \node[thy] (codecs) at (0,0) {
@@ -147,29 +141,32 @@ The simple codec operator described here is called \identifier{StandardMatrix}.
   }
   \label{fig:codecops}
 \end{figure}
-A list of codec operators can be found in Figure~\ref{fig:codecops}. 
-Codec Operators in \mmt are again represented in two ways, as declarations inside the \identifier{Codec} Theory and inside a Scala implementation. 
+Like first-order codecs, codec operators in \mmt are again represented in two ways, as
+declarations inside the \identifier{CoDecs} theory (see Figure~\ref{fig:codecops} for a
+list) and as a corresponding Scala implementation -- a higher-order function from CoDecs
+to CoDecs. This is mirrored in the types of operators in Figure~\ref{fig:codecs}: the
+\textsf{StandardMatrix} operator is a function that takes four arguments: a type $T$, two
+numbers $n$ and $m$, and a $\tau$-codec and yields a $\mathrm{Matrix}(n, m,
+T)$-codec. Here we make use of the dependent function types of the MitM foundation:
+arguments in curly brackets can be used in the result type; see~\cite{RabKoh:WSMSML13} for
+details.
 
-Unlike simple codecs, codec operators do not directly specify a semantic type. 
-As can be seen in the Figure, they take several parameters used for the resulting semantic type. 
-These are shown in curly brackets. 
-For the \identifier{StandardMatrix} codec above these are \meta{T} (the type of elements in the matrix), \meta{n} and \meta{m} (row and column counts).
-The codec then also takes a codec for \meta{T}, to then finally return a codec for a composite semantic type. 
-
-As each operator is an \mmt declaration, with appropriate type, \mmt terms can be used to represent codecs created by codec operators. 
-Consider now the codec used to encode the $3 \times 3$ integer matrix $M$ above. 
-This corresponds to the \mmt term \\$\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$ \footnote{
-  The observant reader will have noticed that the way codec operators have been declared, the codec in question actually corresponds to the term $\plaintt{StandardMatrix}(\mathbb{Z}, 3, 3, \plaintt{StandardInt})$. 
-  This has an additional $\mathbb{Z}$ as the first argument. 
-  However, the last argument is a codec for a specific semantic type and thus fully determines the first argument. 
-  \mmt is capable of transparently inferring the first argument, thus it can be omitted for readability without needing any kind of special treatment implementation wise.  
-}. 
-Similarly the same codec operator can be used to for example generate a codec for $2 \times 2$ boolean matrices, which corresponds to 
-\\$\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$. 
+With these declarations in the \textsf{CoDecs} theory, we can represent a codec for
+$3 \times 3$ integer matrices e.g. for the the isogeny matrix $M$ above by the \ommt term
+$\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$\footnote{The observant reader will
+  have noticed that the way codec operators have been declared, the codec in question
+  actually corresponds to the term
+  $\plaintt{StandardMatrix}(\mathbb{Z}, 3, 3, \plaintt{StandardInt})$.  This has an
+  additional $\mathbb{Z}$ as the first argument.  However, the last argument is a codec
+  for a specific semantic type and thus fully determines the first argument.  \mmt is
+  capable of transparently inferring the first argument, thus it can be omitted for
+  readability without needing any kind of special treatment implementation wise.  }.
+Similarly the same codec operator can be used to for example generate a codec for
+$2 \times 2$ boolean matrices, which corresponds to
+$\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$.
 
 \subsection{Declaring Schemas to Translate Records and Implement virtual theories}\label{sec:vt:schemas}
 
-% !TEX root = ../thesis.tex
 \begin{figure}[h!]
   \begin{center}
     \begingroup
@@ -209,8 +206,8 @@ Similarly the same codec operator can be used to for example generate a codec fo
             \begin{tabular}{lll}
               \multicolumn{3}{l}{\textsf{Codecs}}\\\hline\hline
               \codectt                  & : & $\typett \rightarrow \typett$\\\hline
-              \plaintt{standardInt}     & : & $\codectt \mathbb{Z}$\\
-              \plaintt{standardMatrix}  & : & $\left\{T, n, m\right\} \codectt T \rightarrow \codectt \plaintt{matrix}(n, m, T)$\\
+              \plaintt{standardInt}     & : & $\codectt\; \mathbb{Z}$\\
+              \plaintt{standardMatrix}  & : & $\left\{T, n, m\right\} \codectt\; T \rightarrow \codectt\; \plaintt{matrix}(n, m, T)$\\
             \end{tabular}
           };
 
