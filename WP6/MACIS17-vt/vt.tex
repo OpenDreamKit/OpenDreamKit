@@ -1,16 +1,28 @@
 % !TEX root = ../thesis.tex
 \section{Using Codecs To Implement \lmfdb Virtual Theories}\label{sec:vt}
 
-We have seen that 
-
-We want to solve this problem using Virtual Theories. 
-This means that we need to represent \lmfdb as a set of \ommt theories. 
-Since each sub-database in \lmfdb contains records of similar structure, it only makes sense to create a single virtual theory for each of these sub-databases. 
-
-Moreover, each entry inside of \lmfdb should correspond to a single declaration inside of \mmt. 
-To achieve this, we first need to make a difference between the meaning of the values in the database, and how they are represented.
-We refer to the meaningful, knowledge carrying, version of these objects as their \textit{semantic representation} and the database version as the \textit{physical representation}. 
-
+From a system perspective, virtual theories behave just like concrete theories, but
+without the assumption of loading all declarations from a file on disk at system startup.
+Instead, virtual theories load declarations in a lazy fashion when they are
+needed. Concrete theories are stored as XML files; i.e. we use the file system as a
+backend for the \mmt system. As most of the knowledge sources we want to embed into \ommt
+as virtual theories use data-bases as back-ends and provide low-level database APIs we
+have extended the \mmt backends for this as well. Apart from standard software engineering
+tasks, there were three conceptual problems to be solved in this extension/implementation:
+\begin{compactenum}[\bf P1]
+\item How to match the database tables into \ommt theories and declarations. 
+\item How to lift data in \textbf{physical representation} -- i.e. as records of the
+  underlying database to \ommt terms -- i.e. data in \textbf{semantic representation}.
+\item And how to translate QML queries from semantic to physical representation -- i.e. so
+  that they can be executed directly on the data base without loading bulk data into the
+  \mmt process.
+\end{compactenum}
+We will discuss all three using the \lmfdb case discussed above as a running
+example. \textbf{P1} can only be solved for each concrete application: Generally, we need
+to represent \lmfdb as a set of \ommt theories.  As each sub-database in \lmfdb contains
+records of similar structure, it makes sense to create a single virtual theory for each of
+these sub-databases and use \ommt declarations for each of the objects. We address
+\textbf{P2} next.
 
 \subsection{Translating between Physical and Semantic Representations}\label{sec:vt:translation}
 
@@ -377,4 +389,4 @@ Furthermore, this can easily be extended to more than a single \lmfdb sub-databa
 %  LocalWords:  cylinder,cylinder 50,cylinder 0.25,draw none,fill 30,rounded 1cm,fit
 %  LocalWords:  thy,interface ecschema draw,cloud,fit 4,withshadow,inner 4pt,purple
 %  LocalWords:  mongodb dbtheory endgroup fig:vtarch colored colored colored colored
-%  LocalWords:  fig:lmfdbexample
+%  LocalWords:  fig:lmfdbexample textbf centering
