@@ -1,52 +1,18 @@
-\section{The MMT System, the OpenDreamKit project, and The Math-In-The-Middle approach}\label{sec:mmtmitm}
+\section{Virtual Research Environments for Mathematics: the Math-in-the-Middle
+  Approach}\label{sec:mmtmitm}
 
-We start by giving the reader an overview of the underlying of the \ommt theory graphs. 
-This is a flexiformal representation of mathematical knowledge, which is represented in the the \omdocmmt language, mechanized by the MMT system, and stored in the MathHub information system. 
+The work reported in this paper orginates from in the EU-funded OpenDreamKit
+\cite{OpenDreamKit:on} project that aims to create Virtual Research Environments (VRE)
+enabling mathematicians to make efficient use of existing Open-Source mathematical
+knowledge systems.  These systems include computer algebra systems like SageMath and GAP
+as well as mathematical data bases such as the \lmfdb, which must be made interoperable
+for integration into a VRE. In the OpenDreamKit project we have developed the
+Math-in-the-Middle (MitM) approach, which posits a central ontology of mathematical
+knowledge, which acts as a pivot point for interoperability; see~\cite{DehKohKon:iop16}
+for a description of the approach and \cite{KohMuePfe:kbimss17} for a technical refinement
+and large-scale interoperability case study. 
 
-\mmt \cite{Rabe:MMTLanguageSystem09} is a language and framework that was developed to manage (mainly) mathematical knowledge. 
-It can handle both formal and informal content. 
-\mmt is under active development and the project home page can be found at \cite{uniformal:on}. 
-
-\subsection{Knowledge Representation In \omdocmmt}\label{sec:mmtmitm:kr}
-
-Knowledge inside of \mmt employs the theory graph paradigm supported by the underlying \ommt language. 
-This means that knowledge is organized in distinct theories which are related by different relations in a graph-like manner. 
-One of these relations is a so-called view, which can be used to translate knowledge from one theory to another. 
-Definiens within each theory are identified by a URI (the so-called \mmt URI) whereas the definitions are represented by what amounts to OpenMath \cite{BusCapCar:oms04} objects. 
-Apart from making purely formal declarations, it is also possible to annotate the declarations with human-readable, narrative elements. 
-
-Commonly all knowledge in \mmt is manifested on disk and loaded by the system in its entirety on startup. 
-This means that there is a set of files, specifically XML files, on disk containing the appropriate theories and declarations. 
-We refer to theories stored in this form as \textit{concrete theories}. 
-
-Knowledge in \mmt can be accessed by either giving it's name -- i.e. it's \mmt URI, 
-or by giving a set of conditions that has to fulfilled by the knowledge in question. 
-The achieve the latter, \mmt has a Query Language called QMT, which allows even complex conditions to be specified. 
-
-This modeling of mathematical knowledge has proven very effective. 
-On top of pure mathematical knowledge modeling, it is also possible to annotate declarations. 
-This means one can give them human-readable descriptions.
-The other direction, giving informal knowledge (for example a paper) a partially formal meaning is also possible.
-
-This has allowed us to develop and populate a system called MathHub \cite{MathHub:on}. 
-The system altogether forms a big theory graph totaling at about 10000 theories. 
-MathHub is far more than just a theory graph however, it allows creating and editing of existing libraries and offers possibilities for integrating semantic services.
-The deatils of this are not relevant to the topic at hand -- we refer the interested reader to \cite{Iancu:phd} instead.
-
-Notable projects available on MathHub include SMGloM \cite{SMGloM:on} -- a semantic glossary of mathematical knowledge -- LATIN \cite{LATIN:online} -- a logical atlas of several different formalizations  -- as well as parts of the PVS \cite{PVSlibraries:on}, MiZar \cite{mizar:online} and HOL Light \cite{KalRab:hollight:14} libraries.
-
-\subsection{Virtual Theories In The Math-In-The-Middle approach}\label{sec:mmtmitm:odk}
-
-The OpenDreamKit \cite{OpenDreamKit:on} project is an EU-funded project that aims to create Virtual Research Environments enabling mathematicians to make efficient use of existing Open-Source mathematical knowledge systems. 
-These systems include Sage, GAP and \lmfdb systems, along with others. 
-
-Aiming to create such environments, as part of the OpenDreamKit project it is necessary for the different systems to interoperate. 
-Similar to the Mathematical Knowledge Bases problem here, the State-Of-The-Art of such system interaction is basically non-existent: 
-Connections between different systems only exist on an ad-hoc, system-specific basis. 
-These interactions both require significant work to maintain, and result in a large number of one-to-one system connections. 
-
-\begin{wrapfigure}{l}{0.3\textwidth}
-  \begin{center}
+\begin{wrapfigure}l{0.3\textwidth}%\vspace*{-2em}
     \begin{tikzpicture}[xscale=1.3,yscale=1.3]\normalsize
       \tikzstyle{withshadow}=[draw,drop shadow={opacity=.5},fill=white]
       \tikzstyle{system}=[draw]
@@ -78,31 +44,96 @@ These interactions both require significant work to maintain, and result in a la
       \draw (m) -- (ig) -- (g);
       \draw (m) -- (ih) -- (h);
       \end{tikzpicture}
-  \end{center}
-
-  \caption[The MITM Approach to Connecting Systems]{
-    The MiTM Approach to Connecting Systems. 
-  }
-  \label{fig:mitmconnect}
+  \caption{The MiTM Approach to Connecting Systems.}\label{fig:mitmconnect}\vspace*{-1em}
 \end{wrapfigure}
-To address these problems, we have introduced the Math-In-The-Middle approach, which is illustrated in Figure~\ref{fig:mitmconnect}. 
-It models the true, underlying mathematical semantics in \mmt and allows translation between this centrally formalized knowledge and the systems on the boundary.
-This mathematical knowledge is modeled using the well-established theory graph paradigm and is stored inside our MathHub / \mmt architecture. 
+The MitM ontology in the center of Figure~\ref{fig:mitmconnect} models the true,
+underlying mathematical semantics in \ommt and allows translation between this centrally
+formalized knowledge and the systems on the boundary via views and alignments.
+This mathematical knowledge is modeled using the well-established theory graph paradigm
+and is stored inside our \ommt-based MathHub system~\cite{MathHub:on}. 
 
-The knowledge in the systems themselves is also modeled via theories in a theory graph.
-This allows us to implement translation with the help of bi-views -- views in both directions -- between the central knowledge -- the Math-In-The-Middle -- and each of the systems. 
+The knowledge in the mathematical software systems -- denoted by square boxes in
+Figure~\ref{fit:mitmconnect} -- also modeled via \ommt theory graphs the \textbf{API
+  Content Dictionaries} -- the corresponding red circles; these are generated from the
+knowledge bases in the systems by a custom process. The API CDs allow us to implement
+translation with the help of \ommt views and alignments between the ontology -- the
+Math-In-The-Middle -- and each of the systems and use these translations for transporting
+computational tasks between the systems. 
 
-As part of this approach, the integrated systems include the systems of the OpenDreamKit project, along with several Mathematical Knowledge Bases. 
-Within this approach, the knowledge in these has to be modelled using a theory graph. 
-Here we have made of Virtual Theories. 
+The realization of the MitM approach crucially depends on the information architecture of
+the \ommt language~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} and its implementation in the
+\mmt system~\cite{Rabe:MAGMS13,uniformal:on}.
 
-In a nutshell, virtual theories are just like concrete theories, but without the assumption of loading all declarations from a file on disk at system startup. 
-Instead of loading all knowledge from an XML file, virtual theories load declarations in a lazy fashion when they are required. 
-Here we do not even restrict ourselves to lazily reading an XML file, on the contrary, in most use cases we actually create the \ommt representation on demand. 
+In \ommt knowledge is organized in \textbf{theories}, which contain information about
+mathematical concepts and objects in the form of \textbf{declarations}. Theories are
+organized into an ``obejct-oriented'' inheritance structure via \textbf{inclusions} and
+\textbf{structures} (for controlled multiple inheritance), which is augmented via
+truth-preserving mappings between theories called \textbf{views}, which allow to relate
+concepts of pre-existing theories and transport theorems between these. Inclusions,
+structures, and views impose a graph structure on the represented mathematical knowledge,
+called a \textbf{theory graph}. 
+
+We observe that even very large mathematical knowledge spaces about abstract mathematical
+domains can be represented by small, but densely connected, theory graphs, if we make all
+inherited material explicit in a process called \textbf{flattening}. The \ommt language
+provides systematic names (\mmt URIs) for all objects, properties, and relations in the
+induced knowledge space, and given the represeted theory graph, the \mmt system can
+compute them by need. 
+
+Generally, knowledge in a knowledge space given by a theory graph loaded by the \mmt
+system can be accessed by either giving it's \mmt URI, or by giving a set of conditions
+that has to fulfilled by the knowledge in question. The achieve the latter, \mmt has a
+Query Language called QMT~\cite{Rabe:qlfml12}, which allows even complex conditions to be
+specified. Concretely, the \mmt system loads the theory graph into main memory at startup
+and interleaves incremental flattening and query evaluation operations on the \mmt data
+structures until the result has been produced. 
+
+In\cite{KohMuePfe:kbimss17} we show that the MitM approach, its \ommt-based realization,
+and distribution via the SCSCP protocol are sufficient distributed, federated computation
+between multiple computer algebra systems (Sage, GAP, and Singular), and that the MitM
+ontology of abstract group theory can be represented in \ommt efficiently. This setup is
+effective because
+\begin{compactenum}
+\item the knowledge spaces behind abstract and computational mathematics can be
+  represented in theory graphs very space-efficiently: The compression factors between a
+  knowledge space and its theory graph -- we call it the \textbf{TG factor}\ednote{MK@FR:
+    we should have a name for that factor; something like the ``deBruijn factor''; only
+    that we want it to be large! I think we should talk about this on the tetrapod meeting
+    and jointly decide on one and argue with that; I will use TG factor for now.} --
+  exceed two orders of magnitude even for small domains.
+\item only small parts of the knowledge space are traversed for a given computation. 
+\end{compactenum}
+
+But the OpenDreamKit VRE must also include mathematical data sources like the \lmfdb or
+the OEIS, which contain millions of mathematical objects. For such knowledge sources, the
+classical \mmt system is not yet suitable: 
+\begin{compactenum}
+\item the knowledge space corresponding to the data base content cannot be compressed by
+  ``general mathematical priniples'' like inheritance. Indeed, redundant information is
+  already largely eliminated by the data base schema and the ``business logic'' of the
+  information system.
+\item typically large parts of the knowledge space need to be traversed to obtain the
+  intended results to queries.
+\end{compactenum}
+As a consequence, we extend the concept of \ommt theories -- which carry the implicit
+assumption of containing only a small number of declarations (see~\cite{FaGu:lt92} for a
+discussion) -- to \textbf{virtual theories}, which can have an unlimited number of
+declarations or -- while we are at it -- even infinitely many. To contrast the intended
+uses we will call the classical \ommt theories \textbf{concrete theories}. 
+
+From a system perspective, virtual theories are just like concrete theories, but without
+the assumption of loading all declarations from a file on disk at system startup.  Instead
+of loading all knowledge from an XML file, virtual theories load declarations in a lazy
+fashion when they are required.  Here we do not even restrict ourselves to lazily reading
+an XML file, on the contrary, in most use cases we actually create the \ommt
+representation on demand.
 
 We will not go into much detail more detail of either the OpenDreamKit project, or the Math-In-The-Middle approach as a whole here. 
 Instead, we will focus only on Virtual Theories. 
 We refer the interested reader to \ednote{Cite MACIS17-interop}, a paper submitted by a superset of the authors of this paper, describing the approach in detail. 
+
+
+
 
 %%% Local Variables:
 %%% mode: latex
@@ -110,5 +141,9 @@ We refer the interested reader to \ednote{Cite MACIS17-interop}, a paper submitt
 %%% End:
 
 %  LocalWords:  omdocmmt fig:classicalconnect fig:mitmconnect OpenDreamKit:on lmfdb lmfdb
-%  LocalWords:  ODKproposal:on DehKohKon:iop16 sagemath oeis fig:mitmontology colored
-%  LocalWords:  mathrm mathrm
+%  LocalWords:  ODKproposal:on DehKohKon:iop16 sagemath oeis fig:mitmontology colored ig
+%  LocalWords:  mathrm mathrm sec:mmtmitm ommt mechanized uniformal:on organized textit
+%  LocalWords:  BusCapCar:oms04 MathHub:on Iancu:phd SMGloM:on formalizations wrapfigure
+%  LocalWords:  PVSlibraries:on mizar:online textwidth tikzpicture xscale 1.3,yscale
+%  LocalWords:  tikzstyle withshadow draw,drop circle,fill 30,inner formalized
+%  LocalWords:  MACIS17-interop
