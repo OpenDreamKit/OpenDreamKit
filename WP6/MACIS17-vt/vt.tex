@@ -1,6 +1,7 @@
 % !TEX root = ../thesis.tex
-\section{Using Codecs To Implement an LMFDB Virtual Theory}\label{sec:vt}
+\section{Using Codecs To Implement \lmfdb Virtual Theories}\label{sec:vt}
 
+We have seen that 
 
 We want to solve this problem using Virtual Theories. 
 This means that we need to represent \lmfdb as a set of \ommt theories. 
@@ -40,17 +41,17 @@ Corresponding with intuition, the process of converting between the two represen
         \begin{tabularx}{\textwidth}{lll|X}
           \multicolumn{4}{l}{\textsf{Codecs}} \\\hline\hline   
           \identifier{codec}    & : & \multicolumn{1}{l}{$\typett\rightarrow\typett$} & \\\hline
-          \identifier{StandardPos}    & : & $\codectt \mathbb{Z}^{+}$   & \multirow{3}{*}{\begin{minipage}{3.8in}
+          \identifier{StandardPos}    & : & $\codectt\; \mathbb{Z}^{+}$   & \multirow{3}{*}{\begin{minipage}{3.8in}
                                                                                         JSON number if small enough, \\
                                                                                         else JSON string of decimal expansion
                                                                                         \end{minipage}}\\
-          \identifier{StandardNat}    & : & $\codectt \mathbb{N}$       & \\
-          \identifier{StandardInt}    & : & $\codectt \mathbb{Z}$       & \\\hline
-          \identifier{IntAsArray}     & : & $\codectt \mathbb{Z}$       & JSON List of Numbers\\
-          \identifier{IntAsString}    & : & $\codectt \mathbb{Z}$       & JSON String of decimal expansion\\\hline
-          \identifier{StandardBool}   & : & $\codectt \mathbb{B}$       & JSON Booleans \\
-          \identifier{BoolAsInt}      & : & $\codectt \mathbb{B}$       & JSON Numbers $0$ or $1$ \\\hline
-          \identifier{StandardString} & : & $\codectt \mathbb{S}$       & JSON Strings \\
+          \identifier{StandardNat}    & : & $\codectt\; \mathbb{N}$       & \\
+          \identifier{StandardInt}    & : & $\codectt\; \mathbb{Z}$       & \\\hline
+          \identifier{IntAsArray}     & : & $\codectt\; \mathbb{Z}$       & JSON List of Numbers\\
+          \identifier{IntAsString}    & : & $\codectt\; \mathbb{Z}$       & JSON String of decimal expansion\\\hline
+          \identifier{StandardBool}   & : & $\codectt\; \mathbb{B}$       & JSON Booleans \\
+          \identifier{BoolAsInt}      & : & $\codectt\; \mathbb{B}$       & JSON Numbers $0$ or $1$ \\\hline
+          \identifier{StandardString} & : & $\codectt\; \mathbb{S}$       & JSON Strings \\
         \end{tabularx}
       };
     \end{tikzpicture}
@@ -84,10 +85,14 @@ The concept of codecs however is general and not restricted to JSON objects (or 
 
 Building codecs for these simple objects is not enough. 
 Consider for example the \identifier{isogeny\_matrix} field. 
-The semantic representation of the value of this field is the matrix $$M = \left( \begin{array}{ccc}
-1 & 5 & 25 \\
-5 & 1 & 5 \\
-25 & 5 & 1 \end{array} \right) $$. 
+The semantic representation of the value of this field is the matrix
+\[M = \left(
+    \begin{array}{ccc}
+      1 & 5 & 25 \\
+      5 & 1 & 5 \\
+      25 & 5 & 1 \end{array} 
+  \right)
+\]
 In mathematics in general, many objects have a more complex structure, such as tuples, vectors, or matrices (like in this case). 
 
 Matrices are characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
@@ -117,13 +122,13 @@ The simple codec operator described here is called \identifier{StandardMatrix}.
         \begin{tabularx}{\textwidth}{lll|X}
           \multicolumn{4}{l}{\textsf{Codecs (continued)}} \\\hline\hline   
           \identifier{StandardList}    & : & 
-                      $\left\{T\right\} \codectt T \rightarrow \codectt \mathrm{List}(T)$ & 
+                      $\left\{T\right\} \codectt\; T \rightarrow \codectt\; \mathrm{List}(T)$ & 
                       JSON list, recursively coding each element of the list\\\hline
           \identifier{StandardVector}    & : & 
-                      $\left\{T, n\right\} \codectt T \rightarrow \codectt \mathrm{Vector}(n, T)$ & 
+                      $\left\{T, n\right\} \codectt\; T \rightarrow \codectt\; \mathrm{Vector}(n, T)$ & 
                       JSON list of fixed length $n$\\\hline
           \identifier{StandardMatrix}    & : & 
-                      $\left\{T, n, m\right\} \codectt T \rightarrow \codectt \mathrm{Matrix}(n, m, T)$ & 
+                      $\left\{T, n, m\right\} \codectt\; T \rightarrow \codectt\; \mathrm{Matrix}(n, m, T)$ & 
                       JSON list of $n$ lists of length $m$\\
         \end{tabularx}
       };
