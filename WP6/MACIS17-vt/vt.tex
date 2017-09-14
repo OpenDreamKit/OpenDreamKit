@@ -174,7 +174,7 @@ $\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$.
     \pgfsetlayers{background,foreground}
     
     \resizebox{\textwidth}{0.75\textwidth}{
-      \begin{tikzpicture}[xscale=4,yscale=3]\footnotesize
+      \begin{tikzpicture}[xscale=4,yscale=2.2]\footnotesize
         \begin{pgfonlayer}{foreground}
           \tikzstyle{human}    = [red,dashed,thick]
           \tikzstyle{withshadow}  = [draw,drop shadow={opacity=.5},fill=white]
@@ -214,11 +214,11 @@ $\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$.
           \draw[include] (matrices) -- (codecs);
           
           \begin{pgfonlayer}{background}
-            \node[draw=none,fill=green!30,rounded corners=1cm,fit=(numbers) (matrices) (codecs),inner sep=15pt] {};
+            \node[draw=none,fill=green!30,rounded corners=1cm,fit=(numbers) (matrices) (codecs),inner sep=10pt] {};
           \end{pgfonlayer}
         
           % Model Layer
-          \node[thy] (ec) at (2.25,-1.20) {
+          \node[thy,fill=purple!30] (ec) at (2.25,-1.20) {
             \begin{tabular}{lll}
               \multicolumn{3}{l}{\textsf{Elliptic Curve}}\\\hline\hline
               \plaintt{ec}            & : & \typett\\\hline
@@ -237,10 +237,6 @@ $\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$.
                                             & \uri{?codec}       & $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$ 
             \end{tabular}
           };
-          
-          \begin{pgfonlayer}{background}
-            \node[draw,cloud,fit=(ec),aspect=4,withshadow,inner sep=-4pt,purple!30] {};
-          \end{pgfonlayer}
 
           % Database Layer
           \node[database] (mongodb) at (-.5,-2.5) {
@@ -255,7 +251,7 @@ $\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$.
               \dots
             \end{tabular}
           };
-          \draw[include] (matrices.south)+(.75,0) -- (ec.north);
+          \draw[include] (matrices) to[bend left=20] (ec);
           \draw[include] (ec) -- (dbtheory);
           
           \draw[human,->] (dbtheory) -- node[right]{\scriptsize {lazily loads from}} (mongodb);
