@@ -13,7 +13,7 @@ tasks, there were three conceptual problems to be solved in this extension/imple
 \item How to match the database tables into \ommt theories and declarations. 
 \item How to lift data in \textbf{physical representation} -- i.e. as records of the
   underlying database to \ommt terms -- i.e. data in \textbf{semantic representation}.
-\item And how to translate QML queries from semantic to physical representation -- i.e. so
+\item And how to translate QMT queries from semantic to physical representation -- i.e. so
   that they can be executed directly on the data base without loading bulk data into the
   \mmt process.
 \end{compactenum}
@@ -320,7 +320,7 @@ disk, but generated dynamically.  As designed, it contains one declaration per r
 \lmfdb. It uses an \mmt \textbf{backend} -- an \mmt abstraction used to load declarations
 into memory.  Given a URI, the backend is responsible for loading the underlying
 definition.  For the elliptic curve theories these URIs are of the form
-\uri{lmfdb:db/transitivegroups?groups?11A1}.\ednote{MK@TW: really transitive groups?}
+\uri{lmfdb:db/elliptic_curves?curves?11A1}. 
 
 The backend first retrieves the appropriate record from {\lmfdb} -- in the case of
 \identifier{11A1} this corresponds to retrieving the JSON found in
@@ -351,9 +351,10 @@ In this case the decoded value is the integer $1$\footnote{
 }. 
 
 The physical representation of \identifier{isogenyMatrix} is
-\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}.  Here, the schema theory
+% HACK HACK HACK -- TeX can't do proper line breaking
+\\\noindent\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}.  Here, the schema theory
 contains a codec that is constructed using the \identifier{StandardMatrix} codec operator,
-specifically \\$\plaintt{StandardMatrix}(3, 3,
+specifically $\plaintt{StandardMatrix}(3, 3,
 \plaintt{StandardInt})$.  To apply this codec, the Backend has to first construct the
 concrete codec, which can then used to decode the physical representation.  Since this is
 a codec operator, first each entry of the matrix has to be decoded using
@@ -378,6 +379,48 @@ then be turned into an elliptic curve using the \identifier{from\_record} constr
 The \identifier{degree} field is assigned the value
 $1$ and the \identifier{isogenyMatrix} is assigned the value of the matrix $M$.  Finally,
 this \mmt term can be used to define a new constant inside the database theory.
+
+\subsection{Translating Queries}
+\ednote{TW: I'm not sure about if this section is in the right place here. }
+
+Recall that \mmt has a Query Language called QMT~\cite{Rabe:qlfml12}, which allows users to find knowledge to complex conditions to be specified. 
+We continue by briefly addressing \textbf{P3}, however for a complete discussion we refer the interested reader to \cite{twiesing:msc17}. 
+
+In practice, most queries\ednote{Wording} involving virtual theories so far have a shape similar to the one of that in Section~\ref{sec:sota:api}: 
+Finding all objects within a single sub-database for which a specific field equals a specific value. 
+As an example, consider the query of finding all abelian transitive groups. 
+This can be expressed in QMT as:
+\ednote{TW: Actually add the example of the query (without I()); do a very brief description of it}
+
+Recall that to evaluate a query prior to the introduction of Virtual Theories, the \mmt system loaded the theory graph into main memory and then interleaved incremental flattening and query evaluation operations on the \mmt data structures until a result has been produced. 
+This can no longer be applied to resolve the query above, as not all relevant data is present in memory. 
+Moreover, it is also not feasible to first load all potentially relevant data into memory, and only then proceed with evaluation. 
+This would require loading a copy of \lmfdb into main memory, something that virtual theories were designed to explicitly not do. 
+
+As we have already seen, \lmfdb has an API. 
+This API is in principle capable of efficiently resolving the query shown here, however it does not directly support the QMT Query Syntax but requires translation first. 
+In general, most mathematical knowledge bases have a similar API serving as an information retrieval mechanism -- commonly in the form of a query language or an API. 
+
+This provides a new approach for making queries towards virtual theories. 
+First, the \mmt query is translated into a system-specific information-retrieval language -- in the case of \lmfdb\ this is a MongoDB-based syntax.
+Next, this translated query is sent to the external API. 
+Upon receiving the results, these are translated back into \ommt with the help of already existing functionality in the appropriate virtual theory backend.
+
+This leaves just one problem unsolved -- translating queries into the system-specific API. 
+Consider that it is not sufficient to just translate all queries. 
+One hand a general QMT query may or may not involve a virtual theory. 
+On the other hand, it may also involve several unrelated virtual theories. 
+This makes it necessary to filter out queries involving virtual theories, so that they can be evaluated properly. 
+
+Achieving this automatically is a non-trivial problem. 
+As Queries are inductive in nature, one could attempt to intercept each of the intermediate results. 
+However, this would require a check on each intermediate result to first determine if it comes from a virtual theory or not, and then potentially switching the entire evaluation strategy, leading to a very computationally expensive implementation. 
+
+Instead of intercepting each result, we extended the Query Language to allows users to annotate sub-queries for evaluation with a specific API. 
+This allows the system to immediatly know which parts of a query have to be evaluated in \mmt memory, and which have to be translated and sent to an external API. 
+This new approach turn the example above into:
+\ednote{TW: Add the example again, this time with I(), then do a bit more explaining}
+
 
 %%% Local Variables:
 %%% mode: latex
