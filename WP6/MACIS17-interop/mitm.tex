@@ -28,10 +28,11 @@ the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. We do
 not go into the details of \OMMT theory graphs here. For our purposes, it
 suffices to assume that they declare a set of typed symbols. Thus, a theory
 graph formalizes a language for mathematical objects.
-
 For example, the symbol
-$Normaliser : (G : Group) \to (U : Subgroups G) \to (Subgroups G)$ declares the
-function that returns the normalizer of a subgroup $U$ of a group $G$.
+\begin{lstlisting}[mathescape]
+Normaliser : (G : Group) $\to$ (U : Subgroups G) $\to$ (Subgroups G)
+\end{lstlisting} 
+declares the function that returns the normalizer of a subgroup $U$ of a group $G$.
 
 Note that the purpose of the MitM ontology is not the formal verification of
 mathematical theorems (as for most formalizations such as
@@ -126,50 +127,58 @@ In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Sof
 \SCSCP is essentially a distributed remote-procedure-call system based on OpenMath, which is itself the fragment of \OMMT used for representing objects.
 It is straightforward to extend a parser/serializer for $A$-objects to an \SCSCP clients/server by implementing the \SCSCP protocol on top of, e.g., sockets or using an existing \SCSCP library. 
 
-\begin{oldpart}{FR: all of this are new results and should be moved to the next section. In any case, this example does not fit well with the case study and maybe should be removed altogether. Instead, I think we should specify the problem solved by the case study in the following sections.}
-For example, say Jane wishes to check the hypothesis that all Abelian transitive groups are cyclic.\footnote{This example is mathematically trivial.
-We have chosen it because it shows complex system interaction rather than mathematical plausibility.
-A realistic, mathematically motivated example will be discussed below.}
-using a MitM-based mathematical VRE.
-Jane realizes that the LMFDB database contains a set of known Abelian transitive groups.
-Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
-To check his hypothesis, she could retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
+% \begin{oldpart}{FR: all of this are new results and should be moved to the next section. In any case, this example does not fit well with the case study and maybe should be removed altogether. Instead, I think we should specify the problem solved by the case study in the following sections.}
+% For example, say Jane wishes to check the hypothesis that all Abelian transitive groups are cyclic.\footnote{This example is mathematically trivial.
+% We have chosen it because it shows complex system interaction rather than mathematical plausibility.
+% A realistic, mathematically motivated example will be discussed below.}
+% using a MitM-based mathematical VRE.
+% Jane realizes that the LMFDB database contains a set of known Abelian transitive groups.
+% Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
+% To check his hypothesis, she could retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
 
-As Jane is most familiar with the \Sage CAS, she expresses this operation as
-\ednote{MK@NT: indeed this looks much better. We want to show an imaginary syntax that allows to conveniently delegate.}
-\begin{lstlisting}
-gap   = server(system="gap", transport="scscp", mediator="mmt")
-lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
-all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
-\end{lstlisting}
+% As Jane is most familiar with the \Sage CAS, she expresses this operation as
+% \begin{lstlisting}
+% gap   = server(system="gap", transport="scscp", mediator="mmt")
+% lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
+% all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
+% \end{lstlisting}
 
-\begin{wrapfigure}r{6.6cm}\vspace*{-2em}
-  \tikzinput{mitmcomm}\vspace*{-1em}
-  \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
-\end{wrapfigure}
-At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is ``all'' something that
-already exists in \Sage? Does it behave like this? Please make sure that the text in this
-paragraph makes sense.}
- maps the first argument, interpreted as a predicate over the list in the second argument. 
-The arguments are the results of remote procedure calls via \SCSCP. 
-The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
-At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
-\begin{compactenum}
-\item \Sage sends a \SCSCP remote procedure call for 
-  \begin{lstlisting}[mathescape]
-    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
-\end{lstlisting}
-  \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
-    map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
-  dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
-\item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
-\item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
-\item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
-\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
-\item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
-\item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
-\end{compactenum}
-\end{oldpart}
+% \begin{wrapfigure}r{6.6cm}\vspace*{-2em}
+%   \tikzinput{mitmcomm}\vspace*{-1em}
+%   \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
+% \end{wrapfigure}
+
+% At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is
+%   ``all'' something that already exists in \Sage? Does it behave like
+%   this? Please make sure that the text in this paragraph makes sense?
+%   NT: Yes, ``all'' is a Python builtin with exactly that syntax and behavior.}
+
+%  maps the first argument, interpreted as a predicate over the list in the second argument.
+% The arguments are the results of remote procedure calls via \SCSCP. 
+% The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
+% At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
+% \begin{compactenum}
+% \item \Sage sends a \SCSCP remote procedure call for 
+%   \begin{lstlisting}[mathescape]
+%     map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
+% \end{lstlisting}
+%   \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
+%     map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
+%   dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
+%   \ednote{NT@all: I don't think that the behavior of ``all'' can be
+%     changed; Sage will be evaluating the ``all'' call with one query
+%     to scscp/lmfdb and on scscp/gap call per group `g`. Do we have a
+%     specific reason to wish for Sage to issue a single ``map'' call to
+%     scscp? If yes, we need a different syntax. If not we just have to update
+%     this itemized description.}
+% \item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
+% \item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
+% \item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
+% \item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
+% \item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
+% \item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
+% \end{compactenum}
+% \end{oldpart}
 
 %%% Local Variables:
 %%% mode: latex
@@ -177,4 +186,6 @@ At the system level, the interaction is mediated by the \MMT system and we have 
 %%% End:
 
 %  LocalWords:  sec:mitm Jupyter jupyter-project:on KohDavGin:psewads11 BusCapCar:2oms04 standardization DehKohKon:iop16 textbf RabKoh:WSMSML13,uniformal:on MueGauKal:cacfms17 sec:apit serialize normalizer mathcal compute-the-normalizer MitM-based centering mitmcomm MueRoYuRa:abtafs17 Rabe:MAGMS13,uniformal:on inparaenum Sagey lstlisting scscp mmt,is_cyclic scscp lmfdb mmt,query transitivegroup lstinline gap,is_cyclic,scscp lmfdb,query synthesizes mathescape Sageify
-%  LocalWords:  wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc emph
+%  LocalWords:  wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc emph mcpoot13
+%  LocalWords:  formalizations optimizations standardized serializer oldpart behavior
+%  LocalWords:  itemized
