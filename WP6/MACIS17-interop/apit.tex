@@ -5,6 +5,104 @@ the development presented in this section a meaningful case study in the methodo
 investment of exposing the APIs of real-world systems in the form of \OMMT content
 dictionaries.
 
+\subsection{\Sage API Content Dictionaries}
+\ednote{MK@NT: please write something here, this can be a bit more elaborate
+than the \GAP part above, since \GAP has already been described in the CICM16
+paper. What is the state of the OM Phrasebook for \Sage?}
+
+In \cite{DehKohKon:iop16} we report on our work toward upgrading
+\Sage's native interface to \GAP from the \emph{handle} paradigm to
+\emph{semantic handles} paradigm. In the the \emph{handle} paradigm:
+when a system $A$ delegates a calculation to a system $B$, the result
+$r$ of the calculation is not converted to a native $A$ object (unless
+it's of some basic type);
+instead $B$ just returns a \emph{handle} $h$ (or reference) to the
+object $r$. Later, $A$ can run further calculations with $r$ by
+passing it as argument to functions or methods implemented by $B$. The
+next desirable feature is for the handle $h$ to behave in $A$ as if it
+was a native $A$ object; in other words, one wants to adapt the API
+satisfied by $r$ in $B$ to match the API for the same kind of objects
+in $A$. For example, the method call \texttt{h.cardinality()} on a
+\Sage handle \texttt{h} to a \GAP object \texttt{G} should trigger in
+\GAP the corresponding function call \texttt{Size(G)}. This is the
+\emph{semantic handle} paradigm.
+
+We further describe the implementation of this paradigm which builds
+on the classical \emph{adapter pattern}. For conciseness, the adapters
+are generated automatically from \emph{alignments} between the methods
+from Sage's \emph{categories} (Sage's hierarchy of abstract classes
+for the usual algebraic structures: sets, groups, algebras, ...) and
+their GAP counterparts. In a first stage, the alignments are expressed
+using annotations in the Sage categories. The second stage is to
+exploit MitM to manage the alignments in order to properly scale from
+custom one-to-one interfaces to interfaces between multiple systems.
+
+Some advantages of the \emph{semantic handles} approach are that we
+can avoid the overhead of back and forth conversions between $A$ and
+$B$, and that we can manipulate objects of $B$ from $A$, even if they
+have no native representation in $A$.
+
+However, there are situations like Jane's scenario where we actually
+need to convert objects $r$ between $A$ and $B$. This introduces the
+following additional challenges:
+\begin{enumerate}
+\item Both $A$ and $B$ need to have a native representation for $r$.
+\item $B$ needs to serialize $r$ in some (OpenMath) dialect
+\item $A$ needs to 
+  Aligning not only abstract methods but constructors
+\end{enumerate}
+
+...
+
+
+
+
+describe the use of annotations in the code to enrich the
+mathematical knowledge in \Sage's categories with alignments with other systems, notably
+\MMT. This knowledge is then exported to generate interfaces theories. We also describe how
+this can be used to automatically generate \emph{handle interfaces} with other systems
+like e.g. \GAP.
+
+
+
+As in \GAP, a large part of the mathematical knowledge embedded in the
+\Sage library is encoded using its type system. This library is
+written in the \Python programming language which comes with a
+traditional object oriented dynamic type system.
+For example The MiTM ontology of Figure~\ref{fig:cgtontology}
+translates into a hierarchy of four abstract classes (\texttt{Group},
+\texttt{PermutationGroup}, \texttt{MatrixGroup},
+\texttt{FinitelyPresentedGroup}) and concrete classes
+(\texttt{SymmetricGroup}, \texttt{MathieuGroup},
+\texttt{LinearMatrixGroup}, ...).
+
+Altogether, the hierarchy of classes of \Sage contains thousands of
+abstract and concrete classes, with heavy use of multiple inheritance.
+To tame code bloat and make such a deep and large hierarchy
+maintainable, \Python's type system is enriched with a category system
+that collects closely related abstract classes (e.g. \texttt{Group},
+\texttt{GroupElement}, \texttt{GroupMorphism}, \texttt{GroupHomset}),
+together with explicitly represented mathematical knowledge, in a
+so-called \emph{category} (e.g that of \texttt{Groups}).
+See~\ref{Sage,Sage.Categories} for details.
+
+In \cite{DehKohKon:iop16} we describe the use of annotations in the code to enrich the
+mathematical knowledge in \Sage's categories with alignments with other systems, notably
+\MMT. This knowledge is then exported to generate interfaces theories. We also describe how
+this can be used to automatically generate \emph{handle interfaces} with other systems
+like e.g. \GAP.
+\begin{todolist}{NT@NT}
+\item explain what a handle interface is; advantages and limitations.\ednote{MK@NT: there
+    is something about handles in the CICM16 paper, do you have more now? }
+\item next step: also export constructors to enable non-handle interfaces where objects
+  are actually exchanged. Besides, by nature certain areas of \Sage (e.g. graph theory,
+  elliptic curves, ...) have shallow hierarchy of classes; there categories become
+  irrelevant and are not used. \ednote{statistics would be useful here}
+\item using introspection to export the information; instrument TestSuite to export all
+  objects; parents and unique representation objects have a constructor method. pickling
+  by construction, ...
+\end{todolist}
+
 \begin{newpart}{MK: I have completely reworked this and tried to tell a consistent story
     here. @MP: please re-read and correct.}
 \subsection{\GAP API Content Dictionaries}
@@ -56,49 +154,6 @@ is about really,}
 
 \ednote{MP: Put an example of OM\_Print here, maybe for a group, or for Cosets
   (as they are something that the standard OpenMath CDs in \GAP cannot do)}
-
-\subsection{\Sage API Content Dictionaries}
-\ednote{MK@NT: please write something here, this can be a bit more elaborate
-than the \GAP part above, since \GAP has already been described in the CICM16
-paper. What is the state of the OM Phrasebook for \Sage?}
-
-As in \GAP, a large part of the mathematical knowledge embedded in the
-\Sage library is encoded using its type system. This library is
-written in the \Python programming language which comes with a
-traditional object oriented dynamic type system.
-For example The MiTM ontology of Figure~\ref{fig:cgtontology}
-translates into a hierarchy of four abstract classes (\texttt{Group},
-\texttt{PermutationGroup}, \texttt{MatrixGroup},
-\texttt{FinitelyPresentedGroup}) and concrete classes
-(\texttt{SymmetricGroup}, \texttt{MathieuGroup},
-\texttt{LinearMatrixGroup}, ...).
-
-Altogether, the hierarchy of classes of \Sage contains thousands of
-abstract and concrete classes, with heavy use of multiple inheritance.
-To tame code bloat and make such a deep and large hierarchy
-maintainable, \Python's type system is enriched with a category system
-that collects closely related abstract classes (e.g. \texttt{Group},
-\texttt{GroupElement}, \texttt{GroupMorphism}, \texttt{GroupHomset}),
-together with explicitly represented mathematical knowledge, in a
-so-called \emph{category} (e.g that of \texttt{Groups}).
-See~\ref{Sage,Sage.Categories} for details.
-
-In \cite{DehKohKon:iop16} we describe the use of annotations in the code to enrich the
-mathematical knowledge in \Sage's categories with alignments with other systems, notably
-\MMT. This knowledge is then exported to generate interfaces theories. We also describe how
-this can be used to automatically generate \emph{handle interfaces} with other systems
-like e.g. \GAP.
-\begin{todolist}{NT@NT}
-\item explain what a handle interface is; advantages and limitations.\ednote{MK@NT: there
-    is something about handles in the CICM16 paper, do you have more now? }
-\item next step: also export constructors to enable non-handle interfaces where objects
-  are actually exchanged. Besides, by nature certain areas of \Sage (e.g. graph theory,
-  elliptic curves, ...) have shallow hierarchy of classes; there categories become
-  irrelevant and are not used. \ednote{statistics would be useful here}
-\item using introspection to export the information; instrument TestSuite to export all
-  objects; parents and unique representation objects have a constructor method. pickling
-  by construction, ...
-\end{todolist}
 
 \subsection{Standard OpenMath CDs as a \Singular API}
 
