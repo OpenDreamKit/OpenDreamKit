@@ -1,6 +1,7 @@
 % !TEX root = ../thesis.tex
 \section{Accessing Virtual Theories}\label{sec:access}
 
+We address \textbf{P2} next.
 Intuitively, it is straightforward how to fill a virtual theory $V$: $V$ is represented by an initially empty concrete theory $V'$, and whenever an identifier $id$ of $V$ is requested, \mmt dynamically adds the corresponding declaration of $id$ to $V'$.
 \mmt already abstracts from the physical realizations of persistent storage using the \emph{backend} interface: essentially a backend is any component that allows loading declarations.
 Thus, we only have to implement a new backend that connects to \lmfdb, retrieves the JSON object with identifier $id$, and turns into an \ommt declaration.
@@ -73,8 +74,8 @@ $M = \left(
   \right)$\vspace*{-1em}
 \end{wrapfigure}
 But CoDecs for basic types (semantic and realized) are not sufficient for our application.
-Consider for example the \identifier{isogeny\_matrix} field of an elliptic curve representation. 
-The semantic representation of the value of this field\ednote{ where, in the A11 curve? If that is so, we should introduce the curve above.} is the matrix on the right.
+Consider again the \identifier{11a1} curve shown in Figure~\ref{fig:lmfdbexample}, specifically the \identifier{isogeny\_matrix} field. 
+The semantic representation of the value of this field is the matrix on the right.
 
 The semantic type of Matrices is characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
 In principle, one could construct a CoDec for each type of matrices by hand. 
@@ -131,7 +132,8 @@ The name of these declarations corresponds to the name of the field inside the r
 Each declaration is annotated using \mmt meta-data with two pieces of information, the property of an elliptic curve it implements and the codec that is used to encode it inside \lmfdb. 
 For example, the \identifier{degree} field implements the \identifier{curveDegree} property in the elliptic curve theory and uses the \identifier{StandardInt} codec.
 
-The database theory is the truly virtual theory -- it is not stored on disk, but generated dynamically. 
+The database theory is the only truly virtual theory -- it is not stored on disk, but generated dynamically. 
+It can again be seen in Figure~\ref{fig:vtarch}. 
 As designed, it contains one declaration per record in \lmfdb. 
 It uses an \mmt \textbf{backend} -- an \mmt abstraction used to load declarations into memory. 
 Given a URI, the backend is responsible for loading the underlying definition. 
@@ -149,9 +151,9 @@ They are given by the \identifier{?implements} meta-datum, here \identifier{curv
 But this information is not enough. 
 The JSON values of the fields can not be used as values inside an \mmt record, they need to be assigned their correct semantics first.
 
-This is where codecs and the \identifier{?codec} meta-datum come into play. 
+This is where CoDecs and the \identifier{?codec} meta-datum come into play. 
 The physical representation of the \identifier{degree} field is $1$, a JSON integer. 
-The schema theory says that this is encoded using the \identifier{StandardInt} codec from above. 
+The schema theory says that this is encoded using the \identifier{StandardInt} CoDecs from above. 
 To generate an \mmt value for the record, this codec can be used to decode it. 
 In this case the decoded value is the integer $1$. 
 Notice how even though the physical and semantic representations are shown identically here, they are indeed different: The former is a 64-bit floating point JSON Number, the latter is a mathematical integer. 
@@ -159,9 +161,9 @@ Notice how even though the physical and semantic representations are shown ident
 The physical representation of \identifier{isogenyMatrix} is
 % HACK HACK HACK -- TeX can't do proper line breaking
 \\\noindent\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}. 
-Here, the schema theory contains a codec that is constructed using the \identifier{StandardMatrix} codec operator, specifically $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$. 
-To apply this codec, the Backend has to first construct the concrete codec, which can then used to decode the physical representation. 
-Since this is a codec operator, first each entry of the matrix has to be decoded using $\plaintt{StandardInt}$ -- turning the JSON number $1.0$ into the integer $1$, the JSON Number $5.0$ into the number $5$, etc. 
+Here, the schema theory contains a CoDecs that is constructed using the \identifier{StandardMatrix} codec operator, specifically $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$. 
+To apply this CoDecs, the backend has to first construct the concrete CoDecs, which can then used to decode the physical representation. 
+Since this is a CoDecs operator, first each entry of the matrix has to be decoded using $\plaintt{StandardInt}$ -- turning the JSON number $1.0$ into the integer $1$, the JSON Number $5.0$ into the number $5$, etc. 
 Then these decoded values can be placed inside a matrix to arrive at the semantic representation of $M$. 
 
 This gives the backend all the information it needs to construct an \mmt record which can then be turned into an elliptic curve using the \identifier{from\_record} constructor. 
@@ -175,8 +177,18 @@ We continue by briefly addressing \textbf{P3}, however for a complete discussion
 In practice, most queries involving virtual theories so far have a shape similar to the one that \lmfdb supports: 
 Finding all objects within a single sub-database for which a specific field equals a specific value. 
 As an example, consider again the query of finding all abelian transitive groups. 
-This can be expressed in QMT as:
-\ednote{TW: Actually add the example of the query (without I()); do a very brief description of it}
+ 
+QMT has an \mmt-powered surface syntax, which can be used to express this query as:
+\begin{lstlisting}[language=qmt]
+x in (
+  related to ( literal `lmfdb:db/transitivegroups?group ) by (object declares)
+) | holds x (
+  x commutative x *=* true
+)
+\end{lstlisting}
+In consists of two parts, first we find all objects declared in the \uri{lmfdb:db/transitivegroups?group} theory (line $2$), and then we restrict this set of results to all those for which the \inlinecode{commutative} property is \inlinecode{true} (line $4$). 
+Notice that this the example shown here is the semnatic equivalent of the \lmfdb query shown in Section~\label{sec:sota:api}. 
+The key difference is that this query does not require knowing the structure of \lmfdb. 
 
 Recall that to evaluate a query prior to the introduction of Virtual Theories, the \mmt system loaded the theory graph into main memory and then interleaved incremental flattening and query evaluation operations on the \mmt data structures until a result has been produced. 
 This can no longer be applied to resolve the query above, as not all relevant data is present in memory. 
@@ -184,9 +196,8 @@ Moreover, it is also not feasible to first load all potentially relevant data in
 This would require loading a copy of \lmfdb into main memory, something that virtual
 theories were designed to avoid. 
 
-As we have already seen, \lmfdb has an API. 
-This API is in principle capable of efficiently resolving the query shown here, however it does not directly support the QMT Query Syntax but requires translation first. 
-In general, most mathematical knowledge bases have a similar API serving as an information retrieval mechanism -- commonly in the form of a query language or an API. 
+Recall that \lmfdb has an API capable of resolving this query. 
+Moreover, most mathematical knowledge bases have a similar API serving as an information retrieval mechanism -- commonly in the form of a query language or an API. 
 
 This provides a new approach for making queries towards virtual theories. 
 First, the \mmt query is translated into a system-specific information-retrieval language -- in the case of \lmfdb\ this is a MongoDB-based syntax.
@@ -204,8 +215,21 @@ As Queries are inductive in nature, one could attempt to intercept each of the i
 However, this would require a check on each intermediate result to first determine if it comes from a virtual theory or not, and then potentially switching the entire evaluation strategy, leading to a very computationally expensive implementation. 
 
 Instead of intercepting each result, we extended the Query Language to allows users to annotate sub-queries for evaluation with a specific API. 
-This allows the system to immediatly know which parts of a query have to be evaluated in \mmt memory, and which have to be translated and sent to an external API. 
-This new approach turn the example above into:
+This allows the system to immediately know which parts of a query have to be evaluated in \mmt memory, and which have to be translated and sent to an external API. 
+This turns the example above into:
+\begin{lstlisting}[language=qmt]
+use "lmfdb" for {*
+  x in (
+    related to ( literal `lmfdb:db/transitivegroups?group ) by (object declares)
+  ) | holds x (
+    x commutative x *=* true
+  )
+*}
+\end{lstlisting}
+\ednote{Continue}
+We how we have just added a \inlinecode{use "lmfdb"}
+
+To achieve the actual translation of this query, we can re-use the 
 \ednote{TW: Add the example again, this time with I(), then do a bit more explaining}
 
 
