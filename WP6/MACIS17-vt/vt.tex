@@ -5,7 +5,7 @@ The mathematical software systems to be integrated via the MitM approach have so
 Their API CDs typically declare types and functions on these types (the latter including constants seen as nullary functions).
 Even though database systems differ drastically from these in many respects, they are very similar at the MitM level: a database like \lmfdb defines
 \begin{compactitem}
- \item some types: each table's schema is one type definition,
+ \item some types: each table's schema is essentially one type definition,
  \item many constants: each entry of each table is one constant of the corresponding type.
 \end{compactitem}
 Thus, we can apply essentially the same approach.
@@ -126,10 +126,12 @@ Apart from standard software engineering tasks, there were three conceptual prob
   }
   \label{fig:vtarch}
 \end{figure}
-A sketch of our overall soluton can be seen in Figure~\ref{fig:vtarch}. 
+A sketch of our overall soluton can be seen in Figure~\ref{fig:vtarch}. \ednote{MK@TW: what is
+  the meaning of the colors? it should become clear somewhere}
 We start by dealing with \textbf{P1}. 
 The set of constants in a database table -- while finite -- can be arbitrarily large.
-In particular, all \lmfdb tables\footnotemark are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
+In particular, all \lmfdb tables\footnote{Technically, \lmfdb is implemented using MongoDB and comprises a set of sets (each one called a database) of JSON objects. However, due to the conventions used, we can also understand it conceptually as a set of tables of a relational database, keeping in mind that every row is a tuple of arbitrary JSON objects.}
+are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
 \lmfdb tables usually include a naming system that defines unique identifiers (which are used the database keys) for these objects, and these identifiers are predetermined even for those objects that have not been computed yet.
 Thus, it is not desirable to fix the a set of concrete API CDs.
 Instead, the API CDs must split into two parts: for each database table, we need
@@ -138,13 +140,16 @@ Instead, the API CDs must split into two parts: for each database table, we need
   \item a virtual theory called the \textbf{database theory} that contains one definition for each value of that type (using the \lmfdb identifier as the name of the defined constant). 
 \end{compactitem}
 Both of these can be found colored in blue in Figure~\ref{fig:vtarch}, the schema theory on the bottom right, the database theory in the middle on the left. 
-\footnotetext{Technically, \lmfdb is implemented using MongoDB and comprises a set of sets (each one called a database) of JSON objects. However, due to the conventions used, we can also understand it conceptually as a set of tables of a relational database, keeping in mind that every row is a tuple of arbitrary JSON objects.}
 
-We address \textbf{P2} next.
-\lmfdb's technical realization does not require formalizing the schema of each table.
-Instead, the tables are generated systematically and therefore follow an implicit schema that can -- in principle -- be obtained from the documentation or reverse-engineered from the tables.
-However (and here \lmfdb critically differs from, e.g. OEIS), the mathematics involved in the tables so deep that this is not possible in practice for all but a few experts.
-Therefore, we sat down with the original author of one of the best-documented tables -- John Cremona for the table of elliptic curves -- and formalized the corresponding schema in \ommt.
+We address \textbf{P2} next.\ednote{MK@TW: Das was jetzt kommt ist nicht P2, das ist erst
+  in Section 5. } \lmfdb's technical realization does not require formalizing the schema
+of each table.  Instead, the tables are generated systematically and therefore follow an
+implicit schema that can -- in principle -- be obtained from the documentation or
+reverse-engineered from the tables.  However (and here \lmfdb critically differs from,
+e.g. OEIS), the mathematics involved in the tables so deep that this is not possible in
+practice for all but a few experts.  Therefore, we sat down with the original author of
+one of the best-documented tables -- John Cremona for the table of elliptic curves -- and
+formalized the corresponding schema in \ommt.\ednote{MK@TW: are there others already?}
 
 In the following, we will use this table as a running example.
 Our methods extend immediately to any other table once its schema has been formalized.
@@ -153,7 +158,7 @@ Before we can continue however, we first need to have a closer look at our forma
 
 It models an elliptic curve in a very simple fashion, by just declaring a type \identifier{ec}. 
 Next, it defines a \identifier{from\_record} constructor that takes an \mmt record and returns an elliptic curve. 
-Notice that these definitions are independent of the \lmfdb database. 
+Notice that these definitions are independent of the realization in the \lmfdb database. 
 The theory then moves on to define the two important properties\footnote{In reality there are of course more than these two -- the others can be implemented analogously and are omitted here to better illustrate this example.} of elliptic curves. 
 
 These are \textit{degree}, an integer, and the \textit{isogeny matrix}, a $3 \times 3$ matrix of integers. 

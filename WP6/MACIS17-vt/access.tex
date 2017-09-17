@@ -18,7 +18,7 @@ However inside the database it is represented as the \identifier{IEEE 754} $64$-
 But when the semantic representations can exceed the have a maximum possible value $2^{53}-1$ of IEEE floats, \lmfdb needs to use a different encoding, e.g. JSON strings that have no hard upper limit.
 
 Let us call the set of objects in semantic representation the \textbf{semantic type}, and the set of objects in the physical representation the \textbf{realized type}. 
-Semantic types reside in the MiTM ontology, whereas realized types reside in the systems themselves. 
+Semantic types reside in the MiTM ontology, whereas realized types describe structures of the systems themselves -- here the tables in the \lmfdb. 
 Corresponding with intuition, the process of converting between the two representations is called \textbf{coding}, specifically coding into a semantic representation is called \textbf{encoding}, the reverse is called \textbf{decoding}. 
 We will call system components that do the necessary translation -- \underline{co}ding and \underline{dec}oding -- \textbf{CoDec}s. 
 
@@ -61,31 +61,33 @@ For instance, the object \identifier{StandardPos} is (a CoDec) of type $\codectt
   }
   \label{fig:codecs}
 \end{figure}
-The \identifier{degree} we used as an example above would use the \identifier{StandardInt} CoDec. 
-Additionally the \textsf{CoDecs} theory associates with each codec a Scala class that implements the translation between semantic and realized type.
+The \identifier{degree} we used as an example above would use the \identifier{StandardInt} CoDec in the \lmfdb. 
+Additionally the \textsf{CoDecs} theory associates with each CoDec a Scala class that implements the translation between semantic and realized type. The \mmt system we use is implemented in Scala and can thus execute this class as part of \lmfdb access. 
 
-But CoDecs for basic types (semantic and realized) are not sufficient for our application.
-Consider for example the \identifier{isogeny\_matrix} field of an elliptic curve representation. 
-The semantic representation of the value of this field is the matrix
-\[M = \left(
+\begin{wrapfigure}r{2.7cm}\vspace*{-2em}
+$M = \left(
     \begin{array}{ccc}
       1 & 5 & 25 \\
       5 & 1 & 5 \\
       25 & 5 & 1 \end{array} 
-  \right)
-\]
-Matrices are characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
+  \right)$\vspace*{-1em}
+\end{wrapfigure}
+But CoDecs for basic types (semantic and realized) are not sufficient for our application.
+Consider for example the \identifier{isogeny\_matrix} field of an elliptic curve representation. 
+The semantic representation of the value of this field\ednote{ where, in the A11 curve? If that is so, we should introduce the curve above.} is the matrix on the right.
+
+The semantic type of Matrices is characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
 In principle, one could construct a CoDec for each type of matrices by hand. 
 This would mean generating one CoDec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices, $1 \times 2$ integer matrices, $1 \times 2$ real matrices, and so on. 
 For the representation of CoDecs in \mmt, this would require generating one symbol and one Scala function for each different kind of matrix. 
 This quickly becomes a mess.
 
 Instead we use the fact that both Scala and \ommt allow higher-order functions: 
-We can define a \textbf{codec operator} that given a CoDec the parameter type $\tau$ and values for the number $n$ of rows and $m$ of columns, generate a CoDec of $n\times m$ matrices of $\tau$ objects. 
+We can define a \textbf{CoDec operator} that -- given a CoDec, the parameter type $\tau$, and values for the number $n$ of rows and $m$ of columns --  generates a CoDec for $n\times m$ matrices of $\tau$ objects. 
 In the example above and the matrix $M$ is encoded as a list of $n$ lists of $m$ integers ($\tau$):
-% HACK HACK HACK
-\\\noindent
-\inlinecode{[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]}
+\begin{lstlisting}[]
+[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]
+\end{lstlisting}
 
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
