@@ -28,8 +28,8 @@ To arrive at a tight integration with the \ommt functionality we will represent 
 
 Therefore we introduce a new \ommt theory \texttt{Codecs} in the foundational part of the MitM ontology.  
 See the green part of Figure~\ref{fig:vtarch} for details how this plays in the overall information architecture and Figure~\ref{fig:codecs} for elementary content. 
-This theory introduces a type constructor \codectt, which given a semantic type constructs the type of CoDecs for this type. 
-For instance, the object \identifier{StandardPos} is (a CoDec) of type $\codectt\;\mathbb{Z}^+$, i.e. a CoDec that parses database objects (for \lmfdb IEEE floats) into \ommt terms that can be typed as MitM positive integers and serializes them back.
+This theory introduces a type constructor \codectt, which given a semantic type constructs the type of codecs for this type. 
+For instance, the object \identifier{StandardPos} is (a codec) of type $\codectt\;\mathbb{Z}^+$, i.e. a codec that parses database objects (for \lmfdb IEEE floats) into \ommt terms that can be typed as MitM positive integers and serializes them back.
 
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
@@ -52,7 +52,7 @@ For instance, the object \identifier{StandardPos} is (a CoDec) of type $\codectt
     };
   \end{tikzpicture}
   \caption[List of Codecs]{
-    An annotated subset of the Codecs theory containing a selection of CoDecs found in \mmt. 
+    An annotated subset of the Codecs theory containing a selection of codecs found in \mmt. 
     Here $\mathbb{N}$ represents natural numbers (including $0$), 
     $\mathbb{Z}$ integers, 
     $\mathbb{Z}^{+}$ positive integers, 
@@ -61,8 +61,8 @@ For instance, the object \identifier{StandardPos} is (a CoDec) of type $\codectt
   }
   \label{fig:codecs}
 \end{figure}
-The \identifier{degree} we used as an example above would use the \identifier{StandardInt} CoDec in the \lmfdb. 
-Additionally the \textsf{CoDecs} theory associates with each CoDec a Scala class that implements the translation between semantic and realized type. 
+The \identifier{degree} we used as an example above would use the \identifier{StandardInt} codec in the \lmfdb. 
+Additionally the \textsf{codecs} theory associates with each codec a Scala class that implements the translation between semantic and realized type. 
 The \mmt system we use is implemented in Scala and can thus execute this class as part of \lmfdb access. 
 
 \begin{wrapfigure}r{2.7cm}\vspace*{-2em}
@@ -73,18 +73,18 @@ $M = \left(
       25 & 5 & 1 \end{array} 
   \right)$\vspace*{-1em}
 \end{wrapfigure}
-But CoDecs for basic types (semantic and realized) are not sufficient for our application.
+But codecs for basic types (semantic and realized) are not sufficient for our application.
 Consider again the \identifier{11a1} curve shown in Figure~\ref{fig:lmfdbexample}, specifically the \identifier{isogeny\_matrix} field. 
 The semantic representation of the value of this field is the matrix on the right.
 
 The semantic type of Matrices is characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
-In principle, one could construct a CoDec for each type of matrices by hand. 
-This would mean generating one CoDec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices, $1 \times 2$ integer matrices, $1 \times 2$ real matrices, and so on. 
-For the representation of CoDecs in \mmt, this would require generating one symbol and one Scala function for each different kind of matrix. 
+In principle, one could construct a codec for each type of matrices by hand. 
+This would mean generating one codec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices, $1 \times 2$ integer matrices, $1 \times 2$ real matrices, and so on. 
+For the representation of codecs in \mmt, this would require generating one symbol and one Scala function for each different kind of matrix. 
 This quickly becomes a mess.
 
 Instead we use the fact that both Scala and \ommt allow higher-order functions: 
-We can define a \textbf{CoDec operator} that -- given a CoDec, the parameter type $\tau$, and values $n, m$ for the numbers of rows and columns -- generates a CoDec for $n\times m$ matrices of $\tau$ objects. 
+We can define a \textbf{codec operator} that -- given a codec, the parameter type $\tau$, and values $n, m$ for the numbers of rows and columns -- generates a codec for $n\times m$ matrices of $\tau$ objects. 
 In the example above and the matrix $M$ is encoded as a list of $n$ lists of $m$ integers ($\tau$):
 \begin{lstlisting}[]
 [[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]
@@ -108,18 +108,18 @@ In the example above and the matrix $M$ is encoded as a list of $n$ lists of $m$
     };
   \end{tikzpicture}
   \caption[List of Codec Operators]{
-    Second annotated subset of the CoDecs theory containing a selection of CoDec operators found in \mmt. 
+    Second annotated subset of the codecs theory containing a selection of codec operators found in \mmt. 
     Compare with Figure~\ref{fig:codecs}. 
   }
   \label{fig:codecops}
 \end{figure}
-Like first-order CoDecs, CoDec operators in \mmt are again represented in two ways, as declarations inside the \identifier{CoDecs} theory (see Figure~\ref{fig:codecops} for a list, compare again with Figure~\ref{fig:vtarch}) and as a corresponding Scala implementation -- a higher-order function from CoDecs to CoDecs. 
+Like first-order codecs, codec operators in \mmt are again represented in two ways, as declarations inside the \identifier{codecs} theory (see Figure~\ref{fig:codecops} for a list, compare again with Figure~\ref{fig:vtarch}) and as a corresponding Scala implementation -- a higher-order function from codecs to codecs. 
 This is mirrored in the types of operators in Figure~\ref{fig:codecs}, the \textsf{StandardMatrix} operator is a function that takes four arguments: a type $T$, two
-numbers $n$ and $m$, and a $\tau$-CoDec and yields a $\mathrm{Matrix}(n, m, T)$-CoDec. 
+numbers $n$ and $m$, and a $\tau$-codec and yields a $\mathrm{Matrix}(n, m, T)$-codec. 
 Here we make use of the dependent function types of the MitM foundation: arguments in curly brackets can be used in the result type; see~\cite{RabKoh:WSMSML13} for details.
 
-With these declarations in the \textsf{CoDecs} theory, we can represent a CoDec for $3 \times 3$ integer matrices e.g. for the the isogeny matrix $M$ above by the \ommt term $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$.
-Similarly the same CoDec operator can be used to for example generate a CoDec for $2 \times 2$ boolean matrices, which corresponds to
+With these declarations in the \textsf{codecs} theory, we can represent a codec for $3 \times 3$ integer matrices e.g. for the the isogeny matrix $M$ above by the \ommt term $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$.
+Similarly the same codec operator can be used to for example generate a codec for $2 \times 2$ boolean matrices, which corresponds to
 $\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$. 
 
 \subsection{Specifying Encodings in Schema Theories}\label{sec:vt:schema}
@@ -150,17 +150,17 @@ They are given by the \identifier{?implements} meta-datum, here \identifier{curv
 But this information is not enough. 
 The JSON values of the fields can not be used as values inside an \mmt record, they need to be assigned their correct semantics first.
 
-This is where CoDecs and the \identifier{?codec} meta-datum come into play. 
+This is where codecs and the \identifier{?codec} meta-datum come into play. 
 The physical representation of the \identifier{degree} field is $1$, a JSON integer. 
-The schema theory says that this is encoded using the \identifier{StandardInt} CoDecs from above. 
-To generate an \mmt value for the record, this CoDecs is then used to decode it. 
+The schema theory says that this is encoded using the \identifier{StandardInt} codecs from above. 
+To generate an \mmt value for the record, this codecs is then used to decode it. 
 In this case the decoded value is the integer $1$. 
 Notice how even though the physical and semantic representations are shown identically here, they are indeed different: The former is a 64-bit floating point JSON Number, the latter is a mathematical integer. 
 
 The physical representation of \identifier{isogenyMatrix} is shown in the JSON in Figure~\ref{fig:lmfdbexample}. 
-The schema theory contains a CoDec that is constructed using the \identifier{StandardMatrix} CoDec operator, specifically $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$. 
-To be able to apply this composite CoDec, the backend has to first construct the concrete CoDec, which can then used to decode the physical representation. 
-Since this is a CoDec operator, first each entry of the matrix has to be decoded using $\plaintt{StandardInt}$ -- turning the JSON number $1.0$ into the integer $1$, the JSON Number $5.0$ into the number $5$, etc. 
+The schema theory contains a codec that is constructed using the \identifier{StandardMatrix} codec operator, specifically $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$. 
+To be able to apply this composite codec, the backend has to first construct the concrete codec, which can then used to decode the physical representation. 
+Since this is a codec operator, first each entry of the matrix has to be decoded using $\plaintt{StandardInt}$ -- turning the JSON number $1.0$ into the integer $1$, the JSON Number $5.0$ into the number $5$, etc. 
 Then these decoded values can be placed inside a matrix to arrive at the semantic representation of $M$. 
 
 This gives the backend all the information it needs to construct an \mmt record which can then be turned into an elliptic curve using the \identifier{from\_record} constructor. 
