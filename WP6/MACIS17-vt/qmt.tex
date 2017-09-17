@@ -1,0 +1,62 @@
+% !TEX root = ../thesis.tex
+\section{Translating Queries}\label{sec:qmt}
+Recall that \mmt has a Query Language called QMT~\cite{Rabe:qlfml12}, which allows users to find knowledge to complex conditions to be specified. 
+We continue by briefly addressing \textbf{P3}, however for a complete discussion we refer the interested reader to \cite{twiesing:msc17}. 
+
+In practice, most queries involving virtual theories so far have a shape similar to the one that \lmfdb supports: 
+Finding all objects within a single sub-database for which a specific field equals a specific value. 
+As an example, consider again the query of finding all abelian transitive groups. 
+ 
+QMT has an \mmt-powered surface syntax, which can be used to express this query as:
+\begin{lstlisting}[language=qmt]
+x in (
+  related to ( literal `lmfdb:db/transitivegroups?group ) by (object declares)
+) | holds x (
+  x commutative x *=* true
+)
+\end{lstlisting}
+In consists of two parts, first we find all objects declared in the \uri{lmfdb:db/transitivegroups?group} theory (line $2$), and then we restrict this set of results to all those for which the \inlinecode{commutative} property is \inlinecode{true} (line $4$). 
+Notice that this the example shown here is the semnatic equivalent of the \lmfdb query shown in Section~\label{sec:sota:api}. 
+The key difference is that this query does not require knowing the structure of \lmfdb. 
+
+Recall that to evaluate a query prior to the introduction of Virtual Theories, the \mmt system loaded the theory graph into main memory and then interleaved incremental flattening and query evaluation operations on the \mmt data structures until a result has been produced. 
+This can no longer be applied to resolve the query above, as not all relevant data is present in memory. 
+Moreover, it is also not feasible to first load all potentially relevant data into memory, and only then proceed with evaluation. 
+This would require loading a copy of \lmfdb into main memory, something that virtual
+theories were designed to avoid. 
+
+Recall that \lmfdb has an API capable of resolving this query. 
+Moreover, most mathematical knowledge bases have a similar API serving as an information retrieval mechanism -- commonly in the form of a query language or an API. 
+
+This provides a new approach for making queries towards virtual theories. 
+First, the \mmt query is translated into a system-specific information-retrieval language -- in the case of \lmfdb\ this is a MongoDB-based syntax.
+Next, this translated query is sent to the external API. 
+Upon receiving the results, these are translated back into \ommt with the help of already existing functionality in the appropriate virtual theory backend.
+
+This leaves just one problem unsolved -- translating queries into the system-specific API. 
+Consider that it is not sufficient to just translate all queries. 
+One hand a general QMT query may or may not involve a virtual theory. 
+On the other hand, it may also involve several unrelated virtual theories. 
+This makes it necessary to filter out queries involving virtual theories, so that they can be evaluated properly. 
+
+Achieving this automatically is a non-trivial problem. 
+As Queries are inductive in nature, one could attempt to intercept each of the intermediate results. 
+However, this would require a check on each intermediate result to first determine if it comes from a virtual theory or not, and then potentially switching the entire evaluation strategy, leading to a very computationally expensive implementation. 
+
+Instead of intercepting each result, we extended the Query Language to allows users to annotate sub-queries for evaluation with a specific API. 
+This allows the system to immediately know which parts of a query have to be evaluated in \mmt memory, and which have to be translated and sent to an external API. 
+This turns the example above into:
+\begin{lstlisting}[language=qmt]
+use "lmfdb" for {*
+  x in (
+    related to ( literal `lmfdb:db/transitivegroups?group ) by (object declares)
+  ) | holds x (
+    x commutative x *=* true
+  )
+*}
+\end{lstlisting}
+\ednote{Continue}
+We how we have just added a \inlinecode{use "lmfdb"}
+
+To achieve the actual translation of this query, we can re-use the 
+\ednote{TW: Add the example again, this time with I(), then do a bit more explaining}
