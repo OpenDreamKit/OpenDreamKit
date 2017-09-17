@@ -1,7 +1,7 @@
 % !TEX root = ../thesis.tex
 \section{\lmfdb as a Set of Virtual Theories}\label{sec:vt}
 
-The mathematical software systems to be integrated via the MitM approach have so far been computation-oriented, e.g., computer algebra systems.
+The mathematical software systems to be integrated via the MitM approach have so far been computation-oriented, e.g. computer algebra systems.
 Their API CDs typically declare types and functions on these types (the latter including constants seen as nullary functions).
 Even though database systems differ drastically from these in many respects, they are very similar at the MitM level: a database like \lmfdb defines
 \begin{compactitem}
@@ -9,28 +9,13 @@ Even though database systems differ drastically from these in many respects, the
  \item many constants: each entry of each table is one constant of the corresponding type.
 \end{compactitem}
 Thus, we can apply essentially the same approach.
-In particular, the API CDs must contain definitions of the database schemas.
+In particular, the API CDs must contain definitions of the database schemas. 
 
-However, the set of constants in a database table -- while finite -- can be arbitrarily large.
-In particular, all \lmfdb tables\footnotemark are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
-\lmfdb tables usually include a naming system that defines unique identifiers (which are used the database keys) for these objects, and these identifiers are predetermined even for those objects that have not been computed yet.
-Thus, it is not desirable to fix the a set of concrete API CDs.
-Instead, the API CDs must split into two parts: for each database table, we need
-\begin{compactitem}
-  \item a concrete theory that defines the schema and other relevant information about the type of objects in the table and
-  \item a virtual theory that contains one definition for each value of that type (using the \lmfdb identifier as the name of the defined constant).
-\end{compactitem}
-\footnotetext{Technically, \lmfdb is implemented using MongoDb and comprises a set of sets (each one called a database) of JSON objects. However, due to the conventions used, we can also understand it conceptually as a set of tables of a relational database, keeping in mind that every row is a tuple of arbitrary JSON objects.}
-
-\begin{oldpart}{FR: too tired to decide what to delete/reuse here}
-From a system perspective, virtual theories behave just like concrete theories, but
-without the assumption of loading all declarations from a file on disk at system startup.
-Instead, virtual theories load declarations in a lazy fashion when they are
-needed. Concrete theories are stored as XML files; i.e. we use the file system as a
-backend for the \mmt system. As most of the knowledge sources we want to embed into \ommt
-as virtual theories use data-bases as back-ends and provide low-level database APIs we
-have extended the \mmt backends for this as well. Apart from standard software engineering
-tasks, there were three conceptual problems to be solved in this extension/implementation:
+From a system perspective, virtual theories behave just like concrete theories, but without the assumption of loading all declarations from a file on disk at system startup.
+Instead, virtual theories load declarations in a lazy fashion when they are needed. 
+Concrete theories are stored as XML files; i.e. we use the file system as a backend for the \mmt system. 
+As most of the knowledge sources we want to embed into \ommt as virtual theories use data-bases as back-ends and provide low-level database APIs we have extended the \mmt backends for this as well.
+Apart from standard software engineering tasks, there were three conceptual problems to be solved in this extension/implementation:
 \begin{compactenum}[\bf P1]
 \item How to match the database tables into \ommt theories and declarations. 
 \item How to lift data in \textbf{physical representation} -- i.e. as records of the
@@ -39,41 +24,142 @@ tasks, there were three conceptual problems to be solved in this extension/imple
   that they can be executed directly on the data base without loading bulk data into the
   \mmt process.
 \end{compactenum}
- As each sub-database in \lmfdb contains
-records of similar structure, it makes sense to create a single virtual theory for each of
-these sub-databases and use \ommt declarations for each of the objects. We address
-\textbf{P2} next.
-\end{oldpart}
 
+\begin{figure}[ht]\centering
+    \begingroup
+    \pgfdeclarelayer{background}
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,foreground}
+    
+    \resizebox{\textwidth}{0.75\textwidth}{
+      \begin{tikzpicture}[xscale=4,yscale=2.2]\footnotesize
+        \begin{pgfonlayer}{foreground}
+          \tikzstyle{human}    = [red,dashed,thick]
+          \tikzstyle{withshadow}  = [draw,drop shadow={opacity=.5},fill=white]
+          \tikzstyle{interface}   = [fill=blue!30]
+          \tikzstyle{database}    = [cylinder,cylinder uses custom fill,
+            cylinder body fill=yellow!50,cylinder end fill=yellow!50,
+            shape border rotate=90,
+            aspect=0.25,draw]
+          
+          % Ontology layer
+          \node[thy] (numbers) at (0,1) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Numbers}}\\\hline\hline
+              $\mathbb{Z}^{+}$        & : & \typett\\
+              $\mathbb{Z}$            & : & \typett\\\hline
+              \multicolumn{3}{l}{$\mathbb{Z}^{+} \subset \mathbb{Z}$}
+            \end{tabular}
+          };
 
+          \node[thy] (matrices) at (1.5,1) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Matrices}}\\\hline\hline
+              \plaintt{matrix} & : & $\typett \rightarrow \mathbb{Z}^{+}\rightarrow \mathbb{Z}^{+} \rightarrow \typett$
+            \end{tabular}
+          };
+
+          \node[thy] (codecs) at (0.75,0) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Codecs}}\\\hline\hline
+              \codectt                  & : & $\typett \rightarrow \typett$\\\hline
+              \plaintt{standardInt}     & : & $\codectt\; \mathbb{Z}$\\
+              \plaintt{standardMatrix}  & : & $\left\{T, n, m\right\} \codectt\; T \rightarrow \codectt\; \plaintt{matrix}(n, m, T)$\\
+            \end{tabular}
+          };
+
+          \draw[include] (numbers) -- (matrices);
+          \draw[include] (matrices) -- (codecs);
+          
+          \begin{pgfonlayer}{background}
+            \node[draw=none,fill=green!30,rounded corners=1cm,fit=(numbers) (matrices) (codecs),inner sep=10pt] {};
+          \end{pgfonlayer}
+        
+          % Model Layer
+          \node[thy,fill=purple!30] (ec) at (2.25,-1.20) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Elliptic Curve}}\\\hline\hline
+              \plaintt{ec}            & : & \typett\\\hline
+              \plaintt{from\_record}  & : & $\plaintt{record} \rightarrow \plaintt{ec}$ \\\hline
+              \plaintt{curveDegree}   & : & $\plaintt{ec} \rightarrow \mathbb{Z}$ \\
+              \plaintt{isogenyMatrix} & : & $\plaintt{ec} \rightarrow \plaintt{matrix}(3, 3, \mathbb{Z})$ 
+            \end{tabular}
+          };
+
+          \node[thy,interface] (ecschema) at (2.0,-2.5) {
+            \begin{tabular}{lll}
+              \multicolumn{3}{l}{\textsf{Elliptic Curve Schema}}\\\hline\hline
+              $\plaintt{degree}$            & \uri{?implements}  & \plaintt{curveDegree} \\
+                                            & \uri{?codec}       & \plaintt{StandardInt} \\\hline
+              $\plaintt{isogeny\_matrix}$   & \uri{?implements}  & \plaintt{isogenyMatrix} \\
+                                            & \uri{?codec}       & $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$ 
+            \end{tabular}
+          };
+
+          % Database Layer
+          \node[database] (mongodb) at (-.5,-2.5) {
+            \textsf{\lmfdb Elliptic Curves}
+          };
+
+          \node[thy,interface] (dbtheory) at (0,-1.20) {
+            \begin{tabular}{lllll}
+              \multicolumn{5}{l}{\textsf{Elliptic Curve Database Theory}}\\\hline\hline
+              \plaintt{11a1} & : & $\plaintt{ec}$ & $=$ & \dots\\
+              \plaintt{11a2} & : & $\plaintt{ec}$ & $=$ & \dots\\
+              \dots
+            \end{tabular}
+          };
+          \draw[include] (matrices) to[bend left=20] (ec);
+          \draw[include] (ec) -- (dbtheory);
+          
+          \draw[human,->] (dbtheory) -- node[right]{\scriptsize {lazily loads from}} (mongodb);
+          \draw[human,->] (ecschema) -- node[right]{\scriptsize {implements}} (ec);
+          \draw[human,->] (ecschema) -- node[above]{\scriptsize {describes}} (mongodb);
+        \end{pgfonlayer}
+      \end{tikzpicture}
+    }
+    \endgroup
+  \caption[Virtual Theory Architecture]{
+    A sketch of the architecture for a virtual theory connecting to \lmfdb. 
+    Solid edges represent imports. 
+    Several declarations have been omitted for simplicity. 
+  }
+  \label{fig:vtarch}
+\end{figure}
+A sketch of our overall soluton can be seen in Figure~\ref{fig:vtarch}. 
+We start by dealing with \textbf{P1}. 
+The set of constants in a database table -- while finite -- can be arbitrarily large.
+In particular, all \lmfdb tables\footnotemark are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
+\lmfdb tables usually include a naming system that defines unique identifiers (which are used the database keys) for these objects, and these identifiers are predetermined even for those objects that have not been computed yet.
+Thus, it is not desirable to fix the a set of concrete API CDs.
+Instead, the API CDs must split into two parts: for each database table, we need
+\begin{compactitem}
+  \item a concrete theory called the \textbf{schema theory} that defines the schema  and other relevant information about the type of objects in the table and
+  \item a virtual theory called the \textbf{database theory} that contains one definition for each value of that type (using the \lmfdb identifier as the name of the defined constant). 
+\end{compactitem}
+Both of these can be found colored in blue in Figure~\ref{fig:vtarch}, the schema theory on the bottom right, the database theory in the middle on the left. 
+\footnotetext{Technically, \lmfdb is implemented using MongoDB and comprises a set of sets (each one called a database) of JSON objects. However, due to the conventions used, we can also understand it conceptually as a set of tables of a relational database, keeping in mind that every row is a tuple of arbitrary JSON objects.}
+
+We address \textbf{P2} next.
 \lmfdb's technical realization does not require formalizing the schema of each table.
 Instead, the tables are generated systematically and therefore follow an implicit schema that can -- in principle -- be obtained from the documentation or reverse-engineered from the tables.
-However (and here \lmfdb critically differs from, e.g., OEIS), the mathematics involved in the tables so deep that this is not possible in practice for all but a few experts.
+However (and here \lmfdb critically differs from, e.g. OEIS), the mathematics involved in the tables so deep that this is not possible in practice for all but a few experts.
 Therefore, we sat down with the original author of one of the best-documented tables -- John Cremona for the table of elliptic curves -- and formalized the corresponding schema in \ommt.
 
 In the following, we will use this table as a running example.
 Our methods extend immediately to any other table once its schema has been formalized.
 
-\ednote{@TW: add the schema here as an MMT theory and describe it; no mentioning of codecs yet or implementation of virtual theories yet}
+Before we can continue however, we first need to have a closer look at our formalisation of \textit{Elliptic Curve}s which can be seen in the red in Figure~\ref{fig:vtarch}. 
 
-\ednote{give 11a1 as an example and explain it}
-
-Next, the \textit{Elliptic Curve} theory is described. 
 It models an elliptic curve in a very simple fashion, by just declaring a type \identifier{ec}. 
 Next, it defines a \identifier{from\_record} constructor that takes an \mmt record and returns an elliptic curve. 
 Notice that these definitions are independent of the \lmfdb database. 
+The theory then moves on to define the two important properties\footnote{In reality there are of course more than these two -- the others can be implemented analogously and are omitted here to better illustrate this example.} of elliptic curves. 
 
-The theory then moves on to define the two important properties\footnote{In reality there
-  are of course more than these two -- the others can be implemented analogously and are
-  omitted here to better illustrate this example.} of elliptic curves.  These are
-\textit{degree}, an integer, and the \textit{isogeny matrix}, a $3 \times 3$ matrix of
-integers. They are modeled as functions that take an elliptic curve and return the
-appropriate type.  Recall that the Math-In-The-Middle approach aims to model mathematical
-knowledge ``in the middle'' independent of any particular system.  This is exactly the
-case here -- the model of elliptic curves does not rely on \lmfdb, nor any other system,
-so that we can integrate other knowledge sources about elliptic curves or to future
-versions of the \lmfdb with changed structure.
-
+These are \textit{degree}, an integer, and the \textit{isogeny matrix}, a $3 \times 3$ matrix of integers. 
+They are modeled as functions that take an elliptic curve and return the appropriate type.  Recall that the Math-In-The-Middle approach aims to model mathematical
+knowledge ``in the middle'' independent of any particular system. 
+This is exactly the case here -- the model of elliptic curves does not rely on \lmfdb, nor any other system, so that we can integrate other knowledge sources about elliptic curves or to future versions of the \lmfdb with changed structure. 
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "paper"
