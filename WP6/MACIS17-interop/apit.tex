@@ -2,17 +2,12 @@ We now show how we, for \GAP, \Singular, and \Sage, generate theory graphs that 
 The three systems are sufficiently different that we can consider the development presented in this section a meaningful case study in the methodology and investment of exposing the APIs of real-world systems in the form of \OMMT theories.
 
 In each case, we had to overcome major implementation differences and invest significant manpower.
-In fact, even the serialization of internal abstract syntax trees as
-\OMMT objects proved very\ednote{NT: I would tend to say just
-  "difficult"? Also because we don't want
-  to scare away other systems that may consider joining} difficult, for different system-specific reasons.
+In fact, even the serialization of internal abstract syntax trees as \OMMT objects proved difficult, for different system-specific reasons.
 In the following, we summarize these efforts.
 
 \subsection{\Sage}
 
-\ednote{stated like this, it feels like \cite{DehKohKon:iop16} is work
-  from others}
-We first consider some related work \cite{DehKohKon:iop16} regarding a direct (i.e., without MitM) integration of \Sage and \GAP.
+We first consider our previous work \cite{DehKohKon:iop16} regarding a direct (i.e., without MitM) integration of \Sage and \GAP.
 Here \Sage's native interface to \GAP is upgraded from the \emph{handle} paradigm to the \emph{semantic handles} paradigm.
 In the former, when a system $A$ delegates a calculation to a system $B$, the result $r$ of the calculation is not converted to a native $A$ object (unless it is of some basic type); instead $B$ just returns a handle $h$ (or reference) to the object $r$.
 Later, $A$ can run further calculations with $r$ by passing it as argument to functions or methods implemented by $B$.
@@ -96,7 +91,7 @@ The process remains brittle and the export will eventually require much curation
 Nonetheless, we consider this an important first step toward fully automatic extraction of the \Sage API.
 Moreover, we expect further improvements by code annotations in \Sage
 (e.g., the ongoing porting of \Sage from \Python 2 to \Python
-3 will enable \emph{gradual typing} which we hope to become widely
+3 will enable \emph{gradual typing}, which we hope to become widely
 adopted by the community) or using type inference in \Sage and/or MitM.
 
 %Here are some potential directions to refine the signatures:
@@ -114,10 +109,8 @@ adopted by the community) or using type inference in \Sage and/or MitM.
 
 \subsubsection{Serialization and Deserialization}
 
-\Sage being based on \Python benefits from its native serialization
-support. For example, the dihedral group $D_4$ is serialized as a
-binary string which encodes the following straight line program to be
-executed upon deserialization:
+Because \Sage is based on \Python, it benefits from its native serialization support.
+For example, the dihedral group $D_4$ is serialized as a binary string which encodes the following straight line program to be executed upon deserialization:
 \begin{lstlisting}
   pg_unreduce = unpickle_global('sage.structure.unique_representation', 'unreduce')
   pg_DihedralGroup = 
@@ -126,19 +119,12 @@ executed upon deserialization:
 
   pg_unreduce(pg_DihedralGroup, (pg_make_integer('4'),), {})
 \end{lstlisting}
-The first three lines recover the constructors for integers and for
-dihedral groups from \Sage's library. The last line applies them to
-construct successively the integer $4$ and $D_4$.
+The first three lines recover the constructors for integers and for dihedral groups from \Sage's library.
+The last line applies them to construct successively the integer $4$ and $D_4$.
 
-Up to syntax, this serialization is close to the desired \Sage's
-OpenMath dialect\ednote{Add the translation of the above in OpenMath}.
-We are therefore planning to extend \Python's native (de)serializer to
-use \OMMT as an alternative serialization format  (using the \Python library~\cite{py-openmath:on}).
-
-Here is some motivation for this approach:
-\begin{itemize}
-\item \Python's serialization natively implements a certain number of
-  natural optimizations, like factorization of identical subexpressions.
+Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.\ednote{Add the translation of the above in OpenMath}
+We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python library~\cite{py-openmath:on}).
+This has the advantage that \Python's serialization natively implements some optimizations, e.g., structure sharing for identical subexpressions.
   % For example, a list of integers modulo 2 will be serialized as a
   % program like:
 
@@ -147,23 +133,15 @@ Here is some motivation for this approach:
 
   % Instead of recreating Z2 five times. In fact, it's even smarter in
   % this case, building Z2(0) and Z2(1) only once.
-\item This decouples nicely the problem into two independent tasks:
-  \begin{enumerate}
-  \item Instrument the serialization to generate OpenMath as
-    alternative format.
-  \item Improve the serialization of \Sage objects to serialize
-    \emph{by construction} rather than \emph{by data structure} to
-    hide implementation details and make for straightforward
-    alignments.
-  \end{enumerate}
 
-\item Good serialization support is a long time community goal for
-  \Sage, in order to enable communication between parallel processes,
-  build databases, etc. In addition serialization by construction is
-  already valued as superior, being usually more concise and more
-  resistant to changes across versions of \Sage. Therefore we can hope
-  for long term progress there even if 2. is a large task and there is
-  little man power specifically dedicated to OpenMath support.
+Still, systematically expanding \OMMT serialization to the \emph{entire} \Sage library requires significant manpower and can only be a long-term goal.
+To increase community support, our design elegantly decouples the problem into (i) instrumenting the serialization to generate \OMMT as an alternative target format, and (ii) structural improvements of the serialization that benefit \Sage in general.
+In particular, our serialization of \Sage objects is \emph{by construction} rather than \emph{by representation}, i.e., we serialize the constructor call that was used to build an object instead of the low-level \Python representation of the resulting object.
+This is important to hide implementation details and allow for straightforward alignments.
+
+The \Sage community already values serialization by construction as superior because it is usually more concise and more robust under changes to \Sage.
+Moreover, improved serialization support is already \Sage community goal in order to enable communication between parallel processes, build databases, etc.
+Therefore, we expect, independent of the purposes of this paper, our serialization work to be taken up and extended by the community.
 
   % There are generic tests; it is an official part of the review
   % process, etc. All in all \Sage is doing relatively well (most objects
@@ -176,7 +154,6 @@ Here is some motivation for this approach:
 %   OpenMath expressions instead of binary strings. Variant: derive from
 %   the deserializer to obtain a converter from binary strings to
 %   OpenMath.
-\end{itemize}
 
 % As in \GAP, a large part of the mathematical knowledge embedded in the
 % \Sage library is encoded using its type system. This library is
