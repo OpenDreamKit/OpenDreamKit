@@ -1,21 +1,30 @@
-Based on the \OMMT representation of the MitM ontology and the individual system and the alignments between them, we build a distributed group theory computation system from \GAP and \Singular systems.
-
 \begin{figure}[ht]\centering
   \tikzinput{gap_singular_mitm_fig}
-  \caption{MitM Interaction for \GAP-\Singular}\label{fig:mitmpoc}
+  \caption{MitM Interaction in Jane's Use Case}\label{fig:mitmpoc}
 \end{figure}
 
-Figure~\ref{fig:mitmpoc} shows the overall architecture. The MathHub
-system~\cite{MathHub:on} acts as a versioned repository for the \OMMT
-resources and includes an instance of the \MMT system~\cite{Rabe:MAGMS13} that provides
-mathematical knowledge management services (type checking, HTML5 presentation,
-alignment-based translation, etc.) for \OMMT resources.
+Figure~\ref{fig:mitmpoc} shows the overall architecture with an MitM server as the central mediator.
+All arrows represent the transfer of \OMMT ojbects via SCSCP.
+Critically, the MitM server also implements alignments and uses them to convert between system dialects.
 
-We have extended \MMT with a \SCSCP client/server implementation~\cite{twiesing:msc17} in order to act as a central mediator.
+We have extended the \MMT system~\cite{Rabe:MAGMS13} with an SCSCP server/client so that it can receive objects from computation systems and generates calls to others.
 For the \GAP server, we built on pre-existing \SCSCP support.
 To obtain an \SCSCP server for \Singular, which does not have native \SCSCP support, we wrapped \Singular in a python script that includes the \lstinline|pyscscp| library~\cite{py-scscp:on}.
-Finally, we add a \Python control script~\cite{MitM-PoC} as an example how to directly program the interaction and a \Sage client.
-Both allow to specify the computation.
+In \Sage, we directly programmed the client interface to the MitM server.
+
+The numbers on the edges indicate the order of communications when processing Jane's use case.
+Initially, Jane has already built in \Sage the ring $R=\mathbb{Z}[X_1,X_2,X_3,X_4]$, the group $G=D_4$, and the action $A$ of $G$ on $R$ that permutes the variables, and the polynomial $q = 3*X_1 + 2*X_2$.
+She now calls \lstinline|MitM.Singular(MitM.Gap.orbit(G, A, q)).Ideal().Groebner().sage()|, which results in the following steps:
+\begin{compactenum}
+  \item Jane uses \Sage to call the MitM server with the respective \Sage object, along with metadata about which system should be used for which computation.
+  \item The MitM server translates \lstinline|MitM.Gap.orbit(G, A, q)| to the \GAP system dialect and sends it to \GAP.
+  \item \GAP returns the orbit $O$.
+  \item The MitM server translates \lstinline|MitM.Singular(O).Ideal().Groebner()| to the \Singular system dialect and sends it to \Singular.
+  \item \Singular returns the Gröbner base $B$.
+  \item The MitM server translates \lstinline|B| to the \Sage system dialect and sends it to \Sage, where the result is shown to Jane.
+\end{compactenum}
+
+\ednote{FR@all: Does my description match what is happening? We have to discuss this and probably adapt the implementation accordingly.}
 
 % \begin{oldpart}{MK: just copied here; Victor writes\\
 %     ``\emph{A peer-to-peer connection must be made with the CAS servers, so that CAS
@@ -45,9 +54,10 @@ Both allow to specify the computation.
 % is then forced to use multiple CAS without the client needing any knowledge of the
 % underlying systems.
 % \end{oldpart}
-The \Sage client behaves exactly as described in
-Section~\ref{sec:mitm:comms}\ednote{MK@NT/TW; it seems that we will have time to
-  implement this after the extension. So we should make it happen.}
+
+%The \Sage client behaves exactly as described in
+%Section~\ref{sec:mitm:comms}\ednote{MK@NT/TW; it seems that we will have time to
+%  implement this after the extension. So we should make it happen.}
 
 %%% Local Variables:
 %%% mode: latex

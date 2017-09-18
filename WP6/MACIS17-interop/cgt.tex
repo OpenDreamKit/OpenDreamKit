@@ -1,70 +1,40 @@
-We chose computational group theory (CGT) to conduct a case study in creating
-MitM ontologies. CGT is one of the oldest computational mathematics disciplines
-and the knowledge covered in \GAP and its organization already provides a strong
-template for the MitM ontology. The formalization can be found
-at~\cite{mitm:groups:on}.
+Jane's use case involves groups and actions, polynomials, rings and ideals, and Gröbner bases, all of which must be formalized in the MitM ontology.
+Due to space restrictions, we only describe the ontology for computational group theory (CGT) as an example.
+This formalization can be found at~\cite{mitm:groups:on}.
+\ednote{FR@all: This section is incomplete -  it lacks the description rings etc. This must be fixed but cannot be fixed on short notice. So I'm carefully phrasing this paragraph to work around it.}
 
-\subsection{The Foundation for MitM}
-As foundation for all formalizations in MitM~\cite{mitm:foundation:on} we use a
-polymorphic extension of LF, a dependently typed $\lambda$-calculus using a
-hierarchy of two universes \lstinline|type| and \lstinline|kind|, where
-\lstinline|type:kind| (roughly analogous to sets and proper classes in set
-theory). LF merely provides dependent function types \lstinline|{a:A}B(a)|,
-representing the type of all functions mapping an argument \lstinline|a:A| to
-some element of type \lstinline|B(a)|; if \lstinline|B| does not depend on the
-argument \lstinline|a|, we obtain the simple function type
-\lstinline[mathescape]|A$\to$B|.
+\subsection{Type Theory and Logic}
 
-For axioms and theorems (being expressions of a primitively declared type
-\lstinline|prop|), we use on top of that a higher order logic where quantifiers
-range over any type. We furthermore follow the judgments-as-type paradigm by
-declaring a function \lstinline[mathescape]|$\vdash$:prop$\to$type| mapping
-propositions to the \emph{type of their proofs}, which allows us to declare
-proof rules as functions mapping proofs (of the premises) to a proof (of the
-conclusio).
+\OMMT formalizations must be relative to foundational logic, which is itself formalized in \OMMT.
+As foundation for all formalizations in MitM~\cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
+It provides dependent function types \lstinline|{a:A}B(a)|, representing the type of all functions mapping an argument \lstinline|a:A| to some element of type \lstinline|B(a)|. If \lstinline|B| does not depend on the argument \lstinline|a|, we obtain the simple function type \lstinline[mathescape]|A$\to$B|.
 
-We furthermore add various subtyping principles; among them declared subtypes
-(where constants of LF-type \lstinline|A<:B| are seen as declaring that
-\lstinline|A| is a subtype of \lstinline|B|), power types (being the type of all
-subtypes of some given type) and predicate subtyping \lstinline?{'a:A | P(a)'}?
-(representing the type of all \lstinline|a:A| for which the type
-\lstinline|P(a)| is inhabited). The latter necessarily introduces
-undecidability, but for our purposes this is unproblematic. These features
-turned out to be necessary to formalize many areas of mathematics close to their
-usual informal treatment, as e.g. when talking about properties of special
-subgroups, topological subspaces and similar situations.
+For formulas, we use a type \lstinline|prop| and a higher order logic where quantifiers range over any type.
+We furthermore follow the judgments-as-type paradigm by declaring a function \lstinline[mathescape]|$\vdash$:prop$\to$type| mapping propositions to the \emph{type of their proofs}, which allows us to declare proof rules as functions mapping proofs (of the premises) to a proof (of the conclusion).
+
+The judgment \lstinline|A<:B| expresses that $A$ is a subtype of $B$.
+We use power types (the type of subtypes of a type) and predicate subtyping \lstinline?{'a:A | P(a)'}?.
+The latter makes type-checking undecidable, but that is necessary for natural formalizations in many areas of mathematics.
 
 \begin{wrapfigure}r{6.1cm}\vspace*{-2.5em}
   \includegraphics[width=.5\textwidth]{mitm1}\vspace*{-1em}
   \caption{MitM ontology Fragment}\label{fig:mitm1}\vspace*{-1em}
 \end{wrapfigure}
 
-Additionally we extend our type theory with \emph{record types} as well as a
-convenience operator \lstinline|ModelsOf|, taking a \emph{theory} as argument
-and returning a record type. The (typed, but) undefined constants of the theory
-are turned into fields of the resulting record type, which allows us to think of
-the record type \lstinline|ModelsOf T| as the type of models of the theory
-\lstinline|T|. This enables us to e.g. define a group by simply giving the
-theory of its signature and (first-order) axioms, while still giving us a type
-\lstinline|group=ModelsOf group_theory| of all groups, as seen in
-Figure~\ref{fig:mitm1}. Any element \lstinline|g:group| thus represents an
-actual group, whose operations and axioms can be accessed via record field
-projections (e.g. \lstinline|g.inverse| yields the inverse operation of
-\lstinline|g|, which has type \lstinline[mathescape]|g.U$\to$g.U|). Since axioms
-are turned into record type fields as well, to actually construct a record of
-type \lstinline|group| corresponds to proving that the field
-\lstinline|universe| and the operations provided in the record do in fact form a
-group.
+Additionally we extend our type theory with record types, which is critical for formalizing mathematical structures.
+In particular,\lstinline|ModelsOf T| is the record type of models of the theory \lstinline|T|.
+This lets us, e.g., define groups by the theory of operations and its signature and axioms, while \lstinline|group=ModelsOf group_theory| is the type of all models of said theory, i.e., all groups, as seen in Figure~\ref{fig:mitm1}.
+Any element \lstinline|g:group| thus represents an actual group, whose operations and axioms can be accessed via record field projections (e.g. \lstinline|g.inverse| yields the inverse operation of \lstinline|g|.
+Since axioms are turned into record type fields as well, actually constructing a record of type \lstinline|group| corresponds to proving that the field \lstinline|universe| and the operations provided in the record do in fact form a group.
 
-\subsection{Layers of Abstraction}
+\subsection{Group Theory}
 
-Our formalisation of CGT follows the template of its implementation in \GAP, and
+Our formalization of CGT follows the template of its implementation in \GAP, and
 requires different levels of abstraction, currently \emph{abstract},
 \emph{representation}, \emph{implementation}, and \emph{concrete}. From our
 experience, we expect this pattern to be applicable across computational
 algebra, possibly with additional levels of abstraction. The left box in Figure
-\ref{fig:cgtontology} shows the levels and which level various constructors and
-operations of the \GAP system dialect belong to.
+\ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP.
 
 \begin{figure}[ht]\centering
   \tikzinput[width=.98\textwidth]{alignmentimg}
@@ -126,20 +96,17 @@ through MitM, \GAP can now compute the size of the group, its isomorphism type,
 and perform all the other operations that are available via the \GAP system
 dialect.
 
-For example, if one creates \lstinline|Group((1,2,3,4,5,6,7,8,9,10,11),(3,7,11,8)(4,10,5,6))|
-in \GAP, then one can compute the size of this group, which is $7920$, determine
-whether it is abelian (which it is not), or compute its Sylow-$2$ subgroups.
-
-Coming back to the usefulness of isomorphisms, creating the group
-\begin{lstlisting}
-Group((1,5,7)(2,9,4)(3,8,10), (2,6)(3,5)(4,7)(9,10), (1,11)(2,7)(3,5)(4,6),
-(2,5)(3,6)(4,7)(11,12))
-\end{lstlisting}
-we can find an isomorphism between these two groups, and knowing the Sylow-$2$
-subgroups of the first one can deduce the Sylow-$2$ subgroups of the second one.
-
-Using homomorphisms is a common pattern of use in computational group theory,
-and through our layered design we can move  .
+%For example, if one creates \lstinline|Group((1,2,3,4,5,6,7,8,9,10,11),(3,7,11,8)(4,10,5,6))|
+%in \GAP, then one can compute the size of this group, which is $7920$, determine
+%whether it is abelian (which it is not), or compute its Sylow-$2$ subgroups.
+%
+%Coming back to the usefulness of isomorphisms, creating the group
+%\begin{lstlisting}
+%Group((1,5,7)(2,9,4)(3,8,10), (2,6)(3,5)(4,7)(9,10), (1,11)(2,7)(3,5)(4,6),
+%(2,5)(3,6)(4,7)(11,12))
+%\end{lstlisting}
+%we can find an isomorphism between these two groups, and knowing the Sylow-$2$
+%subgroups of the first one can deduce the Sylow-$2$ subgroups of the second one.
 
 %There are other ``canonical'' representatives of this group; there are $5040$
 %conjugates of $M_{11}$ inside the symmetric group on $11$ points alone, and 
