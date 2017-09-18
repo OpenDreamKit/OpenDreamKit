@@ -16,8 +16,8 @@ In other words, one adapts the API satisfied by $r$ in $B$ to match the API for 
 For example, the method call \texttt{h.cardinality()} on a \Sage handle \texttt{h} to a \GAP object \texttt{G} should trigger in \GAP the corresponding function call \texttt{Size(G)}. 
 
 %The implementation of this paradigm builds on the classical \emph{adapter pattern}.
-%For conciseness, the adapters are generated automatically from \emph{alignments} between the methods from Sage's \emph{categories} (Sage's hierarchy of abstract classes for the usual algebraic structures: sets, groups, algebras, ...) and their GAP counterparts.
-%In a first stage, the alignments are expressed using annotations in the Sage categories.
+%For conciseness, the adapters are generated automatically from \emph{alignments} between the methods from \Sage's \emph{categories} (Sage's hierarchy of abstract classes for the usual algebraic structures: sets, groups, algebras, ...) and their \GAP counterparts.
+%In a first stage, the alignments are expressed using annotations in the \Sage categories.
 %The second stage is to exploit MitM to manage the alignments in order to properly scale from custom one-to-one interfaces to interfaces between multiple systems.
 
 This approach avoids the overhead of back and forth conversions between $A$ and $B$ and enables the manipulation from $A$ of objects of $B$, even if they have no native representation in $A$.
@@ -53,21 +53,21 @@ However, in Jane's scenario, we actually want to convert the objects $r$ between
 
 \subsubsection{API}
 
-In \cite{DehKohKon:iop16} we describe the extraction of some of Sage's API from its \emph{categories}.
+In \cite{DehKohKon:iop16} we describe the extraction of some of \Sage's API from its \emph{categories}.
 This exploited the mathematical knowledge explicitly embedded in the code to cover a fairly large area  of mathematics (hundreds of kinds of algebraic structures such as groups, algebras, fields, ...), with little additional efforts or need to curate the output.
-This extraction did not cover the \emph{constructors}, knowledge about which is critical for (de)serialization, nor other areas of mathematics (graph theory, elliptic curves, ...) where Sage developers currently do not use categories (usually because the involved hierarchies of abstract classes are shallow to maintain by hand).
+This extraction did not cover the \emph{constructors}, knowledge about which is critical for (de)serialization, nor other areas of mathematics (graph theory, elliptic curves, ...) where \Sage developers currently do not use categories (usually because the involved hierarchies of abstract classes are shallow to maintain by hand).
 
 To extract more APIs, we took the following approach:
 \begin{compactenum}
-\item We constructed a list of typical Sage objects.
+\item We constructed a list of typical \Sage objects.
 \item We used introspection to analyze those objects, crawling recursively through their hierarchy of classes to extract constructors and available methods together with some mathematical knowledge.
 \end{compactenum}
 
 At this stage, the list of objects was crafted by hand to cover Jane's scenarios and some others.
-In a later step we plan to take advantage of one of Sage's coding standards: every concrete type must be instantiated at least once in Sage's tests, and the instance be passed
+In a later step we plan to take advantage of one of \Sage's coding standards: every concrete type must be instantiated at least once in \Sage's tests, and the instance be passed
 trough a generic test suite that runs sanity checks for its advertised
 properties (e.g. associativity, ...).
-Therefore, by a simple instrumentation of Sage's test framework, we could run our exporter on a fairly complete collection of Sage objects.
+Therefore, by a simple instrumentation of \Sage's test framework, we could run our exporter on a fairly complete collection of \Sage objects.
 
 The process remains brittle and the export will eventually require much curation:
 \begin{compactitem}
@@ -88,15 +88,15 @@ Nonetheless, we consider this an important first step toward fully automatic ext
 Moreover, we expect further improvements by code annotations in \Sage (e.g., during the ongoing porting of \Sage from \Python 2 to \Python 3) or using type inference in MitM.
 %Here are some potential directions to refine the signatures:
 %\begin{itemize}
-%\item Sage is being ported from \Python 2 to \Python 3 (tentative
+%\item \Sage is being ported from \Python 2 to \Python 3 (tentative
 %  horizon: 2020). The latter enables \emph{gradual typing} in the form
 %  of type annotations in the method parameters and output. Assuming
-%  that the Sage developers community perceives the added value and
+%  that the \Sage developers community perceives the added value and
 %  adopts this programming style, and with some work to setup
-%  mathematically relevant types, we can hope for the Sage library to
+%  mathematically relevant types, we can hope for the \Sage library to
 %  be progressively annotated with mathematically rich semantic. We
 %  will be pushing in this direction.
-%\item Some amount of type inference, either at the Sage or MitM levels.
+%\item Some amount of type inference, either at the \Sage or MitM levels.
 %\end{itemize}
 
 \subsubsection{Serialization and Deserialization}
@@ -114,10 +114,10 @@ executed upon deserialization:
   pg_unreduce(pg_DihedralGroup, (pg_make_integer('4'),), {})
 \end{lstlisting}
 The first three lines recover the constructors for integers and for
-dihedral groups from Sage's library. The last line applies them to
+dihedral groups from \Sage's library. The last line applies them to
 construct successively the integer $4$ and $D_4$.
 
-Up to syntax, this serialization is close to the desired Sage's
+Up to syntax, this serialization is close to the desired \Sage's
 OpenMath dialect\ednote{Add the translation of the above in OpenMath}.
 We are therefore planning to extend \Python's native (de)serializer to
 use \OMMT as an alternative serialization format  (using the \Python library~\cite{py-openmath:on}).
@@ -153,9 +153,9 @@ Here is some motivation for this approach:
   little man power specifically dedicated to OpenMath support.
 
   % There are generic tests; it is an official part of the review
-  % process, etc. All in all Sage is doing relatively well (most objects
+  % process, etc. All in all \Sage is doing relatively well (most objects
   % can be serialized and deserialized safely, often even so in a later
-  % Sage version).
+  % \Sage version).
 
 % - There is a pure Python implementation of the serializer. With some
 %   luck (we still have to dig a bit more into the code), there is not
@@ -206,8 +206,7 @@ Here is some motivation for this approach:
 In \cite{DehKohKon:iop16}, we already described our general approach to extract APIs from the \GAP system.
 We have now improved on this work considerably.
 
-Firstly, we improved the MitM foundation so that the primitives of \GAP's type system can be expressed in the MitM ontology.
-\footnote{We are hopeful that in the future \MMT can even serve as an external type-checker for \GAP.}.
+Firstly, we improved the MitM foundation so that the primitives of \GAP's type system can be expressed in the MitM ontology.\footnote{We are hopeful that in the future \MMT can even serve as an external type-checker for \GAP.}
 \GAP's type system is based on sub-typing: \emph{filters} express finer and finer subtypes of the universal type \lstinline|IsObject|.
 An object in \GAP can learn about its properties, meaning its type is refined at runtime: a group can learn that it is Abelian or nilpotent and change its type accordingly.
 
