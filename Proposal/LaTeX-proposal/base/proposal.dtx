@@ -218,6 +218,9 @@
 %   should not be used for single-institution proposals. We will describe the setup for a
 %   single-site proposal below and point out the differences. The example |proposal.tex|
 %   is a two-site proposal.
+% \item Sometimes it makes sense to document the proposal number in the metadata, e.g. to
+%   use the generated metadata file \meta{main}|.pdata| for project reports. The
+%   |proposalnumber| can be used for that. 
 % \end{compactitem}
 % If the |acronym| and |acrolong| are given, then they automatically define the macros
 % \DescribeMacro{\pn}|\pn| and \DescribeMacro{\pnlong}|\pnlong| which allow to use the
@@ -402,7 +405,11 @@
 % status (usually as short strings prescribed by the proposal template), and |miles| for
 % the milestone this deliverable is targeted for (specified by the milestone
 % identifier). For repeating deliverables (e.g. project reports), both |due| and |miles|
-% can contain comma-separated lists. Deliverables are numbered by labels whose shape can
+% can contain comma-separated lists. The |status| key gives the status of the
+% deliverable. If it has the value |canceled|, then the deliverable is grayed out and it
+% is not mentioned in the deliverables table given by |\inputdelivs| below.
+% 
+%  Deliverables are numbered by labels whose shape can
 % be customized by number, where the shape of the label can be specified by redefining
 % \DescribeMacro{\deliv@label}|\deliv@label| and referenced by
 % \DescribeMacro{\delivref}|\delivref{|\meta{wp}|}{|\meta{id}|}| where \meta{wp} is the
@@ -419,7 +426,8 @@
 % generation in {\LaTeX}. The |wpdeliv| environment writes the deliverable data to a file
 % \meta{main}|.delivs|, which can be processed externally (usually just sorting with
 % |sort| in Unix is sufficient) into \meta{main}|.deliverables|, which is then input via
-% the |\inputdelivs| macro.
+% the |\inputdelivs| macro. Finally, the |issue| key can be used to bind the deliverable
+% to an issue identifier in a project management system.
 % 
 % In some proposals, also work areas can have deliverables, then the above hold
 % analogously for \DescribeMacro{wadelivs}|wpdelivs| and \DescribeMacro{wadeliv}|wadeliv|
@@ -547,6 +555,16 @@
 % that build in |proposal|. For instance the |dfgproposal| class~\cite{Kohlhase:pdrp:ctan}
 % provides an option |german| for german-language proposals and project reports that
 % triggers a redefinition of all of these macros at read time. 
+% 
+% \subsection{Project Management}\label{sec:use:project}
+%
+% Much of the metadata that is explicitly represented in proposals written with the
+% |proposal| class is very useful for project management. For instance, it is possible to
+% use the metadata in the \meta{main}|.pdata| file to generate issues for all the tasks,
+% work packages, and deliverables automatically. The |LaTeX-proposal|
+% repository~\cite{LaTeX-proposal:git} contains an experimental script that automates
+% that. After that, we can cross-reference them using the \DescribeMacro{issue}|issue| key
+% to get extra mileage\ednote{MK: how to use this?}
 %
 % \section{Limitations and Enhancements}\label{sec:limitations}
 % 
@@ -625,8 +643,10 @@
 \RequirePackage{proposal}
 %</cls|reporting>
 %    \end{macrocode}
+% \ednote{We should probably try to move all the grantagreement stuff into the euproposal
+% class.}
 % 
-%    For |proposal.sty| we load the packages we make use of
+%  For |proposal.sty| we load the packages we make use of
 % 
 %    \begin{macrocode}
 %<*sty>
@@ -2644,7 +2664,22 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 %    \end{macrocode}
 % \end{macro}
 % \Finale
-\endinput
+% \endinput
+
+% Local Variables:
+% mode: doctex
+% TeX-master: t
+% End:
+
+%  LocalWords:  localization sec:user-interface standardizes initialization referencable
+%  LocalWords:  pages,start,length,caption sec:implwptable draft,yscale organization
+%  LocalWords:  tab:collaboration sec:limitations sec:implementation ifgrantagreement
+%  LocalWords:  grantagreementfalse grantagreement grantagreementtrue a4paper,twoside
+%  LocalWords:  a4paper,margin alphabetic,defernumbers true,backend bibtex,firstinits
+%  LocalWords:  true,maxbibnames true,linkcolor eso-foot,today proposalnumber grayed
+%  LocalWords:  specializing sortkey,due,label,id,title,type,level,lead gantt@step,very
+%  LocalWords:  gantt@xscale,yscale gantt@ymiles gantt@ymiles subbibliography,type 5,step
+%  LocalWords:  subbibliography,title featured,heading renewbibmacro iffieldundef showit
 % LocalWords:  proposal dtx xkohlhase areastrue svninfo noworkareas twoside emph gitinfo
 % LocalWords:  areasfalse wa textcomp amssymb url graphicx colortbl xcolor RO OJBref sl
 % LocalWords:  fancyhdr keyval eurosym tikz calc USenglish ngerman linkcolor ne WPref gen
@@ -2710,26 +2745,14 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  wpsubsection wpsubsection wpsubsectionfalse wpsubsectiontrue ppl 2pt,color
 % LocalWords:  definecolor medskip fundsuntil fundsuntil defernumbers shortname 2,title
 % LocalWords:  totalduration circ orga notype allpapers allpaperstrue prl sym bbx:eprint
-% LocalWords:  allpapersfalse subbibliography unclass inbook confpapers wphases
-% LocalWords:  inproceedings wspapers notkeyword techreports techreport emphbox
-% LocalWords:  textbackslash wpsectionheadings compactht compactht emphbox sym
-% LocalWords:  dfgproposal Tsanko Tsankov mdframed newmdenv wphase thealltasks
+% LocalWords:  allpapersfalse subbibliography unclass inbook confpapers wphases 2pt,color
+% LocalWords:  inproceedings wspapers notkeyword techreports techreport emphbox newskip
+% LocalWords:  textbackslash wpsectionheadings compactht compactht emphbox sym euproposal
+% LocalWords:  dfgproposal Tsanko Tsankov mdframed newmdenv wphase thealltasks bigcenter
 % LocalWords:  alltasks taskreflong definecolorset leadgray wagray thewpfig fancyhfoffset
 % LocalWords:  wpfigstyle colspan keyvals gantttaskchart baselinestretch NeedsTeXFormat
 % LocalWords:  mileref mileref miletref backref firstinits wissenschaftlicher usebibmacro
-%  LocalWords:  wissenschaftliche startend@wphases addtocategory localdelivref
-
-% \endinput
-% Local Variables:
-% mode: doctex
-% TeX-master: t
-% End:
-%  LocalWords:  localization sec:user-interface standardizes initialization referencable
-%  LocalWords:  pages,start,length,caption sec:implwptable draft,yscale organization
-%  LocalWords:  tab:collaboration sec:limitations sec:implementation ifgrantagreement
-%  LocalWords:  grantagreementfalse grantagreement grantagreementtrue a4paper,twoside
-%  LocalWords:  a4paper,margin alphabetic,defernumbers true,backend bibtex,firstinits
-%  LocalWords:  true,maxbibnames true,linkcolor eso-foot,today proposalnumber
-%  LocalWords:  specializing sortkey,due,label,id,title,type,level,lead gantt@step,very
-%  LocalWords:  gantt@xscale,yscale gantt@ymiles gantt@ymiles subbibliography,type
-%  LocalWords:  subbibliography,title featured,heading renewbibmacro iffieldundef
+%  LocalWords:  wissenschaftliche startend@wphases addtocategory localdelivref trivlist
+%  LocalWords:  numericcites LaTeX-proposal:git numeric,hyperref auto,defernumbers
+%  LocalWords:  9,maxcitenames alphabetic,hyperref bigcentering rightskip parindent
+%  LocalWords:  parfillskip endbigcenter endtrivlist 2,title

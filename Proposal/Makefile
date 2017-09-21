@@ -82,11 +82,11 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
-clean:
-	rm -f *.log *.blg *~ *.synctex.gz *.cut
+clean: 
+	rm -f *~ *.log *.ilg *.out *.glo *.idx *.ilg *.blg *.run.xml *.synctex.gz *.cut
 
 distclean: clean
-	rm -f *.aux *.out *.run.xml *.bbl *.toc *.deliv* *.pdata
+	rm -f *.aux *.ind *.gls *.ps *.dvi *.thm *.out *.run.xml *.bbl *.toc *.deliv* *.pdata *-blx.bib
 	rm -Rf auto
 	rm -f proposal.fls
 echo:

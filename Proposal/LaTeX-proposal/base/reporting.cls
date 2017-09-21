@@ -62,6 +62,8 @@
 \end{center}
 \setcounter{tocdepth}{2}\tableofcontents\newpage\setcounter{page}{1}}
 {}
+
+
 \endinput
 %%
 %% End of file `reporting.cls'.
