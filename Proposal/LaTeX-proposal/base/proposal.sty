@@ -455,6 +455,8 @@
 \@ifundefined{deliv@issue}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
 \@ifundefined{deliv@status}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{status}{\deliv@status}}
 \@ifundefined{deliv@blog}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{blog}{\deliv@blog}}
+\def\@@status@canceled{canceled}
+\ifx\deliv@status\@@status@canceled\else
 \@ifundefined{deliv@due}{}{%
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
@@ -465,8 +467,9 @@
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
 {\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
-{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
-\def\@@status@canceled{canceled}
+{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}% lead
+}%deliv@due defined
+\fi% status != canceled
 {\ifx\deliv@status\@@status@canceled\color{lightgray}\fi
 \item[\current@label\ (%
 \delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},

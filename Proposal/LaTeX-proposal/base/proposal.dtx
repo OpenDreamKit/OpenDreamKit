@@ -1580,8 +1580,11 @@
 \@ifundefined{deliv@status}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{status}{\deliv@status}}
 \@ifundefined{deliv@blog}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{blog}{\deliv@blog}}
 %    \end{macrocode}
-% Then we iterate over the due dates and generate an entry for teach of them.
+% Then we iterate over the due dates and generate an entry for teach of them in the
+% |*.deliverables| file; but only if the status is not |canceled|.
 %    \begin{macrocode}
+\def\@@status@canceled{canceled}
+\ifx\deliv@status\@@status@canceled\else
 \@ifundefined{deliv@due}{}{%
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
@@ -1592,11 +1595,12 @@
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
 {\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
-{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
+{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}% lead
+}%deliv@due defined
+\fi% status != canceled
 %    \end{macrocode}
 % And finally, we generate the entry into the deliverables table. 
 %    \begin{macrocode}
-\def\@@status@canceled{canceled}
 {\ifx\deliv@status\@@status@canceled\color{lightgray}\fi
 \item[\current@label\ (%
 \delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
