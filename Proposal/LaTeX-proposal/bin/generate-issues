@@ -1,0 +1,470 @@
+#!/usr/bin/env ruby
+# Generate GitHub Issues for tasks and deliverables
+# - Each work package gets a WPX/README.md file
+# - Each task gets an Issue
+# - Each deliverable gets a Milestone
+# - Each deliverable gets an Issue associated with its Milestone
+# - Each deliverable Issue gets 'deliverable', 'WPX' tags
+# - Each task Issue gets 'task', 'WPX' tags
+
+# Run me from the proposal dir containing proposal.pdata:
+# cd ~/OpenDreamKit/Proposal
+# ~/path/to/LaTeX-Proposal/bin/generate-issues
+
+require 'date'
+require 'Octokit'
+require 'netrc'
+
+# constants for running the script are for OpenDreamKit
+# update these for your own proposal
+
+START_DATE = Date::new(2015, 9, 1) # start date of the project
+HOMEPAGE = "http://opendreamkit.org"
+PROPOSAL_URL = "https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf"
+PROJECT = "OpenDreamKit"
+REPO = "OpenDreamKit/OpenDreamKit"
+TARGET = "final" # or 'proposal'
+
+# throttle github creation requests to 5 Hz to avoid getting flagged for abuse
+THROTTLE_SECONDS = 5
+
+NATURES = {
+  'R'     => 'Report',
+  'DEM'   => 'Demonstrator',
+  'DEC'   => 'Websites, Media, etc.',
+  'OTHER' => 'Other',
+}
+
+DISSEMINATIONS = {
+  'PU' => 'Public',
+  'CO' => 'Confidential',
+  'CI' => 'Classified',
+}
+
+SITES = {
+  'PS'  => 'Université Paris-Sud',
+  'LL'  => 'Logilab',
+  'UV'  => 'Université de Versailles Saint-Quentin',
+  'UJF' => 'Université Joseph Fourier',
+  'UB'  => 'CNRS',
+  'UO'  => 'University of Oxford',
+  'USH' => 'University of Sheffield',
+  'USO' => 'University of Southampton',
+  'SA'  => 'University of St Andrews',
+  'UW'  => 'University of Warwick',
+  'JU'  => 'Jacobs University Bremen',
+  'UK'  => 'University of Kaiserslautern',
+  'US'  => 'University of Silesia',
+  'ZH'  => 'Universität Zürich',
+  'SR'  => 'Simula Research Laboratory',
+}
+
+REVERSE_SITES = {}
+SITES.each_pair do |key, name|
+  REVERSE_SITES[name] = key
+end
+
+# Some sites would prefer alternative abbreviations
+REVERSE_SITES['University of St Andrews'] = 'USTAN'
+REVERSE_SITES['Université de Versailles Saint-Quentin'] = 'UVSQ'
+
+#------------------- Parsing proposal.pdata ---------------------
+
+def split_line(line)
+  # super primitive state-machine line split (not going to regex this)
+  parts = []
+  level = 0
+  buffer = []
+  line.each_char do |c|
+    case c
+    when '{'
+      if level > 0
+        buffer.push c
+      end
+      level += 1
+    when '}'
+      level -= 1
+      if level > 0
+        buffer.push c
+      end
+      if level == 0
+        parts.push(scrub_tex(buffer.join('')))
+        buffer = []
+      end
+    else
+      if level > 0
+        buffer.push c
+      end
+    end
+  end
+  return parts
+end
+
+
+def scrub_tex(text)
+  # scrub some latex markup from text
+  text.gsub!(/\\\w+/, '')
+  text.gsub!(/[{}]/, '')
+  text.strip.split.join(' ')
+end
+
+
+def transform_value(key, value)
+  case key
+  when 'lead'
+    return SITES[value]
+  when 'partners'
+    return value.split(',').map { |v| SITES[v] }
+  when 'dissem'
+    return DISSEMINATIONS[value]
+  when 'nature'
+    return NATURES[value]
+  when 'month'
+    return value.to_i
+  when 'delivs'
+    return value.split(',')
+  else
+    return scrub_tex(value)
+  end
+end
+
+
+def load_pdata(proposal_dir)
+  pdata = File.join(proposal_dir, "#{TARGET}.pdata")
+  deliv_data = File.join(proposal_dir, "#{TARGET}.deliverables")
+  
+  workpackages = {} # mapping of workpackage id => wp info
+  deliverables = {}
+  
+  File.readlines(pdata).each do |line|
+    key, *args = split_line line
+  
+    case key
+    when 'wp'
+      name, key, value = args
+      value = transform_value(key, value)
+      if not workpackages.include? name
+        workpackages[name] = {
+          "tasks" => {},
+          "unknown-task" => nil,
+          "deliverables" => [],
+        }
+      end
+      wp = workpackages[name]
+      wp[key] = value
+
+    when 'task'
+      name, key, value = args
+      value = transform_value(key, value)
+      # find my workpackage
+      if name.index('@')
+        wpkey, short_name = name.split('@')
+        if short_name.match(/task\d+/)
+          workpackages[wpkey]['unknown-task'] = short_name
+          name = short_name
+        end
+      else
+        wpkey = workpackages.keys.select { |wpkey| name.start_with? wpkey }.first
+      end
+      # handle workpackage@taskNN weirdness
+      wp = workpackages[wpkey]
+      tasks = wp['tasks']
+      if not wp['unknown-task'].nil? and wp['unknown-task'] != name
+        tasks[name] = tasks.delete(wp['unknown-task'])
+        wp['unknown-task'] = nil
+      end
+      if not tasks.include? name
+        tasks[name] = {}
+      end
+      tasks[name][key] = value
+    when 'deliv'
+      name, key, value = args
+      
+      value = transform_value(key, value)
+      if not deliverables.include? name
+        deliverables[name] = {}
+      end
+      deliverables[name][key] = value
+
+    else
+      # DEBUG:
+      # puts "    Ignored: #{args}"
+    end
+  end
+  
+  # get deliverable data, workpackage id from proposal.deliverables
+  File.readlines(deliv_data).each do |line|
+    args = split_line line
+    name = args[3]
+    if deliverables.include? name
+      deliverable = deliverables[name]
+    else
+      deliverable = {}
+    end
+    month = args[0].to_i
+    deliverable = (deliverables[name] or {}).merge({
+      "month" => month,
+      # due date is last day of the given month, so subtract one day
+      "due_date" => (START_DATE >> month) - 1,
+      "label" => scrub_tex(args[2]),
+      "deliv_id" => args[3],
+      "dissem" => transform_value('dissem', args[4]),
+      "nature" => transform_value('nature', args[5]),
+      "title" => scrub_tex(args[6]),
+      "lead" => SITES[scrub_tex(args[8])],
+    })
+    wpid = scrub_tex(args[7])
+    wp = workpackages.values.find {|wp| wp['label'] == wpid}
+    wp['deliverables'].push(deliverable)
+  end
+  
+  workpackages.values.each do |wp|
+    wp['deliverables'].sort_by! {|d| d['label']}
+  end
+  
+  return workpackages.values.sort_by {|wp| wp['label']}
+end
+
+
+#--------------- GitHub-related ---------------------
+
+def check_token
+  # get GitHub auth token, creating one if we don't find it.
+  rc = Netrc.read Netrc.default_path
+  if not rc['api.github.com'].nil?
+    return
+  end
+  puts "We need your password to generate an OAuth token. The password will not be stored."
+  username = ask "Username: "
+  password = ask("Password:  ") { |q| q.echo = '*' }
+  client = Octokit::Client.new(
+    :login => username,
+    :password => password,
+  )
+  reply = client.create_authorization(
+    :scopes => ["public_repo"],
+    :note => "Issue Migration",
+  )
+  token = reply.token
+  rc['api.github.com'] = username, token
+  rc.save
+end
+
+$cache = {
+  'issues' => {},
+  'milestones' => {},
+}
+
+def get_issues(github, repo)
+  # get issues for a repo (cached)
+  cache = $cache['issues']
+  if not cache.include? repo
+    cache[repo] = github.issues(repo)
+  end
+  return cache[repo]
+end
+
+def get_milestones(github, repo)
+  # get issues for a repo (cached)
+  cache = $cache['milestones']
+  if not cache.include? repo
+    cache[repo] = github.list_milestones(repo)
+  end
+  return cache[repo]
+end
+
+# Templates for making readmes, issues
+
+README_TPL = <<-END
+# %{title}
+
+Lead Institution: %{lead}
+
+See page %{page} of the [proposal](#{PROPOSAL_URL}) for the full description.
+END
+
+TASK_TPL = <<-END
+- **%{wplabel}:** [%{wptitle}](https://github.com/#{REPO}/tree/master/%{wplabel})
+- **Lead Institution:** %{lead}
+- **Partners:** %{partners}
+- **Work phases:** %{wphases}
+
+See page %{page} of the [proposal](#{PROPOSAL_URL}) for the full description.
+END
+
+DELIV_TPL = <<-END
+- **%{wplabel}:** [%{wptitle}](https://github.com/#{REPO}/tree/master/%{wplabel})
+- **Lead Institution:** %{lead}
+- **Due:** %{date} (month %{month})
+- **Nature:** %{nature}
+
+See page %{page} of the [proposal](#{PROPOSAL_URL}) for the full description.
+END
+
+DELIV_MILESTONE_TPL = "# %{title}\n\n#{DELIV_TPL}"
+
+
+def make_task_issue(github, repo, task, workpackage, options)
+  title = "#{task['label']}: #{task['title']}"
+  issues = get_issues(github, repo)
+  issue = issues.find { |i| i.title.start_with?(task['label'] + ':') }
+  if issue.nil?
+    body = TASK_TPL % {
+      wplabel: workpackage['label'],
+      wptitle: workpackage['title'],
+      lead: task['lead'],
+      page: task['page'],
+      wphases: task['wphases'],
+      partners: (task['partners'] or ['None']).join(', ')
+    }
+    puts "\n\nMaking Issue on #{repo}: #{title}"
+    puts body
+  
+    github.create_issue(repo, title, body, options)
+    # throttle creation calls to avoid flags for abuse
+    sleep THROTTLE_SECONDS
+  else
+    puts "Found Issue #{repo}##{issue.number}: #{issue.title}"
+    existing_labels = issue.labels.map { |label| label['name']}
+    missing_labels = options[:labels].reject { |label| existing_labels.include? label }
+    if not missing_labels.empty?
+      puts "Updating milestone, labels on #{repo}##{issue.number}"
+      github.update_issue(repo, issue.number, options)
+      sleep THROTTLE_SECONDS
+    end
+  end
+end
+
+
+def make_deliverable_issue(github, repo, deliverable, workpackage, options)
+  title = "#{deliverable['label']}: #{deliverable['title']}"
+  issues = get_issues(github, repo)
+  issue = issues.find { |i| i.title.start_with?(deliverable['label'] + ':') }
+  if issue.nil?
+    body = DELIV_TPL % {
+      wplabel: workpackage['label'],
+      wptitle: workpackage['title'],
+      lead: deliverable['lead'],
+      date: deliverable['due_date'],
+      month: deliverable['month'],
+      nature: deliverable['nature'],
+      page: deliverable['page'],
+    }
+    puts "\n\nMaking Issue on #{repo}: #{title}"
+    puts body
+    github.create_issue(repo, title, body, options)
+    # throttle creation calls to avoid flags for abuse
+    sleep THROTTLE_SECONDS
+  else
+    puts "Found Issue #{repo}##{issue.number}: #{issue.title}"
+    existing_labels = issue.labels.map { |label| label['name']}
+    missing_labels = options[:labels].reject { |label| existing_labels.include? label }
+    if issue.milestone.nil? or not missing_labels.empty?
+      puts "Updating milestone, labels on #{repo}##{issue.number}"
+      github.update_issue(repo, issue.number, options)
+      sleep THROTTLE_SECONDS
+    end
+  end
+end
+
+
+def make_deliverable_milestone(github, repo, deliverable, workpackage)
+  title = deliverable['label']
+  
+  milestone = get_milestones(github, repo).find { |ms| ms.title == title }
+  if milestone.nil?
+    puts "Making milestone on #{repo}: #{title}"
+    body = DELIV_MILESTONE_TPL % {
+      wplabel: workpackage['label'],
+      wptitle: workpackage['title'],
+      title: deliverable['title'],
+      lead: deliverable['lead'],
+      date: deliverable['due_date'],
+      month: deliverable['month'],
+      nature: deliverable['nature'],
+      page: deliverable['page'],
+    }
+  
+    milestone = github.create_milestone(repo, title,
+        :due_on => deliverable['due_date'],
+        :description => body,
+    )
+    # throttle creation calls to avoid flags for abuse
+    sleep THROTTLE_SECONDS
+  else
+    puts "Milestone #{repo}@#{title} exists"
+  end
+  return milestone.number
+end
+
+
+def populate_workpackage(github, repo, workpackage)
+  # populate issues for a given workpackage
+  label = workpackage['label']
+
+  readme_path = "#{label}/README.md"
+  begin
+    github.contents(repo, :path => readme_path)
+  rescue Octokit::NotFound
+    readme = README_TPL % {
+      title: "#{workpackage['label']}: #{workpackage['title']}",
+      lead: workpackage['lead'],
+      page: workpackage['page'],
+    }
+    
+    puts "Creating readme at #{repo}/#{readme_path}"
+    puts readme
+    github.create_contents(repo, readme_path, "Creating #{readme_path}", readme)
+    # throttle creation calls to avoid flags for abuse
+    sleep THROTTLE_SECONDS
+  end
+  
+  workpackage['tasks'].each_value do |task|
+    org_labels = [REVERSE_SITES[task['lead']]] + \
+      (task['partners'] or []).map {|site| REVERSE_SITES[site]}
+    
+    make_task_issue(github, repo, task, workpackage,
+      :labels => [
+        'task',
+        workpackage['label'],
+      ] + org_labels
+    )
+  end
+  workpackage['deliverables'].each do |deliverable|
+    milestone = make_deliverable_milestone(github, repo, deliverable, workpackage)
+    make_deliverable_issue(github, repo, deliverable, workpackage, {
+      :milestone => milestone,
+      :labels => [
+        'deliverable',
+        workpackage['label'],
+        REVERSE_SITES[deliverable['lead']]
+      ]
+    })
+  end
+end
+
+
+def main(proposal_dir)
+  # run the whole thing
+
+  # verify that there's a GitHub token in .netrc
+  check_token
+
+  # create client
+  github = Octokit::Client.new(:netrc => true)
+  github.auto_paginate = true
+
+  load_pdata(proposal_dir).each do |wp|
+    populate_workpackage(github, REPO, wp)
+  end
+end
+
+if __FILE__ == $0
+  puts ARGV
+  if ARGV.length > 1
+    proposal_dir = ARGV[1]
+  else
+    proposal_dir = '.'
+  end
+  main(proposal_dir)
+end
