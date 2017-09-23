@@ -141,6 +141,7 @@
 \define@key{workpackage}{short}{\pdata@def{wp}\wp@id{short}{#1}}
 \define@key{workpackage}{lead}{\pdata@def{wp}\wp@id{lead}{#1}\def\wp@lead{#1}\@dmp{lead=#1}}
 \define@key{workpackage}{type}{\def\wp@type{#1}\pdata@def{wp}\wp@id{type}{#1}}
+\define@key{workpackage}{status}{\def\wp@status{#1}\pdata@def{wp}\wp@id{status}{#1}}
 \define@key{workpackage}{wphases}{\def\wp@wphases{#1}\pdata@def{wp}\wp@id{wphases}{#1}}
 \define@key{workpackage}{swsites}[true]{\def\wp@swsites{#1}}
 \newcommand\wp@mk@title[1]{Work Package {#1}}
@@ -192,7 +193,8 @@
 \if@RAM\edef\@RAM{\pdataref@num\wp@id\@site{RAM}}\addtocounter{wp@RAM}{\@RAM}\fi}
 \pdata@def{wp}\wp@id{RM}{\thewp@RM}%
 \if@RAM\pdata@def{wp}\wp@id{RAM}{\thewp@RAM}\fi%
-\fi}% if@sites
+\fi% if@sites
+\ifx\wp@status\@@status@canceled\color{lightgray}\fi}
 {\@ifundefined{@tasks}{}{\pdata@def{\wp@id}{task}{ids}\@tasks}}
 \newenvironment{workpackage}[1][]%
 {\begin{work@package}[#1]%
@@ -201,7 +203,8 @@
 \else\subsubsection*{{\wptitle} (\wprm)}\fi%
 \addcontentsline{toc}{paragraph}{{\wp@mk@title\thewp}: \pdataref{wp}\wp@id{title}}%
 \noindent\ignorespaces%
-\fi}
+\fi
+\ifx\wp@status\@@status@canceled\color{lightgray}\fi}
 {\end{work@package}}
 \newcommand\wptitle{\wp@mk@title{\wp@num}: \pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}
 \newcommand\wprm{\pdataref@safe{wp}\wp@id{RM}\if@RAM\ RM+\pdataref{wp}\wp@id{RAM} RAM\fi}
@@ -316,6 +319,8 @@
 \define@key{task}{partners}{\def\task@partners{#1}}
 \define@key{task}{PM}{\def\task@PM{#1}}
 \define@key{task}{issue}{\def\task@issue{#1}}
+\define@key{task}{status}{\def\task@status{#1}}
+\def\@@status@canceled{canceled}
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}\def\task@title{}
 \setkeys{task}{#1}}
@@ -327,9 +332,10 @@
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}%
 \@task{#1}%
+\ifx\task@status\@@status@canceled\color{lightgray}\fi
 \item[\pdata@target{task}{\taskin\task@id\wp@id}%
 {\ifwork@areas\task@label\thewa\thewp\thetask@wp\else\task@label\thewp\thetask@wp\fi}]%
-\ifx\task@title\@empty\else\textbf\task@title\fi\task@post@title@space%
+\textbf\task@title\task@post@title@space%
 \def\@initial{0-0}%
 \ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
@@ -455,6 +461,7 @@
 \@ifundefined{deliv@issue}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{issue}{\deliv@issue}}
 \@ifundefined{deliv@status}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{status}{\deliv@status}}
 \@ifundefined{deliv@blog}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{blog}{\deliv@blog}}
+\ifx\deliv@status\@@status@canceled\else
 \@ifundefined{deliv@due}{}{%
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
@@ -465,7 +472,10 @@
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
 {\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
-{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
+{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}% lead
+}%deliv@due defined
+\fi% status != canceled
+{\ifx\deliv@status\@@status@canceled\color{lightgray}\fi
 \item[\current@label\ (%
 \delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
 \delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
@@ -482,7 +492,9 @@
  \expandafter\ifx\csname\@I delivs\endcsname\relax% Check that the miles@delivs is empty
   {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id @\deliv@id}}% if so, skip the separator
    \else\expandafter\xdef\csname\@I delivs\endcsname%if not add it
-      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}}
+      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}%
+}% end gray color
+}
 \newenvironment{wadeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wa}\else\deliv@error\fi}{}
 \newenvironment{wpdeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wp}\else\deliv@error\fi}{}
 \newcommand\milestone@label[1]{M{#1}}
@@ -1060,6 +1072,8 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
   \iftoggle{bbx:url}
     {\usebibmacro{url+urldate}}
     {}}
+
+
 \endinput
 %%
 %% End of file `proposal.sty'.
