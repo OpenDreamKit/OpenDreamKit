@@ -8,7 +8,7 @@ reports: $(REPORTS)
 reports.zip: $(REPORTS)
 	rm -rf /tmp/reports
 	mkdir /tmp/reports
-	for deliverable in $(REPORTS); do cp $$deliverable/report.pdf /tmp/reports/`basename $$deliverable`.pdf; done
+	for report in $(REPORTS); do echo $$report; cp $$report /tmp/reports/`basename \`dirname $$report\``.pdf; done
 	zip -r --junk-paths reports.zip /tmp/reports
 
 WP%/deliverablereport.cls: Proposal/deliverablereport.cls
