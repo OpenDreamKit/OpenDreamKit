@@ -1,7 +1,7 @@
 % \iffalse meta-comment
 % A class for preparing general proposals, to be instantiated for particular donors
 %
-% Copyright (c) 2011 Michael Kohlhase, all rights reserved
+% Copyright (c) 2017 Michael Kohlhase, all rights reserved
 %
 % This file is distributed under the terms of the LaTeX Project Public
 % License from CTAN archives in directory  macros/latex/base/lppl.txt.
@@ -218,6 +218,9 @@
 %   should not be used for single-institution proposals. We will describe the setup for a
 %   single-site proposal below and point out the differences. The example |proposal.tex|
 %   is a two-site proposal.
+% \item Sometimes it makes sense to document the proposal number in the metadata, e.g. to
+%   use the generated metadata file \meta{main}|.pdata| for project reports. The
+%   |proposalnumber| can be used for that. 
 % \end{compactitem}
 % If the |acronym| and |acrolong| are given, then they automatically define the macros
 % \DescribeMacro{\pn}|\pn| and \DescribeMacro{\pnlong}|\pnlong| which allow to use the
@@ -402,7 +405,11 @@
 % status (usually as short strings prescribed by the proposal template), and |miles| for
 % the milestone this deliverable is targeted for (specified by the milestone
 % identifier). For repeating deliverables (e.g. project reports), both |due| and |miles|
-% can contain comma-separated lists. Deliverables are numbered by labels whose shape can
+% can contain comma-separated lists. The |status| key gives the status of the
+% deliverable. If it has the value |canceled|, then the deliverable is grayed out and it
+% is not mentioned in the deliverables table given by |\inputdelivs| below.
+% 
+%  Deliverables are numbered by labels whose shape can
 % be customized by number, where the shape of the label can be specified by redefining
 % \DescribeMacro{\deliv@label}|\deliv@label| and referenced by
 % \DescribeMacro{\delivref}|\delivref{|\meta{wp}|}{|\meta{id}|}| where \meta{wp} is the
@@ -419,7 +426,8 @@
 % generation in {\LaTeX}. The |wpdeliv| environment writes the deliverable data to a file
 % \meta{main}|.delivs|, which can be processed externally (usually just sorting with
 % |sort| in Unix is sufficient) into \meta{main}|.deliverables|, which is then input via
-% the |\inputdelivs| macro.
+% the |\inputdelivs| macro. Finally, the |issue| key can be used to bind the deliverable
+% to an issue identifier in a project management system.
 % 
 % In some proposals, also work areas can have deliverables, then the above hold
 % analogously for \DescribeMacro{wadelivs}|wpdelivs| and \DescribeMacro{wadeliv}|wadeliv|
@@ -547,6 +555,16 @@
 % that build in |proposal|. For instance the |dfgproposal| class~\cite{Kohlhase:pdrp:ctan}
 % provides an option |german| for german-language proposals and project reports that
 % triggers a redefinition of all of these macros at read time. 
+% 
+% \subsection{Project Management}\label{sec:use:project}
+%
+% Much of the metadata that is explicitly represented in proposals written with the
+% |proposal| class is very useful for project management. For instance, it is possible to
+% use the metadata in the \meta{main}|.pdata| file to generate issues for all the tasks,
+% work packages, and deliverables automatically. The |LaTeX-proposal|
+% repository~\cite{LaTeX-proposal:git} contains an experimental script that automates
+% that. After that, we can cross-reference them using the \DescribeMacro{issue}|issue| key
+% to get extra mileage\ednote{MK: how to use this?}
 %
 % \section{Limitations and Enhancements}\label{sec:limitations}
 % 
@@ -625,8 +643,10 @@
 \RequirePackage{proposal}
 %</cls|reporting>
 %    \end{macrocode}
+% \ednote{We should probably try to move all the grantagreement stuff into the euproposal
+% class.}
 % 
-%    For |proposal.sty| we load the packages we make use of
+%  For |proposal.sty| we load the packages we make use of
 % 
 %    \begin{macrocode}
 %<*sty>
@@ -1024,6 +1044,7 @@
 \define@key{workpackage}{short}{\pdata@def{wp}\wp@id{short}{#1}}
 \define@key{workpackage}{lead}{\pdata@def{wp}\wp@id{lead}{#1}\def\wp@lead{#1}\@dmp{lead=#1}}
 \define@key{workpackage}{type}{\def\wp@type{#1}\pdata@def{wp}\wp@id{type}{#1}}
+\define@key{workpackage}{status}{\def\wp@status{#1}\pdata@def{wp}\wp@id{status}{#1}}
 \define@key{workpackage}{wphases}{\def\wp@wphases{#1}\pdata@def{wp}\wp@id{wphases}{#1}}
 \define@key{workpackage}{swsites}[true]{\def\wp@swsites{#1}}
 %    \end{macrocode}
@@ -1124,7 +1145,8 @@
 \if@RAM\edef\@RAM{\pdataref@num\wp@id\@site{RAM}}\addtocounter{wp@RAM}{\@RAM}\fi}
 \pdata@def{wp}\wp@id{RM}{\thewp@RM}%
 \if@RAM\pdata@def{wp}\wp@id{RAM}{\thewp@RAM}\fi%
-\fi}% if@sites
+\fi% if@sites
+\ifx\wp@status\@@status@canceled\color{lightgray}\fi}
 {\@ifundefined{@tasks}{}{\pdata@def{\wp@id}{task}{ids}\@tasks}}
 %    \end{macrocode}
 %  \end{environment}
@@ -1142,7 +1164,8 @@
 \else\subsubsection*{{\wptitle} (\wprm)}\fi%
 \addcontentsline{toc}{paragraph}{{\wp@mk@title\thewp}: \pdataref{wp}\wp@id{title}}%
 \noindent\ignorespaces%
-\fi}
+\fi
+\ifx\wp@status\@@status@canceled\color{lightgray}\fi}
 {\end{work@package}}
 %    \end{macrocode}
 %  \end{environment}
@@ -1327,6 +1350,8 @@
 \define@key{task}{partners}{\def\task@partners{#1}}
 \define@key{task}{PM}{\def\task@PM{#1}}
 \define@key{task}{issue}{\def\task@issue{#1}}
+\define@key{task}{status}{\def\task@status{#1}}
+\def\@@status@canceled{canceled}
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}\def\task@title{}
 \setkeys{task}{#1}}
@@ -1354,9 +1379,10 @@
 \newenvironment{task}[1][]%
 {\stepcounter{alltasks}%
 \@task{#1}%
+\ifx\task@status\@@status@canceled\color{lightgray}\fi
 \item[\pdata@target{task}{\taskin\task@id\wp@id}%
 {\ifwork@areas\task@label\thewa\thewp\thetask@wp\else\task@label\thewp\thetask@wp\fi}]%
-\ifx\task@title\@empty\else\textbf\task@title\fi\task@post@title@space%
+\textbf\task@title\task@post@title@space%
 %    \end{macrocode}
 % now we decode and show the work phases on the task, if they have been specified.
 %    \begin{macrocode}
@@ -1566,6 +1592,9 @@
 \@ifundefined{deliv@short}
 {\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{short}{#2}}
 {\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{short}{\deliv@short}}
+%    \end{macrocode}
+% and now the error messages
+%    \begin{macrocode}
 \@ifundefined{deliv@nature}
 {\protect\G@refundefinedtrue\@latex@warning{key 'nature' for Deliv \wpg@id undefined}}
 {\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{nature}{\deliv@nature}}
@@ -1580,8 +1609,10 @@
 \@ifundefined{deliv@status}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{status}{\deliv@status}}
 \@ifundefined{deliv@blog}{}{\pdata@def{deliv}{\taskin\deliv@id\wpg@id}{blog}{\deliv@blog}}
 %    \end{macrocode}
-% Then we iterate over the due dates and generate an entry for teach of them.
+% Then we iterate over the due dates and generate an entry for teach of them in the
+% |*.deliverables| file; but only if the status is not |canceled|.
 %    \begin{macrocode}
+\ifx\deliv@status\@@status@canceled\else
 \@ifundefined{deliv@due}{}{%
 \@for\@I:=\deliv@due\do{\protected@write\wpg@delivs{}{\string\deliverable%
 {\ifnum\@I<10 0\@I\else\@I\fi}% sort key
@@ -1592,10 +1623,13 @@
 {\@ifundefined{deliv@nature}{??}{\deliv@nature}}% nature
 {#2}
 {\ifx\@type\@wp{WP\ifwork@areas\thewa.\fi\thewp}\else{WA\thewa}\fi}%WP
-{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}}% lead
+{\@ifundefined{deliv@lead}{??}{\string\site{\deliv@lead}}}}}% lead
+}%deliv@due defined
+\fi% status != canceled
 %    \end{macrocode}
 % And finally, we generate the entry into the deliverables table. 
 %    \begin{macrocode}
+{\ifx\deliv@status\@@status@canceled\color{lightgray}\fi
 \item[\current@label\ (%
 \delivs@legend@due: \@ifundefined{deliv@due}{??}{\deliv@due},
 \delivs@legend@nature: \@ifundefined{deliv@nature}{??}{\deliv@nature},
@@ -1612,7 +1646,9 @@
  \expandafter\ifx\csname\@I delivs\endcsname\relax% Check that the miles@delivs is empty
   {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id @\deliv@id}}% if so, skip the separator
    \else\expandafter\xdef\csname\@I delivs\endcsname%if not add it
-      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}}
+      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}%
+}% end gray color
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2636,7 +2672,22 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 %    \end{macrocode}
 % \end{macro}
 % \Finale
-\endinput
+% \endinput
+
+% Local Variables:
+% mode: doctex
+% TeX-master: t
+% End:
+
+%  LocalWords:  localization sec:user-interface standardizes initialization referencable
+%  LocalWords:  pages,start,length,caption sec:implwptable draft,yscale organization
+%  LocalWords:  tab:collaboration sec:limitations sec:implementation ifgrantagreement
+%  LocalWords:  grantagreementfalse grantagreement grantagreementtrue a4paper,twoside
+%  LocalWords:  a4paper,margin alphabetic,defernumbers true,backend bibtex,firstinits
+%  LocalWords:  true,maxbibnames true,linkcolor eso-foot,today proposalnumber grayed
+%  LocalWords:  specializing sortkey,due,label,id,title,type,level,lead gantt@step,very
+%  LocalWords:  gantt@xscale,yscale gantt@ymiles gantt@ymiles subbibliography,type 5,step
+%  LocalWords:  subbibliography,title featured,heading renewbibmacro iffieldundef showit
 % LocalWords:  proposal dtx xkohlhase areastrue svninfo noworkareas twoside emph gitinfo
 % LocalWords:  areasfalse wa textcomp amssymb url graphicx colortbl xcolor RO OJBref sl
 % LocalWords:  fancyhdr keyval eurosym tikz calc USenglish ngerman linkcolor ne WPref gen
@@ -2702,26 +2753,14 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  wpsubsection wpsubsection wpsubsectionfalse wpsubsectiontrue ppl 2pt,color
 % LocalWords:  definecolor medskip fundsuntil fundsuntil defernumbers shortname 2,title
 % LocalWords:  totalduration circ orga notype allpapers allpaperstrue prl sym bbx:eprint
-% LocalWords:  allpapersfalse subbibliography unclass inbook confpapers wphases
-% LocalWords:  inproceedings wspapers notkeyword techreports techreport emphbox
-% LocalWords:  textbackslash wpsectionheadings compactht compactht emphbox sym
-% LocalWords:  dfgproposal Tsanko Tsankov mdframed newmdenv wphase thealltasks
+% LocalWords:  allpapersfalse subbibliography unclass inbook confpapers wphases 2pt,color
+% LocalWords:  inproceedings wspapers notkeyword techreports techreport emphbox newskip
+% LocalWords:  textbackslash wpsectionheadings compactht compactht emphbox sym euproposal
+% LocalWords:  dfgproposal Tsanko Tsankov mdframed newmdenv wphase thealltasks bigcenter
 % LocalWords:  alltasks taskreflong definecolorset leadgray wagray thewpfig fancyhfoffset
 % LocalWords:  wpfigstyle colspan keyvals gantttaskchart baselinestretch NeedsTeXFormat
 % LocalWords:  mileref mileref miletref backref firstinits wissenschaftlicher usebibmacro
-%  LocalWords:  wissenschaftliche startend@wphases addtocategory localdelivref
-
-% \endinput
-% Local Variables:
-% mode: doctex
-% TeX-master: t
-% End:
-%  LocalWords:  localization sec:user-interface standardizes initialization referencable
-%  LocalWords:  pages,start,length,caption sec:implwptable draft,yscale organization
-%  LocalWords:  tab:collaboration sec:limitations sec:implementation ifgrantagreement
-%  LocalWords:  grantagreementfalse grantagreement grantagreementtrue a4paper,twoside
-%  LocalWords:  a4paper,margin alphabetic,defernumbers true,backend bibtex,firstinits
-%  LocalWords:  true,maxbibnames true,linkcolor eso-foot,today proposalnumber
-%  LocalWords:  specializing sortkey,due,label,id,title,type,level,lead gantt@step,very
-%  LocalWords:  gantt@xscale,yscale gantt@ymiles gantt@ymiles subbibliography,type
-%  LocalWords:  subbibliography,title featured,heading renewbibmacro iffieldundef
+%  LocalWords:  wissenschaftliche startend@wphases addtocategory localdelivref trivlist
+%  LocalWords:  numericcites LaTeX-proposal:git numeric,hyperref auto,defernumbers
+%  LocalWords:  9,maxcitenames alphabetic,hyperref bigcentering rightskip parindent
+%  LocalWords:  parfillskip endbigcenter endtrivlist 2,title

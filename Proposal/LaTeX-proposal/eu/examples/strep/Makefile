@@ -17,7 +17,7 @@ TARGET = $(TSIMP) $(TBIB)                         # all pdflatex targets
 TBIB.pdf 	= $(TBIB:%.tex=%.pdf)         	  # PDFs to be produced
 TBIB.aux 	= $(TBIB:%.tex=%.aux)             # their aux files.
 PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
-SRC = $(filter-out $(TARGET),$(shell ls *.tex))   # included files
+SRC = $(filter-out $(TARGET),$(shell ls *.tex */*.tex))   # included files
 PDFLATEX = pdflatex -interaction batchmode -file-line-error
 BBL = $(PROPOSAL:%.tex=%.bbl)
 PROPCLS.dir = $(PROP.dir)/base
@@ -25,6 +25,8 @@ PROPETC.dir = $(PROP.dir)/etc
 EUPROPCLS.dir = $(PROP.dir)/eu
 TEXINPUTS := .//:$(PROPCLS.dir)//:$(EUPROPCLS.dir)//:$(PROPETC.dir)//:
 BIBINPUTS := ../lib:$(BIBINPUTS)
+export TEXINPUTS
+export BIBINPUTS
 PROPCLS.clssty = proposal.cls pdata.sty
 PROPETC.sty = workaddress.sty metakeys.sty sref.sty
 EUPROPCLS.clssty = euproposal.cls
@@ -33,10 +35,13 @@ PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(EUPROPCLS.clssty:%=$(EUPROPCLS.
 all: $(TBIB.pdf) $(TSIMP.pdf)
 
 submit:
-	$(MAKE) -w PROPOSAL=final.tex all
+	$(MAKE) $(MAKEFLAGS) -w PROPOSAL=final.tex all
 
 public:
-	$(MAKE) -w PROPOSAL=public.tex all
+	$(MAKE) $(MAKEFLAGS) -w PROPOSAL=public.tex all
+
+grantagreement:
+	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W grantagreement.tex all
 
 bbl:	$(BBL)
 $(BBL): %.bbl: %.aux

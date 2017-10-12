@@ -4,60 +4,40 @@
 \end{figure}
 
 Figure~\ref{fig:mitmpoc} shows the overall architecture with an MitM server as the central mediator.
-All arrows represent the transfer of \OMMT ojbects via SCSCP.
+All arrows represent the transfer of \OMMT objects via SCSCP.
 Critically, the MitM server also implements alignments and uses them to convert between system dialects.
 
 We have extended the \MMT system~\cite{Rabe:MAGMS13} with an SCSCP server/client so that it can receive objects from computation systems and generates calls to others.
 For the \GAP server, we built on pre-existing \SCSCP support.
 To obtain an \SCSCP server for \Singular, which does not have native \SCSCP support, we wrapped \Singular in a python script that includes the \lstinline|pyscscp| library~\cite{py-scscp:on}.
-In \Sage, we directly programmed the client interface to the MitM server.
+In \Sage, we directly programmed the client interface to the MitM server. 
 
-The numbers on the edges indicate the order of communications when processing Jane's use case.
-Initially, Jane has already built in \Sage the ring $R=\mathbb{Z}[X_1,X_2,X_3,X_4]$, the group $G=D_4$, and the action $A$ of $G$ on $R$ that permutes the variables, and the polynomial $q = 3*X_1 + 2*X_2$.
-She now calls \lstinline|MitM.Singular(MitM.Gap.orbit(G, A, q)).Ideal().Groebner().sage()|, which results in the following steps:
+The resulting system forms the nucleus of the OpenDreamKit interoperability layer. It can already delegate computations between the three participating system  as long as they are covered by the MitM ontology, the alignments, and the system APIs. 
+
+\paragraph{Case Study: Jane's Example} 
+
+Initially, Jane has already built in \Sage the ring $R=\mathbb{Z}[X_1,X_2,X_3,X_4]$, the group $G=D_4$, and the action $A$ of $G$ on $R$ that permutes the variables, and the polynomial $p = 3\cdot X_1 + 2\cdot X_2$.  She now calls \lstinline|MitM.Singular(MitM.Gap.orbit(G, A, p)).Ideal().Groebner().sage()|, which results in the following steps (the numbers on the edges indicate the order of communications when processing Jane's use case):
 \begin{compactenum}
   \item Jane uses \Sage to call the MitM server with the respective \Sage object, along with metadata about which system should be used for which computation.
-  \item The MitM server translates \lstinline|MitM.Gap.orbit(G, A, q)| to the \GAP system dialect and sends it to \GAP.
+  \item The MitM server translates \lstinline|MitM.Gap.orbit(G, A, p)| to the \GAP system dialect and sends it to \GAP.
   \item \GAP returns the orbit $O$.
   \item The MitM server translates \lstinline|MitM.Singular(O).Ideal().Groebner()| to the \Singular system dialect and sends it to \Singular.
   \item \Singular returns the Gröbner base $B$.
-  \item The MitM server translates \lstinline|B| to the \Sage system dialect and sends it to \Sage, where the result is shown to Jane.
+  \item The MitM server translates $B$ to the \Sage system dialect and sends it to \Sage, where the result is shown to Jane.
 \end{compactenum}
 
-\ednote{FR@all: Does my description match what is happening? We have to discuss this and probably adapt the implementation accordingly.}
+\paragraph{Another use-case}
 
-% \begin{oldpart}{MK: just copied here; Victor writes\\
-%     ``\emph{A peer-to-peer connection must be made with the CAS servers, so that CAS
-%       servers can, in turn, query MitM if during a computation they encounter a concept
-%       that lies outside their field of knowledge. In application to this particular case,
-%       it would be cleaner if, instead of asking MitM to produce permutations of a list,
-%       the client simply queries MitM for the orbit of a polynomial by defining an action
-%       of a member of the symmetric group on a polynomial. \GAP would then be able to
-%       calculate the orbit by making the group act on the polynomial with the described
-%       action and querying MitM for equality of polynomials, resulting in a linear-time
-%       algorithm instead of quadratic-time behaviour displayed by the current client.}''  I
-%     do not quite understand the maths here, maybe we can stillmake this happen?}
-%   The control script follows the procedure:\ednote{MK: for this to make sense we would
-%     have to describe what problem we want to solve.}
-% \begin{enumerate}
-%   \item Create an OpenMath polynomial.
-%   \item Obtain a symmetric group of size that is equal to the number of variables 
-%     in the polynomial from MitM.
-%   \item Using the obtained group, query MitM for all permutations of the list 
-%     of variables.
-%   \item Create polynomials from the permutations of the list of variables.
-%   \item Filter out the duplicate polynomials by querying MitM for equality of 
-%     polynomials.
-% \end{enumerate}
-% While this is very much a brute-force algorithm to calculate an orbit of a
-% polynomial, it showcases the ability of the client to query the MitM server that 
-% is then forced to use multiple CAS without the client needing any knowledge of the
-% underlying systems.
-% \end{oldpart}
+Suppose Jon, one of Jane's colleagues prefers working in \GAP, and he wants to compute the Galois group of the rational polynomial $p = x^5 - 2$.
+He discovers the \GAP package \texttt{radiroot}, which promises this functionality, but unfortunately the package does not work for this polynomial and thus \GAP alone cannot solve Jon's problem.
 
-%The \Sage client behaves exactly as described in
-%Section~\ref{sec:mitm:comms}\ednote{MK@NT/TW; it seems that we will have time to
-%  implement this after the extension. So we should make it happen.}
+Jon hears from Jane that he should use \Sage, because she knows it can compute Galois groups, so he tries calling \lstinline|G := MitM("Sage", "GaloisGroup", p)|in \GAP which gives him the desired Galois group as a \GAP permutation group. 
+
+Jon, being a proficient \GAP user, also knows that he can now install a \emph{method} in \GAP that will compute the Galois group of any rational polynomial transparently for him whenever he calls \lstinline|GaloisGroup| for a rational polynomial in \GAP. \ednote{@MP: Can you just say how that method installation looks? I suspect that this is a one-liner, if so, I would like to see it here}
+And thus the 300-line\ednote{MK@MP: please give the correct number} \lstinline|radiroot| package can be replaced by a one-line extension in GAP, taking advantage of the work of the SAGEMath community, and participating in any future improvements of \Sage. In fact Sage uses the PARI system -- another of the OpenDreamKit systems -- for the computation. 
+So in the future \GAP might directly delegate to PARI instead, bypassing the need of iterated translations.  
+
+% $p =x^4-x^3-x^2+x+1$ over $\mathbb{Q}$ would have D_8 as galois group again...
 
 %%% Local Variables:
 %%% mode: latex
@@ -66,4 +46,5 @@ She now calls \lstinline|MitM.Singular(MitM.Gap.orbit(G, A, q)).Ideal().Groebner
 
 %  LocalWords:  sec:case fig:mitmpoc IanJucKoh:sdm14,MathHub:on summarize sec:cgt pyscscp
 %  LocalWords:  twiesing:msc17 centering tikzinput gap_singular_mitm_fig lstinline emph
-%  LocalWords:  py-scscp:on oldpart
+%  LocalWords:  py-scscp:on oldpart mathbb cdot cdot Groebner Gröbner radiroot jist
+%  LocalWords:  GaloisGroup galois

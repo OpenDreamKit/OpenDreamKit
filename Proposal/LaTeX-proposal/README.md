@@ -1,4 +1,4 @@
-# LaTeX-proposal:  A set of LaTeX classes for preparing proposals proposals
+# LaTeX-proposal:  A set of LaTeX classes for preparing proposals
 
 Writing grant proposals is a collaborative effort that requires the integration of
 contributions from many individuals. The use of an ASCII-based format like LATEX allows to

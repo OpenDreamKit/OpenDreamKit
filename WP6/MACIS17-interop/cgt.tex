@@ -1,12 +1,12 @@
 Jane's use case involves groups and actions, polynomials, rings and ideals, and Gröbner bases, all of which must be formalized in the MitM ontology.
 Due to space restrictions, we only describe the ontology for computational group theory (CGT) as an example.
 This formalization can be found at~\cite{mitm:groups:on}.
-\ednote{FR@all: This section is incomplete -  it lacks the description rings etc. This must be fixed but cannot be fixed on short notice. So I'm carefully phrasing this paragraph to work around it.}
+% \ednote{FR@all: This section is incomplete -  it lacks the description rings etc. This must be fixed but cannot be fixed on short notice. So I'm carefully phrasing this paragraph to work around it.}
 
 \subsection{Type Theory and Logic}
 
 \OMMT formalizations must be relative to foundational logic, which is itself formalized in \OMMT.
-As foundation for all formalizations in MitM~\cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
+As foundation for all formalizations in MitM \cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
 It provides dependent function types \lstinline|{a:A}B(a)|, representing the type of all functions mapping an argument \lstinline|a:A| to some element of type \lstinline|B(a)|. If \lstinline|B| does not depend on the argument \lstinline|a|, we obtain the simple function type \lstinline[mathescape]|A$\to$B|.
 
 For formulas, we use a type \lstinline|prop| and a higher order logic where quantifiers range over any type.
@@ -22,19 +22,15 @@ The latter makes type-checking undecidable, but that is necessary for natural fo
 \end{wrapfigure}
 
 Additionally we extend our type theory with record types, which is critical for formalizing mathematical structures.
-In particular,\lstinline|ModelsOf T| is the record type of models of the theory \lstinline|T|.
+In particular, \lstinline|ModelsOf T| is the record type of models of the theory \lstinline|T|.
 This lets us, e.g., define groups by the theory of operations and its signature and axioms, while \lstinline|group=ModelsOf group_theory| is the type of all models of said theory, i.e., all groups, as seen in Figure~\ref{fig:mitm1}.
 Any element \lstinline|g:group| thus represents an actual group, whose operations and axioms can be accessed via record field projections (e.g. \lstinline|g.inverse| yields the inverse operation of \lstinline|g|.
 Since axioms are turned into record type fields as well, actually constructing a record of type \lstinline|group| corresponds to proving that the field \lstinline|universe| and the operations provided in the record do in fact form a group.
 
 \subsection{Group Theory}
 
-Our formalization of CGT follows the template of its implementation in \GAP, and
-requires different levels of abstraction, currently \emph{abstract},
-\emph{representation}, \emph{implementation}, and \emph{concrete}. From our
-experience, we expect this pattern to be applicable across computational
-algebra, possibly with additional levels of abstraction. The left box in Figure
-\ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP.
+Our formalization of CGT follows the template of its implementation in \GAP, and requires different levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
+The left box in Figure \ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP.
 
 \begin{figure}[ht]\centering
   \tikzinput[width=.98\textwidth]{alignmentimg}
@@ -89,8 +85,7 @@ subgroup of $S_{[1..n]}$, where $n$ is the largest point moved.
 
 It is at the concrete level where the computation happens: while the higher levels
 are suitable for mathematical deduction and inference, this level is where \GAP
-(or another system providing computational group theory) does its work.
-
+(or any other system providing computational group theory) does its work.
 If a group (or a group action) has been constructed by giving generators
 through MitM, \GAP can now compute the size of the group, its isomorphism type,
 and perform all the other operations that are available via the \GAP system
@@ -139,4 +134,4 @@ dialect.
 %  LocalWords:  mathbb fig:cgtontology alignmentimg smallskip subtyping organization
 %  LocalWords:  centering tikzinput textwidth rotercentations lstinline lstinline vdash
 %  LocalWords:  type:kind mathescape conclusio fig:mitm1 g:group includegraphics mitm1
-%  LocalWords:  lstlisting
+%  LocalWords:  lstlisting Gröbner formalized formalizing
