@@ -1,35 +1,29 @@
 % !TEX root = ../thesis.tex
 \section{Accessing Virtual Theories}\label{sec:access}
 
-We now address \textbf{P2}: lifting communication to the semantic representation.
-Intuitively, it is straightforward how to fill a virtual theory $V$: $V$ is represented by an initially empty concrete theory $V'$, and whenever an identifier $id$ of $V$ is requested, \mmt dynamically adds the corresponding declaration of $id$ to $V'$.
+We now address \textbf{P2}: lifting physical to semantic representations.
+Intuitively, it is straightforward how to implement a virtual theory $V$: we use an initially empty concrete theory $C$, and whenever an identifier $id$ of $V$ is requested, \mmt dynamically adds the corresponding declaration of $id$ to $C$.
 \mmt already abstracts from the physical realizations of persistent storage using the \emph{backend} interface: essentially a backend is any component that allows loading declarations.
-Thus, we only have to implement a new backend that connects to \lmfdb, retrieves the JSON object with identifier $id$, and turns into an \ommt declaration.
+Thus, we only have to implement a new backend that connects to \lmfdb, retrieves the JSON object with identifier $id$, and turns it into an \ommt declaration.
 
-However, this glosses over a major problem: the databases used for the physical storage of large datasets usually relatively simple data structure.
+However, this glosses over a major problem: the databases used for the scalable physical storage of large datasets usually offer only very simple data structures.
 For example, a JSON database (as underlies \lmfdb) offers only limited-precision integers, boolean, strings, lists, and records as primitive objects and does not provide a type system.
 Consequently, the objects stored in the database are very different from the sophisticated mathematical objects expected by the schema theory.
 Therefore, databases like \lmfdb must encode this complex mathematical objects as simple database objects.
 
 \subsection{Concrete Encodings of Mathematical Objects}\label{sec:vt:translation}
 
-Consider, for example the \identifier{degree} field from Figure~\ref{fig:lmfdbexample} above, with value $1$, representing the degree of this curve. 
-However inside the database it is represented as the \identifier{IEEE 754} $64$-bit floating point number $1.0$. 
-When the semantic representation exceeds the maximum possible value $2^{53}-1$ of IEEE floats, \lmfdb needs to use a different encoding, e.g. JSON strings that have no hard upper limit.
+Consider, for example, the field \identifier{degree} from Figure~\ref{fig:lmfdbexample} above.
+Its \emph{semantic} type in the MitM-formalization is $\mathbb{Z}$.
+However, its \emph{physical} type in \lmfdb is \identifier{IEEE 754} a mixture of $64$-bit floating point numbers and strings:
+integers that exceeds $2^{53}-1$ are stored as JSON strings containing the corresponding decimal representation.
+We speak of \emph{encoding} when translating semantic objects to their physical representations and of \emph{decoding} in the dual case, and we speak of \emph{codecs} when referring to a pair of an encoding and a decoding function.
 
-Let us call the set of objects in semantic representation the \textbf{semantic type}, and the set of objects in the physical representation the \textbf{realized type}. 
-Semantic types reside in the MiTM ontology, whereas realized types describe structures of the systems themselves -- here the tables in the \lmfdb. 
-Corresponding with intuition, the process of converting between the two representations is called \textbf{coding}, specifically coding into a semantic representation is called \textbf{encoding}, the reverse is called \textbf{decoding}. 
-We will call system components that do the necessary translation -- \underline{co}ding and \underline{dec}oding -- \textbf{CoDec}s. 
-
-As \ommt is a typed framework, we can directly use \ommt types from the MitM ontology for the semantic types. 
-Simple realized types are usually atomic database types whereas complex realized types correspond to database tables or views; the details of this setup are determined by the database schema. 
-To arrive at a tight integration with the \ommt functionality we will represent as much of this information in \ommt as possible.
-
-Therefore we introduce a new \ommt theory \texttt{Codecs} in the foundational part of the MitM ontology.  
-See the green part of Figure~\ref{fig:vtarch} for details how this plays in the overall information architecture and Figure~\ref{fig:codecs} for elementary content. 
-This theory introduces a type constructor \codectt, which given a semantic type constructs the type of codecs for this type. 
-For instance, the object \identifier{StandardPos} is (a codec) of type $\codectt\;\mathbb{Z}^+$, i.e. a codec that parses database objects (for \lmfdb IEEE floats) into \ommt terms that can be typed as MitM positive integers and serializes them back.
+To formally specify codecs, we introduce a new \ommt theory \texttt{Codecs} as a part of the MitM ontology.
+Our codecs are indexed by semantic types: the type constructor \codectt maps a semantic type to a new type of codecs for it.
+For instance, the object \identifier{StandardInt} of type $\codectt\;\mathbb{Z}$ is a codec that translates between \lmfdb's idiosyncratic float/string-representation and MitM's integers.
+Note that there can be multiple different codecs for the same semantic type.
+For example, \identifier{IntAsArray} encodes integers $x$ as lists of $64$-bit integers consisting of the digits of $x$ with respect to base $2^{64}$.
 
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
@@ -52,20 +46,21 @@ For instance, the object \identifier{StandardPos} is (a codec) of type $\codectt
     };
   \end{tikzpicture}
   \caption[List of Codecs]{
-    An annotated subset of the Codecs theory containing a selection of codecs found in \mmt. 
-    Here $\mathbb{N}$ represents natural numbers (including $0$), 
-    $\mathbb{Z}$ integers, 
-    $\mathbb{Z}^{+}$ positive integers, 
-    $\mathbb{B}$ booleans and
-    $\mathbb{S}$ (unicode character) strings. 
+    Codecs specified in \mmt ($\mathbb{N}$, $\mathbb{Z}$, $\mathbb{Z}^{+}$ are as usual, $\mathbb{B}$ are booleans, and
+    $\mathbb{S}$ are Unicode strings)
   }
   \label{fig:codecs}
 \end{figure}
-The \identifier{degree} we used as an example above would use the \identifier{StandardInt} codec in the \lmfdb. 
-Additionally the \textsf{codecs} theory associates with each codec a Scala class that implements the translation between semantic and realized type. 
-The \mmt system we use is implemented in Scala and can thus execute this class as part of \lmfdb access. 
 
-\begin{wrapfigure}r{2.7cm}\vspace*{-2em}
+We do not (and do not have to) define the actual encoding/decoding functions in \ommt.
+It is more important to identify the codecs needed in practice, introduce names for them, and spell out their semantics.
+Then it is straightforward to implement them in any other programming language used interfacing with \lmfdb.
+
+In particular, we have implemented them in Scala, the language underlying the \mmt system.
+Additionally, the \textsf{Codecs} theory annotates each codec declaration with a reference to the Scala class implementing the codec.
+That way, \mmt can run the encoding/decoding functions of the codec.
+
+\begin{wrapfigure}r{2.7cm}
 $M = \left(
     \begin{array}{ccc}
       1 & 5 & 25 \\
@@ -73,22 +68,16 @@ $M = \left(
       25 & 5 & 1 \end{array} 
   \right)$\vspace*{-1em}
 \end{wrapfigure}
-But codecs for basic types (semantic and realized) are not sufficient for our application.
-Consider again the \identifier{11a1} curve shown in Figure~\ref{fig:lmfdbexample}, specifically the \identifier{isogeny\_matrix} field. 
-The semantic representation of the value of this field is the matrix on the right.
 
-The semantic type of Matrices is characterized with three parameters, the type of object they contain (integers in this case) along their row and column count ($3 \times 3$ in this case). 
-In principle, one could construct a codec for each type of matrices by hand. 
-This would mean generating one codec for $1 \times 1$ integer matrices, $1 \times 1$ real matrices, $1 \times 2$ integer matrices, $1 \times 2$ real matrices, and so on. 
-For the representation of codecs in \mmt, this would require generating one symbol and one Scala function for each different kind of matrix. 
-This quickly becomes a mess.
+The above is only sufficient for atomic semantic types, which typically correspond to one (or more) atomic codecs.
+Consider now the field \identifier{isogeny\_matrix} of elliptic curves.
+The semantic representation of one possible value (namely for the curve \identifier{11a1}) of this field is the matrix on the right.
 
-Instead we use the fact that both Scala and \ommt allow higher-order functions: 
-We can define a \textbf{codec operator} that -- given a codec, the parameter type $\tau$, and values $n, m$ for the numbers of rows and columns -- generates a codec for $n\times m$ matrices of $\tau$ objects. 
-In the example above and the matrix $M$ is encoded as a list of $n$ lists of $m$ integers ($\tau$):
-\begin{lstlisting}[]
-[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]
-\end{lstlisting}
+The semantic type operator $\mathrm{Matrix}$ takes $1$ type argument (the element type, integers in this case) and two value arguments (the dimensions, $3$ and $3$ in this case) and constructs the respective matrix type. 
+In principle, one could give a codec for each matrix type that comes up in a database schema. 
+But a much more elegant solution is to specify \textbf{codec operator}s in analogy to type operators.
+A codec operator for a type operator with $k$ type and $l$ value arguments, takes $k$ codec and $l$ value arguments.
+For example, a codec operator for matrices takes a codec $C:\codectt\, E$ for the element type $E$ and the dimensions $m$ and $n$ and returns a codec of type $\codectt\,(\mathrm{Matrix}\,E\,m\,n)$.
 
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
@@ -113,59 +102,30 @@ In the example above and the matrix $M$ is encoded as a list of $n$ lists of $m$
   }
   \label{fig:codecops}
 \end{figure}
-Like first-order codecs, codec operators in \mmt are again represented in two ways, as declarations inside the \identifier{codecs} theory (see Figure~\ref{fig:codecops} for a list, compare again with Figure~\ref{fig:vtarch}) and as a corresponding Scala implementation -- a higher-order function from codecs to codecs. 
-This is mirrored in the types of operators in Figure~\ref{fig:codecs}, the \textsf{StandardMatrix} operator is a function that takes four arguments: a type $T$, two
-numbers $n$ and $m$, and a $\tau$-codec and yields a $\mathrm{Matrix}(n, m, T)$-codec. 
-Here we make use of the dependent function types of the MitM foundation: arguments in curly brackets can be used in the result type; see~\cite{RabKoh:WSMSML13} for details.
+Like codecs, codec operators are represented in \mmt in two ways: as declarations inside the theory \identifier{Codecs} (see Figure~\ref{fig:codecops} for a list, compare again with Figure~\ref{fig:vtarch}) and as a corresponding Scala function that maps codecs to codecs. 
+When reading the declarations, note that we make use of the dependent function types of the MitM foundation: curly brackets denote dependent function arguments, i.e., argumetns that may occur in later argument types and the result type.
 
-With these declarations in the \textsf{codecs} theory, we can represent a codec for $3 \times 3$ integer matrices e.g. for the the isogeny matrix $M$ above by the \ommt term $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$.
-Similarly the same codec operator can be used to for example generate a codec for $2 \times 2$ boolean matrices, which corresponds to
-$\plaintt{StandardMatrix}(2, 2, \plaintt{StandardBool})$. 
+With these declarations, we recover the \lmfdb encoding of isogeny matrices by applying the codec operator \identifier{StandardMatrix}, which encodes matrices as lists of lists, to the codec \identifier{StandardInt} and the dimension $3$ and $3$.
+The resulting codec $\plaintt{StandardMatrix}(\mathbb{Z}, 3, 3, \plaintt{StandardInt})$ encodes the above matrix as\ \lstinline|[[1.0,5.0,25.0],[5.0,1.0,5.0],[25.0,5.0,1.0]]|.
 
-\subsection{Specifying Encodings in Schema Theories}\label{sec:vt:schema}
+\subsection{Choosing Encodings in Schema Theories}\label{sec:vt:schema}
 
-Given this infrastructure, let us see how we can integrate knowledge sources like the \lmfdb in the Math-In-The-Middle approach. 
-The schema theory, as the name suggests, describes the schema of the \lmfdb elliptic curve database. 
-This is the only place in the entire architecture of virtual theories which relies on the structure of \lmfdb. ]
+If we ignore encoding issues, schema theories are straightforward: they contain one declaration of the same name for each field within an \lmfdb record. 
+This specifies only the semantic type of each field and does not relate it to the MitM formalization.
+To handle the encoding as a physical type, we annotate each declaration with the codec that the databases for the values of that field.
+Moreover, to connect the schema theories to the MitM formalization, we additionally annotate each field with the corresponding property of elliptic curves from the MitM theory.
+We can now understand the last unexplained parts of Fig.~\ref{fig:vtarch}.
+\identifier{?implements} is the symbol used to annotate the metadatum, which MitM property a schema field corresponds to.
+And \identifier{?codec} similarly annotates the codec to each field.
 
-The schema theory contains declarations for each field within an \lmfdb record. 
-The name of these declarations corresponds to the name of the field inside the record. 
-Each declaration is annotated using \mmt meta-data with two pieces of information, the property of an elliptic curve it implements and the codec that is used to encode it inside \lmfdb. 
 For example, the \identifier{degree} field implements the \identifier{curveDegree} property in the elliptic curve theory and uses the \identifier{StandardInt} codec.
+Thus, the schema theories determine the entire relation between semantic and physical objects.
 
-The database theory is the only truly virtual theory -- it is not stored on disk, but generated dynamically. 
-It can again be seen in Figure~\ref{fig:vtarch}. 
-As designed, it contains one declaration per record in \lmfdb. 
-Given a URI, the corresponding backend is responsible for loading the underlying definition.
-
-The backend first retrieves the appropriate record from {\lmfdb} -- in the case of \identifier{11A1} this corresponds to retrieving the JSON found in Figure~\ref{fig:lmfdbexample}. 
-Next, the backend attempts to turn this JSON into an \mmt record so that it can be passed to the \identifier{from\_record} constructor.
-
-For this, it needs all declarations in the schema theory. 
-Each of these declarations corresponds to a single field in the JSON, that can be turned into a field of the \mmt record. 
-In the example provided here, we only consider two fields, \identifier{degree} and \identifier{isogeny_matrix}.
-
-For each of these two fields, the backend knows which field to create in the \mmt record that it has to construct. 
-They are given by the \identifier{?implements} meta-datum, here \identifier{curveDegree} and \identifier{isogenyMatrix}. 
-But this information is not enough. 
-The JSON values of the fields can not be used as values inside an \mmt record, they need to be assigned their correct semantics first.
-
-This is where codecs and the \identifier{?codec} meta-datum come into play. 
-The physical representation of the \identifier{degree} field is $1$, a JSON integer. 
-The schema theory says that this is encoded using the \identifier{StandardInt} codecs from above. 
-To generate an \mmt value for the record, this codecs is then used to decode it. 
-In this case the decoded value is the integer $1$. 
-Notice how even though the physical and semantic representations are shown identically here, they are indeed different: The former is a 64-bit floating point JSON Number, the latter is a mathematical integer. 
-
-The physical representation of \identifier{isogenyMatrix} is shown in the JSON in Figure~\ref{fig:lmfdbexample}. 
-The schema theory contains a codec that is constructed using the \identifier{StandardMatrix} codec operator, specifically $\plaintt{StandardMatrix}(3, 3, \plaintt{StandardInt})$. 
-To be able to apply this composite codec, the backend has to first construct the concrete codec, which can then used to decode the physical representation. 
-Since this is a codec operator, first each entry of the matrix has to be decoded using $\plaintt{StandardInt}$ -- turning the JSON number $1.0$ into the integer $1$, the JSON Number $5.0$ into the number $5$, etc. 
-Then these decoded values can be placed inside a matrix to arrive at the semantic representation of $M$. 
-
-This gives the backend all the information it needs to construct an \mmt record which can then be turned into an elliptic curve using the \identifier{from\_record} constructor. 
-The \identifier{degree} field is assigned the value $1$ and the \identifier{isogenyMatrix} is assigned the value of the matrix $M$. 
-Finally, this \mmt term can be used to define a new constant inside the database theory.
+The database theory is a virtual theory and contains one declaration per \lmfdb record.
+Given the URI of an object in the respective database, our \mmt backend for \lmfdb first retrieves the appropriate record from {\lmfdb} -- in the case of \identifier{11a1} this corresponds to retrieving the JSON found in Figure~\ref{fig:lmfdbexample}. 
+Then, for each field, it uses the annotated codec (which is an \ommt expression) to build an actual codec (as a runnable Scala function) and runs its decoding function.
+Next, it passes the resulting record to the \identifier{from\_record} constructor, which yields an elliptic curve in the MitM theories.
+Finally, this elliptic curve is added as a new declaration in the database theory.
 
 
 %%% Local Variables:
