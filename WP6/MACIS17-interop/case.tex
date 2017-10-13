@@ -28,13 +28,30 @@ Initially, Jane has already built in \Sage the ring $R=\mathbb{Z}[X_1,X_2,X_3,X_
 
 \paragraph{Another use-case}
 
-Suppose Jon, one of Jane's colleagues prefers working in \GAP, and he wants to compute the Galois group of the rational polynomial $p = x^5 - 2$.
-He discovers the \GAP package \texttt{radiroot}, which promises this functionality, but unfortunately the package does not work for this polynomial and thus \GAP alone cannot solve Jon's problem.
+Suppose Jon, one of Jane's colleagues prefers working in \GAP, and he wants to
+compute the Galois group of the rational polynomial $p = x^5 - 2$. He discovers
+the \GAP package \texttt{radiroot}, which promises this functionality, but
+unfortunately the package does not work for this polynomial and thus \GAP alone
+cannot solve Jon's problem.
 
-Jon hears from Jane that he should use \Sage, because she knows it can compute Galois groups, so he tries calling \lstinline|G := MitM("Sage", "GaloisGroup", p)|in \GAP which gives him the desired Galois group as a \GAP permutation group. 
+Jon hears from Jane that he should use \Sage, because she knows it can compute
+Galois groups, so he tries calling \lstinline|G := MitM("Sage", "GaloisGroup",
+p)|in \GAP which gives him the desired Galois group as a \GAP permutation group.
 
-Jon, being a proficient \GAP user, also knows that he can now install a \emph{method} in \GAP that will compute the Galois group of any rational polynomial transparently for him whenever he calls \lstinline|GaloisGroup| for a rational polynomial in \GAP. \ednote{@MP: Can you just say how that method installation looks? I suspect that this is a one-liner, if so, I would like to see it here}
-And thus the 300-line\ednote{MK@MP: please give the correct number} \lstinline|radiroot| package can be replaced by a one-line extension in GAP, taking advantage of the work of the SAGEMath community, and participating in any future improvements of \Sage. In fact Sage uses the PARI system -- another of the OpenDreamKit systems -- for the computation. 
+Jon, being a proficient \GAP user, also knows that he can now install a
+\emph{method} in \GAP by calling \lstinline|InstallMethod(GaloisGroup, "for a
+polynomial", [IsUnivariatePolynomial], p -> MitM("Sage", "GaloisGroup", p))|
+that will compute the Galois group of any rational polynomial transparently
+for him whenever he calls \lstinline|GaloisGroup| for a rational polynomial in
+\GAP.
+And thus the 1800-line\ednote{MP@MK: Radiroot relies on Alnuth (another 3500
+  lines of GAP code + pari code), but both packages of course provide more
+  functionality than just galois groups. Regardless of that, it is much easier
+  to write a couple of method installations than a full GAP package}
+\lstinline|radiroot| package can be replaced by a few lines extension in GAP,
+taking advantage of the work of the \Sage community, and participating in any
+future improvements of \Sage. In fact Sage uses the PARI system -- another of
+the OpenDreamKit systems -- for the computation.
 So in the future \GAP might directly delegate to PARI instead, bypassing the need of iterated translations.  
 
 % $p =x^4-x^3-x^2+x+1$ over $\mathbb{Q}$ would have D_8 as galois group again...
