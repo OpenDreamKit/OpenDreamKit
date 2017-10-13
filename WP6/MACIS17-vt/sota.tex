@@ -1,15 +1,15 @@
 \section{Example: The API and Structure of LMFDB}\label{sec:sota}
 
-The ``L-functions and Modular Forms Database'' (\lmfdb~\cite{lmfdb}) is a Python web application with a MongoDB backend. 
-The project contains several thousand L-Functions and curves along with their properties. 
+The ``L-Functions and Modular Forms Database'' (\lmfdb~\cite{lmfdb}) is a large database, storing among other mathematical objects several thousand L-Functions and curves along with their properties. 
+Technically, it uses a MongoDB database with a Python web frontend. 
 We use this as an example of a virtual theory. 
-Before we go into this in more detail, we first have a closer look at the structure and existing APIs to communicate with it.
+Before we go into this in more detail, we have a closer look at the structure and existing APIs to of \lmfdb.
 
 \subsection{The Structure of LMFDB}\label{sec:sota:struct}
 
-\lmfdb has several sub-databases, which contain e.g. a database of elliptic curves or a database of transitive groups. 
-
-Within each database, each curve is stored as a single JSON record with common keys, Figure~\ref{fig:lmfdbexample} shows one: each property of this JSON object corresponds to a property of the underlying mathematical object. 
+\lmfdb has several sub-databases, e.g., for elliptic curves or transitive groups. 
+Within each of these, every object is stored as a single JSON record.
+Figure~\ref{fig:lmfdbexample} shows an example: each property of this JSON object corresponds to a property of the underlying mathematical object. 
 For example, the \identifier{degree} property -- here $1$ -- of the JSON objects corresponds to the degree of the underlying elliptic curve. 
 
 \begin{figure}[ht]\centering
@@ -24,17 +24,13 @@ For example, the \identifier{degree} property -- here $1$ -- of the JSON objects
 }
 \end{lstlisting}\vspace*{-1.5em}
   \caption[An elliptic curve from \lmfdb]{
-    A subset of an elliptic curve, as found within \lmfdb. 
-    Several key-value pairs are omitted for readability. 
+    Part of an elliptic curve in \lmfdb (some fields omitted for brevity)
   }
   \label{fig:lmfdbexample}
 \end{figure}
 
-Other properties are more complex: the value of the \identifier{isogeny\_matrix} property is a list of lists, which represents a matrix. 
-This can become even more technical. 
-For example the \identifier{x-coordinates\_of\_integral\_points} field, \lmfdb represents a list of integers as a string containing a serialization of a JSON List of Integers. 
-This already shows that it is non-trivial to get from a MongoDB encoding of an elliptic curve in \lmfdb to the representation of a mathematical object. 
-
+Other properties are more complex: the value of the \identifier{isogeny\_matrix} property is a list of lists representing a matrix. 
+This disconnect between JSON encoding and mathematical meaning can become much more severe, e.g., the \identifier{x-coordinates\_of\_integral\_points} field is semantically a list of integers but (due to the sizes limits on integers) is encoded as a string.
 
 \subsection{An API for \lmfdb Objects}\label{sec:sota:api}
 
@@ -45,30 +41,26 @@ This already shows that it is non-trivial to get from a MongoDB encoding of an e
   }\vspace*{-1.5em}
   \label{fig:apiscreenshot}
 \end{wrapfigure}
-As \lmfdb is is a mathematical knowledge base, one important use case is to find elliptic curves subject to specific criteria. 
-Consider for example a mathematician that wants to find all Abelian elliptic curves in \lmfdb. 
-How can this be achieved using the \lmfdb API located at \cite{lmfdbapi}? 
+Querying is an important application for mathematical knowledge bases.
+The \lmfdb API \cite{lmfdbapi} exposes a querying interface that can be used either by humans via the web or programmatically via JSON-based GET requests.
+A screenshot of the former interface can be seen in Figure~\ref{fig:apiscreenshot}. 
 
-Queries can be sent to the API by making appropriate GET requests. 
-The \lmfdb API can present results in two different ways, either using a web-based interface or programmatically by returning a set of JSON objects. 
-A screenshot of the former can be seen in Figure~\ref{fig:apiscreenshot}. 
+Queries must name the sub-database to be queried and consist of a set of key-value pairs that correspond to an SQL \texttt{where} clause.
+However, while \lmfdb offers a programmable API for accessing its contents, this API sits at the level of the underlying MongoDB, and not the level of mathematical objects. 
+For example, to retrieve all Abelian objects in the subdatabase of transitive groups, we expect to use the key-value pair \identifier{commutative}$ = $ \identifier{true}. 
+However, these values need to be encoded to be understood by MongoDB.
+We need to realize that the database schema actually uses the key \identifier{ab} for commutativity, that it has boolean values, and that the schema encodes \inlinecode{true} as \inlinecode{1}. 
+Thus, the actual query to send is \url{http://www.lmfdb.org/api/transitivegroups/groups/?ab=1}. 
 
-Queries must be formulated in terms of the underlying MongoDB schema, are sub-database specific, and should consist of a set of key value pairs. 
-To solve the example given here we need to send the key-value pair \identifier{commutative}$ = $ \identifier{true}, finding all elements for which the commutative property is true. 
-However, these values need to be encoded to be understood by MongoDB. 
-We need to realize that the \identifier{ab} key corresponds to the commutativity property, has boolean values, and that MongoDB encodes \inlinecode{true} as \inlinecode{1}, and \inlinecode{false} as \inlinecode{0} in this \lmfdb sub-database. 
-This information can then be used to make a query by sending a request to \url{http://www.lmfdb.org/api/transitivegroups/groups/?ab=1}. 
+In this example, all steps are relatively straightforward. 
+But in general, e.g. when searching for all elliptic curves with a specific isogeny matrix, this not only requires good familiarity with the mathematical background but also with the system internals of the particular \lmfdb sub-database; a skill set commonly found in neither research programmers nor average mathematicians.   
 
-In this example, each of the steps are relatively straightforward. 
-In a general setting, e.g. when searching for all elliptic curves with a specific isogeny matrix, this not only requires a good familiarity with the mathematical background but also with the system internals of the particular \lmfdb sub-database; a skillset commonly found in neither research programmers nor average mathematicians.   
-
-To summarize: while \lmfdb offers a programmable API for accessing its contents, the content API is at the MongoDB level, and not the level of mathematical objects. 
-Our diagnosis is that \lmfdb -- and most other mathematical knowledge databases -- suffer from a double impedance mismatch problem.
-\begin{compactenum}[\bf {I}1]
-\item \emph{human/computer impedance mismatch}: Humans have problems interacting with \lmfdb, since they must speak the system language instead \lmfdb speaking mathematics
-\item \emph{computer/computer impedance mismatch}: mathematical computer systems cannot interoperate, since their system languages differ.
-\end{compactenum}
-The MitM approach we have presented in Section~\ref{sec:mmtmitm}, we can solve both problems at the same time by lifting the communication to the level of \ommt-encoded MitM objects, which both MitM-compatible software systems and humans speak -- this is the central assumption of the MitM approach.
+Our diagnosis is that {\lmfdb} -- and most other mathematical knowledge databases -- suffer from two problems:
+\begin{compactitem}
+\item \emph{human/computer mismatch}: humans have problems interacting with \lmfdb because they must speak the system language instead of mathematical language
+\item \emph{computer/computer mismatch}: mathematical computer systems cannot interoperate with \lmfdb because their system languages differ.
+\end{compactitem}
+Using the MitM approach we have presented in Section~\ref{sec:mmtmitm}, we can solve both problems at the same time by lifting the communication to the level of \ommt-encoded MitM objects, which both MitM-compatible software systems and humans can understand.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "paper"
