@@ -8,15 +8,15 @@ In the following, we summarize these efforts.
 \subsection{\Sage}
 
 We first consider our previous work \cite{DehKohKon:iop16} regarding a direct (i.e., without MitM) integration of \Sage and \GAP.
-Here \Sage's native interface to \GAP is upgraded from the \emph{handle} paradigm to the \emph{semantic handles} paradigm.
+Here \Sage's native interface to \GAP is upgraded from the \defemph{handle paradigm} to the \defemph{semantic handles} paradigm.
 In the former, when a system $A$ delegates a calculation to a system $B$, the result $r$ of the calculation is not converted to a native $A$ object (unless it is of some basic type); instead $B$ just returns a handle $h$ (or reference) to the object $r$.
 Later, $A$ can run further calculations with $r$ by passing it as argument to functions or methods implemented by $B$.
-Additionally, with \emph{semantic} handle, $h$ behaves in $A$ as if it was a native $A$ object.
+Additionally, with a \defemph{semantic} handle, $h$ behaves in $A$ as if it was a native $A$ object.
 In other words, one adapts the API satisfied by $r$ in $B$ to match the API for the same kind of objects in $A$.
 For example, the method call \texttt{h.cardinality()} on a \Sage handle \texttt{h} to a \GAP object \texttt{G} triggers in \GAP the corresponding function call \texttt{Size(G)}. 
 
-%The implementation of this paradigm builds on the classical \emph{adapter pattern}.
-%For conciseness, the adapters are generated automatically from \emph{alignments} between the methods from \Sage's \emph{categories} (Sage's hierarchy of abstract classes for the usual algebraic structures: sets, groups, algebras, ...) and their \GAP counterparts.
+%The implementation of this paradigm builds on the classical \defemph{adapter pattern}.
+%For conciseness, the adapters are generated automatically from \defemph{alignments} between the methods from \Sage's \defemph{categories} (Sage's hierarchy of abstract classes for the usual algebraic structures: sets, groups, algebras, ...) and their \GAP counterparts.
 %In a first stage, the alignments are expressed using annotations in the \Sage categories.
 %The second stage is to exploit MitM to manage the alignments in order to properly scale from custom one-to-one interfaces to interfaces between multiple systems.
 
@@ -53,9 +53,9 @@ However, in Jane's scenario, we actually want to convert the objects $r$ between
 
 \subsubsection{API}
 
-In \cite{DehKohKon:iop16} we describe the extraction of some of \Sage's API from its \emph{categories}.
+In \cite{DehKohKon:iop16} we describe the extraction of some of \Sage's API from its \defemph{categories}.
 This exploited the mathematical knowledge explicitly embedded in the code to cover a fairly large area  of mathematics (hundreds of kinds of algebraic structures such as groups, algebras, fields, ...), with little additional efforts or need to curate the output.
-This extraction did not cover the \emph{constructors}, knowledge about
+This extraction did not cover the constructors, knowledge about
 which is critical for (de)serialization, nor other areas of
 mathematics (graph theory, elliptic curves, ...) where \Sage
 developers currently do not use categories (usually because the
@@ -90,13 +90,13 @@ The process remains brittle and the export will eventually require much curation
 Nonetheless, we consider this an important first step toward fully automatic extraction of the \Sage API.
 Moreover, we expect further improvements by code annotations in \Sage
 (e.g., the ongoing porting of \Sage from \Python 2 to \Python
-3 will enable \emph{gradual typing}, which we hope to become widely
+3 will enable \defemph{gradual typing}, which we hope to become widely
 adopted by the community) or using type inference in \Sage and/or MitM.
 
 %Here are some potential directions to refine the signatures:
 %\begin{itemize}
 %\item \Sage is being ported from \Python 2 to \Python 3 (tentative
-%  horizon: 2020). The latter enables \emph{gradual typing} in the form
+%  horizon: 2020). The latter enables \defemph{gradual typing} in the form
 %  of type annotations in the method parameters and output. Assuming
 %  that the \Sage developers community perceives the added value and
 %  adopts this programming style, and with some work to setup
@@ -134,7 +134,7 @@ This has the advantage that \Python's serialization natively implements some opt
 
 Still, systematically expanding \OMMT serialization to the \emph{entire} \Sage library requires significant manpower and can only be a long-term goal.
 To increase community support, our design elegantly decouples the problem into (i) instrumenting the serialization to generate \OMMT as an alternative target format, and (ii) structural improvements of the serialization that benefit \Sage in general.
-In particular, our serialization of \Sage objects is \emph{by construction} rather than \emph{by representation}, i.e., we serialize the constructor call that was used to build an object instead of the low-level \Python representation of the resulting object.
+In particular, our serialization of \Sage objects is \defemph{by construction} rather than \defemph{by representation}, i.e., we serialize the constructor call that was used to build an object instead of the low-level \Python representation of the resulting object.
 This is important to hide implementation details and allow for straightforward alignments.
 
 From the origin, the \Sage community has internally promoted
@@ -176,13 +176,13 @@ serialization.
 % that collects closely related abstract classes (e.g. \texttt{Group},
 % \texttt{GroupElement}, \texttt{GroupMorphism}, \texttt{GroupHomset}),
 % together with explicitly represented mathematical knowledge, in a
-% so-called \emph{category} (e.g that of \texttt{Groups}).
+% so-called \defemph{category} (e.g that of \texttt{Groups}).
 % See~\ref{Sage,Sage.Categories} for details.
 
 % In \cite{DehKohKon:iop16} we describe the use of annotations in the code to enrich the
 % mathematical knowledge in \Sage's categories with alignments with other systems, notably
 % \MMT. This knowledge is then exported to generate interfaces theories. We also describe how
-% this can be used to automatically generate \emph{handle interfaces} with other systems
+% this can be used to automatically generate \defemph{handle interfaces} with other systems
 % like e.g. \GAP.
 % \begin{todolist}{NT@NT}
 % \item next step: also export constructors to enable non-handle interfaces where objects
@@ -199,7 +199,7 @@ serialization.
 In \cite{DehKohKon:iop16}, we already described our general approach to extract APIs from the \GAP system.
 We have now improved on this work considerably.
 
-Firstly, we improved the MitM foundation so that the primitives of \GAP's type system can be expressed in the MitM ontology.\footnote{In the future \MMT might even serve as an   external type-checker for \GAP.}  \GAP's type system is based on sub-typing: \emph{filters} express finer and finer subtypes of the universal type \lstinline|IsObject|.  
+Firstly, we improved the MitM foundation so that the primitives of \GAP's type system can be expressed in the MitM ontology.\footnote{In the future \MMT might even serve as an   external type-checker for \GAP.}  \GAP's type system is based on sub-typing: \defemph{filters} express finer and finer subtypes of the universal type \lstinline|IsObject|.  
 An object in \GAP can learn about its properties, meaning its type is refined at runtime: a group can learn that it is Abelian or nilpotent and change its type accordingly.
 
 Secondly, devised and implemented a special treatment of \GAP's constructors during serialization.
