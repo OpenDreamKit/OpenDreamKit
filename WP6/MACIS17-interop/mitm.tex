@@ -3,40 +3,40 @@
   \caption{MitM Paradigm}\label{fig:mitm}\vspace*{-1.5em}
 \end{wrapfigure}
 Figure~\ref{fig:mitm} shows the basic MitM design.
-We want to make the systems $A$ to $H$ interoperable.
-A P2P translation regime ($n^2$ translations between $n$ systems) is already intractable for the systems in the OpenDreamKit project (more than a dozen).
-Alternatively, an ``industry standard'' regime, where one system's language is declared as the standard is infeasible, since no system subsumes the others in terms of coverage -- not to mention the political problems such a standardization would induce.
-Instead, MitM uses a central mathematical ontology that provides an independent mediating vocabulary, via which all participating systems are aligned.
-All mathematical knowledge shared between the systems and exposed to the high-level VRE user is expressed using the vocabulary of this ontology. 
-Morally, the MitM ontology already exists in the published mathematical literature, we only have to flexiformalize it sufficiently to act as a system interoperability resource. 
+We want to make the systems $A$ to $H$ with system dialects $a$ to $h$ interoperable.
+A P2P translation regime ($n(n-1)$ translations between $n$ systems) is already intractable for the systems in the OpenDreamKit project (more than a dozen).
+Alternatively, an ``industry standard'' regime, where one system dialect is declared as the standard is infeasible because no system dialect subsumes all others -- not to mention the political problems such a standardization would induce.
+Instead, MitM uses a central mathematical ontology that provides an independent mediating language, via which all participating systems are aligned.
+All mathematical knowledge shared between the systems and exposed to the high-level VRE user is expressed using the vocabulary of this ontology.
+Crucially, while every system dialect makes implementation-driven, system-specific design choices, the MitM ontology can remain close to the knowledge published in the mathematical literature, which already serves as an informal interoperability layer.
 
 The following sections describe the three components of the MitM paradigm in more detail.
 
 \subsection{The MitM Ontology}\label{sec:mitm:recap}
 
 In the center, we have the \textbf{MitM Ontology}, which is a formalization of
-the mathematical knowledge behind the systems $A$ to $H$ as a theory graph in
-the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}. We do
-not go into the details of \OMMT here. For our purposes, it
-suffices to assume that a theory graph formalizes a language for mathematical objects as a set of typed symbols with a (formal or informal) specification of their semantics.
-For example, the symbol $\mathtt{PolynomialRing}$ takes a ring of coefficients $r$ and a number $n$ of variables and returns the ring $r[X_1,\ldots,X_n]$ of polynomials.
+the mathematical knowledge behind the systems $A$ to $H$.
+As a formalization framework, it uses the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}, which was designed with this specific application in mind.
+We do not go into the details of \OMMT here -- for our purposes, it
+suffices to assume that an \OMMT theory graph formalizes a language for mathematical objects as a set of typed symbols with a (formal or informal) specification of their semantics.
+For example, the MitM-symbol $\mathtt{PolynomialRing}$ takes a ring $r$ of coefficients and a number $n$ of variables and returns the ring $r[X_1,\ldots,X_n]$ of polynomials.
 
 Note that the purpose of the MitM ontology is not the formal verification of
-mathematical theorems (as for most formalizations
+mathematical theorems (as for most existing formalizations
 %  such as
 % \cite{Gonthier+:mcpoot13}
- for group theory), but to act as a pivot point for
+ of group theory), but to act as a pivot point for
 integrating systems. This means that it can be much nearer to the informal but
 rigorous presentation of mathematical knowledge in the literature. While each
-system makes compromises and optimizations needed for a particular application
-domain, the MitM ontology follows existing and already informally standardized
+system dialect makes compromises and optimizations needed for a particular application
+domain, the MitM ontology follows the existing and already informally standardized
 mathematical knowledge and can thus serve as a standard interface layer between
-systems
+systems.
 
-Importantly, the MitM ontology does not have to include any definitions\footnote{Though admittedly, definitions help nail down the MitM concepts in sufficient detail. } or proofs --- it only has to declare the types of all relevant symbols and state (but not prove) the relevant theorems.
-This makes it possible for users like Jane to write and extend MitM ontologies quickly, whereas other formalizations usually require extensive efforts by specialists.
+Importantly, the MitM ontology does not have to include any definitions\footnote{Of course, definitions are one possible way to specify the semantics of MitM-symbols.} or proofs -- it only has to declare the types of all relevant symbols and state (but not prove) the relevant theorems.
+This makes it possible for users like Jane to extend the MitM ontology quickly whereas extending formalizations usually requires extensive efforts by specialists.
 
-\subsection{Specifying Individual System Dialects}\label{sec:mitm:dialect}
+\subsection{Specifying System Dialects}\label{sec:mitm:dialect}
 
 \paragraph{System Dialects}
 It is unavoidable that each system induces its own language for mathematical objects.
@@ -49,32 +49,33 @@ Thus, only the much simpler internal abstract syntax needs to be considered.
 
 The symbols that build the abstract syntax trees can be split into two kinds: \defemph{constructors} build primitive objects without involving computation, and \defemph{operations}
 compute objects from other objects (including predicates, which we see as operations that return booleans).
-For purposes of interoperability it is possible to abstract from this distinction and consider both as typed symbols.
-This abstraction is important because systems often disagree on the choice of primitive objects.
+For purposes of interoperability it is desirable to abstract from this distinction and consider both as typed symbols.
+This abstraction is important because systems often disagree on the choice of constructors.
 Thus, we can represent the interfaces of the systems $A$ to $H$ as \OMMT theory graphs $a$ to $h$ that declare the constructors and operations (but omit all implementations of the operations) of the respective system.
-We call the theories in $a$ to $h$ the \defemph{API theories} of the respective sytsems. 
 
-Given the theory graph $a$, we can express all objects in the language of system $A$ as \OMMT objects using the symbols of $a$.
-We call this language the \textbf{\OMMT system dialect} for $A$ and refer to these objects as $A$-objects.
-It is relatively straightforward to write (or even automatically generate) the theory graph $a$ and to implement a serializer and parser for $A$-objects as a part of $A$.
+Given the theory graph $a$ representing the system dialect of $A$, we can express all objects in the language of system $A$ as \OMMT objects using the symbols of $a$.
+We refer to these objects as $A$-objects.
+It is conceptually straightforward to write (or even automatically generate) the theory graph $a$ and to implement a serializer and parser for $A$-objects as a part of $A$.\footnote{However, as we see below, this may still be surprisingly difficult in practice.}
 This is because no consideration of interoperability and thus no communication with the developers of other systems is needed.
 
 %For example, the theory graph for \GAP contains a symbol $\mathtt{}$.
 
 \paragraph{Alignments with the Ontology}
 The above reduces the interoperability problem to relating each system dialect to the MitM ontology.
-Each system dialect overlaps with the language of the ontology, but no system implements all ontology symbols and every systems implements many idiosyncratic operations that are not part of the ontology.
-Some system symbols are related to corresponding symbols in the MitM ontology. Then we can use the MitM ontology as an intermediate representation to bridge between any two systems, e.g., by translating $A$-objects to the corresponding ontology objects and then those to the corresponding $B$-objects.
+Each system dialect overlaps with the language of the ontology, but no system implements all ontology symbols and every system implements idiosyncratic operations that are not useful as a part of the ontology.
+Therefore, some system dialect symbols are related to corresponding symbols in the MitM ontology.
+We use these symbols of the MitM ontology as an intermediate representation to bridge between any two systems, e.g., by translating $A$-objects to the corresponding ontology objects and then those to the corresponding $B$-objects.
 
 However, even when $A$ and $B$ deal with the ``same mathematical objects'', these may be constructed and represented differently, e.g., symbols can differ in name,
 argument order/number, types, etc.
-A major difficulty for system interoperability is bridging these differences.
-To formalize the details of this relation, \cite{MueGauKal:cacfms17} introduced \textbf{\OMMT alignments}.
+A major difficulty for system interoperability is correctly handling these subtle differences.
+To formalize the details of this relation, \cite{MueGauKal:cacfms17} introduced \OMMT \textbf{alignments}.
 Technically, these are pairs of \OMMT symbol identifiers decorated by a set of key-value pairs.
-Whenever two systems' APIs declare symbols for the same mathematics operation, the alignments with the MitM ontology determine which ontology objects correspond to system objects.
+The alignments of $a$-symbols with the MitM ontology determine which $A$-objects correspond to MitM-objects.
 
 The alignment of $a$-symbols to ontology symbols must be spelled out manually.
-But this is usually straightforward and easy even for inexperienced users. For example, the following line aligns GAP's symbol \textsf{IsCyclic} (in the file \lstinline|lib/grp.gd|) with the corresponding symbol \textsf{cyclic} in the MitM ontology, and signifies that this alignment is symmetric and part of a group of alignments called ``VRE'':
+But this is usually straightforward and easy even for inexperienced users. For example, the following line aligns GAP's symbol \textsf{IsCyclic} (in the file \lstinline|lib/grp.gd|) with the corresponding symbol \textsf{cyclic} in the MitM ontology.
+The key-value pairs are used to signify that this alignment is part of a group of alignments called ``VRE'' and can be used for translations in both directions.
 
 \begin{verbatim}
 gap:/lib?grp?IsCyclic  mitm:/smglom/algebra?group?cylic
@@ -83,13 +84,13 @@ gap:/lib?grp?IsCyclic  mitm:/smglom/algebra?group?cylic
 
 Thus we can reduce the problem of interfacing $n$ systems to
 \begin{inparaenum}[\em i\rm)]
-\item curating a MitM ontology for the joint mathematical domain,
-\item generating $n$ theory graphs for system dialects,
-\item maintaining $n$ collections of alignments into the MitM ontology.
+\item curating the MitM ontology for the joint mathematical domain,
+\item generating $n$ theory graphs for the system dialects,
+\item maintaining $n$ collections of alignments with the MitM ontology.
 \end{inparaenum}
 
 Alignments form an independent part of the MitM interoperability infrastructure.
-Incidentally they obey a distinct development schedule: the MitM ontology will be under continuous development --- it formalizes the common knowledge of the community about a mathematical domain.
+Incidentally, they obey a separate development schedule: the MitM ontology is developed by the community as a whole as the understanding of a mathematical domain changes.
 The system dialects are released together with the systems according to their respective development cycle.
 The alignments bridge between them and have to mediate these cycles.
 
@@ -98,8 +99,8 @@ The alignments bridge between them and have to mediate these cycles.
 The final missing piece for a system interoperability layer for a VRE toolkit is a practical way of transporting objects between systems.
 This requires two steps.
 
-Firstly, if the system theory graphs and alignments are known, we can automatically translate $A$-objects to $B$-objects in two steps: $A$ to ontology and ontology to $B$.
-This two-step translation has been implemented in \cite{MueRoYuRa:abtafs17} based on the \MMT system~\cite{Rabe:MAGMS13,uniformal:on} -- an implementation of the \OMMT format and a set of mathematical knowledge management algorithms.
+Firstly, if the system dialects and alignments are known, we can automatically translate $A$-objects to $B$-objects in two steps: $A$ to ontology and ontology to $B$.
+This two-step translation has been implemented in \cite{MueRoYuRa:abtafs17} based on the \MMT system~\cite{Rabe:MAGMS13,uniformal:on}, which implements the \OMMT format along with logical and knowledge management algorithms.
 
 Secondly, each system $A$ has to be able to serialize/parse $A$-objects and to send them to/receive them from \MMT.
 In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 

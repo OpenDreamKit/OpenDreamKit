@@ -1,7 +1,7 @@
-We now show how we, for \GAP, \Singular, and \Sage, generate theory graphs that specify the system dialects.
-The three systems are sufficiently different that we can consider the development presented in this section a meaningful case study in the methodology and investment of exposing the APIs of real-world systems in the form of \OMMT theories.
+We now show how we produce \OMMT theory graphs that specify the system dialects of \GAP, \Singular, and \Sage.
+The three systems are sufficiently different that we can consider the development presented in this section a meaningful case study in the methodology and difficulty of exposing the APIs of real-world systems as of formally described system dialects.
 
-In each case, we had to overcome major implementation differences and invest significant manpower.
+In each case, we had to overcome major implementation difficulties and invest significant manpower.
 In fact, even the serialization of internal abstract syntax trees as \OMMT objects proved difficult, for different system-specific reasons.
 In the following, we summarize these efforts.
 
@@ -9,19 +9,19 @@ In the following, we summarize these efforts.
 
 We first consider our previous work \cite{DehKohKon:iop16} regarding a direct (i.e., without MitM) integration of \Sage and \GAP.
 Here \Sage's native interface to \GAP is upgraded from the \defemph{handle paradigm} to the \defemph{semantic handles} paradigm.
-In the former, when a system $A$ delegates a calculation to a system $B$, the result $r$ of the calculation is not converted to a native $A$ object (unless it is of some basic type); instead $B$ just returns a handle $h$ (or reference) to the object $r$.
+In the former, when a system $A$ delegates a calculation to a system $B$, the result $r$ of the calculation is not converted to a native $A$ object (unless it is of some basic type); instead $B$ just returns a handle $h$ (i.e., some kind of reference) to the $B$-object $r$.
 Later, $A$ can run further calculations with $r$ by passing it as argument to functions or methods implemented by $B$.
 Additionally, with a \defemph{semantic} handle, $h$ behaves in $A$ as if it was a native $A$ object.
 In other words, one adapts the API satisfied by $r$ in $B$ to match the API for the same kind of objects in $A$.
-For example, the method call \texttt{h.cardinality()} on a \Sage handle \texttt{h} to a \GAP object \texttt{G} triggers in \GAP the corresponding function call \texttt{Size(G)}. 
+For example, the method call \texttt{h.cardinality()} on a \Sage handle \texttt{h} to a \GAP group \texttt{G} triggers in \GAP the corresponding function call \texttt{Size(G)}. 
 
 %The implementation of this paradigm builds on the classical \defemph{adapter pattern}.
 %For conciseness, the adapters are generated automatically from \defemph{alignments} between the methods from \Sage's \defemph{categories} (Sage's hierarchy of abstract classes for the usual algebraic structures: sets, groups, algebras, ...) and their \GAP counterparts.
 %In a first stage, the alignments are expressed using annotations in the \Sage categories.
 %The second stage is to exploit MitM to manage the alignments in order to properly scale from custom one-to-one interfaces to interfaces between multiple systems.
 
-This approach avoids the overhead of back and forth conversions between $A$ and $B$ and enables the manipulation from $A$ of objects of $B$, even if they have no native representation in $A$.
-However, in Jane's scenario, we actually want to convert the objects $r$ between $A$ and $B$.
+This approach avoids the overhead of back and forth conversions between $A$ and $B$ and enables the manipulation of $B$-objects from $A$ even if they have no native representation in $A$.
+However, if these $B$-objects need to be acted on by native operations of $A$ or other systems (as in Jane's scenario), we actually have to convert the objects $r$ between $A$ and $B$.
 
 %This introduces the following additional challenges:
 %\begin{compactenum}
@@ -68,7 +68,7 @@ To extract more APIs, we took the following approach:
 \end{compactenum}
 
 At this stage, the list of objects was crafted by hand to cover Jane's scenarios and some others.
-In a later step we plan to take advantage of one of \Sage's coding standards: every concrete type must be instantiated at least once in \Sage's tests, and the instance be passed
+In a later stage, we plan to take advantage of one of \Sage's coding standards: every concrete type must be instantiated at least once in \Sage's tests and the instance passed
 trough a generic test suite that runs sanity checks for its advertised
 properties (e.g. associativity, ...).
 Therefore, by a simple instrumentation of \Sage's test framework, we could run our exporter on a fairly complete collection of \Sage objects.
@@ -109,7 +109,7 @@ adopted by the community) or using type inference in \Sage and/or MitM.
 \subsubsection{Serialization and Deserialization}
 
 Because \Sage is based on \Python, it benefits from its native serialization support.
-For example, the dihedral group $D_4$ is serialized as a binary string which encodes the following straight line program to be executed upon deserialization:
+For example, the dihedral group $D_4$ is serialized as a binary string, which encodes the following straight line program to be executed upon deserialization:
 \begin{lstlisting}
   pg_unreduce = unpickle_global('sage.structure.unique_representation', 'unreduce')
   pg_DihedralGroup = 
@@ -122,7 +122,7 @@ The last line applies them to construct successively the integer $4$ and $D_4$.
 
 Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.\ednote{Add the translation of the above in OpenMath}
 We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python library~\cite{py-openmath:on}).
-This has the advantage that \Python's serialization natively implements some optimizations, e.g., structure sharing for identical subexpressions.
+This has the advantage of using optimizations implemented in \Python's serialization, e.g., structure sharing for identical subexpressions.
   % For example, a list of integers modulo 2 will be serialized as a
   % program like:
 
@@ -134,13 +134,13 @@ This has the advantage that \Python's serialization natively implements some opt
 
 Still, systematically expanding \OMMT serialization to the \emph{entire} \Sage library requires significant manpower and can only be a long-term goal.
 To increase community support, our design elegantly decouples the problem into (i) instrumenting the serialization to generate \OMMT as an alternative target format, and (ii) structural improvements of the serialization that benefit \Sage in general.
+
 In particular, our serialization of \Sage objects is \defemph{by construction} rather than \defemph{by representation}, i.e., we serialize the constructor call that was used to build an object instead of the low-level \Python representation of the resulting object.
 This is important to hide implementation details and allow for straightforward alignments.
-
 From the origin, the \Sage community has internally promoted
 good support for serialization as this is a fundamental building
-block for communication between parallel processes, databases, etc. In
-particular, it already values serialization by construction as
+block for communication between parallel processes, databases, etc.
+Thus, it already values serialization by construction as
 superior because it is usually more concise and more robust under
 changes to \Sage. Therefore, independent of the purposes of this
 paper, we expect a synergy with the \Sage community toward improving
@@ -199,19 +199,20 @@ serialization.
 In \cite{DehKohKon:iop16}, we already described our general approach to extract APIs from the \GAP system.
 We have now improved on this work considerably.
 
-Firstly, we improved the MitM foundation so that the primitives of \GAP's type system can be expressed in the MitM ontology.\footnote{In the future \MMT might even serve as an   external type-checker for \GAP.}  \GAP's type system is based on sub-typing: \defemph{filters} express finer and finer subtypes of the universal type \lstinline|IsObject|.  
-An object in \GAP can learn about its properties, meaning its type is refined at runtime: a group can learn that it is Abelian or nilpotent and change its type accordingly.
+Firstly, we improved the MitM foundation so that the primitives of \GAP's type system can be expressed in the MitM ontology.\footnote{In the future \MMT might even serve as an   external type-checker for \GAP.}  \GAP's type system heavily uses subtyping: \defemph{filters} express finer and finer subtypes of the universal type \lstinline|IsObject|.  
+Moreover, an object in \GAP can learn about its properties, meaning its type is refined at runtime: a group can learn that it is Abelian or nilpotent and change its type accordingly.
 
-Secondly, devised and implemented a special treatment of \GAP's constructors during serialization.
+Secondly, we devised and implemented a special treatment of \GAP's constructors during serialization.
 As \GAP only has a weak notion of object construction, we achieved this by manually identifying and annotating all functions that create objects in the \GAP code base and then instrumenting them to store which arguments they were called with.
 With the constructor annotation in place, it is possible to have \GAP represent any object in a running session as either a primitive type (integers, permutations, transformations, lists, floats, strings), or as a constructor applied to a list of arguments.
 
 The instrumentation itself is minimal -- 57 lines of \GAP code, plus 100 lines for serializing and parsing.
 The main -- and indeed considerable -- challenge was to identify the constructors and their arguments.
-In \GAP, objects are created by calling the function \lstinline|Objectify| with a type and some data, hence we analyzed
+In \GAP, objects are created by calling the function \lstinline|Objectify| with a type and some arguments.
+Hence we analyzed
 all call-sites to this function and some light inference of the enclosing function.
 This amounted to 665 call sites in the \GAP library and an additional 1664 in the standard package distribution.
-The instrumentation will be integrated into a future version of \GAP, making \GAP fully MitM capable.
+The instrumentation will be released as part of a future version of \GAP, making \GAP fully MitM capable.
 \ednote{MP: Put an example of OM\_Print here, maybe for a group, or for Cosets
   (as they are something that the standard OpenMath CDs in \GAP cannot do)}
 
@@ -220,18 +221,18 @@ For example, it enables static type analysis, which can be used to optimize the 
 
 \subsection{\Singular}
 
-As we only need a very small part of \Singular for our case study, we were able to use the existing OpenMath content dictionaries for polynomials~\cite{OMCD:poly:on}.
+As we only need a very small part of \Singular for our case study, we were able to use the existing OpenMath content dictionaries for polynomials~\cite{OMCD:poly:on} as the \Singular system dialect.
 These are part of a standard group of content dictionaries that describe (some) mathematical objects at a high level of abstraction to be universally applicable.
 \OMMT understands OpenMath, i.e., it can use these content dictionaries as \OMMT theories.
 
 Building on the OpenMath toolkits for OpenMath phrasebooks~\cite{py-openmath:on} and SCSCP communication~\cite{py-scscp:on} in {\Python} -- which were developed for \Sage in the
 OpenDreamKit project, we wrapped \Singular in a thin layer of \Python code that provides \SCSCP communication.
-This work was undertaken by the sixth author as part of a summer internship in about a week without prior expert knowledge of the system. Of course, if we want to achieve a more comprehensive coverage of the \Singular API, we will have to either manually write an API theory graph or instrument the \Singular for extraction like for \Sage or \GAP above. 
+This work was undertaken by the sixth author as part of a summer internship in about a week without prior expert knowledge of the system. Of course, if we want to achieve a more comprehensive coverage of the \Singular dialect, we will have to either manually write a theory graph or instrument \Singular for extraction as we did for \Sage or \GAP above. 
 
 \subsection{Alignments}
 
 Finally we have to curate the alignments between the system dialects and the MitM ontology.
-These alignments are currently produced and curated manually using the approach, repository and syntax described in~\cite{MueGauKal:cacfms17} and ~ \cite{MueRoYuRa:abtafs17}.
+These alignments are currently produced and curated manually using the approach, repository, and syntax described in~\cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17}.
 In the future, we will also consider automatically extracting alignments from the existing ad-hoc \Sage-to-$X$ translations.
 These are (mainly) given as \Sage code annotations that relate \Sage operations and constructors with those of system $X$.
 
