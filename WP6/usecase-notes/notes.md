@@ -19,4 +19,11 @@ either in this file, or separate files.
    Bordeaux next January to work with the Pari/GP people to integrate
    Pari and GAP for this purpose.
 
- 
+ * I had a long Skype call with Mohamed Barakat. His "Homalg" projects aims to 
+   be a true "next generation" CAS (more on that later).
+   Here is some of the architecture:
+    - http://wwwb.math.rwth-aachen.de/~gutsche/homalg-project.pdf
+    - http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.431.4394 
+   One might find the resemblance of the diagram in the first pdf, last page
+   with our layout quite striking..
+
