@@ -5,13 +5,12 @@ This formalization can be found at~\cite{mitm:groups:on}.
 
 \subsection{Type Theory and Logic}
 
-\OMMT formalizations must be relative to a foundational logic.
-These foundations are themselves formalized in \OMMT.
-As a foundation for all formalizations in MitM \cite{mitm:foundation:on}, we use a polymorphic dependently-typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
+\OMMT formalizations must be relative to foundational logic, which is itself formalized in \OMMT.
+As foundation for all formalizations in MitM \cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
 It provides dependent function types \lstinline|{a:A}B(a)|, representing the type of all functions mapping an argument \lstinline|a:A| to some element of type \lstinline|B(a)|. If \lstinline|B| does not depend on the argument \lstinline|a|, we obtain the simple function type \lstinline[mathescape]|A$\to$B|.
 
 For formulas, we use a type \lstinline|prop| and a higher order logic where quantifiers range over any type.
-We furthermore follow the judgments-as-type paradigm by declaring a symbol \lstinline[mathescape]|$\vdash$:prop$\to$type| that maps propositions to the \defemph{type of their proofs}, which allows us to declare proof rules as functions mapping proofs (of the premises) to a proof (of the conclusion).
+We furthermore follow the judgments-as-type paradigm by declaring a function \lstinline[mathescape]|$\vdash$:prop$\to$type| mapping propositions to the \defemph{type of their proofs}, which allows us to declare proof rules as functions mapping proofs (of the premises) to a proof (of the conclusion).
 
 The judgment \lstinline|A<:B| expresses that $A$ is a subtype of $B$.
 We use power types (the type of subtypes of a type) and predicate subtyping \lstinline?{'a:A | P(a)'}?.
@@ -24,9 +23,9 @@ The latter makes type-checking undecidable, but that is necessary for natural fo
 
 Additionally we extend our type theory with record types, which is critical for formalizing mathematical structures.
 In particular, \lstinline|ModelsOf T| is the record type of models of the theory \lstinline|T|.
-This lets us, e.g., define groups by a theory declaring the group operations and axioms and use \lstinline|group=ModelsOf group_theory| as the type of all models of said theory, i.e., the type of groups, as seen in Figure~\ref{fig:mitm1}.
+This lets us, e.g., define groups by the theory of operations and its signature and axioms, while \lstinline|group=ModelsOf group_theory| is the type of all models of said theory, i.e., all groups, as seen in Figure~\ref{fig:mitm1}.
 Any element \lstinline|g:group| thus represents an actual group, whose operations and axioms can be accessed via record field projections (e.g. \lstinline|g.inverse| yields the inverse operation of \lstinline|g|.
-Since axioms are turned into record type fields as well, actually constructing a record of type \lstinline|group| corresponds to proving that the record indeed forms a group.
+Since axioms are turned into record type fields as well, actually constructing a record of type \lstinline|group| corresponds to proving that the field \lstinline|universe| and the operations provided in the record do in fact form a group.
 
 \subsection{Group Theory}
 
@@ -38,17 +37,19 @@ The left box in Figure \ref{fig:cgtontology} shows the levels and their relation
   \caption{Alignments between the MitM Ontology and the \GAP API}\label{fig:cgtontology}\vspace*{-1em}
 \end{figure}
 
-The \textbf{abstract level} contains the theory of \emph{Groups}: the group
+\paragraph{Abstract Level} This contains the theory of \emph{Groups}: the group
 axioms, generating sets, homomorphisms, group actions, stabilisers, and orbits.
 This also easily leads into definitions of centralisers -- i.e. stabilisers of
 elements under conjugation -- and normalisers -- i.e. stabilisers of subgroups
 under conjugation, stabiliser chains, Sylow-$p$ subgroups, Hall subroups, and
 many other concepts.
 
-\OMMT allows elegantly expressing that two theories induce equivalent model types: We define group actions in two separate theories and use \emph{views} to express
-their isomorphism.
+\OMMT also allows expressing that there are different equivalent definitions of
+a concept: We defined group actions in two ways and used \emph{views} to express
+their equivalence.
 
-At the \textbf{representation level}, abstract groups are represented as concrete objects
+\paragraph{Representation Level} 
+Abstract groups are represented in different ways as concrete objects
 suitable for computation: as groups of permutations, groups of matrices,
 finitely presented groups, algebraic constructions of groups, or using
 polycyclic presentations.
@@ -68,21 +69,27 @@ vertices.
 % \ednote{MP@ALL: More concrete? More ``gripping''? I already
 % talked about the canonical example with the dihedral group}
 
-As a universal tool to bridge the gap between groups, we use representations and
+The universal tool to bridge the gap between groups, representations and
 canonical representatives are \emph{group homomorphisms}, particularly
-embeddings and isomorphisms, which are also used extensively in \GAP.
+embeddings and isomorphisms, which are used extensively in \GAP. This is
+reflected in our approach.
 
-At the \textbf{implementation level}, we encode implementation details: Permutation groups in \GAP
+\paragraph{Implementation Level}
+At this level we encode implementation details: Permutation groups in \GAP
 are considered as finite subgroups of the group $S_{\mathbb{N}+}$, and defined by
 providing a set of generating permutations. \GAP then computes a stabiliser chain
 for a group that was defined this way, and naturally considers the group to be a
 subgroup of $S_{[1..n]}$, where $n$ is the largest point moved.
 
-The computations happen at the \textbf{concrete level}: while the higher levels
+\paragraph{Concrete Level}
+
+It is at the concrete level where the computation happens: while the higher levels
 are suitable for mathematical deduction and inference, this level is where \GAP
 (or any other system providing computational group theory) does its work.
 If a group (or a group action) has been constructed by giving generators
-through MitM, all \GAP operations are available for it, e.g., computing the size of the group and its isomorphism type.
+through MitM, \GAP can now compute the size of the group, its isomorphism type,
+and perform all the other operations that are available via the \GAP system
+dialect.
 
 %For example, if one creates \lstinline|Group((1,2,3,4,5,6,7,8,9,10,11),(3,7,11,8)(4,10,5,6))|
 %in \GAP, then one can compute the size of this group, which is $7920$, determine
