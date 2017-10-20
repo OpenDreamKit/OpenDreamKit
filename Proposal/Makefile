@@ -117,3 +117,15 @@ CollaborativeWritingOfTheOpenDreamKitProposal.mp4:
 proposal.html:
 	latexmlc --includestyles --log proposal.ltxlog --destination $@ --path LaTeX-proposal/base --path LaTeX-proposal/eu proposal.tex 
 
+allinone.tex:
+	latexexpand final.tex -o $@
+
+diff:	allinone.tex
+	-rm diff.*
+	latexdiff  allinone-old.tex allinone.tex > diff.tex
+	# Comment out the \milestonetable line
+	# Change color from blue to DarkGreen in the preamble:
+	# \providecommand{\DIFadd}[1]{{\protect\color{DarkGreen}\uwave{#1}}} %DIF PREAMBLE
+	# make PROPOSAL=diff.tex all
+
+	# To view the differences in the tables: use diffpdf, set pages as 31-36,38    vs 32-37,38  , export
