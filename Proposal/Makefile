@@ -83,7 +83,7 @@ $(TBIB.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS)
 	    then $(PDFLATEX)  $<  || $(RM) $@; fi
 
 clean: 
-	rm -f *~ *.log *.ilg *.out *.glo *.idx *.ilg *.blg *.run.xml *.synctex.gz *.cut
+	rm -f *~ *.log *.ilg *.out *.glo *.idx *.ilg *.blg *.run.xml *.synctex.gz *.cut *.toc
 
 distclean: clean
 	rm -f *.aux *.ind *.gls *.ps *.dvi *.thm *.out *.run.xml *.bbl *.toc *.deliv* *.pdata *-blx.bib
@@ -121,8 +121,15 @@ allinone.tex:
 	latexexpand final.tex -o $@
 
 diff:	allinone.tex
+	# in the old checkout
+	# cd Proposal
+	# latexexpand final.tex -o allinone-old.tex
+	# copy the result to this directory
 	-rm diff.*
 	latexdiff  allinone-old.tex allinone.tex > diff.tex
+	sed -i   s/blue/DarkGreen/ diff.tex
+	sed -i   "s/^.milestonetable/%milestonetable/" diff.tex
+	make PROPOSAL=diff.tex all
 	# Comment out the \milestonetable line
 	# Change color from blue to DarkGreen in the preamble:
 	# \providecommand{\DIFadd}[1]{{\protect\color{DarkGreen}\uwave{#1}}} %DIF PREAMBLE
