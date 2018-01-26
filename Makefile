@@ -40,6 +40,9 @@ WP4/D4.4/report.pdf: WP4/D4.4/*.png
 
 WP4/D4.5/report.pdf: WP4/D4.5/*.png
 
+WP4/D4.7/report.pdf: WP4/D4.7/*.png WP4/D4.7/*.jpg
+
+
 .SECONDARY:
 
 clean:
