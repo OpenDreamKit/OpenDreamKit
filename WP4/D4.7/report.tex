@@ -1,0 +1,199 @@
+\documentclass{deliverablereport}
+
+\deliverable{UI}{ipython-kernels}
+\deliverydate{01/02/2018}
+\duedate{31/08/2017 (M24)}
+\author{Jeroen Demeyer, Sebastian Gutsche, Nicolas M.~Thiéry}
+
+\begin{document}
+\maketitle
+%\githubissuedescription
+%\tableofcontents
+%\clearpage
+
+\begin{abstract}
+The \href { https://jupyter.org } {Jupyter Notebook} is a web application
+that enables the creation and sharing of executable documents
+contain live code, equations, visualizations and explanatory text.
+Thanks to a modular design, Jupyter can be used with any computational
+system that provides so-called
+\href{ https://jupyter.readthedocs.io/en/latest/projects/kernels.html}{\emph{Jupyter kernel}}
+implementing the
+\href{ https://jupyter-client.readthedocs.io/en/latest}{\emph{Jupyter messaging protocol}}
+to communicate with the notebook. OpenDreamKit
+therefore promote the Jupyter as user interface of choice :
+it is particularly suitable for building modular web based Virtual Research Environments.
+
+This deliverable aims at ODK's main computational components
+Jupyter kernels implemented and distributed.
+It is a follow-up of \delivref{UI}{ipython-kernels-basic},
+which dealt with a first basic version of the Jupyter kernels.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Main features}
+
+All the kernels that we worked on now support syntax highlighting, TAB-completion,
+interactive help and graphics. Some of them also support interactive widgets.
+
+Especially the graphical features are a major improvement over the traditional
+command-line use of GAP, PARI/GP and Singular.
+
+Highlevel description and features.
+
+\subsection {GAP}
+
+\subsection {PARI/GP}
+
+\subsection {Singular}
+
+The \Singular{} kernel features pictures of algebraic curves and surfaces
+using the surf raytracer.
+
+\subsection {C ++: xeus-cling}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section {Impact}
+
+The implementation of Jupyter kernels for many computational systems
+Provide s Their users with an easy-to-use, modern and uniform user interface.
+Jupyter is now being used as a front end for mathematics on a daily basis by hundreds of researchers
+around the world, and also for teaching (see Section ~ \ref {...}).
+That i s year major step for the dissemination Of Those systems.
+
+Implementing those kernels further enabled outsourcing the development of user interfaces
+which traditionally had been a time sink for those systems.
+For example, SageMath is dropping the development of its notebook system sagenb, and
+refocus sing on the energy on core features. % TODO mention sustainability here
+
+But because the Jupyter ecosystem is so large (millions of users?) And active,
+the Jupyter technology stack goes beyond the notebook interface.
+
+
+\subsection{Teaching}
+
+\begin{itemize}
+\item Since Fall 2017, Jupyter is used each Fall at Université Paris Sud for teaching C++ to 300+ students.
+This was initiated in particular by \OpenDreamKit participants Loïc Gouarin, Viviane Pons, and Nicolas M. Thiéry.
+The mix of narative documents and interactive programming fostered active participation from the students while our web-based deployement made it easier for them to work from home.
+The course material is available from \url{http://Nicolas.Thiery.name/Enseignement/Info111} and \url{...}.
+
+\item In early spring 2017, Prof. Dr. W. Decker and Prof. Dr G. Pfister gave a
+three-week course on computational algebraic geometry at the
+African Institute for Mathematical sciences, Cape Town, South Africa,
+with lectures and computer lab sessions. The course was attended by
+about 50 students from all over Africa. In the lab sessions, the students
+learned how to experiment with the computer algebra system Singular. It
+proved extremely valuable that the students could run Singular in the
+Jupyter notebook. % TODO include picture
+
+\item The GAP Jupyter kernel was used by Pedro Garcia-Sanchez to teach a master course in mathematical software at the University of Granada (https://github.com/pedritomelenas/Software-Matematicas-GAP)
+
+\end{itemize}
+
+\subsection{Publishing on binder}
+
+Binder (\url{mybinder.org}) is a free web service run by the Jupyter community. Authors can publish their notebooks there (annotated with a description of their computing environment), enabling anyone to open and run them from anywhere. Binder can supports C++, GAP, PARI, SageMath, or Singular notebooks and has been used for the following applications:
+
+\begin{itemize}
+\item Dissemination: one-click live demos of software packages
+\item Reproducibility: publishing log-books documenting the computations underlying a research paper
+\item Live documents: publishing talk slides, course notes, documentation, which embed code cells that the reader can modify and execute
+\item Compute service (see below).
+\end{itemize}
+
+\subsection{Live documents with ThebeLab}
+
+ThebeLab is a JavaScript library for enriching static HTML pages with live code cells
+that can be executed and changed by the reader.
+Under the hood, the computations can be configured to either run on a free Jupyter hosting service
+such as \url{MyBinder.org}, or on a custom installation of JupyterHub. Like Jupyter, ThebeLab
+is language agnostic, and can now be used with GAP, PARI, SageMath Singular, ...
+
+Originally was developped by OReilly (under the name Thebe) for enriching their online books, by forking the Jupyter code base.
+At \ODK's workshop on live structured documents in Oslo, Norway in Fall 2017, ThebeLab was
+reimplemented by Benjamin Ragan Kelley as a thin layer on top of JupyterLab, with additional
+features implemented collaboratively by other participants.
+
+Here are some applications:
+\begin{description}
+\item[Live documentation for GAP] The GAP system and its packages are documented
+  in comments embedded in the code, in the so called AutoDoc format. This is similar in principle to javadoc. The documentation can then be extracted and exported as PDF or HTML. Thanks to ThebeLab, Binder, and GAP's Jupyter kernel, the documentation can be made live, letting the user experiment with the provided examples. Unlike previous implementations, this requires no server-side support, nor changes in the HTML. The pages can thus be served from anywhere, including e.g. Github Pages.
+\item[Live documentation for Singular] Similarly to the above, it is now possible to convert pages of the Singular
+HTML manual into active pages. % TODO: deploy publicly, and advertise here
+
+\item[Live documentation for SageMath] Similarly to the above, SageMath's Sphinx-based documentation system can be configured to produce live HTML documentation. This is already used by some SageMath packages like
+\href{http://more-sagemath-tutorials.readthedocs.io/}{More SageMath Tutorials}, and will eventually be used by the main \Sage documentation.
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implementation}
+
+The various Jupyter kernels are implemented in different ways, which shows how flexible
+the Jupyter protocol is to adapt to various use cases. We now explain some technical details for each of the kernels.
+
+\subsection{GAP}
+
+The GAP kernel is a native kernel, implemented in GAP by Markus Pfeiffer. It uses ZeroMQ and GAP's own JSON
+parser for input and output, which means the largest part of the protocol is implemented in plain GAP.
+
+The GAP kernel supports code inspection and completion, as well as rich output. It is possible to produce
+any kind of rich output directly from GAP by returning the appropriate MIME-Types in GAP records.
+
+Furthermore, the GAP package francy (https://github.com/mcmartins/francy) by Manuel Martins is
+currently developed as a Jupyter-based replacement of the old graphical GAP output in XGAP,
+and will provide nice tools to interactively inspect mathematical structures such as subgroup lattices
+or conjugacy classes.
+
+
+\subsection{PARI/GP}
+
+The PARI/GP kernel is a wrapper kernel, which means that it is based on ipykernel, the implementation from IPython of the Jupyter protocol.
+Thanks to this, it takes only a small amount of code to write a basic kernel.
+
+It is implemented using the Cython programming language,
+which allows seamless combining of Python code with C code:
+Python is used for the interface with the IPython kernel and C is used to execute PARI/GP code
+using the PARI library.
+
+Hi-resolution plotting is supported through SVG images: this required significant changes to the PARI/GP
+plotting architecture, which previously only worked on the GP command line and from the PARI library.
+
+\subsection{Singular}
+
+The Singular kernel is build out of two python packages: PySingular and jupyter_kernel_singular.
+
+PySingular provides a Python wrapper for LibSingular's C functions. It is able to parse singular code and return either the
+output or the resulting error, and to invoke Singular's code completions. PySingular is written in pure C, using Python's C API.
+To get the full features of Singular, several adjustments in Singular had to be made, e.g., making Singular's error output available
+in LibSingular and providing a non-interactive help viewer.
+
+jupyter_kernel_singular is a wrapper kernel, based on PySingular's interface to Singular and the IPython wrapper kernel. It supports
+all features of the IPython class, such as code inspection, code completion, and completeness check. Furthermore, it can displayed
+pictures of algebraic surfaces created via the external program surf, which is Singular's main backend for visualisation.
+
+\subsection{SageMath}
+
+Since \Sage is written in Python, its kernel is implemented on top of Python's kernel which is very rich by itself.
+Additional work included:
+\begin{itemize}
+\item Configuration of the documentation
+\item Configuration of the parser to catter for some
+\item Rich output handling (LaTeX with mathjax, plots, ...)
+\item Improvements to Jupyter's widgets to be as feature rich as \Sage's former widgets.
+\end{itemize}
+The later item was implemented by Jeroen Demeyer under ODK funding as part of \delivref{UI}{???}D4.5. Most of the rest was implemented by the \Sage community.
+
+\subsection{C++: xeus-cling}
+
+\texttt{xeus-cling} is based on \href{}{xeus}, a native C++ implementation of the \Jupyter protocol, and \href{cling}{cling},
+a C++ interpreter based on the C++ compiler \href{}{clang} and compiler suite \href{}{llvm}.
+\ODK contributed man power with Loïc Gouarin being one of the three main developpers; also Nicolas Thiéry was an early adopter and contributed with bug reports and feature suggestions.
+
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Detailed list of features}
+
+TODO at the end: include here the itemized check list from the github description.
+\end{document}
