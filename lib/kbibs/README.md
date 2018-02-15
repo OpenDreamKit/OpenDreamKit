@@ -3,9 +3,9 @@
 The repository contains the bib resources of the KWARC group, most notably the
 citation database ```kwarc.bib```. It is generated automatically by concatenating
 several source files via a [Travis CI](https://travis-ci.org/) build job. 
-We additionally use the Travis job to generate a 
-[publication website](https://kwarc.github.io/bibs/) with the help of 
-[LaTeXML](http://dlmf.nist.gov/LaTeXML/).
+We additionally use the Travis job to generate  
+[publication websites](https://kwarc.github.io/bibs/) with the help of 
+[LaTeXML](http://dlmf.nist.gov/LaTeXML/)  - see (far below).
 
 ## Using the KWARC bibs
 
@@ -62,7 +62,7 @@ The source files do not have any particular order.
  
 Do not use any graphical frontend for editing, but use a text 
 editor, as the latter makes sure that changes are easy to spot
-when using Subversion's diff.
+when using Git/Subversion's diff.
  
 Do not touch anything that you don't understand.
  
@@ -84,8 +84,35 @@ The naming scheme is:
  online citations
 * ```@misc{entry:web}``` -- plain BibTeX entry 
 * ```@misc{entry:base}``` -- crossref'd by the others above, contains 
- common fields, not suitable for citation
+common fields, not suitable for citation
 
+# Publication Pages
+
+We use the Travis job to generate  
+[publication websites](https://kwarc.github.io/bibs/) with the help of
+[LaTeXML](http://dlmf.nist.gov/LaTeXML/).  Additionally, we generate
+specific publication pages for [KWARC members](http://kwarc.info/people/), 
+[KWARC projects](http://kwarc.info/projects/), and theses. This behavior is triggered by
+the `pubs` key in the bibTeX entries: an entry with `pubs = {foo,bar}` will be listed in
+the publication pages http://kwarc.github.io/foo and http://kwarc.github.io/bar.
+
+## The Build Process
+In a nutshell,  the build process transforms `kwarcpubs.bib` and `kwarccrossrefs.bib` to LTXML format via
+[LaTeXML](http://dlmf.nist.gov/LaTeXML/). Then we run the script `src/pubs/publist.xsl`
+over it for all the values from the `pubs=` field in the bibTeX entries that are registered
+in the `bibs.do` variable in the `Makefile`. `publist.xsl`
+selects the respective items and makes a html file from that. The results are committed to
+[the `gh-pages` branch](https://github.com/KWARC/bibs/tree/gh-pages) and are then hosted by GitHub. 
+
+For details see the top-level `Makefile`. 
+
+## Adding a Person or Project Page to the Publication Pages (Generation)
+To add a person to the publication pages 
+1. update the `bib.people` variable in the top-level `Makefile` and add the username of the person to add
+2. update the `<xsl:choose>` statement in `src/pubs/publist.xsl` to set the real name of the person to be added.
+Travis will re-build the web page (takes about 30 min), but you should probably test by
+building locally first. 
+ 
 ## Building locally
 The website and concatenated files are generated and pushed automatically via
 TRAVIS. For building locally we use a ```Makefile```. It has the following 
@@ -101,7 +128,6 @@ targets:
 * ```clean``` Removes **all** generated files
 
 The ```xml``` and ```html``` targets depend on a working latexml installation. The ```html``` and ```pubs``` targets also need ```xsltproc```. 
-
 
 # Using this repo in a paper repository
 We write most of our papers in ```git``` repositories, there it is usually a good idea to

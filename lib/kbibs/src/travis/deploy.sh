@@ -14,7 +14,7 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
 fi
 
 # work only if files actually changed.
-git diff --quiet --exit-code "HEAD" "HEAD^" src/ preamble.bib kwarcpubs.bib extpubs.bib kwarccrossrefs.bib extcrossrefs.bib
+git diff --quiet --exit-code "HEAD" "HEAD^" src/ Makefile preamble.bib kwarcpubs.bib extpubs.bib kwarccrossrefs.bib extcrossrefs.bib
 if [ $? -eq 0 ];then
   echo "Refusing to work: No source files were changed. Exiting normally. "
   exit 0

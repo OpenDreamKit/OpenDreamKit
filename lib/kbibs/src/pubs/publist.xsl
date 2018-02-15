@@ -22,6 +22,38 @@
       <xsl:when test="$id='cmueller'"><xsl:text>Christine Müller</xsl:text></xsl:when>
       <xsl:when test="$id='nmueller'"><xsl:text>Normen Müller</xsl:text></xsl:when>
       <xsl:when test="$id='fhorozal'"><xsl:text>Fulya Horozal</xsl:text></xsl:when>
+      
+      <xsl:when test="$id='sissi'"><xsl:text>Project SiSsI</xsl:text></xsl:when>
+      <xsl:when test="$id='tetrapod'"><xsl:text>Project TetraPod</xsl:text></xsl:when>
+      <xsl:when test="$id='TNTBase'"><xsl:text>Project TNTBase</xsl:text></xsl:when>
+      <xsl:when test="$id='arXMLiv'"><xsl:text>Project arXMLiv</xsl:text></xsl:when>
+      <xsl:when test="$id='cpoint'"><xsl:text>Project CPoint</xsl:text></xsl:when>
+      <xsl:when test="$id='jomdoc'"><xsl:text>Project JOMDoc</xsl:text></xsl:when>
+      <xsl:when test="$id='kat'"><xsl:text>Project KAT (KWARC Annotation Tool)</xsl:text></xsl:when>
+      <xsl:when test="$id='krextor'"><xsl:text>Project Krextor</xsl:text></xsl:when>
+      <xsl:when test="$id='llamapun'"><xsl:text>Project LLaMaPuN</xsl:text></xsl:when>
+      <xsl:when test="$id='mathhub'"><xsl:text>Project MathHub</xsl:text></xsl:when>
+      <xsl:when test="$id='mmt'"><xsl:text>Project MMT (Meta Meta Theories/Toolkit)</xsl:text></xsl:when>
+      <xsl:when test="$id='mws'"><xsl:text>Project MathWebSearch</xsl:text></xsl:when>
+      <xsl:when test="$id='omdoc'"><xsl:text>Project OMDoc</xsl:text></xsl:when>
+      <xsl:when test="$id='openmathmap'"><xsl:text>Project OpenMathMap</xsl:text></xsl:when>
+      <xsl:when test="$id='sTeX'"><xsl:text>Project sTeX</xsl:text></xsl:when>
+      <xsl:when test="$id='sally'"><xsl:text>Project Semantic Alliance</xsl:text></xsl:when>
+      <xsl:when test="$id='smglom'"><xsl:text>Project SMGloM</xsl:text></xsl:when>
+      <xsl:when test="$id='swim'"><xsl:text>Project SWiM</xsl:text></xsl:when>
+      <xsl:when test="$id='FormalCAD'"><xsl:text>Project FormalCAD</xsl:text></xsl:when>
+      <xsl:when test="$id='jem'"><xsl:text>Project OpenJEM</xsl:text></xsl:when>
+      <xsl:when test="$id='latin'"><xsl:text>Project LATIN</xsl:text></xsl:when>
+      <xsl:when test="$id='logosphere'"><xsl:text>Project LogoSphere</xsl:text></xsl:when>
+      <xsl:when test="$id='mathsearch'"><xsl:text>Project MathSearch</xsl:text></xsl:when>
+      <xsl:when test="$id='oaf'"><xsl:text>Project OAF (Open Archive of Formalizations)</xsl:text></xsl:when>
+      <xsl:when test="$id='odk'"><xsl:text>Project OpenDreamKit</xsl:text></xsl:when>
+      <xsl:when test="$id='odkWP6'"><xsl:text>Project OpenDreamKit (WP 6)</xsl:text></xsl:when>
+      <xsl:when test="$id='omoc'"><xsl:text>Project OMoC (Ontology-Based Management of Change)</xsl:text></xsl:when>
+      <xsl:when test="$id='once-cs'"><xsl:text>Project Once-CS</xsl:text></xsl:when>
+      <xsl:when test="$id='openmath-tn'"><xsl:text>Project OpenMath</xsl:text></xsl:when>
+      <xsl:when test="$id='MaMoReD'"><xsl:text>Project MaMoReD</xsl:text></xsl:when>
+
       <xsl:otherwise><xsl:value-of select="$id"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -109,11 +141,19 @@
   <xsl:template match="/">
     <html>
       <head>
-	<title><xsl:value-of select="$name"/>: Selected Publications</title>
+	<xsl:choose>
+	  <xsl:when test="$id='phdthesis'"><title>KWARC Ph.D. Theses</title></xsl:when>
+	  <xsl:when test="$id='mscthesis'"><title>KWARC Masters Theses</title></xsl:when>
+	  <xsl:when test="$id='bscthesis'"><title>KWARC Bachelors Theses</title></xsl:when>
+	  <xsl:when test="$id='theses'"><title>KWARC Theses</title></xsl:when>
+	  <xsl:otherwise>
+	    <title><xsl:value-of select="$name"/>: Selected Publications</title>
+	  </xsl:otherwise>
+	</xsl:choose>
 	<style type="text/css">
 	  .ltx_bib_cited {display:none}
 	  .ltx_bib_key {display:none}
-
+	  
 	  /* lifted from LaTeXML.css */
 	  .ltx_bib_title { font-style:italic; }
 	  .ltx_bib_article .bib-title { font-style:normal !important; }
@@ -129,11 +169,16 @@
 	  <!-- Header -->
 	  <div class="row">
 	    <div class="col s12">
-	      <h1><xsl:value-of select="$name"/>: Selected Publications</h1>
-	      
-	      <blockquote>
-		Please respect any copyrights when downloading
-	      </blockquote>
+	      <xsl:choose>
+		<xsl:when test="$id='phdthesis'"><H1>KWARC Ph.D. Theses</H1></xsl:when>
+		<xsl:when test="$id='mscthesis'"><H1>KWARC Masters Theses</H1></xsl:when>
+		<xsl:when test="$id='bscthesis'"><H1>KWARC Bachelors Theses</H1></xsl:when>
+		<xsl:when test="$id='theses'"><H1>KWARC Theses</H1></xsl:when>
+		<xsl:otherwise>
+		  <h1><xsl:value-of select="$name"/>: Selected Publications</h1>
+		  <blockquote>
+		    Please respect any copyrights when downloading
+		  </blockquote>
 	      
 	      <ol>
 		<xsl:if test="$article!='' or $incollection!='' or $conference!='' or $book!='' or $cproceedings!=''">
@@ -164,9 +209,48 @@
 		<xsl:if test="$unpublished!=''"><li><a href="#unpublished">Unpublished</a></li></xsl:if>
 		<xsl:if test="$misc!=''"><li><a href="#misc">Miscellaneous</a></li></xsl:if>
 	      </ol>
+		</xsl:otherwise>
+	      </xsl:choose>
 	    </div>
 	  </div>
 	  
+	      <xsl:choose>
+		<xsl:when test="$id='phdthesis'">
+		  <xsl:for-each select="document('phdthesis-thesis.html')//x:ul[@class='ltx_biblist']/x:li">
+		    <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+		    <xsl:copy-of select="."/>
+		  </xsl:for-each>
+		</xsl:when>
+		<xsl:when test="$id='mscthesis'">
+		  <xsl:for-each select="document('mscthesis-thesis.html')//x:ul[@class='ltx_biblist']/x:li">
+		    <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+		    <xsl:copy-of select="."/>
+		  </xsl:for-each>
+		</xsl:when>
+		<xsl:when test="$id='bscthesis'">
+		  <xsl:for-each select="document('bscthesis-thesis.html')//x:ul[@class='ltx_biblist']/x:li">
+		    <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+		    <xsl:copy-of select="."/>
+		  </xsl:for-each>
+		</xsl:when>
+		<xsl:when test="$id='theses'">
+		  <h2>Ph.D. Theses</h2>
+		  <xsl:for-each select="document('phdthesis-thesis.html')//x:ul[@class='ltx_biblist']/x:li">
+		    <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+		    <xsl:copy-of select="."/>
+		  </xsl:for-each>
+		  <h2>Masters Theses</h2>
+		  <xsl:for-each select="document('mscthesis-thesis.html')//x:ul[@class='ltx_biblist']/x:li">
+		    <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+		    <xsl:copy-of select="."/>
+		  </xsl:for-each>
+		  <h2>Bachelors Theses</h2>
+		  <xsl:for-each select="document('bscthesis-thesis.html')//x:ul[@class='ltx_biblist']/x:li">
+		    <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
+		    <xsl:copy-of select="."/>
+		  </xsl:for-each>
+		</xsl:when>
+		<xsl:otherwise>
 	  <div class="row">
 	    <div class="col s12">
 	      
@@ -238,7 +322,9 @@
 	      </xsl:if>
 	    </div>
 	  </div>
-	</div>
+		</xsl:otherwise>
+	      </xsl:choose>
+	    </div>
       </body>
     </html>
   </xsl:template>
