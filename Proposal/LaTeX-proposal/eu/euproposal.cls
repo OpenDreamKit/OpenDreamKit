@@ -8,7 +8,6 @@
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{euproposal}[2016/12/15 v1.5 EU Proposal]
-
 \newif\ifpartB\partBfalse
 \DeclareOption{partB}{\partBtrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}

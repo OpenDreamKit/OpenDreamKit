@@ -19,6 +19,7 @@
 \newif\if@svninfo\@svninfofalse
 \newif\if@gitinfo\@gitinfofalse
 \newif\if@numericcites\@numericcitesfalse
+\newif\if@longtasklabels\@longtasklabelsfalse
 \def\proposal@class{article}
 \DeclareOption{wpsubsection}{\@wpsubsectiontrue}
 \DeclareOption{submit}{\submittrue}
@@ -32,11 +33,11 @@
 \DeclareOption{report}{\def\proposal@class{report}}
 \DeclareOption{keys}{\keystrue}
 \DeclareOption{deliverables}{\delivstrue}
+\DeclareOption{longtasklabels}{\@longtasklabelstrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions
 \LoadClass[a4paper,twoside]{\proposal@class}
 \RequirePackage{proposal}
-
 
 \endinput
 %%

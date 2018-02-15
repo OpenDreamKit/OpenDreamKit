@@ -1,16 +1,17 @@
 ###########################################################################
-# Automating proposal management by make.
+# Automating LaTeX-proposal management by make.
 # The participants work on proposal.tex in "draft" mode, which gives a lot
 # of information to the developers. Variants submit.tex and public.tex are
 # used to prepare official versions (hiding development/private info). 
 ###########################################################################
-# possibly customize the following variables to your setting
-PROPOSAL = proposal.tex 	# the proposal
-BIB = ../lib/dummy.bib	        # bibTeX databases
-PROP.dir = ../../..
+# To use this file, set these files in a local Makefile
+# PROPOSAL = ????	# the base name of the top-level proposal file(s) 
+# REPORT = ????	# the base name of the top-level report file(s) 
+# BIB =  ?????		# directory of the bibTeX databases
+# PROP.dir = ????      # The LaTeX-proposal class directory
 ###########################################################################
-# the following are computed
-TARGET = $(PROPOSAL)                         	  # all pdflatex targets
+# the following are computed from these settings
+TARGET = $(PROPOSAL) $(REPORT)                       	  # all pdflatex targets
 TARGET.pdf 	= $(TARGET:%.tex=%.pdf)         	  # PDFs to be produced
 TARGET.aux 	= $(TARGET:%.tex=%.aux)             # their aux files.
 PDATA 		= $(PROPOSAL:%.tex=%.pdata)       # the proposal project data
@@ -21,10 +22,11 @@ PROPCLS.dir = $(PROP.dir)/base
 PROPETC.dir = $(PROP.dir)/etc
 DFGPROPCLS.dir = $(PROP.dir)/dfg
 TEXINPUTS := .//:$(PROPCLS.dir)//:$(DFGPROPCLS.dir)//:$(PROPETC.dir)//:
-BIBINPUTS := ../lib:$(BIBINPUTS)
-PROPCLS.clssty = proposal.cls pdata.sty
+BIBINPUTS := $(BIB):$(BIBINPUTS)
+BIBS := $(shell ls $(BIB)/*.bib)
+PROPCLS.clssty = proposal.cls pdata.sty reporting.cls
 PROPETC.sty = workaddress.sty metakeys.sty sref.sty
-DFGPROPCLS.clssty = dfgproposal.cls dfgpdata.sty
+DFGPROPCLS.clssty = dfgproposal.cls dfgpdata.sty dfgreporting.cls
 PROPCLS = $(PROPCLS.clssty:%=$(PROPCLS.dir)/%) $(DFGPROPCLS.clssty:%=$(DFGPROPCLS.dir)/%) $(PROPETC.sty:%=$(PROPETC.dir)/%)
 
 all: $(TARGET.pdf)
@@ -48,7 +50,7 @@ $(PDATA): %.pdata: %.tex
 $(TARGET.aux): %.aux: %.tex
 	$(PDFLATEX) $<
 
-$(TARGET.pdf): %.pdf: %.tex $(SRC) $(BIB) $(PROPCLS) 
+$(TARGET.pdf): %.pdf: %.tex $(SRC) $(BIBS) $(PROPCLS) 
 	$(PDFLATEX) $<  || $(RM) $@
 #	sort $(PROPOSAL:%.tex=%.delivs) > $(PROPOSAL:%.tex=%.deliverables)
 	@if (test -e $(patsubst %.tex, %.idx,  $<));\
@@ -70,4 +72,4 @@ distclean: clean
 	rm -Rf auto
 
 echo:
-	@echo $(BIBINPUTS)
+	@echo $(BIBS)

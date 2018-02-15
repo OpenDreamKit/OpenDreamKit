@@ -14,23 +14,35 @@ keeping information consistent.
 
 ## Using the LaTeX Proposal Class
 
-In the simplest case, just clone the repository, and extend your  ```TEXINPUTS```
+In the simplest case, just clone the repository, and extend your  `TEXINPUTS`
 environment variable so that it can find it. On a UNIX system something like the following
 should work. 
 ```
-cd /path/to/your/setup
+cd /path/to/your/project
 git clone https://github.com/KWARC/LaTeX-proposal
-echo 'export BIBINPUTS = "$(BIBINPUTS):/path/to/your/setup/LaTeX-proposal//:"' >> ~/.bashrc
+echo 'export TEXINPUTS = "$(TEXINPUTS):/path/to/your/project/LaTeX-proposal//:"' >> ~/.bashrc
 ```
-Of course you will have to replace ```/path/to/your/setup``` with a path appropriate to
-your system. A simple ```git pull``` will update you to the newest version.
+Of course you will have to replace `/path/to/your/project` with a path appropriate to
+your system. A simple `git pull` will update you to the newest version.
 
-Then you can just copy one of the examples at ```LaTeX-proposal/*/examples/*``` to your
-system and start editing (you should probably adapt the upper section of the
-```Makefile``` accordingly).
+## Getting Started with a New Proposal
 
-If you want to use the LaTeX proposal class in a revision control system for a larger
-group, read (far) below.
+The simplest way to start a new proposal is to copy one of the examples at
+`LaTeX-proposal/examples/*/*` to your system and start editing. You should probably adapt
+the three variables in the upper section of the `Makefile` accordingly, if you want to use
+(UNIX) `Makefile` automation (recommended). If you want to use the LaTeX proposal class in
+a revision control system for a larger group, read (far) below.
+
+Here is what you would do on a UNIX system after the initial steps above to prepare a DFG
+proposal (or an EU proposal the same setup works as well, but with suitably adapted
+paths). 
+```
+cp examples/dfg/proposal .
+sed -i .bak s/PROP.dir = ..\/..\/..\//Prop.dir = ./ proposal/Makefile 
+sed -i .bak s/BIB = ..\/lib/BIB = ./ proposal/Makefile 
+
+```
+
 
 ## Disclaimer
 
@@ -59,12 +71,13 @@ The base proposal class supports many of the general elements of project proposa
 optimized towards collaborating on writing project proposals. This class is intended to be
 specialized to particular funding bodies that have their own styles.
 
-* ```base```: the base proposal class ([documentation](https://github.com/KWARC/LaTeX-proposal/tree/master/base/proposal.pdf))
-* ```dfg```: the instance for Deutsche Forschungsgemeinschaft ([documentation](https://github.com/KWARC/LaTeX-proposal/tree/master/dfg/dfgproposal.pdf), [examples](https://github.com/KWARC/LaTeX-proposal/tree/master/dfg/examples))
-* ```eu```: the instance for EU proposals ([documentation](https://github.com/KWARC/LaTeX-proposal/tree/master/eu/euproposal.pdf), [examples](https://github.com/KWARC/LaTeX-proposal/tree/master/eu/examples))
-* ```etc```: style files from the sTeX bundle added for convenience (only on GitHub, not on CTAN)
-* ```lib```: Makefiles for the management of self-documenting packages
-* ```bin```: utilities, e.g. a script that makes GitHub issues from the deliverables of a proposal for project managment if the proposal is granted. 
+* `base`: the base proposal class ([documentation](https://github.com/KWARC/LaTeX-proposal/tree/master/base/proposal.pdf))
+* `dfg`: the instance for Deutsche Forschungsgemeinschaft ([documentation](https://github.com/KWARC/LaTeX-proposal/tree/master/dfg/dfgproposal.pdf), [examples](https://github.com/KWARC/LaTeX-proposal/tree/master/examples/dfg))
+* `eu`: the instance for EU proposals ([documentation](https://github.com/KWARC/LaTeX-proposal/tree/master/eu/euproposal.pdf), [examples](https://github.com/KWARC/LaTeX-proposal/tree/master/examples/eu))
+* `examples`: example proposal (stubs). 
+* `etc`: style files from the sTeX bundle added for convenience (only on GitHub, not on CTAN)
+* `lib`: Makefiles for the management of self-documenting packages
+* `bin`: utilities, e.g. a script that makes GitHub issues from the deliverables of a proposal for project managment if the proposal is granted. 
 
 
 # Using this repo in a paper repository
@@ -73,48 +86,48 @@ The best way to write a collaborative proposal is to use a revision control syst
 usually a good idea to make this repository into an external sub-repository that can be
 updated as necessary. In the instructions below we assume that you - as the paper repos
 maintainer - want to add the proposal classes as a sub-repository at path
-```lib/LaTeX-proposal``` from the top of the paper repository.
+`lib/LaTeX-proposal` from the top of the paper repository.
 
 ## The best way for GIT
 
-is via the ```git-subrepo``` extension of ```git```. Unfortunately this is not part of git
+is via the `git-subrepo` extension of `git`. Unfortunately this is not part of git
 (yet). So you as the paper repos maintainer have to
 [install it first](https://github.com/git-commands/git-subrepo#readme) if you want to
 install the proposal classes as a subrepos. Your users do not, they will get the subrepos
-automatically on ```git clone``` or ```git pull```.
+automatically on `git clone` or `git pull`.
 
-1. go to the top of your paper prehistory: ```cd path/to/top``` (you can only make a
+1. go to the top of your paper prehistory: `cd path/to/top` (you can only make a
   "subrepo" from there) 
-2. add the LaTeX-proposal distribution repos as a "subrepo": ```git subrepo clone git@github.com:KWARC/LaTeX-proposal.git LaTeX-proposal```
+2. add the LaTeX-proposal distribution repos as a "subrepo": `git subrepo clone git@github.com:KWARC/LaTeX-proposal.git LaTeX-proposal`
 
-Note that under ```git-subrepo``` the "external" is not updated automatically, a
+Note that under `git-subrepo` the "external" is not updated automatically, a
 maintainer has to "pull" it. This can be seen as a feature and not a bug (there is less of
 a chance to break things).
 
-1. go to the top of your paper repository: ```cd path/to/top``` (you can only pull from there)
-2. pull the proposal classes repos as a "subrepo": ```git subrepo pull LaTeX-proposal```
+1. go to the top of your paper repository: `cd path/to/top` (you can only pull from there)
+2. pull the proposal classes repos as a "subrepo": `git subrepo pull LaTeX-proposal`
 
 To contribute changes back to the the LaTeX-proposal  repository, you analogously do 
 
-1. go to the top of your paper prehistory: ```cd path/to/top``` (you can only push from there)
-2. do the push: ```git subrepo push LaTeX-proposal```
+1. go to the top of your paper prehistory: `cd path/to/top` (you can only push from there)
+2. do the push: `git subrepo push LaTeX-proposal`
 
 easypeasy!
 
 ## The second best way for GIT
-is via ```git subtree```. 
+is via `git subtree`. 
 
-1. go to the top of your paper repository: ```cd path/to/top```
-2. add the LaTeX-proposal  repos as a remote: ```git remote add LaTeX-proposal
-    git@github.com:KWARC/LaTeX-proposal.git``` under the name ```LaTex-proposal```.
-3. add the remote ```LaTeX-proposal```  as a subtree: ```git subtree add --prefix=LaTeX-proposal LaTeX-proposal master --squash```
-  (here under the path ```LaTeX-proposal```). The ```--squash``` reduces history noise. 
+1. go to the top of your paper repository: `cd path/to/top`
+2. add the LaTeX-proposal  repos as a remote: `git remote add LaTeX-proposal
+    git@github.com:KWARC/LaTeX-proposal.git` under the name `LaTex-proposal`.
+3. add the remote `LaTeX-proposal`  as a subtree: `git subtree add --prefix=LaTeX-proposal LaTeX-proposal master --squash`
+  (here under the path `LaTeX-proposal`). The `--squash` reduces history noise. 
 
 When you want to update the subrepository to the newest version, you have to "subtree
 pull" as above: 
 
-1. go to the top of your paper repository: ```cd path/to/top```
-2. subtree-pull: ```git subtree pull --prefix=LaTeX-proposal LaTeX-proposal master --squash```
+1. go to the top of your paper repository: `cd path/to/top`
+2. subtree-pull: `git subtree pull --prefix=LaTeX-proposal LaTeX-proposal master --squash`
   this is a bit inconvenient, but works well.
 
 Contributing back to the LaTeX-proposal  repository is somewhat more complex; RTFM!
@@ -122,12 +135,12 @@ Contributing back to the LaTeX-proposal  repository is somewhat more complex; RT
 ## Externals in SVN
 In a subversion repository you can must make an external by
 
-1. go to the top of your paper prehistory: ```cd path/to/top```
-2. make the ```lib``` subdir if necessary: ```mkdir lib```
-3. add the external: ```svn propedit svn:externals lib```
-4. an editor will appear, add the line ```LaTeX-proposal LaTeX-proposal https://github.com/KWARC/LaTeX-proposal/trunk```
-5. commit your work: ```svn commit -m'adding external for the LaTeX-proposal '```
+1. go to the top of your paper prehistory: `cd path/to/top`
+2. make the `lib` subdir if necessary: `mkdir lib`
+3. add the external: `svn propedit svn:externals lib`
+4. an editor will appear, add the line `LaTeX-proposal LaTeX-proposal https://github.com/KWARC/LaTeX-proposal/trunk`
+5. commit your work: `svn commit -m'adding external for the LaTeX-proposal '`
 
-Note that in SVN any ```svn update``` will update the LaTeX-proposal repository in the
+Note that in SVN any `svn update`@ will update the LaTeX-proposal repository in the
 external as well.
 

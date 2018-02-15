@@ -151,6 +151,9 @@
 % The \DescribeMacro{wpsubsection}|wpsubsection| option specifies that we want to see
 % subsections headings for the WPs (and WAs, if we have them).
 % 
+% The \DescribeMacro{longtasklabels}|longtasklabels| option specifies that we want to long
+% task labels (i.e. including the WP and possibly WA numbers)
+% 
 % The \DescribeMacro{report}|report| option specifies that we want to use the |report.cls|
 % class as a basis for |proposal| instead of the default |article.cls|.
 %
@@ -624,6 +627,7 @@
 \newif\if@svninfo\@svninfofalse
 \newif\if@gitinfo\@gitinfofalse
 \newif\if@numericcites\@numericcitesfalse
+\newif\if@longtasklabels\@longtasklabelsfalse
 \def\proposal@class{article}
 \DeclareOption{wpsubsection}{\@wpsubsectiontrue}
 \DeclareOption{submit}{\submittrue}
@@ -637,6 +641,7 @@
 \DeclareOption{report}{\def\proposal@class{report}}
 \DeclareOption{keys}{\keystrue}
 \DeclareOption{deliverables}{\delivstrue}
+\DeclareOption{longtasklabels}{\@longtasklabelstrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions
 \LoadClass[a4paper,twoside]{\proposal@class}
@@ -997,7 +1002,7 @@
 % We define the keys for the objectives environment
 %    \begin{macrocode}
 \define@key{obj}{id}{\def\obj@id{#1}\@dmp{id=#1}}
-\define@key{obj}{title}{\def\obj@title{#1}\@dmp{title=#1}}
+\define@key{obj}{title}{\def\obj@title{#1}}
 \define@key{obj}{short}{\def\obj@short{#1}\@dmp{short=#1}}
 %    \end{macrocode}
 % And a counter for numbering objectives
@@ -1124,6 +1129,7 @@
 {\def\wp@wphases{0-0}% default values
 \def\wp@swsites{false}
 \setkeys{workpackage}{#1}\stepcounter{wp}\stepcounter{allwp}%
+\pdata@target{wp}{\wp@id}{}%
 \startend@wphases\wp@wphases%
 \pdata@def{wp}\wp@id{start}\wphase@start\pdata@def{wp}\wp@id{end}\wphase@end%
 \@ifundefined{wp@type}{}{\pdata@def{wp}\wp@id{type}\wp@type}%
@@ -1173,7 +1179,7 @@
 % \begin{macro}{\wptitle}
 %   \ednote{document above}
 %    \begin{macrocode}
-\newcommand\wptitle{\wp@mk@title{\wp@num}: \pdata@target{wp}{\wp@id}{\pdataref{wp}\wp@id{title}}}
+\newcommand\wptitle{\wp@mk@title{\wp@num}: \pdataref{wp}\wp@id{title}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1332,12 +1338,15 @@
 {\smallskip\begin{compactenum}}{\end{compactenum}\smallskip}
 %    \end{macrocode}
 % \end{environment}
-% The next step is to 
+%
+% The next step is to define task labels
+% 
 %    \begin{macrocode}
+\newcommand\task@@label[1]{\textbf{T#1}}
 \ifwork@areas
-\newcommand\task@label[3]{\textbf{T#1.#2.#3}}
+\newcommand\task@label[3]{\task@@label{#1.#2.#3}}
 \else
-\newcommand\task@label[2]{\textbf{T#1.#2}}
+\newcommand\task@label[2]{\task@@label{T#1.#2}}
 \fi
 %    \end{macrocode}
 % We define the keys for the task macro
@@ -1381,7 +1390,9 @@
 \@task{#1}%
 \ifx\task@status\@@status@canceled\color{lightgray}\fi
 \item[\pdata@target{task}{\taskin\task@id\wp@id}%
-{\ifwork@areas\task@label\thewa\thewp\thetask@wp\else\task@label\thewp\thetask@wp\fi}]%
+{\if@longtasklabels%
+\ifwork@areas\task@label\thewa\thewp\thetask@wp\else\task@label\thewp\thetask@wp\fi%
+\else\task@@label\thetask@wp\fi}]%
 \textbf\task@title\task@post@title@space%
 %    \end{macrocode}
 % now we decode and show the work phases on the task, if they have been specified.
@@ -2573,16 +2584,29 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 \printbibliography[heading=subbibliography,title=Unclassified,#1]}%
 \define@key{paperlist}{unclassified}[true]{\message{unclass: \prop@rl}\prop@prl\prop@rl}
 %    \end{macrocode}
-% with this, we define a couple of keys that generate 
+% with this, we define a couple of keys that use |\prop@ppl| generate the
+% sub-bibliographies and add that to the |\prop@rl| token register. We also make the
+% headings configurable. 
 %    \begin{macrocode}
-\define@key{paperlist}{articles}[true]{\prop@ppl{article}{Articles}}
-\define@key{paperlist}{chapters}[true]{\prop@ppl{inbook}{Book Chapters}}
-\define@key{paperlist}{confpapers}[true]{\prop@ppl[,keyword=conference]{inproceedings}{Conference Papers}}
-\define@key{paperlist}{wspapers}[true]{\prop@ppl[,notkeyword=conference]{inproceedings}{Workshop Papers}}
-\define@key{paperlist}{theses}[true]{\prop@ppl{thesis}{Theses}}
-\define@key{paperlist}{submitted}[true]{\prop@ppl[,keyword=submitted]{unpublished}{Submitted}}
-\define@key{paperlist}{books}[true]{\prop@ppl{book}{Monographs}}
-\define@key{paperlist}{techreports}[true]{\prop@ppl{techreport}{Technical Reports}}
+\newcommand\prop@articles@heading{Articles}
+\define@key{paperlist}{articles}[true]{\prop@ppl{article}{\prop@articles@heading}}
+\newcommand\prop@chapters@heading{Book Chapters}
+\define@key{paperlist}{chapters}[true]{\prop@ppl{inbook}{\prop@chapters@heading}}
+\newcommand\prop@confpapers@heading{Conference Papers}
+\define@key{paperlist}{confpapers}[true]%
+{\prop@ppl[,keyword=conference]{inproceedings}{\prop@confpapers@heading}}
+\newcommand\prop@wspapers@heading{Workshop  Papers}
+\define@key{paperlist}{wspapers}[true]%
+{\prop@ppl[,notkeyword=conference]{inproceedings}{\prop@wspapers@heading}}
+\newcommand\prop@theses@heading{Theses}
+\define@key{paperlist}{theses}[true]{\prop@ppl{thesis}{\prop@theses@heading}}
+\newcommand\prop@submitted@heading{Submitted}
+\define@key{paperlist}{submitted}[true]%
+{\prop@ppl[,keyword=submitted]{unpublished}{\prop@submitted@heading}}
+\newcommand\prop@books@heading {Monographs}
+\define@key{paperlist}{books}[true]{\prop@ppl{book}{\prop@books@heading}}
+\newcommand\prop@techreports@heading{Technical Reports}
+\define@key{paperlist}{techreports}[true]{\prop@ppl{techreport}{\prop@techreports@heading}}
 %    \end{macrocode}
 %
 % \begin{macro}{featured}
@@ -2661,7 +2685,7 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 %   The |\@dmp| macro shows metadata information about the keys in the margin if
 %   |\keystrue| is specified. This is a debugging tool.
 %    \begin{macrocode}
-\def\@dmp#1{\ifkeys\marginpar{#1}\fi}
+\def\@dmp#1{\ifkeys\marginpar{\small #1}\fi}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2672,13 +2696,7 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 %    \end{macrocode}
 % \end{macro}
 % \Finale
-% \endinput
-
-% Local Variables:
-% mode: doctex
-% TeX-master: t
-% End:
-
+% \endinput 
 %  LocalWords:  localization sec:user-interface standardizes initialization referencable
 %  LocalWords:  pages,start,length,caption sec:implwptable draft,yscale organization
 %  LocalWords:  tab:collaboration sec:limitations sec:implementation ifgrantagreement
@@ -2764,3 +2782,8 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 %  LocalWords:  numericcites LaTeX-proposal:git numeric,hyperref auto,defernumbers
 %  LocalWords:  9,maxcitenames alphabetic,hyperref bigcentering rightskip parindent
 %  LocalWords:  parfillskip endbigcenter endtrivlist 2,title
+
+% Local Variables:
+% mode: doctex
+% TeX-master: t
+% End:

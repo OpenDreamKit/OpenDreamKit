@@ -4,8 +4,6 @@ TDSCOLL = proposal
 DTX.cls.base = euproposal
 DTX = euproposal.dtx
 TDS.tex = eureporting.cls eupdata.sty
-TDS.exdirs = examples/strep examples/lib
-EXDIRS = examples
 
 all: package doc
 	@for d in $(EXDIRS); do (cd $$d && $(MAKE) -$(MAKEFLAGS) $@); done;

@@ -3,7 +3,7 @@
 # LaTeX packages. 
 ########################################################################
 
-MAKEDIRS 	= $(DTXDIRS)
+MAKEDIRS 	= $(DTXDIRS) examples
 TDSCOLL 	?= $(shell basename $$PWD)
 DISTDIRS	= $(DTXDIRS)
 TDS.README 	= README.ctan
@@ -39,3 +39,6 @@ GITURI = git@github.com:KWARC/LaTeX-proposal.git
 TDS.src = 
 TDS.readme = README.ctan
 include lib/Makefile.ctan
+
+echo:
+	@echo $(MAKEDIRS)
