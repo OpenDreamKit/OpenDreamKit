@@ -1,0 +1,196 @@
+For each type, we define codecs. These are pairs of bijective maps between the elements of that type and subsets of JSON.
+
+To encode/decode a mathematical object into/from JSON, we need to provide its type and a codec for that type.
+(Different codecs might encode different mathematical objects as the same JSON. Thus, the meaning of an arbitrary JSON is only determined if the codec is known.)
+
+For codec $C$ for type $T$ and a mathematical object $t$ of $T$, we write $C(t)$ for the encoding of $t$.
+For some types, we define a \emph{default codec} (whose name will start with $\cn{Standard}$.
+If a default codec $D$ exists, we write $\ov{t}$ for $D(t)$.
+
+A codec $C$ is a \emph{string-codec} if encodes every value as a JSON string.
+For codecs $C_i$, we write $\cunion{C_1,\ldots,C_n}$ for the codec that encodes using $C_1$ and decodes according to the first $C_i$ that is applicable to the input
+
+\subsection{JSON}
+
+We use the following JSON values:
+\begin{compactitem}
+  \item $null$
+  \item 32-bit integers
+  \item booleans
+  \item strings
+  \item lists $[j_1,\ldots,j_n]$ for JSON values $j_i$
+  \item objects $\jobj{k_1:j_1,\ldots,k_nj_n}$ for strings $k_i$ and JSON values $j_i$
+\end{compactitem}
+We also say \emph{pair} for lists $[j,j']$ of length $2$.
+
+\subsection{Base Types}
+
+\paragraph{Natural and Integer Numbers}
+Natural numbers and integers are encoded in the same way.
+
+We have the following encodings for an integer $n$, we
+
+$\cn{IntAsNumber}$: the JSON integer $n$ if $|n|$ is small enough and like $\cn{IntAsString}$ otherwise
+
+$\cn{IntAsString}$: a string containing the decimal expansion of $n$
+
+$\cn{IntAsList}$: a list $["base",b,l,d_1,\ldots,d_{|l|}]$ where $b,l,d_i$ are JSON integers such that $\sgn l=\sgn n$ and $(d_1,\ldots,d_|l|)$ is the list of digits of $n$ relative to base $2^b$.\footnote{The value $l$ may seem redundant in the encoding (except for carrying the sign). But it has the advantage that the canonical order on integers corresponds to the lexicographic order of JSON lists.}
+
+$\cn{StandardInt}$: the codec $\cunion{\cn{IntAsNumber},\cn{IntAsString},\cn{IntAsList}}$
+
+\paragraph{Rational Numbers}
+$\cn{StandardRat}$ encodes the rational number $e/d$ for integers $e,d$ as
+\begin{compactitem}
+ \item $\ov{e}$ if $d=1$
+ \item the pair $[e,d]$
+\end{compactitem}
+For encodings, the $e$ and $d$ are fully canceled and $d>0$. For decoding, all pairs with $d\neq 0$ are accepted.
+For decoding the string $"e'/d'"$ where $e'$ and $d'$ are the string encodings of $e$ and $d$ are also accepted.\ednote{FR: is this needed}
+
+\paragraph{Real Numbers}
+A real number can be given in one of the following forms:
+\begin{compactitem}
+ \item a rational number
+ \item a root $\sqrt[n]{x}$ for a natural number $n$ and an integer $x$
+ \item the strings "pi" and "e"
+\end{compactitem}
+
+The codec $\cn{StandardReal}$ encodes a real number as follows:
+\begin{compactitem}
+ \item rational numbers like $\cn{StandardRat}$
+ \item $n\sqrt{x}$ as the list $["root",\ov{n},\ov{x}]$ for a natural number $n$ and an integer $x$
+ \item the strings "pi" or "e"
+\end{compactitem}
+
+\paragraph{Complex Numbers}
+A complex number can be given in one of the following forms:
+\begin{compactitem}
+ \item Cartesian form $x+yi$
+ \item polar form $r e^{i\phi}$
+ \item root of unity $\zeta_n$
+\end{compactitem}
+
+The codec $\cn{StandardComplex}$ encodes a complex number $z$ (in any form) as
+\begin{compactitem}
+ \item if $z$ is in Cartesian form:
+  \begin{compactitem}
+    \item $\ov{x}$ if $y=0$
+    \item the object $\jobj{"re": \ov{x}, "im":\ov{y}}$ otherwise
+  \end{compactitem}
+ \item if $z$ is in polar form
+  \begin{compactitem}
+   \item the object $\jobj{"abs": \ov{r}, "unitarg": \ov{\alpha}}$ if $\phi=2\pi \alpha$ for $\alpha\in[0,1[$
+   \item the object $\jobj{"abs": \ov{r}, "arg": \ov{\phi}}$ otherwise
+  \end{compactitem}
+ \item the object $["root-of-unity", \ov{n}]$ if $z$ is a root of unity
+\end{compactitem}
+
+\paragraph{Strings}
+$\cn{StandardString}$ encodes strings as JSON strings.
+
+\paragraph{Booleans}
+$\cn{BooleanAsBoolean}$ encodes booleans as JSON boolean.
+
+$\cn{BooleanAsInt}$ encodes booleans as $0$ or $1$.
+
+$\cn{BooleanAsString}$ encodes booleans as the strings "true" or "false".
+
+$\cn{StandardBoolean}$ is $\cunion{\cn{BooleanAsBoolean},\cn{BooleanAsInt},\cn{BooleanAsString}}$
+
+
+\subsection{Aggregating Type Constructors}
+
+Corresponding to type constructors $T$ that form types $T(T_1,\ldots,T_n)$ from existing types, we use codec constructors $C$ that form codecs $C(C_1,\ldots,C_n)$ for $T(T_1,\ldots,T_n)$ from codecs $C_i$ for $T_i$.
+
+In the following, we assume codes $C_1,\ldots,C_n$ for the types $T_1,\ldots,T_n$.
+We write $\vec{C}$ for $C_1,\ldots,C_n$.
+
+\paragraph{Products}
+The codec $\cn{StandardProduct}(\vec{C})$ for $T_1*\ldots*T_n$ encodes tuples $(t_1,\ldots,t_n)$ as JSON lists $[C_1(t_1),\ldots,C_n(t_n)]$.
+
+\paragraph{Records}
+The codec $\cn{StandardRecord}(\vec{C})$ for $\record{k_1:T_1,\ldots,k_n:T_n}$ encodes records $\record{k_1=t_1,\ldots,k_n=t_n}$ as JSON objects $\jobj{"k_1":C_1(t_1),\ldots,"k_n":C_n(t_n)}$.
+
+\paragraph{Unions}
+The codec $\cn{StandardUnion}(\vec{C})$ for $\record{T_1+\ldots T_n}$ encodes values $t$ of $T_i$ as the JSON pair $[i,C_i(t)]$.
+
+\paragraph{Labeled Unions}
+The codec $\cn{StandardLabeledUnion}(\vec{C})$ for $\union{k_1:T_1,\ldots,k_n:T_n}$ encodes values $k_i(t)$ for $t\in T_i$ as the JSON object $\jobj{"k_i":C_i(t_i)}$.
+
+\subsection{Collecting Type Constructors}
+
+We assume a codec $C$ for a type $T$.
+
+\paragraph{Options}
+The codec $\cn{StandardOption}(C)$ for $Opt(T)$ encodes values $t\in T$ as $C(t)$ and omitted values as the $null$ value.
+
+\paragraph{Vectors}
+The codec $\cn{StandardVector}(n,C)$ for $Vec(n,T)$ encodes vectors $(t_1,\ldots,t_n)$ as the JSON list $[C(t_1),\ldots,C(t_n)]$.
+
+\paragraph{Lists}
+The codec $\cn{StandardList}(C)$ encodes lists in the same way as $\cn{StandardVector}$.
+
+If $C$ encodes 
+The codec $\cn{StandardList}(C)$ encodes lists in the same way as $\cn{StandardVector}$.
+
+
+\paragraph{Sets}
+The codec $\cn{StandardSet}(C)$ encodes sets in the same way as $\cn{StandardVector}$, where the elements are listed in any order but without repetitions.
+
+\paragraph{Multisets}
+The codec $\cn{StandardMultiset}(C)$ encodes multisets as lists $[[C(t_1),\ov{m_1}], \ldots, [C(t_n),\ov{m_n}]]$ of pairs $(t,m)$ where $t\in T$ is an element of the multiset and with multiplicity $m\in Nat$.
+The order of pairs is not specified.
+For encoding, the same $t_i$ will not occur twice, and $m_i\neq 0$. For decoding, these cases are accepted.
+
+\paragraph{Hybrid Sets}
+The codec $\cn{StandardHypbridSet}(C)$ encodes hybrid sets in the same way as $\cn{StandardMultiset}$ except that the multiplicities may be negative.
+
+\paragraph{Matrices}
+The codec $\cn{RowMatrix}(m,n,C)$ for $Mat(m,n,T)$ encodes matrices $(t_{ij})$ as the list of lists $[[C(t_{11}),\ldots,C(t_{1n})], \ldots, [C(t_{m1}),\ldots,C(t_{mn})]$.
+
+The codec $\cn{ColumnMatrix}(m,n,C)$ for $Mat(m,n,T)$ is the corresponding column-wise encoding.
+
+We put $\cn{StandardMatrix}=\cn{RowMatrix}$.
+
+\paragraph{Two-dimensional List}
+The codecs $\cn{RowList2}$, $\cn{ColumnList2}$, and $\cn{StandardList2}$ encode values of type $List2(T)$ in the same way as $\cn{RowMatrix}$, $\cn{ColumnMatrix}$, and $\cn{StandardMatrix}$.
+
+\subsection{Mathematical Structures}
+
+\paragraph{Finite Maps}
+Assume codecs $C,D$ for types $S,T$.
+
+The codec $MapAsList(C,D)$ encodes the map $f\in FiniteMap(S,T)$ as the list of pairs $[[C(s_1),D(f(s_1))],\ldots,[C(s_n),D(f(s_n))]]$ where the $s_i\in S$ are the pairwise distinct arguments for which $f$ is defined (in any order).
+
+If $C$ is a string-codec, the codec $MapAsObject$ encodes $f$ as the object $\jobj{C(s_1):D(f(s_1)),\ldots,C(s_n):D(f(s_n))}$.
+
+We put $\cn{StandardMap}=\cn{MapAsList}$.
+
+\paragraph{Polynomials}
+Assume a codec $C$ for the underlying type $T$ of a ring $R$.\footnote{For example, we can use $T=Complex$ and $C=\cn{StandardComplex}$ for all polynomials whose coefficients are chosen from a subset of the complex numbers.}
+
+Consider polynomials of the form $p=\Sigma_{\vec{i}\in Nat^n} a_{\vec{i}} \vec{x}^{\vec{i}}\in Polynomial(R,[x_1,\ldots,x_n])$ where $(x_1,\ldots,x^n)^{(i_1,\ldots,i_n)}$ abbreviates $x_1^{i_1}\cdot \ldots\cdot x_n^{i_n}$.
+The codec $PolynomialAsSparseList(R,[x_1,\ldots x_n],C)$ encodes $p$ as the list $[\ldots,[C(a_{\vec{i}}),[\ov{i_1},\ldots,\ov{i_n}]],\ldots,]$.
+The entries of that list occur in any order, and no $\vec{i}$ occurs twice.
+In the special case $n=1$, encoding uses $\ov{i_1}$ instead of $[\ov{i_1}]$; decoding accepts both forms.
+
+For $n=1$, the codec $UnaryPolynomialAsDenseList(R,[x],C)$ encodes $p=\Sigma_{i=0}^d$ as the list $[C(a_0),\ldots,C(a_n)]$.
+
+\paragraph{Fields}
+The following forms of fields are supported:\ednote{@John: Fields are the most difficult type so far. Please check if this in particular.}
+\begin{compactitem}
+ \item base fields $Rat$, $Real$, and $Complex$
+ \item named fields identified by a string
+ \item polynomial field extensions $Rat(p)$ of $Rat$ for a polynomial $p\in Polynomial(Rat,[x])$ (for any variable name $x$)
+ \item extensions of $Rat$ with $\sqrt n$ written as $Qsqrt(n)$
+ \item extensions of $Rat$ with a root $\zeta_n$ of unity written as $Qzeta(n)$
+\end{compactitem}
+
+Given a codec $C$ for $Polynomial(Rat,[x])$, the codec $\cn{StandardField}(C)$ for the type $Field$ encodes fields as follows:\footnote{Note that is different from codecs for encoding the elements of an individual fields.}
+\begin{compactitem}
+ \item base fields as the string $"Rat"$, $"Real"$, and $"Complex"$
+ \item named fields as strings
+ \item field extensions $Rat(p)$ as $C(p)$
+ \item $Qsqrt(n)$ as the pair $["Qsqrt", \ov{n}]$
+ \item $Qzeta(n)$ as the pair $["Qzeta", \ov{n}]$
+\end{compactitem}
