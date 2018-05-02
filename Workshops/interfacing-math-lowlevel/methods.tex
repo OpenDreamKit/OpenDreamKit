@@ -1,0 +1,96 @@
+Consider a high-level language H and a low-level language L.
+Our goal is to allow users to write H-programs in a way makes use of fast code in L.
+The latter may be a pre-existing library or co-developed by the same user.
+
+We develop a set of criteria that allow classifying the various solutions.
+
+% % % % % % % % % % % % % % % % % % % % %
+\subsection{Type: Relationship between High- and Low-Level}
+
+This criterion describes the relationship between H and L.
+Here we name these relationships from the perspective of the high-level language.
+
+\paragraph{Extension: Calling L-Code from H}
+Like every programming language, H must provide a set of built-in primitive types and functions.
+The simplest examples are the type of machine integers and the associated operations.
+
+Usually, the implementation language of H already provides a systematic way of defining such primitive operations.
+If L is this implementation language, it is straightforward to expose this to H-users.
+This is often called \emph{foreign function interface}.
+
+Instantiating the foreign function interface may be as easy as supplying as declaring a fresh H-identifier $h$ and annotating it with an existing L-identifier $l$.
+This is often called an H-\emph{binding} for $l$.
+Given an L-library, it is then straightforward to write such H-declarations for all L-primitives that are to be exposed.
+
+\ednote{drawbacks: writing the bindings can be cumbersome; difficult to instantiate polymorphic L-types with H-types}
+
+\paragraph{Reification: Operating on H-Code in L}
+If an implementation (compiler or interpreter) of H in L is available, one can treat H-code as L-data.
+H-declarations and objects $h$ can be built and manipulated as L-objects for the syntax tree of $h$.
+Moreover, a convenience function can be provided that takes $h$ as an H-string and parses it into its syntax tree.
+A dual function, often called \emph{evaluation} takes such a syntax tree and returns the result of running the H-code.
+These functions are often already part of an L-library that can be easily integrated into L-projects.
+
+This can be used in two ways.
+Most obviously, one can call H-code from L:
+this just requires building the expression to evaluate and then calling the evaluation function.
+
+But more importantly for our interest, it can also be used to use L-code in H:
+Here we build the L-object $l$ representing the desired H-object and then writing H-code that links against $l$.
+Crucially, we are free to use objects $l$ that are not the semantics of any object expressible in L-syntax.
+
+\paragraph{Translation: Compiling H-Code to L}
+If H-code is compiled to a target into which we can also compile L-code, it is possible allow L-snippets in H-code.
+When compiling the H-code, the L-snippets are compiled via different chain and spliced into the results.
+In the simplest case, H is compiled into L itself, in which case the L-snippets can be retained without changed.
+
+This may require the user to be familiar with the way in which H is compiled in order to correctly refer to H-identifiers in the L-snippets.
+
+% % % % % % % % % % % % % % % % % % % % %
+\subsection{Directionality of Function Calls}
+
+This criterion describes the direction of in which data flows between H and L.
+
+\paragraph{Unidirectional}
+In the simplest interfaces, H calls L-functions and L returns results.
+This requires
+\begin{compactitem}
+ \item mapping H-functions to L-functions
+ \item translating H-objects (the function arguments) to L
+ \item translating L-objects (the result) to H
+\end{compactitem}
+
+The maps of H-function to L-functions can often be restricted to a fixed set of mappings of named H-functions to L-functions.
+Often the corresponding L-function arises from a named L-function through a simple operation, whose overlap in constant in the size in the arguments.
+Typical examples are reordering or wrapping arguments.
+
+\paragraph{Bidirectional}
+Often a more complex kind of interface is are needed, where H calls L-functions, which may call back to H.
+Seemingly, this is already possible using the requirements of unidirectional interfaces: all we have to do is map the callback to an L-function.
+However, while unidirectional calls often need only a fixed set of named L-functions, the callback is typically a new function (anonymous or user-defined) that is not covered by the fixed set of mappings.
+
+The options for mapping callbacks depend crucially on the interface type.
+For example, if H is translated to L anyway, the callback function is already available available as an L-function.
+Thus, the callback can be called directly from L without having to translate the arguments to H and the result back to L.
+
+
+% % % % % % % % % % % % % % % % % % % % %
+\subsection{Level: Set of Types and Objects that can be shared}
+
+Efficient interfacing requires that translations between H- and L-types and objects can be done efficiently at the memory level.
+Ideally, the necessary translation is the identity function.
+In many situations a constant-time translation, e.g., by wrapping, is also acceptable.
+However, a constant-time translation of basic objects may cause linear-time overhead in the translation of complex objects, e.g., when every element of a list has to be wrapped in order to translate a list.
+
+\paragraph{Machine Types}
+At the very least the types and functions provided by the underlying hardware machine (which are usually part of all programming languages anyway) can be shared between L and H.
+
+\paragraph{Certain Named Types and Functions}
+It is desirable to share also complex types and operations.
+Often a fixed set of named types and functions is shared by individually creating bindings for them.
+
+\paragraph{Arbitrary Expressions}
+Ideally, arbitrary expressions can be shared, e.g., by using a shallow embedding of H and into L.
+
+Here a \emph{shallow} embedding of A in B translates A-entities to B-entities of the same kind, e.g., A-types are represented as B-types and A-exceptions as B-exceptions.
+That distinguishes shallow embeddings from deep ones such as the ones induced by reification, which are much easier obtain.
