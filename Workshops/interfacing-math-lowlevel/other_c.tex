@@ -73,18 +73,19 @@ Difficulties:
 
 \subsection{PolyMake (Perl)}
 
-PolyMake is a combination of C++ code (for hard core calculation) and Perl code
-(for high level mathematical features, with a rule-based mechanism).
-It also includes many external C or C++ libraries.
-C++ and the Perl interpreter share the same memory space. In general it's mostly Perl
-calling C++ (with features like automatic instantiation of templates). But its also possible
-to call PolyMake from C++ (including all the rule-based Perl mechanism).
+PolyMake uses Perl as H and C++ as L.
 
-Mechanism to generate the Perl bindings to the C++ code? Kinda similar pybind11
-And a declaration mechanism similar to Cython pxd's
+Perl is extended with entities defined in C++ by statically generating bindings.
+Polymorphic C-classes are handled by dynamically generating bindings for ground instances.
 
-The rule-based mechanism is essentially a method selection mechanism,
-filling a similar purpose to GAP's method selection mechanism (or Sage's categories).
-It has different features though; possibly more powerful.
-filling a similar purpose to GAP's method selection mechanism (or Sage's categories).
-It has different features though; possibly more powerful.
+Extension with is not only used for efficiency and expressivity.
+Users also write parts of the library in L that benefit from the OO-style type hierarchies available in C++.
+
+C++ and the Perl interpreter share the same memory space.
+The interaction is mostly Perl calling C++.
+But its also possible to call PolyMake from C++ (including all the rule-based Perl mechanism).\ednote{How?}
+
+The rule-based mechanism is essentially a method selection mechanism, filling a similar purpose to GAP's method selection mechanism.
+Like in GAP, when determining a property of an object, one of multiple available methods is chosen based on conditions about the object.
+However, unlike in GAP, if these conditions are properties that have not been determined yet, they are determined through back-chaining.
+Instead of a simple priority-based choice between multiple applicable methods, PolyMake must choose between all applicable branches of the resulting search tree.

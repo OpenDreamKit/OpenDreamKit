@@ -94,3 +94,30 @@ Ideally, arbitrary expressions can be shared, e.g., by using a shallow embedding
 
 Here a \emph{shallow} embedding of A in B translates A-entities to B-entities of the same kind, e.g., A-types are represented as B-types and A-exceptions as B-exceptions.
 That distinguishes shallow embeddings from deep ones such as the ones induced by reification, which are much easier obtain.
+
+\paragraph{Polymorphic Types}
+A particular subtlety is the handling of polymorphic types.
+There are three ways to handle a polymorphic L-types $T(a)$:
+\begin{compactitem}
+ \item \textbf{preservation}: $T$ is mapped to a polymorphic type in $L$. This is most desirable if $L$-supports polymorphism.
+ \item \textbf{elaboration}: $T$ is mapped to a non-polymorphic H-entity that mimics polymorphism, e.g., an H-function that takes a type tag representing $a$ and returns a new type.
+ \item \textbf{restriction to ground instances}: No binding is generated for $T$ itself.
+   Instead, for every ground instance $T(A)$ that is needed throughout the course of an H-program, a monomorphic binding is generated.
+\end{compactitem}
+
+\subsection{Binding Generation Time}
+
+Often interfaces must generate bindings that allow sharing an L-type or object with H.
+For example, if L is the C language, bindings may be generated from C-header files.
+This may require running an auxiliary tool that may use an L-parser or L-interpreter to work with L-source files.
+
+This criterion describes when these bindings are created relative to the H-development work flow.
+
+\paragraph{Static Creation}
+With static creation, bindings are generated once and for all independent of development in H.
+Consequently, binding generation is limited to a fixed set of H-entities.
+
+\paragraph{Dynamic Creation}
+With dynamic creation, bindings are generated at the run-time of the H-code.
+This allows sharing types that are only created at run time (e.g., H-strings that are dynamically interpreted as L-classes).
+But H-code acquires a dependency on the auxiliary tool.
