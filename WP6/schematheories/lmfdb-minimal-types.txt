@@ -1,33 +1,42 @@
-
 Below, we list the various types encountered so far within the LMFDB, along with
 their encodings. This is meant to be a minimal collection, where more
 complicated types are formed through composition of these types. These types are
-those from elliptic_curves.curves, elliptic_curves.nfcurves, and
-numberfields.fields.
-
-This is the sort of thing we're going for, right?
-
+those from every public database from the LMFDB (except those which are so
+large that they have a different file system).
 
 First we have the base types.
 
 
 String              'X1'
+
 Boolean             False
+                    0
 
 N                   0
                     '12273618723612871'
+
 Pos                 3
                     '12273618723612871'
+
 Z                   1
                     '-12273618723612871'
+
 Q                   '-1/10010'
+
 R                   1.26920930428
                     '1.26920930428'
+
+C                   '240+97i'
+
 Prime               3
                     '3'
+
 Poly(Z, 'x')        '\\( x^2 + 2 x - 2 \\)'
                     'x^2+2*x-2'
+                    '2*x**2 + 2*x - 2'
+                    '(2*x**2 + 2*x - 2)'
                     [-2, 2, 1]
+                    '-2 2 1'
 
 
 We also need some aggregate types.
@@ -36,36 +45,33 @@ If X, Y, Z are generic, with various elements x1, x2, x3, ... then we need
 the following aggregators (where I have used 2 or 3 for fixed-length lists, but
 we really need this for any finite number n).
 
-List(X)             ['x1', 'x2', 'x3']
-                    'x1,x2,x3'
+List(X)             'x1,x2,x3'
                     [x1,x2,x3]
+                    'x1 x2 x3'
+                    '(x1:x2:x3)'
 
-Vec(X, 3)           ['x1', 'x2', 'x3']
-                    'x1,x2,x3'
+Vec(X, 3)           'x1,x2,x3'
                     [x1,x2,x3]
                     '(x1:x2:x3)'
+                    'x1 x2 x3'
 
 # Matrices may be flat or nested
 Mat(X, 2, 2)        [[x1, x2], [x3, x4]]
                     [x1, x2, x3, x4]
                     'x1,x2;x3,x4'
 
+# For matrices of unspecified dimension, we use the following.
+Mat(X, _, _)
+Mat(X, _, 2)
 
 # Concatenation of two other types
-# Currently only manifests as a list of mixed type, but this may be enlarged
 X * Y               [x1, y1]
-
-
 
 And the collection and aggregation elements below, as in Florian's document
 
-# Matrices with variable size, with same encodings as fixed-size matrices
-Mat(X, _, 2)
-Mat(X, _, _)
 
 # Dictionaries
 {'a': X, 'b': X, 'c': X}
 
 # Dictionaries with variable keys
 FiniteMap(X, Y)     {x1: y1, x2: y2}
-
