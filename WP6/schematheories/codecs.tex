@@ -46,7 +46,7 @@ $\cn{StandardRat}$ encodes the rational number $e/d$ for integers $e,d$ as
  \item the pair $[e,d]$
 \end{compactitem}
 For encodings, the $e$ and $d$ are fully canceled and $d>0$. For decoding, all pairs with $d\neq 0$ are accepted.
-For decoding the string $"e'/d'"$ where $e'$ and $d'$ are the string encodings of $e$ and $d$ are also accepted.\ednote{FR: is this needed}\ednote{DLD: Yes, this is needed.}
+For decoding the string $"e'/d'"$ where $e'$ and $d'$ are the string encodings of $e$ and $d$ are also accepted.
 
 \paragraph{Real Numbers}
 The codec $\cn{StandardReal}$ encodes a real number as follows:
@@ -117,16 +117,14 @@ The codec $\cn{StandardOption}(c)$ for $Opt(T)$ encodes values $t\in T$ as $c(t)
 
 \paragraph{Vectors}
 We have the following encodings for a vector $Vec(n,T)$ of the form $(t_1, \ldots, t_n)$.
-We have
 
-$\cn{VectorAsJSONList}$: the JSON list $[c(t_1),\ldots,c(t_n)]$,
+$\cn{VectorAsList}(c)$: the JSON list $[c(t_1),\ldots,c(t_n)]$,
 
-$\cn{VectorAsString}$: the string $"c(t_1),\ldots,c(t_n)"$, or
+$\cn{VectorAsString}(c,\mathtt{s})$ for some character $\mathtt{s}$: the string $"c(t_1)\mathtt{s}\ldots\mathtt{s}c(t_n)"$.
+For decoding, any bracketed occurrences of $\mathtt{s}$, i.e., as in  $(\ldots\mathtt{s}\ldots)$, are not parsed as separators.
+Moreover, white space characters around the separator $\mathtt{s}$ are ignored when decoding.
 
-$\cn{VectorAsColonString}$: the string $"(c(t_1):\ldots:c(t_n)"$.
-
-$\cn{StandardVector}$ is $\cunion{\cn{VectorAsJSONList}, \cn{VectorAsString}, \cn{VectorAsColonString}}$.
-
+$\cn{StandardVector}(c)$ is $\cunion{\cn{VectorAsList}(c), {\cn{VectorAsString}(c,\mathtt{','})}}$.
 
 \paragraph{Lists}
 The codec $\cn{StandardList}(c)$ encodes lists in the same way as $\cn{StandardVector}$.
