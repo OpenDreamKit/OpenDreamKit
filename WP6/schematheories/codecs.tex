@@ -46,7 +46,7 @@ $\cn{StandardRat}$ encodes the rational number $e/d$ for integers $e,d$ as
  \item the pair $[e,d]$
 \end{compactitem}
 For encodings, the $e$ and $d$ are fully canceled and $d>0$. For decoding, all pairs with $d\neq 0$ are accepted.
-For decoding the string $"e'/d'"$ where $e'$ and $d'$ are the string encodings of $e$ and $d$ are also accepted.\ednote{FR: is this needed}
+For decoding the string $"e'/d'"$ where $e'$ and $d'$ are the string encodings of $e$ and $d$ are also accepted.\ednote{FR: is this needed}\ednote{DLD: Yes, this is needed.}
 
 \paragraph{Real Numbers}
 The codec $\cn{StandardReal}$ encodes a real number as follows:
@@ -116,7 +116,17 @@ We assume a codec $c$ for a type $T$.
 The codec $\cn{StandardOption}(c)$ for $Opt(T)$ encodes values $t\in T$ as $c(t)$ and omitted values as the $null$ value.
 
 \paragraph{Vectors}
-The codec $\cn{StandardVector}(n,c)$ for $Vec(n,T)$ encodes vectors $(t_1,\ldots,t_n)$ as the JSON list $[c(t_1),\ldots,c(t_n)]$.
+We have the following encodings for a vector $Vec(n,T)$ of the form $(t_1, \ldots, t_n)$.
+We have
+
+$\cn{VectorAsJSONList}$: the JSON list $[c(t_1),\ldots,c(t_n)]$,
+
+$\cn{VectorAsString}$: the string $"c(t_1),\ldots,c(t_n)"$, or
+
+$\cn{VectorAsColonString}$: the string $"(c(t_1):\ldots:c(t_n)"$.
+
+$\cn{StandardVector}$ is $\cunion{\cn{VectorAsJSONList}, \cn{VectorAsString}, \cn{VectorAsColonString}}$.
+
 
 \paragraph{Lists}
 The codec $\cn{StandardList}(c)$ encodes lists in the same way as $\cn{StandardVector}$.
@@ -130,12 +140,14 @@ The order of pairs is not specified.
 For encoding, the same $t_i$ will not occur twice, and $m_i\neq 0$. For decoding, these cases are accepted.
 
 \paragraph{Hybrid Sets}
-The codec $\cn{StandardHypbridSet}(c)$ encodes hybrid sets in the same way as $\cn{StandardMultiset}$ except that the multiplicities may be negative.
+The codec $\cn{StandardHybridSet}(c)$ encodes hybrid sets in the same way as $\cn{StandardMultiset}$ except that the multiplicities may be negative.
 
 \paragraph{Matrices}
 The codec $\cn{RowMatrix}(m,n,c)$ for $Mat(m,n,T)$ encodes matrices $(t_{ij})$ as the list of lists $[[c(t_{11}),\ldots,c(t_{1n})], \ldots, [c(t_{m1}),\ldots,c(t_{mn})]$.
 
-The codec $\cn{ColumnMatrix}(m,n,c)$ for $Mat(m,n,T)$ is the corresponding column-wise encoding.
+The codec $\cn{FlatRowMatrix}(m,n,c)$ for $Mat(m,n,T)$ encodes matrices $(t_{ij})$ as the flat list $[c(t_{11}),\ldots,c(t_{mn})]$.
+
+The codecs $\cn{ColumnMatrix}(m,n,c)$ and $\cn{FlatColumnMatrix}$ for $Mat(m,n,T)$ are the corresponding column-wise encodings.
 
 We put $\cn{StandardMatrix}=\cn{RowMatrix}$.
 
