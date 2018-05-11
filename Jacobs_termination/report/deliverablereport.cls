@@ -1,1 +1,0 @@
-../../WP6/D6.2/deliverablereport.cls
