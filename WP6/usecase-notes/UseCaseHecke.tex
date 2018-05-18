@@ -12,8 +12,15 @@
 \def\N{{\mathcal{N}}}
 \def\O{{\mathcal{O}}}
 \def\p{{\mathfrak{p}}}
+\def\Sage{{\tt SageMath}}
+\def\Pari{{\tt PARI/GP}}
+\def\MitM{{\tt MitM}}
+\def\Python{{\tt Python}}
+\def\Mongo{{\tt Mongo}}
+\def\postgres{{\tt PostgreSQL}}
 
-\title{LMFDB use case: investigating Hecke fields of modular forms}
+\title{Mixing Data and Computation to explore mathematical data sets:
+Knowledge to the rescue with LMFDB + \Sage + \Pari + \MitM}
 \author{
 John Cremona\inst{1}
 David Lowry-Duda\inst{1}
@@ -26,28 +33,27 @@ University of Warwick
 \maketitle
 \begin{abstract}
   We describe a use case for intercommunication between LMFDB data and
-  either SageMath or PARI/GP in order to investigate a research
-  problem in pure mathematics.
+  either \Sage\ or \Pari\ in order to investigate a research problem
+  in pure mathematics.
 \end{abstract}
 
 \section{Introduction}
 We describe a use case for intercommunication between LMFDB data and
-either SageMath \cite{sage} or PARI/GP \cite{pari}.  The LMFDB
-contains many individual instances of several kinds of \emph{modular
-  forms} (which are the ``MF'' in ``LMFDB''), including
-\emph{classical modular forms}, \emph{Hilbert modular forms} (HMFs),
-\emph{Bianchi modular forms} (BMFs) and others.  Each of these objects
-has associated to it an algebraic number field called its \emph{Hecke
-  field}.  A mathematically interesting project is to study these
-Hecke fields for the modular forms in each collection, collecting data
-about them such as their degree or class number (see the next section
-for definitions) and investigating how these are distributed.
-Currently it is not even known how many of the Hecke fields are
-themselves in the LMFDB's own database of number fields; where they
-are, the associated invariants can simply be looked up in the LMFDB
-itself, but in cases where the Hecke field is not itself in the
-database, further computations using SageMath or PARI/GP would become
-possible.
+either \Sage\ \cite{sage} or \Pari\ \cite{pari}.  The LMFDB contains
+many individual instances of several kinds of \emph{modular forms}
+(which are the ``MF'' in ``LMFDB''), including \emph{classical modular
+  forms}, \emph{Hilbert modular forms} (HMFs), \emph{Bianchi modular
+  forms} (BMFs) and others.  Each of these objects has associated to
+it an algebraic number field called its \emph{Hecke field}.  A
+mathematically interesting project is to study these Hecke fields for
+the modular forms in each collection, collecting data about them such
+as their degree or class number (see the next section for definitions)
+and investigating how these are distributed.  Currently it is not even
+known how many of the Hecke fields are themselves in the LMFDB's own
+database of number fields; where they are, the associated invariants
+can simply be looked up in the LMFDB itself, but in cases where the
+Hecke field is not itself in the database, further computations using
+\Sage\ or \Pari\ would become possible.
 
 Being able to access this LMFDB data directly from within a package
 with the ability to carry out its own computations with number fields
@@ -157,13 +163,13 @@ To summarize this discussion:
 \end{enumerate}
 
 \section{Relevant LMFDB databases and collections}
-At present the LMFDB data is stored in a Mongo database.  Under Mongo
-terminology the entire dataset is subdivided first into ``databases''
-and each database consists of a number of ``collections''.  The
-records in each collection can in principle have widely varying
-content, but in practice there is little variation and we may consider
-each record to have the same structure with a fixed set of keys each
-mapping to a value of a predefined type.
+At present the LMFDB data is stored in a \Mongo\ database.  Under
+\Mongo\ terminology the entire dataset is subdivided first into
+``databases'' and each database consists of a number of
+``collections''.  The records in each collection can in principle have
+widely varying content, but in practice there is little variation and
+we may consider each record to have the same structure with a fixed
+set of keys each mapping to a value of a predefined type.
 
 All the Hilbert modular form data in the LMFDB is stored in a database
 called {\tt hmfs}.  Within this database there are three collections:
@@ -280,12 +286,12 @@ degree.  For each Hecke field degree, determine which distinct Hecke
 fields occur and with what frequencies.  This will require a database
 query to obtain the values of {\tt hmfs.hecke.hecke\_polynomial},
 followed by construction of a field with each distinct polynomial
-found and a field isomorphism test, such as can be done by SageMath or
-PARI/GP.  A variation of this would be to use SageMath's or PARI/GP's
-ability to find a unique canonical defining polynomial for every
-number field: this functionality is provided by the {\tt C} library
-{\tt pari} in the function {\tt polredabs()}, and there is an
-interface to {\tt pari} from SageMath.
+found and a field isomorphism test, such as can be done by \Sage\ or
+\Pari.  A variation of this would be to use \Sage's or \Pari's ability
+to find a unique canonical defining polynomial for every number field:
+this functionality is provided by the \Paria {\tt C} library in the
+function {\tt polredabs()}, and there is an interface to this
+library{\tt pari} from \Sage.
 
 Note that both the field isomorphism test and the canonicalisation
 test become very expensive when the degree increases.  It may only be
@@ -302,7 +308,7 @@ representations.
 
 \subsection{Hecke field invariants} Following from the previous
 classification, a number of different invariants of each Hecke fields
-could be computed in SageMath: for example the class number.
+could be computed in \Sage: for example the class number.
 
 \subsection{Hecke eigenvalues and the ring they generate} Previous
 steps have only concerned the Hecke fields as fields, ignoring the
@@ -311,11 +317,151 @@ lists of actual Hecke eigenvalues stored for each newform, in the {\tt
 subring of the ring of integers of the Hecke field they generate, what
 index it has in the ring of integers, and how many individual Hecke
 eigenvalues are require to generate this ring.  All of these questions
-could be studied systematically in SageMath.
+could be studied systematically in \Sage.
+
+\section{Code to illustrate shortcomings of existing methods}
+Here we give \Sage\ code which directly connects to the LMFDB
+database, extracts some of the data mentioned above, and carries out
+the first steps in processing this data.  We discuss below some notes
+interspersed in the code, in order to illustrate the inadequacy of
+this approach.  the code given here worked on 18 May 2018 but since it
+uses a low-level interface to the stored data, there is no guarantee
+that it will continue to work\footnote{In fact during 2018 the LMFDB
+  will be converted from \Mongo\ to \postgres, after which the code
+  give here will certainly no longer work.}.
+
+The first block of code requires the user's Sage installation to have
+the \Python\ module {\tt pymongo} installed, since this is used to
+communicate directly with the LMFDB database.  The user needs to know
+the URL of the database, how to use {\tt pymongo}, how to authenticate
+on to the database in a read-only way, as well as the names of the
+relevant databases and collections.
+\begin{verbatim}
+#  Connect to the LMFDB and authenticate (read-only):
+
+import pymongo
+C = pymongo.MongoClient(host='m0.lmfdb.xyz')
+C.admin.authenticate('lmfdb','lmfdb')
+
+# assign names to the relevant collections:
+
+hmfs = C.hmfs
+fields = hmfs.fields
+forms = hmfs.forms
+hecke = hmfs.hecke
+
+\end{verbatim}
+
+We define a utility to convert polynomials in $\Q[x]$, which (for
+Hecke polynomials) are stored as strings in the LMFDB, into
+\Sage\ polynomials.  Although \Sage\ does have this capability built
+in, it cannot handle the unicode strings which \Mongo\ uses.
+
+\begin{verbatim}
+# Define a utility for converting a polynomial in x stored as a
+# string to a Sage polynomial in QQ[x].
+
+Qx = PolynomialRing(QQ,'x') # 'x' is the variable used in the hecke collection
+def decode_poly(pol):
+    return Qx(str(pol))
+
+\end{verbatim}
+
+Next we fetch from the collection {\tt hmfs.forms} a list of the
+labels of the HMFs (here restricted to those whose base field degree
+and Hecke field degree are both equal to~$2$).  For this step we need
+to know the name of the appropriate collection, and the names of the
+data fields {\tt deg}, {\tt dimension}, {\tt label}, some of which
+(but not all) are abbreviations.  We also need to know that
+\Sage\ automatically converts integer constants to its own
+multiprecision integer type, which {\tt pymongo} cannot handle (since
+they cannot be encoded in {\tt json}), so these parameters need to be
+manually converted to simple \Python\ {\tt int}s.
+\begin{verbatim}
+# Fix a base field degree and a Hecke field degree (dimension).
+
+deg = int(2)
+dim = int(2)
+
+# Fetch the Hilbert newforms with this degree and dimension, and extract their labels:
+
+res = forms.find({'deg':deg, 'dimension':dim})
+labels = [f['label'] for f in res]
+
+\end{verbatim}
+
+Now, for each of these labels, we fetch from the collection {\tt
+  hmfs.hecke} the associated Hecke polynomial.  Again, we need to know
+that these are stored in a different collection, what the relevant
+keys are ({\tt label} and {\tt hecke\_polynomial}), and how the
+polynomials are encoded so we may successfully convert them.  This
+step takes some time in practice for technical reasons, including the
+very large size of some of the records in the collection {\tt
+  hmfs.hecke}; this is somewhat alleviated by using {\tt pymongo}'s
+parameter {\tt projection} to only retrieve the data we need here and
+not all the individual Hecke eigenvalues.
+
+\begin{verbatim}
+# Fetch the Hecke polynomials for each of these,
+#  converting each from a string to a Sage polynomial:
+
+data = {}
+for lab in labels:
+    data[lab] = dat = {}
+    dat['hecke_pol'] = hecke.find_one({'label':lab},
+            projection=['hecke_polynomial'])['hecke_polynomial']
+    dat['hecke_pol'] = decode_poly(dat['hecke_pol'])
+
+\end{verbatim}
+At this point the \Python\ dictionary {\tt data} has HMF labels as
+keys, and their Hecke polynomials as values, and we can use SageMath
+functions to work with these.  As a simple illustration, we merely
+construct the associated Hecke fields, and record their discriminants,
+counting how many times each field occurs, reporting on the results.
+\begin{verbatim}
+
+disc_counts = {}
+for lab in labels:
+    dat = data[lab]
+    dat['hecke_field'] = H = NumberField(dat['hecke_pol'],'a')
+    dat['hecke_disc'] = D = H.disc()
+    disc_counts[D] = disc_counts.get(D,0)+1
+
+# Output a list of which discriminants occur and with what frequency:
+
+Hpols = Set([data[lab]['hecke_pol'] for lab in data])
+Hfields = Set([data[lab]['hecke_disc'] for lab in data])
+print("The {} newforms have {} different Hecke polynomials,".format(len(data), len(Hpols)))
+print(" but only {} different Hecke fields".format(len(Hfields)))
+print("Multiplicities of different Hecke field discriminants")
+print("disc(H)\tMultiplicity")
+for D in sorted(disc_counts.keys()):
+    print("{}\t{}".format(D,disc_counts[D]))
+
+\end{verbatim}
+
+The output reveals that the 31951 newforms selected have 403 different
+Hecke polynomials, but only 52 different Hecke fields, with
+discriminants ranging from $-68$ to $+268$, and that the field which
+occurs most frequently is $\Q(\sqrt{5})$.
+
+\section{Conclusions}
+While it is possible already to interface at a low level with the data
+in the LMFDB in order to carry out high-level mathematical
+investigation based on the data stored using exiting software
+packages, this interface is inadequate, hard to use, requires detailed
+technical knowledge of the way in which the data is stored, and is
+fragile: any changes in the database structure, whether minor changes
+such as the renaming of a key in a record, through medium-level
+changes such as rearranging the data into collections differently, to
+major upheavals as a result of switching database engines, would all
+require any code written in the manor shown here will immediately
+fail.
+
 
 \begin{thebibliography}{10}
 \bibitem{sage}
-The~Sage Developers.
+The~SageMath Developers.
 \newblock {\em {S}age {M}athematics {S}oftware ({V}ersion 8.2)}, 2018.
 \newblock {\tt http://www.sagemath.org}.
 \bibitem{pari}
