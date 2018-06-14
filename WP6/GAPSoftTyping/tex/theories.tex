@@ -1,30 +1,36 @@
 \ednote{This section does not work yet. I forgot to quiz Markus on how the binary operations of algebraic structures are treated. I remember GAP hard-codes two binary operations.}
 
-\paragraph{A Logic for GAP Theories}
-We can identify a logic and a group of theories that can be naturally embedded into GAP's type system.
+%\paragraph{A Logic for GAP Theories}
+%We can identify a logic and a group of theories that can be naturally embedded into GAP's type system.
+%
+%Any GAP filter can be used as a type.
+%
+%Every theory implicitly declares a fixed base type $u$ for the universe.
+%
+%Then it may have two kinds of declarations:
+% \begin{compactitem}
+%   \item includes of another theory,
+%   \item function symbols $f:a_1\times\ldots\times a_n\to a_0$ where each $a_i$ is a type (either $u$ or some GAP type),
+%   \item potential axioms: code in GAP's underlying programming language that evaluates to a boolean
+% \end{compactitem}
 
-Any GAP filter can be used as a type.
+\paragraph{Theories and Types of Models}
+Categories can be used to represent the type of models of a logical theory.
+Consider a theory of sorted first-order logic with name $T$ that includes theories $T_1,\ldots,T_k$, declares declares function symbols $f_i:A_i$ for $i=1,\ldots,l$, and declares axioms $p_i$ asserting $F_i$ for $i=1,\ldots,m$.
 
-Every theory implicitly declares a fixed base type $u$ for the universe.
-
-Then it may have two kinds of declarations:
- \begin{compactitem}
-   \item includes of another theory,
-   \item function symbols $f:a_1\times\ldots\times a_n\to a_0$ where each $a_i$ is a type (either $u$ or some GAP type),
-   \item potential axioms: code in GAP's underlying programming language that evaluates to a boolean
- \end{compactitem}
-
-\paragraph{Representing Theories in GAP}
-A theory with name $T$, includes $T_1,\ldots,T_k$, function symbols $f_1,\ldots,f_l$, and potential axioms $p_1,\ldots,p_m$ is translated to GAP as follows:
+We can represent this in GAP using the following declarations:
 \begin{compactitem}
- \item We declare a category with name $T$ and superfilter is $T_1\wedge \ldots \wedge T_n$.
- \item We declare an operation for each $f_i$.
- \item We declare a property for each $p_i$.
+ \item a category with name $T$ and superfilter $T_1\wedge \ldots \wedge T_n$,
+ \item for every $f_i:A_i$ with $A_i=a_1\times\ldots\times a_n\to a$, an $n+1$-ary operation $f_i$ with input filters $T,a_1,\ldots,a_n$ and output filter $a$,
+ \item for every $p_i$, a property with input filter $T$,
+ \item for every $p_i$, a method implementing $F_i$ (which may be impossible or only possible for restricted case, e.g., only for finite models).
 \end{compactitem}
 
-Now the filter $T\wedge p_1$ represents the type of models of $T$ that satisfy the axiom $p_1$, and accordingly for every subset of the potential axioms.
+Now the filter $T\wedge p_1\wedge\ldots\wedge p_m$ represents the type of models of the theory.
 
-\paragraph{Extracting Explicit Theories from GAP's}
-Because GAP does not enforce an abstraction boundary between theories and types, it is not generally feasible to extract explicit theories from GAP.
+A concrete model of the theory is represented as follows: \ednote{unclear how to do that}
 
-A heuristic extraction might be possible by trying to identity groups of GAP declarations for which the above operation can be inverted to yield a theory.
+%\paragraph{Extracting Explicit Theories from GAP's}
+%Because GAP does not enforce an abstraction boundary between theories and types, it is not generally feasible to extract explicit theories from GAP.
+%
+%A heuristic extraction might be possible by trying to identity groups of GAP declarations for which the above operation can be inverted to yield a theory.

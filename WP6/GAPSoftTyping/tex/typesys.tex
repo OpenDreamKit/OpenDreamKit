@@ -1,79 +1,77 @@
-\subsection{Identifiers}
+\subsection{Overview}
 
-GAP uses a flat namespace: It identifies every operation by a name.
+GAP uses a single flat namespace where every declared entity is identified by its \textbf{name}.
 
-Different declarations whose types do not conflict, may use the same name.
-These can be understood as giving two different types to the same operation.
+Three kinds of named \textbf{declarations} exists: categories, operations, and methods.
+Additionally, constructors, attributes, and properties are distinguished special cases of operations.
 
-Each operation can have multiple methods.
-These do not have identifiers.
-But operation references can be refine to a method reference by using the method's documentation string.
+Operations and categories introduce new objects and thus must have fresh names.
+Methods, on the other hand, introduce unnamed implementations of a previously declared named operation; thus, the name of a method is the same as that of an operation.
+(At the meta-level, a specific method may be referenced by combining the operation name with the method's documentation string.)
 
-\subsection{Object Level}
+Three kinds of anonymous \textbf{complex} entities exist: objects, families, and filters.
+GAP objects represent mathematical objects and are the primary interest.
+Families and filters provides a type system on objects: a type consists of a family (the base type) and a filter $F$, which provides a unary predicate on objects of family $F$.
+The family of an object $O$ is a hard type: it is unique, computable, and fixed.
+The filter is a soft type: $O$ can satisfy any number of filters, filters may be undecidable, and the type of $O$ can be refined at run-time as more filters become known that $O$ satisfies.
 
-GAP allows arbitrary run-time representations of mathematical objects (which is natural for efficiency).
-These types of the run-time system are called families.
-Each GAP object is typed by exactly one family.
+\subsection{Complex Entities}
 
-An \textbf{object} is
+In deduction systems, it is possible, even typical to build all or most expressions ex nihilo, typically via inductive types or axiomatic specifications.
+But such representations are usually efficient and therefore problematic in computation systems.
+Therefore, GAP allows arbitrary primitive objects backed by concrete representations in the underlying run-time environment.
+These are provided by the \textbf{families}: each family introduces a set of primitive objects.
+
+Users can implement new families.
+But the following families with their respective primitive objects are built into GAP:
 \begin{compactitem}
-  \item a literal,
-  \item a list of objects,
-  \item a function on object,
-  \item any other object introduced by a user-declared family.
-\end{compactitem}
-
-Objects are typed.
-A \textbf{type} is
-\begin{compactitem}
-  \item a base type (called a \textbf{family})
-  \item a predicate subtype of some type by a unary predicate on objects (called a \textbf{filter})
-\end{compactitem}
-
-Users can declare new families.
-But some families are built-in:
-\begin{compactitem}
-  \item one base type for each type of built-in literals:
+  \item one each for a few types of built-in literals:
     \begin{compactitem}
       \item cyclotomic numbers (elements of the algebraic closure of the rationals),
       \item booleans,
       \item strings,
     \end{compactitem}
-  \item one base type each for several built-in operators that allow forming complex objects
+  \item one each for several built-in operators that form complex objects
     \begin{compactitem}
       \item homogeneous lists (called \textbf{collections}): lists of objects that have the same family,
-      \item arbitrary lists of objects,
+      \item heterogeneous lists: lists of arbitrary objects,
       \item functions on objects.
     \end{compactitem}
 \end{compactitem}
 
-A \textbf{filter} is a unary predicate on objects.
+The objects are the primitive objects introduced by the families and any application of an operation to objects.
+
+A \textbf{filter} is one of the following:
 \begin{compactitem}
-  \item the universal filter $\isobj$ (the filter of all objects)
+  \item the universal filter $\isobj$,
   \item a category $C$,
   \item a property $P$,
   \item a conjunction $F\wedge G$ of filters.
 \end{compactitem}
-By convention, the names of atomic filters are of the form \lstinline|IsXXX|.
+We call categories and properties \textbf{atomic filters}.
+By convention, their names are of the form \lstinline|IsXXX|.
 
-The \textbf{typing relation} is a binary relation between objects and filters.
-We write it as $\has{O}{F}$.
-It is defined by
+Filters can be normalized into a set of atomic filters (with $\isobj$ corresponding to the empty set and $\wedge$ to union).
+Therefore, types are essentially pairs of a family and a set of atomic filters, and a type can be efficiently stored as a bitvector indexed by the known atomic filters.
+GAP stores this bitvector together with every object.
+
+Because the family is an inherent property of an objects anyway, the \textbf{typing relation} reduces to a relation $\has{O}{F}$ between objects $O$ and filters $F$.
+It is defined as follows:
 \begin{compactitem}
-  \item $\has{O}{\isobj}$ always
-  \item $\has{O}{C}$ if $O$ was returned by a constructor of category $C$,
-  \item $\has{O}{P}$ if evaluating $P$ on $O$ returns \lstinline|true|,
-  \item $\has{O}{F\wedge G}$ if $\has{O}{F}$ and $\has{O}{G}$.
+  \item $\has{O}{\isobj}$ always holds
+  \item $\has{O}{F\wedge G}$ holds if $\has{O}{F}$ and $\has{O}{G}$.
+  \item $\has{O}{C}$ holds if $O$ was returned by a constructor of category $C$,
+  \item $\has{O}{P}$ if evaluating property $P$ on $O$ returns \lstinline|true|,
+  \item In addition to the above rules, $\has{O}{F}$ holds for an atomic filter $F$ if the corresponding bit was set when $O$ was constructed.
+  This is used in particular by the constructors of categories (see below).
 \end{compactitem}
 
-For atomic filters $F$, the known state of the relation $\has{O}{F}$ is cached with $O$.
-Thus, the type of every object can be inferred as the conjunction of atomic filters that are known to hold.
-This type changes dynamically as more properties are evaluated.
+Types are hyper-dynamic: whenever a property is evaluated for an object at run-time, its bit in the cached bitvector type is updated.
+Thus, the type changes dynamically as more properties are evaluated.
 
-\subsection{Declaration Level}
+\subsection{Declarations}
 
 \paragraph{Categories}
-A \textbf{category} declaration introduces a definition-less filter.
 A category declaration consists of
 \begin{compactitem}
   \item a name,
@@ -81,44 +79,45 @@ A category declaration consists of
 \end{compactitem}
 The concrete syntax is \lstinline|DeclareCategory(name: String, superfilter: Filter)|.
 
-Categories can be used to represent the type of models of an abstract specification.
-The details of the specification are formulated by declaring operations and properties on the category.
-
-Because categories are definition-less, all categories are created empty.
-The objects typed by the category are introduced by declaring constructors.
+A \textbf{category} declaration introduces a primitive filter.
+All categories are created empty.
+The objects satisfying this filter are introduced by declaring constructors.
 These are operations whose implementation explicitly marks the returned objects as having the category as a filter.
+
+When a constructor of category $C$ is run, the returned object automatically has all filter bits set that correspond to the atomic filters in the superfilter of $C$.
 
 \paragraph{Operations}
 An \textbf{operation} declaration introduces an $n$-ary\footnote{GAP has an implementation restriction of $n\leq 6$.} function on objects.
-Operations are softly typed: Each $n$-ary operations provides a list of length $n$ providing the input filter of the respective argument.
-Operations may also carry an optional return type, which defaults to $\isobj$ if omitted.\footnote{This is not implemented yet.}
+Operations are softly typed: each $n$-ary operations provides a list of length $n$ providing the input filters of the respective argument.
+Operations may also carry an optional return type, which defaults to $\isobj$ if omitted.\footnote{This is a recent feature motivated by the discussions that also led to this paper.}
 
 The concrete syntax is
+
  \lstinline|DeclareOperation(name: String, inputfilters: Filter*, outputfilter: Filter?)|.
 
-An \textbf{attribute} declaration can be seen as a special case of an operation that is unary.
+An \textbf{attribute} declaration is the special case of an operation that is unary.
 The special treatment of attributes is important only for efficiency reasons: The values of attributes are cached with each object.
 The concrete syntax is \lstinline|DeclareAttribute(name: String, inputfilter: Filter, outputfilter: Filter?)|.
 
-A \textbf{property} declaration can be seen as a special case of an attribute that returns a boolean.
+A \textbf{property} declaration is the special case of an attribute that returns a boolean.
 The special treatment of properties is important only because properties can be used as filters.
 The concrete syntax is \lstinline|DeclareProperty(name: String, inputfilter: Filter)|.
 
-An \textbf{constructor} declaration can be seen as a special case of an operation that returns an object of a given category.
-The concrete syntax is \lstinline|DeclareConstructor(name: String, inputfilters: Filter*, outputfilter: Filter?)|.
-\footnote{The return argument is not implemented yet.}
-\footnote{The current implementation of constructors is somewhat awkward and may be subject to change. Currently, a constructor's first argument is special: It must be the expected return filter (rather than an object). This is used to allow method selection to choose a different method for different special cases.
+A \textbf{constructor} declaration is the special case of an operation that returns an object of a given category.
+The concrete syntax is \lstinline|DeclareConstructor(name: String, inputfilters: Filter*, outputfilter: Filter?)|.%
+\footnote{The return argument is a recent feature. More generally, the current implementation of constructors is somewhat awkward and may be subject to change. Currently, a constructor's first argument is special: It must be the expected return filter (rather than an object).
+This is used to allow method selection to choose a different method for different special cases.
 A more elegant solution would be to allow every operation to declare that some of its arguments must be filters.
-This would yield a very nice untyped version of bounded polymorphism, which is routine in typed programming languages.}
+This would yield an untyped version of bounded polymorphism with filter arguments corresponding to type arguments.}
 
 Conceptually, all operations are defined.
-However, the definiens is declared separately through methods.
+But the definiens is never part of the declaration and instead provided separately in method declarations.
 
 \paragraph{Methods}
-Every operation can have multiple definitions, which are declared by methods.
+Every operation can have multiple definitions, which are provided by methods.
 A method declaration consists of
 \begin{compactitem}
-  \item the named of the operation,
+  \item the name of the operation,
   \item the input and output filters,
   \item the actual definition, as a function in the underlying programming language.
 \end{compactitem}
@@ -130,17 +129,17 @@ The input and return filters of a method may be more restrictive than the filter
 More restrictive input filters can be used to represent overloading of operations or run-time polymorphism.
 A more restrictive output filter can be used to indicate a sharper type than required by the operations.
 
-When evaluating the application of an operation to arguments, one method is selected and its definition executed.
-If more than one method is found, whose input filters are type the operation arguments, an internal ranking is used to disambiguate.
+When evaluating the application of an operation to arguments, GAP selects a specific method executes its definition.
+If more than one method exists, whose input filters type the operation arguments, an internal ranking is used to disambiguate.\footnote{In particular, if a property of $O$ is evaluated in between two calls of the same operation on $O$, a different method may be selected the second time. This is often desirable, particularly when the second method is more efficient.}
 
-\subsection{Theory Level}
-
-There is no explicit theory level.
-Instead, theories are represented as categories, and theory morphisms as operations, and their relation is a special case of typing.
-
-Therefore, we can treat each source file as a theory.
-
-\subsection{Document Level}
-
-Source files are grouped into folders and \textbf{packages}.
-The package bundled with GAP is called the \textbf{library}.
+%\subsection{Theory Level}
+%
+%There is no explicit theory level.
+%Instead, theories are represented as categories, and theory morphisms as operations, and their relation is a special case of typing.
+%
+%Therefore, we can treat each source file as a theory.
+%
+%\subsection{Document Level}
+%
+%Source files are grouped into folders and \textbf{packages}.
+%The package bundled with GAP is called the \textbf{library}.
