@@ -30,7 +30,5 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- delete all other bib-related (LaTeXML copies some stuff over). -->
-  <xsl:template match="ltx:bib-related"/>
 </xsl:stylesheet>
 

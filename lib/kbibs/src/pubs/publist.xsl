@@ -22,7 +22,9 @@
       <xsl:when test="$id='cmueller'"><xsl:text>Christine Müller</xsl:text></xsl:when>
       <xsl:when test="$id='nmueller'"><xsl:text>Normen Müller</xsl:text></xsl:when>
       <xsl:when test="$id='fhorozal'"><xsl:text>Fulya Horozal</xsl:text></xsl:when>
-      
+      <xsl:when test="$id='jbetzendahl'"><xsl:text>Jonas Betzendahl</xsl:text></xsl:when> 
+      <xsl:when test="$id='tpollinger'"><xsl:text>Theresa Pollinger</xsl:text></xsl:when> 
+     
       <xsl:when test="$id='sissi'"><xsl:text>Project SiSsI</xsl:text></xsl:when>
       <xsl:when test="$id='tetrapod'"><xsl:text>Project TetraPod</xsl:text></xsl:when>
       <xsl:when test="$id='TNTBase'"><xsl:text>Project TNTBase</xsl:text></xsl:when>
@@ -36,6 +38,7 @@
       <xsl:when test="$id='mmt'"><xsl:text>Project MMT (Meta Meta Theories/Toolkit)</xsl:text></xsl:when>
       <xsl:when test="$id='mws'"><xsl:text>Project MathWebSearch</xsl:text></xsl:when>
       <xsl:when test="$id='omdoc'"><xsl:text>Project OMDoc</xsl:text></xsl:when>
+      <xsl:when test="$id='kat'"><xsl:text>Project KAT</xsl:text></xsl:when>
       <xsl:when test="$id='openmathmap'"><xsl:text>Project OpenMathMap</xsl:text></xsl:when>
       <xsl:when test="$id='sTeX'"><xsl:text>Project sTeX</xsl:text></xsl:when>
       <xsl:when test="$id='sally'"><xsl:text>Project Semantic Alliance</xsl:text></xsl:when>
@@ -89,8 +92,7 @@
   </xsl:variable>
 
   <xsl:variable name="book">
-    <xsl:for-each select="document(concat($id,'-book.html'))//x:ul[@class='ltx_biblist']/x:li|
-				                           document(concat($id,'-cbook.html'))//x:ul[@class='ltx_biblist']/x:li">
+    <xsl:for-each select="document(concat($id,'-cbook.html'))//x:ul[@class='ltx_biblist']/x:li">
       <xsl:sort order="descending" select="x:span/x:span[contains(@class,'ltx_bib_year')]"/>
       <xsl:copy-of select="."/>
     </xsl:for-each>
@@ -189,7 +191,7 @@
 		      <xsl:if test="$incollection!=''"><li><a href="#incollection">Articles in Collections</a></li></xsl:if>
 		      <xsl:if test="$conference!=''"><li><a href="#conference">Papers at International, Peer-Reviewed Conferences</a></li></xsl:if>
 		      <xsl:if test="$book!=''"><li><a href="#book">Monographs</a></li></xsl:if>
-		      <xsl:if test="$cproceedings!=''"><li><a href="#proceedings">Conference Proceedings Edited</a></li></xsl:if>
+		      <xsl:if test="$cproceedings!=''"><li><a href="#cproceedings">Conference Proceedings Edited</a></li></xsl:if>
 		    </ol>
 		  </li>
 		</xsl:if>

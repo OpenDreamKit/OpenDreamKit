@@ -6,8 +6,8 @@ bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
 bib.kcr 			= kwarcpubs.bib $(bib.cr)
 bib.ext				= extpubs.bib $(bib.kcr)
 bib.all				= preamble.bib $(bib.ext)
-bib.people			= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal
-bib.systems			= sissi tetrapod TNTBase arXMLiv cpoint jomdoc kat krextor llamapun mathhub mmt mws omdoc openmathmap sTeX sally smglom swim
+bib.people			= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal jbetzendahl tpollinger
+bib.systems			= sissi tetrapod TNTBase arXMLiv cpoint jomdoc kat krextor llamapun mathhub mmt mws omdoc openmathmap sTeX sally smglom swim kat
 bib.projects			= FormalCAD jem latin logosphere mathsearch oaf odk odkWP6 omoc once-cs openmath-tn MaMoReD
 bib.theses			= phdthesis mscthesis bscthesis theses
 bib.do				= $(bib.people) $(bib.projects) $(bib.systems) $(bib.theses)
@@ -70,13 +70,13 @@ setup-xml:
 clean-xml: 
 	-rm -r $(ltxml.dist)
 $(kwarc.ltxml.out): $(ltxml.dist)%.xml: $(bib.src)% $(kwarc.ltxml.in)
-	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
+	latexmlc $< --quiet --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=$@ 2> >(tee $@.ltxlog >&2)
 
-# kcr.bib.xlm --> use latexmlc after generating kcr.bib
+# kcr.bib.xml --> use latexmlc after generating kcr.bib
 $(kcr.ltxml.in): $(kcr.src)
 	cat $(kcr.src) > $@
 $(kcr.ltxml.out): $(kcr.ltxml.in)
-	latexmlc $< --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=pre-$@ 2> >(tee $@.ltxlog >&2)
+	latexmlc $< --quiet --bibtex --includestyles --path=$(ltxml.src) --preload=$(bib.sty).ltxml --destination=pre-$@ 2> >(tee $@.ltxlog >&2)
 	xsltproc -o $@ $(CRXSL) pre-$@
 	rm -f pre-$@
 
