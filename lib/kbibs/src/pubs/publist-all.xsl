@@ -125,7 +125,7 @@
 											<xsl:if test="$incollection!=''"><li><a href="#incollection">Articles in Collections</a></li></xsl:if>
 											<xsl:if test="$conference!=''"><li><a href="#conference">Papers at International, Peer-Reviewed Conferences</a></li></xsl:if>
 											<xsl:if test="$book!=''"><li><a href="#book">Monographs</a></li></xsl:if>
-											<xsl:if test="$cproceedings!=''"><li><a href="#proceedings">Conference Proceedings Edited</a></li></xsl:if>
+											<xsl:if test="$cproceedings!=''"><li><a href="#cproceedings">Conference Proceedings Edited</a></li></xsl:if>
 										</ol>
 									</li>
 								</xsl:if>
