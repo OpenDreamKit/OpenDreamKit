@@ -1,0 +1,40 @@
+%%
+%% This is file `tikzinput.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tikzinput.dtx  (with options: `package')
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesPackage{tikzinput}[2016/04/07 v1.0 Selective input of TIKZ pictures]
+\newif\if@tikzinput@mh@\@tikzinput@mh@false
+\DeclareOption{mh}{\@tikzinput@mh@true}
+\newif\iftikzinput@image\tikzinput@imagefalse
+\DeclareOption{image}{\tikzinput@imagetrue}
+\DeclareOption*{}
+\ProcessOptions
+\if@tikzinput@mh@\RequirePackage{tikzinput-mh}\fi
+\iftikzinput@image
+\RequirePackage{graphicx}
+\providecommand\usetikzlibrary[1]{}
+\else
+\RequirePackage{tikz}
+\RequirePackage{standalone}
+\fi
+\iftikzinput@image
+\newcommand\tikzinput[2][]{\includegraphics[#1]{#2}}
+\else
+\newcommand\tikzinput[2][]{\setkeys{Gin}{#1}%
+\ifx\Gin@ewidth\Gin@exclamation
+\ifx\Gin@eheight\Gin@exclamation\input{#2}\else\resizebox{!}{\Gin@eheight}{\input{#2}}\fi
+\else
+\ifx\Gin@eheight\Gin@exclamation\resizebox{\Gin@ewidth}{!}{\input{#2}}
+\else\resizebox{\Gin@ewidth}{\Gin@eheight}{\input{#2}}\fi
+\fi}
+\fi
+\newcommand\ctikzinput[2][]{\begin{center}\tikzinput[#1]{#2}\end{center}}
+
+\endinput
+%%
+%% End of file `tikzinput.sty'.
