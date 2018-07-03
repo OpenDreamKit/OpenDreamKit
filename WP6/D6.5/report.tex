@@ -14,9 +14,82 @@
 \def\defemph{\textbf}
 \usepackage{systems}
 %\usepackage{arydshln} % interacts negatively with proposal.cls
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+\def\papertype{report\xspace}
+
 \usepackage{listings}
 \lstset{columns=fullflexible,basicstyle=\sf}
-\usepackage{wrapfig}
+% QMT
+\lstdefinelanguage{qmt}{
+    basicstyle=\footnotesize\ttfamily,
+    showstringspaces=false,
+    frame=single, 
+    mathescape, 
+    columns=fullflexible,
+    breaklines=true
+}
+% JSON syntax
+\lstdefinelanguage{json}{
+    basicstyle=\footnotesize\sffamily,
+    numberstyle=\scriptsize,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single, 
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+\providecommand{\inlinecode}[1]{{\lstinline[language=qmt]|#1|}}
+
+\def\meta#1{\ensuremath{\langle\kern-.25em\langle}#1\ensuremath{\rangle\kern-.2em\rangle}}
+
+% More abbreviatons for diagrams and things
+\def\plaintt#1{\ifmmode\mathrm{\texttt{#1}}\else\texttt{#1}\fi}
+\def\typett{\plaintt{type}\xspace}
+\def\codectt{\plaintt{codec}\xspace}
+
+
+
+% TIKZ
+\usepackage{tikz}
+\def\thmo#1#2{\mathsf{#1}\colon\kern-.15em{#2}}% for theories
+\usetikzlibrary{shapes,arrows,mmt,fit,shadows}
+
+% Abbreviations
+\providecommand{\mmt}{\textsf{MMT}\xspace}
+\providecommand{\ommt}{\textsf{OMDoc}/\textsf{MMT}\xspace}
+\providecommand{\lmfdb}{\textsf{LMFDB}\xspace}
+
+% identifiers and URIs
+\providecommand{\identifier}[1]{%
+\StrSubstitute{#1}{\_}{_}[\identifiertmp]\expandafter\path\expandafter{\identifiertmp}%
+}
+\let\uri\identifier
+
+% colors for syntax highlighting
+\usepackage{xcolor}
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
 
 \title{GAP/SAGE/LMFDB Interface Theories and alignment in OMDoc/MMT for System Interoperability}
 \def\shorttitle{GAP/SAGE/LMFDB Interface Theories}
@@ -45,15 +118,18 @@
   environment (VRE) for mathematics.
   
   The OpenDreamKit project aims at building a toolkit for such VREs.  It suggests using a
-  central system-agnostic formalization of mathematics (Math-in-the-Middle, MitM) as the
-  needed interoperability layer.  In this paper, we report on a case study that
-  instantiates the MitM paradigm the systems \GAP, \Sage, \LMFDB, and \Singular\ednote{MK:
-    Pari/GP as well?} to perform computation in group, ring, and number theory.
+  central system-agnostic formalization of mathematics (Math-in-the-Middle, MitM) as a
+  mathematical pivot point for meaning-preserving translations in the needed
+  interoperability layer.  In this \papertype, we report on a series of case study that
+  instantiates the MitM paradigm with the systems \GAP, \Sage, \LMFDB, and
+  \Singular\Ednote{MK: Pari/GP as well?} to perform distributed computation in group,
+  ring, and number theory.
  
   Our work involves massive practical efforts, including a novel formalization of
-  computational group theory, improvements to the involved software systems, and a novel
+  computational group theory, improvements to the involved software systems, an extension
+  of the underlying knowledge managment system to cope with large theories, and a novel
   mediating system that sits at the center of a star-shaped integration layout between
-  mathematical software systems.
+  mathematical software systems and knowldge bases.
 \end{abstract}
 
 \maketitle
@@ -65,7 +141,7 @@
 \input{intro}
 
 \section{Math-in-the-Middle Interoperability}\label{sec:mitm}
-\input{mitm}b
+\input{mitm}
 
 \section{The MitM Ontology for Computational Group Theory}\label{sec:cgt}
 \input{cgt}
@@ -75,6 +151,18 @@
 
 \section{Distributed Computational Group Theory}\label{sec:case}
 \input{case}
+
+\section{Example: The API and Structure of LMFDB}\label{sec:sota}
+\input{sota}
+
+\section{\lmfdb as a Set of Virtual Theories}\label{sec:vt}
+\input{vt}
+
+\section{Accessing Virtual Theories}\label{sec:access}
+\input{access}
+
+\section{Translating Queries}\label{sec:qmt}
+\input{qmt}
 
 \section{Conclusion}\label{sec:concl}
 \input{concl}

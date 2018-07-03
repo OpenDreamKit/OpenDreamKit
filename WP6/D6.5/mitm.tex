@@ -104,68 +104,110 @@ This two-step translation has been implemented in \cite{MueRoYuRa:abtafs17} base
 
 Secondly, each system $A$ has to be able to serialize/parse $A$-objects and to send them to/receive them from \MMT.
 In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Software Composability) protocol~\cite{SCSCP-1.3} for that. 
-%\SCSCP is essentially a distributed remote-procedure-call system based on OpenMath, which is itself the fragment of \OMMT used for representing objects.
+\SCSCP is essentially a distributed remote-procedure-call system based on OpenMath, which is itself the fragment of \OMMT used for representing objects.
 It is straightforward to extend a parser/serializer for $A$-objects to an \SCSCP clients/server by implementing the \SCSCP protocol on top of, e.g., sockets or using an existing \SCSCP library. 
 
-% \begin{oldpart}{FR: all of this are new results and should be moved to the next section. In any case, this example does not fit well with the case study and maybe should be removed altogether. Instead, I think we should specify the problem solved by the case study in the following sections.}
-% For example, say Jane wishes to check the hypothesis that all Abelian transitive groups are cyclic.\footnote{This example is mathematically trivial.
-% We have chosen it because it shows complex system interaction rather than mathematical plausibility.
-% A realistic, mathematically motivated example will be discussed below.}
-% using a MitM-based mathematical VRE.
-% Jane realizes that the LMFDB database contains a set of known Abelian transitive groups.
-% Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
-% To check his hypothesis, she could retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
+\begin{oldpart}{FR: all of this are new results and should be moved to the next
+    section. In any case, this example does not fit well with the case study and maybe
+    should be removed altogether. Instead, I think we should specify the problem solved by
+    the case study in the following sections. MK: maywe we can use this now that we do not
+    have so many restriction}
+For example, say Jane wishes to check the hypothesis that all Abelian transitive groups are cyclic.\footnote{This example is mathematically trivial.
+We have chosen it because it shows complex system interaction rather than mathematical plausibility.
+A realistic, mathematically motivated example will be discussed below.}
+using a MitM-based mathematical VRE.
+Jane realizes that the LMFDB database contains a set of known Abelian transitive groups.
+Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
+To check his hypothesis, she could retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
 
-% As Jane is most familiar with the \Sage CAS, she expresses this operation as
-% \begin{lstlisting}
-% gap   = server(system="gap", transport="scscp", mediator="mmt")
-% lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
-% all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
-% \end{lstlisting}
+As Jane is most familiar with the \Sage CAS, she expresses this operation as
+\begin{lstlisting}
+gap   = server(system="gap", transport="scscp", mediator="mmt")
+lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
+all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
+\end{lstlisting}
 
-% \begin{wrapfigure}r{6.6cm}\vspace*{-2em}
-%   \tikzinput{mitmcomm}\vspace*{-1em}
-%   \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
-% \end{wrapfigure}
+\begin{wrapfigure}r{6.6cm}\vspace*{-2em}
+  \tikzinput{mitmcomm}\vspace*{-1em}
+  \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
+\end{wrapfigure}
 
-% At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is
-%   ``all'' something that already exists in \Sage? Does it behave like
-%   this? Please make sure that the text in this paragraph makes sense?
-%   NT: Yes, ``all'' is a Python builtin with exactly that syntax and behavior.}
+At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is
+  ``all'' something that already exists in \Sage? Does it behave like
+  this? Please make sure that the text in this paragraph makes sense?
+  NT: Yes, ``all'' is a Python builtin with exactly that syntax and behavior.}
 
-%  maps the first argument, interpreted as a predicate over the list in the second argument.
-% The arguments are the results of remote procedure calls via \SCSCP. 
-% The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
-% At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
-% \begin{compactenum}
-% \item \Sage sends a \SCSCP remote procedure call for 
-%   \begin{lstlisting}[mathescape]
-%     map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
-% \end{lstlisting}
-%   \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
-%     map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
-%   dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
-%   \ednote{NT@all: I don't think that the behavior of ``all'' can be
-%     changed; Sage will be evaluating the ``all'' call with one query
-%     to scscp/lmfdb and on scscp/gap call per group `g`. Do we have a
-%     specific reason to wish for Sage to issue a single ``map'' call to
-%     scscp? If yes, we need a different syntax. If not we just have to update
-%     this itemized description.}
-% \item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
-% \item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
-% \item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
-% \item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
-% \item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
-% \item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
-% \end{compactenum}
-% \end{oldpart}
+ maps the first argument, interpreted as a predicate over the list in the second argument.
+The arguments are the results of remote procedure calls via \SCSCP. 
+The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
+At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
+\begin{compactenum}
+\item \Sage sends a \SCSCP remote procedure call for 
+  \begin{lstlisting}[mathescape]
+    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
+\end{lstlisting}
+  \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
+    map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
+  dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
+  \ednote{NT@all: I don't think that the behavior of ``all'' can be
+    changed; Sage will be evaluating the ``all'' call with one query
+    to scscp/lmfdb and on scscp/gap call per group `g`. Do we have a
+    specific reason to wish for Sage to issue a single ``map'' call to
+    scscp? If yes, we need a different syntax. If not we just have to update
+    this itemized description.}
+\item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
+\item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
+\item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
+\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
+\item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
+\item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
+\end{compactenum}
+\end{oldpart}
+
+\subsection{Mathematical Knowledge Bases}\label{sec:mkb}
+\begin{oldpart}{MK: copied here from the MACIS-interop paper, needs to be adapted.}
+  There are various large-scale sources of mathematical knowledge.  These include
+\begin{compactitem}
+\item generic information systems like Wikipedia,
+\item collections of informal but rigorous mathematical documents -- e.g. research libraries, publisher's ``digital libraries'', or the Cornell preprint arXiv,
+\item literature information systems like zbMATH or MathSciNet,
+\item databases of mathematical objects -- like the GAP group libraries, the Online Encyclopedia of Integer sequences (OEIS~\cite{Sloane:OEIS,oeis}), and the L-Functions and Modular Forms Database (LMFDB~\cite{Cremona:LMFDB16,lmfdb:on}),
+\item fully formal theorem prover libraries like those of Mizar, Coq, PVS, and the HOL systems.
+\end{compactitem}
+  
+We will use the term \textbf{mathematical knowledge bases} to refer to them collectively and restrict ourselves to those that are available digitally.
+They are very useful in mathematical research, applications, and education.  
+Commonly these systems are only accessible via a dedicated web interface that allows humans to query or browse the databases. 
+A programmatic interface, if it exists at all, is usually system specific, to use it, users need to be familiar both with the mathematical background and internal structure of the system in question.  
+No predominant standard exists, and these interfaces usually only expose the low-level raw database content.
+We claim that mathematicians and other scientists desire a ``programmatic, mathematical API'' that gives access to the knowledge-bases programmatically via their mathematical constructions and properties. 
+We focus on addressing this problem in this paper. 
+
+For our implementation we interpret mathematical knowledge bases as \ommt theory graphs -- modular, flexi-formal representations of mathematical objects, their properties, and relations. 
+This embedding gives us a common conceptual framework to handle different knowledge sources, and the modular and heterogeneous nature of \ommt theory graph can be used to reconcile differing ontological commitments of the knowledge sources with in this conceptual framework.
+
+To cope with the scale of common mathematical knowledge bases we generalize \ommt theories to ``virtual theories'', which allow for unlimited, dynamically growing number of declarations.
+We also update the knowledge management algorithms in the \mmt system so that they can directly deal with the databases underlying the knowledge bases.
+Here we provide a systematic solution for encoding/decoding between low-level representations in standard databases and high-level mathematical representations.
+
+This paper proceeds as follows: 
+In Section~\ref{sec:mmtmitm} we give a short overview of \ommt theory graphs along with the Math-In-The-Middle approach developed in the \textsf{OpenDreamKit} project, our primary use-case for virtual theories. 
+Section~\ref{sec:sota} discusses \lmfdb and its interface as an example of a very large state-of-the-art mathematical knowledge base, and Section~\ref{sec:vt} shows how it can be represented as a set of virtual theories. 
+Section~\ref{sec:access} introduces the codec architecture and describes how to access virtual theories at the semantic/mathematical level, and Section~\ref{sec:qmt} makes QMT queries aware of virtual theories. 
+Section~\ref{sec:concl} concludes the paper.
+\end{oldpart}
 
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "paper"
+%%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  sec:mitm Jupyter jupyter-project:on KohDavGin:psewads11 BusCapCar:2oms04 standardization DehKohKon:iop16 textbf RabKoh:WSMSML13,uniformal:on MueGauKal:cacfms17 sec:apit serialize normalizer mathcal compute-the-normalizer MitM-based centering mitmcomm MueRoYuRa:abtafs17 Rabe:MAGMS13,uniformal:on inparaenum Sagey lstlisting scscp mmt,is_cyclic scscp lmfdb mmt,query transitivegroup lstinline gap,is_cyclic,scscp lmfdb,query synthesizes mathescape Sageify mathtt ldots,X_n Gonthier
-%  LocalWords:  wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc emph mcpoot13
-%  LocalWords:  formalizations optimizations standardized serializer oldpart behavior
-%  LocalWords:  itemized
+% LocalWords: sec:mitm Jupyter jupyter-project:on KohDavGin:psewads11 BusCapCar:2oms04
+% standardization DehKohKon:iop16 textbf RabKoh:WSMSML13,uniformal:on MueGauKal:cacfms17
+% sec:apit serialize normalizer mathcal compute-the-normalizer MitM-based centering
+% mitmcomm MueRoYuRa:abtafs17 Rabe:MAGMS13,uniformal:on inparaenum Sagey lstlisting scscp
+% mmt,is_cyclic scscp lmfdb mmt,query transitivegroup lstinline gap,is_cyclic,scscp
+% lmfdb,query synthesizes mathescape Sageify mathtt ldots,X_n Gonthier LocalWords:
+% wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc emph mcpoot13 LocalWords:
+% formalizations optimizations standardized serializer oldpart behavior LocalWords:
+% itemized
