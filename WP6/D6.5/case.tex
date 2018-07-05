@@ -68,7 +68,63 @@ that will compute the Galois group of any rational polynomial transparently for 
 And thus (at the price of using multiple systems) a significant part of the 1800-line \lstinline|radiroot| package can be replaced by a few lines in GAP, taking advantage of the work of the \Sage community and participating in any future improvements of \Sage. 
 In fact, Sage itself delegates to the PARI system -- another one of the OpenDreamKit systems -- for this computation.  So in the future \GAP might directly delegate to PARI instead, bypassing the need of iterated translations.
 
-% $p =x^4-x^3-x^2+x+1$ over $\mathbb{Q}$ would have D_8 as galois group again...
+\ednote{$p =x^4-x^3-x^2+x+1$ over $\mathbb{Q}$ would have $D_8$ as galois group again...}
+
+\begin{oldpart}{MK: maywe we can use this now that we do not have so many restriction}
+\subsection{ANOTHER Worked Use CASE}
+  For example, say Jane wishes to check the hypothesis that all Abelian transitive groups
+  are cyclic.\footnote{This example is mathematically trivial.  We have chosen it because
+    it shows complex system interaction rather than mathematical plausibility.  A
+    realistic, mathematically motivated example will be discussed below.}  using a
+  MitM-based mathematical VRE.  Jane realizes that the LMFDB database contains a set of
+  known Abelian transitive groups.  Furthermore, she realizes that the \GAP system can
+  check if a given group is cyclic.  To check his hypothesis, she could retrieve all
+  relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic.
+
+As Jane is most familiar with the \Sage CAS, she expresses this operation as
+\begin{lstlisting}
+gap   = server(system="gap", transport="scscp", mediator="mmt")
+lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
+all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
+\end{lstlisting}
+
+\begin{wrapfigure}r{6.6cm}\vspace*{-2em}
+  \tikzinput{mitmcomm}\vspace*{-1em}
+  \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
+\end{wrapfigure}
+
+At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is
+  ``all'' something that already exists in \Sage? Does it behave like
+  this? Please make sure that the text in this paragraph makes sense?
+  NT: Yes, ``all'' is a Python builtin with exactly that syntax and behavior.}
+
+ maps the first argument, interpreted as a predicate over the list in the second argument.
+The arguments are the results of remote procedure calls via \SCSCP. 
+The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
+At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
+\begin{compactenum}
+\item \Sage sends a \SCSCP remote procedure call for 
+  \begin{lstlisting}[mathescape]
+    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
+\end{lstlisting}
+  \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
+    map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
+  dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
+  \ednote{NT@all: I don't think that the behavior of ``all'' can be
+    changed; Sage will be evaluating the ``all'' call with one query
+    to scscp/lmfdb and on scscp/gap call per group `g`. Do we have a
+    specific reason to wish for Sage to issue a single ``map'' call to
+    scscp? If yes, we need a different syntax. If not we just have to update
+    this itemized description.}
+\item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
+\item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
+\item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
+\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
+\item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
+\item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
+\end{compactenum}
+\end{oldpart}
+\end{newpart}
 
 %%% Local Variables:
 %%% mode: latex
