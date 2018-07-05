@@ -1,0 +1,60 @@
+% !TEX root = ../thesis.tex
+Recall that \mmt has a general-purpose Query Language called QMT~\cite{Rabe:qlfml12}, which allows users to find knowledge subject to even complex conditions. 
+We continue by briefly addressing \textbf{P3}: query translation; for a complete discussion we refer the interested reader to \cite{twiesing:msc17}. 
+
+In practice, most queries involving virtual theories so far have a shape similar to the one that \lmfdb supports: 
+Finding all objects within a single sub-database for which a specific field has a specific value. 
+As an example, consider again the query of finding all Abelian transitive groups. 
+QMT has an \mmt-powered surface syntax, which can be used to express this query as:
+\begin{lstlisting}[language=qmt,basicstyle=\small\sf]
+x in (related to ( literal `lmfdb:db/transitivegroups?group ) by (object declares)) 
+  | holds x (x commutative x *=* true)
+\end{lstlisting}
+
+The example consists of two parts, first we find all objects declared in the \uri{lmfdb:db/transitivegroups?group} theory (line 1), and then we restrict this set of results to all those for which the \inlinecode{commutative} property is \inlinecode{true} (line 2). 
+Notice that this the example shown here is the formal equivalent of the \lmfdb query shown in Section~\ref{sec:sota:api}. 
+The key difference is that this query does not require knowing the record structure of \lmfdb --
+apart from knowing the proper sub-db, instead it only relies on knowing the mathematical
+semantics (commutativity) of the query in question. 
+
+Recall that to evaluate a query prior to the introduction of virtual theories, the \mmt system loaded the theory graph into main memory and then interleaved incremental flattening and query evaluation operations on the \mmt data structures until a result had been produced. 
+But it is infeasible to first load all potentially relevant data into memory, and only then proceed with evaluation. 
+This would require loading a copy of \lmfdb into main memory, something that virtual theories were designed to avoid. 
+
+The low-level API of  \lmfdb and similar system provides a new approach for making queries towards virtual theories. 
+First, the \mmt query is translated into a system-specific information-retrieval language -- in the case of \lmfdb\ this is a MongoDB-based syntax.
+Next, this translated query is sent to the external API. 
+Upon receiving the results, these are translated back into \ommt with the help of already existing functionality in the appropriate virtual theory backend.
+
+This leaves just one problem unsolved -- translating queries into the system-specific API. 
+However, it is insufficient to simply translate queries as a whole: 
+One hand a general QMT query may or may not involve a virtual theory, on the other hand, it may also involve several (unrelated) virtual theories. 
+This makes it necessary to filter out queries involving virtual theories, and assign them to a specific backend, and then translate only these parts. 
+
+Achieving this automatically is a non-trivial problem. 
+Queries are inductive in nature, and one could attempt to intercept each of the intermediate results. 
+However, this would require a check on each intermediate result to first determine if it comes from a virtual theory or not, and then potentially switching the entire evaluation strategy, leading to a computationally expensive implementation. 
+
+Instead of intercepting each result, we extended the Query Language to allows users to annotate sub-queries for evaluation with a specific virtual theory backend. 
+This allows the system to immediately know which parts of a query have to be evaluated in \mmt memory, and which have to be translated and sent to an external system. 
+This turns the example above into:
+\begin{lstlisting}[language=qmt]
+use "lmfdb" for {*
+  x in (related to ( literal `lmfdb:db/transitivegroups?group ) 
+    by (object declares)) | holds x (x commutative x *=* true)
+*}
+\end{lstlisting}
+Here, we have simply wrapped the entire query with a \inlinecode{use lmfdb} statement, indicating the query should be evaluated using \lmfdb. 
+
+The encoding of this specific query can be achieved using codecs -- in fact we have already seen above in Section~\ref{sec:sota:api} how this is achieved. 
+The query corresponds to the URL \url{http://www.lmfdb.org/api/transitivegroups/groups/?ab=1}. 
+Next, the \lmfdb API returns a set of JSON objects corresponding to all Abelian transitive groups. 
+These can then be decoded into \ommt objects using the procedure described in Section~\ref{sec:vt:schema}, i.e. for each field we look up the corresponding codec and use it to deconstruct the field, eventually creating an \mmt record. 
+Afterwards, these \ommt terms can then be passed to the user as a result to the query. 
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  sec:qmt Rabe:qlfml12 textbf twiesing:msc17 lmfdb mmt-powered lstlisting
+%  LocalWords:  qmt,basicstyle ommt qmt
