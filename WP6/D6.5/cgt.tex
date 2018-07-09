@@ -16,11 +16,10 @@ The judgment \lstinline|A<:B| expresses that $A$ is a subtype of $B$.
 We use power types (the type of subtypes of a type) and predicate subtyping \lstinline?{'a:A | P(a)'}?.
 The latter makes type-checking undecidable, but that is necessary for natural formalizations in many areas of mathematics.
 
-\begin{wrapfigure}r{6.1cm}\vspace*{-2.5em}
-  \includegraphics[width=.5\textwidth]{mitm1}\vspace*{-1em}
-  \caption{MitM ontology Fragment}\label{fig:mitm1}\vspace*{-1em}
+\begin{wrapfigure}r{8cm}\vspace*{-1em}
+  \includegraphics[width=.5\textwidth]{mitm1}
+  \caption{MitM ontology Fragment}\label{fig:mitm1}
 \end{wrapfigure}
-
 Additionally we extend our type theory with record types, which is critical for formalizing mathematical structures.
 In particular, \lstinline|ModelsOf T| is the record type of models of the theory \lstinline|T|.
 This lets us, e.g., define groups by the theory of operations and its signature and axioms, while \lstinline|group=ModelsOf group_theory| is the type of all models of said theory, i.e., all groups, as seen in Figure~\ref{fig:mitm1}.
@@ -32,9 +31,9 @@ Since axioms are turned into record type fields as well, actually constructing a
 Our formalization of CGT follows the template of its implementation in \GAP, and requires different levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
 The left box in Figure \ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP.
 
-\begin{figure}[ht]\centering\vspace*{-1em}
+\begin{figure}[ht]\centering
   \tikzinput[width=.98\textwidth]{alignmentimg}
-  \caption{Alignments between the MitM Ontology and the \GAP API}\label{fig:cgtontology}\vspace*{-1em}
+  \caption{Alignments between the MitM Ontology and the \GAP API}\label{fig:cgtontology}
 \end{figure}
 
 \paragraph{Abstract Level} This contains the theory of \emph{Groups}: the group
@@ -91,42 +90,44 @@ through MitM, \GAP can now compute the size of the group, its isomorphism type,
 and perform all the other operations that are available via the \GAP system
 dialect.
 
-%For example, if one creates \lstinline|Group((1,2,3,4,5,6,7,8,9,10,11),(3,7,11,8)(4,10,5,6))|
-%in \GAP, then one can compute the size of this group, which is $7920$, determine
-%whether it is abelian (which it is not), or compute its Sylow-$2$ subgroups.
-%
-%Coming back to the usefulness of isomorphisms, creating the group
-%\begin{lstlisting}
-%Group((1,5,7)(2,9,4)(3,8,10), (2,6)(3,5)(4,7)(9,10), (1,11)(2,7)(3,5)(4,6),
-%(2,5)(3,6)(4,7)(11,12))
-%\end{lstlisting}
-%we can find an isomorphism between these two groups, and knowing the Sylow-$2$
-%subgroups of the first one can deduce the Sylow-$2$ subgroups of the second one.
+\begin{oldpart}{MK: This was commented out in the MACIS paper; maybe we can use this somewhere?}
+For example, if one creates \lstinline|Group((1,2,3,4,5,6,7,8,9,10,11),(3,7,11,8)(4,10,5,6))|
+in \GAP, then one can compute the size of this group, which is $7920$, determine
+whether it is abelian (which it is not), or compute its Sylow-$2$ subgroups.
 
-%There are other ``canonical'' representatives of this group; there are $5040$
-%conjugates of $M_{11}$ inside the symmetric group on $11$ points alone, and 
-%$the \GAP primitive groups library contains $5$ representations of $M_{11}$,
-%as subgroups of the symmetric group on $11$, $12$, $55$, $66$, and $165$ points.
+Coming back to the usefulness of isomorphisms, creating the group
+\begin{lstlisting}
+Group((1,5,7)(2,9,4)(3,8,10), (2,6)(3,5)(4,7)(9,10), (1,11)(2,7)(3,5)(4,6),
+(2,5)(3,6)(4,7)(11,12))
+\end{lstlisting}
+we can find an isomorphism between these two groups, and knowing the Sylow-$2$
+subgroups of the first one can deduce the Sylow-$2$ subgroups of the second one.
 
-%While the groups are isomorphic, hence we could construct isomorphisms between
-%them, their action on the points are not .
+There are other ``canonical'' representatives of this group; there are $5040$ conjugates
+of $M_{11}$ inside the symmetric group on $11$ points alone, and the \GAP primitive groups
+library contains $5$ representations of $M_{11}$, as subgroups of the symmetric group on
+$11$, $12$, $55$, $66$, and $165$ points.
 
-%$Here it becomes clear how the layers of abstraction work as a means of picking
-%the correct translation:
+While the groups are isomorphic, hence we could construct isomorphisms between
+them, their action on the points are not .
 
+Here it becomes clear how the layers of abstraction work as a means of picking the correct
+translation:
 
-%\paragraph{Evaluation}
-%Building this part of the CGT MitM Ontology already posed a few challenges for
-%the \MMT system, mostly to do with subtyping, since we needed to be able to talk
-%about all subgroups of a group, and all normal subgroups of a group. Quantifying
-%over these classes can lead to inconsistencies in the underlying type theory.
-%These challenges immediately translate into necessary
-%features in \OMMT, for example by introducing universe hierarchies.
-% \ednote{MP@FR+DM: I commented this out because I believe the paragraph above
-%   describes what was done in MMT to accommodate for the CGT MitM ontology}
+\paragraph{Evaluation}
+Building this part of the CGT MitM Ontology already posed a few challenges for the \MMT
+system, mostly to do with subtyping, since we needed to be able to talk about all
+subgroups of a group, and all normal subgroups of a group. Quantifying over these classes
+can lead to inconsistencies in the underlying type theory.  These challenges immediately
+translate into necessary features in \OMMT, for example by introducing universe
+hierarchies.  \ednote{MP@FR+DM: I commented this out because I believe the paragraph above
+  describes what was done in MMT to accommodate for the CGT MitM ontology}
+\end{oldpart}
 
 %%% Local Variables:
 %%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 

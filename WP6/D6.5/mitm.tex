@@ -22,22 +22,55 @@ We do not go into the details of \OMMT here -- for our purposes, it
 suffices to assume that an \OMMT theory graph formalizes a language for mathematical objects as a set of typed symbols with a (formal or informal) specification of their semantics.
 For example, the MitM-symbol $\mathtt{PolynomialRing}$ takes a ring $r$ of coefficients and a number $n$ of variables and returns the ring $r[X_1,\ldots,X_n]$ of polynomials.
 
-Note that the purpose of the MitM ontology is not the formal verification of
-mathematical theorems (as for most existing formalizations
-%  such as
-% \cite{Gonthier+:mcpoot13}
- of group theory), but to act as a pivot point for
-integrating systems. This means that it can be much nearer to the informal but
-rigorous presentation of mathematical knowledge in the literature. While each
-system dialect makes compromises and optimizations needed for a particular application
-domain, the MitM ontology follows the existing and already informally standardized
-mathematical knowledge and can thus serve as a standard interface layer between
-systems.
+Note that the purpose of the MitM ontology is not the formal verification of mathematical
+theorems (as for most existing formalizations such as \cite{Gonthier+:mcpoot13} of group
+theory), but to act as a pivot point for integrating systems. This means that it can be
+much nearer to the informal but rigorous presentation of mathematical knowledge in the
+literature. While each system dialect makes compromises and optimizations needed for a
+particular application domain, the MitM ontology follows the existing and already
+informally standardized mathematical knowledge and can thus serve as a standard interface
+layer between systems.
 
 Importantly, the MitM ontology does not have to include any definitions\footnote{Of course, definitions are one possible way to specify the semantics of MitM-symbols.} or proofs -- it only has to declare the types of all relevant symbols and state (but not prove) the relevant theorems.
-This makes it possible for users like Jane to extend the MitM ontology quickly whereas extending formalizations usually requires extensive efforts by specialists.
+This makes it possible for users like Jane to extend the MitM ontology quickly whereas
+extending formalizations usually requires extensive efforts by specialists.
 
-\subsection{Specifying System Dialects}\label{sec:mitm:dialect}
+\subsection{OMDoc/MMT as a Knowledge Representation Format}\label{sec:ommt}
+The realization of the MitM approach crucially depends on the information architecture of
+the \ommt language~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} and its implementation in the
+\mmt system~\cite{Rabe:MAGMS13,uniformal:on}.
+
+In \ommt knowledge is organized in \textbf{theories}, which contain information about
+mathematical concepts and objects in the form of \textbf{declarations}. Theories are
+organized into an ``object-oriented'' inheritance structure via \textbf{inclusions} and
+\textbf{structures} (for controlled multiple inheritance), which is augmented via
+truth-preserving mappings between theories called \textbf{views}, which allow to relate
+concepts of pre-existing theories and transport theorems between these. Inclusions,
+structures, and views impose a graph structure on the represented mathematical knowledge,
+called a \textbf{theory graph}. 
+
+We observe that even very large mathematical knowledge spaces about abstract mathematical
+domains can be represented by small, but densely connected, theory graphs, if we make all
+inherited material explicit in a process called \textbf{flattening}. The \ommt language
+provides systematic names (\mmt URIs) for all objects, properties, and relations in the
+induced knowledge space, and given the represented theory graph, the \mmt system can
+compute them on demand. 
+
+Generally, knowledge in a knowledge space given by a theory graph loaded by the \mmt system can be accessed by either giving it's \mmt URI, or by uniquely describing it via a set of conditions. 
+To achieve the latter, \mmt has a Query Language called QMT~\cite{Rabe:qlfml12}, which allows even complex conditions to be specified. 
+Currently, the \mmt system loads the theory graph into main memory at startup and interleaves incremental flattening and query evaluation operations on the \mmt data structures until the result has been produced. 
+
+In this \papertype we show that the MitM approach, its \ommt-based realization, and
+distribution via the SCSCP protocol are sufficient for distributed, federated computation
+between multiple computer algebra systems (Sage, GAP, and Singular), and that the MitM
+ontology of abstract group theory can be represented in \ommt efficiently. This setup is
+effective because
+\begin{compactitem}
+\item the knowledge spaces behind abstract and computational mathematics can be represented in theory graphs very space-efficiently: The compression factors between a knowledge space and its theory graph -- we call it the \textbf{TG factor} -- exceeds two orders of magnitude even for small domains.
+\item only small parts of the knowledge space are traversed for a given computation. 
+\end{compactitem}
+
+\subsection{Specifying System Dialects via System API Theories}\label{sec:mitm:dialect}
 
 \paragraph{System Dialects}
 It is unavoidable that each system induces its own language for mathematical objects.
@@ -108,177 +141,12 @@ In the OpenDreamKit project we use the OpenMath \SCSCP (Symbolic Computation Sof
 \SCSCP is essentially a distributed remote-procedure-call system based on OpenMath, which is itself the fragment of \OMMT used for representing objects.
 It is straightforward to extend a parser/serializer for $A$-objects to an \SCSCP clients/server by implementing the \SCSCP protocol on top of, e.g., sockets or using an existing \SCSCP library. 
 
-\begin{oldpart}{FR: all of this are new results and should be moved to the next
-    section. In any case, this example does not fit well with the case study and maybe
-    should be removed altogether. Instead, I think we should specify the problem solved by
-    the case study in the following sections. MK: maywe we can use this now that we do not
-    have so many restriction}
-For example, say Jane wishes to check the hypothesis that all Abelian transitive groups are cyclic.\footnote{This example is mathematically trivial.
-We have chosen it because it shows complex system interaction rather than mathematical plausibility.
-A realistic, mathematically motivated example will be discussed below.}
-using a MitM-based mathematical VRE.
-Jane realizes that the LMFDB database contains a set of known Abelian transitive groups.
-Furthermore, she realizes that the \GAP system can check if a given group is cyclic. 
-To check his hypothesis, she could retrieve all relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic. 
-
-As Jane is most familiar with the \Sage CAS, she expresses this operation as
-\begin{lstlisting}
-gap   = server(system="gap", transport="scscp", mediator="mmt")
-lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
-all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
-\end{lstlisting}
-
-\begin{wrapfigure}r{6.6cm}\vspace*{-2em}
-  \tikzinput{mitmcomm}\vspace*{-1em}
-  \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
-\end{wrapfigure}
-
-At the \Sage level, the \lstinline|all| predicate \ednote{MK@NT: is
-  ``all'' something that already exists in \Sage? Does it behave like
-  this? Please make sure that the text in this paragraph makes sense?
-  NT: Yes, ``all'' is a Python builtin with exactly that syntax and behavior.}
-
- maps the first argument, interpreted as a predicate over the list in the second argument.
-The arguments are the results of remote procedure calls via \SCSCP. 
-The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
-At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
-\begin{compactenum}
-\item \Sage sends a \SCSCP remote procedure call for 
-  \begin{lstlisting}[mathescape]
-    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
-\end{lstlisting}
-  \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
-    map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
-  dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
-  \ednote{NT@all: I don't think that the behavior of ``all'' can be
-    changed; Sage will be evaluating the ``all'' call with one query
-    to scscp/lmfdb and on scscp/gap call per group `g`. Do we have a
-    specific reason to wish for Sage to issue a single ``map'' call to
-    scscp? If yes, we need a different syntax. If not we just have to update
-    this itemized description.}
-\item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
-\item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
-\item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
-\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
-\item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
-\item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
-\end{compactenum}
-\end{oldpart}
-\end{newpart}
-
-\begin{oldpart}{MK: the corresponding section from the MACIS17-VT paper.}
-  \subsection{Virtual Research Environments for Mathematics: the Math-in-the-Middle
-  Approach}\label{sec:mmtmitm}
-
-The work reported in this paper originates from in the EU-funded \textsf{OpenDreamKit}
-\cite{OpenDreamKit:on} project that aims to create virtual research environments (VRE)
-enabling mathematicians to make efficient use of existing open-source mathematical
-knowledge systems.  These systems include computer algebra systems like SageMath and GAP
-as well as mathematical data bases such as the \lmfdb, which must be made interoperable
-for integration into a VRE. In the \textsf{OpenDreamKit} project we have developed the
-Math-in-the-Middle (MitM) approach, which posits a central ontology of mathematical
-knowledge, which acts as a pivot point for interoperability; see~\cite{DehKohKon:iop16}
-for a description of the approach and \cite{KohMuePfe:kbimss17} for a technical refinement
-and large-scale interoperability case study. 
-
-\begin{wrapfigure}l{0.3\textwidth}%\vspace*{-2em}
-    \begin{tikzpicture}[xscale=1.3,yscale=1.3]\normalsize
-      \tikzstyle{withshadow}=[draw,drop shadow={opacity=.5},fill=white]
-      \tikzstyle{system}=[draw]
-      \tikzstyle{standard}=[circle,fill=blue!30]
-      \tikzstyle{interface}=[circle,fill=purple!30,inner sep = 1pt,]
-      \node[system] (a) at (0,.3) {A};
-      \node[system] (b) at (1,.3) {B};
-      \node[system] (c) at (1.7,1) {C};
-      \node[system] (d) at (1.7,2) {D};
-      \node[system] (e) at (1,2.7) {E};
-      \node[system] (f) at (0,2.7) {F};
-      \node[system] (g) at (-.7,2) {G};
-      \node[system] (h) at (-.7,1) {H};
-      \node[standard] (m) at (.5,1.5) {S};
-      \node[interface] (ia) at (0.2,.9) {a};
-      \node[interface] (ib) at (.8,.9) {b};
-      \node[interface] (ic) at (1.1,1.2) {c};
-      \node[interface] (id) at (1.1,1.75) {d};
-      \node[interface] (ie) at (.8,2.1) {e};
-      \node[interface] (if) at (0.2,2.1) {f};
-      \node[interface] (ig) at (-.1,1.75) {g};
-      \node[interface] (ih) at (-.1,1.2) {h};
-      \draw (m) -- (ia) -- (a);
-      \draw (m) -- (ib) -- (b);
-      \draw (m) -- (ic) -- (c);
-      \draw (m) -- (id) -- (d);
-      \draw (m) -- (ie) -- (e);
-      \draw (m) -- (if) -- (f);
-      \draw (m) -- (ig) -- (g);
-      \draw (m) -- (ih) -- (h);
-      \end{tikzpicture}
-  \caption{The MiTM Approach to Connecting Systems.}\label{fig:mitmconnect}\vspace*{-1em}
-\end{wrapfigure}
-The MitM ontology in the center of Figure~\ref{fig:mitmconnect} models the true,
-underlying mathematical semantics in \ommt and allows translation between this centrally
-formalized knowledge and the systems on the boundary via views and alignments.
-This mathematical knowledge is modeled using the well-established theory graph paradigm
-and is stored inside our \ommt-based MathHub system~\cite{MathHub:on}. 
-
-The knowledge in the mathematical software systems -- denoted by square boxes in
-Figure~\ref{fig:mitmconnect} -- also modeled via \ommt theory graphs the \textbf{API
-  theories} -- the corresponding red circles; these are generated from the
-knowledge bases in the systems by a custom process. The API theories allow us to implement
-translation with the help of \ommt views and alignments between the ontology -- the
-Math-In-The-Middle -- and each of the systems and use these translations for transporting
-computational tasks between the systems. 
-
-The realization of the MitM approach crucially depends on the information architecture of
-the \ommt language~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} and its implementation in the
-\mmt system~\cite{Rabe:MAGMS13,uniformal:on}.
-
-In \ommt knowledge is organized in \textbf{theories}, which contain information about
-mathematical concepts and objects in the form of \textbf{declarations}. Theories are
-organized into an ``object-oriented'' inheritance structure via \textbf{inclusions} and
-\textbf{structures} (for controlled multiple inheritance), which is augmented via
-truth-preserving mappings between theories called \textbf{views}, which allow to relate
-concepts of pre-existing theories and transport theorems between these. Inclusions,
-structures, and views impose a graph structure on the represented mathematical knowledge,
-called a \textbf{theory graph}. 
-
-We observe that even very large mathematical knowledge spaces about abstract mathematical
-domains can be represented by small, but densely connected, theory graphs, if we make all
-inherited material explicit in a process called \textbf{flattening}. The \ommt language
-provides systematic names (\mmt URIs) for all objects, properties, and relations in the
-induced knowledge space, and given the represented theory graph, the \mmt system can
-compute them on demand. 
-
-Generally, knowledge in a knowledge space given by a theory graph loaded by the \mmt system can be accessed by either giving it's \mmt URI, or by uniquely describing it via a set of conditions. 
-To achieve the latter, \mmt has a Query Language called QMT~\cite{Rabe:qlfml12}, which allows even complex conditions to be specified. 
-Currently, the \mmt system loads the theory graph into main memory at startup and interleaves incremental flattening and query evaluation operations on the \mmt data structures until the result has been produced. 
-
-In \cite{KohMuePfe:kbimss17} we show that the MitM approach, its \ommt-based realization,
-and distribution via the SCSCP protocol are sufficient for distributed, federated computation
-between multiple computer algebra systems (Sage, GAP, and Singular), and that the MitM
-ontology of abstract group theory can be represented in \ommt efficiently. This setup is
-effective because
-\begin{compactitem}
-\item the knowledge spaces behind abstract and computational mathematics can be represented in theory graphs very space-efficiently: The compression factors between a knowledge space and its theory graph -- we call it the \textbf{TG factor} -- exceeds two orders of magnitude even for small domains.
-\item only small parts of the knowledge space are traversed for a given computation. 
-\end{compactitem}
-
-But the \textsf{OpenDreamKit} VRE must also include mathematical data sources like the \lmfdb or the OEIS, which contain millions of mathematical objects. For such knowledge sources, the classical \mmt system is not yet suitable:
-\begin{compactitem}
-\item the knowledge space corresponding to the data base content cannot be compressed by ``general mathematical principles'' like inheritance. 
-Indeed, redundant information is already largely eliminated by the data base schema and the ``business logic'' of the information system it feeds.
-\item typically large parts of the knowledge space need to be traversed to obtain the intended results to queries.
-\end{compactitem}
-Therefore, we extend the concept of \ommt theories -- which carry the implicit assumption of containing only a small number of declarations (see~\cite{FaGu:lt92} for a discussion) -- to \textbf{virtual theories}, which can have an unlimited (possibly infinite) number of declarations. 
-To contrast the intended uses we will call the classical \ommt theories \textbf{concrete theories}.  
-In practice, a virtual theory is represented by concrete approximations: \ommt works with
-a concrete theory, whose size changes dynamically as a suitable backend infrastructure
-generates declarations on demand.
-\end{oldpart}
 
 \subsection{Mathematical Knowledge Bases}\label{sec:mkb}
-\begin{oldpart}{MK: copied here from the MACIS-interop paper, needs to be adapted.}
-  There are various large-scale sources of mathematical knowledge.  These include
+
+But the \textsf{OpenDreamKit} VRE must also include mathematical data sources, which
+curate the objects, models, examples, and counterexamples of mathematics.  There are
+various large-scale sources of mathematical knowledge.  These include
 \begin{compactitem}
 \item generic information systems like Wikipedia,
 \item collections of informal but rigorous mathematical documents -- e.g. research libraries, publisher's ``digital libraries'', or the Cornell preprint arXiv,
@@ -293,24 +161,31 @@ Commonly these systems are only accessible via a dedicated web interface that al
 A programmatic interface, if it exists at all, is usually system specific, to use it, users need to be familiar both with the mathematical background and internal structure of the system in question.  
 No predominant standard exists, and these interfaces usually only expose the low-level raw database content.
 We claim that mathematicians and other scientists desire a ``programmatic, mathematical API'' that gives access to the knowledge-bases programmatically via their mathematical constructions and properties. 
-We focus on addressing this problem in this paper. 
+We focus on addressing this problem in this paper.
 
 For our implementation we interpret mathematical knowledge bases as \ommt theory graphs -- modular, flexi-formal representations of mathematical objects, their properties, and relations. 
 This embedding gives us a common conceptual framework to handle different knowledge sources, and the modular and heterogeneous nature of \ommt theory graph can be used to reconcile differing ontological commitments of the knowledge sources with in this conceptual framework.
 
-To cope with the scale of common mathematical knowledge bases we generalize \ommt theories to ``virtual theories'', which allow for unlimited, dynamically growing number of declarations.
+
+But knowledge sources like the \lmfdb or the OEIS, which contain millions of mathematical objects. For such knowledge sources, the classical \mmt system is not yet suitable:
+\begin{compactitem}
+\item the knowledge space corresponding to the data base content cannot be compressed by ``general mathematical principles'' like inheritance. 
+Indeed, redundant information is already largely eliminated by the data base schema and the ``business logic'' of the information system it feeds.
+\item typically large parts of the knowledge space need to be traversed to obtain the intended results to queries.
+\end{compactitem}
+Therefore, we extend the concept of \ommt theories -- which carry the implicit assumption of containing only a small number of declarations (see~\cite{FaGu:lt92} for a discussion) -- to \textbf{virtual theories}, which can have an unlimited (possibly infinite) number of declarations. 
+To contrast the intended uses we will call the classical \ommt theories \textbf{concrete theories}.  
+In practice, a virtual theory is represented by concrete approximations: \ommt works with
+a concrete theory, whose size changes dynamically as a suitable backend infrastructure
+generates declarations on demand.
+
 We also update the knowledge management algorithms in the \mmt system so that they can directly deal with the databases underlying the knowledge bases.
 Here we provide a systematic solution for encoding/decoding between low-level representations in standard databases and high-level mathematical representations.
 
-This paper proceeds as follows: 
-In Section~\ref{sec:mmtmitm} we give a short overview of \ommt theory graphs along with the Math-In-The-Middle approach developed in the \textsf{OpenDreamKit} project, our primary use-case for virtual theories. 
-Section~\ref{sec:sota} discusses \lmfdb and its interface as an example of a very large state-of-the-art mathematical knowledge base, and Section~\ref{sec:vt} shows how it can be represented as a set of virtual theories. 
-Section~\ref{sec:access} introduces the codec architecture and describes how to access virtual theories at the semantic/mathematical level, and Section~\ref{sec:qmt} makes QMT queries aware of virtual theories. 
-Section~\ref{sec:concl} concludes the paper.
-\end{oldpart}
-
 %%% Local Variables:
 %%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
