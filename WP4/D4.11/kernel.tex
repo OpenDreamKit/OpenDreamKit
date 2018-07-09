@@ -1,0 +1,66 @@
+\subsection{Jupyter server on jupyter.mathub.info}\label{sec:jps}
+\ednote{KA: ask Tom about the server}
+\ednote{KA: paper or report? MK: report}
+\ednote{KA: show actual code? I suppose not: MK: no!}
+
+The goal of this report is to integrate Jupyter notebooks into MathHub
+and make them compatible with MMT, in a way that we can conveniently use 
+MMT syntax in these notebooks and also a little bit of extra functionality
+like e.g. the Jupyter widgets. The first step is setting up a Jupyter server,
+which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
+For this server, we have developed a custom kernel, that forwards the input 
+entered into the Jupyter notebook to the MMT backend. This then processes 
+said input and sends the response back to the Jupyter frontend via the kernel.
+We will cover the implementation of the Jupyter kernel and the MMT-backend,
+later in this report.
+
+\ednote{KA: isn't it more likely a MMT kernel for jupyter?}
+In this section we will cover the implementation of the Jupyter kernel that
+communicates with the Jupyter frontend and the MMT backend. 
+
+\subsection{Command syntax}
+\ednote{KA:I suppose we still want to be able to create theories etc.}
+\ednote{KA: if we want to have other "commands" (e.g. active computation)} 
+\ednote{KA: we will have to create a custom parser for that}
+The syntax we can use in the Jupyter frontend is basically the same one we are able to 
+use e.g. in JEdit extended with some additional features like active computation
+or theory visualization via ?MathML?. 
+\subsection{REPL extension in MMT}
+\ednote{KA: + the JupyterKernel Class on the Scala side? or does this go to the next section
+ I do have to look over this a little more since I did not really 
+ have anything to do with the code there.
+ I know that it handles Session management and passes the code
+ to the parser (that is afaik also the parser for JEdit).}
+\ednote{KA: here we would have to think of a Syntax that we want to use 
+ and which applications we want for it e.g. the 
+ keyword active computation opens some textbox 
+ widgets for user input, based on the current theory}
+
+\subsubsection{Pythonbridge, Implementation of the Python kernel}
+Now to the actual implementation of the Jupyter Kernel. Although communication between 
+the Python kernel and the Scala MMT backend via HTTP would suffice for basic things,
+like e.g. MMT surface syntax commands, it proves exceedingly difficult when we want to 
+provide more complex services to the notebook user that require the usage of Jupyter widgets,
+like e.g. displaying a whole user-created theory as MathML, or active computation. 
+So instead we use a Python-Java-bridge that lets us overcome the issues we have with HTTP and
+make code more modular and easier to understand, on both Python and Scala side.
+\ednote{KA: do we really want to explain the bridge here? if yes how detailed?}
+\ednote{KA:  explain what widgets are and how they work? if yes how detailed?}
+The Python-Java-Bridge basically works as follows: on the Scala side we only have method stubs
+that are linked with methods on the Python side that implement the stubs. So when we call 
+a method on the Scala side, we actually call the code that is implemented on the Python side 
+and get the result of this function execution back in Scala. This mechanism allows us to 
+conveniently register callbacks to the Jupyter widgets. You might ask yourself why those callbacks 
+are so important. The answer is simple: a button that doesn't do anything when clicked is not 
+a very useful one. Those callbacks enable widgets to interact with each other and the user alike. 
+Therefore they are essential to using the full potential of the Jupyter widgets.
+\ednote{KA: To use the Python-Java Bridge we first have to enable the Py4JGateway extension on our MMT server}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "none"
+%%% End:
