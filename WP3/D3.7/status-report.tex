@@ -58,6 +58,19 @@ It is distributed in the form of a single-file executable installer, with a
 familiar install wizard interface. The download size of the installer comes in
 at just under a gigabyte, but unpacks to more than 4.5 GB in version 8.0.
 
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{screenshots/installer1}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{screenshots/installer2}
+    \end{subfigure}
+    \caption{SageMath for Windows installation}
+    \label{fig:installation}
+\end{figure}
+
 Because of the large number of files comprising the complete SageMath
 distribution, and the heavy compression of the installer, installation can take
 a fair amount of time even on a recent system. On an Intel i7 laptop it takes
@@ -66,7 +79,16 @@ field testing, this has not yet been a source of complaints.  In future updates
 to the installer we may also be able to reduce the installation time/size by
 making certain large components (e.g.~offline documentation) optional.
 
-The installer includes three desktop and/or start menu shortcuts:
+The installation also includes a graphical uninstaller that can be run in the
+standard way via the control panel, as well as three desktop and/or start menu
+shortcuts:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics{screenshots/shortcuts}
+    \caption{Shortcut icons for SageMath}
+    \label{fig:shortcut-icons}
+\end{figure}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi})}
@@ -88,6 +110,13 @@ The installer includes three desktop and/or start menu shortcuts:
   configured as the default kernel and, where possible, opens the
   Notebook interface in the user's browser.
 \end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/console}
+    \caption{SageMath text console with a plot in the default Windows image viewer}
+    \label{fig:console}
+\end{figure}
 
 \hypertarget{technical-details}{%
 \subsection{Technical details}\label{technical-details}}
@@ -113,26 +142,73 @@ themselves testing against Cygwin regularly).
 In fact, maintenance was the most difficult aspect of the Cygwin port
 (and this is one of the main reasons past efforts failed--without a
 sustained effort it was not possible to keep up with the pace of Sage
-development). The critical component that was missing for creating a
-sustainable Cygwin port of Sage was continuous integration on Cygwin. The
-Sage developers maintain a flotilla of so-called "patchbots", computers
-running a number of different OS and hardware platforms that perform
-continuous integration testing of all proposed software changes to Sage.
-The patchbots are able to catch changes that break Sage before they are
-merged into the main development branch. Without a patchbot testing
-changes on Cygwin, there was no way to stop changes from being merged
-that broke Cygwin. With some effort Erik Bray managed to get a Windows
-VM with Cygwin running reliably on Université Paris-Sud's OpenStack
-infrastructure, that could run a Cygwin patchbot for Sage. By continuing
-to monitor this patchbot the SageMath community can now receive prior
-warning if/when a change will break the Cygwin port. We expect this will
-impact only a small number of changes--in particular those that update
-one of Sage's dependencies.
+development).
+
+\hypertarget{continuous-integration}{%
+\subsubsection{Continuous integration}\label{continuous-integration}}
+
+A critical component that was missing for creating a sustainable Cygwin port of
+Sage was continuous integration on Cygwin. The Sage developers maintain a
+flotilla of so-called "patchbots", computers running a number of different OS
+and hardware platforms that perform continuous integration testing of all
+proposed software changes to Sage.  The patchbots are able to catch changes
+that break Sage before they are merged into the main development branch.
+Without a patchbot testing changes on Cygwin, there was no way to stop changes
+from being merged that broke Cygwin. With some effort Erik Bray managed to get
+a Windows VM with Cygwin running reliably on Université Paris-Sud's OpenStack
+infrastructure, that could run a Cygwin patchbot for Sage. By continuing to
+monitor this patchbot the SageMath community can now receive prior warning
+if/when a change will break the Cygwin port. We expect this will impact only a
+small number of changes--in particular those that update one of Sage's
+dependencies.
 
 In so doing we are, indirectly, providing continuous integration on
 Cygwin for SageMaths's many dependencies--something most of those
 projects do not have the resources to do on their own. So this should be
 considered a service to the open source software community at large.
+
+
+\hypertarget{runtime-bugs}{%
+\subsubsection{Runtime bugs}\label{runtime-bugs}}
+
+Despite the relative lack of system-specific code in Sage, there were some
+non-trivial bugs that occurred at run time (as opposed to during software
+builds) that required considerable effort to debug resolve.
+
+One particular source of bugs is subtle synchronization issues in multi-process
+code, that arise primarily due to the large overhead of creating, destroying,
+and signalling processes on Cygwin, as compared to most UNIXes.  Other problems
+arise in areas of behavior that are not specified by the POSIX standard, and
+assumptions are made that might hold on, say, Linux, but that do not hold on
+Cygwin (but that are still POSIX-compliant!)  For example, a difference in
+(undocumented, in both cases) memory management between Linux and Cygwin made
+for a particularly challenging bug in PARI on
+Cygwin\footnote{\url{https://trac.sagemath.org/ticket/22633}}.
+
+Another interesting bug\footnote{\url{https://trac.sagemath.org/ticket/21388}}
+came up in a test that invoked a stack overflow bug in Python, which only came
+up on Cygwin due to the smaller default stack size of programs compiled for
+Windows.  There are also occasional bugs due to small differences in numerical
+results, due to the different implementation of the standard C math routines on
+Cygwin, versus GNU libc.
+
+It was also discovered in the process of porting to Cygwin that the Python
+interpreter's support for thread-local data in multi-threaded programs was
+fundamentally broken on Cygwin (due not to a problem in Cygwin, but to aspects
+of the Python interpreter that were not POSIX-compliant).  Although the problem
+was simple the fix was non-trivial, and led to Erik Bray co-authoring a Python
+Enhancement Proposal
+(PEP)\footnote{\url{https://www.python.org/dev/peps/pep-0539/}}--a technical
+specification for communicating to the Python community some design or
+implementation aspect of the Python language or its official interpreter
+implementation, "CPython".
+
+This leaves us with the lesson that porting software as complex as Sage and its
+dependencies to Cygwin is not completely trivial, and that similar bugs might
+still arise in the future, requiring future investment.  See
+\ref{upstream-contributions} for a list of other open source projects that were
+contributed to in the process of porting Sage to Cygwin/Windows.
+
 
 \hypertarget{alternatives}{%
 \subsubsection{Alternatives}\label{alternatives}}
@@ -200,7 +276,45 @@ So to reach the most users, and provide the most hassle-free user experience,
 the WSL is not currently a solution.  However, it may still prove useful for
 developers as a way to do Sage development on Windows. And in the future it may
 become the easiest way to install UNIX-based software on Windows as well,
-especially if Microsoft ever expands the scope of its supported use cases.
+especially if Microsoft ever expands the scope of its supported use cases. It
+may also lead to improvements in the implementation of Cygwin if Microsoft is
+ever more forthcoming about some of the WSL's implementation details.
+
+
+\hypertarget{upstream-contributions}{%
+\subsection{Upstream contributions}\label{upstream-contributions}}
+
+As discussed previously, while relatively little code in the Sage library is
+platform-dependent, a significant number of Sage's dependencies have had bugs
+with building and running on Cygwin.  Thus, the effort of porting Sage to
+Cygwin involved upstream improvements to numerous other open source projects
+including but not limited to:
+
+\begin{enumerate}
+\item Cygwin itself (fixes to bugs in Cygwin that affected Sage)
+\item Python (fixes to bugs with using Python on Cygwin)
+\item PyCygwin\footnote{\url{https://github.com/embray/PyCygwin}} (a project we created for interfacing with Cygwin's internals from Python)
+\item Cysignals
+\item psutil (a popular multi-platform process monitoring library for Python, which required some effort to port to Cygwin)
+\item OpenBlas (the default linear algebra library used by Sage)
+\item ECL (Extensible Common Lisp, on top of which Maxima is developed)
+\item ECM (used for elliptic curve factorization)
+\item cddlib
+\item fplll
+\item GAP
+\item libhomfly
+\item Linbox
+\item NumPy
+\item PARI/GP
+\item Singular
+\end{enumerate}
+
+As mentioned previously, Erik Bray also co-authored a Python Enhancement
+Proposal (PEP) that was accepted and implemented in Python 3.7.  They also
+contributed to improving the port of Python 3 to Cygwin, and in the process
+were also given elevated privileges on the CPython project's main issue tracker
+with the purpose of managing Cygwin-related issues on Python.
+
 
 \hypertarget{port-for-32-bits-architectures}{%
 \subsection{Port for 32 bits
@@ -245,20 +359,28 @@ have to reconsider our decision.
 \hypertarget{conclusion}{%
 \subsection{Conclusion}\label{conclusion}}
 
-Focusing on Cygwin for porting Sage to Windows was definitely the right
-way to go. It took only a few months in the summer of 2016 to get the
-vast majority of the work done. The rest was a question of keeping
-up with changes to Sage and fixing more bugs. Now, however, enough
-issues have been addressed that the Windows version has remained fairly
-stable, even in the face of ongoing updates to Sage.
+Focusing on Cygwin for porting Sage to Windows was definitely the right way to
+go. It took roughly three months in the summer of 2016 to get the vast majority
+of the initial work done, with sustained effort over the following two years in
+order to keep up with changes to Sage and fix some of the more obscure bugs.
+We estimate an overall expenditure of 14 person-months on this effort, tracked
+across roughly 115 tickets on Sage's bug tracker as of
+writing\footnote{\url{https://trac.sagemath.org/report/94}}.
 
-Porting more of Sage's dependencies to build with MinGW and without
-Cygwin might still be a worthwhile effort, as Cygwin adds some overhead
-in a few areas, but if we had started with that it would have been too
-much effort.
+Now, however, enough issues have been addressed that the Windows version has
+remained fairly stable, even in the face of ongoing updates to Sage. Because
+some effort is required in order to maintain the continuous integration of Sage
+on Cygwin, build releases, and address new issues that arise, a sustained
+effort of roughly 2 person-months annually is required, with likelihood that
+that will continue to decrease as software stability improves.
+
+Porting more of Sage's dependencies to build with MinGW and without Cygwin
+might still be a worthwhile effort, as Cygwin adds some overhead and stability
+issues in a few areas, but if we had started with that approach it would have
+taken much longer to produce usable results.
 
 In the near future, however, the priority needs to be improvements to
-user experience of the Windows Installer. In particular, a better
+user experience of the Windows installer. In particular, a better
 solution is needed for installing Sage's optional packages on Windows.
 And an improved experience for using Sage in the Jupyter Notebook, such
 that the Notebook server can run in the background as a Windows Service,
