@@ -11,6 +11,16 @@
 \usepackage{stex-logo}
 \usepackage{rotating}
 
+\usepackage{tikz}
+\def\thmo#1#2{\mathsf{#1}\colon\kern-.15em{#2}}% for theories
+\usetikzlibrary{shapes,arrows,fit,shadows}
+\usepackage{tikzinput}
+
+\usepackage{../lib/florian_rabe/basics}
+\usepackage{local}
+
+\hypersetup{colorlinks}
+
 \title{Curated Math-in-the-Middle Ontology and Alignments for GAP/SAGE/LMFDB}
 \def\shorttitle{Curated MitM Ontology/Alignments}
 
@@ -37,6 +47,7 @@
 \newpage\tableofcontents\newpage
 
 \section{Introduction}
+
 The Math-in-the-Middle (MitM) Ontology developed in the OpenDreamKit project. It serves as
 a reference and pivotal point for translations between the various input languages of
 mathematical software systems. This integration and interoperability has been described
@@ -50,7 +61,6 @@ alignments~\cite{MueGauKal:cacfms17} that allow the translation of expressions i
 interface language of system $A$ into the MitM-induced language, and from there to the
 interface language of system $B$~\cite{MueRoYuRa:abtafs17}.
 
-\section{The MitM Ontology and Interface Theories}
 The Math-in-the-Middle Ontology is hosted on the MathHub.info system
 \url{http://mathhub.info}, the sources can be obtained from
 \url{http://gl.mathhub.info}. As the MathHub front-end is currently undergoing major
@@ -65,52 +75,20 @@ the semantically enhanced user interface can be accessed via the same URLs witho
 
 The development consists of three parts:
 \begin{compactenum}[\em i\rm)]
-\item the MitM ontology which has the formalization of mathematical background theories,
-\item the SMGloM Glossary which has informal, but semantically structured versions of the
-  same content, and can therefore act as a human-readable documentation, and the
-\item System API theories for the OpenDreamKit Systems and mathematical data bases. 
+\item The MitM ontology is the centerpiece of this deliverable: it provides formalization of mathematical background theories relevant in OpenDreamKit.
+\item The SMGloM Glossary has informal but semantically structured versions of the same content, and can therefore act as a human-readable documentation.
+\item The system API theories for the OpenDreamKit systems and databases provide the alignment of concrete systems with the MitM ontology.
 \end{compactenum}
 We will discuss all three parts separately below.
 
-\subsection{The MitM Ontology}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{The MitM Ontology}
 
-The MitM Ontology can be found at
-\url{https://gl.mathhub.info/MitM/}, it comes in three parts:
-\begin{itemize}
-\item The \textbf{MitM Foundation} in the archive \href
-  {https://gl.mathhub.info/MitM/Foundation}{\texttt{Foundation}} (4 files, 539k LoF (lines
-  of formalization), 103 commits). It contains the basic representational infrastructure
-  used in the MitM ontology: a powerful higher-order logic with dependent record types,
-  subtyping, and flexary function application (sequence arguments).
-\item The \textbf{MitM core} in the
-  \href{https://gl.mathhub.info/MitM/smglom}{\texttt{smglom}}\footnote{The name
-    \texttt{smglom} was initially chosen for the ``Semantic Multilingual Glossary of
-    Mathematics'' (SMGloM; see \ref{sec:smglom} below) with which it is
-    cross-referenced. We will rethink naming once the MitM Ontology stabilizes.}  archive
-  (43 files, 2600 LoF, 370 commits). This carries the bulk of knowledge representation in
-  the MitM Ontology . The main thrust of curation has been to get the VRE use cases
-  reported on in~\cite{ODK-D6.5}, but we also have elementary formalizations of algebra,
-  arithmetics, calculus, category theory, set collections, elliptic curves (for LMFDB),
-  functional analysis, geometry, graph theory, measure theory, set theory, and topology.
-\item The \textbf{Modeling and Simulation Ontology} in the
-  \href{https://gl.mathhub.info/MitM/smglom}{\texttt{models}} archive (11 files, 650 LoF,
-  113 commits). This is an experimental extension of the MitM ontology, where we test the
-  MitM framework (and the OpenDreamKit technologies) for modeling and simulation in
-  opto-electronics.
-\end{itemize}
-There are various other archives in the \href{https://gl.mathhub.info/MitM/}{\texttt{MitM}
-  library}, they are experiments, where the MitM ontology has been picked up by other
-projects.
+\input{ontology}
 
-The MitM Ontology formalizations are very information-rich; see Figure~\ref{fig:mitm1} for
-an example from computational group theory. 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{The ``Semantic Multilingual Glossary of Mathematics'' (SMGloM)}\label{sec:smglom}
 
-\begin{figure}[ht]\centering
-  \fbox{\includegraphics[width=8cm]{../MACIS17-interop/mitm1}}
-  \caption{A Formalization of a Group}\label{fig:mitm1}
-\end{figure}
-
-\subsection{The ``Semantic Multilingual Glossary of Mathematics'' (SMGloM)}\label{sec:smglom}
 The SMGloM library is available at \url{https://gl.mathhub.info/smglom}. It contains
 ca. 815 glossary modules (OMDoc/MMT theories) with more than 1700 concepts. All
 represented in \sTeX, a semantic variant of {\LaTeX} developed by FAU and
@@ -126,11 +104,22 @@ cross-linked on the concept level.
     Curve}\label{fig:conductor}
 \end{figure}
 
-\subsection{The OpenDreamKit System APIs}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{System APIs Theories for OpenDreamKit Systems}
 
 We have generated and cross-linked system APIs for the computer algebra systems GAP,
 SageMath, and SINGULAR, they can be found at
 \url{https://gl.mathhub.info/ODK/{GAP,Sage,Singular,lmfdb}}.\ednote{MK: write some more}
+
+\ednote{@MK: I couldn't figure out how to scale this down. (tikz scale does not work.)}
+
+As an example, Figure~\ref{fig:cgtontology} sketches the alignments between the computational group theory ontology from above and the constructors and operations of \GAP.
+
+\begin{figure}[ht]\centering
+  \tikzinput[width=.98\textwidth]{alignmentimg}
+  \caption{Alignments between the MitM Ontology and the \GAP API}\label{fig:cgtontology}
+\end{figure}
 
 \section{Evaluation \& Conclusion}\label{sec:concl}
 Figure~\ref{fig:MitM-graph} shows an overview of the MitM ontology, together with the the
