@@ -1,60 +1,86 @@
-\subsection{Jupyter server on jupyter.mathub.info}\label{sec:jps}
 \ednote{KA: ask Tom about the server}
-\ednote{KA: paper or report? MK: report}
-\ednote{KA: show actual code? I suppose not: MK: no!}
 
-The goal of this report is to integrate Jupyter notebooks into MathHub
-and make them compatible with MMT, in a way that we can conveniently use 
-MMT syntax in these notebooks and also a little bit of extra functionality
-like e.g. the Jupyter widgets. The first step is setting up a Jupyter server,
-which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
-For this server, we have developed a custom kernel, that forwards the input 
-entered into the Jupyter notebook to the MMT backend. This then processes 
-said input and sends the response back to the Jupyter frontend via the kernel.
-We will cover the implementation of the Jupyter kernel and the MMT-backend,
-later in this report.
+We have designed and implemented a Jupyter kernel for MMT.
+We describe its interface in Section~\ref{sec:kernel:syntax} and the implementation in Section~\ref{sec:kernel:impl}.
 
-\ednote{KA: isn't it more likely a MMT kernel for jupyter?}
-In this section we will cover the implementation of the Jupyter kernel that
-communicates with the Jupyter frontend and the MMT backend. 
+\subsection{Interface}\label{sec:kernel:syntax}
 
-\subsection{Command syntax}
-\ednote{KA:I suppose we still want to be able to create theories etc.}
-\ednote{KA: if we want to have other "commands" (e.g. active computation)} 
-\ednote{KA: we will have to create a custom parser for that}
-The syntax we can use in the Jupyter frontend is basically the same one we are able to 
-use e.g. in JEdit extended with some additional features like active computation
-or theory visualization via ?MathML?. 
-\subsection{REPL extension in MMT}
-\ednote{KA: + the JupyterKernel Class on the Scala side? or does this go to the next section
- I do have to look over this a little more since I did not really 
- have anything to do with the code there.
- I know that it handles Session management and passes the code
- to the parser (that is afaik also the parser for JEdit).}
-\ednote{KA: here we would have to think of a Syntax that we want to use 
- and which applications we want for it e.g. the 
- keyword active computation opens some textbox 
- widgets for user input, based on the current theory}
+MMT differs from typical languages using Jupyter in that it does not only or even primarily perform computation but also handles symbolic expressions with uninterpreted function symbols.
+To adequately handle these subtleties, we systematically specified a new interface for interacting with MMT in Jupyter-style.
 
-\subsubsection{Pythonbridge, Implementation of the Python kernel}
-Now to the actual implementation of the Jupyter Kernel. Although communication between 
-the Python kernel and the Scala MMT backend via HTTP would suffice for basic things,
-like e.g. MMT surface syntax commands, it proves exceedingly difficult when we want to 
-provide more complex services to the notebook user that require the usage of Jupyter widgets,
-like e.g. displaying a whole user-created theory as MathML, or active computation. 
-So instead we use a Python-Java-bridge that lets us overcome the issues we have with HTTP and
-make code more modular and easier to understand, on both Python and Scala side.
-\ednote{KA: do we really want to explain the bridge here? if yes how detailed?}
-\ednote{KA:  explain what widgets are and how they work? if yes how detailed?}
-The Python-Java-Bridge basically works as follows: on the Scala side we only have method stubs
-that are linked with methods on the Python side that implement the stubs. So when we call 
-a method on the Scala side, we actually call the code that is implemented on the Python side 
-and get the result of this function execution back in Scala. This mechanism allows us to 
-conveniently register callbacks to the Jupyter widgets. You might ask yourself why those callbacks 
-are so important. The answer is simple: a button that doesn't do anything when clicked is not 
-a very useful one. Those callbacks enable widgets to interact with each other and the user alike. 
-Therefore they are essential to using the full potential of the Jupyter widgets.
-\ednote{KA: To use the Python-Java Bridge we first have to enable the Py4JGateway extension on our MMT server}
+\paragraph{Input}
+The possible inputs excepted by the MMT kernel are divided into three groups.
+\begin{itemize}
+\item Global management commands allow displaying and deleting all current sessions.
+ In practice, these commands are typically not available to users, which should only have access to their own session.
+\item Local management commands allow starting, quitting, and restarting the current session. These are the main commands issued by the frontend in response to user action.
+\item Content commands are the mathematically relevant commands and described below.
+\end{itemize}
+
+The content commands are divided into two groups:
+\begin{itemize}
+ \item Write-commands send new content to the backend in order to build MMT documents step by step.
+   The backend maintains one MMT document for each session, and any write command changes that document.
+ \item Read-commands retrieve information from the backend without changing the session's document.
+   These include lookups (both in the session document and in any other accessible document) or computations.
+\end{itemize}
+
+A write-command typically consists of a single MMT declaration roughly corresponding to a line in a typical MMT source file.
+However, the nesting of declarations is very important in MMT (contrary to many programming language kernel where nesting is optional).
+Therefore, all declarations that may contain other declarations (most importantly all MMT documents and theories) are split into parts as follows: the header, the list of nested declarations, and a special end-of-nesting marker. These are communicated in separate write-commands.
+The MMT kernel maintains the current scope as an MMT URI of an MMT document or theory and updates it on every write-commands that opens or closes one of them.
+This ensures that all nested declarations are parsed and interpreted in the right scope.
+
+For example, the following sequence of commands builds two nested theories where the inner one refers to a type declared in the outer one:
+\begin{itemize}
+\item \texttt{theory Test: ur:?LF =}
+\item \texttt{a: type}
+\item \texttt{theory Test2: ur:?LF =}
+\item \texttt{c:a}
+\item \texttt{end}
+\item \texttt{end}
+\end{itemize}
+\ednote{@Kai: make this prettier and sync it with the example for which you add a screenshot later}
+
+A special write-command is \texttt{eval T}.
+It interprets \texttt{T} in the current scope, infers it type \texttt{A}, computes it, and then adds the declaration \texttt{resI:A=T} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
+This corresponds most closely to the REPL functionality in typical Jupyter kernels.
+
+While write-commands correspond closely to the available types of MMT declarations, the set of read-commands is extensible.
+For example, the commands \texttt{get U} where \texttt{U} is any MMT URI returns the MMT declaration of that URI.
+
+\paragraph{Output}
+The kernel returns the following kinds of return messages:
+\begin{itemize}
+\item Admin messages are strings returned in response to session management commands.
+\item New-element messages return the declaration that was added by a write-command.
+\item Existing-element messages return the declaration that was retrieved by a \texttt{get} command.
+\end{itemize}
+Like read-commands, the set of output messages is extensible.
+
+The new-element and existing-element messages initially return the declaration in MMT's abstract syntax.
+And a post-processing layer specific to Jupyter renders them in HTML presentation.
+That way the core kernel functionality can be reused easily in other frontends.
+
+\subsection{Implementation}\label{sec:kernel:impl}
+
+The Jupyter infrastructure heavily relies on Python, especially when it comes to Jupyter widgets.
+Therefore, it makes sense to implement our kernel in Python.
+However, actually executing the user's commands requires a strong integration with the MMT implementation, which uses Scala.
+That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant intelligence remained in MMT.
+
+This is a generally difficult problem.
+After some experiments with different solutions (e.g., HTTP communication) and discussion within the OpenDreamKit community, we identified the Py4j library as the best choice.
+This is a Python-JVM bridge that allows seamless interaction between Python and any language (such as Scala) that compiles to the JVM.
+Thus, our Python kernel can call MMT code directly.
+Valuable Py4j features include callbacks from MMT to Python, shared memory (by treating pointers to JVM objects as Python values), and synchronized garbage collection.
+That makes our kernel very robust against bit rot and allows benefiting from future improvements to the MMT backend.
+
+Py4j is only JVM-specific, not Scala-specific.
+That means that some Scala-specific constructs are not readily exposed to Python.
+For example, both Python and Scala allow magic methods for treating any object as a function, but the JVM does not; moreover, the magic method is called \texttt{\_\_call\_\_} in Python and \texttt{apply} in Scala.
+Similarly, Scala collections like lists are not automatically seen as their counterparts in Python.
+Therefore, we wrote a Python module (which is distributed with MMT) that performs the bureaucracy of matching up Python and Scala.
 
 
 
