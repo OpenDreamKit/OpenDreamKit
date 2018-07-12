@@ -59,17 +59,25 @@ The kernel returns the following kinds of return messages:
 Like read-commands, the set of output messages is extensible.
 
 The new-element and existing-element messages initially return the declaration in MMT's abstract syntax.
-And a post-processing layer specific to Jupyter renders them in HTML presentation.
+And a post-processing layer specific to Jupyter renders them in HTML+MathML presentation.
 That way the core kernel functionality can be reused easily in other frontends.
 
 \subsection{Implementation}\label{sec:kernel:impl}
 
+\paragraph{Overview}
+Our implementation consists of three layers.
+The top layer is a Python module implements the abstract class for Jupyter kernels.
+The bottom layer is a general-purpose MMT REPL handles all intelligence of MMT documens.
+This can be reused easily in other frontends.
+The two are connected by a thin middle layer that handles the communication between the other two.
+Its main purpose is to format results in HTML and add interactive functionality via widgets.
+
 The Jupyter infrastructure heavily relies on Python, especially when it comes to Jupyter widgets.
 Therefore, it makes sense to implement our kernel in Python.
 However, actually executing the user's commands requires a strong integration with the MMT implementation, which uses Scala.
-That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant intelligence remained in MMT.
+That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant intelligence is handled in Scala.
 
-This is a generally difficult problem.
+This separation of programming languages is a generally difficult problem.
 After some experiments with different solutions (e.g., HTTP communication) and discussion within the OpenDreamKit community, we identified the Py4j library as the best choice.
 This is a Python-JVM bridge that allows seamless interaction between Python and any language (such as Scala) that compiles to the JVM.
 Thus, our Python kernel can call MMT code directly.
@@ -80,10 +88,24 @@ Py4j is only JVM-specific, not Scala-specific.
 That means that some Scala-specific constructs are not readily exposed to Python.
 For example, both Python and Scala allow magic methods for treating any object as a function, but the JVM does not; moreover, the magic method is called \texttt{\_\_call\_\_} in Python and \texttt{apply} in Scala.
 Similarly, Scala collections like lists are not automatically seen as their counterparts in Python.
-Therefore, we wrote a Python module (which is distributed with MMT) that performs the bureaucracy of matching up Python and Scala.
+Therefore, we wrote a Python module (which is distributed with MMT) that performs the bureaucracy of matching up advanced Python and Scala features.
+
+\paragraph{Basic Functionality}
 
 \ednote{@Kai: add a few details about how the communication works; e.g., by describing how one of the commands from the previous section is handled}
 
+\paragraph{Widgets}
+The use of a Python-JVM bridge pays off in particular when it allows us to reuse the widget library that is already part of the Python codebase of Jupyter.
+It allows the top layer to call the middle layer in a way that passes the Python-based kernel environment of the top layer.
+That way, the Scala-based middle layer can perform callbacks to the widget library.
+Thus, the middle layer can choose to present some of the messages returned by the bottom layer as interactive HTML using widgets.
+
+For example, when presenting a parametric theory as HTML+MathM, we can add a text input field next to every parameter.
+Whenever the strings in these fields change, the frontend notifies the top layer, which passes on the change to the middle layer.
+The middle layer then parses these strings and substitutes them in the body of the resulting declaration.
+This is similar to but more general than the typical Jupyter functionality of rerunning a notebook when an input cell changes: while Jupyter uses a list of input cells and any change affects all subsequent cells, our widget amounts to a three structure in which input fields have local, nested scope.
+
+\ednote{@Kai: this is a simple application that we might not finish by the deliverable deadline but that you should implement nonetheless. Stay in touch with me on the details.}
 
 %%% Local Variables:
 %%% mode: latex
