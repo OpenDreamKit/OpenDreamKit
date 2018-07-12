@@ -1,60 +1,44 @@
+
+
+In this section we cover, which system level elements realize the integration of both Jupyter into the MathHub system 
+and the MMT into Jupyter notebooks. For the latter we have implemented a \hyperlink{https://github.com/UniFormal/mmt_jupyter_kernel}{MMT Jupyter kernel} and 
+the corresponding backend in MMT. For the former, we have set up a Jupyter server on \url{http://juypter.mathhub.info},
+that features the above mentioned MMT Jupyter kernel. A more detailed insight on the Jupyter server, the kernel and the MMT backend 
+is provided in the following sections. 
+
 \subsection{Jupyter server on jupyter.mathub.info}\label{sec:jps}
+The Jupyter server consists of a JupyterHub notebook spawner and a running MMT-server that provides the backend
+to our Jupyter notebooks frontends. We host these two servers by building Docker-images for both and deploy them with
+the help of Docker-compose. 
 \ednote{KA: ask Tom about the server}
-\ednote{KA: paper or report? MK: report}
-\ednote{KA: show actual code? I suppose not: MK: no!}
-
-The goal of this report is to integrate Jupyter notebooks into MathHub
-and make them compatible with MMT, in a way that we can conveniently use 
-MMT syntax in these notebooks and also a little bit of extra functionality
-like e.g. the Jupyter widgets. The first step is setting up a Jupyter server,
-which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
-For this server, we have developed a custom kernel, that forwards the input 
-entered into the Jupyter notebook to the MMT backend. This then processes 
-said input and sends the response back to the Jupyter frontend via the kernel.
-We will cover the implementation of the Jupyter kernel and the MMT-backend,
-later in this report.
-
-\ednote{KA: isn't it more likely a MMT kernel for jupyter?}
-In this section we will cover the implementation of the Jupyter kernel that
-communicates with the Jupyter frontend and the MMT backend. 
+\ednote{KA: add url at which we can access MMT in the browser?}
 
 \subsection{Command syntax}
-\ednote{KA:I suppose we still want to be able to create theories etc.}
-\ednote{KA: if we want to have other "commands" (e.g. active computation)} 
-\ednote{KA: we will have to create a custom parser for that}
-The syntax we can use in the Jupyter frontend is basically the same one we are able to 
-use e.g. in JEdit extended with some additional features like active computation
-or theory visualization via ?MathML?. 
+The syntax we can use in the Jupyter frontend is basically MMT surface syntax, extended with some additional system level 
+commands for sessionhandling and content level commands like for example: closing modules, active computation or visual display of theories. 
+
 \subsection{REPL extension in MMT}
-\ednote{KA: + the JupyterKernel Class on the Scala side? or does this go to the next section
+\ednote{KA:
  I do have to look over this a little more since I did not really 
  have anything to do with the code there.
  I know that it handles Session management and passes the code
  to the parser (that is afaik also the parser for JEdit).}
-\ednote{KA: here we would have to think of a Syntax that we want to use 
- and which applications we want for it e.g. the 
- keyword active computation opens some textbox 
- widgets for user input, based on the current theory}
 
-\subsubsection{Pythonbridge, Implementation of the Python kernel}
-Now to the actual implementation of the Jupyter Kernel. Although communication between 
-the Python kernel and the Scala MMT backend via HTTP would suffice for basic things,
-like e.g. MMT surface syntax commands, it proves exceedingly difficult when we want to 
-provide more complex services to the notebook user that require the usage of Jupyter widgets,
-like e.g. displaying a whole user-created theory as MathML, or active computation. 
-So instead we use a Python-Java-bridge that lets us overcome the issues we have with HTTP and
-make code more modular and easier to understand, on both Python and Scala side.
-\ednote{KA: do we really want to explain the bridge here? if yes how detailed?}
-\ednote{KA:  explain what widgets are and how they work? if yes how detailed?}
-The Python-Java-Bridge basically works as follows: on the Scala side we only have method stubs
-that are linked with methods on the Python side that implement the stubs. So when we call 
-a method on the Scala side, we actually call the code that is implemented on the Python side 
-and get the result of this function execution back in Scala. This mechanism allows us to 
-conveniently register callbacks to the Jupyter widgets. You might ask yourself why those callbacks 
-are so important. The answer is simple: a button that doesn't do anything when clicked is not 
-a very useful one. Those callbacks enable widgets to interact with each other and the user alike. 
-Therefore they are essential to using the full potential of the Jupyter widgets.
-\ednote{KA: To use the Python-Java Bridge we first have to enable the Py4JGateway extension on our MMT server}
+\subsection{Communication protocol in general}
+Here we will give a higher-level overview of how communication between Jupyter frontend, kernel and MMT-backend takes place. A more detailed low-level description of the protocol between the kernel and MMT backend is provided in the next section. If you are interested in an explicit description of communication between the Jupyter frontend and the kernel please refer to the \hyperlink{https://jupyter-client.readthedocs.io/en/latest/messaging.html}{Messaging} section of the \hyperlink{http://jupyter.org/documentation}{Jupyter documentation}. 
+Since a REPL always start with user a input, let us comply to that and start at the Jupyter frontend: the notebook. Here the user inputs code which is then sent to our Jupyter kernel. 
+The kernel then forwards this input to MMT which evaluates it and sends the result back through the kernel to the frontend, which then displays said result. Since our goal is to be able to present visually powerful and interactive information to the user, we of course want to support the usage of Jupyter widgets in out notebooks, as they serve as an ideal GUI library, by providing visually appealing, interavtive and highly customizable GUI bulding blocks ,as we can see in figure bla\ednote{KA: show active computation screenshot}, where we created a simple active computation example.
+Therefore we have to extend our communication protocol to comply with the widget standards, which results of following message types that are sent between the backend and the kernel:
+\begin{inparaenum}[\em 1\rm )]
+\item plain text or HTML: this is trivial and does not need to be explained any further.
+\item widget messages: these are commands to the kernel to open, modify, display a widget or register MMT functionalities to it.
+\end{inparaenum}
+In the active computation example the shown in figure bla, the ''Compute'' button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets. Realizing this coupling of widgets and MMT functionality requires a special interface between the kernel and the MMT backend, which is covered in the next section.
+\ednote{KA: make pretty Diagramm to show what happens when e.g. buttons are clicked}
+
+
+\subsubsection{Communication between the Kernel and MMT-Backend}
+Although communication between the Jupyter-Kernel and MMT via HTTP would suffice for basic messages, containing plaintext or HTML, it proves exceedingly difficult to realize the intregration of Jupyter widgets, where we have to be able to bidirectionally send object references between the kernel and the backend. During development it proved that the \hyperlink{https://www.py4j.org/}{Py4J} Python-Java-bridge, lets us overcome the issues we have, when communicating via HTTP and makes code more modular and easier to understand, on both Python and Scala side. As for all communication protocols, our main goal by using the Py4J-bridge is to create an interface between the MMT backend, which is implemented in Scala, and our Jupyter kernel, which is implemented in Python. This interface is created by providing an abstract class in Scala that features our desired methods. The actual implementation of these methods is done in a Python class, that can be transformed into a Java Class by using a special Py4J annotation. Since instantiation can only take place on the Python side, we need to send the thereby resulting object across the bridge to Scala. This can be done by providing the Python side with an entry point to the Java Virtual Machine (JVM) of our Scala backend, by starting a Py4JGateway-server there. When we now call a method of the converted Python object in Scala, we actually execute the Python code and get the result back in Scala. This mechanism allows us to conveniently register Scala callbacks to the Jupyter widgets, that enable them to interact with each other and the user alike and is therefore essential to using the full potential of the Jupyter widgets.
 
 
 
