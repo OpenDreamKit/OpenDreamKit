@@ -1,29 +1,16 @@
 % !TEX root = ../thesis.tex
+The set of constants in a database table -- while finite -- can be arbitrarily large.
+In particular, all \lmfdb tables\footnote{Technically, \lmfdb is implemented using MongoDB and comprises a set of sets (each one called a database) of JSON objects. 
+However, due to the conventions used, we can also understand it conceptually as a set of tables of a relational database, keeping in mind that every row is a tuple of arbitrary JSON objects.}
+are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
+\lmfdb tables usually include a naming system that defines unique identifiers (which are used as the database keys) for these objects, and these identifiers are predetermined even for those objects that have not been computed yet.
 
-The mathematical software systems to be integrated via the MitM approach have so far been computation-oriented, e.g., computer algebra systems.
-Their API theories typically declare types and functions on these types (the latter including constants seen as nullary functions).
-Even though database systems differ drastically from these in many respects, they are very similar at the MitM level: a database like \lmfdb defines
+Thus, it is not practical to fix a set of concrete API theories.
+Instead, the API theories must be split into two parts: for each database table, we need
 \begin{compactitem}
- \item some types: each table's schema is essentially one type definition,
- \item many constants: each table entry is one constant of the corresponding type.
+  \item a concrete theory called the \textbf{schema theory} that defines the schema  and other relevant information about the type of objects in the table and
+  \item a virtual theory called the \textbf{database theory} that contains one definition for each value of that type (using the \lmfdb identifier as the name of the defined constant). 
 \end{compactitem}
-Thus, we can apply essentially the same approach.
-In particular, the API theories must contain definitions of the database schemas. 
-
-From a system perspective, virtual theories behave just like concrete theories, but without the assumption of being able to load all declarations from some file on disk at once.
-Instead, virtual theories load declarations in a lazy fashion when they are needed. 
-\mmt stores concrete theories as XML files.
-Because most external knowledge bases use databases with low-level APIs, we must allow virtual theories to be stored in external database.
-Apart from standard software engineering tasks, this leaves three conceptual problems we had to solve:
-\begin{compactenum}[\bf P1]
-\item Turn the database schemas and tables into \ommt theories and declarations. 
-\item Lift data in \emph{physical} representation (as records of the
-  underlying database) to \ommt object in \emph{semantic} representation.
-\item Translate semantic queries to queries about physical representations so
-  that they can be executed directly on the database without loading the entire theory into
-  \mmt.
-\end{compactenum}
-We deal with \textbf{P1} here, with \textbf{P2} in Section~\ref{sec:access}, and with \textbf{P3} in Section~\ref{sec:qmt}. 
 
 \begin{figure}[ht]\centering
     \begingroup
@@ -124,27 +111,17 @@ We deal with \textbf{P1} here, with \textbf{P2} in Section~\ref{sec:access}, and
   }
   \label{fig:vtarch}
 \end{figure}
-A sketch of our overall solution is given in Figure~\ref{fig:vtarch}.
-The math in the middle comprises preexisting formalizations of general mathematics, here numbers and matrices (in green), and novel \lmfdb-specific ones, here elliptic curves (in red).
-Moreover, we introduce a specification of various codecs to translate between physical and semantic representations.
-The remaining theories (in blue) form the \lmfdb API theories: the schema theory and the database theory, which we describe below.
+It is straightforward how to implement each \lmfdb table as a virtual MMT theory $V$: we use an initially empty concrete theory $C$, and whenever an identifier \textsf{id} of $V$ is requested, \mmt dynamically adds the corresponding declaration of \textsf{id} to $C$.
+Because \mmt already abstracts from the physical realizations of persistent storage, we only have to implement a new storage instance that connects to \lmfdb, retrieves the JSON object with identifier \textsf{id}, and turns it into an \ommt declaration.
 
-The set of constants in a database table -- while finite -- can be arbitrarily large.
-In particular, all \lmfdb tables\footnote{Technically, \lmfdb is implemented using MongoDB and comprises a set of sets (each one called a database) of JSON objects. 
-However, due to the conventions used, we can also understand it conceptually as a set of tables of a relational database, keeping in mind that every row is a tuple of arbitrary JSON objects.}
-are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
-\lmfdb tables usually include a naming system that defines unique identifiers (which are used as the database keys) for these objects, and these identifiers are predetermined even for those objects that have not been computed yet.
-Thus, it is not practical to fix a set of concrete API theories.
-Instead, the API theories must be split into two parts: for each database table, we need
-\begin{compactitem}
-  \item a concrete theory called the \textbf{schema theory} that defines the schema  and other relevant information about the type of objects in the table and
-  \item a virtual theory called the \textbf{database theory} that contains one definition for each value of that type (using the \lmfdb identifier as the name of the defined constant). 
-\end{compactitem}
+A sketch of our overall solution is given in Figure~\ref{fig:vtarch}.
+The relevant parts of the MitM ontology comprise simple ones like numbers and matrices (in green) and \lmfdb-specific ones like elliptic curves (in red).
+The remaining theories (in blue) form the \lmfdb API theories: the schema theory and the database theory, which we describe below.
 
 \lmfdb's technical realization does not require formalizing the schema of each table. 
 Instead, the tables are generated systematically and therefore follow an implicit schema that can -- in principle -- be obtained from the documentation or reverse-engineered from the tables. 
 However (and here \lmfdb critically differs from, e.g. the OEIS), the mathematics involved in the tables is so deep that this is not possible in practice for all but a few experts. 
-Therefore, we sat down with the original author of one of the best-documented tables -- John Cremona for the table of elliptic curves -- and formalized the corresponding schema in \ommt. 
+For example, the MMT experts among the authors could only formalize the schema theory for the (already well-documented) table of elliptic curves by sitting down with its author John Cremona.
 
 In the following, we will use this table as a running example.
 Our methods extend immediately to any other table once its schema has been formalized.
@@ -154,8 +131,7 @@ The constructor \identifier{from\_record} takes an \mmt record and returns an el
 Properties of elliptic curves are formalized as functions out of this type.
 We list only two here as examples: the \textsf{degree}, an integer, and the \textsf{isogeny matrix}, a $3 \times 3$ matrix of integers.
 We omit the relevant axioms, which are not essential for our purposes here.
-Recall that the Math-in-the-Middle approach models mathematical knowledge ``in the middle'' independent of any particular system.
-This is exactly the case here -- the model of elliptic curves does not rely on \lmfdb, nor any other system, so that we can integrate other knowledge sources about elliptic curves or to future versions of the \lmfdb with changed structure. 
+As usual for the MitM approach, the model of elliptic curves does not rely on \lmfdb, nor any other system, so that we can integrate other knowledge sources about elliptic curves or to future versions of the \lmfdb with changed structure. 
 
 
 %%% Local Variables:

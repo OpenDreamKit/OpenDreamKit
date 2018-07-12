@@ -1,9 +1,6 @@
 The ``L-Functions and Modular Forms Database'' (\lmfdb~\cite{lmfdb}) is a large database, storing among other mathematical objects several thousand L-Functions and curves along with their properties. 
 Technically, it uses a MongoDB database with a Python web frontend. 
 We use this as an example of a virtual theory. 
-Before we go into this in more detail, we have a closer look at the structure and existing APIs to of \lmfdb.
-
-\subsection{The Structure of LMFDB}\label{sec:sota:struct}
 
 \lmfdb has several sub-databases, e.g., for elliptic curves or transitive groups. 
 Within each of these, every object is stored as a single JSON record.
@@ -30,17 +27,14 @@ For example, the \identifier{degree} property -- here $1$ -- of the JSON objects
 Other properties are more complex: the value of the \identifier{isogeny\_matrix} property is a list of lists representing a matrix. 
 This disconnect between JSON encoding and mathematical meaning can become much more severe, e.g., the \identifier{x-coordinates\_of\_integral\_points} field is semantically a list of integers but (due to the sizes limits on integers) is encoded as a string.
 
-\subsection{An API for \lmfdb Objects}\label{sec:sota:api}
-
-Querying is an important application for mathematical knowledge bases.
 The \lmfdb API \cite{lmfdbapi} exposes a querying interface that can be used either by humans via the web or programmatically via JSON-based GET requests over HTTP.
-A screenshot of the former interface can be seen in Figure~\ref{fig:apiscreenshot}. 
-
-\begin{figure}[ht]\centering
-  \includegraphics[width=0.97\textwidth,viewport=0 240 800 600 ,clip=true]{../MACIS17-vt/APIScreenshot}
-  \caption{The Web-Interface for the \lmfdb API.}\label {fig:apiscreenshot}
-\end{figure}
-
+\ednote{FR: I commented out the screenshot because it doesn't seem to add much at this point of the paper.}
+%A screenshot of the former interface can be seen in Figure~\ref{fig:apiscreenshot}. 
+%
+%\begin{figure}[ht]\centering
+%  \includegraphics[width=0.97\textwidth,viewport=0 240 800 600 ,clip=true]{../MACIS17-vt/APIScreenshot}
+%  \caption{The Web-Interface for the \lmfdb API.}\label {fig:apiscreenshot}
+%\end{figure}
 Queries must name the sub-database to be queried and consist of a set of key-value pairs that correspond to an SQL \texttt{where} clause.
 However, while \lmfdb offers a programmable API for accessing its contents, this API sits at the level of the underlying MongoDB, and not the level of mathematical objects. 
 For example, to retrieve all Abelian objects in the subdatabase of transitive groups, we expect to use the key-value pair \identifier{commutative}$ = $ \identifier{true}. 
@@ -51,12 +45,6 @@ Thus, the actual query to send is \url{http://www.lmfdb.org/api/transitivegroups
 In this example, all steps are relatively straightforward. 
 But in general, e.g. when searching for all elliptic curves with a specific isogeny matrix, this not only requires good familiarity with the mathematical background but also with the system internals of the particular \lmfdb sub-database; a skill set commonly found in neither research programmers nor average mathematicians.   
 
-Our diagnosis is that {\lmfdb} -- and most other mathematical knowledge databases -- suffer from two problems:
-\begin{compactitem}
-\item \emph{human/computer mismatch}: humans have problems interacting with \lmfdb programmatically, because they must speak the system language instead of mathematical language
-\item \emph{computer/computer mismatch}: mathematical computer systems cannot interoperate with \lmfdb without extending their code, because their system languages differ.
-\end{compactitem}
-Using the MitM approach we have presented in Section~\ref{sec:mmtmitm}, we can solve both problems at the same time by lifting the communication to the level of \ommt-encoded MitM objects, which both MitM-compatible software systems and humans can understand.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "report"
