@@ -21,24 +21,25 @@ system that provides a so-called
 \href{https://jupyter.readthedocs.io/en/latest/projects/kernels.html}{\emph{Jupyter kernel}}
 to communicate with the notebook.
 
-The Jupyter ecosystem is very large and active:
-it is being used as a front-end for scientific research
-on a daily basis by many researchers around the world,
-and also for teaching (see Section~\ref{teaching}).
-The technology goes beyond the notebook interface:
-it can also be used for live documentation for example.
-There is also JupyterLab, a next-generation web application
-allowing users to work even more efficiently.
+The Jupyter ecosystem is very large and active: it is being used as a
+front-end for scientific research on a daily basis by millions of
+scientists around the world, for research, teaching (see
+Section~\ref{teaching}) and engineering. The technology goes beyond
+the notebook interface, especially with JupyterLab, a recently
+released complete refactoring of the Jupyter code base as a flexible
+library from which one can build a variety of web-applications,
+including live documentation.
 
 \ODK therefore promotes Jupyter as user interface of choice:
 it is particularly suitable for building modular web based Virtual Research Environments.
 
 This deliverable is a follow-up to \delivref{UI}{ipython-kernels-basic},
-which dealt with a first basic version of the Jupyter kernels.
-We have improved Jupyter kernels for GAP, PARI/GP, SageMath and Singular.
+which dealt with a first basic version of Jupyter kernels for \ODK's components.
+We have improved Jupyter kernels for GAP, PARI/GP, SageMath, and
+Singular, and implemented a new kernel for MMT.
 This means that \ODK's main computational components
 now all have a full featured Jupyter kernel.
-Additionally, we have also cooperated on the development of the C++ kernel xeus-cling.
+Additionally, we have made major contributions to the development of the C++ kernel xeus-cling.
 
 All the kernels that we worked on now support syntax highlighting, TAB-completion,
 interactive help and graphics. Some of them also support interactive widgets.
@@ -53,8 +54,8 @@ provides their users with an easy-to-use, modern and uniform user interface.
 For the various systems mentioned in this report,
 the new Jupyter interface is a lot more user friendly than the traditional
 command-line interface.
-It also makes it easy for the users to organize and share their work.
-
+It also makes it easy for the users to organize, share, and publish their work.
+%
 Furthermore, implementing Jupyter kernels enabled outsourcing the development of user interfaces
 which traditionally had been a time sink for those systems.
 For example, SageMath is dropping the development of its old notebook SageNB,
@@ -67,6 +68,8 @@ and is instead refocussing its energy on other features.
 \caption{Students at AIMS using the Singular Jupyter interface}
 \end{figure}
 
+We showcase here a few of the many uses in teaching of the Jupyter
+kernels we contributed to:
 \begin{itemize}
 \item Since 2017, Jupyter is used at Université Paris Sud for teaching C++ to over 300 students.
 This was initiated in particular by \ODK participants Loïc Gouarin, Viviane Pons, and Nicolas M.\ Thiéry.
@@ -82,8 +85,13 @@ The course was attended by about 50 students from all over Africa.
 In the lab sessions, the students learned how to experiment with the computer algebra system Singular.
 It proved extremely valuable that the students could run Singular in the Jupyter notebook.
 
-\item The GAP Jupyter kernel was used by Pedro Garcia-Sanchez to teach a master course in mathematical software at the University of Granada.
-See \url{https://github.com/pedritomelenas/Software-Matematicas-GAP}
+\item The GAP Jupyter kernel was used by Pedro Garcia-Sanchez to teach
+  a master course in mathematical software at the University of
+  Granada. See
+  \url{https://github.com/pedritomelenas/Software-Matematicas-GAP}.
+  Pedro has taken on the technology, and is now involved in the
+  development of interactive visualization widgets for discrete maths
+  (package francy; see below) in particular for use in other courses.
 \end{itemize}
 
 \subsection{Publishing on binder}
@@ -91,7 +99,9 @@ See \url{https://github.com/pedritomelenas/Software-Matematicas-GAP}
 Binder (\url{mybinder.org}) is a free web service run by the Jupyter community.
 Authors can publish their notebooks there (annotated with a description of their computing environment),
 enabling anyone to open and run them from anywhere.
-Binder can support C++, GAP, PARI, SageMath, or Singular notebooks and has been used for the following applications:
+Thanks to our contributions, Binder now support C++, GAP, PARI,
+SageMath, or Singular notebooks and has been used for the following
+applications:
 
 \begin{itemize}
 \item Dissemination: one-click live demos of software packages.
@@ -130,7 +140,7 @@ The pages can thus be served from anywhere, including e.g. Github Pages.
 can be configured to produce live HTML documentation.
 This is already used by some SageMath packages like
 \href{http://more-sagemath-tutorials.readthedocs.io/}{More SageMath Tutorials}
-and will eventually be used by the main \Sage documentation.
+and will soon be used as well by the \Sage's documentation itself.
 
 \item[Live documentation for Singular] It is now possible to convert pages of the Singular
 HTML manual into active pages.
@@ -141,21 +151,32 @@ HTML manual into active pages.
 
 \section{Implementation}
 
-The various Jupyter kernels are implemented in different ways, which shows how flexible
+The Jupyter kernels reported on in this report are implemented in a variety of ways, which shows how flexible
 the Jupyter protocol is to adapt to various use cases. We now explain some technical details for each of the kernels.
 
 \subsection{GAP}
 
-The GAP kernel is a native kernel, implemented in GAP by Markus Pfeiffer. It uses ZeroMQ and GAP's own JSON
-parser for input and output, which means the largest part of the protocol is implemented in plain GAP.
+In the first version we reported on in
+\delivref{UI}{ipython-kernel-sage}, the GAP kernel was implemented as
+a wrapper kernel. In this use case, this approach proved not flexible
+enough for more advanced features. It has thus been reimplemented as a
+native kernel, and uses ZeroMQ and GAP's own JSON parser for input and
+output, which means the largest part of the protocol is implemented in
+plain GAP. In addition, it's now distributed as a standard package of
+the GAP distribution. Both versions were implemented in GAP by Markus
+Pfeiffer under \ODK funding.
 
-The GAP kernel supports code inspection and completion, as well as rich output. It is possible to produce
-any kind of rich output directly from GAP by returning the appropriate MIME-Types in GAP records.
+The GAP kernel supports code inspection and completion, as well as
+rich output: it is possible to produce any kind of rich output (2D or
+3D pictures, latex formulas, widgets, ...) directly from GAP by
+returning the appropriate MIME-Types in GAP records.
 
-Furthermore, the GAP package francy (\url{https://github.com/mcmartins/francy}) by Manuel Martins is
-currently developed as a Jupyter-based replacement of the old graphical GAP output in XGAP,
-and will provide nice tools to interactively inspect mathematical structures such as subgroup lattices
-or conjugacy classes.
+This is exploited by the GAP package francy
+(\url{https://github.com/mcmartins/francy}) by Manuel Martins (with
+mentoring from Markus). This package is developed as a Jupyter-based
+replacement of the old graphical GAP output in XGAP, and will provide
+nice tools to interactively inspect discrete mathematical structures
+such as subgroup lattices or conjugacy classes.
 
 \subsection{PARI/GP}
 
@@ -165,7 +186,7 @@ it is based on ipykernel, the implementation from IPython of the Jupyter protoco
 Thanks to this, it takes only a small amount of code to write a basic kernel.
 
 It is implemented using the Cython programming language,
-which allows seamless combining of Python code with C code:
+which allows for seamless combination of Python code with C code:
 Python is used for the interface with the IPython kernel and C is used to execute PARI/GP code
 using the PARI library.
 
@@ -174,8 +195,9 @@ plotting architecture, which previously only worked on the GP command line.
 
 \subsection{Singular}
 
-The Singular kernel is built out of two python packages: PySingular and jupyter\_kernel\_singular.
-Both of these packages are written by Sebastian Gutsche.
+The Singular kernel is built out of two Python packages: PySingular and jupyter\_kernel\_singular.
+Both of these packages are written by Sebastian Gutsche, a regular
+\ODK collaborator.
 
 PySingular provides a Python wrapper for Singular's C functions.
 It is able to parse Singular code and return either the
