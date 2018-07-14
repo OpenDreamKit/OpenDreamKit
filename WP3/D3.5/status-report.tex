@@ -1,0 +1,287 @@
+\hypertarget{status-report}{%
+\section{Status report}\label{status-report}}
+
+One of the tasks for WP3 is improving the development workflows of mathematical
+software in order to make them more accessible to contributors at all levels,
+from experts on those projects, as well as expert developers coming from other
+projects, to students and non-programmers (e.g.,~technical writers who might
+wish to contribute documentation improvements).
+
+For this deliverable we focused on the \Sage project, and making it easer for
+newcomers to the project to provide contributions.  The existing Sage
+development community already has a well-established workflow and culture
+surrounding its existing development tools--in particular the source code
+hosting and issue tracking service \Trac.  This works well for experienced
+Sage developers, but also creates certain barriers to contribution, especially
+from would-be contributors who are new to open source development.  Therefore
+we sought solutions to better integrate Sage's \Trac-based workflow with more
+modern and better known development platforms such as \GitHub and \GitLab,
+without immediately breaking the Sage project's existing workflow.
+Nevertheless, we believe that this will also open the doors to long-term
+improvements in Sage's development workflow, as the advantages of using these
+new tools become more apparent.  Part of this work also serves as a
+prerequisite to improvements in Sage's continuous integration practices, which
+are being explored more in
+\longdelivref{component-architecture}{multiplatform-buildbot}.
+
+An aspect that Sage (and indeed any open source mathematics software) prides
+itself on over closed-source alternatives is the ability to peer inside the
+software to see how it works.  It is not a black box and one does not have to
+take its results for granted--it is possible to look at the source code in
+order to understand how a particular algorithm works, or even modify and
+improve it.  To this end we sought ways to more tightly couple Sage's API
+documentation to its source code--and through access to the source code,
+encourage contribution of improvements.
+
+To these ends, this deliverable includes the following improvements to Sage's
+development platform and documentation:
+\begin{enumerate}
+\item Enable users with existing GitHub credentials to log into Sage's
+    Trac site.
+\item Create a presence for Sage on the GitLab collaborative source code
+    sharing service, including the ability to accept patches to Sage's
+    documentation and source code in the form of {\em merge requests}
+    (a.k.a.~{\em pull requests}).
+\item Link \GitLab merge requests to tickets in Sage's Trac issue tracker in
+    a manner that fully integrates with Sage's existing development workflow.
+\item Create a direct path from Sage's online API documentation to the source
+    code, and from the source code directly an interface to edit the source
+    code and submit a patch (as a merge request) all without the user having to
+    leave their web browser.
+\end{enumerate}
+
+
+
+\hypertarget{changes-to-deliverable}{%
+\subsection{Changes to the deliverable\label{changes-to-deliverable}}}
+
+This deliverable was originally titled "Integration between SageMathCloud and
+Sage's TRAC server".  The vision behind this came from the fact that \SMC (now
+\cocalc) provides a new way to get started on Sage development.  Compiling Sage
+and its dependencies requires a significant amount of computing power, and also
+a number of development software prerequisites that can be hard to set up
+initially, especially in the context of a one or two day workshop.  \cocalc
+provides an environment that is already suited to building and running Sage in
+a cloud computing environment, not limited by the user's local machine.
+
+So the thought was that users ought to be able to do development on \Sage
+directly in a \cocalc environment, and have a way to post any new code they
+wrote directly to Sage's Trac system (hereafter referred to as Sage-Trac).
+
+It should be said, however, that the existing command-line development tools
+for Sage (e.g.~the community-maintained {\tt git trac} utility) already provide
+integration with \Trac in a manner independent of what computing environment
+the developer is working in.  So it was unclear exactly what the advantage
+would have been to adding features to \cocalc solely for the purpose of
+integrating with Sage-Trac, especially since those features would be very
+specific to Sage and would not integrate well into the direction \cocalc has
+moved in, as a more general-purpose computing environment.
+
+It was also unclear how many people were actually using \cocalc as their
+primary platform for Sage development, while it is certain that most of the
+core Sage developers are not doing so.  So it seemed a better focus of our
+efforts to instead to open Sage's development workflow up to the use of more
+modern development platforms (see the next section for discussion of how we are
+integrating \GitLab into the workflow).  We expect this will have benefits in
+the future--more modern development tools integrate well with services like
+\GitHub or \GitLab out-of-the-box, whereas \Trac, while an excellent system, is
+less and less popular, requiring extra work on the part of the Sage community
+to integrate into newer development tools.
+
+We have also had some discussion about how to integrate issue tracking and
+source code contributions into VREs in general (not just \cocalc), and while no
+consensus has yet emerged as to what form this would take, it would most likely
+integrate best with modern code-sharing services like \GitHub and \GitLab.
+
+
+\hypertarget{description-of-the-achievements}{%
+\subsection{Description of the
+achievements}\label{description-of-the-achievements}}
+
+\hypertarget{trac-github-login}{%
+\subsubsection{Login to Trac via GitHub usernames}\label{trac-github-login}}
+A perennial problem in managing the Sage community's self-hosted \Trac site has
+been dealing with user registration and authentication.  As with many
+bug-tracking sites, Sage-Trac requires users to register and log into the site
+in order to post bugs and feature requests.
+
+Allowing anyone on the internet to register an account--not to mention allowing
+anonymous users to post to the site--regularly opened it up to a flood of spam.
+Even adding CAPTCHAs to the registration process was not fool-proof, as
+CAPTCHAs are being defeated more and more by either machine learning or cheap
+manual labor.  Therefore, for several years the Sage community has resorted
+to a process of manual user registration: potential users of the site would
+send an e-mail to a dedicated address with a manually written application form,
+and eventually a site administrator--if the application appeared genuine--would
+approve the application and assign the user a username and temporary password,
+again over e-mail.
+
+This process has worked, and does not generally leave anybody out.  But it is
+still a slow, and labor-intensive process.  One would not be surprised if it
+has discouraged potential bug-reports, with users deciding it was not worth
+their time, or forgetting about the issue while waiting for their account
+registration to be approved.
+
+Therefore, we sought to make logging into Sage-Trac a more painless and
+instantaneous process.
+
+\GitHub, with its over 40 million users as of writing, is the largest source
+code hosting site in the world.  Many people, even who are not full-time
+software developers, have a GitHub account if they have worked at all
+peripherally with open source software (if nothing else, in order to submit bug
+reports to projects).  By making it possible to log into Sage-Trac with one's
+existing GitHub account, this opens Sage development up instantly to any of
+those 40+ million users without additional effort.  To date, this has not
+contributed any spam to Sage-Trac either, as we are able to leverage GitHub's
+own spam management.
+
+We still also allow existing accounts to log in, and maintain the manual
+registration system so that users who do not already have, or prefer not to
+obtain GitHub accounts may be registered.  However, in the four months since
+launching this new feature on February 27, 2018, nearly one fourth (31 out of
+130) of the users who submitted new tickets were logged into the site using
+GitHub.  Of the other 130, only a handful were new manual registrations, while
+the rest were using accounts they already had on the system before February 27.
+We expect the number of contributions from GitHub users to grow, and will
+consider adding the ability to log in via other external authentication
+providers, such as \GitLab and Google.
+
+
+\hypertarget{gitlab-trac-integration}{%
+\subsubsection{\GitLab-\Trac integration}\label{gitlab-trac-integration}}
+
+While making it easier for new contributors to \Sage to log into its \Trac site
+eliminates one barrier to contribution, another barrier is learning its
+somewhat unique development and source code contribution workflow.  While this
+workflow is well-documented, and custom tooling is provided to make it easier
+(e.g.~the {\tt git trac} command for posting Git branches directly to Trac
+from the command line), it is still not an entirely familiar workflow for
+anyone new to Sage--experienced developers and novices alike.
+
+Novices in particular--especially those who became involved in open source
+development within the last five years--will tend to be more familar with what
+is known as the "GitHub
+Workflow"\footnote{\url{https://guides.github.com/introduction/flow/}} as it
+was popularized through use of GitHub.  Thus, it would make contributing to
+Sage more accessible if were possible to do via a \GitHub-like
+workflow.\footnote{In fact, Sage's existing process is not that different from
+the GitHub workflow, but small differences in semantics and user experience
+make this less immediately obvious.}  As we will see in the next section, this
+also makes it easier to go directly from browsing Sage's documentation to
+making small source code and documentation contributions.
+
+In order to accomplish this, we might have used a mirror of Sage's Git
+repository on GitHub (indeed, such a mirror already exists).  However, for this
+purpose we chose instead to focus on GitLab--a competitor to GitHub that
+provides a similar product, but with an {\em open core} business model, meaning
+that the software that runs GitLab is provided for free under an open source
+license, but the company maintains optional "enterprise" features under a
+separate proprietary license.  A few reasons we chose GitLab for this purpose
+over GitHub include:
+
+\begin{enumerate}
+\item Many members of Sage's community have strongly-held political objections
+    to relying on closed-source commercial software for development, and would
+    be reluctant to adopt GitHub into their workflow (the aforementioned GitHub
+    login for Trac being acceptable due only to it being optional).  We hope
+    that GitLab, itself being {\em mostly} open source, will be a more
+    politically viable alternative. Sage itself being an open source project,
+    we are happy to work hand-in-hand with other open source projects.
+\item GitLab is both a cloud-based repository hosting service (in the form of
+    GitLab.com, as well as the GitLab software itself.  Although for now we
+    will host a Sage project on GitLab.com, should the need arise for any
+    reason we can easily self-host the GitLab {\em software} and transfer the
+    Sage project to a self-hosted GitLab service. Indeed, the Sage community
+    has long prided itself on being almost entirely independent of commercial
+    products for hosting its development tools, and while using GitLab.com is
+    convenient (less time spent on server maintenance that could be spent
+    improving Sage itself), it is comforting to know that the possibility
+    exists.
+\item GitLab.com allows users to log in with their GitHub usernames, Google
+    accounts, and other third-party authentication providers (in addition to
+    registration directly with GitLab).  Thus, although GitHub has a wider
+    existing user base, all users with GitHub accounts can log into GitLab
+    without significant effort.
+\item GitLab has some features that are not present on GitHub.  In particular,
+    GitLab has a powerful built-in continuous integration and deployment
+    platform that we have found well-suited for Sage.  Our efforts in using
+    GitLab's continuous integration/deployment tools will be described more
+    in \longdelivref{component-architecture}{multiplatform-buildbot}.
+\item Although GitLab the company is currently based out of San Francisco
+    (albeit with only one employee at its San Francisco office) the project
+    was started in Europe (Ukraine) and a large portion of its all-remote
+    employees are based in Europe.
+\end{enumerate}
+
+For these reasons, among others, we have set up a new
+mirror{\footnote{\url{https://gitlab.com/sagemath/sage}} of Sage's Git
+repository on GitLab, with the ability to accept contributions in the form of
+{\em merge requests}, which are the same as what GitHub calls "pull requests".
+
+Note: The choice of GitLab for hosting a Sage project may appear to stand in
+contrast with the previous section of this deliverable, which added
+authentication to Sage-Trac via {\em GitHub}.  However, as noted above, GitLab
+also allows authentication with GitHub accounts, taking advantage of GitHub's
+existing wide user base.  Therefore, we focused primarily on GitHub-based
+authentication.  In the future we would also like to add the ability for users
+to authenticate with Sage-Trac via GitLab, if there is demand for it.
+
+The challenge in opening up Sage to accepting contributions via GitLab was
+doing so in a way that did not overly disrupt Sage's existing Trac-based
+development workflow.  To do this, we implemented a plug-in for Sage-Trac that
+uses GitLab's API to automatically open a {\em ticket} on Sage-Trac for each
+merge request opened on GitLab.  That way, Sage developers watching Sage-Trac
+for new contributions are notified even without having to go to GitLab.  The
+proposed code changes in the merge request--which are hosted on GitLab--are
+also automatically synchronized to Sage's main Git repository, so that all of
+Sage's existing maintenance tools continue to work as normal even for
+contributions that came originally through GitLab.  When a ticket is {\em
+closed} on Sage-Trac (i.e.~the changes were accepted, or rejected) the
+corresponding merge request on GitLab is also automatically closed.  In this
+way, veteran Sage developers may, if they wish, accept contributions through
+GitLab without ever actually having to go to GitLab.
+
+That said, we hope that most of the Sage development community {\em will}
+consider using GitLab.  In particular, we believe that the more modern code
+review tools provided by GitLab will prove too compelling to ignore.  There
+is a small risk associated with this: Many code change tickets generate 
+discussion--sometimes a significant amount--in the form of code review comments
+or sometimes even debate.  If an issue is tracked on both Sage-Trac and on
+GitLab, there is a risk of that discussion becoming fragmented between the two
+sites and difficult to follow.  This can be mitigated either through policy
+(e.g.~keep discussion of a single issue on one site or the other, but not
+both), or in the form of a technical solution (e.g.~enhance the existing
+synchronization plug-in to synchronize discussions between the two sites; this
+is non-trivial, however).
+
+Either way, there is prior art for this process of adopting a modern code
+sharing site while maintaining a legacy issue tracking system.  Most notably,
+the CPython project (the reference implementation of the Python language and
+its standard library--what is typically referred to as just "Python") switched
+to a similar model beginning in February 2017: Issues are still tracked
+primarily on the project's legacy bug tracking system--which carries in it a
+wealth of historical knowledge and lingering open issues--while bug fixes and
+new features can be submitted as pull requests on GitHub which are
+automatically linked to their corresponding issues on the legacy system.  Since
+then, over
+6500\footnote{\url{https://github.com/python/cpython/pulls?utf8=\%E2\%9C\%93\&q=is\%3Apr+is\%3Aclosed+is\%3Amerged}}
+merge requests have been accepted through GitHub.  In an informal
+query\footnote{\url{https://mail.python.org/pipermail/python-dev/2018-February/152200.html}}
+to the CPython core developers one year after switching to the new hybrid
+workflow, its primary architect, Brett Cannon, asked how the new workflow was
+working and the response was overwhelmingly positive.  Frequently cited as a
+benefit were the several bots that were created by the community to help manage
+pull request submissions.  Many of these bots would be useful for Sage as well,
+and although they were created to run on GitHub, the GitLab API is
+similar-enough that these bots could be ported to GitLab with minimal effort.
+There was also a general interest (including by Python's creator Guido van
+Rossum) to move forward with migrating all issues to GitHub, and setting the
+legacy bug tracker to read-only; the details of this migration, however, remain
+a subject of debate.\footnote{\url{https://lwn.net/Articles/754779/}}  We
+believe a similar outcome for Sage's partial migration to GitLab would be
+desirable, but it remains to be seen how well it will be adopted by the Sage
+community.
+
+
+\hypertarget{conclusion}{%
+\subsection{Conclusion}\label{conclusion}}

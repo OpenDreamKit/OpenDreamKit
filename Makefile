@@ -38,6 +38,8 @@ WP%/report.pdf: WP%/github-issue-description.tex
 
 WP3/D3.1/report.pdf: WP3/D3.1/status-report.tex
 
+WP3/D3.5/report.pdf: WP3/D3.5/status-report.tex
+
 WP3/D3.7/report.pdf: WP3/D3.7/status-report.tex
 
 WP4/D4.4/report.pdf: WP4/D4.4/*.png

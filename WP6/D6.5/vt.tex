@@ -118,10 +118,69 @@ A sketch of our overall solution is given in Figure~\ref{fig:vtarch}.
 The relevant parts of the MitM ontology comprise simple ones like numbers and matrices (in green) and \lmfdb-specific ones like elliptic curves (in red).
 The remaining theories (in blue) form the \lmfdb API theories: the schema theory and the database theory, which we describe below.
 
-\lmfdb's technical realization does not require formalizing the schema of each table. 
-Instead, the tables are generated systematically and therefore follow an implicit schema that can -- in principle -- be obtained from the documentation or reverse-engineered from the tables. 
-However (and here \lmfdb critically differs from, e.g. the OEIS), the mathematics involved in the tables is so deep that this is not possible in practice for all but a few experts. 
-For example, the MMT experts among the authors could only formalize the schema theory for the (already well-documented) table of elliptic curves by sitting down with its author John Cremona.
+The set of constants in a database table -- while finite -- can be arbitrarily large.
+In particular, all \lmfdb tables\footnote{Technically, until July 2018,
+  \lmfdb was implemented using MongoDB and comprises a set of sets
+  (each one called a database) of JSON objects.  MongoDB allows each
+  JSON object in a collection to be different (with a different
+  schema), though in practice almost all objects in each collection
+  had the same schema apart from some missing data components.
+  The schema for each collection had to be documented elsewhere, in an
+  inventory, which since 2017 has been itself stored as a database
+  within the LMFDB.  During 2018, however, work has been ongoing to
+  migrate the LMFDB to use PostgreSQL (with a fixed schema for each
+  table) as the underlying database, without any change to the extrnal
+  API.  In both cases, due to the conventions used, we can understand
+  the LMFDB conceptually as a set of tables of a relational database,
+  keeping in mind that every row is a tuple of arbitrary JSON
+  objects.}
+are just finite subsets of infinite sets, whose size is not limited by mathematical specifications but by computational power: the database holds all objects that users have computed so far and grows constantly as more objects are computed.
+\lmfdb tables usually include a naming system that defines unique identifiers (which are used as the database keys) for these objects, and these identifiers are predetermined even for those objects that have not been computed yet.
+Thus, it is not practical to fix a set of concrete API theories.
+Instead, the API theories must be split into two parts: for each database table, we need
+\begin{compactitem}
+  \item a concrete theory called the \textbf{schema theory} that defines the schema  and other relevant information about the type of objects in the table and
+  \item a virtual theory called the \textbf{database theory} that contains one definition for each value of that type (using the \lmfdb identifier as the name of the defined constant). 
+\end{compactitem}
+
+%% \begin{oldpart}{MK@JC: you may want to reformulate this
+%%     paragraph. Here would also be the right place to describe the
+%%     development of the inventory and how this was triggered by ODK and
+%%     helpful in the migration to Postgres. ... }
+ \lmfdb's original
+  technical realization, using MongoDB, did not require formalizing
+  the schema of each table.  Instead, the tables were generated
+  systematically and therefore followed an implicit schema that could
+  -- in principle -- be obtained from the documentation or
+  reverse-engineered from the tables.  Until 2017 the documentation of
+  these implicit schemas was created and maintained manually by LMFDB
+  developers, and as a result was incomplete and frequently out of
+  date.  During 2017-2018 a new LMFDB Inventory was created, taking as
+  its starting point both the manually prepared inventory (which
+  contained human definitions and explanations of the content of each
+  data field) and a new dynamically created schema obtained by
+  analysis of the data in each collection.  This process, which was
+  both necessitated by the requirements of the Math-in-the-Middle
+  approach and made possible in practice through the provision of
+  research software engineers funded by ODK, revealed numerous
+  inconsistencies in the LMFDB data which developers have since been
+  able to address.  Moreover, having this detailed schema for each
+  collection in the MongoDB databases also fed in to the migration
+  process, expected to be complete by August 2018, in which the
+  MongoDB free-format collections are being replaced by PostgreSQL
+  tables each of which has a completely specified and formalised
+  schema.  Note that (and here \lmfdb critically differs from,
+  e.g. the OEIS), the mathematical definitions and concepts involved
+  in the LMFDB data and tables is extremely deep, so that
+  reverse-engineering the associated schemas from the data itself is
+  only possible in practice with the aid of experts.  As the first
+  such table for which a formal schema was to be created, before the
+  development of the new comprehensive Inventory, we chose one for which
+  the existing documentation was most complete, and which originated
+  with one of the current authors (John Cremona) who sat down with the
+  Math-in-the-Middle team at an ODK workshop to formalize the
+  corresponding schema in \ommt.
+%% \end{oldpart}
 
 In the following, we will use this table as a running example.
 Our methods extend immediately to any other table once its schema has been formalized.
@@ -135,7 +194,9 @@ As usual for the MitM approach, the model of elliptic curves does not rely on \l
 
 
 %%% Local Variables:
-%%% mode: latex
+%%% mode: latex 
+%%% mode: visual-line
+%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
