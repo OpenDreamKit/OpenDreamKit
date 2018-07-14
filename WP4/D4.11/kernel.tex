@@ -24,9 +24,9 @@ The content commands are divided into two groups:
 \end{itemize}
 
 A write-command typically consists of a single MMT declaration roughly corresponding to a line in a typical MMT source file.
-However, the nesting of declarations is very important in MMT (contrary to many programming language kernel where nesting is optional).
+However, the nesting of declarations is very important in MMT (contrary to many programming language kernels where nesting is optional).
 Therefore, all declarations that may contain other declarations (most importantly all MMT documents and theories) are split into parts as follows: the header, the list of nested declarations, and a special end-of-nesting marker. These are communicated in separate write-commands.
-The MMT kernel maintains the current scope as an MMT URI of an MMT document or theory and updates it on every write-commands that opens or closes one of them.
+The MMT kernel maintains the current scope as an MMT URI of an MMT document or theory and updates it on every write-command that opens or closes one of them.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
 
 For example, the following sequence of commands builds two nested theories where the inner one refers to a type declared in the outer one:
@@ -38,7 +38,8 @@ For example, the following sequence of commands builds two nested theories where
 \item \texttt{end}
 \item \texttt{end}
 \end{itemize}
-\ednote{@Kai: make this prettier and sync it with the example for which you add a screenshot later}
+\ednote{@Kai: make this prettier and sync it with the example for which you add a screenshot later
+KA: why not add a screenshot for it right here?}
 
 A special write-command is \texttt{eval T}.
 It interprets \texttt{T} in the current scope, infers it type \texttt{A}, computes it, and then adds the declaration \texttt{resI:A=T} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
@@ -65,7 +66,7 @@ That way the core kernel functionality can be reused easily in other frontends.
 \paragraph{Overview}
 Our implementation consists of three layers.
 The top layer is a Python module implements the abstract class for Jupyter kernels.
-The bottom layer is a general-purpose MMT REPL handles all intelligence of MMT documens.
+The bottom layer is a general-purpose MMT REPL handles all intelligence of MMT documents.
 This can be reused easily in other frontends.
 The two are connected by a thin middle layer that handles the communication between the other two.
 Its main purpose is to format results in HTML and add interactive functionality via widgets.
@@ -92,16 +93,21 @@ Therefore, we wrote a Python module (which is distributed with MMT) that perform
 
 \ednote{KA: I just had these two sections written, and pasted them here so they might not fit perfectly}
 \subsection{Communication protocol in general}
-Here we will give a higher-level overview of how communication between Jupyter frontend, kernel and MMT-backend takes place. A more detailed low-level description of the protocol between the kernel and MMT backend is provided in the next section. If you are interested in an explicit description of communication between the Jupyter frontend and the kernel please refer to the \hyperlink{https://jupyter-client.readthedocs.io/en/latest/messaging.html}{Messaging} section of the \hyperlink{http://jupyter.org/documentation}{Jupyter documentation}. 
-Since a REPL always start with user a input, let us comply to that and start at the Jupyter frontend: the notebook. Here the user inputs code which is then sent to our Jupyter kernel. 
-The kernel then forwards this input to MMT which evaluates it and sends the result back through the kernel to the frontend, which then displays said result. Since our goal is to be able to present visually powerful and interactive information to the user, we of course want to support the usage of Jupyter widgets in out notebooks, as they serve as an ideal GUI library, by providing visually appealing, interavtive and highly customizable GUI bulding blocks ,as we can see in figure bla\ednote{KA: show active computation screenshot}, where we created a simple active computation example.
+Here we will give a higher-level overview of how communication between Jupyter frontend, kernel and MMT-backend takes place. 
+A more detailed low-level description of the protocol between the kernel and MMT backend is provided in the next section. 
+If you are interested in an explicit description of communication between the Jupyter frontend and the kernel please refer to the \hyperlink{https://jupyter-client.readthedocs.io/en/latest/messaging.html}{Messaging} section of the \hyperlink{http://jupyter.org/documentation}{Jupyter documentation}. 
+Since a REPL always start with user a input, let us comply to that and start at the Jupyter frontend: the notebook. 
+Here the user inputs code which is then sent to our Jupyter kernel. 
+The kernel then forwards this input to MMT which evaluates it and sends the result back through the kernel to the frontend, which then displays said result. 
+Since our goal is to be able to present visually powerful and interactive information to the user, we of course want to support the usage of Jupyter widgets in out notebooks, as they serve as an ideal GUI library, by providing visually appealing, interavtive and highly customizable GUI bulding blocks ,as we can see in figure bla\ednote{KA: show active computation screenshot}, where we created a simple active computation example.
 Therefore we have to extend our communication protocol to comply with the widget standards, which results of following message types that are sent between the backend and the kernel:
 \begin{inparaenum}[\em 1\rm )]
 \item plain text or HTML: this is trivial and does not need to be explained any further.
 \item widget messages: these are commands to the kernel to open, modify, display a widget or register MMT functionalities to it.
 \end{inparaenum}
-In the active computation example the shown in figure bla, the ''Compute'' button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets. Realizing this coupling of widgets and MMT functionality requires a special interface between the kernel and the MMT backend, which is covered in the next section.
-\ednote{KA: make pretty Diagramm to show what happens when e.g. buttons are clicked}
+In the active computation example the shown in figure bla, the ''Compute'' button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets. 
+Realizing this coupling of widgets and MMT functionality requires a special interface between the kernel and the MMT backend, which is covered in the next section.
+\ednote{KA: make pretty Diagramm to show what happens when e.g. buttons are clicked or user inputs a write-command}
 
 
 \subsubsection{Communication between the Kernel and MMT-Backend}
@@ -120,7 +126,7 @@ Whenever the strings in these fields change, the frontend notifies the top layer
 The middle layer then parses these strings and substitutes them in the body of the resulting declaration.
 This is similar to but more general than the typical Jupyter functionality of rerunning a notebook when an input cell changes: while Jupyter uses a list of input cells and any change affects all subsequent cells, our widget amounts to a three structure in which input fields have local, nested scope.
 
-\ednote{@Kai: this is a simple application that we might not finish by the deliverable deadline but that you should implement nonetheless. Stay in touch with me on the details.}
+\ednote{@Kai: this is a simple application that we might not finish by the deliverable deadline but that you should implement nonetheless. Stay in touch with me on the details. KA: for this we would probably need a custom widget}
 
 %%% Local Variables:
 %%% mode: latex
