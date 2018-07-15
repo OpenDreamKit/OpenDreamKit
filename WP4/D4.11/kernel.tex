@@ -26,6 +26,9 @@ The content commands are divided into two groups:
 
 A write-command typically consists of a single MMT declaration roughly corresponding to a line in a typical MMT source file.
 However, the nesting of declarations is very important in MMT (contrary to many programming language kernels where nesting is optional).\ednote{MK@FR: pick up the newpart from above.}
+
+\ednote{well, nesting is important when defining e.g. new functions or classes in Python, C++, ...; currently, in those languages, whenever nesting occurs, all the content must be contained in a single cell; the exception is the toplevel scope, which otherwise behaves very much the inner scopes; so maybe what's different is more in the ratio between usefulness versus complexity of implementation for splitting between cells nested content not only at the toplevel scope but also at inner scopes?}
+
 Therefore, all declarations that may contain other declarations (most importantly all MMT documents and theories) are split into parts as follows: the theory header, the list of nested declarations, and a special end-of-nesting marker. These are communicated in separate write-commands.
 The MMT kernel maintains the current scope as an MMT URI of an MMT document or theory and updates it on every write-commands that opens or closes one of them.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
@@ -38,7 +41,7 @@ y\begin{figure}[ht]\centering
 \end{figure}
 
 A special write-command is \texttt{eval T}.
-It interprets \texttt{T} in the current scope, infers it type \texttt{A}, computes it, and then adds the declaration \texttt{resI:A=T} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
+It interprets \texttt{T} in the current scope, infers its type \texttt{A}, computes it, and then adds the declaration \texttt{resI:A=T} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
 This corresponds most closely to the REPL functionality in typical Jupyter kernels.
 
 While write-commands correspond closely to the available types of MMT declarations, the set of read-commands is extensible.
@@ -61,16 +64,19 @@ That way the core kernel functionality can be reused easily in other frontends.
 
 \paragraph{Overview}
 Our implementation consists of three layers.
-The top layer is a Python module implements the abstract class for Jupyter kernels.
-The bottom layer is a general-purpose MMT REPL handles all intelligence of MMT documents.
+The top layer is a Python module that implements the abstract class for Jupyter kernels.
+The bottom layer is a general-purpose MMT REPL that handles all the logic of MMT documents.
 This can be reused easily in other frontends.
 The two are connected by a thin middle layer that handles the communication between the other two.
 Its main purpose is to format results in HTML and add interactive functionality via widgets.
 
-The Jupyter infrastructure heavily relies on Python, especially when it comes to Jupyter widgets.
+The Jupyter infrastructure heavily relies on Python, especially when it comes to Jupyter widgets
+%
+\ednote{not quite so: the reference/precursor implementation is indeed often in Python, however Jupyter puts the emphasis on protocols and specifications; which are more often than not also implemented in several languages (see e.g. xeus, xwidgets and co for C++); I believe that there is an implementation of the kernel protocol, including widgets, for Java; ah but maybe that's through Py4j ...}
+
 Therefore, it makes sense to implement our kernel in Python.
 However, actually executing the user's commands requires a strong integration with the MMT implementation, which uses Scala.
-That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant intelligence is handled in Scala.
+That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant logic is handled in Scala.
 
 This separation of programming languages is a generally difficult problem.
 After some experiments with different solutions (e.g., HTTP communication) and discussion within the OpenDreamKit community, we identified the Py4j library~\cite{Py4j}\ednote{MK@KA: make a bibTeX entry in local.bib} as the best choice.
@@ -83,7 +89,7 @@ Py4j is only JVM-specific, not Scala-specific.
 That means that some Scala-specific constructs are not readily exposed to Python.
 For example, both Python and Scala allow magic methods for treating any object as a function, but the JVM does not; moreover, the magic method is called \texttt{\_\_call\_\_} in Python and \texttt{apply} in Scala.
 Similarly, Scala collections like lists are not automatically seen as their counterparts in Python.
-Therefore, we wrote a Python module (which is distributed with MMT) that performs the bureaucracy of matching up advanced Python and Scala features.\ednote{MK@KA: can we point to this in the MMT code?}
+Therefore, we wrote a Python module (which is distributed with MMT) that performs the bureaucracy of aligning advanced Python and Scala features.\ednote{MK@KA: can we point to this in the MMT code?}
 
 \paragraph{Basic Functionality}\ednote{MK@KA/FR: write something here or remove paragraph heading.}
 
@@ -91,22 +97,22 @@ Therefore, we wrote a Python module (which is distributed with MMT) that perform
 
 \subsection{Communication Protocol}
 
-Here we will give a higher-level overview of how communication between Jupyter frontend, kernel and MMT-backend takes place.
+In this section, we provide a higher-level overview of how communication between Jupyter frontend, kernel and MMT-backend takes place.
 A more detailed low-level description of the protocol between the kernel and MMT backend is provided in the next section\ednote{MK: the stuff in 2.3.1 is mostly redundant now; probably completely eliminate the subsecti}. If you are interested in an explicit description of communication between the Jupyter frontend and the kernel please refer to the \hyperlink{https://jupyter-client.readthedocs.io/en/latest/messaging.html}{Messaging} section of the \hyperlink{http://jupyter.org/documentation}{Jupyter documentation}.\ednote{MK@KA: use citations here cite[section...][JupDoc]: make a bibTeX entry in local.bib}
-Since a REPL always start with user a input, let us comply to that and start at the Jupyter frontend: the notebook.
-Here the user inputs code which is then sent to our Jupyter kernel.
-The kernel then forwards this input to MMT which evaluates it and sends the result back through the kernel to the frontend, which then displays said result.
+Since a REPL always starts with a user input, let us comply to that and start at the Jupyter frontend: the notebook.
+Here the user inputs code which is then sent to the MMT Jupyter kernel.
+The kernel then forwards this input to MMT itself which evaluates it and sends the result back through the kernel to the frontend, which then displays said result.
 
 \begin{figure}[ht]\centering
   \fbox{Active Computation Screenshot}
   \caption{Active Computation in Notebooks}\label{fig:active-computation}
 \end{figure}
 
-As we want present to visually powerful and interactive information to the user, we of course want to support the usage of Jupyter widgets in notebook output:
+As we want to present interactive and visually powerful information to the user, supporting Jupyter widgets in notebook output is compelling:
 They serve as an ideal GUI library, by providing visually appealing, interactive and highly customizable GUI building blocks, see Figure~\ref{fig:active-computation}\ednote{KA: show active computation screenshot}, which shows a simple active computation example.
 Therefore we have to extend our communication protocol to comply with the widget standards. So apart from the ususal plain text or HTML messages, we also have to support \textbf{widget messages}: these are commands to the kernel to open, modify, display a widget or register MMT functionalities to it.
 
-In the active computation example the shown in Figure~\ref{fig:active-computation}, the ``Compute'' button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets. Realizing this coupling of widgets and MMT functionality requires a special interface between the kernel and the MMT backend, which is covered in the next section.
+In the active computation example shown in Figure~\ref{fig:active-computation}, the ``Compute'' button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets. Realizing this coupling of widgets and MMT functionality requires a special interface between the kernel and the MMT backend, which is covered in the next section.
 \ednote{KA: make pretty Diagramm to show what happens when e.g. buttons are clicked}
 
 
@@ -127,17 +133,18 @@ Thus, the middle layer can choose to present some of the messages returned by th
 For example, when presenting a parametric theory as HTML+MathM, we can add a text input field next to every parameter.
 Whenever the strings in these fields change, the frontend notifies the top layer, which passes on the change to the middle layer.
 The middle layer then parses these strings and substitutes them in the body of the resulting declaration.
-This is similar to but more general than the typical Jupyter functionality of rerunning a notebook when an input cell changes: while Jupyter uses a list of input cells and any change affects all subsequent cells, our widget amounts to a three structure in which input fields have local, nested scope.
+This is similar to but more general than the typical Jupyter functionality of rerunning a notebook when an input cell changes: while Jupyter uses a list of input cells and any change affects all subsequent cells, our widget amounts to a tree structure in which input fields have local, nested scope.
 
 \ednote{@Kai: this is a simple application that we might not finish by the deliverable deadline but that you should implement nonetheless. Stay in touch with me on the details. KA: for this we would probably need a custom widget}
 
 
 \begin{newpart}{MK: just made this up from the screenshot (which I have cropped); move somewhere appropriate}
   \paragraph{In-Document Computation via Jupyter/MMT Widgets}
-  Figure~\ref{fig:ac}\ednote{MK@KA: save much much more horizontal space (smaller browser window, so that it becomes believable that we embed this into a document.)} shows an example where a Jupyter/MMT widgets are used for in-document computation as specified D4.9~\cite{ODK-D4.9}.
+  \ednote{NT: presumably a brief overview of the conclusions of the previous deliverables would be useful.}
+  Figure~\ref{fig:ac}\ednote{MK@KA: save much much more horizontal space (smaller browser window, so that it becomes believable that we embed this into a document.)} shows an example where Jupyter/MMT widgets are used for in-document computation as specified in D4.9~\cite{ODK-D4.9}.
   In fact the custom user interface shown there was simply assembled from simple Jupyter/MMT widgets.\ednote{MK@KA/FR: describe how they work instantiated to this specific example}
-  This design makes constructing such interfaces much easier and the interaction functionalities much more powerful -- we still have the full power of a computational kernel in Jupyter at our fingertips. 
-  To achive full document/notebook integration, as envisioned in D4.2~\cite{ODK-D4.2}, we only have to embed this notebook interface into the HTML5 presentation of the outer documnet (the one that contains the equation $E=mc^2$) and feed the document context information into the interior notebook as described in~\cite{ODK-D4.9} (this part of the integration can be re-used directly).
+  This design makes constructing such interfaces much easier and the interaction functionalities much more powerful: we indeed still have the full power of a computational kernel in Jupyter at our fingertips. 
+  To achieve full document/notebook integration, as envisioned in D4.2~\cite{ODK-D4.2}, we only have to embed this notebook interface into the HTML5 presentation of the outer document (the one that contains the equation $E=mc^2$) and feed the document context information into the interior notebook as described in~\cite{ODK-D4.9} (this part of the integration can be re-used directly).
   \ednote{MK@KA/FR: For the evaluation (and Kai's thesis) we should make an sTeX document that contains $E=mc^2$ (e.g. by copying parts of \texttt{https://en.wikipedia.org/wiki/Mass-energy\_equivalence}) and really implement the in-document computation example. This would make a wonderful demo in Brussels.}
 
   \begin{figure}[ht]\centering
