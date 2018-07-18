@@ -30,7 +30,7 @@ Therefore, all declarations that may contain other declarations (most importantl
 The MMT kernel maintains the current scope as an MMT URI of an MMT document or theory and updates it on every write-commands that opens or closes one of them.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
 
-For example, the sequence of commands \ednote{@Kai: sync it with the example for which you add a screenshot later} on the left of Figure~\ref{fig:test_theory} builds two nested theories: the inner one refers to a type declared in the outer one. Figure~\ref{fig:test_theory} shows the equivalent in MMT surface syntax on the right. This corresponds to the ephemeral MMT document maintained by the MMT kernel.
+For example, the sequence of commands on the left of Figure~\ref{fig:test_theory} builds two nested theories: the inner one refers to a type declared in the outer one. Figure~\ref{fig:test_theory} shows the equivalent in MMT surface syntax on the right. This corresponds to the ephemeral MMT document maintained by the MMT kernel.
 \begin{figure}[ht]\centering
 \begin{minipage}[c]{10cm}\includegraphics[width=10cm]{test_theory_jupyter}\end{minipage}
 \begin{minipage}[c]{5cm}\includegraphics[width=5cm]{test_theory}\end{minipage}
@@ -94,9 +94,11 @@ Here the user inputs code which is then sent to our Jupyter kernel.
 The kernel then forwards this input to MMT which evaluates it and sends the result back through the kernel to the frontend, which then displays said result.
 As we want present to visually powerful and interactive information to the user, we want to support the usage of Jupyter widgets in the notebook output:
 They serve as an ideal GUI library, by providing visually appealing, interactive and highly customizable GUI building blocks, see Figure~\ref{fig:ac}, which shows a simple active computation example built with Jupyter widgets.
-Therefore we have to extend our communication protocol to comply with the widget standards. So apart from the ususal plain text or HTML messages, we also have to support \textbf{widget messages}: these are not real messages in, but direct function calls from MMT to the kernel. These \textbf{widget messages} allow us to open, modify and display a widget or register MMT functionalities to it.
-
-\ednote{@Kai: add a few details about how the communication works; e.g., by describing how one of the commands from the previous section is handled}
+Therefore we have to extend our communication protocol to comply with the widget standards. So apart from the ususal plain text or HTML messages, we also have to support \textbf{widget messages}: these are not real messages, but direct function calls from MMT to the kernel. These calls allow us to open, modify and display a widget or register MMT functionalities to it.
+So let us have a look at what exactly happens when the user wants to create a new theory \texttt{A} by typing \texttt{theory A =} in the notebook.  
+First the input is passed from the frontend to the kernel which relays it to the scala middle layer. Here it is checked whether the command is a normal MMT command, or one of the special keywords that require usage of widgets. As creating a new theory falls into to the former one the input is passed to the bottom layer, the MMT REPL, which parses the content and manages all content specific actions: in this case creating a new theory named \texttt{A}. The MMT REPL then replies witht the newly created theory URI, which is passed back throgh the middle and top layer to the notebook frontend where it is displayed to the user.
+As this example mainly consists of relaying the input to the right place, we will now cover the other case when the command requires widget usage, like \texttt{active computation}.
+The same steps are taken until we reach the middle layer. Here the command is identified as one of the special keywords and the corresponding routine is called. This routine then opens the widgets that are needed and links them with the necessary callbacks. In this example one lable, three toggle-button, three float textbox and one button widgets are created. The \textit{Compute} button is linked to a MMT callback that computes the missing value based on the states and values of the other widgets.
 
 
 \paragraph{Jupyter/MMT Widgets}
@@ -107,6 +109,7 @@ It allows the top layer to call the middle layer in a way that passes the Python
   \fbox{Architecture Diagram}
   \caption{Architecture diagram}\label{fig:architecture-diagram}
 \end{figure}
+\ednote{KA: I think this should be moved to 2.2 Overview and only be referenced here}
 
 That way, the Scala-based middle layer can perform callbacks to the widget library.
 Thus, the middle layer can choose to present some of the messages returned by the bottom layer as interactive HTML using widgets.
@@ -121,7 +124,7 @@ This is similar to but more general than the typical Jupyter functionality of re
 
 \begin{newpart}{MK: just made this up from the screenshot (which I have cropped); move somewhere appropriate}
   \paragraph{In-Document Computation via Jupyter/MMT Widgets}
-  Figure~\ref{fig:ac}\ednote{MK@KA: save much much more horizontal space (smaller browser window, so that it becomes believable that we embed this into a document.)} shows an example where Jupyter/MMT widgets are used for in-document computation as specified D4.9~\cite{ODK-D4.9}.
+  Figure~\ref{fig:ac}\ednote{MK@KA: save much much more horizontal space (smaller browser window, so that it becomes believable that we embed this into a document. KA: like this?)} shows an example where Jupyter/MMT widgets are used for in-document computation as specified D4.9~\cite{ODK-D4.9}.
   In fact the custom user interface shown there was simply assembled from simple Jupyter/MMT widgets. Here, the \textit{Compute} button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets.\ednote{MK@KA/FR: describe how they work instantiated to this specific example}
   This design makes constructing such interfaces much easier and the interaction functionalities much more powerful -- we still have the full power of a computational kernel in Jupyter at our fingertips. 
   To achive full document/notebook integration, as envisioned in D4.2~\cite{ODK-D4.2}, we only have to embed this notebook interface into the HTML5 presentation of the outer documnet (the one that contains the equation $E=mc^2$) and feed the document context information into the interior notebook as described in~\cite{ODK-D4.9} (this part of the integration can be re-used directly).
