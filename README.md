@@ -192,8 +192,7 @@ status report, ...) needs to be on the issue.
     If this gets too long (say more than one page), the details can be
     left to the report itself.
 
-- Double check the deliverable metadata is up to date
-
+- Double check the deliverable metadata is up to date:
     - Leader (as specified by the person the issue is assigned to),
       participants, and sites involved.
     - Due and delivery date, milestone.
@@ -214,9 +213,6 @@ status report, ...) needs to be on the issue.
 
       DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
 
-  For deliverables that are not reports by themselves, it's
-  appropriate to put all the material in the github issue description.
-
   In all cases, the report shall be self-contained. Indeed, the
   deliverable will be evaluated based upon its version submitted on
   the EU portal without retrieving other resources. Links have no
@@ -235,8 +231,13 @@ status report, ...) needs to be on the issue.
   the author list is reasonable, as the report is about the
   contribution of ODK.
 
-- Send a notice to coordinator@opendreamkit.org
+- Request early feedback, review, and final proofreading of the report
+  - by the work package leader
+  - by the coordinator (coordinator@opendreamkit.org)
+  - by whoever else you may think is relevant
 
+  Plan ahead, as this will take a couple days!
+  
 - Write a blog post in [ODK's news](http://opendreamkit.org/news/)
 
 - Send a notice to participants@opendreamkit.org
