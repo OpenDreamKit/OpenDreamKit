@@ -235,6 +235,7 @@ status report, ...) needs to be on the issue.
   - by the work package leader
   - by the coordinator (coordinator@opendreamkit.org)
   - by whoever else you may think is relevant
+
   Plan ahead, as this will take a couple days!
   
 - Write a blog post in [ODK's news](http://opendreamkit.org/news/)
