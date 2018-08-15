@@ -200,12 +200,17 @@ status report, ...) needs to be on the issue.
     - Link to the relevant ODK task(s) and reciprocally.
     - (when times come): link to the report and presentation slides.
 
-- A report should be written, in LaTeX, and in WPX/DX.Z/report.tex using our
-  [style file](Proposal/LaTeX-proposal/deliverablereport.cls). You may start
-  with e.g. [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
-  The use of pictures and other visual material is strongly
-  recommended.
+- A report should be written, in LaTeX, and in `WPX/DX.Z/report.tex`, using our
+  [style file](Proposal/LaTeX-proposal/deliverablereport.cls). You can initialize
+  the report file and copy the relevant style files with:
 
+      make WPX/DX.Z/report.pdf
+  
+  Rerunning this command later will update the style files if needed and recompile
+  the report.
+  
+  See the existing reports for further examples.
+  
   The github issue description is semi-automatically included in the
   report. To fetch it from github, run the following command from
   ODK's main repository (no worry if this step fails for you; the
@@ -213,7 +218,7 @@ status report, ...) needs to be on the issue.
 
       DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
 
-  In all cases, the report shall be self-contained. Indeed, the
+  The report shall be self-contained. Indeed, the
   deliverable will be evaluated based upon its version submitted on
   the EU portal without retrieving other resources. Links have no
   legal value, since there is no guarantee that the referenced
@@ -222,6 +227,9 @@ status report, ...) needs to be on the issue.
   documentation, websites, or other relevant documents); see e.g.
   [WP5/D5.1/report.tex](WP5/D5.1/report.tex) or
   [WP2/D2.1/report.tex](WP2/D2.1/report.tex).
+
+  The use of pictures and other visual material is strongly
+  recommended.
 
 - Defining authorship is tricky, as most deliverable involve close
   collaboration with the community, and the report is often written by
