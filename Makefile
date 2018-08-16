@@ -1,6 +1,6 @@
 REVIEW_2016_06_DELIVERABLES=WP1/D1.1 WP1/D1.2 WP2/D2.1 WP3/D3.1 WP4/D4.1 WP4/D4.2 WP5/D5.1 WP6/D6.1
 REVIEW_2017_03_DELIVERABLES=WP1/D1.3 WP1/D1.4 WP2/D2.2 WP2/D2.3 WP2/D2.4 WP3/D3.2 WP3/D3.3 WP4/D4.3 WP4/D4.4 WP4/D4.5 WP4/D4.6 WP4/D4.8 WP4/D4.9 WP5/D5.2 WP5/D5.3 WP5/D5.4 WP5/D5.5 WP5/D5.6 WP5/D5.7 WP6/D6.2 WP6/D6.3 WP7/D7.1
-REVIEW_2018_10_DELIVERABLES=WP3/D3.7 WP2/D2.11 WP6/D6.5
+REVIEW_2018_10_DELIVERABLES=WP2/D2.9 WP2/D2.11 WP3/D3.7 WP4/D4.7 WP4/D4.11 WP6/D6.5
 DELIVERABLES=$(REVIEW_2016_06_DELIVERABLES) $(REVIEW_2017_03_DELIVERABLES) \
 			 $(REVIEW_2018_10_DELIVERABLES)
 REPORTS=$(DELIVERABLES:%=%/report.pdf) ReportingPeriod_1/Technical_Report/report.pdf
@@ -13,6 +13,9 @@ reports.zip: $(REPORTS)
 	for report in $(REPORTS); do echo $$report; cp $$report /tmp/reports/`basename \`dirname $$report\``.pdf; done
 	zip -r --junk-paths reports.zip /tmp/reports
 
+WP%/report.tex:
+	mkdir -p `dirname $@`
+	bin/make_report_template $* > $@
 WP%/deliverablereport.cls: Proposal/deliverablereport.cls
 	cp $< $@
 WP%/eudelivreport.cls: Proposal/LaTeX-proposal/eu/eudelivreport.cls
