@@ -1,6 +1,6 @@
-# Status report
+# Introduction
 
-The objective of task T2.10 is to deliver an open-source
+The objective of task [T2.10](https://github.com/OpenDreamKit/OpenDreamKit/issues/33) is to deliver an open-source
 community-curated indexing tool for resources in computational
 mathematics. The goal is to collect examples, tutorials, lessons,
 exercises, related to a system or a field, under a unique hub, while
@@ -11,7 +11,7 @@ and each had come with its own solutions.  The joint development
 efforts under OpenDreamKit, and in particular the unifying force of
 the common Jupyer notebook infrastructure, have given a unique
 occasion to produce a unified solution, applicable to all systems.
-This report introduces *planetaryum*[^1], the web toolkit for building
+This report introduces *planetaryum*[^1], a web toolkit for building
 curated Jupyter notebook collections.
 
 Following the OpenDreamKit philosophy, *planetaryum* is not a single
@@ -20,7 +20,7 @@ flavors of curated collections. While it may not cover all possible
 use cases, it is versatile enough to adapt to many needs of the
 community.
 
-## History
+# History
 
 The need for maintaining various types of community curated help
 resources has long been felt in any community involved in
@@ -29,7 +29,7 @@ OpenDreamKit.  Some interesting examples are:
 - Most computer algebra systems maintain a section of their
   website[^2][^3] containing links to high quality resources on the
   web.
-  
+
 - Some systems also have a wiki, e.g. <http://wiki.sagemath.org/>.
 
 - The French SageMath community also used to host a well curated wiki
@@ -45,22 +45,25 @@ OpenDreamKit.  Some interesting examples are:
   SageMath notebooks (old format incompatible with Jupyter) for
   everyone to view. The server had to be taken down among maintenance
   and security issues.
-  
+
 More recently, the Jupyter community has provided the NBViewer
 service[^5].  It is a static notebook previewer service that takes as
 input a URL pointing to a `.ipynb` file, and renders a static version
-of it.  Importantly, the service does not host notebooks, it only
-renders them (and temporarily caches the rendered result).
+of it. The Binder service[^10] further lets the user edit and run
+a copy of the notebook.
+Importantly, those services do not host notebooks; they only
+render them (possibly temporarily caching the rendered result).
 
-Following the success of the Jupyter format, both the GitHub and
-BitBucket code hosting services have started rendering static versions
+Following the success of the Jupyter format, major code hosting
+services like GitHub, GitLab, or BitBucket
+have started rendering static versions
 of Jupyter notebooks without relying on NBViewer.
 
 The availability of these services has spurred a proliferation of
-collections of public notebooks hosted on code sharing services such
-as GitHub, presented to the public through either NBViewer or the
+collections of public notebooks hosted on such code sharing services,
+presented to the public through either NBViewer or the
 service builtin preview.  However, this practice has the major
-inconvenience of making it hard to search, classify and rank
+inconvenience of making it hard to search, classify, and rank
 notebooks.
 
 When we sat down to plan for this deliverable, we wanted to provide a
@@ -85,29 +88,30 @@ whose development had already started in 2015 at a SageMath
 meeting. The application is capable of indexing, mirroring, searching
 and ranking all types of resources found on the web, with dedicated
 treatment for the most relevant formats, such as PDF, Jupyter,
-SageMath, HTML, etc. Unfortunately, when the application entered the
-alpha stage, it soon became apparent that the hard part, rather than
-developing the application, was getting the community to use it.  It
-simply felt like the community did not feel the need for such a
-generic tool, that was essentially trying to (poorly) replicate the
-job of a web search engine.
+SageMath, HTML, etc. Unfortunately, when an alpha version the service
+was deployed, it soon became apparent that it was not taking off and
+about to be adopted by the community at large. This was partially
+due to the service not being sufficiently trivial to discover and use.
+But in the end, it simply looked like the community did not feel the
+need for such a generic tool, that was essentially trying to (poorly)
+replicate the job of a web search engine.
 
-## Planetaryum
+# Planetaryum
 
 After our first failed attempts, planetaryum came as a new take on the
 problem.  We realized that it was essential to recenter our efforts on
 a well defined type of document, rather than dispersing our users in a
 format agnostic aggregator such as[^8].  The generalization of Jupyter
-as a common document format for all OpenDreamKit systems presents a
+as a common document format for all OpenDreamKit systems presented a
 unique occasion to host instructional resources in a unified way.
 
-Planetaryum also comes with the realization that not a single
+Planetaryum also came with the realization that not a single
 application can fill all the user needs. We wanted to cover the
 teacher hosting a gallery of a dozen notebooks on his course web page,
 as well as the software community hub hosting thousands of
 user-contributed notebooks.
 
-### Use cases
+## Use cases
 
 Planetaryum is a modular Python library that can be used to build many
 different applications with a few lines of code. Some of the most
@@ -132,7 +136,7 @@ Here we present a few possible use cases for Planetaryum.
    users. It has the same advantages as the static collection, but at
    the same time it allows contributions, and can optionally be paired
    with a full-text search engine for better exploration.
-   
+
 3. **Large collection, user uploads.** This is a full fledged
    application, backed by a database and a full-text search engine. It
    features filtering, user voting, and potentially other advanced
@@ -142,37 +146,37 @@ Here we present a few possible use cases for Planetaryum.
    as the other applications.
 
 
-### Design
+## Design
 
 Planetaryum has a modular design, leading to many different types of
 applications. Its main components are:
 
 - **Readers** are responsible for reading a collection of notebooks
-  from a medium (e.g., folder, git repository, ...), 
-  
+  from a medium (e.g., folder, git repository, ...),
+
 - **Extractors** are responsible for parsing and transforming the
   output of a reader to a data stream.
 
 - **Builders** take a data stream and produce an output (e.g., they
   populate a database or write files to disk); they can be chained to
   produce many effect at once (e.g., in a full stack application they
-  both populate the database and write the front end files.
+  both populate the database and write the front end files).
 
 - **Front ends** are client side (HTML, JavaScript) applications that
   take the outputs of a builder and produce a user interface. The
   library contains a few very basic default front ends, but they are
   really intended to be developed as separate applications, with their
   own build chain, invoked by a dedicated builder at build time.
-  
+
 - **Apps** take all the above elements and link them together in a
   unique app with a well defined scope. Planetaryum provides a few
-  default apps, but the user is free to write its own.
+  default apps, but the user is free to write his own.
 
 - The **CLI** is a simple command-line interface that permits invoking
   the apps and passing parameters to them (through the command line,
   or through a configuration file).
 
-### Limitations
+## Limitations
 
 Despite its flexibility, Planetaryum has the obvious limitation of
 only supporting Jupyter notebooks. Although this reduces its scope, we
@@ -180,9 +184,9 @@ think the choice was necessary to make a product that the user would
 find easy to understand and attractive.
 
 Other limitations, such as not supporting JavaScript-less browsers,
-are purely technical and could be lifted if there is enough demand.
+are purely technical and could be lifted pending enough demand.
 
-## Conclusion
+# Conclusion
 
 Planetaryum fulfills and surpasses the original goal of having a tool
 for maintaining community-curated collections of resources on
@@ -203,4 +207,4 @@ adoption by the concerned communities.
 [^7]: <https://github.com/nbgallery/nbgallery>.
 [^8]: <http://sageindex.lipn.univ-paris13.fr/>.
 [^9]: <https://github.com/OpenDreamKit/planetaryum-example-static>.
-
+[^10]: <https://mybinder.org>.
