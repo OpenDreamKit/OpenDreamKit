@@ -94,7 +94,7 @@ Here the user inputs code which is then sent to our Jupyter kernel.
 The kernel then forwards this input to MMT which evaluates it and sends the result back through the kernel to the frontend, which then displays said result.
 As we want present to visually powerful and interactive information to the user, we want to support the usage of Jupyter widgets in the notebook output:
 They serve as an ideal GUI library, by providing visually appealing, interactive and highly customizable GUI building blocks, see Figure~\ref{fig:ac}, which shows a simple active computation example built with Jupyter widgets.
-Therefore we have to extend our communication protocol to comply with the widget standards. So apart from the ususal plain text or HTML messages, we also have to support \textbf{widget messages}: these are not real messages, but direct function calls from MMT to the kernel. These calls allow us to open, modify and display a widget or register MMT functionalities to it.
+Therefore we have to extend our communication protocol to comply with the widget standards. So apart from the usual plain text or HTML messages, we also have to support \textbf{widget messages}: these are not real messages, but direct function calls from MMT to the kernel. These calls allow us to open, modify and display a widget or register MMT functionalities to it.
 \begin{figure}[ht]\centering
   \includegraphics[width=12cm]{ArchitectureDiagram}
   \caption{Architecture diagram}\label{fig:architecture-diagram}
@@ -120,14 +120,31 @@ This is similar to but more general than the typical Jupyter functionality of re
 
 \begin{newpart}{MK: just made this up from the screenshot (which I have cropped); move somewhere appropriate}
   \paragraph{In-Document Computation via Jupyter/MMT Widgets}
-  Figure~\ref{fig:ac}\ednote{MK@KA: save much much more horizontal space (smaller browser window, so that it becomes believable that we embed this into a document. KA: like this?)} shows an example where Jupyter/MMT widgets are used for in-document computation as specified D4.9~\cite{ODK-D4.9}.
+  Figure~\ref{fig:ac} shows an example where Jupyter/MMT widgets are used for in-document computation as specified D4.9~\cite{ODK-D4.9}.
   In fact the custom user interface shown there was simply assembled from simple Jupyter/MMT widgets. Here, the \textit{Compute} button is a widget that triggers a functionality in MMT which computes the variable, chosen with the selection button widget, by using the values provided by the number widgets.\ednote{MK@KA/FR: describe how they work instantiated to this specific example}
   This design makes constructing such interfaces much easier and the interaction functionalities much more powerful -- we still have the full power of a computational kernel in Jupyter at our fingertips. 
-  To achive full document/notebook integration, as envisioned in D4.2~\cite{ODK-D4.2}, we only have to embed this notebook interface into the HTML5 presentation of the outer documnet (the one that contains the equation $E=mc^2$) and feed the document context information into the interior notebook as described in~\cite{ODK-D4.9} (this part of the integration can be re-used directly).
-For this integration we have developed a HTML-Document to Jupyter Notebook converter. These documents contain divs that have are annotated by having specific class, so the converter can find them. These class annotations additionally allow us to specify which type of notebook cell we want to create for each element. The two predominant cell types in Jupyter notebooks are \texttt{code} and \texttt{markdown} cells. Code Cells contain user input, like described in section \ref{sec:kernel:syntax}. The HTML elements that contain the input for these code cells are usually not visible, since they do not make any sense in the context of a scientific document and may not be understood by reviewers that are not familiar with MMT syntax. Currently the author has to manually annotate MMT content, but we are working on a mechanism to automatically create it from the documents context. The other cell type: markdown cells, can contain any type of plain text and support GitHub flavoured markdown. Therefore they are used for providing notebooks with selected additional information.
+  To achive full document/notebook integration, as envisioned in D4.2~\cite{ODK-D4.2}, we only have to embed this notebook interface into the HTML5 presentation of the outer document (the one that contains the equation $E=mc^2$) and feed the document context information into the interior notebook as described in~\cite{ODK-D4.9} (this part of the integration can be re-used directly).
+For this integration we have developed a HTML-Document to Jupyter Notebook converter. These documents contain HTML elements that are annotated by having specific classes, so the converter can find them. 
+These class annotations additionally allow us to specify which type of notebook cell we want to create for each element. 
+The two predominant cell types in Jupyter notebooks are \texttt{code} and \texttt{markdown} cells. 
+Code Cells contain user input, like described in section \ref{sec:kernel:syntax}. The HTML elements that contain the input for these code cells are usually not visible, since they do not fit into the context of a scientific document and may not be understood by reviewers that are not familiar with MMT syntax. 
+Currently the author has to manually annotate MMT content, but we are working on a mechanism to automatically create it from the document context. The other cell type: markdown cells, can contain any type of plain text and support GitHub flavoured markdown. 
+Therefore markdown cells are used for providing notebooks with additional selectable information from the original HTML document. Figure~\ref{fig:conversionHTML} shows an example of a scientific HTML document and  figure~\ref{fig:conversionNotebook} shows the resulting notebook, created by the converter. As seen in figure~\ref{fig:conversionHTML} the converted notebook can be downloaded by right-clicking on an element of interest and selecting the \textit{Create Jupyter Notebook} option. The downloaded notebooks can easily be uploaded to the Jupyter server on mathhub.info or to a locally deployed version of the system per drag-and-drop. 
   \ednote{MK@KA/FR: For the evaluation (and Kai's thesis) we should make an sTeX document that contains $E=mc^2$ (e.g. by copying parts of \texttt{https://en.wikipedia.org/wiki/Mass-energy\_equivalence}) and really implement the in-document computation example. This would make a wonderful demo in Brussels.}
 
-  \begin{figure}[ht]\centering
+\begin{figure}[ht]\centering
+\includegraphics[width=12cm]{conversionHTML}
+\caption{HTML document and the context menu for converting}
+\label{fig:conversionHTML}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\includegraphics[width=12cm]{conversionNotebook}
+\caption{The resulting Jupyter notebook}
+\label{fig:conversionNotebook}
+\end{figure}
+
+\begin{figure}[ht]\centering
     \includegraphics[width=12cm]{activecomp}
     \caption{Active Computation in Jupyter Notebooks via Jupyter/MMT Widgets}\label{fig:ac}
   \end{figure}
