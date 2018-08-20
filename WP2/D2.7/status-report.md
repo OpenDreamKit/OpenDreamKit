@@ -130,6 +130,14 @@ Here we present a few possible use cases for Planetaryum.
    we automatically generate and host on GitHub pages a static view
    thanks to Travis CI.
 
+   TODO:
+
+   - compare with what can be obtained with Sphinx+its notebook
+     integration (with hosting on e.g. RTD) or Tania's course page
+     generator;
+   - provide a brief tutorial on how to set up a new collection.
+   - (Nicolas) set it up for Nicolas's Info 111 class
+
 2. **Medium sized collection, contributions via PR.** This model is
    suited for small to medium collections of notebooks where it is
    expected that the submission flow will be low and reserved to power
@@ -180,7 +188,7 @@ applications. Its main components are:
 
 Despite its flexibility, Planetaryum has the obvious limitation of
 only supporting Jupyter notebooks. Although this reduces its scope, we
-think the choice was necessary to make a product that the user would
+believe the choice was necessary to make a product that the user would
 find easy to understand and attractive.
 
 Other limitations, such as not supporting JavaScript-less browsers,
@@ -196,6 +204,16 @@ We have come to it through a long process of trial and error, that has
 considerably delayed the deliverable. Because of this it is hard, for
 the moment, to measure its impact, but we are optimistic on its
 adoption by the concerned communities.
+
+TODO:
+
+- strategy to advertise and make it adopted?
+
+- discussion on the multitude of attempts at solving this or similar
+  problems being currently developed in the Jupyter community; very
+  unclear which one will eventually take off and prosper; it was
+  therefore not necessarily worth investing a lot of efforts; better
+  provide a simple solution to the most pressing use cases.
 
 
 [^1]: <https://github.com/OpenDreamKit/planetaryum>.
