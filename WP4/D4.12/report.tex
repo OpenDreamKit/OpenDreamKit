@@ -77,9 +77,77 @@ but is a useful guide in its own right for observing the state of
 
 \TODO{Enumerate new packages}
 
-\subsection{Lattice-Boltzmann}
+\subsubsection{K3D-jupyter}
 
-\TODO{Marcin, please fill out K3D and lattice-boltzmann example here}
+K3D-jupyter is a package which provides the fast and simple 3d
+plotting tool in the Jupyter notebook. The primary aim of K3D is to be
+easy for use as stand alone package like matplotlib, but also to
+allow interoperation with existing libraries as VTK. The power of
+ipywidgets makes it also a fast and performant visualisation tool for
+HPC computing e.g. fluid dynamics.
+
+
+\subsection{Lattice-Boltzmann visualisation}
+
+The Lattice Boltzmann method has recently became a very popular method
+in computational fluid mechanics. The most popular variant is based on
+regular grids which makes it very efficient on GPU architectures. This
+makes in turn very important to have web based visualisation tool, as
+it is very common to run the simulation on the remove GPU server using
+jupyter notebook interface.
+
+We have equipped K3D-jupyter package in few features which make the
+visualisation of boundary condidtions and fields in computational
+fluid dynamics especially easy:
+
+\begin{itemize}
+\item We have added a native method for displaying voxel geometry,
+  which performance and quality is appropriate for typical geometries
+  in LBM.
+\item There are available standart functions for plotting vectors and lines.
+\item There exists specialized method for displaying crosss section of
+  a computational domain, optimized for real time update during the
+  simulation (K3D.texture).
+\item Volume rendering is supported, which is very powerfull tool in
+  visualization of scalar fields.
+\item K3D objects can be dynamically updated during the simulation.
+\end{itemize}
+
+Additionally K3D-jupyter can be easily used in a VTK pipeline and
+therefore it can display various sophisticated visualisation
+methods. It also extends most of its CFD capabilities beyond regular
+grid based the LBM simulations and make it viable tool for any CFD
+package.
+
+An important aspect of K3D development was to provide a tool for
+displaying live LBM simulation without any performance penalty. The
+classical approach was usually to store all fields to files for
+postprocessing done usually in software like paraview. Live inspection
+of data during a simualtion was very limited.  If one takes, a typical
+simulation taking place on GPU, then it is not uncommon to have it
+running with 1 GLUPS (giga lattice updates per second) on modern
+hardware. It means that the full velocity field in each time iteration
+would need bandwidth c.a. 12 GB/s. Those numbers are many orders of
+magnitude higher than capabilities of web connection.  The reasonable
+solution is to perform some visualisation on GPU and send a reduced
+dataset to the web-browser. We have experimented with two such
+methods: a slice of the data and tracer particles. In sailfish-cfd we
+have implemented a method which can on request do a 2d slice through
+the computational domain. The slice is done in GPU memory and at not
+point the whole dataset is transfered to the host. Then we fetch the
+slice and display the data using k3d.texture function. In this way it
+is possible to monitor a running simulation with very high refresh
+rate inside the Jupyter notebook. 
+
+
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{k3d_cfd2.png}
+  \caption{K3D visualization of fluid
+  dynamics. Boundaries are shown using a voxel object and tracers are
+  dynamically updated during simulation the notebook.}
+\end{figure}
+ 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -87,7 +155,15 @@ but is a useful guide in its own right for observing the state of
 
 The implementation of this work took the form of contributions to shared-infrastructure projects in the Jupyter ecosystem, as well as several new software packages.
 
-\subsection{K3D}
+\subsection{K3D-jupyter}
+
+\href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter}
+
+The package K3D-jupyter is based on theejs as a front-end 3d library
+and ipywidgets (see fig. \ref{fig:pdep}) for communication.  There exists also
+experimental support for ipydatawidgets. 
+
+
 
 \subsection{pythreejs}
 
@@ -103,13 +179,17 @@ The implementation of this work took the form of contributions to shared-infrast
 
 \appendix
 \section{Screenshots}\label{screenshots}
+
 \newcommand{\screenshot}[2]{
 \begin{figure}[ht]
   \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
   \caption{#2}
 \end{figure}}
 
-% \screenshot{k3d.png}{K3D visualization in Jupyter}
+
+\screenshot{k3d_3.png}{K3D visualization in Jupyter. The K3D widget is
+  mixed with a slider to make interactive animation of Sine-Gordon
+  equation in 3d space.}
 % \screenshot{pythreejs.png}{PyThreeJS scene in Jupyter}
 % \screenshot{unray}{Visualizing a mesh in Jupyter with unray}
 % \screenshot{scivijs}{Example of a visualization with scivijs}
