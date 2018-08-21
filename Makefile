@@ -47,7 +47,7 @@ WP2/D2.7/report.pdf: WP2/D2.7/status-report.tex
 
 WP3/D3.1/report.pdf: WP3/D3.1/status-report.tex
 
-WP3/D3.5/report.pdf: WP3/D3.5/status-report.tex
+WP3/D3.5/report.pdf: WP3/D3.5/status-report.tex WP3/D3.5/screenshots/*.png
 
 WP3/D3.7/report.pdf: WP3/D3.7/status-report.tex
 
