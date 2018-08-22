@@ -3,7 +3,7 @@
 \deliverable{UI}{ipython-advanced-interacts}
 \deliverydate{31/08/2018}
 \duedate{31/08/2018 (M36)}
-\author{Odile Benassy and Nicolas M. Thiéry}
+\author{Odile Bénassy and Nicolas M. Thiéry}
 
 \begin{document}
 \maketitle
@@ -12,12 +12,15 @@
 
 \section{Introduction}
 
+\TODO{Write a one (half) page summary of this introduction, and put it
+  in the github description}
+
 The \href{https://jupyter.org}{Jupyter Notebook} is a web application
 that enables the creation and sharing of executable documents
 containing live code, equations, visualizations and explanatory text.
 Reaching far beyond the standard
 \href{https://en.wikipedia.org/wiki/Read-eval-print_loop}{REPL}
-interaction (Read-Eval-Print Loop), a key feature of Jupyter are its
+interaction (Read-Eval-Print Loop), a key feature of Jupyter is its
 \href{http://jupyter.org/widgets}{Interactive widgets} which enable
 real time interactive data visualizations; the Jupyter community has
 developed a large array of widgets for interactive 2D and 3D
@@ -27,20 +30,61 @@ Furthermore, widgets can be \emph{composed} to build rich
 applications, with all the usual UI components (e.g. menus, sliders,
 or layout control).
 
+\begin{figure}[h]\begin{center}
+  \includegraphics[width=\textwidth]{images/Velocity}
+\end{center}\end{figure}
+
+\TODO{screenshots: e.g. ipyleaflet + some application (exple appli web)}
+
+\newpage
+
 Hence, the Jupyter stack provides a very flexible environment catering
 for use cases ranging from a novice users typing just a few commands
 or browsing interactive documents to more advanced users authoring
 rich interactive applications for their fellows.
 
-The question we are tackling in this report is how this technology, --
-and specifically widgets -- can be leveraged for pure mathematics. The
-unique challenge comes from the huge variety of mathematical objects
-that the user may want to visualize and manipulate, some even coming
-with several natural ways to be represented.
+The question we are tackling in this report is how this technology --
+and specifically Jupyter widgets -- can be leveraged for pure
+mathematics. The unique challenge comes from the huge variety of
+mathematical objects that the user may want to visualize and
+manipulate, some even coming with several natural ways to be
+represented.
 
-\TODO{search on wikipedia for a nice collection of pictures: a
-  partition, a polyomino, an aztec diamond, a monomial ideal, a graph,
-  a poset, a formula, a curve, ...}.
+%\newpage
+
+\begin{figure}[h]\begin{center}
+    \includegraphics[width=0.20\textwidth]{images/partitions-of-5}
+    \hspace{24px}
+  \includegraphics[width=0.25\textwidth]{images/hexominoes}
+    \hspace{4px}
+  \includegraphics[width=0.36\textwidth]{images/AztecDiamond}
+\end{center}\end{figure}\begin{figure}[h]\begin{center}
+    \includegraphics[width=0.4\textwidth]{images/nonominoes}
+    \hspace{32px}
+  \includegraphics[width=0.4\textwidth]{images/500px-Torus_with_seven_colours}
+\end{center}\end{figure}\begin{figure}[h]\begin{center}
+  \includegraphics[width=0.3\textwidth]{images/359px-F4HassePoset}
+    \hspace{4px}
+  \includegraphics[width=0.3\textwidth]{images/Wikipic}
+    \hspace{4px}
+  \includegraphics[width=0.3\textwidth]{images/500px-McGee_graph}
+\end{center}\end{figure}\begin{figure}[h]\begin{center}
+  \includegraphics[width=0.3\textwidth]{images/fractioncont}
+    \hspace{4px}
+  \includegraphics[width=0.3\textwidth]{images/elliptic-curve}
+    \hspace{4px}
+  \includegraphics[width=0.3\textwidth]{images/548px-Fermat's_spiral_01}
+\end{center}\end{figure}\begin{figure}[h]\begin{center}
+  \includegraphics[width=0.3\textwidth]{images/619px-Tiling_Fibonacci_word_fractal}
+    \hspace{32px}
+\includegraphics[width=0.3\textwidth]{images/597px-E8Petrie}
+\end{center}\end{figure}
+
+%\TODO{search on wikipedia for a nice collection of pictures: a
+%  partition, a polyomino, an aztec diamond, a monomial ideal, a graph,
+%  a poset, a formula - fraction continue, a curve, ...}. diagramme de Venn ; th des 4 couleurs sur une carte mathématique
+
+\newpage
 
 We therefore can't hope to provide hand crafted solutions for each
 situation; instead we need to devise a toolbox of generic solutions
@@ -49,39 +93,83 @@ their own pet objects.
 
 We pursue two directions.
 
-In the first one, we explore the development of single object
-visualization widgets. As area, we chose combinatorics, to some extent
+In the first one, we explore the development of widgets for the
+graphical visualization of combinatorial objects.
+The choice of this area of mathematics was, to some extent
 out of personal interest and expertise, but more importantly because
 devising good representations -- mental images -- of discrete objects
-is at the heart of research in combinatorics. In section~\ref{grid},
+is at the heart of research in combinatorics. In Section~\ref{grid},
 we report on the implementation in SageMath of a generic widget for
 objects that admit a representation as a collection of cells on a 2D
 grid, and specializations for typical objects such as partitions,
-tableaux, aztec diamonds, mazes.
+tableaux, polyominos, aztec diamonds, mazes.
 
 \TODO{screenshot(s) of widgets displaying all of the above}
 
-
-
-
-
 Another natural use case in combinatorics -- or more generally
-discrete maths -- are objects that admit a graph-like representation
-(trees, graphs, lattices of subgroups, crystals, posets, discrete
-markov chains, to name a few). This use case is being explored by the
-authors of the GAP package
+discrete mathematics -- are objects that admit a graph-like
+representation (trees, graphs, lattices of subgroups, crystals,
+posets, discrete markov chains, to name a few). This use case is being
+explored by the authors of the GAP package
 \href{https://github.com/mcmartins/francy}{francy} under the
 supervision(?) of ODK's member Markus Pfeiffer. Although ODK's
-contribution in this direction is minimal at this stage, we briefly
-report on this use case to put things in perspective, and also because
+contribution in this direction is lightweight(?) at this stage, we
+briefly report in Section~\ref{francy} on this use case to highlight
+the lessons learned there and describe upcoming collaboration toward
+bringing francy\'s features to SageMath.
 
+In a second direction, we explore the use of Jupyter widgets not only
+for the graphical visualization of an object, but for displaying a
+page offering a synthetic overview of the information about that
+object, including type, important properties and invariants, available
+operations, related objects, documentation, etc. All sort of
+information that is readily available by introspection but that a UI
+can make easy to discover and emphasize according to relevance. The
+challenge is that, given the huge variety of objects in a system like
+SageMath, we can't afford to hand craft such pages for each type of
+objects. In Section~\ref{sage-explorer} we report on our prototype
+\lstinline{sage-explorer} that exploits the semantic embedded into the
+system to produce a reasonable overview page automatically tailored to
+each object.
+
+\TODO{Screenshot of Sage-explorer?}
+
+\TODO{Conclusion}
+
+Altogether, the Jupyter Widget technology has proven as mature and
+flexible as we hoped for. Designing new widgets does take some
+expertise, but from the experience we gained, we are confident that it
+lends itself well to the implementation of generic widgets by power
+users that can be specialized by casual users and used by novices.
+
+There remains two main challenges:
+\begin{itemize}
+\item How to best design widgets so that they can be reused across
+  systems written in different languages? \TODO{Explain the tension
+    kernel language / javascript}. \TODO{This will be explored by ... }
+\item Widgets, as all modern web technologies, rely a lot on
+  asynchronous execution. This is quite a different model from the
+  Read-Eval-Print main loop that many not-so-young computational
+  systems (including SageMath!) have originally been designed for, and
+  such systems don't always behave well under asynchronous pressure:
+  we have faced some bad crashes. How deep is the difficulty? How hard
+  will it be to resolve it?
+\end{itemize}
 
 \section{State of the art}
 
-
+\TODO{A standalone section? Or comments about it in the intro and along the way?}
+%@interact
+%larch env
+%LFMDB
+%http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html
 
 \section{A generic widget for objects with a 2D boxed representation}
 \label{grid}
+
+\TODO{Name: 2D boxed / grid-like / ??? representation?}
+
+\TODO{liant}
 
 This use case combined several advantages:
 \begin{itemize}
@@ -102,24 +190,49 @@ mush of the technicalities as possible, enabling users to specialize
 the generic solution for their own pet objects with little expertise.
 
 
-\TODO{Design}
+\TODO{Description of the design, of the API that subclasses must
+  implement, code examples}
 
-
-
+\TODO{potential applications}
 
 The code is distributed as a Sage package
 \href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets}
-which is meant to develop beyond this initial seed, in particular by
-attracting external developers, and presumably be integrated
-progressively into Sage.
+which is meant to grow beyond this initial seed, attracting
+contributions from the community, and presumably be integrated
+progressively into SageMath.
 
+\TODO{Strategy to get feedback from users?}
 
 \section{francy: an Interactive Discrete Mathematics Framework for GAP}
 
+\TODO{Description of Francy: features, devs, ...}
 
+\TODO{Francy is meant to become kernel-agnostic}
+
+\TODO{How we plan to collaborate}
 
 \section{Sage-explorer}
 \label{sage-explorer}
+
+
+\TODO{Screenshot of http://www.lmfdb.org/EllipticCurve/Q/11/a/2}
+\TODO{Comparative screenshot of the same curve in sage-explorer}
+
+\TODO{A bunch of screenshots}
+
+\TODO{Description of the features}
+
+\TODO{Description of how the page is built}
+
+\TODO{Upcoming work}
+
+\TODO{Strategy to get feedback from users?}
+
+\appendix
+
+\TODO{The demo notebooks?}
+
+
 
 \end{document}
 
