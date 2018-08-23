@@ -1,4 +1,5 @@
 \documentclass{deliverablereport}
+\usepackage{wrapfig}
 
 \deliverable{UI}{ipython-advanced-interacts}
 \deliverydate{31/08/2018}
@@ -159,17 +160,40 @@ There remains two main challenges:
 \section{State of the art}
 
 \TODO{A standalone section? Or comments about it in the intro and along the way?}
-%@interact
-%larch env
-%LFMDB
-%http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html
 
-\section{A generic widget for objects with a 2D boxed representation}
+In addition to the interactive widgets already delivered with ipywidgets (e.g. Sliders), numerous investigations, towards these goals, have been conducted in mathematical environments.
+
+\begin{itemize}
+\item The \href{http://www.lmfdb.org/}{LFMDB} database displays a comprehensive view of L-functions and Modular Forms in a web browser, yet still missing manipulation possibilities on the objects.
+\item In the \href{https://core.ac.uk/download/pdf/9839511.pdf}{The
+  Larch Environment} document (2013), Geoffrey W. French presents a visual
+  interactive programming environment in Python language.
+  One of his main ideas is to
+  \emph{coerce} objects into graphical representations. Meaning that
+  every object must know how it can be graphically represented, this
+  representation being the default one and can be tailored by the
+  user: G.W. French speaks of different \emph{perspectives} for the
+  same object. The Larch Environment also maintains a state of objects
+  in order to automatically refresh the representation.
+%lists numerous tools editing or programming environments that existed back in 2012 for various programming languages. These included object editing or programming environments, some structured source code editors, and of course Sage with IPython.
+\item Already within \href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project, an API was developed for a graphical representation combinatorial objects and their properties ; see \href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial Class With 2DBoxedRepresentation}. Yet that was only text-graphics i.e. ``ASCII art''.
+\end{itemize}
+
+
+\section{A generic widget for objects with a grid-like representation}
 \label{grid}
 
-\TODO{Name: 2D boxed / grid-like / ??? representation?}
+\TODO{better liant?}
 
-\TODO{liant}
+\begin{wrapfigure}{r}{0.25\textwidth}
+    \begin{center}
+      \includegraphics[width=100px]{images/gridwidget}
+      %\caption{A grid widget}
+\end{center}
+\end{wrapfigure}
+
+We decided to first implement a generic widget meant for all SAGE-objects that can
+be grid-like represented, the simplest one being a grid graph:
 
 This use case combined several advantages:
 \begin{itemize}
@@ -186,14 +210,33 @@ This use case combined several advantages:
 \end{itemize}
 Hence, this use case provided a unique challenge: all the difficulty
 resided in the the design of a generic solution that encapsulates as
-mush of the technicalities as possible, enabling users to specialize
+much of the technicalities as possible, enabling users to specialize
 the generic solution for their own pet objects with little expertise.
-
 
 \TODO{Description of the design, of the API that subclasses must
   implement, code examples}
 
+\TODO code and commit something more appropriate, given recent discussions
+
 \TODO{potential applications}
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+    \begin{center}
+      \includegraphics[width=100px]{images/tableauwidget}
+      %\caption{A tableau widget}
+\end{center}
+\end{wrapfigure}
+
+This generic widget can be used directly to represent grid graphs and
+aztec diamond graphs. It is currently subclassed for partitions
+and tableaus, with a support for \emph{editing cells and computing the
+tableau subtype}, i.e. semi-standard or standard, where relevant. It
+will soon support \emph{adding and deleting cells}, too.
+
+The same GridWidget is also used to represent \emph{matchings} in grid-like
+graphs.
+
+\TODO{an image with dominos}
 
 The code is distributed as a Sage package
 \href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets}

@@ -1,0 +1,158 @@
+\documentclass{deliverablereport}
+
+\deliverable{UI}{ipython-kernels}
+\deliverydate{31/08/2018}
+\duedate{31/08/2017 (M24)}
+\author{Jeroen Demeyer}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+Sage uses Sphinx to build its documentation.
+This is a standard tool which is used by many different Python projects.
+It automatically produces organised documentation from docstrings
+(strings in the code containing documentation).
+
+For various reasons, Sage uses a very customised version of Sphinx.
+This is maintainable in the long term.
+The huge size of the Sage documentation also gives
+some problems: building the documentation requires a lot of time and memory.
+
+Broadly speaking, the two main goals of this deliverable are
+making Sage use a standard Sphinx setup
+and making it more efficient in terms of resource usage.
+
+Work on this deliverable is progressing quite slowly.
+For a large part, this is because many projects are involved:
+Sage, Sphinx, Docutils, Pygments, Cython and Python.
+
+For that reason, we plan to continue working on it until month 48.
+There is manpower available at Ghent University and Universit\'e Paris-Sud to do that.
+This report gives the current progress
+as well as further work to do in the final year of the OpenDreamKit project.
+
+\section{Removing Sage customisations}
+
+Sage uses a highly customised version of Sphinx.
+The word ``customised'' can mean any of the following:
+it may be an actual patch to the source code,
+a monkey-patch (a patch at runtime),
+a fork of some plug-in or just a highly specialised configuration.
+
+One of the goals of this deliverable is to remove these
+customisations, allowing Sage to use a standard Sphinx.
+This can be achieved in two ways:
+either patch upstream Sphinx to make the feature standard,
+or change Sage (or some other project like Cython or Python)
+to remove the need for the customisation.
+We now describe the customisations in more detail.
+This list is not exhaustive, there are many more small
+customisations.
+
+\subsection{Support for Cython functions}
+
+Sage uses a combination of Python and Cython modules.
+Cython is a programming language which mostly uses the Python syntax,
+but which is compiled to C instead of interpreted like Python.
+By default, functions in Cython become Python \emph{built-in} functions.
+These are a special kind of optimised functions, implemented in C.
+
+Unfortunately, built-in functions do not work well with Sphinx.
+In particular, Sphinx cannot determine the arguments of such functions.
+Sage and Cython have various hacks to make it work anyway.
+These are quite ugly, so it would not make much sense to support those in Sphinx.
+
+Fixing this properly requires adding support in Python
+for fast user-defined function classes.
+For user-defined function classes, Cython can add whatever attributes
+are needed to support Sphinx.
+The problem is that such user-defined function classes
+are necessarily slower than built-in functions.
+This is not acceptable for Sage where speed is very important.
+In June 2018, after a few months of discussions with the Python community,
+we submitted PEP 580, a Python Enhancement Proposal to fix this.
+Unfortunately, the process of getting a PEP accepted is quite slow:
+at the time of writing this report, the PEP had not been accepted (nor rejected).
+
+If PEP 580 is accepted, Cython can be changed to produce
+functions which are equally fast as built-in functions
+and which support all documentation
+features that standard Python functions support.
+
+\subsection{Build the documentation in pieces}
+
+The Sage reference manual is not built as one monolithic document,
+but in several pieces:
+one for each mathematical topic such as combinatorics or matrices.
+The are two reasons for this: it makes it easy to build the various pieces
+in parallel and it lowers the memory requirements.
+Unfortunately, these pieces are not completely independent:
+we still want to end up with one consistent document,
+so things like the index and references need to merged.
+This is implemented in the Sage \texttt{multidocs} extension for Sphinx.
+
+Since it would be simpler to build the reference manual as one document,
+we should work on removing the disadvantages mentioned here.
+In particular, the parallellisation should no longer be an issue
+(see next section).
+Once the disadvantages are gone, we can just build the reference manual
+as a single document again.
+This is future work.
+
+\subsection{Parallel documentation build}
+
+One of the advantages of building the reference manual in pieces
+(see previous section) is that we can build those pieces in parallel.
+However, Sphinx itself now supports building in parallel
+(this was not the case at the time when Sage started its own parallel docbuilder).
+
+So instead of rolling our own parallel docbuilder,
+we should use the Sphinx parallel builder.
+Given that the feature already exists, this is easy to do.
+But it can only be done after we have removed the existing
+splitting and parallel machinery.
+
+\subsection{Custom syntax highlighting}
+
+This is about a relatively small patch to Pygments
+(a package for syntax highlighting).
+The patch allows to highlight \texttt{sage:} the same way
+as standard Python \texttt{>>>} prompts.
+
+No work has been done towards removing this patch,
+but it should be relatively simple.
+We should investigate whether we can customize Pygments without
+patching it.
+Alternatively, support for Sage should be pushed upstream to Pygments.
+
+\section{High resource usage}
+
+Building the full Sage documentation takes a lot of resources:
+it needs about 3 gigabytes of memory and it needs about 1.5 hours
+on an ordinary computer to build the documentation from scratch.
+This makes it the most resource-intensive part of the
+Sage distribution build.
+Because of this, Sage users are often suggested to skip building
+the Sage documentation.
+
+We have investigated where the high memory usage comes from.
+It turns out that it is a combination of factors
+and that there is not a single obvious cause.
+Some of it is caching of data which is no longer needed,
+which is easy to fix.
+Some of it is data structures using basic Python primitives such as a \texttt{dict}
+instead of more specialized (and space-efficient) structures.
+
+The Sage customizations to Sphinx
+(in particular the splitting in pieces and parallellization)
+may cloud this analysis somewhat,
+as they might make things better or worse.
+Therefore, it would make most sense to tackle this problem after
+removing those customizations.
+
+\end{document}
