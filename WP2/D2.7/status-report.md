@@ -83,6 +83,8 @@ person. Indeed, we didn't manage to install a fully working
 instance. Plus, although its advanced features are quite impressive,
 it does not cover all the use cases we were interested in.
 
+TODO: note about Bookshelf from quantecon
+
 Finally, we experimented with a custom developed application[^8],
 whose development had already started in 2015 at a SageMath
 meeting. The application is capable of indexing, mirroring, searching
