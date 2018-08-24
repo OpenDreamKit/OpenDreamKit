@@ -11,30 +11,69 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\TODO{list all relevant tickets and issues and their status; either
+  interspersed in the text or by packs. Certainly a lot remains to be
+  done, but also a lot was already achieved, and the list at
+  https://github.com/OpenDreamKit/OpenDreamKit/issues/87 is a
+  testimony of that.}
+
+\TODO{Use the \Sage, \Python macros whenever relevant}
+
 \section{Introduction}
 
-Sage uses Sphinx to build its documentation.
-This is a standard tool which is used by many different Python projects.
-It automatically produces organised documentation from docstrings
-(strings in the code containing documentation).
+The \Sage computational system, like \Python and many other \Python
+projects, uses the \Sphinx documentation system. Similar in principle
+to \lstinline{javadoc} or \lstinline{doxygen}, it generates structured
+documentation in various formats (HTML, PDF, ...), in particular from
+so-called \emph{docstrings}, that is snippets of documentation
+interspersed in the code it documents.
 
-For various reasons, Sage uses a very customised version of Sphinx.
-This is maintainable in the long term.
-The huge size of the Sage documentation also gives
-some problems: building the documentation requires a lot of time and memory.
+One specific challenge is scaling to the sheer size of the Sage
+documentation (13k pages just for the reference manual); building it
+requires a lot of time and memory. In addition to those particularly
+stringent needs and a long legacy \Sage was, at the time of writing
+the proposal, using an outdated version of \Sphinx, crippled by many
+layers of customisation and adaptations that had accumulated over the
+years. This was becoming impossible to maintain.
 
-Broadly speaking, the two main goals of this deliverable are
-making Sage use a standard Sphinx setup
-and making it more efficient in terms of resource usage.
+\taskref{UI}{sage-sphinx} tackles this situation with, broadly
+speaking, two main goals:
+\begin{enumerate}
+\item a critically needed deep refactorisation to get rid of multiple
+  duplication, and foster sustainability by outsourcing back to
+  \Sphinx all generic aspects (parallel compilation, index generation,
+  etc);
+\item optimizing resources usage for the documentation build.
+\end{enumerate}
 
-Work on this deliverable is progressing quite slowly.
-For a large part, this is because many projects are involved:
-Sage, Sphinx, Docutils, Pygments, Cython and Python.
+Although a lot has already been achieved, progress has been
+significantly slower than originally planned for. In large part, this
+is because many upstream projects are involved: \Sphinx, Docutils,
+Pygments, Cython, and Python. We are thus dependent on their own
+independent schedule whenever an upstream contribution is needed. Such
+a situation was foreseen in our Risk Management Plan and its impact on
+the overall project is negligible: on the one hand no other task
+depends on \taskref{UI}{sage-sphinx}; on the other hand it was easy to
+shuffle around some of our internal work plan, and reserve man power
+for this task during OpenDreamKit's final year and at Ghent University
+and Université Paris-Sud. Also, knowing that this was a long term
+endeavour and that the timeline was not critical, we decided on
+several occasions to invest in long term solutions that would benefit
+not only \Sage but the community as a whole (see e.g. the discussion
+about PEP 580).
 
-For that reason, we plan to continue working on it until month 48.
-There is manpower available at Ghent University and Universit\'e Paris-Sud to do that.
-This report gives the current progress
-as well as further work to do in the final year of the OpenDreamKit project.
+We report here on the current achievements, and detail the work plan
+for the final year. Formally speaking, this deliverable report
+concerns solely the first goal; however, as the two goals are closely
+interrelated, and to better give the big picture we decided to report
+on both.
+
+\TODO{mention somewhere that the memory consumption is a recurrent
+  bother, for example in automatic builds for continuous integration}
+
+\section{Upgrading Sphinx}
+
+\TODO{...; that was tightly coupled to the work in the next section.}
 
 \section{Removing Sage customisations}
 
@@ -74,7 +113,9 @@ are needed to support Sphinx.
 The problem is that such user-defined function classes
 are necessarily slower than built-in functions.
 This is not acceptable for Sage where speed is very important.
-In June 2018, after a few months of discussions with the Python community,
+In June 2018, after a few months of discussions with the Python
+community,
+\TODO{mention the brainstorm with Cython's dev at ODK's organized workshop?}
 we submitted PEP 580, a Python Enhancement Proposal to fix this.
 Unfortunately, the process of getting a PEP accepted is quite slow:
 at the time of writing this report, the PEP had not been accepted (nor rejected).
@@ -89,14 +130,14 @@ features that standard Python functions support.
 The Sage reference manual is not built as one monolithic document,
 but in several pieces:
 one for each mathematical topic such as combinatorics or matrices.
-The are two reasons for this: it makes it easy to build the various pieces
+The original motivations were twofold: it makes it easy to build the various pieces
 in parallel and it lowers the memory requirements.
 Unfortunately, these pieces are not completely independent:
 we still want to end up with one consistent document,
 so things like the index and references need to merged.
 This is implemented in the Sage \texttt{multidocs} extension for Sphinx.
 
-Since it would be simpler to build the reference manual as one document,
+Since it would be simpler to build the reference manual a single document,
 we should work on removing the disadvantages mentioned here.
 In particular, the parallellisation should no longer be an issue
 (see next section).
@@ -116,6 +157,10 @@ we should use the Sphinx parallel builder.
 Given that the feature already exists, this is easy to do.
 But it can only be done after we have removed the existing
 splitting and parallel machinery.
+
+\TODO{Mention the joint work with a Sphinx developer at ODK's
+  organized Sage Days 77 in Cernay, and the proof of concept
+  implementation.}
 
 \subsection{Custom syntax highlighting}
 
@@ -140,6 +185,9 @@ Sage distribution build.
 Because of this, Sage users are often suggested to skip building
 the Sage documentation.
 
+\TODO{mention Sage Days 77 again and/or the collaboration with
+  Sphinx's dev}
+
 We have investigated where the high memory usage comes from.
 It turns out that it is a combination of factors
 and that there is not a single obvious cause.
@@ -147,6 +195,8 @@ Some of it is caching of data which is no longer needed,
 which is easy to fix.
 Some of it is data structures using basic Python primitives such as a \texttt{dict}
 instead of more specialized (and space-efficient) structures.
+\TODO{Those will need to be tackled at Sphinx's level, which will
+  benefit all projects using Sphinx.}
 
 The Sage customizations to Sphinx
 (in particular the splitting in pieces and parallellization)
@@ -154,5 +204,14 @@ may cloud this analysis somewhat,
 as they might make things better or worse.
 Therefore, it would make most sense to tackle this problem after
 removing those customizations.
+
+\section{Related work}
+
+\TODO{Live Sphinx documentation with ThebeLab (see deliv ...)}
+
+\TODO{Compiling the documentation to Jupyter notebooks:}
+
+\TODO{Sphinx configuration for Sage packages: template in sage-sample
+  and utilities in sage-package}
 
 \end{document}
