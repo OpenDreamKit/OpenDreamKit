@@ -164,7 +164,7 @@ There remains two main challenges:
 In addition to the interactive widgets already delivered with ipywidgets (e.g. Sliders), numerous investigations, towards these goals, have been conducted in mathematical environments.
 
 \begin{itemize}
-\item The \href{http://www.lmfdb.org/}{LFMDB} database displays a comprehensive view of L-functions and Modular Forms in a web browser, yet still missing manipulation possibilities on the objects.
+\item The \href{http://www.lmfdb.org/}{LFMDB} database displays a comprehensive view of L-functions and Modular Forms in a web browser, yet misses manipulation possibilities on the objects.
 \item In the \href{https://core.ac.uk/download/pdf/9839511.pdf}{The
   Larch Environment} document (2013), Geoffrey W. French presents his own graphical
   interactive programming environment called \emph{larch}.
@@ -175,10 +175,15 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
   user: G.W. French speaks of different \emph{perspectives} for the
   same object. The Larch Environment also maintains a state of objects
   in order to automatically refresh the representation.
-%lists numerous tools editing or programming environments that existed back in 2012 for various programming languages. These included object editing or programming environments, some structured source code editors, and of course Sage with IPython.
+  However, the Larch environment is designed to run locally, i.e. not
+  within any browser, and the project was discontinued in 2014.
 \item Already within
   \href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project
-  (2003-2004), an API was developed for a graphical representation combinatorial objects and their properties ; see \href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial Class With 2DBoxedRepresentation}. Yet that was only text-graphics i.e. ``ASCII art''.
+  (2003-2004), an API was developed for a graphical representation
+  combinatorial objects and their properties ; see
+  \href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial
+    Class With 2DBoxedRepresentation}. Yet this representation was
+  limited to text-graphics i.e. ``ASCII art''.
 \end{itemize}
 
 
@@ -250,31 +255,41 @@ progressively into SageMath.
 \subsection{Strategy to get feedback from users}
 
 \begin{itemize}
-  \item Attending local seminars at \emph{Laboratoire de Recherche Informatique} or/and \emph{\href{Laboratoire d'Informatique de l'École Polytechnique}{https://www.lix.polytechnique.fr/}
+  \item Attending local seminars at \emph{Laboratoire de Recherche Informatique} or/and \emph{\href{https://www.lix.polytechnique.fr/}{Laboratoire d'Informatique de l'École Polytechnique}}
   \item Release some implementation examples for a few object types ; write a tutorial on how to write your own ; invite users to write feedback, either on the development mailing list, or on the  project \emph{sage-combinat-widgets} issues interface
   \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
 \end{itemize}
 
 \section{francy: an Interactive Discrete Mathematics Framework for GAP}
+\label{francy}
 
 \subsection{Description of Francy: features, devs, ...}
 
-Francy can build an application within a Jupyter cell. With menus. A
-way to interact with mathematical objects.
+Francy framework enables building applications within Jupyter cells,
+or in a web browser.
 
-Notable objects currrently in francy: graphs, charts
+Mathematical objects are displayed in a very natural, graphical mode,
+and support interactions such as moving graph nodes. A menu is also
+displayed, mainly for activating/deactivating interactions.
 
-Francy loads GAP power through a javascript code for rendering each
-kind of object.
+Francy uses \href{d3js.org}{D3JS javascript library} to manipulate the
+browser DOM for the graphical display itself.
+
+Through its browser-loaded javascript code, francy calls a GAP engine to
+intepret GAP code, then passes JSON data to D3JS.
 
 \subsection{Francy is meant to become kernel-agnostic}
 
-Francy describes its figures in JSON.
+What francy does with GAP could be done also for any language. JSON
+syntax would hold its language-agnostic data representation.
 
 \TODO{How we plan to collaborate}
 
 \section{Sage-explorer}
 \label{sage-explorer}
+
+\TODO{tension SAGE/javascript concernant l'emplacement des appels de
+  méthodes}
 
 \subsection{Sage-explorer should be as rich as LMFDB, and is interactive}
 
@@ -283,13 +298,161 @@ Francy describes its figures in JSON.
 
 \TODO{A bunch of screenshots}
 
-\TODO{Description of the features}
+\subsection{Overview}
+
+Sage-explorer is a container widget that comprises:
+
+\begin{itemize}
+  \item A block made of a title and a list of properties for the object
+  \item A graphical representation of the object
+  \item A list of object methods
+  \item A panel for documentation and computations
+\end{itemize}
+
+\TODO{Illustration des zones}
+
+\subsection{Object Properties}
+
+The title block displays an object-identifying \emph{title}, its
+\emph{category} and a list of its \emph{properties}.
+
+Actually, there is no concept of \emph{property} in itself in Sage.
+
+Yet some of the Sage object methods return a piece of information that
+can be considered as \emph{properties}. Such as a the degree for a
+polynomial degree, the dimension for a curve, or whether a graph is
+planar or has loops ..
+
+The fact, for a method result, to be possibly considered as a property
+is in itself a piece of semantic information that can be stored in a
+configuration file (which is the case with current published version),
+or can be stored in the Sage code itself (which will in a way or
+another most probably be the adopted solution in the future). See~\ref{semantics}
+
+\subsection{Object Graphical Representation}
+\label{representation}
+
+The Sage explorer looks for any ``natural'' way of representing the
+object graphically.
+
+For a curve, or any mathplot-plottable object, there is already such a
+``natural'' response.
+
+For others, we try to use the work done in the
+\emph{sage-combinat-widget} project.
+
+As for properties (see above), the name of the widget class for an
+object graphical representation is a piece of semantic information,
+currently stored in the Sage-explorer configuration file, later very
+possibly in the Sage source code itself (see \ref{semantics}).
+
+The object graphical representation is meant to be responsive to some
+actions on the object, such as highlighting elements, adding nodes ..
+
+These interactions are not currently implemented in the library widgets but
+this will be one of our high priority task in the next future.
+
+\subsection{Object Methods}
+
+The core of Sage explorer features is its list of methods.
+
+All these methods are presented as menu entries, and dispatched in the
+object parent class hierarchy, depending from
+which class they get their definition.
+
+\subsection{Object Documentation}
+
+Within the main zone, a tab is dedicated to displaying documentation.
+
+When no method is selected, it displays the documentation for the object itself.
+
+When a method is selected, it displays the method documentation.
+
+\subsection{Computations}
+
+Within the main zone, a tab is dedicated to computations.
+
+This tab is empty when no method is selected.
+
+As soon as a method is selected, boxes appear, one for each method
+argument (following the method signature and with names matching those
+in the displayed documentation).
+
+The user is invited to fill the boxes and then to press the
+\emph{Run!} button. The explorer then calls Sage kernel to do the
+computation and displays the result below the arguments boxes.
+
+In a near future, some of the computation results will be graphically
+displayed as well - on the widget. See \ref{representation}
 
 \TODO{Description of how the page is built}
 
-\TODO{Upcoming work}
+\subsection{Navigation}
 
-\TODO{Strategy to get feedback from users?}
+Numerous links to new Sage objects appear in various explorer zones,
+especially in properties and in method results.
+
+Clicking on any link opens a new Explorer, for a new object.
+
+A history is kept, in order to enable going back to the previous object.
+
+An index page is also provided, displaying various lists of Python
+categories to click on.
+
+\subsection{Configuration and semantics}
+\label{semantics}
+
+Three configuration files specify:
+
+\begin{itemize}
+\item Graphical display widgets associated to Sage objects
+  \item Properties associated to Sage objects, i.e. which object methods are
+    to be considered as object properties.
+\item The objects lists (or \emph{catalogs}) for the Explorer Index
+\end{itemize}
+
+To specify these, especially the first two, a set of logical rules
+have been defined, are implemented in YAML syntax and parsed by the
+Sage-explorer code.
+
+In the future, we expect to get all this semantic information, or part of it,
+written directly in Sage source code.
+
+This could take the form of \emph{private attributes} or \emph{annotations}, like:
+
+\begin{itemize}
+\item a \emph{\_widget\_} attribute specified in Sage categories source files
+\item specific annotations, using \emph{@} Python syntax for annotations
+  \end{itemize}
+
+Where will still remain, for the user, the possibility of overloading
+the widget class - \emph{\_widget\_} being only the default) and
+specify which of the \emph{properties} she wants to get rendered in effect.
+
+Hence, there will be a contiuum between semantic written in Sage
+source code and configuration files, taking into account semantic
+information, logical rules specifying how to read this semantics, and
+parametrization by the user, given that (for \emph{properties}:
+
+\begin{itemize}
+\item some semantics can be specified as object attributes: ``is this method a
+  property?'' and
+  \item ``is this property worth rendering by default?''  while we
+    still have to decide
+  \item ``is computing this property not going to slow down the display?''
+\end{itemize}
+
+\subsection{Upcoming work}
+
+\begin{itemize}
+\item develop interactivity for some methods in the widgets
+\item tutorial: how to build a widget
+\item enhance explorer index
+\end{itemize}
+
+\subsection{Strategy to get feedback from users?}
+
+\TODO{See above (ou bien on recopie dès que c'est bien fixé)}
 
 \appendix
 
