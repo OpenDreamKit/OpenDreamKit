@@ -1,0 +1,241 @@
+  \subsubsection{WorkPackage 5: High Performance Mathematical Computing}
+  \label{hpc}
+%Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
+
+  \TODO{Update for Reporting Period 2}
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  \paragraph{Overview}
+
+  Workpackage 5 is about the development of high performance computing tools in
+  mathematical virtual research environments. It is addressed at the level
+  of each kernel library composing the computational tools of the project (\Pari,
+  \GAP, \Linbox, \MPIR, \Sage, \Singular, ...), and also at the level of interfacing and exposing
+  core parallel features to higher level programming interfaces.
+
+  Key results obtained over the period for WorkPackage 5 are the following:
+  %% Only list deliverables produced in the reporting period
+  \begin{compactitem}
+  %% \item A closer integration of \Linbox in \Sage with improved reliability and
+  %%   computing efficiency.
+  \item A fine grain parallelisation of matrix Fast Fourier Transform code in
+    \FLINT, delivering high and scalable performances.
+  \item Parallelization of relation  Sieving code in FLINT.
+  \item A new super-optimizer for vectorized assembly code and its
+    exploitation to improve the performances of the MPIR code.
+  \item A MapReduce framework implementation to parallelize huge (out of core) datasets from
+    combinatorics presented as recursion trees.
+  \item \Cython can now use \Pythran to compile and vectorize \Numpy code.
+  \item A new Sun Grid Engine notebook spawner for \Jupyter to drive
+    interractive computations on HPC clusters from a Jupyter notebook.
+  \end{compactitem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Milestones}
+
+\subparagraph{\longmilestoneref{hpc-prototype}}
+
+\emph{“User story: Astrid wants to run compute intensive routines
+    involving both dense linear algebra and combinatorics. She has
+    access through a JupyterHub-based VRE to a high end multi-core
+    machine which includes a vanilla \Sage installation. She
+    automatically benefits from the HPC features of the underlying
+    specialized libraries (\Linbox, ...). This is a proof of concept
+    of the overall framework to integrate the HPC advances of
+    specialized libraries into a general purpose VRE.
+    %
+    It will prepare the final integration of a broader set of such
+    parallel features for the end of the project.”}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Tasks}
+
+\subparagraph{\longtaskref{hpc}{hpc-pari}}
+
+No deliverable is due for the reporting period.
+The generic paralellization engine in the \Pari C-library
+has reached its maturity. It is now part of the standard releases of \Pari
+and~\longdelivref{hpc}{pari-hpc1}
+will be delivered on time on month 24.
+
+\subparagraph{\longtaskref{hpc}{hpc-gap}}
+
+No deliverable is due for the evaluation period but steady progress was made on
+Deliverable~\longdelivref{hpc}{GAP-HPC-report}. Over this period, six releases were cut
+incorporating contributions to Deliverable~\longdelivref{component-architecture}{hpc-configure}.
+
+Another major direction of efforts is the HPC-GAP integration:
+HPC-GAP is a fork of \GAP initiated during the \scienceproject project, which
+enables multithreaded calculations. Now that HPC-GAP has reached
+maturity, it's critical for its widespread use and long term
+maintainability to merge it back into \GAP's master branch.
+The first step towards this long-standing goal, which is at the core of
+Task~\taskref{hpc}{hpc-gap}, is the next
+major release of \GAP 4.9, planned in 2017 and allowing compilation in HPC-GAP
+compatibility mode. The progress towards this release can be tracked on the \GAP
+4.9.0 milestone on GitHub: \url{https://github.com/gap-system/gap/milestone/4}.
+A culmination of the work in this direction was the merge of a major
+refactorisation of \GAP's build system
+mainly developed by our external collaborator Max Horn (Giessen) into \GAP's master
+branch during the Sage-GAP-Days-85 we organized in March 2017. Some
+\GAP packages also required updates to work in \GAP 4.9.
+
+\subparagraph{\longtaskref{hpc}{hpc-linbox}}
+
+%As initially scheduled, work on LinBox started in Fall 2016 and
+No deliverable is due for this evaluation period. The design of a
+domain specific language (DSL) exposing parallel features through the
+library stack up to the \Sage interface is making good progress
+(deliverable~\longdelivref{hpc}{LinBox-DSL}); the demonstrator code
+for matrix inverse over a finite field is under review.
+%
+Progress on deliverable~\longdelivref{hpc}{LinBox-algo} is twofold:
+\begin{compactitem}
+\item Maintenance, and close integration of the Library with \Sage has been
+active (\href{https://trac.sagemath.org/ticket/17635}{Ticket \#17635} finally
+updates \Sage to LinBox-1.4.2 after a long and technical review process).
+\item Several algorithmic innovations have been produced: a new matrix invariant
+  for rank profiles~\cite{DumPerSul:fcrpmgbd16}, more efficient
+  representation for quasiseparable matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on
+  interactive certificates for the security of large scale distributed
+  computations on unsafe
+  resources~\cite{DumKalTho:lticmpdsm16,DumLucPer:cftearp17}. These results have or will
+  be presented in the main venues in the domain:
+  the international conference ISSAC'16-17 and the Journal of Symbolic computation.
+\end{compactitem}
+
+  \subparagraph{\longtaskref{hpc}{hpc-singular}}
+
+  The \Singular library, for commutative algebra, already has a framework to
+  design high level parallel algorithms and handle shared memory safely.
+  Yet, a few kernel routines, such as matrix Fast Fourier
+  transform, relation  sieving algorithms need a special attention as they have
+  to rely on a highly optimized fine grained
+  parallelization. Deliverables~\longdelivref{hpc}{FFT}
+  and~\longdelivref{hpc}{QS-linalg} for this reporting period only deal with these
+  kernel routines, in the \FLINT library, a dependency of \Singular.
+
+  Deliverable~\delivref{hpc}{FFT} is a parallelization of the matrix fast
+  Fourier transform in two ways: using Open-MP standard for shared memory
+  multi-core parallelization on one hand and the SIMD vectorized instructions of
+  each core on the other hand. Performance experiments demonstrate the
+  effectiveness of the design of thread parallelization, reaching speed-up
+  factors up to 3 out of 4 cores, and up to 5 out of 8 cores, which is remarkable given
+  the high memory bandwidth of the kind task considered here. The SIMD
+  optimization of the FFT butterfly partly relies on the super-optimizer results
+  of Deliverable~\longdelivref{hpc}{MPIRsuperoptimiser}. Here again, experiments
+  demonstrate a strong improvement in practice for the new code produced.
+
+  Deliverable~\delivref{hpc}{QS-linalg} now focuses on one major type of
+  application of the library: relation sieving for factoring medium sized
+  integers. There, use of SIMD optimizations did not provide strong enough
+  improvements and the work mostly focused on the thread paralellization of the
+  reliation sieving. The resulting code in \FLINT improves over \Pari's
+  implementation for large enough integers (above 170 bits) in sequential already, and benefits
+  from a speed-up factor of about 3 out of 4 cores. On the contrary, the
+  parallelization of the block Wiedemann algorithm mostly benefitted from SIMD
+  optimizations and much less from multithreading.
+
+  \subparagraph{\longtaskref{hpc}{hpc-mpir}}
+
+  The \MPIR library is  a core component of many computational mathematics
+  software providing highly optimized  basic arithmetic over multiprecision
+  integers.
+  
+  Deliverable~\delivref{hpc}{MPIRsuperoptimiser} is a super-optimizer, performing
+  exhaustive search of permutations in a sequence of assembly instructions,
+  combined with a fine clock cycle count to elect the most efficient variant.
+
+  The main unexpected obstacle has been the production of a precise clock cycle
+  counter, on which to base the benchmarks: recent. Frequency scaling strategies
+  of the CPU led to noise in the  measurements, while the real CPU cycle counter
+  would require patching a kernel module to allow access in user mode.
+  This problem has been solved thanks to the pmu-tools API to the  performance system of the
+  Linux kernel.
+
+  Then super-optimizer could reliably produce optimized code for
+  the main functions of the MPIR library (multiplication, gcd, and extended gcd)
+  on the most common recent vectorized architectures: AMD Bulldozer, Intel
+  Skylake and Haswell. Experiments comparing the resulting new routines with the
+  current ones, showed a significant improvement in performances in almost all
+  cases, thus validating this approach and motivating its application to a
+  broader set of routines.
+
+  \subparagraph{\longtaskref{hpc}{hpc-combi}}
+
+  The goal of this task is to use combinatorics as a source of challenges to
+  experiment on various HPC techniques. In the first
+  deliverable~\longdelivref{hpc}{sage-paral-tree}, we successfully implement a
+  MapReduce programming model on large datasets described by a recursion
+  tree, which are too big to fit in memory. After chasing around some bug on
+  MacOS posix support, the code was integrated in Sage (Trac Ticket 13580) and
+  presented at the "journée du groupe de travail LaMHA" at the Université Pierre et
+  Marie Curie on November the 26th of 2016.
+
+  Since it is written purely in Python, the code doesn't perform well when the
+  computation in each node is short. A good technology for handling such
+  situations with fine grain parallelism, seems to be the 
+  \software{Cilk++} runtime, and we are currently doing experiment which goal is to have a two
+  stage parallel computation, where \software{Cilk++} is doing the load balancing on a
+  machine (shared memory) and Python the load balancing among machines. As a
+  base for our experiment, we are working on the enumeration of numerical
+  monoids; indeed, it is a very challenging problem as the explored recursion
+  tree is extremely unbalanced. We are currently able to have a code
+  generating and process 50Gio/s on a single 8 core i7 machine. When the
+  problem of re-balancing the work among several machines will be solved we
+  hope to be able to have throughput higher than 1To/s on a network of machines.
+  To this end, we are also experimenting with the \texttt{Spark}
+  technology for distributed computations.
+
+  \subparagraph{\longtaskref{hpc}{pythran}}
+
+Mathematical software, such as \Sage, intensively rely on the Python
+language for its expressivity. In order to harness most of a CPU computing
+efficiency, critical code in such interpreted languages need to be compiled into
+C code. This is precisely what \Cython and \Pythran are offering. The former
+supports a broad range that \Python constructs, while the latter focuses on optimizing
+\Numpy constructs for linear algebra.
+The purpose of this task is to:
+\begin{enumerate}
+\item\label{pythran:cython} Implement a convergence between these two compilers
+\item\label{pythran:sage} Expose the new capacity to optimize \Numpy code to
+  the developers and  users of~\Sage.
+\end{enumerate}
+
+Concerning target~\ref{pythran:cython}, the delivery of \longdelivref{hpc}{pythran-sage} successfully implements the
+proposed convergence: \Cython is now able to delegate compilation tasks to
+\Pythran whenever \Numpy code is detected. In practice, benchmarks show that
+resulting code executes faster. For instance computing euclidean norm of a large
+floating point vector is sped up by a factor of 2.5 without vectorization and
+a factor 3.7 with AVX2 vectorization enabled.
+
+As for target~\ref{pythran:sage}, a technical lock is that \Pythran's analysis
+of \Python typing used to be too weak to support the breadth of Object Oriented
+programming style of \Sage. Deliverable \longdelivref{hpc}{pythran-typing}
+addressed this issue by strongly enhancing \Pythran's type inference system in two ways: first, the compiler now more accurately tracks the identifier
+$\leftrightarrow$ value binding, which in turns makes it possible to generate strongly
+typed code for a wider class of \Python kernels.  Second, an unsound type checker for
+\Pythran has been developed. It provides human-readable error report when a type error is
+detected at compile time, when a cryptic internal error was previously reported. Both
+algorithms have been extensively detailed in separated blog posts and the resulting
+implementation is part of the official \Pythran 0.8.0 release.
+
+Further work on \Pythran's integration to \Sage and the exposition of
+parallelism via \software{Cilk++} is still in progress and should be delivered in
+\longdelivref{hpc}{cython-pythran-cilk} at M24.
+
+  \subparagraph{\longtaskref{hpc}{hpc-jupyter}}
+  
+It is common for academic High Performance Computing (HPC) clusters to make
+use of schedulers based on Sun Grid Engine with Son of Grid Engine as one of
+the most popular. It is used, for example, on the institutional HPC systems
+in the Universities of Sheffield and Manchester in the United Kingdom. It is also used
+on the regional N8 HPC facility, a system shared by the eight most research
+intensive universities in the North of England.
+
+In deliverable~\longdelivref{hpc}{SGE-jupyter}, we have developed and demonstrated a Sun Grid Engine
+notebook spawner for Project Jupyter, allowing users to easily access
+Jupyter notebooks on HPC clusters directly from the web-browser. This
+development allows users with no background in High Performance Computing to
+easily migrate workflows from laptop to HPC cluster, allowing them to access
+greater resources with no additional training required.
