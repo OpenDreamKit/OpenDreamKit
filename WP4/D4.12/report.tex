@@ -5,16 +5,18 @@
 \duedate{31/08/2018 (M36)}
 \author{Benjamin Ragan-Kelley, Vidar Tonaas Fauske, Marcin Kostur}
 
+\newcommand{\screenshot}[2]{
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
+  \caption{#2}
+\end{figure}}
+
 \begin{document}
+
 \maketitle
 \tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\TODO{This is not easy because of the tight collaboration with the
-  community; nevertheless, whenever possible state explicitly what (or
-  what proportion) was contributed by ODK; also give rough estimates
-  of person month usage (at whatever granularity is convenient)}
 
 \section{Introduction}
 
@@ -26,24 +28,17 @@ often involving visualisation of data.
 
 Two-dimensional visualisation in Jupyter is an area with popular and well-established tools
 such as \href{https://matplotlib.org}{matplotlib}, \href{https://bokeh.pydata.org/}{bokeh}, and \href{https://altair-viz.github.io}{altair},
-but there have been fewer mature solutions for three-dimensional visualisation.
+but there have been fewer mature solutions for interactive three-dimensional visualisation.
 It is an area of active exploration,
 so we first set out to identify the current state of the art,
 and determine where our efforts could best be placed.
 We did this in the form of a report on the landscape of 3D
-visualisation in Jupyter in 2017 \TODO{see appendix ...}.
-
-\TODO{The above report contains very useful information, yet is hard
-  to discover; please publish it as ``emerging technology'' blog post
-  on our web site! Given the format, this should no more than a couple
-  minutes
-  % How to post: https://github.com/OpenDreamKit/OpenDreamKit.github.io/blob/master/_posts/README.md
-}
+visualisation in Jupyter in 2017, see Appendix \ref{landscape}.
 
 Because Jupyter is a web-based application, it can benefit from the
 very active development, in the wider community, of browser-based
 interactive visualisation tools. Therefore, the primary task when
-developing visualisation tools for Jupyter is to connect "kernel"
+developing visualisation tools for Jupyter is to connect `kernel'
 code, where the user's code runs, to visualisation code running in the
 browser. This is a standard need and the Jupyter ecosystem provides a
 powerful and extensible system for bidirectional communication between
@@ -61,18 +56,21 @@ visualisation in notebooks; and to contribute where we may have the best
 impact, whether it be in contributing to existing projects or creating new
 tools. We have accomplished both. In particular, we have helped improve the
 core Jupyter Widgets framework and the JupyterLab application, and we have
-developed new software in K3D, ipyscales, ipydatawidgets, and others projects.
+developed new software in
+\href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter},
+\href{https://demo.logilab.fr/SciviJS/}{SciviJS},
+\href{https://github.com/vidartf/ipyscales}{ipyscales},
+\href{https://github.com/vidartf/ipydatawidgets}{ipydatawidgets},
+\href{https://github.com/vidartf/unray}{unray},
+and others projects.
 
-\TODO{developed new software? contributed to existing software?}
-\TODO{make K3D and friends into href's}
+\TODO{verify PMs with Logilab and Silesia}
+
+Overall, \ODK contributed approximately 18 person-months to improving existing software in the community and delivering new software.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Impact}
-
-\TODO{As is, this section is not just about the impact; you may want
-  another title and possibly have a separate section (or subsection)
-  dedicated to impact}
+\section{Outcomes}
 
 We have developed several new software packages and contributed to the core Jupyter widget frameworks used by hundreds of thousands of people.
 
@@ -85,13 +83,18 @@ We observed several existing projects with various levels of maturity and activi
 The primary conclusions of the report were that 1. \href{https://threejs.org}{three.js} is a good candidate as a common ground on which 3D visualisation tools could be built because it is an active project and already in use by several tools, and 2. the Jupyter Widgets provide a good system for implementing communication between the Jupyter kernel and the browser.
 This report helped us spend our efforts most effectively,
 but is a useful guide in its own right for observing the state
-of\TODO{finish sentence}
+of 3D visualisation in Jupyter.
 
 
-\subsection{Improving core Jupyter tools}\label{improving-core}
+\subsection{Improving core Jupyter tools and infrastructure for visualisation}\label{improving-core}
 
-\TODO{Describe contributions to widgets, lead on pythreejs}
-\TODO{Some of these paragraphs don't fit well with the header. Should be move some paragraphs, or change the header?}
+There are a number of common aspects of 3D visualisation,
+which can be shared across 3D visualisation and other tools
+in the notebook.
+In order to maximize the impact of our work,
+we aimed to improve this infrastructure,
+both by contributing to existing packages and creating some new ones
+that should be broadly useful.
 
 Given the identification of three.js as a common denominator among visualisation tools
 we decided to pick up and finalize an existing effort to rewrite the package
@@ -102,16 +105,12 @@ its capabilities, and reducing the future maintenance burden. We also incorporat
 functionality into pythreejs to allow it serve as an extension
 point for other extensions, thereby being capable of serving as an interoperability
 platform between different libraries as well.
-
-\TODO{there could be a discussion somewhere in the document that the
-  main focus in this deliverable was on the Python kernel.
-  Nevertheless, the approach o focusing on the javascript side and
-  auto-generating the bindings means that, with minimal additional
-  work, one can get bindings for other languages; e.g. xthreejs.}
+\ODK members completed this effort and led the process of making a 1.0 release of the pythreejs package,
+and are now serving as a maintainer of the pythreejs package.
 
 One of the challenges with 3D visualisation in the browser of data originating from
 a possibly remote kernel is the efficient transfer of data between the two. To help
-solve this problem, the library \emph{ipydatawidgets} was created. It incorporates
+solve this problem, the library \emph{ipydatawidgets} was created by \ODK. It incorporates
 best practices for the binary transfer of array data between the kernel and the browser,
 and for avoiding unnecessary retransmission of data. It also includes features to
 facilitate extensibility and interoperability between different consumers. In this
@@ -133,9 +132,9 @@ This includes work on:
 
 \TODO{Subfigures showing (a) 3D axes component, (b) color bar comp, (c) color map editor}
 
-We contributed to jupyter-widgets (ipywidgets) and the widget cookie
+We contributed to the existing jupyter-widgets (ipywidgets) and the widget cookie
 cutter project to make it easier to embed and share widgets with
-others, namely:
+others. \ODK's contributions are namely:
 
 \begin{itemize}
 \item sharing an HTML conversion of the notebook including widgets.
@@ -143,13 +142,17 @@ others, namely:
 \item including widgets in package/library documentation.
 \end{itemize}
 
-An effort has also been made to help ease the creation and distribution of Jupyter widget libraries. This is critical in order to ease adaption of the visualisation libraries based on Jupyter widgets. Notable contributions include:
+An effort has also been made by \ODK to help ease the creation and distribution of Jupyter widget libraries. This is critical in order to ease adaption of the visualisation libraries based on Jupyter widgets. Notable contributions include:
 \begin{itemize}
-\item work done on the widget cookie cutter projects, in order to simplify and standardize best practices for widget packaging.
-\item the creation of an extension manager for JupyterLab, that also knows how to handle companion packages for kernels.
+\item work done on the widget cookie cutter projects, in order to simplify and standardize best practices for widget packaging. \ODK contributed to improving this existing project.
+\item the creation of an extension manager for JupyterLab, that also knows how to handle companion packages for kernels. \ODK contributed this functionality to the existing JupyterLab project.
 \end{itemize}
 
-\TODO{Screenshot of extension manager in jupyterlab showing 3D libraries?}
+As a result, all Jupyter widget authors can benefit from the work of \ODK,
+making it more efficient and accessible to create, distribute,
+and install custom Jupyter widget-based projects.
+
+\TODO{Screenshot of extension manager in jupyterlab showing 3D libraries}
 
 
 \subsection{Working with the community}\label{community}
@@ -162,11 +165,9 @@ Additionally, we participated in a community organized workshop on Jupyter widge
 
 \subsection{New 3D visualisation tools}\label{new-3d}
 
-\TODO{Enumerate new packages}
-
 \subsubsection{K3D-jupyter}
 
-K3D-jupyter is a package which provides the fast and simple 3d
+K3D-jupyter is a package created by \ODK which provides the fast and simple 3d
 plotting tool in the Jupyter notebook. The primary aim of K3D is to be
 easy for use as stand alone package like matplotlib, but also to
 allow interoperation with existing libraries as VTK. The power of
@@ -176,13 +177,22 @@ HPC computing e.g. fluid dynamics.
 
 \subsubsection{unray}
 
-unray is a scientific visualisation package for Jupyter notebooks for displaying
+
+unray is a scientific visualisation package created by \ODK for Jupyter notebooks for displaying
 scalar data on unstructured tetrahedral meshes. It allows for various volumetric
 rendering modes, isosurface rendering, and segment rendering.
 It relies on pythreejs, and the reusable components outline above to handle
 user control and interaction beyond the specific needs of the volumetric
 rendering.
 
+\subsubsection{SciviJS}
+
+\href{https://demo.logilab.fr/SciviJS/}{SciviJS} is a new general javascript library
+developed by \ODK for visualising volumetric data.
+It is built on threejs, and enables GUI-based interactive exploration of mesh data
+on a regular webpage, without any special software.
+Additionally, a \emph{jupyter-scivijs} package enables using SciviJS from within
+Jupyter notebooks.
 
 \subsection{Lattice-Boltzmann visualisation}
 
@@ -234,47 +244,10 @@ the computational domain. The slice is done in GPU memory and at not
 point the whole dataset is transferred to the host. Then we fetch the
 slice and display the data using k3d.texture function. In this way it
 is possible to monitor a running simulation with very high refresh
-rate inside the Jupyter notebook. 
-
-
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{k3d_cfd2.png}
-  \caption{K3D visualisation of fluid
-  dynamics. Boundaries are shown using a voxel object and tracers are
-  dynamically updated during simulation the notebook.}
-\end{figure}
- 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Implementation}
-
-The implementation of this work took the form of contributions to shared-infrastructure projects in the Jupyter ecosystem, as well as several new software packages.
-
-\subsection{K3D-jupyter}
-
-\href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter}
-
-The package K3D-jupyter is based on threejs as a front-end 3d library
-and ipywidgets (see fig. \ref{fig:pdep}) for communication.  There exists also
-experimental support for ipydatawidgets. 
+rate inside the Jupyter notebook.
 
 
 
-\subsection{pythreejs}
-
-\href{https://github.com/jupyter-widgets/pythreejs}{pythreejs}
-
-\subsection{unray}
-
-\href{https://github.com/vidartf/unray}{unray}
-
-\subsection{ipydatawidgets and ipyscales}
-
-\href{https://github.com/vidartf/ipydatawidgets}{ipydatawidgets}
-
-\href{https://github.com/vidartf/ipyscales}{ipyscales}
 
 
 
@@ -284,16 +257,17 @@ experimental support for ipydatawidgets.
 \appendix
 \section{Screenshots}\label{screenshots}
 
-\newcommand{\screenshot}[2]{
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
-  \caption{#2}
-\end{figure}}
-
+\screenshot{unray-brain.png}{Unray visualisation of data on a human brain mesh.}
+\screenshot{scivijs.png}{SciviJS visualisation of a piston.}
 
 \screenshot{k3d_3.png}{K3D visualisation in Jupyter. The K3D widget is
   mixed with a slider to make interactive animation of Sine-Gordon
   equation in 3d space.}
+
+\screenshot{k3d_cfd2.png}{K3D visualisation of fluid
+  dynamics. Boundaries are shown using a voxel object and tracers are
+  dynamically updated during simulation the notebook.}
+
 % \screenshot{pythreejs.png}{PyThreeJS scene in Jupyter}
 % \screenshot{unray}{Visualizing a mesh in Jupyter with unray}
 % \screenshot{scivijs}{Example of a visualisation with scivijs}
