@@ -13,6 +13,22 @@
 \addbibresource{../../lib/publications.bib}
 % temporary fix due to http://tex.stackexchange.com/questions/311426/bibliography-error-use-of-blxbblverbaddi-doesnt-match-its-definition-ve
 \makeatletter\def\blx@maxline{77}\makeatother
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Styling: adapt amsart's subsubsection macro to put a newline after the title
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\subsubsection{\@startsection{subsubsection}{2}%
+  \z@{.5\linespacing\@plus.7\linespacing}{.1\linespacing}%
+  {\normalfont\bfseries}}
+
+% Variant of taskref that links to the section on the task in this file
+\newcommand\localtaskref[2]{\hyperref[#1@#2]{\csname task@#1@#2@label\endcsname}}
+\newcommand\longmilestoneref[1]{\textbf{\csname mile@#1@label\endcsname}:
+  ``\csname mile@#1@title\endcsname''
+  (month \csname mile@#1@month\endcsname)}
+\makeatother
+
 %\usepackage{todonotes}
 \author{Nicolas M. Thiéry, Benoît Pilorget, et al.}
 
@@ -21,11 +37,6 @@
 \maketitle
 \githubissuedescription
 \tableofcontents\newpage
-
-
-
-
-
 
 \section{Progress on the project}
 
@@ -158,6 +169,7 @@ Period (RP1) at month 18.  This way we will hopefully be able to see the
 evolution of the impact OpenDreamKit has had between the RP1 and RP2,
 at month 36.
 
+\include{objectives}
 
 \subsection{Achievements and ongoing progress in workpackages}
 
@@ -185,229 +197,11 @@ Task \longtaskref{management}{project-innovation-management} will provide
 further detail and will be available at month 18.
 
 
-
-\subsubsection{WP2: Community building and dissemination}
-
-As planned in \longtaskref{dissem}{dissemination-communication} and
-\longtaskref{dissem}{dissemination}, 14 meetings, developer and
-training workshops have been organized and co-organized by \ODK during
-year 1, and complemented by many presentations and activities in
-external events.  Many more are being prepared, including the first
-Women in Sage workshop in Europe and three major training conferences
-(tentatively at CIRM, Dagstuhl, and ICMS); \ODK and \ODK related work
-is regularly presented at conferences (see the report for
-\longdelivref{dissem}{workshops-1}).
-
-Two additional workshops have been delivered for the micromagnetic user community
-in which the prototypes of the Jupyter and Python interface to the
-micromagnetic community's widely used OOMMF simulation code has been demonstrated,
-taught and feedback from the users sought (part of
-\longtaskref{dissem}{dissemination-of-oommf-nb-virtual-environment})
-
-\ODK\ is also working on its visibility and communication strategy. The
-\longdelivref{dissem}{press-release-1} was delivered and a page for the
-\href{https://github.com/OpenDreamKit/OpenDreamKit/blob/master/Communication/eInfra-Booklet/ODK.md}{E-infrastructure
-  booklet} was written jointly by \ODK members. After one year, we have a clearer
-understanding of what is needed by the project.  We are working on a new organization for
-the website where day to day activities would be more visible through our blog. Posts
-include reports on conferences, workshops, new features and emerging technologies (as part
-of \delivref{dissem}{workshops-1}).
-
-
-\subsubsection{WP3: Component architecture}
-
-The first task of this workpackage is to improve the portability of
-computational components
-\longtaskref{component-architecture}{portability}. A particular
-challenge is the portability of \Sage\ (and therefore all its
-dependencies) on Windows, which has remained elusive for a decade,
-despite many efforts of the community. We are happy to report that, in
-particular thanks to months of intensive and expert work by our
-recruit Erik Bray at \site{PS}, this challenge is about to be
-tackled, almost one year before the expected delivery time.
-
-Task \taskref{component-architecture}{interface-systems} on interfaces
-between mathematical systems is progressing as expected. Experimental
-work on a semantic interface between \GAP and \Sage
-(\delivref{component-architecture}{semantic-interface-sage-gap}, due
-on month 36) has started during the joint GAP-Sage days, and a working
-prototype is already available. The current prototype uses \emph{ad
-  hoc} language mechanisms to transfer the semantics from one system
-to the other; these mechanisms will be replaced with a generic API
-(Application programming Interface) once the MitM (Math-in-the-Middle)
-approach developed in WP6 will be mature enough. Meanwhile, a purely
-technical piece of the puzzle has been already achieved as part of
-\delivref{component-architecture}{scscp-sage}, bringing support for the SCSCP
-protocol\footnote{SCSCP, the
-  \href{http://www.symbolic-computing.org/science/index.php/SCSCP}{Symbolic
-    Computation Software Composability Protocol} is a web protocol
-  based on OpenMath enabling remote procedure calls across computer
-  algebra systems}
-to the Python ecosystem, and thus to \Sage and its subsystems. This
-is instrumental for supporting the MitM approach.
-
-After \longdelivref{component-architecture}{virtual-machines} was
-delivered, a focused workshop in March (Sage Days 77) also triggered
-much work and progress on the packaging side
-(\taskref{component-architecture}{mod-packaging}), both by \ODK
-participants and the community. There is now good hope to have proper
-packages for \Sage (and its dependencies) on the Debian distribution
-in the coming months, a feature that has been desperately longed for
-for over a decade.  The workshop was also the occasion to clarify the
-modularization, packaging, and distribution needs and
-challenges. Internal notes on the progress made have been taken in the
-\href{https://wiki.sagemath.org/days77/packaging}{\Sage wiki}, and a
-\href{https://groups.google.com/forum/#!forum/sage-packaging}{mailing
-  list specifically dedicated to packaging \Sage} has been created.
-
-Task \longtaskref{component-architecture}{oommf-python-interface} has
-been completed and is available online on
-\href{https://github.com/joommf/oommfc}{github}, and through the
-Python packaging index.
-
-% \TODO{
-% - brief notes on other ongoing tasks? (Luca: I don't know, I don't see any delivs in 3.4, and 3.6 has been delayed)
-% }
-\subsubsection{WP4: User interfaces}
-
-The first task for this workpackage is to enable the use of Jupyter as
-uniform notebook interface for the relevant computational components
-\taskref{UI}{ipython-kernels}. This is well under way for most
-components. Progress was particularly fast for \Sage thanks to a very
-active involvement of the community; this will enable, in the coming
-months, a systematic transition from the legacy \Sage notebook system
-to \Jupyter; this is a particularly important achievement: beside all
-the benefits of a uniform and actively developed interface for the
-user, outsourcing the maintenance of the notebook interface will save
-the \Sage community much needed resources.
-
-A new \Jupyter package, nbdime, was created for
-\delivref{UI}{jupyter-collab} enabling easier collaboration on
-notebooks via version control systems such as git.  This project was
-presented at the major Scientific Python conferences SciPy US in July and EuroSciPy in August, and has been
-met with enthusiasm from the scientific Python community for its
-prospect of solving a longstanding difficulty in working with
-notebooks.  Work has begun on a new package, nbval, for
-\delivref{UI}{jupyter-test}, which will integrate the above nbdime
-package for delivering testable, reproducible notebooks via
-traditional software development testing practices.
-
-The JupyterHub package has received updates and further development,
-specifically a Services extension point, which enables shared
-workspaces for collaboration, a step on the path toward real-time
-collaboration for \delivref{UI}{jupyter-live-collab}.
-
-Active structured documents are a common need with many use cases, and
-as many potential solutions. Requirements and venues for
-collaborations were explored through discussions between participants,
-in particular at the occasion of
-\href{https://wiki.sagemath.org/days77/}{Sage Days 77} workshop (see
-the
-\href{https://wiki.sagemath.org/days77/live-structured-documents}{notes}),
-and June's ODK meeting in Bremen. The findings were reported in
-\delivref{UI}{adstex}. Sage Days 77 was also the occasion to bootstrap
-the long term work of
-\href{https://wiki.sagemath.org/days77/documentation}{refactoring the
-  Sage documentation build system} (\delivref{UI}{sage-sphinx}) in
-collaboration with a Sphinx developer.
-
-One deliverable, \delivref{UI}{pari-python-lib1}, was delayed by a
-couple months due to unforeseen technical difficulties, but with no
-impact on the rest of the project.
-
-\subsubsection{WP5: High Performance Mathematical Computing}
-
-After \delivref{hpc}{sage-paral-tree} was delivered,
-\longtaskref{hpc}{pythran} is making good progress towards the
-development of Pythran and its interaction with~\Sage.
-%
-More precisely, Pythran's typing system (\delivref{hpc}{pythran-typing}) has
-been improved in two ways: first, the compiler now more accurately tracks the
-identifier $\leftrightarrow$ value binding, which in turns makes it possible to
-generate strongly typed code for a wider class of Python kernels.  Second, an
-unsound type checker for Pythran has been developed. It provides human-readable
-error report when a type error is detected at compile time, when a cryptic
-internal error was previously reported. Both algorithms have been extensively
-detailed in separated blog posts and the resulting implementation is part of
-the official Pythran 0.8.0 release
-(\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/117}{details}).
-
-The start of Deliverable~\delivref{hpc}{pythran-sage} has been delayed from
-Month 12 to Month 18 due to the difficulty of hiring an engineer for the task.
-It is now making good progress.
-
-Deliverable~\longdelivref{hpc}{MPIRsuperoptimiser} is making
-progress but has hit a major blocker: it requires to use a precise
-clock cycle counter, for which a kernel module has been proposed in
-this deliverable. However a bug in the Linux kernel seem to
-automatically disable these counters. It has been reported upstream
-but the long delay to have a patch incorporated into the kernel will
-impact the delivery of this deliverable. There is no dependency to
-this deliverable, and the problem is now well understood and its
-solution is underway
-(\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/118}{details}).
-
-As mentioned in the initial proposal, work on
-\taskref{hpc}{hpc-linbox} (LinBox) is just starting in September 2016 instead
-of December 2015, as the members of this group had already too many PM involved in other
-projects. However this will not not have any impact on the workplan as the PM will be doubled
-in the three first trimesters of year 4.
-
-A first workshop on HPC will be organized in March 2017 in Grenoble,
-France. A smaller workshop may possibly be organized in December 2016,
-to gather participants involved in the development and Pythran.
-
-
-\subsubsection{WP6: Data/Knowledge/Software-Bases }
-
-In a series of workshops (September 2015 in Paris, January 2016 in
-St. Andrews, June 2016 in Bremen, and July 2016 in Bia{\l}ystok) the
-participants working on \WPref{dksbases} met and discussed the topic
-of integrating the \pn systems into a mathematical VRE toolkit.  Key
-results were
-\begin{compactitem}[\bf R1.]
-\item the observation that \emph{knowledge-aware interoperability of
-    software and database-systems is the most critical objective} for
-  \WPref{dksbases} in the \pn project.
-\item the consensus that this can be achieved by \emph{aligning the
-    mathematical knowledge underlying the various systems}.
-\end{compactitem}
-This requires explicitly representing the three aspects of math VREs
--- Data (D), Knowledge (K), and Software (S) -- and basing
-computational services and inter-system communication on a joint
-\DKS-base. These results are engrained in the ``Math-in-the-Middle''
-(MitM) paradigm~\cite{DehKohKon:iop16}, which gives a representational
-basis for specification-based interoperability of mathematical
-software systems -- so that they can be integrated in a VRE
-toolkit. In the MitM paradigm, the mathematical knowledge underlying
-the VREs (K) and the the interface of the for each system (S) are
-represented as modular theory graphs in the OMDoc/MMT format. For the
-data aspect (D) we have extended the concept of OMDoc/MMT theories to
-``virtual theories'' that allow the practical management of possibly
-infinite theories, see~\cite{ODK-D6.2} for details.
-
-A side effect of the \textbf{R1.} is that the verification aspects
-anticipated in the proposal are non-critical to the \pn project. In
-particular the value of the exemplary verification of an LMFDB
-algorithm in \taskref{dksbases}{data-LMFDB} and
-deliverable~\delivref{dksbases}{lfmverif} seems highly questionable.
-
-Correspondingly we have refined the notion of ``triformal theories''
-coined in the proposal into the concept of ``\DKS theory graphs'',
-which can be formalized and implemented without the extension of
-OMDoc/MMT for ``biformal theories'' anticipated in the proposal.
-
-Through the concerted effort of the WP6 participants, we have been
-able to implement this design into prototypical \DKS base patterned
-after the MitM paradigm with virtual theories, generating interface
-theory graphs for the \GAP and \Sage systems and integrating the
-\LMFDB system via the MitM codec architecture described
-in~\cite{ODK-D6.2}. Based on this, we were able to generically
-integrate \GAP, \Sage, and \LMFDB via the standardised SCSCP
-protocol~\cite{HorRoz:ossp09} -- essentially remote procedure calls
-with OpenMath Objects. This case study shows the feasibility of the
-initial design of \DKS-bases; further investigations and the
-integration of additional systems will determine the practicability.
+\include{WP2}
+\include{WP3}
+\include{WP4}
+\include{WP5}
+\include{WP6}
 
 \section{Risk management}
 \subsection{Recruitment of highly qualified staff}
