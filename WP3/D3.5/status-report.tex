@@ -24,12 +24,13 @@ creates certain barriers to entry for new contributors, especially those who
 are new to open source development.  Therefore we sought solutions to better
 integrate Sage's Trac-based workflow with platforms that are more modern and
 familiar to open source novices, such as \GitHub and \GitLab, without
-immediately breaking the Sage project's existing workflow.
-%
-\TODO{A footnote: upon writing the proposal, we envisioned using
-  SageMathCloud as development platform, hence the title of this
-  deliverable; see Section ... for a discussion.}
-%
+immediately breaking the Sage project's existing workflow.\footnote{Upon
+writing the proposal we envisioned using \SMC (now \cocalc) as a major
+development platform for Sage, hence the title of this deliverable.  However,
+while \cocalc remains quite viable for this purpose, it became evident that
+there was a need for solutions not explicitly tied to \cocalc.  See Section
+\ref{redesigned-work-plan} for discussion.}
+
 Nevertheless, we believe that this will also open the doors to long-term
 improvements in Sage's development workflow, as the advantages of using these
 new tools become more apparent.  Part of this work also serves as a
@@ -64,13 +65,8 @@ development platform and documentation:
 \end{enumerate}
 
 
-
-\hypertarget{changes-to-deliverable}{%
-\subsection{Changes to the deliverable\label{changes-to-deliverable}}}
-
-\TODO{improve the title: it is reporting on how we designed the work
-  plan for this deliverable; maybe something like ``redesigning the
-  work plan to best achieve the deliverable aim``}
+\hypertarget{redesigned-work-plan}{%
+\section{Redesigned work plan to best achieve the deliverable aim\label{redesigned-work-plan}}}
 
 This deliverable was originally entitled "Integration between SageMathCloud and
 Sage's TRAC server". The vision and rationale were as follows: Compiling Sage
@@ -100,31 +96,43 @@ general-purpose computing environment.  It was also unclear how many people
 were actually using \cocalc as their primary platform for Sage development,
 while it is certain that most of the core Sage developers are not doing so.
 
-\TODO{restructure a bit: give first the rest of the context (platforms
-  like github/gitlab getting traction, trac slowing down); then
-  conclude about the change of plan}
+Additionally, as previously noted, modern cloud-based code sharing and issue
+tracking sites such as \GitHub and \GitLab have been gaining incredible
+momentum, and almost anyone working on modern open source projects--be they
+veteran developers or novices--are likely to have encountered them and be
+familiar with them.  They are also backed by large companies and sponsors and
+are unlikely to go away soon.
+
+Meanwhile \Trac, while an excellent system and familiar to many developers who
+worked with it in the early 2000's, is showing its age.  The \Trac software has
+few active developers anymore, and relative difficulty of setting up a
+self-hosted Trac-based project (as opposed to the near zero effort of adding a
+project to cloud-based services) means very few new projects are adopting
+it.\footnote{The author of this report is a former developer of Trac, having
+contributed non-trivial feature enhancements and bug fixes, and authored
+numerous plug-ins to Trac.}
 
 Therefore it seemed a better focus of our efforts to open Sage's development
 workflow up to the use of more modern development platforms (see the next
 section for discussion of how we are integrating \GitLab into the workflow).
 We expect this will have benefits in the future--more modern development tools
 integrate well with services like \GitHub or \GitLab out-of-the-box, whereas
-\Trac, while an excellent system, is less and less popular, requiring extra
-work on the part of the Sage community to integrate into newer development
-tools.
+integrating development tools \Trac requires extra work on the part of the Sage
+community that might be better spent elsewhere.
 
-We have also had some discussion about how to integrate issue tracking and
+Finally, we have had some discussion about how to integrate issue tracking and
 source code contributions into VREs in general (not just \cocalc), and while no
-consensus has yet emerged as to what form this would take, it would most likely
-integrate best with modern code-sharing services like \GitHub and \GitLab.
+consensus has emerged as to what form this would take (Would one submit issues
+against a VRE? Against the libraries and software it uses?  Both?), it would
+most likely integrate best with modern code-sharing services.
 
 
 \hypertarget{description-of-the-achievements}{%
-\subsection{Description of the
+\section{Description of the
 achievements}\label{description-of-the-achievements}}
 
 \hypertarget{trac-github-login}{%
-\subsubsection{Login to Trac via GitHub usernames}\label{trac-github-login}}
+\subsection{Login to Trac via GitHub usernames}\label{trac-github-login}}
 A perennial problem in managing the Sage community's self-hosted \Trac site has
 been dealing with user registration and authentication.  As with many
 bug-tracking sites, Sage-Trac requires users to register and log into the site
@@ -173,7 +181,7 @@ providers, such as \GitLab and Google.
 
 
 \hypertarget{gitlab-trac-integration}{%
-\subsubsection{\GitLab-\Trac integration}\label{gitlab-trac-integration}}
+\subsection{\GitLab-\Trac integration}\label{gitlab-trac-integration}}
 
 While making it easier for new contributors to \Sage to log into its \Trac site
 eliminates one barrier to contribution, another barrier is learning its
@@ -208,8 +216,16 @@ this purpose we chose instead to focus on \GitLab--a competitor to \GitHub that
 provides a similar product, but with an {\em open core} business model, meaning
 that the majority of the software that runs the service \url{GitLab.com} is
 provided under an open source license, while the company maintains optional
-"enterprise" features under a separate proprietary license.  A few reasons we
-chose \GitLab for this purpose over \GitHub include:
+"enterprise" features under a separate proprietary license.
+
+A few reasons we chose \GitLab for this purpose over \GitHub \footnote{The
+choice of GitLab for hosting a Sage project may appear to stand in contrast
+with the previous section of this deliverable, which added authentication to
+Sage-Trac via {\em GitHub}.  However, as noted above, GitLab also allows
+authentication with GitHub accounts, taking advantage of GitHub's existing wide
+user base.  Therefore, we focused primarily on GitHub-based authentication.  In
+the future we would also like to add the ability for users to authenticate with
+Sage-Trac via GitLab, if there is demand for it.} include:
 
 \begin{enumerate}
 \item Many members of Sage's community have strongly-held political objections
@@ -258,16 +274,6 @@ mirror{\footnote{\url{https://gitlab.com/sagemath/sage}} of Sage's Git
 repository on GitLab, with the ability to accept contributions in the form of
 {\em merge requests}, which are the same as what GitHub calls "pull requests".
 
-\TODO{This note might come a bit late in the text; it could possibly
-  be a footnote earlier on. Or not.}
-Note: The choice of GitLab for hosting a Sage project may appear to stand in
-contrast with the previous section of this deliverable, which added
-authentication to Sage-Trac via {\em GitHub}.  However, as noted above, GitLab
-also allows authentication with GitHub accounts, taking advantage of GitHub's
-existing wide user base.  Therefore, we focused primarily on GitHub-based
-authentication.  In the future we would also like to add the ability for users
-to authenticate with Sage-Trac via GitLab, if there is demand for it.
-
 The challenge in opening up Sage to accepting contributions via GitLab was
 doing so in a way that did not significantly disrupt Sage's existing Trac-based
 development workflow and to make gradual introduction of a new kind of workflow
@@ -300,10 +306,6 @@ both), or in the form of a technical solution (e.g.~enhance the existing
 synchronization plug-in to synchronize discussions between the two sites; this
 is non-trivial, however).
 
-\TODO{it could be nice to mention that the author of this report is
-  also a Trac developer, which highlights that there is no personal
-  bias in the point of view expressed here.}
-
 Either way, there is prior art for this process of adopting a modern code
 sharing site while maintaining a legacy issue tracking system.  Most notably,
 the CPython project (the reference implementation of the Python language and
@@ -334,7 +336,7 @@ community.
 
 
 \hypertarget{source-in-documentation}{%
-\subsubsection{From Sage API documentation to source code contributions}\label{source-in-documentation}}
+\subsection{From Sage API documentation to source code contributions}\label{source-in-documentation}}
 
 As mentioned in the introduction, a selling point of Sage over closed-source
 mathematics software is easy access to the source code; the ability to actually
@@ -355,40 +357,44 @@ and usage examples that explain what different classes and functions do,
 sometimes browsing the source code helps get the full picture.
 
 To this end, we have
-added\footnote\url{https://trac.sagemath.org/ticket/25914}} two new hyperlinks
+added\footnote{\url{https://trac.sagemath.org/ticket/25914}} two new hyperlinks
 that appear in the headings of the API documentation for all classes, methods,
 functions, and other documented objects in Sage.
 
-\TODO{could we choose another screenshot, maybe of some function with
-  mathematical relevance, some mathjax formulae and examples?
-  Something we would be proud to highlight as good documentation?}
-
 \begin{figure}[!ht]
     \centering
-    \includegraphics{screenshots/source-links}
-    \caption{Source links for API documentation}
+    \includegraphics[width=\textwidth]{screenshots/source-links}
+    \caption{Example Sage API documentation with new source links.}
     \label{fig:source-links}
 \end{figure}
 
 The {\tt [source]} link displays the source code (in this case for the {\tt
-Integer} class) \TODO{SageObject in the current figre} in the context of the source file it's defined in, without
-leaving the Sage documentation site (\url{http://doc.sagemath.org}).  The
-second link, {\tt [edit on gitlab]}, is what partially motivates having a
+EuclideanDomains} class) in the context of the source file it's defined in,
+without leaving the Sage documentation site (\url{http://doc.sagemath.org}).
+The second link, {\tt [edit on gitlab]}, is what partially motivates having a
 mirror of the Sage repository hosted on GitLab, with the ability to accept
 merge requests, as described in the previous section.  This feature is inspired
 by a similar feature used by the Astropy project in its API
-documentation\footnote{e.g.~\url{http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html\#astropy.units.Quantity}}.
+documentation\footnote{See for example \url{http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html\#astropy.units.Quantity}}.
 
 This link opens the source file containing the object in question (e.g.~{\tt
-Integer}) in the source code browser for the Sage project on GitLab.  Users
-who are logged into, or who subsequently log into their GitLab accounts, then
-have the option to edit that source file directly in the browser using the
-web-based code editor provided by GitLab.  Because most users do not have
-permission to edit the Sage source code directly, when they save their changes
-this results in a Git commit to the user's personal copy of the repository,
-and a {\em merge request} is opened in the main Sage repository.  With the
-GitLab-Trac integration this also results in a ticket on Sage's Trac for the
-requested changes to the code and/or documentation.
+EuclideanDomains}) in the source code browser for the Sage project on GitLab
+(see Figure \ref{fig:edit-on-gitlab}).  Users who are logged into, or who
+subsequently log into their GitLab accounts, then have the option to edit that
+source file directly in the browser using the web-based code editor provided by
+GitLab.  Because most users do not have permission to edit the Sage source code
+directly, when they save their changes this results in a Git commit to the
+user's personal copy of the repository, and a {\em merge request} is opened in
+the main Sage repository.  With the GitLab-Trac integration this also results
+in a ticket on Sage's Trac for the requested changes to the code and/or
+documentation.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/edit-on-gitlab}
+    \caption{Editing Sage source code on GitLab via documentation link.}
+    \label{fig:edit-on-gitlab}
+\end{figure}
 
 In addition to API documentation, much of which is automatically generated from
 the source code, Sage also has a large amount of prose documentation in English
@@ -404,8 +410,8 @@ a reader of the documentation to proposing edits, we believe the will lead
 to more rapid quality improvements in Sage's documentation.
 
 
-\hypertarget{conclusion}{%
-\subsection{Conclusion}\label{conclusion}}
+\hypertarget{future-work}{%
+\section{Future work}\label{future-work}}
 
 \TODO{In the Jupyter notebook (aka VRE) link from Integer? and
   Integer?? to the corresponding help page; maybe direct links to edit
