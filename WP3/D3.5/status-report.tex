@@ -413,26 +413,79 @@ to more rapid quality improvements in Sage's documentation.
 \hypertarget{future-work}{%
 \section{Future work}\label{future-work}}
 
-\TODO{In the Jupyter notebook (aka VRE) link from Integer? and
-  Integer?? to the corresponding help page; maybe direct links to edit
-  on gitlab/sources. How far are we from it?}
+It is currently possible in Sage to view the documentation for an object
+directly from the Sage command prompt by entering the name of the object
+followed by a question mark (e.g.~{\tt Integer?}).  However, this is currently
+a plain-text representation of the object's documentation, and lacks the rich
+text features such as fully-rendered equations and images that Sage's web-based
+HTML documentation has.  Even in the web-based Jupyter Notebook environment,
+only the plain-text documentation is displayed; not the HTML documentation.
+The plain-text documentation displayed in the Sage console does not give any
+link to the richer HTML documentation; users have to know {\em a priori} that
+the HTML documentation exists, and to seek it out.
 
-\TODO{Discuss how this integrates naturally(?) in the VRE?}
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{screenshots/docs-console}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{screenshots/docs-web}
+    \end{subfigure}
+    \caption{Example of the plain-text documentation shown in the Sage console
+    versus the web-based documentation for the same object; we will make the
+    latter more accessible from the former, and directly accessible through the
+    notebook with greater ease.}
+    \label{fig:doc-format-comparison}
+\end{figure}
 
-\TODO{Once a PR has been created, make it easy for the author to
-  browse the generated documentation, from the PR page, ideally
-  with a direct link to the relevant doc page. Maybe access
-  the binder image too, without having to go through the trac ticket.
-}
+We realized upon completion of this deliverable that we should close the loop
+on that: The plain-text documentation displayed in the console should include a
+URL to the correct version of the online documentation for an object, so that
+it is easily discoverable by the user.  This would allow a complete path of
+using an object or function in Sage $ \longrightarrow $ viewing the in-place
+documentation for that object $ \longrightarrow $ viewing the online HTML
+documentation for the object $ \longrightarrow $ (if desired) editing the
+documentation and/or source code of that object and proposing changes back to
+the Sage project via \GitLab.  Furthermore, in the web-based Jupyter Notebook,
+there should be no need to display the plain-text documentation in the first
+place: When entering {\tt Integer?} in the notebook it should take the user
+directly to the relevant HTML documentation.
 
-\TODO{Future steps: simplify non only trivial contributions but also easy one (e.g. involving a code change);
-  possibly from a VRE (e.g. a jupyterhub):
-  - make sure that the %edit magic works
-  - in-place build of the library
-  - live reload???
-  - anything that could help create a PR/ticket from local modifications?
-  - inclusion of git-trac as sagemath package
-}
+In fact, the \Sage kernel for Jupyter already serves Sage's HTML documentation
+via a URL in the notebook, and which can be found through a "Help" menu.
+However, we do not yet have the ability to go directly from querying a specific
+object to displaying the HTML documentation for that object.  The user instead
+has to load the documentation from the "Help" menu and use the documentation's
+search feature to find the documentation for a specific object.  We believe
+no more than a few additional days of work should be necessary to close this
+disconnect.
+
+As a related issue, once a merge request has been created for a documentation
+change, the author would ideally like to browse a version of the documentation
+that includes their change.  Work done in
+\longdelivref{component-architecture}{multiplatform-buildbot} automates the
+process of producing a build of Sage, including its documentation, from each
+merge request that is opened on Sage's GitLab project, as well as for tickets
+created directly on Sage-Trac.  The result of this build, if it succeeds, is a
+Docker image containing the built version of Sage which the author of the merge
+request (or anyone else) may then run and try out online through cloud-hosted
+notebook services like Binder\footnote{\url{https://mybinder.org/}} or a
+JupyterHub\footnote{\url{https://jupyterhub.readthedocs.io/en/stable/}}
+instance.
+
+With this work we have made it easier to make simple contributions: in
+particular trivial documentation changes.  When adding large amounts of new
+code, or making significant modifications to existing code, one needs to be
+able to ensure that the code changes build successfully and pass the test
+suite. This remains an onerous process for Sage in particular, as one must
+set up the development environment and go through the lengthy build process.
+The work done in D3.8 will make it easier to (near) instantly launch a Sage
+development environment in a Docker container, as well as build new changes on
+top of it.  Streamlining the process of making source code edits, pushing those
+edits to GitLab, and obtaining and running working build of Sage based on those
+edits is an avenue for further investigation.
 
 
 %%% Local Variables:
