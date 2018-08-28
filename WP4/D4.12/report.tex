@@ -5,7 +5,14 @@
 \duedate{31/08/2018 (M36)}
 \author{Benjamin Ragan-Kelley, Vidar Tonaas Fauske, Marcin Kostur}
 
+\newcommand{\screenshot}[2]{
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
+  \caption{#2}
+\end{figure}}
+
 \begin{document}
+
 \maketitle
 \tableofcontents
 
@@ -15,77 +22,177 @@
 
 The \href{https://jupyter.org}{Jupyter Notebook} is a web application
 that enables the creation and sharing of executable documents
-containing live code, equations, visualizations and explanatory text.
+containing live code, equations, visualisations and explanatory text.
 In particular, Jupyter is used actively for interactive and exploratory computations,
-often involving visualization of data.
+often involving visualisation of data.
 
-Because Jupyter is a web-based application,
-it can benefit from developments in the wider community development of visualization tools for the web, in which there is a lot of activity.
-The primary task for developing visualization tools in Jupyter is providing tools for connecting
-"kernel" code, where the user's code runs,
-to visualization code running in the browser.
-Two-dimensional visualization in Jupyter is an area with popular and well-established tools
+Two-dimensional visualisation in Jupyter is an area with popular and well-established tools
 such as \href{https://matplotlib.org}{matplotlib}, \href{https://bokeh.pydata.org/}{bokeh}, and \href{https://altair-viz.github.io}{altair},
-but there have been fewer mature solutions for three-dimensional visualization in Jupyter.
+but there have been fewer mature solutions for interactive three-dimensional visualisation.
 It is an area of active exploration,
-so we first set out to identify the current state of the art for 3D visualization in Jupyter,
+so we first set out to identify the current state of the art,
 and determine where our efforts could best be placed.
-We did this in the form of a report on the landscape of 3D visualization in Jupyter in 2017.
+We did this in the form of a report on the landscape of 3D
+visualisation in Jupyter in 2017, see Appendix \ref{landscape}.
 
-The Jupyter ecosystem includes a collection of projects called `Jupyter Widgets,'
-which is a widely used system for providing bidirectional communcation
-between the kernel and the browser.
-The widgets provide a powerful and extensible system and we chose to use it as our basis for development of new visualization tools,
-and focused our efforts with existing tools on improving compatibility with the Jupyter Widgets system.
+Because Jupyter is a web-based application, it can benefit from the
+very active development, in the wider community, of browser-based
+interactive visualisation tools. Therefore, the primary task when
+developing visualisation tools for Jupyter is to connect `kernel'
+code, where the user's code runs, to visualisation code running in the
+browser. This is a standard need and the Jupyter ecosystem provides a
+powerful and extensible system for bidirectional communication between
+the kernel and the browser, which serves as foundation for a wide
+collection of interactive tools and projects for Jupyter called
+`Jupyter Widgets'.
 
-For this deliverable, we aim to accomplish two main tasks: To better
+We therefore naturally chose this foundation and focused our efforts
+on improving compatibility between existing browser-based tools and
+the Jupyter Widgets system.
+
+The aim of this deliverable was twofold: to better
 understand the existing landscape of community efforts for three-dimensional
-visualization in notebooks and to contribute where we may have the best
+visualisation in notebooks; and to contribute where we may have the best
 impact, whether it be in contributing to existing projects or creating new
 tools. We have accomplished both. In particular, we have helped improve the
 core Jupyter Widgets framework and the JupyterLab application, and we have
-developed new software in the K3D, ipyscales, ipydatawidgets, and others.
+developed new software in
+\href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter},
+\href{https://demo.logilab.fr/SciviJS/}{SciviJS},
+\href{https://github.com/vidartf/ipyscales}{ipyscales},
+\href{https://github.com/vidartf/ipydatawidgets}{ipydatawidgets},
+\href{https://github.com/vidartf/unray}{unray},
+and others projects.
 
+\TODO{verify PMs with Logilab and Silesia}
 
+Overall, \ODK contributed approximately 18 person-months to improving existing software in the community and delivering new software.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Impact}
+\section{Outcomes}
 
 We have developed several new software packages and contributed to the core Jupyter widget frameworks used by hundreds of thousands of people.
 
-\subsection{Report on the landscape of 3D visualization}\label{landscape}
+\subsection{Report on the landscape of 3D visualisation}\label{landscape}
 
 To identify where to most effectively put our efforts,
-we examined the landscape of existing 3D visualization projects,
+we examined the landscape of existing 3D visualisation projects,
 included in appendix \ref{landscape}.
 We observed several existing projects with various levels of maturity and activity, and different strengths and weaknesses.
-The primary conclusions of the report were that 1. \href{https://threejs.org}{three.js} is a good candidate as a common ground on which 3D visualization tools could be built because it is an active project and already in use by several tools, and 2. the Jupyter Widgets provide a good system for implementing communication between the Jupyter kernel and the browser.
+The primary conclusions of the report were that 1. \href{https://threejs.org}{three.js} is a good candidate as a common ground on which 3D visualisation tools could be built because it is an active project and already in use by several tools, and 2. the Jupyter Widgets provide a good system for implementing communication between the Jupyter kernel and the browser.
 This report helped us spend our efforts most effectively,
-but is a useful guide in its own right for observing the state of
+but is a useful guide in its own right for observing the state
+of 3D visualisation in Jupyter.
 
 
-\subsection{Improving core Jupyter tools}\label{improving-core}
+\subsection{Improving core Jupyter tools and infrastructure for visualisation}\label{improving-core}
 
-\TODO{Describe contributions to widgets, lead on pythreejs}
+There are a number of common aspects of 3D visualisation,
+which can be shared across 3D visualisation and other tools
+in the notebook.
+In order to maximize the impact of our work,
+we aimed to improve this infrastructure,
+both by contributing to existing packages and creating some new ones
+that should be broadly useful.
+
+Given the identification of three.js as a common denominator among visualisation tools
+we decided to pick up and finalize an existing effort to rewrite the package
+\emph{pythreejs}. The package allows for full 3D scene creation and management from the
+kernel. By rewriting the package to use auto-generation of code, a much larger
+part of the three.js API could be exposed to the kernel side, greatly extending
+its capabilities, and reducing the future maintenance burden. We also incorporated
+functionality into pythreejs to allow it serve as an extension
+point for other extensions, thereby being capable of serving as an interoperability
+platform between different libraries as well.
+\ODK members completed this effort and led the process of making a 1.0 release of the pythreejs package,
+and are now serving as a maintainer of the pythreejs package.
+
+One of the challenges with 3D visualisation in the browser of data originating from
+a possibly remote kernel is the efficient transfer of data between the two. To help
+solve this problem, the library \emph{ipydatawidgets} was created by \ODK. It incorporates
+best practices for the binary transfer of array data between the kernel and the browser,
+and for avoiding unnecessary retransmission of data. It also includes features to
+facilitate extensibility and interoperability between different consumers. In this
+manner, a dataset created or used by one package can easily be reused by another package,
+without extra resource usage.
+
+In order to reduce double-work across the fragmented landscape of visualisation
+libraries, an effort has also been made into creating high-quality, reusable
+components. This allows visualisation library authors to focus more on their
+unique features, while sharing the load of common tasks across multiple projects.
+This includes work on:
+
+\begin{itemize}
+\item a set of common 3D plotting components, e.g. a set of 3D grids/axes.
+\item a component for rending a color bar.
+\item utilities for creating and using colormaps.
+\item other scales for transforming data from one domain to another.
+\end{itemize}
+
+\TODO{Subfigures showing (a) 3D axes component, (b) color bar comp, (c) color map editor}
+
+We contributed to the existing jupyter-widgets (ipywidgets) and the widget cookie
+cutter project to make it easier to embed and share widgets with
+others. \ODK's contributions are namely:
+
+\begin{itemize}
+\item sharing an HTML conversion of the notebook including widgets.
+\item exporting certain widgets from a notebook to standalone HTML pages.
+\item including widgets in package/library documentation.
+\end{itemize}
+
+An effort has also been made by \ODK to help ease the creation and distribution of Jupyter widget libraries. This is critical in order to ease adaption of the visualisation libraries based on Jupyter widgets. Notable contributions include:
+\begin{itemize}
+\item work done on the widget cookie cutter projects, in order to simplify and standardize best practices for widget packaging. \ODK contributed to improving this existing project.
+\item the creation of an extension manager for JupyterLab, that also knows how to handle companion packages for kernels. \ODK contributed this functionality to the existing JupyterLab project.
+\end{itemize}
+
+As a result, all Jupyter widget authors can benefit from the work of \ODK,
+making it more efficient and accessible to create, distribute,
+and install custom Jupyter widget-based projects.
+
+\TODO{Screenshot of extension manager in jupyterlab showing 3D libraries}
+
 
 \subsection{Working with the community}\label{community}
 
-\TODO{ipyvolume, workshops}
+During the extent of the work task, we organized two workshops focused on 3D visualisation.
+One was at XFEL (22 June 2018) in relation to the \href{https://opendreamkit.org/2018/06/20/Hamburg-DisseminationWorkshop-SteeringMeeting/}{project meeting} and was meant to bring together the relevant stakeholders (developers and consumers) of the work. The other was held at the University of Silesia (16-19 July 2018), and focused on integration and interoperability between K3D-jupyter and other visualisation libraries.
 
-\subsection{New 3D visualization tools}\label{new-3d}
+Additionally, we participated in a community organized workshop on Jupyter widgets (23-26 January 2018, Ecole Polytechnique, Paris, France). The stated goal of this workshop was to "[g]et Jupyter Widgets developers to meet for a week of coding sessions with a few presentations" and to "[...] foster synergy, get everybody to meet, and resolve common issues".
 
-\TODO{Enumerate new packages}
+
+\subsection{New 3D visualisation tools}\label{new-3d}
 
 \subsubsection{K3D-jupyter}
 
-K3D-jupyter is a package which provides the fast and simple 3d
+K3D-jupyter is a package created by \ODK which provides the fast and simple 3d
 plotting tool in the Jupyter notebook. The primary aim of K3D is to be
 easy for use as stand alone package like matplotlib, but also to
 allow interoperation with existing libraries as VTK. The power of
 ipywidgets makes it also a fast and performant visualisation tool for
 HPC computing e.g. fluid dynamics.
 
+
+\subsubsection{unray}
+
+
+unray is a scientific visualisation package created by \ODK for Jupyter notebooks for displaying
+scalar data on unstructured tetrahedral meshes. It allows for various volumetric
+rendering modes, isosurface rendering, and segment rendering.
+It relies on pythreejs, and the reusable components outline above to handle
+user control and interaction beyond the specific needs of the volumetric
+rendering.
+
+\subsubsection{SciviJS}
+
+\href{https://demo.logilab.fr/SciviJS/}{SciviJS} is a new general javascript library
+developed by \ODK for visualising volumetric data.
+It is built on threejs, and enables GUI-based interactive exploration of mesh data
+on a regular webpage, without any special software.
+Additionally, a \emph{jupyter-scivijs} package enables using SciviJS from within
+Jupyter notebooks.
 
 \subsection{Lattice-Boltzmann visualisation}
 
@@ -97,19 +204,19 @@ it is very common to run the simulation on the remove GPU server using
 jupyter notebook interface.
 
 We have equipped K3D-jupyter package in few features which make the
-visualisation of boundary condidtions and fields in computational
+visualisation of boundary conditions and fields in computational
 fluid dynamics especially easy:
 
 \begin{itemize}
 \item We have added a native method for displaying voxel geometry,
   which performance and quality is appropriate for typical geometries
   in LBM.
-\item There are available standart functions for plotting vectors and lines.
-\item There exists specialized method for displaying crosss section of
+\item There are available standard functions for plotting vectors and lines.
+\item There exists specialized method for displaying cross section of
   a computational domain, optimized for real time update during the
   simulation (K3D.texture).
-\item Volume rendering is supported, which is very powerfull tool in
-  visualization of scalar fields.
+\item Volume rendering is supported, which is very powerful tool in
+  visualisation of scalar fields.
 \item K3D objects can be dynamically updated during the simulation.
 \end{itemize}
 
@@ -123,7 +230,7 @@ An important aspect of K3D development was to provide a tool for
 displaying live LBM simulation without any performance penalty. The
 classical approach was usually to store all fields to files for
 postprocessing done usually in software like paraview. Live inspection
-of data during a simualtion was very limited.  If one takes, a typical
+of data during a simulation was very limited.  If one takes, a typical
 simulation taking place on GPU, then it is not uncommon to have it
 running with 1 GLUPS (giga lattice updates per second) on modern
 hardware. It means that the full velocity field in each time iteration
@@ -134,66 +241,37 @@ dataset to the web-browser. We have experimented with two such
 methods: a slice of the data and tracer particles. In sailfish-cfd we
 have implemented a method which can on request do a 2d slice through
 the computational domain. The slice is done in GPU memory and at not
-point the whole dataset is transfered to the host. Then we fetch the
+point the whole dataset is transferred to the host. Then we fetch the
 slice and display the data using k3d.texture function. In this way it
 is possible to monitor a running simulation with very high refresh
-rate inside the Jupyter notebook. 
-
-
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{k3d_cfd2.png}
-  \caption{K3D visualization of fluid
-  dynamics. Boundaries are shown using a voxel object and tracers are
-  dynamically updated during simulation the notebook.}
-\end{figure}
- 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Implementation}
-
-The implementation of this work took the form of contributions to shared-infrastructure projects in the Jupyter ecosystem, as well as several new software packages.
-
-\subsection{K3D-jupyter}
-
-\href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter}
-
-The package K3D-jupyter is based on theejs as a front-end 3d library
-and ipywidgets (see fig. \ref{fig:pdep}) for communication.  There exists also
-experimental support for ipydatawidgets. 
+rate inside the Jupyter notebook.
 
 
 
-\subsection{pythreejs}
-
-\href{https://github.com/jupyter-widgets/pythreejs}{pythreejs}
-
-\subsection{unray}
-
-\subsection{ipydatawidgets and ipyscales}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \appendix
 \section{Screenshots}\label{screenshots}
 
-\newcommand{\screenshot}[2]{
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
-  \caption{#2}
-\end{figure}}
+\screenshot{unray-brain.png}{Unray visualisation of data on a human brain mesh.}
+\screenshot{scivijs.png}{SciviJS visualisation of a piston.}
 
-
-\screenshot{k3d_3.png}{K3D visualization in Jupyter. The K3D widget is
+\screenshot{k3d_3.png}{K3D visualisation in Jupyter. The K3D widget is
   mixed with a slider to make interactive animation of Sine-Gordon
   equation in 3d space.}
+
+\screenshot{k3d_cfd2.png}{K3D visualisation of fluid
+  dynamics. Boundaries are shown using a voxel object and tracers are
+  dynamically updated during simulation the notebook.}
+
 % \screenshot{pythreejs.png}{PyThreeJS scene in Jupyter}
 % \screenshot{unray}{Visualizing a mesh in Jupyter with unray}
-% \screenshot{scivijs}{Example of a visualization with scivijs}
-% \screenshot{ipyvolume-discretizedfield}{Micromagnetics visualization from \taskref{with ipyvolume}
+% \screenshot{scivijs}{Example of a visualisation with scivijs}
+% \screenshot{ipyvolume-discretizedfield}{Micromagnetics visualisation from \taskref{with ipyvolume}
 
 \clearpage
 \section{Landscape Report}\label{landscape}

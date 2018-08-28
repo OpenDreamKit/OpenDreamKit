@@ -1,0 +1,177 @@
+\documentclass{deliverablereport}
+
+\deliverable{component-architecture}{multiplatform-buildbot}
+\deliverydate{31/08/2018}
+\duedate{31/08/2018 (M36)}
+\author{Erik Bray, et. al.}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+In this report we look at what some OpenDreamKit-affiliated projects have
+achieved in the areas of continuous integration and multi-platform building and
+testing.
+
+Continuous integration (CI) in software development is a process whereby work
+performed by one or more developers on a software project is regularly merged
+together into a single, central software repository (referred to as the
+'mainline'), and the software built and tested with success or failure of the
+build reported quickly back to the developers of the project.  This helps to
+ensure that individual developers' changes do not conflict with each other or
+otherwise "break the build", and provides rapid feedback when breaking changes
+are introduced into the mainline.  Both the process, and the associated tools
+(e.g. automated continuous integration servers) are an essential part of the
+day-to-day work of developers on those projects that use it.
+
+Modern CI requires server infrastructure--at the very least one machine which
+is always running that both performs software builds and reports the results of
+those builds back to developers so that are kept regularly up-to-date on the
+"health" of the build.  For some projects-- especially those that support
+multiple software platforms--continuous integration infrastructure can involve
+a whole fleet of hardware systems, each of which perform builds and tests of
+the software and report results back to a "master server" which collates them
+into a single multi-platform build report for developers to examine.
+Unsurprisingly, as the CI needs of a project grow, so to does the size of its
+CI infrastructure, and the time, financial resources, and expertise required
+to maintain it.
+
+The \Sage project, being quite large both in terms of number of contributors
+and in terms of overall code base (and by extension the length of time required
+to build the software and run its test suite) has non-trivial CI needs, and to
+address this it has, over time, amassed a small multi-platform fleet of build
+machines as part of its "buildbot" infrastructure, as well as expertise needed
+to maintain that infrastructure.  One of the original aims of deliverable was
+to see if other projects under the OpenDreamKit umbrella could benefit from
+using Sage's buildbots, and thus achieve better multi-platform CI.
+Additionally, we would look into widening the set of platforms supported by
+Sage's buildbot infrastructure--in particular adding Windows builds to coincide
+with the Sage's newfound Windows support \TODO{reference D3.7 here}.
+
+In practice, the needs of the OpenDreamKit community as a whole with respect to
+multi-platform CI, and in particular the need for a "common infrastructure" for
+CI, did align with our original expectations, for reasons that are enumerated
+in the following section.  Nevertheless, significant achievements were made by
+OpenDreamKit projects in the area of CI, and there are lessons learned that we
+are communicating through this report in the hopes of future cross-polination
+on the subject.  Our experiences have also taught us that although there is not
+a one-size-fits-all solution to CI, there remains a clear need in the community
+for easier access to multi-platform build and development infrastructure,
+epecially for non-free operating systems such as Windows an Mac OSX.
+
+\hypertarget{changes-to-deliverable}{%
+\section{Changes in scope of the deliverable}\label{changes-to-deliverable}}
+
+% * Explosion in the last 5+ years in free CI services and integration into
+%   issue trackers (GitHub especially); fewer infrastructure requirements
+%   for most projects in this regard.
+%
+% * Different projects have different needs in this area; most can get by
+%   with advisory CI provided by free services.  For some, especially larger
+%   projects such as Sage and GAP, it is still useful to have additional
+%   CI for checking integrations between multiple changes across a larger
+%   matrix of platforms
+%
+% * Some projects simply have fewer cross-platform continuous integration
+%   needs; especially true of projects that are mostly numerical in nature
+%   such as linbox
+%
+% * Other projects can largely achieve multi-platform testing by making
+%   their project available in conda-forge, and reusing the conda-forge
+%   CI architecture [Julian may wish to say something about this, being
+%   more knowledgeable about it.]
+%
+% * Note issues with obtaining necessary hardware and software licenses for
+%   CI/build on non-free platforms: Windows, and ESPECIALLY OSX.
+%
+% Note: maybe Sage (specifically due to sage-the-distribution) is kind of
+% special among all other projects.
+%
+% Also worth noting that Sage provides implicit cross-platform build and and
+% testing for most OpenDreamKit projects and a large amount of other
+% mathematical software (dozens of packages).  While Sage's test suite does not
+% provide full test coverage for its dependent packages, it does exercise most
+% of them extensively.  In particular, Sage tests all its dependencies at the
+% system integration level (such as interaction between multiple processes,
+% and running multi-threaded computations); these are the areas where the most
+% platform-specific challenges arise, as opposed to purely numerical and
+% mathematical code.  In fact, the process of porting Sage to Windows, and
+% running Sage's tests on Windows \TODO{Reference D3.7} has led to the
+% discovery and fixing of these kinds of system-level issues in software such
+% as \GAP, ECL, and \PariGP among others.\TODO{Add links to those issues?}
+
+
+\hypertarget{project-reports}{%
+\section{Continuous integration achievements of OpenDreamKit projects}\label{project-reports}}
+
+\subsection{SageMath}
+
+% Julian should remark on his efforts here: In particular what problems
+% motivated his efforts, and how he thinks this will improve things in the
+% future.  Maybe make note here about producing Docker images as build
+% artifacts (TODO: confirm if GAP is doing this too), and further how
+% mybinder.org turns out to be a useful development tool in conjunction
+% with Dockerized builds.  Not sure how much to say about that here, or
+% leave it to the conclusion.
+
+\subsection{GAP}
+
+% Via Alex [can he write a couple paragraphs about this?]:
+% I will be ready to add a section with the overview of the current state of
+% continuous integration in GAP. In addition to the private Jenkins CI instance
+% that we use for wrapping and testing release candidates, checking for GAP
+% package updates and testing new versions of GAP packages, we now use Travis
+% CI to run a number of tests for the main GAP repositories at
+% https://travis-ci.org/gap-system/. These include not only CI test for the
+% main GAP development repository, but also package integration tests that use
+% a set of Docker containers build in various settings
+% (https://hub.docker.com/r/gapsystem/). We have a standard CI setup for GAP
+% packages, which package authors may adopt and customise. GAP packages using
+% Travis CI in the gap-packages VO can be seen at
+% https://travis-ci.org/gap-packages/ (some more at
+% https://gap-packages.github.io/). Also, GAP and packages use CodeCov to
+% measure code coverage: see https://codecov.io/gh/gap-system/gap for GAP and
+% https://codecov.io/gh/gap-packages/ for GAP packages.
+% 
+% @embray
+% > Much of the context to this deliverable is about multi-platform testing and
+% support. What aspect of our work addresses this? The Travis-CI builds for GAP
+% appear to be entirely, or at least almost entirely for Linux (@alex-konovalov
+% can clarify). I don't see any OSX builds, and Travis does not support
+% Windows.
+% Good point about Windows - forgot to mention that we also use AppVeyor:
+% https://ci.appveyor.com/project/gap-system/gap
+
+% About Linux vs macOS: package integration tests (all but one badges at
+% https://github.com/gap-system/gap-distribution) use Docker container, hence
+% use Linux. The core system tests used both Linux and macOS builds in the
+% past, but then were disabled because of performance problems:
+
+% https://github.com/gap-system/gap/blob/c8104cd056833f60c9f40efcb81b37b9cec76198/.travis.yml#L66
+
+% We have all three systems - Linux, Windows and macOS - available as Jenkins
+% nodes in St Andrews, so we find this to be satisfactory for the moment.
+
+
+\subsection{Singular}
+
+
+% Maybe ??
+
+\subsection{PARI}
+
+% Maybe ??
+
+\hypertarget{best-practices}{%
+\section{Lessons learned and best practices}\label{best-practices}}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
