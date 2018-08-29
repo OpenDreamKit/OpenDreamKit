@@ -17,37 +17,61 @@ The \href{https://jupyter.org}{Jupyter Notebook} is a web application
 that enables the creation and sharing of executable documents
 containing live code, equations, visualizations and explanatory text.
 One of the main uses of Jupyter is as an interactive computing environment,
-building interactive notebook documents.
+building interactive notebook documents (notebooks for short).
 \taskref{UI}{notebook-collab} is focused on improving the process of collaborating
 on Jupyter notebooks in the various ways researchers and educators use them.
 \delivref{UI}{jupyter-collab} improved collaborating on notebooks via traditional version-control systems.
 
-This deliverable aims to improve the process of ``live collaboration'' on notebook documents,
-where two authors on different computers are editing the same document at the same time,
-and they are kept in sync over the internet.
+This deliverable aims to improve the process of ``live collaboration'' on notebooks,
+where two authors on different computers are editing the same notebook at the same time,
+and they are kept in sync over the Internet.
 
 There have been prior efforts to enable live collaboration on notebooks,
 notably \href{https://colaboratory.google.com}{Google Colaboratory}
 and \href{https://cocalc.com}{CoCalc} (formerly SageMathCloud).
-These efforts added live collaboration on notebooks to an existing,
-fully hosted cloud service.
-CoCalc can be downloaded and run as free, open source software,
-but not integrated into existing deployments of notebooks.
-Our goal is to learn from these examples and build an official live collaboration implementation into the JupyterLab notebook application,
-so that it can be available to all Jupyter users,
-developed in collaboration with the Jupyter community.
+These efforts add live collaboration on notebooks to an existing,
+fully hosted cloud service (\cocalc can also be downloaded and run as
+free, open source software, but not integrated into existing
+hosted notebook servers).
 
+Our goal is to learn from these examples and build,
+in collaboration with the Jupyter community,
+an official live collaboration implementation into the JupyterLab notebook application,
+so that it can be available to all Jupyter users.
 
-The target usage scenario for this effort is two users having access to the same hosted notebook server, e.g. hosted with JupyterHub,
-being able to view and edit the document at the same time.
-Example applications include researchers co-authoring an analysis
+The target usage scenario for this effort is to enable live
+collaboration on notebooks whenever two or more users have access to the same hosted notebook server, e.g. hosted with JupyterHub.
+Example applications include researchers co-authoring an analysis,
 or an instructor helping a student through examples.
 This should require no additional infrastructure,
 and not rely on any commercial hosted service.
 In particular, it should be able to be used anywhere that Jupyter is already used,
 without opting into other systems.
-This last point will be the primary differentiator for the official Jupyter implemntation,
+This last point will be the primary differentiator for the official Jupyter implementation,
 as opposed to those currently existing in hosted services.
+We also aim to keep the additional runtime dependencies for the server component minimal:
+a Python runtime, already needed to run the Jupyter notebook implementation,
+and a nodejs runtime, already needed to run certain aspects of the JupyterLab application.
+No databases or external services will be required.
+
+Existing real-time collaboration implementations have had to heavily
+modify or entirely re-implement the Jupyter notebook client application in order to achieve real-time collaboration.
+This can lead to a maintenance burden,
+attempting to keep modifications working with updates to the Jupyter software
+as the two projects diverge.
+Delivering a working real-time collaboration implementation in JupyterLab itself
+should allow projects similar to (or possibly including) \cocalc
+to have real-time collaboration with less effort,
+even if they choose to keep their own implementation.
+The basis of both the server- and client-side should be reusable
+both inside and outside JupyteLab,
+enabling real-time collaboration on documents other than notebooks
+and outside the Jupyter ecosystem.
+
+While the focus of this implementation is to sync two users with access to the same notebook server,
+decoupling the real-time server from the notebook server could allow
+collaboration on documents shared across implementations.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -69,11 +93,9 @@ This work was carried out in close collaboration with the Jupyter developer comm
 There are many participants in this effort, and \ODK has contributed approximately
 three person-months to the design and implementation of real-time collaboration in JupyterLab.
 
-\TODO{Ensure reasonable scale of PDF fig, maybe adjust font size?}
-
 \begin{figure}[h]
   \centering
-  \includegraphics[scale=0.6]{lab-RTC.pdf}
+  \includegraphics[width=.9\textwidth]{lab-RTC.pdf}
   \caption{A schematic overview of the currently planned real time collaboration components.
     Light blue components should be implemented in JupyterLab, while the beige
     components (CRDT models) should be implemented in PhosphorJS.}
@@ -87,9 +109,13 @@ for broadcasting these changes to other consumers; a wire protocol for broadcast
 changes and requesting history over the network; and a notebook server extension for broadcasting changes. See Figure~\ref{fig:rtc-components} for a schematic overview.
 
 So far, the wire format for communicating and requesting changes and history has been
-agreed, and proof of concept implementations for the transmission and receipt of the
+agreed upon, and proof of concept implementations for the transmission and receipt of the
 wire format have been completed. Work is ongoing in the PhosphorJS project to implement
 efficient client side CRDTs.
+The CRDT implementation will not be restricted to Jupyter notebooks.
+Any document-editing in JupyterLab, or built on the same APIs will be able to
+support real-time collaboration via this system,
+extending our possible impact beyond users of Jupyter notebooks.
 
 
 \section{Challenges and status}
@@ -97,7 +123,7 @@ efficient client side CRDTs.
 The biggest challenge for \ODK participation in JupyterLab is that it is a large collaboration, driven by many interests,
 often where one task must wait for another to be completed.
 Real-time collaboration is of interest to many involved,
-but relies on significant changes of underlying datastructures in JupyterLab before implementation can proceed.
+but relies on significant changes of underlying data structures in JupyterLab before implementation can proceed.
 
 While we have not yet delivered a fully working production implementation of real-time collaboration,
 we have laid the groundwork and assembled prototypes and an implementation plan
