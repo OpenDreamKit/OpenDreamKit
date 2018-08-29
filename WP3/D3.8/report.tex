@@ -185,13 +185,94 @@ for later...?}
 
 \subsection{SageMath}
 
-% Julian should remark on his efforts here: In particular what problems
-% motivated his efforts, and how he thinks this will improve things in the
-% future.  Maybe make note here about producing Docker images as build
-% artifacts (TODO: confirm if GAP is doing this too), and further how
-% mybinder.org turns out to be a useful development tool in conjunction
-% with Dockerized builds.  Not sure how much to say about that here, or
-% leave it to the conclusion.
+The SageMath project had traditionally employed two distinct CI systems, the
+Buildbot and Sage's own development, the
+patchbot\footnote{\url{https://github.com/sagemath/sage-patchbot}}.
+
+\subsubsection{Buildbot and patchbot}
+Sage's Buildbot runs as a non-advisory CI system on a wide variety of
+platforms. It builds Sage and runs its test suite for every change that gets
+accepted into the mainline of the Sage code. Its main purpose is not to be an
+advisory tool for developers but to catch problems and incompatibilities of
+Sage or its dependencies, in particular on more obscure platforms that
+dependent projects do often not test for. Due to the vast range of platforms
+covered, the Buildbot can not realistically be turned into an advisory CI
+system as it is not conceivable to provision and administer the number of
+machines that would be necessary to run Sage's test suite at every stage of a
+test that gets proposed by a developer.
+
+Therefore, the Sage community at some point developed its own patchbot system
+which runs Sage's test suite at every stage of a proposed change. Anybody can
+run a patchbot on their private computer, typically a Linux system. These
+patchbots will then look for proposed changes to Sage, run Sage's test suite,
+and report findings back to a central server. It is worth noting that the
+patchbot system predates most of the currently popular CI systems.
+
+The patchbot system comes with a number of issues: It is not nearly as polished
+as the professional offerings which means that its workings can often be
+confusing and that it also requires continuous maintenance and development from
+the SageMath community and by those that run the patchbots on their private
+machines. The fact that it is running on private machines means that due to
+load, connectivity issues, and other temporary issues on these machines, the
+patchbots are very frequently reporting false positives. This noise can be very
+frustrating as it makes the patchbot system unreliable and in particular harder
+to understand for new contributors. Finally, due to limitations of the patchbot
+architecture, not all types of changes can be tested, in particular it can not
+test changes that involve dependent software packages. This can be frustrating
+as testing such changes is often the most time consuming task for developers
+and it would be particularly nice to give such tasks away to a CI system.
+
+\subsubsection{Modern CI with GitLab CI and CircleCI}
+To fix these issues we were looking at best pratices that would give the
+SageMath community fast, reproducible, reliable CI with minimal maintenance and
+continuous development necessary to keep the CI working for everybody.  We
+settled for GitLab CI, a modern open-source CI system, and CircleCI, a popular
+closed-source system. Which one to use is up to each developer. For simplicity
+we focus on GitLab CI here. GitLab CI typically uses docker containers as its
+backend (but it can also be based on many other technologies.) These containers
+are essentially virtual machines that can be hosted in a central location but
+also on private computers. Unlike in the patchbot systems, docker containers
+are standardized and isolated so that there is usually no issue of false
+positives. % note that I do not distinguish between docker containers and
+% images; I think it's more confusing to the reader to make such a distinction.
+
+GitLab CI now runs a "pipeline" for every change proposed by a developer.
+\TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
+This pipeline goes in stages. In the setup for SageMath, the first stage builds
+several flavors of docker container which contain a built version of Sage. The
+second stage runs tests on these containers. Finally the docker containers from
+the first stage are made publicly available.
+
+It should be noted that the first stage is where most complications for Sage
+arise. Building Sage takes several hours on most machines, so a lot of effort
+went into speeding this up in a sane and reproducible way to about 10 minutes.
+Also, we try to make the resulting docker containers as small as possible. This
+speeds up the whole CI pipeline and also makes it easier for developers to
+download these containers; in typical cases they only have to download a few MB
+to get a hold of the docker container.
+
+\subsubsection{Use Cases of Docker Containers}
+Having these docker containers readily available as a by-product of our CI turned out to be very valuable.
+\TODO{Maybe insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/dockerhub.png} here.}
+
+It means that recent stable \& unstable versions of Sage are automatically made
+available for anybody to work with, without the need of having to understand
+how to build Sage on their machine.
+
+Sage developers can use these to reproduce and understand issues
+reported by the CI system. Simply by downloading the container and running the
+Sage contained in that container.
+
+Projects that depend on Sage can use these docker containers for their own CI
+needs and run their tests based on these containers. Without such docker
+containers, most such projects would refrain from using CI as setting up Sage
+in a CI system appeared to be too complicated.
+
+Sage (and projects depending on Sage) can link to these containers through
+mybinder.org \TODO{link to something, maybe screenshot something?} to make
+different versions of their systems available through public web interfaces.
+This means that anybody can easily experiment with the latest unreleased
+features in a web browser without having to go through any local installation.
 
 \subsection{GAP}
 
