@@ -24,86 +24,160 @@ together into a single, central software repository (referred to as the
 'mainline'), and the software built and tested with success or failure of the
 build reported quickly back to the developers of the project.  This helps to
 ensure that individual developers' changes do not conflict with each other or
-otherwise "break the build", and provides rapid feedback when breaking changes
+otherwise ``break the build'', and provides rapid feedback when breaking changes
 are introduced into the mainline.  Both the process, and the associated tools
 (e.g. automated continuous integration servers) are an essential part of the
 day-to-day work of developers on those projects that use it.
 
-Modern CI requires server infrastructure--at the very least one machine which
+Modern CI requires server infrastructure -- at the very least one machine which
 is always running that both performs software builds and reports the results of
 those builds back to developers so that are kept regularly up-to-date on the
-"health" of the build.  For some projects-- especially those that support
-multiple software platforms--continuous integration infrastructure can involve
+``health'' of the build.  For some projects --  especially those that support
+multiple software platforms -- continuous integration infrastructure can involve
 a whole fleet of hardware systems, each of which perform builds and tests of
-the software and report results back to a "master server" which collates them
+the software and report results back to a ``master server'' which collates them
 into a single multi-platform build report for developers to examine.
 Unsurprisingly, as the CI needs of a project grow, so to does the size of its
-CI infrastructure, and the time, financial resources, and expertise required
-to maintain it.
+CI infrastructure, and the time, financial resources, and expertise required to
+maintain it.
 
 The \Sage project, being quite large both in terms of number of contributors
 and in terms of overall code base (and by extension the length of time required
 to build the software and run its test suite) has non-trivial CI needs, and to
 address this it has, over time, amassed a small multi-platform fleet of build
-machines as part of its "buildbot" infrastructure, as well as expertise needed
-to maintain that infrastructure.  One of the original aims of deliverable was
-to see if other projects under the OpenDreamKit umbrella could benefit from
-using Sage's buildbots, and thus achieve better multi-platform CI.
-Additionally, we would look into widening the set of platforms supported by
-Sage's buildbot infrastructure--in particular adding Windows builds to coincide
-with the Sage's newfound Windows support \TODO{reference D3.7 here}.
+machines as part of its ``buildbot'' infrastructure (based on the
+Buildbot\footnote{\url{https://buildbot.net/}} CI software framework), as well
+as expertise needed to maintain that infrastructure.  One of the original aims
+of deliverable was to see if other projects under the OpenDreamKit umbrella
+could benefit from using Sage's buildbots, and thus achieve better
+multi-platform CI.  Additionally, we would look into widening the set of
+platforms supported by Sage's buildbot infrastructure -- in particular adding
+Windows builds to coincide with the Sage's newfound Windows support
+\TODO{reference D3.7 here}.
 
 In practice, the needs of the OpenDreamKit community as a whole with respect to
-multi-platform CI, and in particular the need for a "common infrastructure" for
-CI, did align with our original expectations, for reasons that are enumerated
-in the following section.  Nevertheless, significant achievements were made by
-OpenDreamKit projects in the area of CI, and there are lessons learned that we
-are communicating through this report in the hopes of future cross-polination
-on the subject.  Our experiences have also taught us that although there is not
-a one-size-fits-all solution to CI, there remains a clear need in the community
-for easier access to multi-platform build and development infrastructure,
-epecially for non-free operating systems such as Windows an Mac OSX.
+multi-platform CI, and in particular the need for a ``common infrastructure''
+for CI, did align with our original expectations, for reasons that are
+enumerated in the following section.  Nevertheless, significant achievements
+were made by OpenDreamKit projects in the area of CI, and there are lessons
+learned that we are communicating through this report in the hopes of future
+cross-polination on the subject.  Our experiences have also taught us that
+although there is not a one-size-fits-all solution to CI, there remains a clear
+need in the community for easier access to multi-platform build and development
+infrastructure, epecially for non-free operating systems such as Windows an Mac
+OSX.
 
 \hypertarget{changes-to-deliverable}{%
 \section{Changes in scope of the deliverable}\label{changes-to-deliverable}}
 
-% * Explosion in the last 5+ years in free CI services and integration into
-%   issue trackers (GitHub especially); fewer infrastructure requirements
-%   for most projects in this regard.
-%
-% * Different projects have different needs in this area; most can get by
-%   with advisory CI provided by free services.  For some, especially larger
-%   projects such as Sage and GAP, it is still useful to have additional
-%   CI for checking integrations between multiple changes across a larger
-%   matrix of platforms
-%
-% * Some projects simply have fewer cross-platform continuous integration
-%   needs; especially true of projects that are mostly numerical in nature
-%   such as linbox
-%
-% * Other projects can largely achieve multi-platform testing by making
-%   their project available in conda-forge, and reusing the conda-forge
-%   CI architecture [Julian may wish to say something about this, being
-%   more knowledgeable about it.]
-%
-% * Note issues with obtaining necessary hardware and software licenses for
-%   CI/build on non-free platforms: Windows, and ESPECIALLY OSX.
-%
-% Note: maybe Sage (specifically due to sage-the-distribution) is kind of
-% special among all other projects.
-%
-% Also worth noting that Sage provides implicit cross-platform build and and
-% testing for most OpenDreamKit projects and a large amount of other
-% mathematical software (dozens of packages).  While Sage's test suite does not
-% provide full test coverage for its dependent packages, it does exercise most
-% of them extensively.  In particular, Sage tests all its dependencies at the
-% system integration level (such as interaction between multiple processes,
-% and running multi-threaded computations); these are the areas where the most
-% platform-specific challenges arise, as opposed to purely numerical and
-% mathematical code.  In fact, the process of porting Sage to Windows, and
-% running Sage's tests on Windows \TODO{Reference D3.7} has led to the
-% discovery and fixing of these kinds of system-level issues in software such
-% as \GAP, ECL, and \PariGP among others.\TODO{Add links to those issues?}
+In the last five years there has been a rise in free (especially for open
+source) cloud-based continuous integration services that integrate closely with
+source code hosting platforms like \GitHub and \GitLab.  This has precipitated
+both an increase in use of CI as a best practice in the software community,
+though conversely a decrease in the need for self-hosted and self-managed CI
+infrastructure such as Sage's buildbots.
+
+Although free-for-open-source cloud-based services were in use before the start
+of OpenDreamKit\footnote{The popular Travis CI service saw rapid growth in
+2012: \url{https://blog.travis-ci.com/2012-12-17-numbers/}}, there has been an
+explosion in the number of services, including among others Travis CI,
+CircleCI, AppVeyor, and now Microsoft has entered the field with its new
+version of Visual Studio Team Services (VSTS).  For example, by their own
+estimate\footnote{\url{https://blog.travis-ci.com/2016-07-28-what-we-learned-from-analyzing-2-million-travis-builds/}}in
+2016 Travis CI was in use by nearly a third of active GitHub projects.  Without
+the existence of these free services, most projects -- especially smaller
+ones -- would not have the resources to maintain CI infrastructure even if they
+wanted to.
+
+Another advantage of services that integrate with \GitHub is that it enables a
+particular type of continuous integration sometimes referred to as ``advisory
+CI''.  This contrasts with traditional CI, wherein all developers on a project
+are allowed to push changes to a central version control system, and the CI
+system builds from that shared ``mainline''.  This means that a developer
+pushes a change that breaks the code, while a correctly functioning CI system
+should catch this bug fairly quickly, in the meantime the code is ``broken''
+for all other developers on the project.
+
+However, in distributed, open source projects like those hosted on \GitHub or
+\GitLab, one does not want to give just anyone permission to push changes to
+the mainline.  Instead, most developers submit {\em pull requests} -- a change
+proposal that is not immediately merged into the mainline, but which a project
+administrator with sufficiently high authority can pull changes from pull
+requests into the mainline only after they have been reviewed and deemed
+acceptable and sufficiently stable.  Advisory CI can help immensely in
+determining when a proposed pull request is ``sufficiently stable''.  Under
+this model the CI framework takes the latest version of the project's mainline,
+applies the proposed changes on top of it (if possible -- if not the build is
+rejected), and then attempts building the code and running its test suite with
+just those changes applied.  If this works, then one can have reasonable
+confidence (after a manual code review, and acceptance of the change on its
+merits) that the change is safe to include in the mainline.  This is not a
+silver bullet: it is possible that two mutually independent pull requests can
+pass through the CI system on their own, but conflict with each other in a way
+that is only apparent after they have been merged into the mainline.  In this
+case one has the traditional CI problem of a ``broken build''.  But this
+scenario is relatively uncommon, especially in well-structured projects.
+
+Therefore, between the relative ease of setting up free continuous integration
+systems for use on one's project, and the added convenience advisory CI that
+integrates directly with the project's issue tracker, there is relatively
+little demand for self-managed CI infrastructure such as that used for Sage.
+However, there is still the question -- anticipated by the original proposal
+for this deliverable -- of multi-platform continuous integration.  In fact,
+this is also reasonably well-covered by free CI services.  While most services
+provide building and testing of software on Linux distributions, some also have
+fleets of different non-free OSes (e.g.~Travis CI supports builds on Mac OSX,
+while AppVeyor is popular for its Windows support).  For projects wishing to
+achieve some multi-platform support -- especially across those three major OSes
+-- they can do so by configuring a combination of CI services for the project,
+and many projects do just this.
+
+In practice though, multi-platform CI has not has as much demand as we
+anticipated.  Many mathematical software projects do not have a great deal
+system-specific code, and are mostly numerical in nature (e.g.~C++ libraries
+such as \Linbox and \Givaro), and have relatively little need for
+multi-platform testing.  While platform-specific issues can still arise in such
+software, it is not always typical enough to merit the extra overhead of
+multi-platform testing.  When platform-specific issues do arise, it is more
+common for them to occur when building the project, rather than at run time.
+To this end, the \Sage project is already providing implicit cross-platform
+build testing for many projects; see the next section for details.
+
+\TODO{Say something here about conda-forge?}
+
+\subsection{Sage remains a special case}
+In Sage's case it is still useful, for now, to have the self-managed
+infrastructure due to the unique nature of Sage and the fact that it includes
+and entire software distribution.  Its builds can take a very long time and run
+up against limits imposed by the free services, and it is also useful to test
+Sage across a wide number of platforms due to the likelihood of
+platform-specific build issues across its more than 150 dependencies.
+
+It is also worth noting that being a software distribution comprising so many
+components, Sage is providing implicit cross-platform build and runtime testing
+OpenDreamKit-affiliated projects and dozens of other mathematical software
+systems.  While Sage's test suite does not provide full test coverage for its
+dependent packages, it does exercise most of them extensively.  In particular,
+Sage tests all its dependencies at the system integration level (such as
+interaction between multiple processes, and running multi-threaded
+computations); these are the areas where the most platform-specific challenges
+arise, as opposed to purely numerical and mathematical code.  In fact, the
+process of porting Sage to Windows, and running Sage's tests on Windows
+\TODO{Reference D3.7} has led to the discovery and fixing of these kinds of
+system-level issues in software such as \GAP, ECL, and \PariGP among
+others.\TODO{Add links to those issues?}
+
+That said, there were also areas for improvement identified with Sage's
+existing CI practices, especially with regard for its relatively unreliable
+home-grown advisory CI system.  It was also realized that the now wide
+availability of Docker as a tool for CI could be leveraged to both improve
+Sage's CI practices, and make possibly make Sage development easier.  This
+work is discussed further in the next section.
+
+
+\TODO{Note issues with obtaining necessary hardware and software licenses for
+CI/build on non-free platforms: Windows, and ESPECIALLY OSX?  Or save that
+for later...?}
 
 
 \hypertarget{project-reports}{%
@@ -170,6 +244,17 @@ epecially for non-free operating systems such as Windows an Mac OSX.
 \hypertarget{best-practices}{%
 \section{Lessons learned and best practices}\label{best-practices}}
 \end{document}
+
+\TODO{This section might summarize some key bullet-points from the previous sections.}
+
+\TODO{We might want an additional section to discuss future work.  In
+particular, Nicolas and I discussed the possibility of getting in touch with
+EGI and seeing if we might be able to use EGI-provided resources for a
+multi-platform cloud environment specifically for use by open source
+mathematics projects.  In particular we would want this to be provided in such
+a way that it isn't restricted to projects that are strictly European by nature
+(or maybe at the most have some European grant or contributors associated with
+it).}
 
 %%% Local Variables:
 %%% mode: latex
