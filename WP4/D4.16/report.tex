@@ -113,30 +113,40 @@ their own pet objects.
 
 In this report, we pursue two directions.
 
-In Section~\ref{section:combi}, we explore the development of widgets for the
-graphical visualization of combinatorial objects.
-The choice of this area of mathematics was, to some extent
-out of personal interest and expertise, but more importantly because
-devising good representations -- mental images -- of discrete objects
-is at the heart of research in combinatorics. In Section~\ref{grid},
-we report on the implementation in SageMath of a generic widget for
-objects that admit a representation as a collection of cells on a 2D
-grid, and specializations for typical objects such as partitions,
-tableaux, polyominos, aztec diamonds, mazes.
+In Section~\ref{section:combi}, we explore the development of widgets
+for the graphical visualization in combinatorics -- or more generally
+discrete mathematics. The choice of this area of mathematics was, to
+some extent out of personal interest and expertise, but more
+importantly because devising good representations -- mental images --
+of discrete objects is at the heart of research in combinatorics. We
+start by reviewing in Section~\ref{section:francy} the GAP package
+\href{https://github.com/mcmartins/francy}{Francy} which currently
+explores the natural use case of objects that admit a graph-like
+representation: trees, graphs, lattices of subgroups, crystals,
+posets, discrete markov chains, just to name a few. At this stage, ODK
+has a light contribution to the development of this package, through
+the supervision(?) of ODK's member Markus Pfeiffer. We highlight the
+lessons learned there and describe upcoming collaboration toward
+bringing Francy\'s features to SageMath.
 
-\TODO{screenshot(s) of widgets displaying all of the above}
+Then, in Section~\ref{section:grid}, we report on the implementation
+in SageMath of a generic widget for objects that admit a
+representation as a collection of cells on a 2D grid, and
+specializations for typical objects such as partitions, tableaux,
+polyominos, aztec diamonds, mazes. One aspect which we explore beyond
+Francy is not only \emph{interactive visualization} but also
+\emph{interactive edition}, where the underlying mathematical object
+gets changed by the user gestures. This is the occasion to explore the
+flexibility of the the design patterns emerging from Francy.
 
-Another natural use case in combinatorics -- or more generally
-discrete mathematics -- are objects that admit a graph-like
-representation (trees, graphs, lattices of subgroups, crystals,
-posets, discrete markov chains, to name a few). This use case is being
-explored by the authors of the GAP package
-\href{https://github.com/mcmartins/francy}{francy} under the
-supervision(?) of ODK's member Markus Pfeiffer. Although ODK's
-contribution in this direction is lightweight(?) at this stage, we
-briefly report in Section~\ref{francy} on this use case to highlight
-the lessons learned there and describe upcoming collaboration toward
-bringing francy\'s features to SageMath.
+The choice of this use case was motivated by two important features:
+\begin{itemize}
+\item the visualization part is relatively simple making it a good
+  case for prototyping;
+\item the potential impact is high due to the large number of objects
+  covered, bringing in opportunities for testing how users manage to
+  to adapt our generic tools for their own pet objects;
+\end{itemize}
 
 In a second direction, we explore in
 Section~\ref{section:sage-explorer} the use of Jupyter widgets not only
@@ -161,7 +171,8 @@ expertise, but from the experience we gained, we are confident that it
 lends itself well to the implementation of generic widgets by power
 users that can be specialized by casual users and used by novices.
 
-Three main challenges arise along the way:
+Three main challenges arise along the way which we will continue to
+explore and tackle during the last year of OpenDreamKit:
 \begin{itemize}
 \item Implementing visualization widgets is time consuming and
   requires specific expertise that developers of computer algebra
@@ -216,6 +227,62 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
 
 \section{Interactive visualization of combinatorial objects}
 \label{section:combi}
+
+\subsection{Francy: an Interactive Discrete Mathematics Framework for GAP}
+\label{francy}
+
+Francy is a package for interactive visualisation in discrete
+mathematics. It's developed mainly by Manuel Martins, with supervision
+by ODK's member Markus Pfeiffer. For now, Francy has been focusing on
+the interactive visualisation of objects that admit a graph-like
+representation (trees, graphs, ...). Features include for example
+zoom-and-pan, moving nodes, clustering, menus for
+activating/deactivating interactions, etc. Those are basic interactive
+graph drawing features and are not particularly impressive by
+themselves: after all, interactive graph drawing and editing has been
+the subject of a whole community, with series of conferences such as
+the \emph{International Symposium on Graph Drawing and Network
+  Visualization}, and acclaimed tools like \lstinline{graphviz}. What
+makes Francy stand is \TODO{...}
+
+\TODO{somewhere: macaulay's package}
+
+At this stage, Francy is a package for the GAP computer algebra
+system. However its features would be extremely valuable for other
+systems and in particular \Sage. Also Francy uses Jupyter Widgets as
+GUI framework and \href{d3js.org}{D3JS javascript library} library for
+visualisation. %which manipulates the browser DOM for the graphical display itself
+While those are flourishing technologies that are promising for the
+years to come, lessons learned the hard way from the past (e.g. within
+the xgap project) shows that, at the scale of decades, GUI and
+visualization frameworks change at a faster pace than computational
+systems and visualization needs.
+
+To tackle these two tensions, Francy has taken the approach of
+decoupling itself from the computational system and from the GUI
+framework and visualization libraries. It does this by introducing an
+intermediate layer of semantic models of what graphical
+representations are. With this approach, integrating a new
+computational system reduces to providing a backend describing the
+desired graphical representations for its mathematical objects in the
+semantic model. Similarly, integrating GUI framework reduces to
+providing a frontend describing how to concretely render and interact
+with the graphical representations from the model. In practice, the
+graphical representations take the form of JSON data that is passed
+back and forth between the computational system and the browser.
+
+In the upcoming year, we plan to collaborate tightly with Francy to:
+\begin{itemize}
+\item Bring Francy's features to \Sage by implementing a backend. This
+  would finally bring a solution to a long time yet pressing need of
+  the community that was so far only partially fulfilled by
+  unsustainable prototypes.
+\item Get inspiration to derive a similar decoupling for objects
+  admitting a grid view, with a Sage backend, a semantic model, and a
+  Jupyter/JS frontend.
+\item Contribute the models and frontends to Francy, making the
+  features available to GAP.
+\end{itemize}
 
 \subsection{A generic widget for objects with a grid-like representation}
 \label{grid}
@@ -315,54 +382,6 @@ progressively into SageMath.
   \item Attending local seminars at \emph{Laboratoire de Recherche Informatique} or/and \emph{\href{https://www.lix.polytechnique.fr/}{Laboratoire d'Informatique de l'École Polytechnique}}
   \item Release some implementation examples for a few object types ; write a tutorial on how to write your own ; invite users to write feedback, either on the development mailing list, or on the  project \emph{sage-combinat-widgets} issues interface
   \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
-\end{itemize}
-
-\subsection{francy: an Interactive Discrete Mathematics Framework for GAP}
-\label{francy}
-
-Francy is a package for interactive visualisation in discrete
-mathematics. It's developed mainly by Manuel Martins, with supervision
-by ODK's member Markus Pfeiffer. For now, Francy has been focusing on
-the interactive visualisation of objects that admit a graph-like
-representation (trees, graphs, ...). Features include zoom-and-pan,
-moving and editing nodes, clustering, menus for
-activating/deactivating interactions, etc.
-
-At this stage, Francy is a package for the GAP computer algebra
-system. However its features would be extremely valuable for other
-systems and in particular \Sage. Also Francy uses Jupyter Widgets as
-GUI framework and \href{d3js.org}{D3JS javascript library} library for
-visualisation. %which manipulates the browser DOM for the graphical display itself
-While those are flourishing technologies that are promising for the
-years to come, lessons learned the hard way from the past (e.g. within
-the xgap project) shows that, at the scale of decades, GUI and
-visualization frameworks change at a faster pace than computational
-systems and visualization needs.
-
-To tackle these two tensions, Francy has taken the approach of
-decoupling itself from the computational system and from the GUI
-framework and visualization libraries. It does this by introducing an
-intermediate layer of semantic models of what graphical
-representations are. With this approach, integrating a new
-computational system reduces to providing a backend describing the
-desired graphical representations for its mathematical objects in the
-semantic model. Similarly, integrating GUI framework reduces to
-providing a frontend describing how to concretely render and interact
-with the graphical representations from the model. In practice, the
-graphical representations take the form of JSON data that is passed
-back and forth between the computational system and the browser.
-
-In the upcoming year, we plan to collaborate tightly with Francy to:
-\begin{itemize}
-\item Bring Francy's features to \Sage by implementing a backend. This
-  would finally bring a solution to a long time yet pressing need of
-  the community that was so far only partially fulfilled by
-  unsustainable prototypes.
-\item Get inspiration to derive a similar decoupling for objects
-  admitting a grid view, with a Sage backend, a semantic model, and a
-  Jupyter/JS frontend.
-\item Contribute the models and frontends to Francy, making the
-  features available to GAP.
 \end{itemize}
 
 \section{Sage-explorer}
