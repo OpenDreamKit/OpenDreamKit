@@ -9,6 +9,7 @@
 \begin{figure}[ht]
   \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
   \caption{#2}
+  \label{#1}
 \end{figure}}
 
 \begin{document}
@@ -33,7 +34,7 @@ It is an area of active exploration,
 so we first set out to identify the current state of the art,
 and determine where our efforts could best be placed.
 We did this in the form of a report on the landscape of 3D
-visualisation in Jupyter in 2017, see Appendix \ref{landscape}.
+visualisation in Jupyter in 2017, see Appendix~\ref{landscape}.
 
 Because Jupyter is a web-based application, it can benefit from the
 very active development, in the wider community, of browser-based
@@ -50,11 +51,15 @@ We therefore naturally chose this foundation and focused our efforts
 on improving compatibility between existing browser-based tools and
 the Jupyter Widgets system.
 
-The aim of this deliverable was twofold: to better
+This deliverable had three objectives: to better
 understand the existing landscape of community efforts for three-dimensional
-visualisation in notebooks; and to contribute where we may have the best
+visualisation in notebooks; to contribute where we may have the best
 impact, whether it be in contributing to existing projects or creating new
-tools. We have accomplished both. In particular, we have helped improve the
+tools; and finally to demonstrate the technology and tools in the
+demanding and high impact area of Computational Fluid Dynamics
+visualisation (tasks \longtaskref{UI}{vis3d} and \longtaskref{UI}{cfd-vis}).
+
+We have accomplished all three objectives. In particular, we have helped improve the
 core Jupyter Widgets framework and the JupyterLab application, and we have
 developed new software in
 \href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter},
@@ -63,10 +68,10 @@ developed new software in
 \href{https://github.com/vidartf/ipydatawidgets}{ipydatawidgets},
 \href{https://github.com/vidartf/unray}{unray},
 and others projects.
+Overall, \ODK contributed approximately 18 person-months.
 
 \TODO{verify PMs with Logilab and Silesia}
 
-Overall, \ODK contributed approximately 18 person-months to improving existing software in the community and delivering new software.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -143,14 +148,14 @@ others. \ODK's contributions are namely:
 An effort has also been made by \ODK to help ease the creation and distribution of Jupyter widget libraries. This is critical in order to ease adaption of the visualisation libraries based on Jupyter widgets. Notable contributions include:
 \begin{itemize}
 \item work done on the widget cookie cutter projects, in order to simplify and standardize best practices for widget packaging. \ODK contributed to improving this existing project.
-\item the creation of an extension manager for JupyterLab, that also knows how to handle companion packages for kernels. \ODK contributed this functionality to the existing JupyterLab project.
+\item the creation of an extension manager for JupyterLab (Figure~\ref{fig:lab-extmngr}), that also knows how to handle companion packages for kernels. \ODK contributed this functionality to the existing JupyterLab project.
 \end{itemize}
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.6]{lab-extmngr.png}
-  \caption{Extension manager for JupyterLab. Contributed to help ease distribution of developed widget libraries.}
-  %\label{fig:lab-extmngr}
+  \caption{Extension manager for JupyterLab. Contributed by \ODK to ease distribution of widget libraries.}
+  \label{fig:lab-extmngr}
 \end{figure}
 
 As a result, all Jupyter widget authors can benefit from the work of \ODK,
@@ -170,8 +175,8 @@ Additionally, we participated in a community organized workshop on Jupyter widge
 
 \subsubsection{K3D-jupyter}
 
-K3D-jupyter is a package created by \ODK which provides the fast and simple 3d
-plotting tool in the Jupyter notebook. The primary aim of K3D is to be
+\href{https://github.com/K3D-tools/K3D-jupyter}{K3D-jupyter} is a package created by \ODK which provides a fast and simple 3d
+plotting tool in the Jupyter notebook (Figures~\ref{k3d_3.png} and~\ref{k3d_cfd2.png}). The primary aim of K3D is to be
 easy for use as stand alone package like matplotlib, but also to
 allow interoperation with existing libraries as VTK. The power of
 ipywidgets makes it also a fast and performant visualisation tool for
@@ -181,8 +186,8 @@ HPC computing e.g. fluid dynamics.
 \subsubsection{unray}
 
 
-unray is a scientific visualisation package created by \ODK for Jupyter notebooks for displaying
-scalar data on unstructured tetrahedral meshes. It allows for various volumetric
+\href{https://github.com/vidartf/unray}{unray} is a scientific visualisation package created by \ODK for Jupyter notebooks for displaying
+scalar data on unstructured tetrahedral meshes (Figure~\ref{unray-brain.png}). It allows for various volumetric
 rendering modes, isosurface rendering, and segment rendering.
 It relies on pythreejs, and the reusable components outline above to handle
 user control and interaction beyond the specific needs of the volumetric
@@ -191,67 +196,66 @@ rendering.
 \subsubsection{SciviJS}
 
 \href{https://demo.logilab.fr/SciviJS/}{SciviJS} is a new general javascript library
-developed by \ODK for visualising volumetric data.
+developed by \ODK for visualising volumetric data (Figure~\ref{scivijs.png}).
 It is built on threejs, and enables GUI-based interactive exploration of mesh data
 on a regular webpage, without any special software.
 Additionally, a \emph{jupyter-scivijs} package enables using SciviJS from within
 Jupyter notebooks.
 
-\subsection{Lattice-Boltzmann visualisation}
+\subsection{Computational Fluid Dynamics visualisation }
 
-The Lattice Boltzmann method has recently became a very popular method
-in computational fluid mechanics. The most popular variant is based on
+Computational Fluid Dynamics (CFD) was one of \ODK's major use
+cases to steer, evaluate, and demonstrate the work on 3D
+visualisation (\longtaskref{UI}{cfd-vis}).
+In this area, the Lattice Boltzmann Method (LBM) has
+recently became a very popular method. The most popular variant is based on
 regular grids which makes it very efficient on GPU architectures. This
-makes in turn very important to have web based visualisation tool, as
-it is very common to run the simulation on the remove GPU server using
-jupyter notebook interface.
+makes it in turn very important to have web based visualisation tool, as
+it is very common to run the simulation on a remote GPU server through
+a Jupyter notebook interface.
 
-We have equipped K3D-jupyter package in few features which make the
+We have equipped the K3D-jupyter package with a few features which make the
 visualisation of boundary conditions and fields in computational
 fluid dynamics especially easy:
 
 \begin{itemize}
-\item We have added a native method for displaying voxel geometry,
+\item a native method for displaying voxel geometry,
   which performance and quality is appropriate for typical geometries
   in LBM.
-\item There are available standard functions for plotting vectors and lines.
-\item There exists specialized method for displaying cross section of
+\item standard functions for plotting vectors and lines;
+\item specialized method for displaying cross section of
   a computational domain, optimized for real time update during the
-  simulation (K3D.texture).
-\item Volume rendering is supported, which is very powerful tool in
-  visualisation of scalar fields.
-\item K3D objects can be dynamically updated during the simulation.
+  simulation (K3D.texture);
+\item volume rendering, a very powerful tool in
+  visualisation of scalar fields;
+\item dynamic update of K3D objects during the simulation.
 \end{itemize}
 
 Additionally K3D-jupyter can be easily used in a VTK pipeline and
-therefore it can display various sophisticated visualisation
+therefore can display various sophisticated visualisation
 methods. It also extends most of its CFD capabilities beyond regular
-grid based the LBM simulations and make it viable tool for any CFD
+grid based LBM simulations, which makes it viable tool for any CFD
 package.
 
-An important aspect of K3D development was to provide a tool for
+An important aspect of K3D design was to provide a tool for
 displaying live LBM simulation without any performance penalty. The
 classical approach was usually to store all fields to files for
 postprocessing done usually in software like paraview. Live inspection
-of data during a simulation was very limited.  If one takes, a typical
+of data during a simulation was very limited.  If one takes a typical
 simulation taking place on GPU, then it is not uncommon to have it
 running with 1 GLUPS (giga lattice updates per second) on modern
 hardware. It means that the full velocity field in each time iteration
 would need bandwidth c.a. 12 GB/s. Those numbers are many orders of
-magnitude higher than capabilities of web connection.  The reasonable
-solution is to perform some visualisation on GPU and send a reduced
+magnitude higher than capabilities of web connections.  The reasonable
+solution is to perform some of the visualisation work on GPU and send a reduced
 dataset to the web-browser. We have experimented with two such
 methods: a slice of the data and tracer particles. In sailfish-cfd we
 have implemented a method which can on request do a 2d slice through
-the computational domain. The slice is done in GPU memory and at not
+the computational domain. The slice is done in GPU memory and at no
 point the whole dataset is transferred to the host. Then we fetch the
 slice and display the data using k3d.texture function. In this way it
 is possible to monitor a running simulation with very high refresh
 rate inside the Jupyter notebook.
-
-
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
