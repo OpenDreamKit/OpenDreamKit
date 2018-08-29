@@ -25,19 +25,24 @@ interaction (Read-Eval-Print Loop), a key feature of Jupyter is its
 \href{http://jupyter.org/widgets}{Interactive widgets} which enable
 real time interactive data visualizations; the Jupyter community has
 developed a large array of widgets for interactive 2D and 3D
-visualization of data in the form of charts, maps, tables, etc; see
-e.g. \delivref{UI}{vis3d} for ODK's contribution to 3D visualization.
+visualization of data in the form of charts, maps, tables, etc;
+See Figure~\ref{fig:ipyleaflet} for an example, and
+\delivref{UI}{vis3d} for ODK's contribution to 3D visualization.
 Furthermore, widgets can be \emph{composed} to build rich
 applications, with all the usual UI components (e.g. menus, sliders,
 or layout control).
 
-\begin{figure}[h]\begin{center}
-  \includegraphics[width=\textwidth]{images/Velocity}
-\end{center}\end{figure}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/Velocity}
+  \end{center}
+  \caption{A Jupyter widget displaying an interactive map based on
+    OpenStreetMap data, overlayed with a visualisation of wind velocity
+    data (courtesy of the \lstinline{ipyleaflet} documentation).}
+  \label{fig:ipyleaflet}
+\end{figure}
 
-\TODO{screenshots: e.g. ipyleaflet + some application (exple appli web)}
-
-\newpage
+\TODO{screenshot: some Jupyter based web application}
 
 Hence, the Jupyter stack provides a very flexible environment catering
 for use cases ranging from a novice users typing just a few commands
@@ -48,53 +53,67 @@ The question we are tackling in this report is how this technology --
 and specifically Jupyter widgets -- can be leveraged for pure
 mathematics. The unique challenge comes from the huge variety of
 mathematical objects that the user may want to visualize and
-manipulate, some even coming with several natural ways to be
-represented.
+interact with, and the variety of graphical representations;
+see Figure~\ref{fig:math_viz} for some examples.
 
 %\newpage
 
-\begin{figure}[h]\begin{center}
+\begin{figure}%[h]
+  \begin{center}
     \includegraphics[width=0.20\textwidth]{images/partitions-of-5}
-    \hspace{24px}
-  \includegraphics[width=0.25\textwidth]{images/hexominoes}
-    \hspace{4px}
-  \includegraphics[width=0.36\textwidth]{images/AztecDiamond}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
+    \hfil\hfil
+    \includegraphics[width=0.25\textwidth]{images/hexominoes}
+    \hfil
+    \includegraphics[width=0.30\textwidth]{images/AztecDiamond}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
     \includegraphics[width=0.4\textwidth]{images/nonominoes}
-    \hspace{32px}
-  \includegraphics[width=0.4\textwidth]{images/500px-Torus_with_seven_colours}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
-  \includegraphics[width=0.3\textwidth]{images/359px-F4HassePoset}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/Wikipic}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/500px-McGee_graph}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
-  \includegraphics[width=0.3\textwidth]{images/fractioncont}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/elliptic-curve}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/548px-Fermat's_spiral_01}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
-  \includegraphics[width=0.3\textwidth]{images/619px-Tiling_Fibonacci_word_fractal}
-    \hspace{32px}
-\includegraphics[width=0.3\textwidth]{images/597px-E8Petrie}
-\end{center}\end{figure}
+    \hfil
+    \includegraphics[width=0.4\textwidth]{images/500px-Torus_with_seven_colours}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
+    \includegraphics[width=0.3\textwidth]{images/359px-F4HassePoset}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/Wikipic}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/500px-McGee_graph}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
+    \includegraphics[width=0.3\textwidth]{images/fractioncont}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/elliptic-curve}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/548px-Fermat's_spiral_01}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
+    \includegraphics[width=0.3\textwidth]{images/619px-Tiling_Fibonacci_word_fractal}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/597px-E8Petrie}
+  \end{center}
+  \caption{Some graphical visualizations of mathematical objects}
+  \label{fig:math_viz}
+\end{figure}
 
 %\TODO{search on wikipedia for a nice collection of pictures: a
 %  partition, a polyomino, an aztec diamond, a monomial ideal, a graph,
 %  a poset, a formula - fraction continue, a curve, ...}. diagramme de Venn ; th des 4 couleurs sur une carte mathématique
-
-\newpage
 
 We therefore can't hope to provide hand crafted solutions for each
 situation; instead we need to devise a toolbox of generic solutions
 from which users can easily derive specialized visualizations for
 their own pet objects.
 
-We pursue two directions.
+In this report, we pursue two directions.
 
-In the first one, we explore the development of widgets for the
+In Section~\ref{section:combi}, we explore the development of widgets for the
 graphical visualization of combinatorial objects.
 The choice of this area of mathematics was, to some extent
 out of personal interest and expertise, but more importantly because
@@ -119,7 +138,8 @@ briefly report in Section~\ref{francy} on this use case to highlight
 the lessons learned there and describe upcoming collaboration toward
 bringing francy\'s features to SageMath.
 
-In a second direction, we explore the use of Jupyter widgets not only
+In a second direction, we explore in
+Section~\ref{section:sage-explorer} the use of Jupyter widgets not only
 for the graphical visualization of an object, but for displaying a
 page offering a synthetic overview of the information about that
 object, including type, important properties and invariants, available
@@ -128,14 +148,12 @@ information that is readily available by introspection but that a UI
 can make easy to discover and emphasize according to relevance. The
 challenge is that, given the huge variety of objects in a system like
 SageMath, we can't afford to hand craft such pages for each type of
-objects. In Section~\ref{sage-explorer} we report on our prototype
+objects. We report on our prototype
 \lstinline{sage-explorer} that exploits the semantic embedded into the
 system to produce a reasonable overview page automatically tailored to
 each object.
 
 \TODO{Screenshot of Sage-explorer?}
-
-\TODO{Conclusion}
 
 Altogether, the Jupyter Widget technology has proven as mature and
 flexible as we hoped for. Designing new widgets does take some
@@ -143,11 +161,21 @@ expertise, but from the experience we gained, we are confident that it
 lends itself well to the implementation of generic widgets by power
 users that can be specialized by casual users and used by novices.
 
-There remains two main challenges:
+Three main challenges arise along the way:
 \begin{itemize}
-\item How to best design widgets so that they can be reused across
-  systems written in different languages? \TODO{Explain the tension
-    kernel language / javascript}. \TODO{This will be explored by ... }
+\item Implementing visualization widgets is time consuming and
+  requires specific expertise that developers of computer algebra
+  systems usually don't have. It's therefore desirable to reuse them
+  across mathematical objects that share a certain type of
+  visualization, and across computer algebra systems. How to best
+  design widgets to decouple them from the specific objects or
+  programming language at hand?
+\item User interface and visualization technologies tend to evolve
+  much faster than computational systems; how to best design widgets
+  to decouple the semantic part of the visualization of the widgets
+  from the actual visualization technology, in order to prepare for a
+  smooth and cheap migration path when such technology evolves and
+  foster long term sustainability?
 \item Widgets, as all modern web technologies, rely a lot on
   asynchronous execution. This is quite a different model from the
   Read-Eval-Print main loop that many not-so-young computational
@@ -186,8 +214,10 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
   limited to text-graphics i.e. ``ASCII art''.
 \end{itemize}
 
+\section{Interactive visualization of combinatorial objects}
+\label{section:combi}
 
-\section{A generic widget for objects with a grid-like representation}
+\subsection{A generic widget for objects with a grid-like representation}
 \label{grid}
 
 \subsection{A generic grid view widget}
@@ -287,7 +317,7 @@ progressively into SageMath.
   \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
 \end{itemize}
 
-\section{francy: an Interactive Discrete Mathematics Framework for GAP}
+\subsection{francy: an Interactive Discrete Mathematics Framework for GAP}
 \label{francy}
 
 Francy is a package for interactive visualisation in discrete
@@ -336,7 +366,7 @@ In the upcoming year, we plan to collaborate tightly with Francy to:
 \end{itemize}
 
 \section{Sage-explorer}
-\label{sage-explorer}
+\label{section:sage-explorer}
 
 \TODO{tension SAGE/javascript concernant l'emplacement des appels de
   méthodes}
