@@ -26,6 +26,9 @@ The content commands are divided into two groups:
 
 A write-command typically consists of a single MMT declaration roughly corresponding to a line in a typical MMT source file.
 However, the nesting of declarations is very important in MMT (contrary to many programming language kernels where nesting is optional).\ednote{MK@FR: pick up the newpart from above.}
+
+\ednote{well, nesting is important when defining e.g. new functions or classes in Python, C++, ...; currently, in those languages, whenever nesting occurs, all the content must be contained in a single cell; the exception is the toplevel scope, which otherwise behaves very much the inner scopes; so maybe what's different is more in the ratio between usefulness versus complexity of implementation for splitting between cells nested content not only at the toplevel scope but also at inner scopes?}
+
 Therefore, all declarations that may contain other declarations (most importantly all MMT documents and theories) are split into parts as follows: the theory header, the list of nested declarations, and a special end-of-nesting marker. These are communicated in separate write-commands.
 The MMT kernel maintains the current scope as an MMT URI of an MMT document or theory and updates it on every write-commands that opens or closes one of them.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
@@ -38,7 +41,7 @@ For example, the sequence of commands on the left of Figure~\ref{fig:test_theory
 \end{figure}
 
 A special write-command is \texttt{eval T}.
-It interprets \texttt{T} in the current scope, infers it type \texttt{A}, computes it, and then adds the declaration \texttt{resI:A=T} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
+It interprets \texttt{T} in the current scope, infers its type \texttt{A}, computes it, and then adds the declaration \texttt{resI:A=T} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
 This corresponds most closely to the REPL functionality in typical Jupyter kernels.
 
 While write-commands correspond closely to the available types of MMT declarations, the set of read-commands is extensible.
@@ -61,16 +64,19 @@ That way the core kernel functionality can be reused easily in other frontends.
 
 \paragraph{Overview}
 Our implementation consists of three layers.
-The top layer is a Python module implements the abstract class for Jupyter kernels.
-The bottom layer is a general-purpose MMT REPL handles all intelligence of MMT documents.
+The top layer is a Python module that implements the abstract class for Jupyter kernels.
+The bottom layer is a general-purpose MMT REPL that handles all the logic of MMT documents.
 This can be reused easily in other frontends.
 The two are connected by a thin middle layer that handles the communication between the other two.
 Its main purpose is to format results in HTML and add interactive functionality via widgets.
 
-The Jupyter infrastructure heavily relies on Python, especially when it comes to Jupyter widgets.
+The Jupyter infrastructure heavily relies on Python, especially when it comes to Jupyter widgets
+%
+\ednote{not quite so: the reference/precursor implementation is indeed often in Python, however Jupyter puts the emphasis on protocols and specifications; which are more often than not also implemented in several languages (see e.g. xeus, xwidgets and co for C++); I believe that there is an implementation of the kernel protocol, including widgets, for Java; ah but maybe that's through Py4j ...}
+
 Therefore, it makes sense to implement our kernel in Python.
 However, actually executing the user's commands requires a strong integration with the MMT implementation, which uses Scala.
-That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant intelligence is handled in Scala.
+That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant logic is handled in Scala.
 
 This separation of programming languages is a generally difficult problem.
 After some experiments with different solutions (e.g., HTTP communication) and discussion within the OpenDreamKit community, we identified the Py4J library~\cite{Py4J} as the best choice.
@@ -113,7 +119,7 @@ Thus, the middle layer can choose to present some of the messages returned by th
 For example, when presenting a parametric theory as HTML+MathM, we can add a text input field next to every parameter.
 Whenever the strings in these fields change, the frontend notifies the top layer, which passes on the change to the middle layer.
 The middle layer then parses these strings and substitutes them in the body of the resulting declaration.
-This is similar to but more general than the typical Jupyter functionality of rerunning a notebook when an input cell changes: while Jupyter uses a list of input cells and any change affects all subsequent cells, our widget amounts to a three structure in which input fields have local, nested scope.
+This is similar to but more general than the typical Jupyter functionality of rerunning a notebook when an input cell changes: while Jupyter uses a list of input cells and any change affects all subsequent cells, our widget amounts to a tree structure in which input fields have local, nested scope.
 
 \ednote{@Kai: this is a simple application that we might not finish by the deliverable deadline but that you should implement nonetheless. Stay in touch with me on the details. KA: for this we would probably need a custom widget}
 

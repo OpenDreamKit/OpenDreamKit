@@ -34,16 +34,26 @@ including live documentation.
 \ODK therefore promotes Jupyter as user interface of choice:
 it is particularly suitable for building modular web based Virtual Research Environments.
 
-This deliverable is a follow-up to \delivref{UI}{ipython-kernels-basic},
-which dealt with a first basic version of Jupyter kernels for \ODK's components.
-We have improved Jupyter kernels for GAP, PARI/GP, SageMath, and
-Singular, and implemented a new kernel for MMT.
-This means that \ODK's main computational components
-now all have a full featured Jupyter kernel.
-Additionally, we have made major contributions to the development of the C++ kernel xeus-cling.
+This deliverable is a follow-up to
+\delivref{UI}{ipython-kernels-basic}, which dealt with a first basic
+version of Jupyter kernels for \ODK's components. We have improved
+Jupyter kernels for GAP, PARI/GP, SageMath, and Singular, and made
+major contributions to the development of the C++ kernel xeus-cling.
+All of them now support syntax highlighting, TAB-completion,
+interactive help, and graphics. Some of them also support interactive
+widgets.
+In addition, we have developed a Jupyter kernel for the MMT system -- the
+foundation of knowledge management in OpenDreamKit; this part of the
+work is reported on separately in deliverable
+\longdelivref{UI}{jupyter-import}.
 
-All the kernels that we worked on now support syntax highlighting, TAB-completion,
-interactive help and graphics. Some of them also support interactive widgets.
+The components that have been integrated into Jupyter are of very
+diverse nature. In particular C++ and MMT are not primarily designed
+for Read-Eval-Print Loop user interaction, and we had not foreseen the
+feasibility and potential impact of integrating them into Jupyter. Yet
+this diversity could be tackled by using a variety of approaches. This
+showcases the versatility of the Jupyter technology and its adequation
+for building modular Virtual Research Environment.
 
 Especially the graphical features are a major improvement over the traditional
 command-line use of GAP, PARI/GP and Singular.
@@ -56,6 +66,7 @@ Highlevel description and features.
 
 \subsection {Singular}
 
+<<<<<<< HEAD
 The \Singular{} kernel features pictures of algebraic curves and surfaces
 using the surf raytracer.
 
@@ -72,6 +83,26 @@ refocus sing on the energy on core features. % TODO mention sustainability here
 But because the Jupyter ecosystem is so large (millions of users?) And active,
 the Jupyter technology stack goes beyond the notebook interface.
 
+=======
+The implementation of the Jupyter kernels we report on provides all
+the computational systems in \ODK with a user-friendly, modern, and
+uniform user interface. It further helps users organize, document,
+test, share, and publish their work, which supports open science and
+reproducibility.
+
+This is a major step for some of the systems that only had a
+traditional command-line interface. For the others, it was the
+occasion to finally outsource the development of their user
+interfaces, which had been a recurrent time sink. For example,
+SageMath is dropping the development of its old notebook system
+SageNB, refocusing this energy on core business features.
+
+The availability of a Jupyter kernel for C++ extends this to the
+interactive use of lower-level computation libraries, within \ODK
+(LinBox, MPIR), or beyond (libsemigroups, ...). Contributing to this
+kernel was the occasion of interactions and cross-fertilizations with
+large scale projects sharing similar needs like CERN's Root.
+>>>>>>> be887c767257fd431d78a91dc6f804f26b0cfa44
 
 \subsection{Teaching}\label{teaching}
 
@@ -124,6 +155,11 @@ applications:
 
 \subsection{Live documents with ThebeLab}
 
+\begin{figure}[h]\label{thebelab}
+\includegraphics[width=100mm]{thebelab.png}
+\caption{SageMath HTML documentation with live code cells thanks to ThebeLab}
+\end{figure}
+
 ThebeLab is a JavaScript library for enriching static HTML pages with live code cells
 that can be executed and changed by the reader.
 Under the hood, the computations can be configured to either run on a free Jupyter hosting service
@@ -150,7 +186,8 @@ The pages can thus be served from anywhere, including e.g. Github Pages.
 HTML manual into active pages. % TODO: deploy publicly, and advertise here
 
 \item[Live documentation for SageMath] Similarly to the above, SageMath's Sphinx-based documentation system
-can be configured to produce live HTML documentation.
+  can be configured to produce live HTML documentation;
+  see figure~\ref{thebelab} for an example.
 This is already used by some SageMath packages like
 \href{http://more-sagemath-tutorials.readthedocs.io/}{More SageMath Tutorials}
 and will soon be used as well by the \Sage's documentation itself.
@@ -228,17 +265,50 @@ Additional work included:
 \item Rich output handling (LaTeX with mathjax, plots, ...)
 \item Improvements to Jupyter's widgets and interact functionality to be as feature rich as in the old \Sage Notebook.
 \end{itemize}
-The last item was implemented by Jeroen Demeyer under \ODK funding as part of \delivref{UI}{ipython-kernel-sage}.
+The last item was implemented by Jeroen Demeyer under \ODK funding as part of \longdelivref{UI}{ipython-kernel-sage}.
 Most of the rest was implemented by the \Sage community.
 
 \subsection{C++: xeus-cling}
 
+<<<<<<< HEAD
 \texttt{xeus-cling} is based on \href{}{xeus}, a native C++ implementation of the \Jupyter protocol, and \href{cling}{cling},
 a C++ interpreter based on the C++ compiler \href{}{clang} and compiler suite \href{}{llvm}.
 \ODK contributed man power with Loïc Gouarin being one of the three main developers.
 Also Nicolas Thiéry was an early adopter and contributed with bug reports and feature suggestions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+=======
+\texttt{xeus-cling} is based on xeus, a native C++ implementation of
+the Jupyter protocol, and Cling, a C++ interpreter based on the C++
+compiler Clang and compiler suite LLVM. \ODK contributed man power
+with Loïc Gouarin being one of the main developers. Also Nicolas M.
+Thiéry was an early adopter (beta-test, bug reports, feature
+suggestions, promotion).
+
+\subsection{MMT}
+
+As part of \longdelivref{UI}{jupyter-import}, Florian Rabe et al.
+implemented a kernel for
+\href{https://uniformal.github.io/}{MMT}, a framework for
+(mathematical) knowledge management which is the workhorse behind
+\url{mathhub.info} and OpenDreamKit's Math-in-the-Middle approach.
+MMT's specialty is the representation of arbitrary declarative
+languages such as logics, type theories, set theories, etc, and
+implements complex algorithms generically for any language in the
+framework.
+
+MMT's Jupyter kernel is based on the feature-rich Python kernel
+(widgets, ...), using the Py4J Python-Java bridge to interact easily
+with MMT (which is implemented in the Java-compatible Scala language). See
+\delivref{UI}{jupyter-import} for screenshots and implementation
+details. The biggest part of the work was to design the desirable interactive
+interaction with MMT as its nature is rather different from
+conventional computational systems. The shear fact that it was
+possible illustrates well the versatility of the Jupyter architecture.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+>>>>>>> be887c767257fd431d78a91dc6f804f26b0cfa44
 \appendix
 \section{Screenshots}
 \newcommand{\screenshot}[2]{
@@ -248,7 +318,13 @@ Also Nicolas Thiéry was an early adopter and contributed with bug reports and f
 \end{figure}}
 
 \screenshot{pari.png}{PARI/GP Jupyter kernel}
+\screenshot{sage.png}{SageMath Jupyter kernel}
 \screenshot{singular_new.png}{Singular Jupyter kernel}
 \clearpage
 \screenshot{gap.png}{GAP Jupyter kernel with package francy}
+<<<<<<< HEAD
+=======
+\clearpage
+\screenshot{cling-teaching.png}{A C++ exercise sheet using the Jupyter kernel xeus-cling}
+>>>>>>> be887c767257fd431d78a91dc6f804f26b0cfa44
 \end{document}

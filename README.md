@@ -192,8 +192,7 @@ status report, ...) needs to be on the issue.
     If this gets too long (say more than one page), the details can be
     left to the report itself.
 
-- Double check the deliverable metadata is up to date
-
+- Double check the deliverable metadata is up to date:
     - Leader (as specified by the person the issue is assigned to),
       participants, and sites involved.
     - Due and delivery date, milestone.
@@ -201,12 +200,17 @@ status report, ...) needs to be on the issue.
     - Link to the relevant ODK task(s) and reciprocally.
     - (when times come): link to the report and presentation slides.
 
-- A report should be written, in LaTeX, and in WPX/DX.Z/report.tex using our
-  [style file](Proposal/LaTeX-proposal/deliverablereport.cls). You may start
-  with e.g. [WP1/D1.1/report.tex](WP1/D1.1/report.tex) as template.
-  The use of pictures and other visual material is strongly
-  recommended.
+- A report should be written, in LaTeX, and in `WPX/DX.Z/report.tex`, using our
+  [style file](Proposal/LaTeX-proposal/deliverablereport.cls). You can initialize
+  the report file and copy the relevant style files with:
 
+      make WPX/DX.Z/report.pdf
+  
+  Rerunning this command later will update the style files if needed and recompile
+  the report.
+  
+  See the existing reports for further examples.
+  
   The github issue description is semi-automatically included in the
   report. To fetch it from github, run the following command from
   ODK's main repository (no worry if this step fails for you; the
@@ -214,10 +218,7 @@ status report, ...) needs to be on the issue.
 
       DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
 
-  For deliverables that are not reports by themselves, it's
-  appropriate to put all the material in the github issue description.
-
-  In all cases, the report shall be self-contained. Indeed, the
+  The report shall be self-contained. Indeed, the
   deliverable will be evaluated based upon its version submitted on
   the EU portal without retrieving other resources. Links have no
   legal value, since there is no guarantee that the referenced
@@ -227,6 +228,9 @@ status report, ...) needs to be on the issue.
   [WP5/D5.1/report.tex](WP5/D5.1/report.tex) or
   [WP2/D2.1/report.tex](WP2/D2.1/report.tex).
 
+  The use of pictures and other visual material is strongly
+  recommended.
+
 - Defining authorship is tricky, as most deliverable involve close
   collaboration with the community, and the report is often written by
   a subset of the contributors. Let's use the following simple rule of
@@ -235,8 +239,13 @@ status report, ...) needs to be on the issue.
   the author list is reasonable, as the report is about the
   contribution of ODK.
 
-- Send a notice to coordinator@opendreamkit.org
+- Request early feedback, review, and final proofreading of the report
+  - by the work package leader
+  - by the coordinator (coordinator@opendreamkit.org)
+  - by whoever else you may think is relevant
 
+  Plan ahead, as this will take a couple days!
+  
 - Write a blog post in [ODK's news](http://opendreamkit.org/news/)
 
 - Send a notice to participants@opendreamkit.org

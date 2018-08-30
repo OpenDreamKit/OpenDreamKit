@@ -1,0 +1,672 @@
+\documentclass{deliverablereport}
+\usepackage{hyperref}
+
+\deliverable{hpc}{sage-HPCcombi}
+\deliverydate{31/08/2018}
+\duedate{31/08/2018 (M36)}
+\author{V. Delecroix, F. Hivert}
+
+%\usepackage[nottoc, notlof, notlot]{tocbibind}
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{report.bib}
+\makeatletter\def\blx@maxline{77}\makeatother
+
+\usepackage{multirow}
+\usepackage{xcolor,colortbl}
+\usepackage{pgfplots}
+
+
+\newcommand{\Cilk}{\texttt{Cilk}\xspace}
+\newcommand{\CilkP}{\texttt{Cilk++}\xspace}
+\newcommand{\CPP}{\texttt{C++}\xspace}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\sgnode}[1]{{\bf \left<#1\right>}}
+\newcommand{\gr}[1]{{\color{gray} #1}}
+
+\DeclareMathOperator{\Irr}{Irr}
+
+\newtheorem{defi}{Definition}
+\newtheorem{prop}{Proposition}
+
+
+\setcounter{tocdepth}{1}
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+Computer experimentations in discrete mathematics in particular
+enumerative and algebraic combinatorics require high performance
+computing. The search space are often huge and the best algorithmic
+strategy for the exploration is not evident and depend often on
+the answer to the question. Let us cite the following description
+from~\cite{LoidlTrinder-Hecke}:
+\begin{citation}{}
+  Some discrete mathematical problems are embarrassingly parallel, and this
+  has been exploited for years even at Internet scale, e. g. the “Great
+  Internet Mersenne Prime Search”.  Many parallel algebraic computations
+  exhibit high degrees of irregularity, at multiple levels, with numbers and
+  sizes of tasks varying enormously (up to 5 orders of magni- tude). They tend
+  to use complex user-defined data structures, exhibit highly dy- namic memory
+  usage and complex control flow, often exploiting recursion. They make
+  little, if any, use of floating-point operations.  This combination of
+  characteristics means that symbolic computations are not well suited to
+  conventional HPC paradigms with their emphasis on iteration over floating
+  point arrays.
+\end{citation}
+
+This deliverable is about experimentations in combinatorics
+that involve low-level optimization and parallelization as
+well as the integration of these techniques in the computer
+algebra system \Sage.
+
+This deliverable has greatly beneficiated from the \ODK workshop
+on \textit{Interfacing (math) software with low level libraries}
+that was held in spring 2018 in Cernay-la-Ville (France).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Two examples from algebra}
+
+\subsection{Counting and enumerating integer vectors}
+Integer vectors, that is finite sequences of integers, are central
+in combinatorics as they can be used to encode many different
+objects. In each situation the integer vectors are subject to various
+constraints and we will be interested in three different kind
+\begin{itemize}
+\item linear constraints (e.g. lower or upper bounds on the entries,
+maximum difference between adjacent position, etc)
+\item restriction on the content (e.g. each value should be used
+at most once)
+\item symmetries (e.g. lexicographically smallest among all possible
+cyclic permutations).
+\end{itemize}
+One algorithmic problem combinatorics is trying to solve is to provide
+efficient enumeration of integer vectors subject to these kind of
+constraints.
+
+For example, permutations of $\{1, \ldots, n\}$ are encoded by integer vectors
+on $\{1, \ldots, n\}$ which contain exactly once each entry. In a sample
+\Sage session the list can be obtained as follows
+\begin{verbatim}
+sage: P = Permutations(3)
+sage: P.list()
+[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]
+\end{verbatim}
+Other elementary examples include integer partitions
+\begin{verbatim}
+sage: Partitions(5).list()
+[[5], [4, 1], [3, 2], [3, 1, 1], [2, 2, 1], [2, 1, 1, 1], [1, 1, 1, 1, 1]]
+\end{verbatim}
+or Lyndon words
+\begin{verbatim}
+sage: LyndonWords(2,4).list()
+[word: 1112, word: 1122, word: 1222]
+\end{verbatim}
+
+Sometimes, one often just want to count the objects and possibly avoid
+generating the list. In \Sage, access to this counting is very often
+done by other means
+\begin{verbatim}
+sage: Permutations(30).cardinality()
+265252859812191058636308480000000
+sage: Partitions(1000).cardinality()
+24061467864032622473692149727991
+sage: LyndonWords(2, 120).cardinality()
+11076899964874298931257370467884546
+\end{verbatim}
+
+In this deliverable we will demonstrate how the interface to the LaTTe package
+in \Sage allows more efficient counting, how Cython has helped faster enumeration
+in \Sage. We will also present some promising experimentations involving among
+other things vectorization techniques (MMX, SSE and AVX instruction sets) and
+shared memory multicore computing with \CilkP.
+
+\subsection{Numerical semigroups}
+
+Let us start with a formal definition.
+\begin{defi}
+  A \emph{numerical semigroup} $S$ is a subset of $\NN$ containing $0$, closed
+  under addition and of finite complement in $\NN$.
+\end{defi}
+For example the set
+\begin{equation}
+\label{E:NSG}
+S_E=\{0,3,6,7,9,10\}\cup\{x\in\NN, x\geq 12\}
+\end{equation}
+is a numerical semigroup. One of the challenging problem in the field
+of semigroup is to understand how much numerical semigroups there
+are with some given constraints. To state precisely the question
+we need a little terminology.
+\begin{defi}
+Let $S$ be a numerical semigroup. We define
+\begin{itemize}
+\item $g(S)=\operatorname{card}(\NN\setminus S)$, the \emph{genus} of $S$;
+\item $f(S)=\max(\mathbb{Z}\setminus S)$, the \emph{Frobenius} of $S$;
+\item $c(S)=f(S)+1$, the \emph{conductor of $S$}.
+\end{itemize}
+\end{defi}
+For example the genus of the example $S_E$ in~\eqref{E:NSG} is $6$, the
+cardinality of $\{1,2,4,5,8,11\}$, it is of Frobenius number $11$ and of
+conductor $12$.
+
+For a given positive integer $g$, the number of numerical semigroups of genus
+$g$ is finite and is denoted by $n_g$. In J.A. Sloane's \emph{on-line
+encyclopedia of integer sequences}~\cite{OEIS} we find the values of $n_g$
+for $g\leq 52$. These values were obtained by M. Bras-Amor\'os
+(\cite{BrasAmoros2008} for more details). 
+
+Using adequate data structures and parallelization with \Cilk allowed
+F.~Hivert with his collaborator J.~Fromentin to obtain the number of
+numerical semigroups up to genus $g \leq 67$ and also confirm the so called
+Wilf conjecture for $g \leq 60$. This work has led to the publication~\cite{FromentinH16}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{An overview of techniques and technology}
+
+Before entering into more depth into details of this deliverable it is
+important to draw a general picture of the algorithmic techniques
+and the hardware and software technologies available.
+
+Let us first distinguish the following two families of programming
+languages. On the one hand the interpreted languages
+such as \Python or Julia. And on the other hand we have the compiled languages
+such as C/C++. The former languages are very convenient for end-users as
+they provide high level data structures and instructions as well as automatic
+memory management. This is one of the reason of the choice for \Python as the
+base language for \Sage. Though, these higher level languages suffer slowness,
+especially when large iterations have to be performed. In this situation, it is
+preferable to go in the details of memory allocation and CPU instructions.
+
+A first ingredient of optimization that provides a bridge between interpreted
+and compiled language is provided by Cython that is a Python
+to C/C++ compiler. Cython plays an important role in this deliverable. It
+was also central in the development of the cypari library, see deliverables
+D4.1 and D4.10.
+
+When one consider a low-level language such as C, one has on the first hand
+access to CPU vectorized instructions, that is to say a single instruction that
+is performed on multiple data (SIMD). These
+instructions are also of critical importance for performant linear
+algebra as implemented in the LinBox library. The relevance in the context
+of combinatorics is discussed in Section~\ref{subsec:combi:SIMD}.
+
+The second level of parallelization concerns multi-core computations. This can
+be conveniently dealt with language extensions such as Open MP,
+Threading Building Block (TBB) or Cilk. At this level one important
+ingredient in optimization is the careful usage of shared memory.
+Before entering into technical details, we describe in
+Section~\label{subsec:map-reduce:Sage} a small framework that was
+implemented in \Sage that also illustrates the typical problem one faces
+in combinatorics. More detailed on the usage of \Cilk are provided
+in Sections~\ref{sec:low:level}.
+
+The last level of parallelism concerns computations with multiple nodes
+and is not addressed by this deliverable.
+
+\subsection{Combinatorial structures and vector instructions}
+\label{subsec:combi:SIMD}
+
+SIMD instruction sets appeared
+in three stages: MMX (set of single instruction multiple data instruction set
+introduced in 1997), SSE (Streaming SIMD Extensions, introduced in 1999) and
+more recently AVX (Advanced Vector Extensions, introduced in 2008). 
+
+In many combinatorial structures (permutations, partitions, monomials, young
+tableaux), the data can be encoded as a small sequence of small integers that
+can often efficiently be handled thanks to vector instructions.  For example,
+on the current \texttt{x86} machines, small permutations ($N\leq 16$) are very
+well handled. Indeed thanks to machine instructions such as \verb+PSHUFB+ (Packed
+Shuffle Bytes), applying a permutation on a vector only takes a few cycles.  Here
+are some examples of operation with their typical speedups:
+\[
+\begin{tabular}{l|c}
+Operation & Speedup \\\hline
+Inverting a permutation& $1.28$\\
+Sorting a list of bytes& $21.3$\\
+Number of cycles of a permutation& $41.5$\\
+Number of inversions of a permutation& $9.39$\\
+Cycle type of a permutation& $8.94$\\
+\end{tabular}
+\]
+As a more concrete example, here is how to sort an array of $16$~bytes:
+\begin{verbatim}
+// Sorting network Knuth AoCP3 Fig. 51 p 229.
+static const array<Perm16, 9> rounds =
+    {{ { 1, 0, 3, 2, 5, 4, 7, 6, 9, 8,11,10,13,12,15,14},
+       { 2, 3, 0, 1, 6, 7, 4, 5,10,11, 8, 9,14,15,12,13},
+       [...]
+    }};
+
+Vect16 sort(Vect16 a) {
+  for (Perm16 round : rounds) {
+    Vect16 minab, maxab, blend, mask, b = a.permuted(round);
+    mask = _mm_cmplt_epi8(round, Perm16::one);
+    minab = _mm_min_epi8(a, b);
+    maxab = _mm_max_epi8(a, b);
+    a = _mm_blendv_epi8(minab, maxab, mask);
+  }
+  return a;
+}
+\end{verbatim}
+
+Unfortunately, this requires rethinking all the algorithms, and there is nearly
+no support by the compiler.
+
+\subsection{Map-reduce and its implementation in \Sage}
+\label{subsec:map-reduce:Sage}
+
+Map-reduce is a general programming model that is shared by many
+parallelization problem and is relevant to our situation. In this section we
+present a small framework implemented in Sagemath~\cite{sage} allowing
+performance map/reduce like computations on
+large recursively defined sets. Map-Reduce is a classical programming model
+for distributed computations where one maps a function on a large data set and
+uses a reduce function to summarize all the produced information. It has a
+large range of intensive applications in combinatorics:
+\begin{itemize}
+  \item Compute the cardinality;
+  \item More generally, compute any kind of generating series;
+  \item Test a conjecture: i.e. find an element of $S$ satisfying a specific
+    property, or check that all of them do;
+  \item Count/list the elements of $S$ having this property.
+\end{itemize}
+Use cases in combinatorics often have two specificities: First of all, due to
+combinatorial explosion, sets often don't fit in the computer's memory or
+disks and are enumerated on the fly. Then, many problems are flat, leading to
+embarassingly parallel computations which are easy to parallelize. However, a
+second very common use case is to have data sets that are described by
+recursion tree which may be heavily unbalanced (as with numerical semigroups
+described in previous section).
+
+The framework~\cite{map-reduce} we developed works on the following input:
+A \textbf{recursively enumerated set} given by:
+\begin{itemize}
+\item the \texttt{roots} of the recursion
+\item the \texttt{children} function computing
+\item the \texttt{postprocessing} function that can also filter intermediate
+  nodes
+\end{itemize}
+Then, a \textbf{Map/Reduce problem} is given by:
+\begin{itemize}
+\item the \texttt{mapped} function
+\item the \verb|reduce_init| function
+\item the \texttt{reduce} function
+\end{itemize}
+Here is an example where we count binary sequence of length 15:
+\begin{verbatim}
+sage: S = RecursivelyEnumeratedSet( [[]],
+....:   lambda l: [l+[0], l+[1]] if len(l) <= 15 else [],
+....:   post_process = lambda x : x if len(x) == 15 else None,
+....:   structure='forest', enumeration='depth') 
+sage: sage: S.map_reduce(
+....:   map_function = lambda x: 1,
+....:   reduce_function = lambda x,y: x+y,
+....:   reduce_init = 0 )
+32768
+\end{verbatim}
+This framework uses a multi-process implementation of a work-stealing
+algorithm~\cite{BlumofeL99}, and scales relatively well, as shown below in a
+typical computation:
+\[\begin{tabular}{ccccc}
+\# processors & 1 & 2 & 4 & 8 \\
+Time (s) & 250& 161& 103 & 87 \\
+\end{tabular}
+\]
+
+Though it doesn't really qualify as HPC, it allowed to efficiently
+parallelize a dozen of experiments ranging from Coxeter group and
+representation theory of monoids to the combinatorial study of the C3
+linearization algorithm used to compute the method resolution order (MRO) in
+scripting language such as \Python and Perl~\cite{C3-controled}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Low-level experimentations}
+\label{sec:low:level}
+
+\subsection{Integer vectors up to permutations}
+\label{subec:integer:vectors}
+
+We briefly report a successful optimization using the technologies
+evoked in the previous section. The aim was to optimize an algorithm
+developed by N.~Borie for enumerating integer vector modulo permutation
+groups~\cite{Borie}.
+
+The problem is the following: we are given a subgroup $G$ of the symmetric
+group $S_n$. It acts by permutation of coordinates on the vectors in $\NN^n$.
+The problem is to generate one vector in each orbit. Note that there are
+infinitely many such vectors; in practice one usually wants to enumerate the
+vectors with a given sum or content. 
+
+N.~Borie designed a tree structure on those vectors which allows to enumerate
+them recursively. At the level of each node, a relatively complicated
+computation is done involving partial lexicographic comparison and a hash
+table to avoid some duplication. The goal was to optimize the particular case
+of small groups where $n\leq16$. The development went along the following
+steps:
+\begin{itemize}
+\item permutation, vectors and lexicographic comparison using vector
+  instructions;
+\item recursive enumeration using \CilkP
+\item used thread local strorage for the hash table at the level of each node
+\item designed a handmade hash table to avoid dynamic allocation and adapted
+  to the specific use-case
+\end{itemize}
+This last step is due to a very specific use case for the hash table: we
+needed it to store a dynamic set where we only add elements and never remove
+one, and we clear the hash table very often. Profiling showed that the hash
+table may grow up to thousand of elements but, on the average, is
+only cleared when containing $2.5$~elements ! We decided therefore to use a
+closed bounded hash table together with a linked list of used buckets to be
+able to clear the table quickly.
+
+Altogether, we compared our optimized version with an already optimized
+non-parallel compiled version using the \Python compiler Cython. Computing the
+$375810$~integer vectors of sum 25 for the largest transitive subgroup of
+$S_{16}$ took $9$min $23$s on a single core with Sage's code, whereas our code
+is able to do it in $0.503$s on $8$~cores for a speedup of $1112$ times.
+Finally, the code (not yet released) is downloadable at~\cite{IVMPG}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Numerical semigroups}
+\label{subsec:numerical-semigroups}.
+
+Another application of these technologies is the exploration of numerical
+semigroups. This part is joint work of F.~Hivert and J.~Fromentin~\cite{FromentinH16}
+
+%\begin{figure*}[h!]
+%\begin{tikzpicture}[level distance=1.2cm, inner sep=2mm,level/.style={sibling distance=1.4cm}]
+%    \node {$\sgnode{1}$}
+%    child {node {$\sgnode{2,3}$}
+%      child [sibling distance=2.2cm] {node {$\sgnode{3,4,5}$}
+%        child  {node {$\sgnode{4,5,6,7}$}
+%          child [sibling distance=4.6cm]{node {$\sgnode{5,6,7,8,9}$}
+%            child [sibling distance=1.8cm] {node {$\sgnode{6,7,8,9,10,11}$}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [left] {5}}
+%            child [sibling distance=1.6cm] {node {$\sgnode{\gr5,7,8,9,11}$}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [left] {6}}
+%            child [sibling distance=1.6cm] {node {$\sgnode{\gr5,\gr6,8,9}$}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [left] {7}}
+%            child [sibling distance=1.3cm] {node {$\sgnode{\gr5,\gr6,\gr7,9}$}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [right] {8}}
+%            child [sibling distance=1.3cm]{node
+%              {$\sgnode{\gr5,\gr6,\gr7,\gr8}$}
+%              edge from parent node [right] {9}}
+%            edge from parent node [left] {4}}
+%          child [sibling distance=2.8cm]{node {$\sgnode{\gr4,6,7,9}$}
+%            child {node {$\sgnode{\gr4,7,9,10}$} 
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [right] {6}}
+%            child {node {$\sgnode{\gr4,\gr6,9,11}$} 
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [right] {7}}
+%            child {node {$\sgnode{\gr4,\gr6,\gr7}$} 
+%              edge from parent node [right] {9}}
+%            edge from parent node [left] {5}}
+%          child [sibling distance=1.0cm] {node {$\sgnode{\gr4,\gr5,7}$}
+%            child{{} edge from parent[draw=none]}
+%            child {node {$\sgnode{\gr4,\gr5,11}$} 
+%                child {node {} edge from parent}
+%              edge from parent node [right] {7}}
+%            edge from parent node [right] {6}}
+%          child [sibling distance=1.1cm] {node {$\sgnode{\gr4,\gr5,\gr6}$}
+%            edge from parent node [right] {7}}
+%          edge from parent node [left] {3}
+%        }
+%        child{{} edge from parent[draw=none]}
+%        child [sibling distance=1.7cm] {node {$\sgnode{\gr3,5,7}$}
+%          child{{} edge from parent[draw=none]}
+%          child {node {$\sgnode{\gr3,7,8}$} 
+%            child{{} edge from parent[draw=none]}
+%            child {node {$\sgnode{\gr3,8,10}$} 
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%                child [sibling distance=0.5cm]{node {} edge from parent}
+%              edge from parent node [right] {7}}
+%            child {node {$\sgnode{\gr3,\gr7,11}$} 
+%                child {node {} edge from parent}
+%              edge from parent node [right] {8}}
+%            edge from parent node [left] {5}}
+%          child {node {$\sgnode{\gr3,\gr5}$} edge from parent node [right] {7}}
+%          edge from parent node [left] {4}
+%        }
+%        child {node {$\sgnode{\gr3,\gr4}$}
+%          edge from parent node [right] {5}
+%        }
+%        edge from parent node [left] {2}
+%      }
+%      child [sibling distance=4.5cm] {node {$\sgnode{\gr2,5}$}
+%        child {node {$\sgnode{\gr2,7}$}
+%          child {node {$\sgnode{\gr2,9}$}
+%            child {node {$\sgnode{\gr2,11}$}
+%                child {node {} edge from parent}
+%              edge from parent node [right] {9}}
+%            edge from parent node [right] {7}
+%          }
+%          edge from parent node [right] {5}
+%        }
+%        edge from parent node [right] {3}
+%      }
+%      edge from parent node [left] {1}
+%    }
+%    ;
+%  \end{tikzpicture}
+%\caption{The first five layers of the tree ${T}$ of numerical semigroups. A generator of a semigroup is it in gray if is not greater than $c(S)$. An edge between a semigroup $S$ and its son $S'$ is labelled by  $x$ if $S'$ is obtained from $S$ by removing~$x$.}
+%\label{F:Tree}
+%\end{figure*}
+%
+To enumerate the semigroups, we need to organize them as a recursively
+enumerated set, that it to build a tree whose nodes at depth $g$ are exactly
+the semigroups of genus $g$.  We now explain the construction such a tree.
+Let~$S$ be a numerical semigroup. The set $S'=S\cup\{f(S)\}$ is also a
+numerical semigroup and its genus is $g(S)-1$.  As each integer greater than
+$f(S)$ is included in $S'$ we have $c(S')\leq f(S)$.  Therefore every
+semigroup $S$ of genus $g$ can be obtained from a semigroup $S'$ of genus
+$g-1$ by removing an element of~$S'$ greater than or equal to $c(S')$.
+
+\begin{defi}
+  A non-zero element $x$ of a numerical semigroup $S$ is said to be
+  \emph{irreducible} if it cannot be expressed as a sum of two non-zero
+  elements of $S$.  We denote by $\Irr(S)$ the set of all irreducible elements
+  of $S$.
+\end{defi}
+Note that, the set $\Irr(S)$ is the minimal generating set of $S$ relative
+to the inclusion ordering. Therefore to identify a numerical semigroup $S$, we
+only need to know its set $\Irr(S)$. We write such a semigroup by
+$\left<\Irr(S)\right>$. For example, returning to the semigroup $S_E$, we find
+that $\Irr(S_E) = \{3, 7\}$, we therefore write $S_E=\left<3,7\right>$.
+
+\begin{prop}[Proposition~7.28 of \cite{BookNS}]
+  \label{P:Sx}
+  Let $S$ be a numerical semigroup and $x$ an element of $S$. The
+  set~$S^x:=S\setminus\{x\}$ is a numerical semigroup if and only if $x$ is
+  irreducible in $S$.
+\end{prop}
+Proposition~\ref{P:Sx} implies that every semigroup $S$ of genus $g$ can be
+obtained from a semigroup $S'$ by removing a generator $x$ of $S$ that is
+greater than or equal to $c(S)$.
+
+We construct the tree of numerical semigroups, denoted by $T$ as follows: The
+root of the tree is the unique semigroup of genus $0$ namely $\left<1\right>$
+which is equal to $\NN$.  If~$S$ is a semigroup in the tree, the children of $S$
+are exactly the semigroups~$S^x$ where $x$ belongs to
+$\Irr(S)\cap[c(S),+\infty]$.  By convention, when depicting the tree, the
+numerical semigroup $S^x$ is in the left of $S^y$ if $x$ is smaller than~$y$.
+With this construction, a semigroup $S$ has depth $g$ in $T$ if and only if
+its genus is~$g$.
+
+In~\cite{FromentinH16} we describe a data structure for storing a numerical
+semigroup which fits particularly well the architecture of modern computers
+allowing very large optimizations. Thanks to these optimization computing a
+children in the tree from its father takes a time which is comparable to the
+time needed to simply copy it.
+
+We think that exploring this tree is quite challenging as a parallel problem.
+Indeed, though non trivial, the computation of the children of a node is very
+fast and the tree is extremely unbalanced. This can be seen on
+on the following experiments: We compare nodes at depth
+$30$ anb $45$: The number of nodes at depth 30 and 45 are $5\,646\,773$ and
+$8\,888\,486\,816$. If we sort decreassingly the number of descendants at depth
+$45$ of the nodes at depth $30$, then
+\begin{itemize}
+\item The first node has $42\%$~of the descendants;
+\item The second one node has $7.5\%$~of the descendants;
+\item The $10$~first node have $73\%$~of the descendants;
+\item The $100$~first node have $93\%$~of the descendants;
+\item The $1000$~first node have $99.4\%$~of the descendants;
+\item Only $27\,321$ nodes have descendants at depth~$45$;
+\item Only $5\,487$ nodes have more than $10^3$~descendants;
+\item Only $257$ nodes have more than $10^6$~descendants;
+\end{itemize}
+\medskip
+
+Fortunately, the exploration of the tree is easily parallelized on a multicore
+machine using \CilkP. The idea here is that different branches of the tree
+can be explored in parallel by different cores of the computer. The tricky
+part is to ensure that all cores are busy, giving a new branch when a core is
+done with a former one. The \CilkP~\cite{CilkIntel} technology is
+particularly well suited for those kinds of problems. For our computation, we
+used the free version which is integrated in the latest version of the GNU~C
+compiler~\cite{GCCcilk}.
+
+\Cilk is a general-purpose language designed for multithreaded parallel
+computing. The \CPP incarnation is called \CilkP. The biggest principle behind
+the design of the \Cilk language is that the programmer should be responsible
+for \emph{exposing} the parallelism, identifying elements that can safely be
+executed in parallel; the run-time environment decide during execution how to
+actually divide the work between cores. The parallel features of \CilkP are
+used mainly through the \texttt{cilk\_spawn} keyword: used on a procedure
+call, it indicates that the call can safely operate in parallel with the
+remaining code of the current function. Note that the scheduler is not obliged
+to run this procedure in parallel; the keyword merely alerts the scheduler
+that it can do so.
+
+We then write the following code for semigroup exploration:
+\begin{verbatim}
+void explore(const Semigroup &S) {
+  unsigned long int nbr = 0;
+  if (S.g < MAX_GENUS - STACK_BOUND) {
+    //iterate along the children of S
+    auto it = generator_iter<CHILDREN>(S); 
+    while (it.move_next()) {
+      auto child = remove_generator(S, it.get_gen()).
+      cilk_spawn explore(child);
+      nbr++;
+    }
+    cilk_results[S.g] += nbr;
+  }
+  else explore_stack(S, cilk_results.get_array());
+}
+\end{verbatim}
+In the previous code, the function \verb+explore_stack+ performs a similar
+computation but iteratively (oposed as recursively) with the help of a stack.
+
+To give some figure of the performance we managed to achieve, we performed
+a full exploration of the tree up to depth~$70$ on a $32$~Haswell core at
+$2.3$~Ghz. The number of monoid at depth $70$ is $1607394814170158$.  It tooks
+$2.528\cdot10^{6}~s$ ($29$~days and $6$~hours) exploring
+$2590899247785594=2.59\cdot10^{15}$ monoids at a rate of $1.02\cdot10^{9}$
+monoids per second. Each monoid is stored in $240$~bytes. Storing all the
+computed monoids would take $6.22\cdot10^{17}$~bytes of data, which means that
+we generated $2.46\cdot10^{11}$~bytes of data per second.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Polytopes and linear programming}
+
+Constraint on integer vectors can often be thought as linear constraints.
+For example, the partitions of $n$ are given by non-negative integer
+vectors $(x_1, \ldots, x_n)$ in $\mathbb{R}^n$ so that $x_1 \geq x_2 \ldots x_n$.
+In other words, some general linear programming techniques come into
+play.
+
+During the \ODK workshop \textit{Sage Days 84} held in Olot (Spain) in spring
+2017 we improved \Sage capacities for polytope computations, including
+integer point counting and linear optimization. Among other things
+\begin{itemize}
+\item We provided an interface to the LattE software that uses Barvinok
+method to count integer points in polytope.
+\item We developed a \Sage interface to the Polymake software that is
+one of the reference software in the field.
+\item We started the development of a C++-library for polytope computations
+over number fields that gave rise to the library E-ANTIC~\cite{eantic-code}
+ and its inclusion in Normaliz~\cite{normaliz-code}.
+\end{itemize}
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion}
+
+As a conclusion, we'd like to comment on the main technology used here, namely
+\CilkP. It is very efficient at balancing our work on a shared memory
+machine. The following table show timings where \verb|C++| is a reference serial
+implementation and the other column shows the number of \CilkP threads:
+\[\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+ Threads & \texttt{C++} & 1 & 2 & 4 & 8 & 12 \\
+ \hline
+ Time (s) & 3588 & 3709 & 1865 & 932.4 & 486.8 & 325.7 \\
+ \hline
+ Speedup Cilk & 1.03 & 1. & 1.99 & 3.97 & 7.61 & 11.39 \\
+ \hline
+\end{tabular}
+\]
+However for the GCC implementation, we feel that it is not completely
+mature. We indeed found a core bug~\cite{gcc-bug-80038}, we describe here
+briefly: in C/C++, when a parameter is passed to a function by value, the
+calling function is responsible to the construction (including the allocation)
+of the parameter. It is responsible to their destruction too. However, with
+\CilkP, it is possible to have the calling function stolen and therefore
+executed concurrently on another thread, \emph{before} the called function
+returns. The problem was that the parameter was destroyed too early in this
+case. Here is a small code sample to reproduce the problem:
+\begin{verbatim}
+void walk(std::vector<int> v, unsigned size) {
+  if (v.size() < size)
+    for (int i=0; i<8; i++) {
+      std::vector<int> vnew(v); vnew.push_back(i);
+     // The vnew parameter below is destroyed too early
+      cilk_spawn walk(vnew, size); 
+    }
+}
+\end{verbatim}
+The bug was corrected quickly but we learned along the way that GCC is
+considering deprecating and stopping support for the \CilkP features. We feel
+that this is a big loss for our kinds of computation.
+
+Altogether, work stealing is very efficient to parallelize those kinds of
+computation in a shared memory machine, but to go further, we badly need an
+efficient distributed work-stealing framework.
+
+
+\printbibliography
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
