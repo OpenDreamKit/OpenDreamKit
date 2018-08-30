@@ -322,6 +322,36 @@ features in a web browser without having to go through any local installation.
 
 % Maybe ??
 
+\subsection{Cysignals}
+
+The Cysignals
+project\footnote{\url{https://cysignals.readthedocs.io/en/latest/}} has been
+using Travis CI\footnote{\url{https://travis-ci.org/sagemath/cysignals}} for
+continuous integration on Linux practically since its inception (see \TODO{link
+to D4.1 which contains first mention of cysignals}).  In Spring of 2018 we made
+initial progress towards adding native Windows support to
+Cysignals\footnote{\url{https://github.com/sagemath/cysignals/pull/76}} as well
+as continuous integration for both native Windows and Cysignals on Cygwin using
+AppVeyor\footnote{\url{https://github.com/sagemath/cysignals/pull/95}}, the
+initial results of which have been promising.  The process of adding Cygwin
+testing on AppVeyor even exposed new Cygwin-specific bugs with Cysignals that
+had not been previously caught.
+
+However, multi-platform testing still remains an interesting problem for
+Cysignals in particular.  The low-level details of Cysignals are such that its
+functionality can depend heavily on the underlying operating system kernel
+(even different versions of the Linux kernel).  As such, one would like to be
+able to test against different kernels.  Because most CI services -- including
+Travis CI -- are using container-based technology, this means that even testing
+different OS platforms via containers is not entirely helpful, because all
+containers running on the system host system are using the same underlying
+kernel.
+
+Thus, an area for future work might be to try using GitLab's CI framework and
+providing our own build runner machines (possibly even reusing the existing one
+from Sage's buildbot fleet) to test Cysignals against more OS platforms with a
+wider range of OS kernels than we might test otherwise.
+
 \hypertarget{best-practices}{%
 \section{Lessons learned and best practices}\label{best-practices}}
 \end{document}
