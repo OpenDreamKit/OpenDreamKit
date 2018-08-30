@@ -84,85 +84,58 @@ Many \GAP packages also have been updated to work in \GAP 4.9 and make use of it
 
 \subparagraph{\longtaskref{hpc}{hpc-linbox}}
 
-%As initially scheduled, work on LinBox started in Fall 2016 and
-No deliverable is due for this evaluation period. The design of a
-domain specific language (DSL) exposing parallel features through the
-library stack up to the \Sage interface is making good progress
-(deliverable~\longdelivref{hpc}{LinBox-DSL}); the demonstrator code
-for matrix inverse over a finite field is under review.
-%
-Progress on deliverable~\longdelivref{hpc}{LinBox-algo} is twofold:
+The deliverable~\longdelivref{hpc}{LinBox-algo} due for this reporting period is
+delivered on time. The contribution, as detailed in the report is twofold:
 \begin{compactitem}
-\item Maintenance, and close integration of the Library with \Sage has been
-active (\href{https://trac.sagemath.org/ticket/17635}{Ticket \#17635} finally
-updates \Sage to LinBox-1.4.2 after a long and technical review process).
 \item Several algorithmic innovations have been produced: a new matrix invariant
-  for rank profiles~\cite{DumPerSul:fcrpmgbd16}, more efficient
-  representation for quasiseparable matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on
+  for rank profiles~\cite{DumPerSul:fcrpmgbd16}, a new symmetric matrix
+  factorization algorithm and its high performance implementation has been
+  proposed~\cite{DuPe18}; new representation and algorithms for quasiseparable
+  matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on 
   interactive certificates for the security of large scale distributed
   computations on unsafe
-  resources~\cite{DumKalTho:lticmpdsm16,DumLucPer:cftearp17}. These results have or will
-  be presented in the main venues in the domain:
-  the international conference ISSAC'16-17 and the Journal of Symbolic computation.
+  resources~\cite{DumKalTho:lticmpdsm16,DumLucPer:cftearp17}. These results have been
+  presented in the main venues in the domain:
+  the international conference ISSAC'16-17-18 and the Journal of Symbolic computation.
+\item Major software developments have happened in the LinBox ecosystem, increasing
+  robustness, maintainability and introducing new computational features, such
+  as the new symmetric factorization algorithm or a parallel triangular matrix
+  inversion implementation. Not only have these library been closely integrated
+  within \Sage, but the interface has been fully rethoughts thanks to a broader
+  support of C++ in Cython.
 \end{compactitem}
 
+
+Deliverable~\longdelivref{hpc}{LinBox-distributed} is making good progress
+  thanks to the work of our \ODK engineer Hongguang Zhu. Several code prototypes
+  already implement a Chinese remainder based parallel rational solver on a distributed
+  infrastructure. We are now working on improving the communication patterns,
+  and on designing a parallel rational vector reconstruction algorithm, as it
+  has now become the bottleneck in this computation.
+  
   \subparagraph{\longtaskref{hpc}{hpc-singular}}
 
-  The \Singular library, for commutative algebra, already has a framework to
-  design high level parallel algorithms and handle shared memory safely.
-  Yet, a few kernel routines, such as matrix Fast Fourier
-  transform, relation  sieving algorithms need a special attention as they have
-  to rely on a highly optimized fine grained
-  parallelization. Deliverables~\longdelivref{hpc}{FFT}
-  and~\longdelivref{hpc}{QS-linalg} for this reporting period only deal with these
-  kernel routines, in the \FLINT library, a dependency of \Singular.
+  The only deliverable under consideration for this reporting perido
+  is~\longdelivref{hpc}{singular-polyarith}
 
-  Deliverable~\delivref{hpc}{FFT} is a parallelization of the matrix fast
-  Fourier transform in two ways: using Open-MP standard for shared memory
-  multi-core parallelization on one hand and the SIMD vectorized instructions of
-  each core on the other hand. Performance experiments demonstrate the
-  effectiveness of the design of thread parallelization, reaching speed-up
-  factors up to 3 out of 4 cores, and up to 5 out of 8 cores, which is remarkable given
-  the high memory bandwidth of the kind task considered here. The SIMD
-  optimization of the FFT butterfly partly relies on the super-optimizer results
-  of Deliverable~\longdelivref{hpc}{MPIRsuperoptimiser}. Here again, experiments
-  demonstrate a strong improvement in practice for the new code produced.
+Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular are not. Since the last update much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}. We also now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex. Suggestions by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau have been invaluable.
 
-  Deliverable~\delivref{hpc}{QS-linalg} now focuses on one major type of
-  application of the library: relation sieving for factoring medium sized
-  integers. There, use of SIMD optimizations did not provide strong enough
-  improvements and the work mostly focused on the thread paralellization of the
-  reliation sieving. The resulting code in \FLINT improves over \Pari's
-  implementation for large enough integers (above 170 bits) in sequential already, and benefits
-  from a speed-up factor of about 3 out of 4 cores. On the contrary, the
-  parallelization of the block Wiedemann algorithm mostly benefitted from SIMD
-  optimizations and much less from multithreading.
+The serial implementations of the operations of multiplication, division and GCD are complete in both the dense and sparse cases and the performance is competitive with other systems. The parallel implementation of multiplication is also complete with competitive performance as well. We are on track to have division and GCD parallelized and delivered on time.
+
+We have also been able to parallelize polynomial root clustering, which is a
+major engine in Singular that benefits from fine-grained
+parallelization. Performance improvements continue to be made by Remi Imbach
+(now at NYU following his ODK contract). The fully working implementation is
+at \url{https://github.com/rimbach/Ccluster}.
+
+
+
 
   \subparagraph{\longtaskref{hpc}{hpc-mpir}}
 
-  The \MPIR library is  a core component of many computational mathematics
-  software providing highly optimized  basic arithmetic over multiprecision
-  integers.
+  All deliverables for this task have been delivered at the previous
+  reporting period.
   
-  Deliverable~\delivref{hpc}{MPIRsuperoptimiser} is a super-optimizer, performing
-  exhaustive search of permutations in a sequence of assembly instructions,
-  combined with a fine clock cycle count to elect the most efficient variant.
-
-  The main unexpected obstacle has been the production of a precise clock cycle
-  counter, on which to base the benchmarks: recent. Frequency scaling strategies
-  of the CPU led to noise in the  measurements, while the real CPU cycle counter
-  would require patching a kernel module to allow access in user mode.
-  This problem has been solved thanks to the pmu-tools API to the  performance system of the
-  Linux kernel.
-
-  Then super-optimizer could reliably produce optimized code for
-  the main functions of the MPIR library (multiplication, gcd, and extended gcd)
-  on the most common recent vectorized architectures: AMD Bulldozer, Intel
-  Skylake and Haswell. Experiments comparing the resulting new routines with the
-  current ones, showed a significant improvement in performances in almost all
-  cases, thus validating this approach and motivating its application to a
-  broader set of routines.
-
   \subparagraph{\longtaskref{hpc}{hpc-combi}}
 
   The goal of this task is to use combinatorics as a source of challenges to
