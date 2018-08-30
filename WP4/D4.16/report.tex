@@ -25,19 +25,24 @@ interaction (Read-Eval-Print Loop), a key feature of Jupyter is its
 \href{http://jupyter.org/widgets}{Interactive widgets} which enable
 real time interactive data visualizations; the Jupyter community has
 developed a large array of widgets for interactive 2D and 3D
-visualization of data in the form of charts, maps, tables, etc; see
-e.g. \delivref{UI}{vis3d} for ODK's contribution to 3D visualization.
+visualization of data in the form of charts, maps, tables, etc;
+See Figure~\ref{fig:ipyleaflet} for an example, and
+\delivref{UI}{vis3d} for ODK's contribution to 3D visualization.
 Furthermore, widgets can be \emph{composed} to build rich
 applications, with all the usual UI components (e.g. menus, sliders,
 or layout control).
 
-\begin{figure}[h]\begin{center}
-  \includegraphics[width=\textwidth]{images/Velocity}
-\end{center}\end{figure}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/Velocity}
+  \end{center}
+  \caption{A Jupyter widget displaying an interactive map based on
+    OpenStreetMap data, overlayed with a visualisation of wind velocity
+    data (courtesy of the \lstinline{ipyleaflet} documentation).}
+  \label{fig:ipyleaflet}
+\end{figure}
 
-\TODO{screenshots: e.g. ipyleaflet + some application (exple appli web)}
-
-\newpage
+\TODO{screenshot: some Jupyter based web application}
 
 Hence, the Jupyter stack provides a very flexible environment catering
 for use cases ranging from a novice users typing just a few commands
@@ -48,78 +53,103 @@ The question we are tackling in this report is how this technology --
 and specifically Jupyter widgets -- can be leveraged for pure
 mathematics. The unique challenge comes from the huge variety of
 mathematical objects that the user may want to visualize and
-manipulate, some even coming with several natural ways to be
-represented.
+interact with, and the variety of graphical representations;
+see Figure~\ref{fig:math_viz} for some examples.
 
 %\newpage
 
-\begin{figure}[h]\begin{center}
+\begin{figure}%[h]
+  \begin{center}
     \includegraphics[width=0.20\textwidth]{images/partitions-of-5}
-    \hspace{24px}
-  \includegraphics[width=0.25\textwidth]{images/hexominoes}
-    \hspace{4px}
-  \includegraphics[width=0.36\textwidth]{images/AztecDiamond}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
+    \hfil\hfil
+    \includegraphics[width=0.25\textwidth]{images/hexominoes}
+    \hfil
+    \includegraphics[width=0.30\textwidth]{images/AztecDiamond}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
     \includegraphics[width=0.4\textwidth]{images/nonominoes}
-    \hspace{32px}
-  \includegraphics[width=0.4\textwidth]{images/500px-Torus_with_seven_colours}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
-  \includegraphics[width=0.3\textwidth]{images/359px-F4HassePoset}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/Wikipic}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/500px-McGee_graph}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
-  \includegraphics[width=0.3\textwidth]{images/fractioncont}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/elliptic-curve}
-    \hspace{4px}
-  \includegraphics[width=0.3\textwidth]{images/548px-Fermat's_spiral_01}
-\end{center}\end{figure}\begin{figure}[h]\begin{center}
-  \includegraphics[width=0.3\textwidth]{images/619px-Tiling_Fibonacci_word_fractal}
-    \hspace{32px}
-\includegraphics[width=0.3\textwidth]{images/597px-E8Petrie}
-\end{center}\end{figure}
+    \hfil
+    \includegraphics[width=0.4\textwidth]{images/500px-Torus_with_seven_colours}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
+    \includegraphics[width=0.3\textwidth]{images/359px-F4HassePoset}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/Wikipic}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/500px-McGee_graph}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
+    \includegraphics[width=0.3\textwidth]{images/fractioncont}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/elliptic-curve}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/548px-Fermat's_spiral_01}
+%   \end{center}
+% \end{figure}
+% \begin{figure}[h]
+%   \begin{center}
+    \includegraphics[width=0.3\textwidth]{images/619px-Tiling_Fibonacci_word_fractal}
+    \hfil
+    \includegraphics[width=0.3\textwidth]{images/597px-E8Petrie}
+  \end{center}
+  \caption{Some graphical visualizations of mathematical objects}
+  \label{fig:math_viz}
+\end{figure}
 
 %\TODO{search on wikipedia for a nice collection of pictures: a
 %  partition, a polyomino, an aztec diamond, a monomial ideal, a graph,
 %  a poset, a formula - fraction continue, a curve, ...}. diagramme de Venn ; th des 4 couleurs sur une carte mathématique
-
-\newpage
 
 We therefore can't hope to provide hand crafted solutions for each
 situation; instead we need to devise a toolbox of generic solutions
 from which users can easily derive specialized visualizations for
 their own pet objects.
 
-We pursue two directions.
+In this report, we pursue two directions.
 
-In the first one, we explore the development of widgets for the
-graphical visualization of combinatorial objects.
-The choice of this area of mathematics was, to some extent
-out of personal interest and expertise, but more importantly because
-devising good representations -- mental images -- of discrete objects
-is at the heart of research in combinatorics. In Section~\ref{grid},
-we report on the implementation in SageMath of a generic widget for
-objects that admit a representation as a collection of cells on a 2D
-grid, and specializations for typical objects such as partitions,
-tableaux, polyominos, aztec diamonds, mazes.
+In Section~\ref{section:combi}, we explore the development of widgets
+for the graphical visualization in combinatorics -- or more generally
+discrete mathematics. The choice of this area of mathematics was, to
+some extent out of personal interest and expertise, but more
+importantly because devising good representations -- mental images --
+of discrete objects is at the heart of research in combinatorics. We
+start by reviewing in Section~\ref{section:francy} the GAP package
+\href{https://github.com/mcmartins/francy}{Francy} which currently
+explores the natural use case of objects that admit a graph-like
+representation: trees, graphs, lattices of subgroups, crystals,
+posets, discrete markov chains, just to name a few. At this stage, ODK
+has a light contribution to the development of this package, through
+the supervision(?) of ODK's member Markus Pfeiffer. We highlight the
+lessons learned there and describe upcoming collaboration toward
+bringing Francy\'s features to SageMath.
 
-\TODO{screenshot(s) of widgets displaying all of the above}
+Then, in Section~\ref{section:grid}, we report on the implementation
+in SageMath of a generic widget for objects that admit a
+representation as a collection of cells on a 2D grid, and
+specializations for typical objects such as partitions, tableaux,
+polyominos, aztec diamonds, mazes. One aspect which we explore beyond
+Francy is not only \emph{interactive visualization} but also
+\emph{interactive edition}, where the underlying mathematical object
+gets changed by the user gestures. This is the occasion to explore the
+flexibility of the the design patterns emerging from Francy.
 
-Another natural use case in combinatorics -- or more generally
-discrete mathematics -- are objects that admit a graph-like
-representation (trees, graphs, lattices of subgroups, crystals,
-posets, discrete markov chains, to name a few). This use case is being
-explored by the authors of the GAP package
-\href{https://github.com/mcmartins/francy}{francy} under the
-supervision(?) of ODK's member Markus Pfeiffer. Although ODK's
-contribution in this direction is lightweight(?) at this stage, we
-briefly report in Section~\ref{francy} on this use case to highlight
-the lessons learned there and describe upcoming collaboration toward
-bringing francy\'s features to SageMath.
+The choice of this use case was motivated by two important features:
+\begin{itemize}
+\item the visualization part is relatively simple making it a good
+  case for prototyping;
+\item the potential impact is high due to the large number of objects
+  covered, bringing in opportunities for testing how users manage to
+  to adapt our generic tools for their own pet objects;
+\end{itemize}
 
-In a second direction, we explore the use of Jupyter widgets not only
+In a second direction, we explore in
+Section~\ref{section:sage-explorer} the use of Jupyter widgets not only
 for the graphical visualization of an object, but for displaying a
 page offering a synthetic overview of the information about that
 object, including type, important properties and invariants, available
@@ -128,14 +158,12 @@ information that is readily available by introspection but that a UI
 can make easy to discover and emphasize according to relevance. The
 challenge is that, given the huge variety of objects in a system like
 SageMath, we can't afford to hand craft such pages for each type of
-objects. In Section~\ref{sage-explorer} we report on our prototype
+objects. We report on our prototype
 \lstinline{sage-explorer} that exploits the semantic embedded into the
 system to produce a reasonable overview page automatically tailored to
 each object.
 
 \TODO{Screenshot of Sage-explorer?}
-
-\TODO{Conclusion}
 
 Altogether, the Jupyter Widget technology has proven as mature and
 flexible as we hoped for. Designing new widgets does take some
@@ -143,11 +171,22 @@ expertise, but from the experience we gained, we are confident that it
 lends itself well to the implementation of generic widgets by power
 users that can be specialized by casual users and used by novices.
 
-There remains two main challenges:
+Three main challenges arise along the way which we will continue to
+explore and tackle during the last year of OpenDreamKit:
 \begin{itemize}
-\item How to best design widgets so that they can be reused across
-  systems written in different languages? \TODO{Explain the tension
-    kernel language / javascript}. \TODO{This will be explored by ... }
+\item Implementing visualization widgets is time consuming and
+  requires specific expertise that developers of computer algebra
+  systems usually don't have. It's therefore desirable to reuse them
+  across mathematical objects that share a certain type of
+  visualization, and across computer algebra systems. How to best
+  design widgets to decouple them from the specific objects or
+  programming language at hand?
+\item User interface and visualization technologies tend to evolve
+  much faster than computational systems; how to best design widgets
+  to decouple the semantic part of the visualization of the widgets
+  from the actual visualization technology, in order to prepare for a
+  smooth and cheap migration path when such technology evolves and
+  foster long term sustainability?
 \item Widgets, as all modern web technologies, rely a lot on
   asynchronous execution. This is quite a different model from the
   Read-Eval-Print main loop that many not-so-young computational
@@ -177,20 +216,78 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
   in order to automatically refresh the representation.
   However, the Larch environment is designed to run locally, i.e. not
   within any browser, and the project was discontinued in 2014.
-\item Already within
-  \href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project
-  (2003-2004), an API was developed for a graphical representation
-  combinatorial objects and their properties ; see
-  \href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial
-    Class With 2DBoxedRepresentation}. Yet this representation was
-  limited to text-graphics i.e. ``ASCII art''.
 \end{itemize}
 
+\section{Interactive visualization of combinatorial objects}
+\label{section:combi}
 
-\section{A generic widget for objects with a grid-like representation}
+\subsection{Francy: an Interactive Discrete Mathematics Framework for GAP}
+\label{francy}
+
+Francy is a package for interactive visualisation in discrete
+mathematics. It's developed mainly by Manuel Martins, with supervision
+by ODK's member Markus Pfeiffer. For now, Francy has been focusing on
+the interactive visualisation of objects that admit a graph-like
+representation (trees, graphs, ...). Features include for example
+zoom-and-pan, moving nodes, clustering, menus for
+activating/deactivating interactions, etc. Those are basic interactive
+graph drawing features and are not particularly impressive by
+themselves: after all, interactive graph drawing and editing has been
+the subject of a whole community, with series of conferences such as
+the \emph{International Symposium on Graph Drawing and Network
+  Visualization}, and acclaimed tools like \lstinline{graphviz} or
+\lstinline{tulip}. What makes Francy stand is to bring those feature
+to computational systems and, more importantly, explore how to best
+leverage the technology to empower users of such systems to adapt it
+to their needs.
+
+\TODO{somewhere: macaulay's package}
+
+At this stage, Francy is a package for the GAP computer algebra
+system. However its features would be extremely valuable for other
+systems and in particular \Sage. Also Francy uses Jupyter Widgets as
+GUI framework and \href{d3js.org}{D3JS javascript library} library for
+visualisation. %which manipulates the browser DOM for the graphical display itself
+While those are flourishing technologies that are promising for the
+years to come, lessons learned the hard way from the past (e.g. within
+the xgap project) shows that, at the scale of decades, GUI and
+visualization frameworks change at a faster pace than computational
+systems and visualization needs.
+
+To tackle these two tensions, Francy has taken the approach of
+decoupling itself from the computational system and from the GUI
+framework and visualization libraries. It does this by introducing an
+intermediate layer of semantic models of what graphical
+representations are. With this approach, integrating a new
+computational system reduces to providing a backend describing the
+desired graphical representations for its mathematical objects in the
+semantic model. Similarly, integrating GUI framework reduces to
+providing a frontend describing how to concretely render and interact
+with the graphical representations from the model. In practice, the
+semantic model takes the form of an intermediate JSON data format,
+with JSON data being passed from the computational system to the
+browser.
+
+%\subsection{Francy, }
+
+\TODO{Time permitting: a picture of the data flow}
+
+
+\subsection{A generic widget for objects with a grid-like representation}
 \label{grid}
 
-\subsection{A generic grid view widget}
+We have seen a \emph{design pattern} emerging in the previous section:
+without this being formalized, a similar approach had been taken in
+Sage for static graph drawing, using the so-called ``dot'' format of
+the graphviz project as intermediate data format, to later produce
+graph pictures in a variety of formats (latex, pdf, svg).
+
+Similarly, in the
+\href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project a
+generic intermediate data format was designed for all objects that can be
+drawn by filling out certain cells in a 2-dimensional grid. Here is,
+for example, a drawing of \emph{skew tableau}, an important kind of
+combinatorial object arising in representation theory:
 
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
@@ -198,12 +295,27 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
       %\caption{A grid widget}
 \end{center}
 \end{wrapfigure}
+We will call such a drawing a \emph{grid-like representation}.
 
-We decided to first implement a generic widget meant for all SAGE-objects that can
-be grid-like represented, i.e. all objects that can be described by
-filling out some of the boxes in a 2-dimensional grid.
+From the intermediate data format, drawings could be produced in a
+variety of format: latex, pdf, various forms of ascii art, ...; see
+\href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial Class With 2DBoxedRepresentation}.
+This achieved the same two levels of decoupling as we have seen in Francy.
 
-For example a skew tableau:
+We decided to build on this previous experience to explore not only
+drawing, but also \emph{interactive editing}: here, the interaction
+not only affects the visualization, but also induces changes to the
+the original mathematical objects via the intermediate data format.
+Thus the data flow is now bidirectional.
+\TODO{Time permitting: a picture of the bidirectional data flow}
+
+Technically speaking, we aimed for the implementation of a generic
+Jupyter widget meant for all SAGE-objects admitting a grid-like
+representation.
+
+\TODO{NT: additional challenge: the interaction requires richer
+  messages where not only data representing the, but also questions
+  are asked (validity, valid changes, ...) + temporary invalidity. }.
 
 This use case combined several advantages:
 \begin{itemize}
@@ -254,7 +366,7 @@ use \emph{IPyWidgets} buttons or text inputs.
 \end{wrapfigure}
 
 Grid-like representable objects cover many algebraic or combinatoric
-objects: matrices, graphs, tableaus, skew tableaus, ribbons ..
+objects: matrices, partitions, grid graphs, tableaus, ribbons ..
 
 Apart from displaying and editing an object, more possibilities can be
 imagined
@@ -263,7 +375,7 @@ imagined
 
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
-      \includegraphics[width=100px]{images/JDTSlide}
+      \includegraphics[width=100px]{images/dominos-azteque}
       %\caption{A tableau widget}
 \end{center}
 \end{wrapfigure}
@@ -287,56 +399,25 @@ progressively into SageMath.
   \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
 \end{itemize}
 
-\section{francy: an Interactive Discrete Mathematics Framework for GAP}
-\label{francy}
-
-Francy is a package for interactive visualisation in discrete
-mathematics. It's developed mainly by Manuel Martins, with supervision
-by ODK's member Markus Pfeiffer. For now, Francy has been focusing on
-the interactive visualisation of objects that admit a graph-like
-representation (trees, graphs, ...). Features include zoom-and-pan,
-moving and editing nodes, clustering, menus for
-activating/deactivating interactions, etc.
-
-At this stage, Francy is a package for the GAP computer algebra
-system. However its features would be extremely valuable for other
-systems and in particular \Sage. Also Francy uses Jupyter Widgets as
-GUI framework and \href{d3js.org}{D3JS javascript library} library for
-visualisation. %which manipulates the browser DOM for the graphical display itself
-While those are flourishing technologies that are promising for the
-years to come, lessons learned the hard way from the past (e.g. within
-the xgap project) shows that, at the scale of decades, GUI and
-visualization frameworks change at a faster pace than computational
-systems and visualization needs.
-
-To tackle these two tensions, Francy has taken the approach of
-decoupling itself from the computational system and from the GUI
-framework and visualization libraries. It does this by introducing an
-intermediate layer of semantic models of what graphical
-representations are. With this approach, integrating a new
-computational system reduces to providing a backend describing the
-desired graphical representations for its mathematical objects in the
-semantic model. Similarly, integrating GUI framework reduces to
-providing a frontend describing how to concretely render and interact
-with the graphical representations from the model. In practice, the
-graphical representations take the form of JSON data that is passed
-back and forth between the computational system and the browser.
+\subsection{Future plans}
 
 In the upcoming year, we plan to collaborate tightly with Francy to:
 \begin{itemize}
 \item Bring Francy's features to \Sage by implementing a backend. This
   would finally bring a solution to a long time yet pressing need of
   the community that was so far only partially fulfilled by
-  unsustainable prototypes.
-\item Get inspiration to derive a similar decoupling for objects
-  admitting a grid view, with a Sage backend, a semantic model, and a
-  Jupyter/JS frontend.
+  unsustainable prototypes like Sage's
+  \href{http://doc.sagemath.org/html/en/reference/graphs/sage/graphs/graph_editor.html}{graph editor}.
+\item Further explore the design pattern with over kinds of graphical
+  representations (starting from the grid view representation of the
+  next section), with a similar decoupling between a Sage backend, a
+  semantic model, and a Jupyter/JS frontend.
 \item Contribute the models and frontends to Francy, making the
   features available to GAP.
 \end{itemize}
 
 \section{Sage-explorer}
-\label{sage-explorer}
+\label{section:sage-explorer}
 
 \TODO{tension SAGE/javascript concernant l'emplacement des appels de
   méthodes}

@@ -13,59 +13,70 @@
 
 \section{Introduction}
 
-\TODO{The previous deliverable had a long (maybe too long)
-  introduction to put things into context; this one is short for a
-  reviewer who has not heard about PARI and friends since the last
-  review. Maybe some of the language of D4.1 could be reused here.}
-
-\TODO{Following our usual practice, the intro can be put in the github
-  issue description and imported here with the githubissuedescription
-  macro.}
-
-In the first reporting period of the OpenDreamKit project,
-we created Python bindings for PARI in a package called \emph{cypari2}.
-These allow to interface with PARI/GP from Python.
-We reported that in \delivref{UI}{pari-python-lib1} and this deliverable is a follow-up,
-adding extra features.
-
-\section{Use cases}
-
-The PARI library is a state-of-the-art library for number theory,
+The \Pari library is a state-of-the-art library for number theory,
 developed at Universit\'e Bordeaux I.
-It comes with a command-line interface called GP
-and, thanks to OpenDreamKit (see \delivref{UI}{ipython-kernels-basic}),
-there is also a Jupyter interface.
+It is an important component of the \Sage computational system:
+\Sage uses it for example to implement number fields and elliptic curves.
+\Pari itself is just a C library but it comes with a command-line interface called GP.
+The complete package is called \PariGP.
+Thanks to OpenDreamKit (see \delivref{UI}{ipython-kernels-basic}),
+there is also a \Jupyter interface implementing the same language.
 Unfortunately, GP is a specialised language which is not so easy
 to integrate with other software.
 
-This deliverable is about a Python interface.
+This deliverable is about creating a \Python interface for \PariGP.
 Since Python is a widely-used programming language,
-this makes it possible to integrate PARI/GP with other (scientific) software.
+this makes it easy to integrate \PariGP with other (scientific) software.
 As such, it is an important component of a VRE
 for researchers who require number-theoretical computations.
+The interface between \Sage and \PariGP also uses the cypari2 package.
+
+\clearpage
+\section{Examples}
 
 This is a basic example of using cypari2 to compute
 the number of points on the elliptic curve $Y^2 = X^3 + 2X + 3$
-over the finite field $\mathbb{F}_7$:
+over the finite field $\mathbb{F}_{11}$:
 \begin{verbatim}
->>> from cypari2 import Pari; pari = Pari()
->>> pari.ellinit([2,3]).ellcard(7)
-6
+In [1]: from cypari2 import Pari; pari = Pari()
+
+In [2]: E = pari.ellinit([2, 3])
+
+In [3]: E.ellcard(11)
+Out[3]: 12
 \end{verbatim}
 
-Sage also uses cypari2 internally as backend for several modules,
-for example number fields and elliptic curves.
+We can easily use the parallel features of \PariGP (see \taskref{hpc}{hpc-pari}).
+In this example, we factor all numbers of the form $2^n - 1$ for $n$ in $[1, 200]$:
+\begin{verbatim}
+In [1]: from cypari2 import Pari; pari = Pari()
+
+In [2]: pari.default("nbthreads", 2)
+
+In [3]: L = [2**i - 1 for i in range(1, 201)]
+
+In [4]: %time res = pari.parapply("factor", L)
+CPU times: user 6.76 s, sys: 170 ms, total: 6.93 s
+Wall time: 3.6 s
+\end{verbatim}
+
+The timings show that this computation took 6.93 seconds of CPU time
+but it finished in 3.6 seconds.
+This is because 2 threads were used in parallel
+(as configured in the \texttt{nbthreads} default).
 
 \section{New features}
 
-Since \delivref{UI}{pari-python-lib1},
-we added multiple new features, which we list now.
+In the first reporting period of the OpenDreamKit project,
+we created \Python bindings for \PariGP in a package called \emph{cypari2}.
+We reported on that in \delivref{UI}{pari-python-lib1} and this deliverable is a follow-up
+in which we added multiple new features, which we list here.
 
 \subsection{Plotting support}
 
 As part of the work for \delivref{UI}{ipython-kernels},
-we implemented SVG high-resolution plotting in PARI.
-This was first developed for the PARI Jupyter kernel,
+we implemented SVG high-resolution plotting in \Pari.
+This was first developed for the \PariGP Jupyter kernel,
 but the same feature now also works using cypari2
 in the Python or Sage Jupyter kernels.
 
@@ -76,26 +87,27 @@ in the Python or Sage Jupyter kernels.
 
 \subsection{Support for GP lists}
 
-\TODO{a tiny bit of context to assess how the feature is important;
-  e.g. important Pari functions that can now be called; how much
-  coverage of the PARI/GP data types do we have now? Was it the last
-  piece missing?}
-
-The PARI/GP data type \verb/t_LIST/ is now supported.
+The \PariGP data type \verb/t_LIST/ is now supported.
 This is a dynamic array type, very similar to a Python \verb/list/.
+It is not used internally in the \Pari library,
+but it is a useful programming tool for the end user.
 
 Here, we show how such a list can be used.
 We create a list from the vector \verb/[1,2,3]/ and then insert the
 element $5$ at the third position:
 \begin{verbatim}
->>> from cypari2 import Pari; pari = Pari()
->>> L = pari.List([1,2,3])
->>> L
-List([1, 2, 3])
->>> L.listinsert(5, 3)
-5
->>> L
-List([1, 2, 5, 3])
+In [1]: from cypari2 import Pari; pari = Pari()
+
+In [2]: L = pari.List([1,2,3])
+
+In [3]: L
+Out[3]: List([1, 2, 3])
+
+In [4]: L.listinsert(5, 3)
+Out[4]: 5
+
+In [5]: L
+Out[5]: List([1, 2, 5, 3])
 \end{verbatim}
 
 \subsection{Avoiding copies from the PARI stack}
@@ -106,19 +118,23 @@ TODO: Keep objects on the PARI stack instead of always copying
 
 As already reported in \delivref{UI}{pari-python-lib1},
 large parts of the cypari2 source code are auto-generated.
-Indeed, PARI ships a file \verb/pari.desc/ containing,
+Indeed, \Pari ships a file \verb/pari.desc/ containing,
 for each function, all machine-readable data which is needed to generate
 an interface to that function.
 This was originally meant to generate a C interface,
 but it applies also to a Cython interface.
+Currently, there are 867 such auto-generated functions.
 
 We have made two improvements to this auto-generation process.
 First of all,
-the Cython declarations to directly call certain C functions
-in the PARI library is now auto-generated.
+the Cython declarations to directly call the C functions
+corresponding to GP functions are now auto-generated.
 This is meant to be used by external Cython code
 (the original auto-generated code was only for the Python interface)
-wanting to interface efficiently with PARI.
+wanting to interface efficiently with \Pari.
+The Cython interface has the advantage of avoiding the
+overhead of calling Python methods and creating Python objects.
+It also allows finer control over PARI internals.
 
 \TODO{would you have a quick example illustrating the speed gain of
   calling directly at the Cython level? Maybe mention the number of
@@ -126,25 +142,27 @@ wanting to interface efficiently with PARI.
 
 Second, cypari2 now automatically
 generates a \texttt{DeprecationWarning}
-for obsolete PARI functions.
-
-The following example shows such a deprecation warning
-(in Sage since Python does not show such warnings by default),
-including the date when the function was deprecated by PARI:
+for obsolete \PariGP functions.
+The following example shows such a deprecation warning,
+including the date when the function was deprecated:
 \begin{verbatim}
-sage: pari.polred("x^2 + 4")
-/usr/local/src/sage-config/src/bin/sage-ipython:1:
-DeprecationWarning: the PARI/GP function polred is
-obsolete (2013-03-27)
-  #!/usr/bin/env sage-python23
-[x, x^2 + 1]
+In [1]: from cypari2 import Pari; pari = Pari()
+
+In [2]: pari.polred("x^2 + 4")
+/usr/local/src/sage-config/local/bin/ipython:1:
+DeprecationWarning: the PARI/GP function polred
+is obsolete (2013-03-27)
+  #!/usr/local/src/sage-config/local/bin/python2
+Out[2]: [x, x^2 + 1]
 \end{verbatim}
 
 \subsection{Documentation}
 
-PARI has a very extensive help for each function.
-This help is now translated to docstrings for the Python interface.
-This requires a translation from \LaTeX (which is used by PARI)
+\PariGP has very extensive help documentation for each function.  This help is
+now translated to ``docstrings'' (in-line documentation for Python code) for
+the Python interface.
+This requires a translation from \LaTeX
+(the language used for the \PariGP documentation)
 to reStructuredText (which is used by Sphinx,
 the package building the documentation for cypari2).
 
@@ -157,30 +175,32 @@ The built documentation is now also available on the
 documentation hosting service ReadTheDocs;
 see \url{https://cypari2.readthedocs.io/}.
 
-\subsection{Compatibility improvements}
-
-\TODO{The intro of D4.1 on
-  https://github.com/OpenDreamKit/OpenDreamKit/issues/83 states: “The
-  CyPari2 package is not ready to replace the PyPi package CyPari yet.
-  The most important missing functionality is Windows compatibility. A
-  full replacement to CyPari is the goal of deliverable D4.10.”.
-  Please elaborate briefly on that here.}
-
-\TODO{The title of this section could be something like ``CyPari2 as a
-  standalone Python package''}
-
-\TODO{State a few words about the adoption of CyPari2; e.g. is it used
-  by Snappy?}
+\section{cypari2 as a standalone Python package}
 
 The primary motivation of the cypari2 package
 was to be used as part of the Sage distribution.
 However, we want it to be usable also by itself, outside of Sage.
 We made several improvements to make that possible:
 the code is now fully compatible with Python 3 (starting with with version 3.4)
-and with multiple versions of PARI (from 2.9.0 to the most recent release, 2.11.0).
-To ensure that it remains compatible, multiple Python and PARI
+and with multiple versions of \PariGP (from 2.9.0 to the most recent release, 2.11.0).
+To ensure that it remains compatible, multiple Python and \PariGP
 versions are tested on the continuous integration platform Travis CI.
 
+One of the original goals of this deliverable was replacing the original
+cypari package.
+This main stumbling block for this is Windows compatibility of cysignals,
+a package for interrupt, signal and error handling
+of Cython code, written by OpenDreamKit as part of \taskref{UI}{pari-python}.
+This package is a dependency of cypari2 and it
+currently does not work natively on Windows,
+only on Unix-like systems
+(in particular on Linux and Mac OS X and also Cygwin on Windows).
+Because of that, cypari2 also does not work on Windows.
+Significant progress has been made to port cysignals to Windows,
+but this is not finished yet.
+Given that \PariGP itself does work on Windows,
+it should then be relatively easy to get cypari2 working on Windows.
+Once that is done, it will be a viable replacement for cypari.
 
 \TODO{The intro of D4.1 says: ``Because of the high degree of
   coupling, and thanks to the availability of Snappy, this deliverable
