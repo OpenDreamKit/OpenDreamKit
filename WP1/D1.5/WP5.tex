@@ -51,12 +51,43 @@
 \paragraph{Tasks}
 
 \subparagraph{\longtaskref{hpc}{hpc-pari}}
+Deliverable~\longdelivref{hpc}{pari-hpc1} has been merged
+ with \longdelivref{hpc}{pari-hpc2} in the revised workplan.
 
-No deliverable is due for the reporting period.
-The generic paralellization engine in the \Pari C-library
-has reached its maturity. It is now part of the standard releases of \Pari
-and~\longdelivref{hpc}{pari-hpc1}
-will be delivered on time on month 24.
+Deliverable~\delivref{hpc}{pari-hpc2} is on time or even ahead of schedule.
+The generic engine for Deliverable~\delivref{hpc}{pari-hpc1} was written and
+finalized in 2015 and 2016 and is in production since PARI-2.9 (released
+11/2016), it supports sequential evaluation (no parallelism), POSIX threads and
+MPI within the same code base.
+Development work since then is targetted at using the engine wherever it makes
+sense in the code base. The current situation (PARI-2.11, released 07/2018)
+includes:
+\begin{itemize}
+\item fast (near linear time) Chinese remaindering;
+\item fast linear algebra over Q and cyclotomic fields, a critical component of
+the new "Modular Forms" package;
+\item polynomial resultant in $\mathbb{Z}[X]$ via Chinese remainders;
+\item computation of classical modular polynomials for about 20 classical
+invariants (j, Weber functions, small eta quotients...);
+\item discrete logarithm over finite fields (prime fields and
+$\mathbb{F}_{p^e}$ for word-sized prime $p$) - polynomial resultant in
+$\mathbb{Z}[X] \times \mathbb{Z}[X,Y]$ via 
+Chinese remainders / evaluation;
+\item APRCL primality proof.
+\end{itemize}
+
+More work is underway regarding the development of  ECPP, integer
+factorization engines, class group and units computations.
+
+Compared to the pre-existing sequential code, the parallel version adds about 15 extra lines of
+C on average (conveniently encapsulated in a separate "worker" object). As usual
+in "embarassingly parallel" code, the measured speedup is essentially linear in
+the number of available cores. The resulting GP binary has been successfully
+crashtested by a panel of users during the 2017 PARI/GP Atelier in Lyon:
+basically, substituting the \texttt{Configure} instruction by \texttt{Configure --mt=pthreads}
+before compilation transparently yields the expected speedups for the target
+functions on participants dual-core laptops. 
+
 
 \subparagraph{\longtaskref{hpc}{hpc-gap}}
 
