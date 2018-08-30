@@ -14,7 +14,7 @@
 \section{Introduction}
 
 The \Pari library is a state-of-the-art library for number theory,
-developed at Universit\'e Bordeaux I.
+developed at Universit\'e Bordeaux.
 It is an important component of the \Sage computational system:
 \Sage uses it for example to implement number fields and elliptic curves.
 \Pari itself is just a C library but it comes with a command-line interface called GP.
@@ -112,7 +112,25 @@ Out[5]: List([1, 2, 5, 3])
 
 \subsection{Avoiding copies from the PARI stack}
 
-TODO: Keep objects on the PARI stack instead of always copying
+The first version of cypari2 always copied the results from a
+\PariGP function to the heap
+(a part of memory where dynamic memory allocations happen).
+This meant that every function call had the overhead
+of allocating and copying memory
+(unrelated to the overhead of managing a Python object).
+
+For efficiency, \Pari internally uses a stack to store intermediate results.
+One of the goals stated for \taskref{UI}{pari-python} was to
+keep objects on the \Pari stack.
+This has been implemented in a new version of cypari2, which is not released yet.
+One disadvantage of a stack is that it is impossible
+to free an object in the middle of the used stack space:
+only the most recently allocated object can be freed.
+Therefore, cypari2 has a strategy to copy all objects
+from the stack to the heap anyway once too much stack space is used.
+By delaying the copying, only the objects which are still referenced
+need to be copied.
+This is usually a significant saving over copying all objects.
 
 \subsection{Improved auto-generation}
 
@@ -137,8 +155,7 @@ overhead of calling Python methods and creating Python objects.
 It also allows finer control over PARI internals.
 
 \TODO{would you have a quick example illustrating the speed gain of
-  calling directly at the Cython level? Maybe mention the number of
-  functions auto-generated Cython and Python functions.}
+  calling directly at the Cython level?}
 
 Second, cypari2 now automatically
 generates a \texttt{DeprecationWarning}
@@ -161,7 +178,7 @@ Out[2]: [x, x^2 + 1]
 \PariGP has very extensive help documentation for each function.  This help is
 now translated to ``docstrings'' (in-line documentation for Python code) for
 the Python interface.
-This requires a translation from \LaTeX
+This requires a translation from \LaTeX{}
 (the language used for the \PariGP documentation)
 to reStructuredText (which is used by Sphinx,
 the package building the documentation for cypari2).
@@ -171,24 +188,42 @@ we needed a few improvements in Sphinx to make it work
 with Cython functions.
 This is detailed in the report of \delivref{UI}{sage-sphinx}.
 Following standard practice in the Python community,
-The built documentation is now also available on the
+the built documentation is now also available on the
 documentation hosting service ReadTheDocs;
 see \url{https://cypari2.readthedocs.io/}.
 
-\section{cypari2 as a standalone Python package}
+\section{cypari2 as a stand-alone Python package}
 
 The primary motivation of the cypari2 package
-was to be used as part of the Sage distribution.
-However, we want it to be usable also by itself, outside of Sage.
-We made several improvements to make that possible:
+was to be used as part of the \Sage distribution.
+However, we also want it to be usable also by itself, outside of \Sage.
+Moving the \PariGP interface from \Sage to a separate package cypari2
+is also a testcase for more generally moving code away from \Sage.
+This test was positive:
+interfacing \PariGP from \Sage using cypari2 works equally well now
+as when it was part of \Sage.
+Moreover, it simplifies the \Sage build system:
+the auto-generation was a complication for building the \Sage library.
+This complication still exists in cypari2,
+but there it is less of a problem since cyari2 is a lot smaller
+and probably not built as often as \Sage is.
+
+At the May 2018 OpenDreamKit workshop in Cernay,
+Jeroen Demeyer used cypari2 as a use-case in a presentation
+about writing Cython bindings for a C library.
+In the mean time,
+other similar interfaces are also being moved away from \Sage.
+One such example is pplpy, an interface to PPL (Parma Polyhedra Library).
+
+We made several improvements to make cypari2 behave better as stand-alone package:
 the code is now fully compatible with Python 3 (starting with with version 3.4)
 and with multiple versions of \PariGP (from 2.9.0 to the most recent release, 2.11.0).
-To ensure that it remains compatible, multiple Python and \PariGP
+To ensure that it remains compatible, multiple \Python and \PariGP
 versions are tested on the continuous integration platform Travis CI.
 
 One of the original goals of this deliverable was replacing the original
 cypari package.
-This main stumbling block for this is Windows compatibility of cysignals,
+The main stumbling block for this is Windows compatibility of cysignals,
 a package for interrupt, signal and error handling
 of Cython code, written by OpenDreamKit as part of \taskref{UI}{pari-python}.
 This package is a dependency of cypari2 and it
@@ -196,18 +231,11 @@ currently does not work natively on Windows,
 only on Unix-like systems
 (in particular on Linux and Mac OS X and also Cygwin on Windows).
 Because of that, cypari2 also does not work on Windows.
-Significant progress has been made to port cysignals to Windows,
-but this is not finished yet.
+Significant progress has been made to port cysignals to Windows.
+We plan to finish this task in the final year of OpenDreamKit,
+mainly with resources from Ghent University and Universit\'e Bordeaux.
 Given that \PariGP itself does work on Windows,
 it should then be relatively easy to get cypari2 working on Windows.
 Once that is done, it will be a viable replacement for cypari.
-
-\TODO{The intro of D4.1 says: ``Because of the high degree of
-  coupling, and thanks to the availability of Snappy, this deliverable
-  constitutes a highly valuable case study for future externalizations
-  of low-level interfaces in SageMath.''; a few words about the lesson
-  learned while treating this use case would be interesting. Also
-  mention the latest workshop in Cernay where you reported on that
-  experience.}
 
 \end{document}
