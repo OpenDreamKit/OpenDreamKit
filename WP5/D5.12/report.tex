@@ -1,0 +1,225 @@
+\documentclass{deliverablereport}
+
+\usepackage{pdfpages}
+\usepackage{multirow}
+\usepackage{doi}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=cyan,
+  linkcolor=blue,
+  citecolor=blue,
+}
+
+\usepackage{natbib}
+
+\deliverable{hpc}{LinBox-algo}
+\deliverydate{31/08/2018}
+\duedate{31/08/2018 (M36)}
+\author{Cl\'ement Pernet and Jean-Guillaume Dumas}
+
+\begin{document}
+\maketitle
+% This will be the abstract, fetched from the github description
+\githubissuedescription
+
+% write the report here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ù
+\section{Algorithmic innovations}
+
+\subsection{Dense Gaussian elimination}
+
+Gaussian elimination is among the most commonly used computing kernel in both
+numerical and exact linear algebra, as it is used for solving linear systems,
+and more specifically in exact linear algebra for computing nullspace basis,
+rank and rank profiles, determinants, characteristic polynomials, etc.
+
+\paragraph{Rank deficient LU decomposition} Before the start of the project, we had a series of contributions in the
+developpment of fast Gaussian elimination algorithms in the context of exact
+linear algebra, namely
+\begin{enumerate}
+\item identifying and connecting all triangular matrix decomposition, revealing
+  a crucial invariant, the rank profile, and echelon forms.
+\item proposing block recursive (by slab or tile splitting) algorithms computing
+  these factorization in the best known time complexities, and without
+  additional memory footprint;
+\item introducing a new matrix invariant, the rank profile matrix, summarizing
+  all information on the row and column rank profiles of the matrix and of all
+  of its leading submatrices;
+\item a block recursive and a base case iterative algorithm which implementation
+  in \texttt{fflas-ffpack} sets the state of the art in terms of computing
+  efficiency in sequential and parallel multithreaded contexts, and competes
+  with the efficiency of the equivalent numerical gaussian elimination routine;
+\item an exhaustive study of the required
+conditions on the pivoting strategy for a Gaussian elimination algorithm to
+reveal the rank profile matrix invariant.
+
+\end{enumerate}
+A first contribution to this deliverable, published in~\cite{DPS17},
+improves over the previous results on the rank profile matrix in the following
+ways:
+\begin{enumerate}
+\item a new probabilistic algorithms to compute the rank profile matrix
+  invariant in  $O\tilde\ (r^\omega + mn)$ instead of $O(mnr^{\omega-2})$;
+\item a generalization of the existing algorithms to produce the full row and
+  column echelon form of the matrix
+\item an exhaustive study on how does the notion of rank profile matrix
+  generalizes over arbitrary rings.
+\end{enumerate}
+
+
+\paragraph{Symmetric triangular factorization}
+When the input matrix is symmetric, a variety of symmetric factorizations and
+algorithms is known, depending on the ability to extract
+square roots (for the Cholesky factorization), the rank structure and the
+pivoting strategy to be used.
+
+If the block iterative algorithms with partial or full pivoting are well studied
+in nunmerical linear algebra, the recursive block algorithms were only
+approached recently and with strong restrictions on the pivoting strategy.
+We proposed in \cite{DuPe18} (see Appendix~\ref{app:papers}) a generalization of the Aasen algorithm in a block
+recursive structure, producing a LDLT factorization with partial pivoting. In
+particular, this algorithm is able to also compute the rank profile matrix
+invariant and enjoy a reduction of its time complexity to that of matrix
+multiplication: $O(mnr^{\omega-2})$. Experiments, displayed in
+Table~\ref{tab:ldlt}
+%
+\begin{table}[htb]\centering
+  \footnotesize
+    \begin{tabular}{rrrrrrrrrrr}
+  \toprule
+  \multirow{3}{*}{$n$} & 
+  \multicolumn{4}{c}{Gen. rank prof.} & \multicolumn{2}{c}{Gen. rank prof.} &
+  \multicolumn{2}{c}{Random RPM} & \multicolumn{2}{c}{Random RPM}\\
+  &\multicolumn{4}{c}{ $r=n$}&\multicolumn{2}{c}{ $r=n$}&
+  \multicolumn{2}{c}{ $r=n$}&\multicolumn{2}{c}{ $r=n/2$}\\
+  & \texttt{dgetrf} & \texttt{dsytrf} & \texttt{dsytrf\_rk} & \texttt{dsytrf\_aa} & PLUQ & LDLT & PLUQ& LDLT & PLUQ & LDLT\\
+  \midrule
+$100$   & 1.17e-04 & 1.31e-04 & 1.37e-04 & 9.21e-05 & 4.64e-04 & 3.23e-04 & 5.59e-04 & 5.22e-04 & 3.20e-04 & 3.80e-04\\
+$200$   & 3.73e-04 & 4.39e-04 & 5.51e-04 & 4.48e-04 & 1.87e-03 & 8.80e-04 & 2.58e-03 & 1.59e-03 & 1.58e-03 & 1.33e-03\\
+$500$   & 3.31e-03 & 3.78e-03 & 4.88e-03 & 3.87e-03 & 1.73e-02 & 5.21e-03 & 2.83e-02 & 9.85e-03 & 1.88e-02 & 7.92e-03\\
+$1000$  & 2.19e-02 & 2.09e-02 & 2.58e-02 & 2.05e-02 & 8.84e-02 & 2.30e-02 & 9.95e-02 & 4.01e-02 & 6.27e-02 & 3.18e-02\\
+$2000$  & 0.145 & 0.127 & 0.154 & 0.127 & 0.438 & 0.127 & 0.490 & 0.191 & 0.274 & 0.150\\
+$5000$  & 2.005 & 1.604 & 1.871 & 1.598 & 3.904 & 1.591 & 3.849 & 1.744 & 2.431 & 1.294\\
+$10000$ & 14.948 & 11.981 & 13.396 & 12.008 & 24.115 & 10.904 & 23.985 & 11.209 & 14.775 & 7.894\\
+  \bottomrule 
+  \end{tabular}
+  \caption{Comparing computation time (s) of numerical routines with the
+    symmetric (LDLT) and unsymmetric (PLUQ) triangular decompositions. Matrices
+    with rank $r$, generic rank profile or rank profile matrix uniformly
+    random. }  
+\label{tab:ldlt}
+ \end{table}
+%
+first confirm the expected speed-up factor of 2 with respect
+to the unsymmetric LU factorization, but also show that it performs similarly or
+faster than the lastest implementation of the corresponding numerical routine in LAPACK.
+
+\subsection{Quasiseparable matrices}
+
+Exploiting some structure in a matrix to speed up computations is a whole field
+in linear algebra algorithmic. Quasiseparable matrices are  structured by a
+bounding condition on the rank of any of their submatrices below or above
+the main diagonal. It is a well studied field in numerical linear algebra, as
+these matrices occur sevral major applications, such as solving particule
+interraction, or generalized eigenvalues problems.
+In exact linear algebra this class of structured matrices seemed to be absent
+from the litterature and software ecosystem.
+
+We introduced this class to the field in~\cite{Per16} and~\cite{PeSt18} (see Appendix~\ref{app:papers}) where we
+contributed with two new storages for these matrices and the related algorithmic
+to compute with. The key innovations there are the following:
+\begin{enumerate}
+\item the first reduction in time complexity for the basic arithmetic with these
+  matrices to the fast matrix multiplication complexity: $O(ns^{\omega-1})$
+  where $\omega$ is the exponent of matrix multiplication, and $s$ is the order
+  of quasiseparability.
+\item the first flat (i.e. non-hierarchical) compact representation for these
+  matrices reaching the best space and time complexities. This was made possible
+  thanks to a non-trivial conncection with the notion of rank profile matrix,
+  which we developped in~\cite{DPS17}.
+\end{enumerate}
+
+
+\subsection{Outsourced computing security}
+
+A more exploratory aspect of our contribution deals with the design of secure
+protocols for outsourced or multiparty computations.
+With the emergence of huge computing infrastructures on the Cloud, large scale
+computations are likely to no longer be handled in a controlled environment but
+instead be delegated to third party infrastructures. This raises several
+problematics regarding the privacy in the data, and the trust in the result.
+
+In this context we have stared investigations in two directions: the design of
+certificates of correctness ensuring trust and of multiparty computation
+protocols, ensuring privacy.
+
+\subsubsection{Certificates}
+
+In this setting, the provider of computing resources is called a prover has to
+convince the client (named verifier) that the result which he computed is
+correct.
+Most approaches to interractive certification rely on generic techniques for
+circuit transformations and are therefore mostly relevant for theoretical result
+on asymptotic complexities. 
+
+Alternatively our approach is to design problem specific certification protocols
+taking advantage of the algebraic nature of the computation and avoid the use of
+cryptographic primitives. A first instance, for matrix vector products is
+proposed in~\cite{DuZu17}.
+
+In \cite{DLP17} (see Appendix~\ref{app:papers}), we propose interractive
+certificates for the determinant, echelon forms and the rank profile matrix,
+achieving linear communication and verifier complexity and no overhead for the prover.
+
+We then proposed in~\cite{LNPRR18}  a series of certificates for most
+elementary linear algebra computations over univariate polynomial modules within
+the same tight complexity estimates. The approach is twofold: for problems which
+can be embedded over the field of fraction (such as the determinant, the rank,
+the solution of a linear system), the certification reduces to that of a random
+projection of the problem over the base field. For problems specific to the
+module of polynomial matrices, we designed a certificate for rowspace membership
+that is used as a building block for all other problems (Hermite and Popov form,
+saturation basis, kernel basis, etc).
+
+Laslty we propose in~\cite{DKVZ17} a more complexity theoretic result on
+polynomial time and space certificates for linear algebra in exponential sizes.
+
+\subsubsection{Secure multiparty computation}
+
+In this framework, several users need to perform a large computation with one or several
+matrices that are split into into shares between them. The end goal is to
+perform this computation ensuring correctness and resilience (malicious players
+can not perturb the computation wihtout being detected) while preserving privacy (each
+share should remain secret for the other players).
+Here again generic approaches exist but suffer from large overheads making them
+unpracticable on large scales.
+Our approach is to design problem specific protocols for scalar
+products~\cite{DLOP17}, and matrix multiplication~\cite{DFLLOPP18}, based on
+Strassen's algorithm. The approach combines the use of semi-homomorphic
+encryption schemes (such as Paillier's or Naccach-Stern's) and random masking.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Software releases and integration}
+
+\subsection{LinBox ecosystem}
+
+\subsection{Integration in SageMath}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plainnat}
+\bibliography{linbox}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\section{Selection of research articles published in international journals or conferences}
+\label{app:papers}
+\includepdf[pages={1-8}]{DumasPernet18.pdf}
+
+\includepdf[pages={1-23}]{PernetStorjohann18.pdf}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+

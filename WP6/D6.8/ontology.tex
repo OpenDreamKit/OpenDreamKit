@@ -1,15 +1,27 @@
-n this section, we describe the parts of the MitM ontology, which is a formal development in the MMT system.
+In this section, we describe the parts of the MitM ontology, which is a formal development in the MMT system.
 The formalizations can be found at \url{https://gl.mathhub.info/MitM/}.
 That location also contains various other archives in the \href{https://gl.mathhub.info/MitM/}{\texttt{MitM} library}, which are experiments, where the MitM ontology has been picked up by other projects.
 
+\ednote{announce that the MitM solution consists of two parts
+  Foundation + Core that will now be described}
+
 \subsection{Foundation}
+
+\ednote{$\operatorname{Field}$ looks nicer than than $Field$}
 
 The foundation provides the type system and logic for the MitM ontology, i.e., the basic representational infrastructure used in the MitM ontology.
 It is developed in the archive  \href{https://gl.mathhub.info/MitM/Foundation}{\texttt{Foundation}} (4 files, 539k LoF (lines
 of formalization), 103 commits).
 
-While the logic is relative straightforward, the standardization of the type system was very difficult because mathematics requires a rich, open-ended type system but concrete implementations must stay as simple as possible.
+While the logic is relatively straightforward, the standardization of
+the type system was very difficult because mathematics requires a
+rich, open-ended type system, yet concrete implementations must stay as simple as possible.
 After surveying the OpenDreamKit systems, we developed the types described below.
+
+\ednote{reading through the exhaustive list of types is not super
+  informative; move the list to the appendix, and just give a few
+  examples of types, that are either typical, or where a specific
+  design decision / curation step had to be taken}
 
 \subsubsection{Types}
 
@@ -19,7 +31,7 @@ Concretely, the type system defines the following \textbf{types}:
 \begin{compactitem}
  \item number types (all unbounded in size):
   \begin{compactitem}
-   \item natural numbers: $N$ (including $0$), $Pos$ (excluding $0$), $Prime$ (prime numbers, not excluding $0$ and $1$)
+   \item natural numbers: $N$ (including $0$), $Pos$ (positive, excluding $0$), $Prime$ (prime numbers, not excluding $0$ and $1$)
    \item integer numbers: $Z$
    \item integer numbers modulo $m$: $Z(m)$ (for $m\in Pos$)
    \item rational numbers: $Q$
@@ -37,7 +49,7 @@ Concretely, the type system defines the following \textbf{types}:
  \end{itemize}
 \item Aggregating type constructors for types $T_1,\ldots,T_n$
 \begin{compactitem}
- \item product types: $T_1*\ldots * T_n$
+ \item product types: $T_1*\cdots * T_n$
  \item record types: $\record{a_1: T_1, \ldots, a_n:T_n}$ for identifiers $a_i$
  \item disjoint union types: $T_1+\ldots + T_n$ \ednote{FR: not sure if we need these as they rarely come up yet as they are dual to product types}
  \item labeled disjoint union types: $\union{a_1:T_1,\ldots,a_n: T_n}$ for identifiers $a_i$ \ednote{FR: not sure if we need these as they rarely come up yet; they are dual to record types}
@@ -172,8 +184,8 @@ The \textbf{MitM core} in the
     \texttt{smglom} was initially chosen for the ``Semantic Multilingual Glossary of
     Mathematics'' (SMGloM; see \ref{sec:smglom} below) with which it is
     cross-referenced. We will rethink naming once the MitM Ontology stabilizes.}  archive
-  (43 files, 2600 LoF, 370 commits). This carries the bulk of knowledge representation in
-  the MitM Ontology . The main thrust of curation has been to get the VRE use cases
+  (43 files, 2600 LoF, 370 commits). It carries the bulk of the knowledge representation in
+  the MitM Ontology. The main thrust of curation has been to get the VRE use cases
   reported on in~\cite{ODK-D6.5}, but we also have elementary formalizations of algebra,
   arithmetics, calculus, category theory, set collections, elliptic curves (for LMFDB),
   functional analysis, geometry, graph theory, measure theory, set theory, and topology.
@@ -183,24 +195,24 @@ In the sequel, we describe two exemplary parts of the MitM core ontology.
 
 \subsubsection{Computational Group Theory}
 
-
-Our formalization of CGT follows the template of its implementation in \GAP, and requires different levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
+\ednote{specify file name and size of the ontology}
+Our formalization of CGT follows the template of its implementation in \GAP, and requires several levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
 The left box in Figure \ref{fig:cgtontology} gives an overview.
 
-The abstract level contains the theory of \emph{Groups}: the group
-axioms, generating sets, homomorphisms, group actions, stabilisers, and orbits.
+The abstract level contains the axioms and basic definitions of the theory of \emph{Groups}: generating sets, homomorphisms, group actions, stabilisers, and orbits.
 The most basic part is given in Figure~\ref{fig:mitm1}. 
 \begin{figure}[ht]\centering
   \fbox{\includegraphics[width=8cm]{../MACIS17-interop/mitm1}}
   \caption{A Formalization of a Group}\label{fig:mitm1}
 \end{figure}
 
-The representation level represents groups in different ways as concrete objects
-suitable for computation: as groups of permutations, groups of matrices,
-finitely presented groups, algebraic constructions of groups, or using
+At the representation level groups are described as concrete objects
+suitable for computations: groups of permutations, groups of matrices,
+finitely presented groups, groups obtained by algebraic constructions or using
 polycyclic presentations.
 
-At the implementation level, we encode implementation details: Permutation groups are considered as finite subgroups of the group $S_{\mathbb{N}+}$, and defined by
+At the implementation level, we encode implementation details: for
+example, permutation groups are considered as finite subgroups of the group $S_{\mathbb{N}+}$, and defined \ednote{constructed?} by
 providing a set of generating permutations.
 
 At the concrete level, the computation happens: while the higher levels
@@ -208,9 +220,12 @@ are suitable for mathematical deduction and inference, this level is where OpenD
 
 \subsubsection{Modeling and Simulation}
 
-The \textbf{Modeling and Simulation Ontology} in the \href{https://gl.mathhub.info/MitM/smglom}{\texttt{models}} archive (11 files, 650 LoF, 113 commits). This is an experimental extension of the MitM ontology, where we test the
-  MitM framework (and the OpenDreamKit technologies) for modeling and simulation in
-  opto-electronics.
+The \href{https://gl.mathhub.info/MitM/smglom}{\texttt{models}}
+archive (11 files, 650 LoF, 113 commits) is an experimental extension
+of the MitM ontology, where we test the expressive power of MitM
+framework (and the OpenDreamKit technologies) by applying it to a
+field well outside of mathematics, namely for modeling and simulation
+in opto-electronics.
 
 %%% Local Variables:
 %%% mode: latex
