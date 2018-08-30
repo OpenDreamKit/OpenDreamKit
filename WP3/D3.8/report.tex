@@ -3,7 +3,7 @@
 \deliverable{component-architecture}{multiplatform-buildbot}
 \deliverydate{31/08/2018}
 \duedate{31/08/2018 (M36)}
-\author{Erik Bray, et. al.}
+\author{Erik Bray, Alexander Konovalov, et. al.}
 
 \usepackage{graphicx}
 \usepackage{subcaption}
@@ -276,41 +276,111 @@ features in a web browser without having to go through any local installation.
 
 \subsection{GAP}
 
-% Via Alex [can he write a couple paragraphs about this?]:
-% I will be ready to add a section with the overview of the current state of
-% continuous integration in GAP. In addition to the private Jenkins CI instance
-% that we use for wrapping and testing release candidates, checking for GAP
-% package updates and testing new versions of GAP packages, we now use Travis
-% CI to run a number of tests for the main GAP repositories at
-% https://travis-ci.org/gap-system/. These include not only CI test for the
-% main GAP development repository, but also package integration tests that use
-% a set of Docker containers build in various settings
-% (https://hub.docker.com/r/gapsystem/). We have a standard CI setup for GAP
-% packages, which package authors may adopt and customise. GAP packages using
-% Travis CI in the gap-packages VO can be seen at
-% https://travis-ci.org/gap-packages/ (some more at
-% https://gap-packages.github.io/). Also, GAP and packages use CodeCov to
-% measure code coverage: see https://codecov.io/gh/gap-system/gap for GAP and
-% https://codecov.io/gh/gap-packages/ for GAP packages.
-% 
-% @embray
-% > Much of the context to this deliverable is about multi-platform testing and
-% support. What aspect of our work addresses this? The Travis-CI builds for GAP
-% appear to be entirely, or at least almost entirely for Linux (@alex-konovalov
-% can clarify). I don't see any OSX builds, and Travis does not support
-% Windows.
-% Good point about Windows - forgot to mention that we also use AppVeyor:
-% https://ci.appveyor.com/project/gap-system/gap
+\GAP has a mechanism for user contributions in the form of packages,
+which may be submitted for refereeing and for the redistribution with \GAP.
+They extend the functionality of the system and may implement mathematical
+algorithms, provide mathematical databases, interfaces to other systems or
+enhancements of the system’s infrastructure such as tools for debugging
+and profiling, and building documentation. 
 
-% About Linux vs macOS: package integration tests (all but one badges at
-% https://github.com/gap-system/gap-distribution) use Docker container, hence
-% use Linux. The core system tests used both Linux and macOS builds in the
-% past, but then were disabled because of performance problems:
+Packages are developed and released independently of the core \GAP system.
+They should be properly integrated into \GAP to not to break the functionality
+of the system or any other package. On the other hand, changes in \GAP are only
+permitted to have a disruptive effect on package functionality in a major
+release, and we aim to identify such situations in advance and resolve them
+in cooperation with package authors. Hence continuous integration facilities
+in \GAP are designed to suite the following primary goals:
+\begin{itemize}
+\item checking pull requests which propose changes in the core \GAP system
+\item checking for new versions of \GAP packages redistributed with \GAP;
+retrieving and storing them, and combining them for testing and redistribution
+\item running package integration tests which check that \GAP packages redistributed
+with GAP do not break the functionality of the core \GAP system
+\item wrapping and testing \GAP releases
+\item testing official package releases for their readiness for the next \GAP release
+\item testing package development versions for their compatibility with the \GAP development version
+\end{itemize}
 
-% https://github.com/gap-system/gap/blob/c8104cd056833f60c9f40efcb81b37b9cec76198/.travis.yml#L66
+This is supported by the following infrastructure:
+\begin{itemize}
+\item Jenkins CI instance at the University of St Andrews,
+providing Linux, macOS and Windows nodes (available only within
+St Andrews network due to security restrictions)
+\item Travis CI accounts:
+\begin{itemize}
+\item for the core \GAP system: \url{https://travis-ci.org/gap-system/}
+\item for \GAP packages: \url{https://travis-ci.org/gap-packages/}
+\end{itemize}
+\item CodeCove accounts:
+\begin{itemize}
+\item for the core \GAP system: \url{https://codecov.io/gh/gap-system/gap}
+\item for \GAP packages: \url{https://codecov.io/gh/gap-packages/}
+\end{itemize}
+\item AppVeyor account for the \GAP system: \url{https://ci.appveyor.com/project/gap-system/gap}
+\item A collection of Docker containers with various configurations available from
+Docker Hub: \url{https://hub.docker.com/r/gapsystem/}
+\end{itemize}
+All links to critical CI builds collected in one place are
+available at \url{https://github.com/gap-system/gap-distribution}.
 
-% We have all three systems - Linux, Windows and macOS - available as Jenkins
-% nodes in St Andrews, so we find this to be satisfactory for the moment.
+The core \GAP system tests use Travis CI and AppVeyor 
+to check every pull request submitted to the main \GAP repository,
+and publish code coverage at CodeCov. In the last 6 month, code
+coverage on Travis CI increased from 70\% to 75\%, mainly due to
+new tests added by our external collaborator Max Horn (Giessen).
+In addition to that, several extended tests are performed on Jenkins,
+as they are more time consuming. 
+
+\GAP package authors are advised to provide with each package
+a short test which may be used to check that a package works as expected.
+Such tests are run regularly as a part of the standard \GAP test suite.
+Since Jenkins CI outputs are not accessible outside St Andrews, we use
+a two-tier approach: new versions of \GAP packages are picked up and
+tested internally on the Jenkins CI instance in St Andrews; approved
+versions are then published to be used in all further tests of \GAP
+(core system and package integration tests) on Travis CI, and to run
+standard tests of GAP packages in a way making their output available
+to their authors. These builds use Docker containers for the latest
+\GAP release and for the two release branches of the \GAP repository.
+
+For more comprehensive testing, we provide a standard Travis CI and 
+CodeCov setup for GAP packages, available in the {\sf Example} package
+\url{https://github.com/gap-packages/example}. It has been adopted and
+customised by most of the \GAP packages developed on GitHub (see their
+list at \url{https://gap-packages.github.io/}). Furthermore, there are
+tools for creating and publishing packages, primarily developed by our
+external collaborator Max Horn (Giessen): 
+{\sf PackageMaker}\footnote{\url{https://github.com/gap-system/PackageMaker}},
+{\sf ReleaseTools}\footnote{\url{https://github.com/gap-system/ReleaseTools}}
+and {\sf GitHubPagesForGAP}\footnote{\url{https://github.com/gap-system/GitHubPagesForGAP}}.
+All these measures facilitate interaction between contributors to packages
+and the core GAP system, improve reliability of our software and help to
+keep regular release cycles.
+
+The following table shows the dynamic of the number of packages redistributed
+with \GAP, number of authors involved in them, and adoption of standard tests
+in selected \GAP releases in 2012--2018.
+
+\begin{center}
+\begin{tabular}{ |l|c|c|c| } 
+\hline
+GAP           & Number of    & Number     & Have standard \\
+release       & of packages  & of authors & regression tests \\
+\hline
+4.5.4 (06/12) &  99 & 129 & 46 \\
+4.5.7 (12/12) & 105 & 130 & 47 \\
+4.6.2 (02/13) & 106 & 133 & 58 \\
+4.7.2 (12/13) & 114 & 140 & 51 \\
+4.7.6 (11/14) & 115 & 151 & 53 \\
+4.7.9 (11/15) & 119 & 158 & 57 \\
+4.8.2 (02/16) & 131 & 167 & 69 \\
+4.8.6 (11/16) & 131 & 171 & 69 \\
+4.8.9 (12/17) & 132 & 186 & 73 \\
+4.9.1 (05/18) & 134 & 186 & 85 \\
+4.9.3 (to appear) & 140 & 187 & 91 \\
+\hline
+\end{tabular}
+\end{center} 
 
 
 \subsection{Singular}
