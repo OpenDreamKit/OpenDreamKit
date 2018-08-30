@@ -228,31 +228,31 @@ SageMath community fast, reproducible, reliable CI with minimal maintenance and
 continuous development necessary to keep the CI working for everybody.  We
 settled for GitLab CI, a modern open-source CI system, and CircleCI, a popular
 closed-source system. Which one to use is up to each developer. For simplicity
-we focus on GitLab CI here. GitLab CI typically uses docker containers as its
+we focus on GitLab CI here. GitLab CI typically uses Docker containers as its
 backend (but it can also be based on many other technologies.) These containers
 are essentially virtual machines that can be hosted in a central location but
-also on private computers. Unlike in the patchbot systems, docker containers
+also on private computers. Unlike in the patchbot systems, Docker containers
 are standardized and isolated so that there is usually no issue of false
-positives. % note that I do not distinguish between docker containers and
+positives. % note that I do not distinguish between Docker containers and
 % images; I think it's more confusing to the reader to make such a distinction.
 
 GitLab CI now runs a "pipeline" for every change proposed by a developer.
 \TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
 This pipeline goes in stages. In the setup for SageMath, the first stage builds
-several flavors of docker container which contain a built version of Sage. The
-second stage runs tests on these containers. Finally the docker containers from
+several flavors of Docker container which contain a built version of Sage. The
+second stage runs tests on these containers. Finally the Docker containers from
 the first stage are made publicly available.
 
 It should be noted that the first stage is where most complications for Sage
 arise. Building Sage takes several hours on most machines, so a lot of effort
 went into speeding this up in a sane and reproducible way to about 10 minutes.
-Also, we try to make the resulting docker containers as small as possible. This
+Also, we try to make the resulting Docker containers as small as possible. This
 speeds up the whole CI pipeline and also makes it easier for developers to
 download these containers; in typical cases they only have to download a few MB
-to get a hold of the docker container.
+to get a hold of the Docker container.
 
 \subsubsection{Use Cases of Docker Containers}
-Having these docker containers readily available as a by-product of our CI turned out to be very valuable.
+Having these Docker containers readily available as a by-product of our CI turned out to be very valuable.
 \TODO{Maybe insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/dockerhub.png} here.}
 
 It means that recent stable \& unstable versions of Sage are automatically made
@@ -263,8 +263,8 @@ Sage developers can use these to reproduce and understand issues
 reported by the CI system. Simply by downloading the container and running the
 Sage contained in that container.
 
-Projects that depend on Sage can use these docker containers for their own CI
-needs and run their tests based on these containers. Without such docker
+Projects that depend on Sage can use these Docker containers for their own CI
+needs and run their tests based on these containers. Without such Docker
 containers, most such projects would refrain from using CI as setting up Sage
 in a CI system appeared to be too complicated.
 
@@ -321,6 +321,36 @@ features in a web browser without having to go through any local installation.
 \subsection{PARI}
 
 % Maybe ??
+
+\subsection{Cysignals}
+
+The Cysignals
+project\footnote{\url{https://cysignals.readthedocs.io/en/latest/}} has been
+using Travis CI\footnote{\url{https://travis-ci.org/sagemath/cysignals}} for
+continuous integration on Linux practically since its inception (see \TODO{link
+to D4.1 which contains first mention of cysignals}).  In Spring of 2018 we made
+initial progress towards adding native Windows support to
+Cysignals\footnote{\url{https://github.com/sagemath/cysignals/pull/76}} as well
+as continuous integration for both native Windows and Cysignals on Cygwin using
+AppVeyor\footnote{\url{https://github.com/sagemath/cysignals/pull/95}}, the
+initial results of which have been promising.  The process of adding Cygwin
+testing on AppVeyor even exposed new Cygwin-specific bugs with Cysignals that
+had not been previously caught.
+
+However, multi-platform testing still remains an interesting problem for
+Cysignals in particular.  The low-level details of Cysignals are such that its
+functionality can depend heavily on the underlying operating system kernel
+(even different versions of the Linux kernel).  As such, one would like to be
+able to test against different kernels.  Because most CI services -- including
+Travis CI -- are using container-based technology, this means that even testing
+different OS platforms via containers is not entirely helpful, because all
+containers running on the system host system are using the same underlying
+kernel.
+
+Thus, an area for future work might be to try using GitLab's CI framework and
+providing our own build runner machines (possibly even reusing the existing one
+from Sage's buildbot fleet) to test Cysignals against more OS platforms with a
+wider range of OS kernels than we might test otherwise.
 
 \hypertarget{best-practices}{%
 \section{Lessons learned and best practices}\label{best-practices}}
