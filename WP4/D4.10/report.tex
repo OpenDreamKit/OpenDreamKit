@@ -153,9 +153,44 @@ wanting to interface efficiently with \Pari.
 The Cython interface has the advantage of avoiding the
 overhead of calling Python methods and creating Python objects.
 It also allows finer control over PARI internals.
+This is an example showing the difference between using
+the Python interface of cypari2 and direct calling of \Pari
+functions:
+\begin{verbatim}
+In [1]: %load_ext cython
 
-\TODO{would you have a quick example illustrating the speed gain of
-  calling directly at the Cython level?}
+In [2]: %%cython
+   ...: from cysignals.signals cimport sig_on
+   ...: from cypari2.gen cimport Gen, GEN
+   ...: from cypari2.paridecl cimport gcos, DEFAULTPREC
+   ...: from cypari2.stack cimport new_gen
+   ...:
+   ...: def cosfixpoint_py(Gen a, Py_ssize_t iterations):
+   ...:     cdef Py_ssize_t i
+   ...:     for i in range(iterations):
+   ...:         a = a.cos()
+   ...:     return a
+   ...:
+   ...: def cosfixpoint_cy(Gen a, Py_ssize_t iterations):
+   ...:     cdef Py_ssize_t i
+   ...:     cdef GEN g = a.g
+   ...:     sig_on()
+   ...:     for i in range(iterations):
+   ...:         g = gcos(g, DEFAULTPREC)
+   ...:     return new_gen(g)
+
+In [3]: from cypari2 import Pari; pari = Pari()
+
+In [4]: %time cosfixpoint_py(pari(0.0), 100000)
+CPU times: user 177 ms, sys: 0 ns, total: 177 ms
+Wall time: 177 ms
+Out[4]: 0.739085133215161
+
+In [5]: %time cosfixpoint_cy(pari(0.0), 100000)
+CPU times: user 144 ms, sys: 0 ns, total: 144 ms
+Wall time: 143 ms
+Out[5]: 0.739085133215161
+\end{verbatim}
 
 Second, cypari2 now automatically
 generates a \texttt{DeprecationWarning}
