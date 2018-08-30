@@ -37,7 +37,7 @@ multiple software platforms -- continuous integration infrastructure can involve
 a whole fleet of hardware systems, each of which perform builds and tests of
 the software and report results back to a ``master server'' which collates them
 into a single multi-platform build report for developers to examine.
-Unsurprisingly, as the CI needs of a project grow, so to does the size of its
+Unsurprisingly, as the CI needs of a project grow, so too does the size of its
 CI infrastructure, and the time, financial resources, and expertise required to
 maintain it.
 
@@ -48,13 +48,15 @@ address this it has, over time, amassed a small multi-platform fleet of build
 machines as part of its ``buildbot'' infrastructure (based on the
 Buildbot\footnote{\url{https://buildbot.net/}} CI software framework), as well
 as expertise needed to maintain that infrastructure.  One of the original aims
-of deliverable was to see if other projects under the OpenDreamKit umbrella
+of this deliverable was to see if other projects under the OpenDreamKit umbrella
 could benefit from using Sage's buildbots, and thus achieve better
 multi-platform CI.  Additionally, we would look into widening the set of
 platforms supported by Sage's buildbot infrastructure -- in particular adding
-Windows builds to coincide with the Sage's newfound Windows support
+Windows builds to coincide with Sage's newfound Windows support
 \TODO{reference D3.7 here}.
 
+\TODO{I don't quite understand what you are trying to say with the following
+two sentences. Especially the ``nevertheless'' seems out of place --- Jeroen}
 In practice, the needs of the OpenDreamKit community as a whole with respect to
 multi-platform CI, and in particular the need for a ``common infrastructure''
 for CI, did align with our original expectations, for reasons that are
@@ -64,7 +66,7 @@ learned that we are communicating through this report in the hopes of future
 cross-polination on the subject.  Our experiences have also taught us that
 although there is not a one-size-fits-all solution to CI, there remains a clear
 need in the community for easier access to multi-platform build and development
-infrastructure, epecially for non-free operating systems such as Windows an Mac
+infrastructure, epecially for non-free operating systems such as Windows and Mac
 OSX.
 
 \hypertarget{changes-to-deliverable}{%
@@ -93,17 +95,17 @@ Another advantage of services that integrate with \GitHub is that it enables a
 particular type of continuous integration sometimes referred to as ``advisory
 CI''.  This contrasts with traditional CI, wherein all developers on a project
 are allowed to push changes to a central version control system, and the CI
-system builds from that shared ``mainline''.  This means that a developer
-pushes a change that breaks the code, while a correctly functioning CI system
-should catch this bug fairly quickly, in the meantime the code is ``broken''
-for all other developers on the project.
+system builds from that shared ``mainline''.  So, if a developer
+pushes a change that breaks the code, the code is ``broken''
+for all other developers on the project (even if a correctly functioning CI
+system should catch the bug fairly quickly).
 
 However, in distributed, open source projects like those hosted on \GitHub or
 \GitLab, one does not want to give just anyone permission to push changes to
 the mainline.  Instead, most developers submit {\em pull requests} -- a change
 proposal that is not immediately merged into the mainline, but which a project
-administrator with sufficiently high authority can pull changes from pull
-requests into the mainline only after they have been reviewed and deemed
+administrator with sufficiently high authority can merge
+into the mainline, after the changes have been reviewed and deemed
 acceptable and sufficiently stable.  Advisory CI can help immensely in
 determining when a proposed pull request is ``sufficiently stable''.  Under
 this model the CI framework takes the latest version of the project's mainline,
@@ -119,7 +121,7 @@ case one has the traditional CI problem of a ``broken build''.  But this
 scenario is relatively uncommon, especially in well-structured projects.
 
 Therefore, between the relative ease of setting up free continuous integration
-systems for use on one's project, and the added convenience advisory CI that
+systems for use on one's project, and the added convenience of advisory CI that
 integrates directly with the project's issue tracker, there is relatively
 little demand for self-managed CI infrastructure such as that used for Sage.
 However, there is still the question -- anticipated by the original proposal
@@ -132,10 +134,10 @@ achieve some multi-platform support -- especially across those three major OSes
 -- they can do so by configuring a combination of CI services for the project,
 and many projects do just this.
 
-In practice though, multi-platform CI has not has as much demand as we
-anticipated.  Many mathematical software projects do not have a great deal
+In practice though, multi-platform CI does not have as much demand as we
+anticipated.  Most mathematical software projects do not have a great deal of
 system-specific code, and are mostly numerical in nature (e.g.~C++ libraries
-such as \Linbox and \Givaro), and have relatively little need for
+such as \Linbox and \Givaro).  These have relatively little need for
 multi-platform testing.  While platform-specific issues can still arise in such
 software, it is not always typical enough to merit the extra overhead of
 multi-platform testing.  When platform-specific issues do arise, it is more
@@ -146,15 +148,15 @@ build testing for many projects; see the next section for details.
 \TODO{Say something here about conda-forge?}
 
 \subsection{Sage remains a special case}
-In Sage's case it is still useful, for now, to have the self-managed
+In the case of Sage, it is still useful for now to have the self-managed
 infrastructure due to the unique nature of Sage and the fact that it includes
-and entire software distribution.  Its builds can take a very long time and run
-up against limits imposed by the free services, and it is also useful to test
+an entire software distribution.  Its builds can take a very long time and run
+up against limits imposed by the free services.  It is also useful to test
 Sage across a wide number of platforms due to the likelihood of
 platform-specific build issues across its more than 150 dependencies.
 
 It is also worth noting that being a software distribution comprising so many
-components, Sage is providing implicit cross-platform build and runtime testing
+components, Sage is providing implicit cross-platform build and runtime testing of
 OpenDreamKit-affiliated projects and dozens of other mathematical software
 systems.  While Sage's test suite does not provide full test coverage for its
 dependent packages, it does exercise most of them extensively.  In particular,
@@ -183,9 +185,9 @@ for later...?}
 \hypertarget{project-reports}{%
 \section{Continuous integration achievements of OpenDreamKit projects}\label{project-reports}}
 
-\subsection{SageMath}
+\subsection{Sage}
 
-The SageMath project had traditionally employed two distinct CI systems, the
+The Sage project had traditionally employed two distinct CI systems, the
 Buildbot and Sage's own development, the
 patchbot\footnote{\url{https://github.com/sagemath/sage-patchbot}}.
 
@@ -195,7 +197,7 @@ platforms. It builds Sage and runs its test suite for every change that gets
 accepted into the mainline of the Sage code. Its main purpose is not to be an
 advisory tool for developers but to catch problems and incompatibilities of
 Sage or its dependencies, in particular on more obscure platforms that
-dependent projects do often not test for. Due to the vast range of platforms
+dependent projects often do not test for. Due to the vast range of platforms
 covered, the Buildbot can not realistically be turned into an advisory CI
 system as it is not conceivable to provision and administer the number of
 machines that would be necessary to run Sage's test suite at every stage of a
@@ -211,10 +213,11 @@ patchbot system predates most of the currently popular CI systems.
 The patchbot system comes with a number of issues: It is not nearly as polished
 as the professional offerings which means that its workings can often be
 confusing and that it also requires continuous maintenance and development from
-the SageMath community and by those that run the patchbots on their private
+the Sage community and by those that run the patchbots on their private
 machines. The fact that it is running on private machines means that due to
 load, connectivity issues, and other temporary issues on these machines, the
-patchbots are very frequently reporting false positives. This noise can be very
+patchbots are very frequently reporting false positive errors.
+This noise can be very
 frustrating as it makes the patchbot system unreliable and in particular harder
 to understand for new contributors. Finally, due to limitations of the patchbot
 architecture, not all types of changes can be tested, in particular it can not
@@ -224,7 +227,7 @@ and it would be particularly nice to give such tasks away to a CI system.
 
 \subsubsection{Modern CI with GitLab CI and CircleCI}
 To fix these issues we were looking at best pratices that would give the
-SageMath community fast, reproducible, reliable CI with minimal maintenance and
+Sage community fast, reproducible, reliable CI with minimal maintenance and
 continuous development necessary to keep the CI working for everybody.  We
 settled for GitLab CI, a modern open-source CI system, and CircleCI, a popular
 closed-source system. Which one to use is up to each developer. For simplicity
@@ -236,9 +239,9 @@ are standardized and isolated so that there is usually no issue of false
 positives. % note that I do not distinguish between Docker containers and
 % images; I think it's more confusing to the reader to make such a distinction.
 
-GitLab CI now runs a "pipeline" for every change proposed by a developer.
+GitLab CI now runs a ``pipeline'' for every change proposed by a developer.
 \TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
-This pipeline goes in stages. In the setup for SageMath, the first stage builds
+This pipeline goes in stages. In the setup for Sage, the first stage builds
 several flavors of Docker container which contain a built version of Sage. The
 second stage runs tests on these containers. Finally the Docker containers from
 the first stage are made publicly available.
@@ -260,8 +263,8 @@ available for anybody to work with, without the need of having to understand
 how to build Sage on their machine.
 
 Sage developers can use these to reproduce and understand issues
-reported by the CI system. Simply by downloading the container and running the
-Sage contained in that container.
+reported by the CI system simply by downloading the container and running the
+Sage version contained in that container.
 
 Projects that depend on Sage can use these Docker containers for their own CI
 needs and run their tests based on these containers. Without such Docker
@@ -280,7 +283,7 @@ features in a web browser without having to go through any local installation.
 which may be submitted for refereeing and for the redistribution with \GAP.
 They extend the functionality of the system and may implement mathematical
 algorithms, provide mathematical databases, interfaces to other systems or
-enhancements of the system’s infrastructure such as tools for debugging
+enhancements of the system's infrastructure such as tools for debugging
 and profiling, and building documentation. 
 
 Packages are developed and released independently of the core \GAP system.
