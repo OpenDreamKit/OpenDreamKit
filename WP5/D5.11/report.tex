@@ -64,9 +64,10 @@ that involve low-level optimization and parallelization as
 well as the integration of these techniques in the computer
 algebra system \Sage.
 
-This deliverable has greatly beneficiated from the \ODK workshop
-on \textit{Interfacing (math) software with low level libraries}
-that was held in spring 2018 in Cernay-la-Ville (France).
+This deliverable has greatly beneficiated from the \ODK development
+workshops \textit{Sage Days 84} held in Olot (Spain) in spring 2017
+and \textit{Interfacing (math) software with low level libraries}
+held in spring 2018 in Cernay-la-Ville (France).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -78,6 +79,8 @@ problems which are both easy to implement and demanding on the technologies.
 We first present two such problems.
 
 \subsection{Counting and enumerating integer vectors}
+\label{subsec:intro:integer:vectors}
+
 Integer vectors, that is finite sequences of integers, are central
 in combinatorics as they can be used to encode many different
 objects. In each situation the integer vectors are subject to various
@@ -126,7 +129,7 @@ sage: LyndonWords(2, 120).cardinality()
 \end{verbatim}
 
 In this deliverable we will demonstrate how the interface to the LaTTe package
-in \Sage allows more efficient counting, how Cython has helped faster enumeration
+in \Sage allows more efficient counting and how Cython has helped faster enumeration
 in \Sage. We will also present some promising experimentations involving among
 other things vectorization techniques (MMX, SSE and AVX instruction sets) and
 shared memory multicore computing with \CilkP.
@@ -186,7 +189,7 @@ We will discuss the different technologies to solve this problem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-\section{Various classes of problems appearing often in algebra an combinatorics}
+\subsection{Classes of problems appearing in algebra an combinatorics}
 
 In our experiments, we have identified the following four kinds of problems:
 \begin{itemize}
@@ -223,9 +226,9 @@ preferable to go in the details of memory allocation and CPU instructions.
 
 A first ingredient of optimization that provides a bridge between interpreted
 and compiled language is provided by Cython that is a Python
-to C/C++ compiler. Cython plays an important role in this deliverable. It
-was also central in the development of the cypari library, see deliverables
-D4.1 and D4.10.
+to C/C++ compiler. Cython plays an important role in this deliverable in two
+different ways. First by replacing Python code with Cython code which results
+in faster code. Secondly by developing interfaces to C/C++ libraries.
 
 When one consider a low-level language such as C, one has on the first hand
 access to CPU vectorized instructions, that is to say a single instruction that
@@ -555,30 +558,126 @@ performances.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Polytopes and linear programming}
+\section{Improvements to the \Sage libraries}
 
-Constraint on integer vectors can often be thought as linear constraints.
+
+\subsection{Polytopes and linear programming}
+\label{subsec:polytopes}
+
+As mentioned in the Introduction, see~\ref{subsec:intro:integer:vectors},
+integer vectors are omnipresent in combinatorics. In many situations,
+the combinatorial constraints are linear equalities or inequalities.
 For example, the partitions of $n$ are given by non-negative integer
 vectors $(x_1, \ldots, x_n)$ in $\mathbb{R}^n$ so that $x_1 \geq x_2 \ldots x_n$.
 In other words, some general linear programming techniques come into
-play.
+play. Improving \Sage capabilities in polytope computations and linear algebra
+is critical for combinatorics.
 
-During the \ODK workshop \textit{Sage Days 84} held in Olot (Spain) in spring
-2017 we improved \Sage capacities for polytope computations, including
-integer point counting and linear optimization. Among other things
+Many libraries, often written in C/C++ exist and one of our task was to
+create or improve the existing \Sage interfaces. Most of these interface
+rely on Cython that provide a bridge between \Python and C/C++. Let
+us mention the creation of pplpy~\cite{pplpy-code} which now provides
+access to the PPL library to any Python user.
+
+At a higher level of interaction, an interface to LaTTe in \Sage has
+been developed (see trac tickets~\cite{trac-18211}
+and~\cite{trac-22497}). It allows efficent counting of
+integral points in polytopes. The interface is completely transparent to the
+user as can be seen in the following Sage session.
+\begin{verbatim}
+sage: n = 10
+sage: ieqs1 = [[0] + [0]*i + [1] + [0]*(n-1-i) for i in range(n)]
+sage: ieqs2 = [[0] + [0]*i + [1,-1] + [0]*(n-2-i) for i in range(n-1)]
+sage: P = Polyhedron(ieqs=ieqs1 + ieqs2, eqns=[[-n] + [1]*n])
+sage: P.integral_points_count()
+42
+\end{verbatim}
+Let us also mention the \Sage interface to the Polymake
+software~\cite{polymake-code} which allows direct interaction from
+\Sage. Polymake is a reference software for Polyhedral computations
+and its inclusion in Sage has been of great benefice.
+
+Polyhedral computations are not restricted to rationals. Since long time
+floating point polyhedral libraries exist. However, they are often not
+satisfactory as rounding can lead to subtle contradictions. In the framework
+of \ODK, V.~Delecroix started a C/C++ library for computations with embedded
+number fields called e-antic~\cite{eantic-code}. It allows exact computations
+over algebraic numbers. This has successfully been included in the
+Normaliz~\cite{normaliz-code} software and it is now possible to use
+it to construct very efficiently polytope over number fields. We aim to
+finalize the inclusion of this code and provide a \Sage interface to it.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Cythonization of combinatorics code}
+
+A huge amount of code in \Sage is written in plain Python, this is in
+particular true for a large amount of the combinatorics code. Thanks to
+Cython one can easily gain speed-up in computations. A lot of effort has
+been made to improve the performance of the current code. We emhasize
+some of the efforts thas has been made in \ODK.
+
+Two examples of successful cythonization happend for
+permutations~\cite{trac-23734} and Lyndon words~\cite{trac-26111}.
+This combinatorial objects were already mentioned in the
+Introduction, see~\ref{subsec:intro:integer:vectors}.
+The challenge was to write as efficient as possible iterators
+together with simple Python wrapper intended for \Sage users.
+In both situations that we present, efficient algorithms exist.
+Let us distinguish three levels of optimization:
 \begin{itemize}
-\item We provided an interface to the LattE software that uses Barvinok
-method to count integer points in polytope.
-\item We developed a \Sage interface to the Polymake software that is
-one of the reference software in the field.
-\item We started the development of a C++-library for polytope computations
-over number fields that gave rise to the library E-ANTIC~\cite{eantic-code}
- and its inclusion in Normaliz~\cite{normaliz-code}.
+\item \textit{basic cythonization}. Cython does a decent job in
+direct optimization with little human intervention. 
+\item \textit{in place iteration}. As we already mentioned several
+times, combinatorial objects are typically represented by
+integer vectors. Dealing with a lot of plain lists in Python has a huge
+cost in memory allocation. The most natural way to get rid of
+this problem is to provide in place iterator, that is iterator that does
+modification of the data without creating new objects.
+\item \textit{use C arrays}. Finally, using Python datastructure closer to C
+than plain lists, typically arrays, allows to win another factor.
 \end{itemize}
-        
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Below we present simple timings of the iteration through all permutations
+of $\{1, 2, \ldots, n\}$ with three times the same algorithms. It consists
+in modifying a given permutation into the next one for the lexicographic
+order. The three columns represent the different versions: in Python
+using plain lists, in Cython using plain lists and finally in Cython
+using arrays.
+\begin{center}\begin{tabular}{c|c|c|c}
+n & Python & Cython on lists & Cython on arrays \\
+\hline
+9  & 410ms   & 55ms  & 37ms \\
+10 & 2.9s    & 309ms & 163ms \\
+11 & 32s     & 3.2s  & 1.68s \\
+12 & > 2 min & 36.3s & 19.5s \\
+\end{tabular}\end{center}
+As can be seen, passing to Cython (with almost no modification) already
+provides a 10x speedup. Using arrays instead of lists provide an
+additional 2x speedup.
+
+Let us also mention a slightly different work related to combinatorics.
+Dancing links is the name of an algorithm that find all solutions to
+the so called exact cover problem. It can efficiently be used to
+solve tiling problems. Using an embarrassingly parallel method,
+naive parallelization approach allowed to have access to the list
+of solutions 2 to 3 times faster using a 4 cores machine
+(see~\cite{trac-25125}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusion}
+\Sage is a general purpose computer algebra system with a lot of code related
+to combinatorics. The Python language has some weakness regarding speed and the
+aim of the deliverable was to circumvent this weakness. As we demonstrate,
+using Cython and careful memory usage allows to provide an
+important speed up in enumeration. Cython is at the same time an ideal
+tool to provide access to efficient implementations in C/C++ from Python.
+
+Very promising experimentations have been performed in C regarding
+the usage of vectorized operations (SIMD) as well as efficient
+parallelization. We will pursue our investigations in this direction
+with the hope to get these advances integrated into different
+computer algebra system such as \Sage.
 
 \printbibliography
 
