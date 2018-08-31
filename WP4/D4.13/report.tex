@@ -23,13 +23,14 @@ interspersed in the code it documents.
 
 One specific challenge is scaling to the sheer size of the \Sage
 documentation (13k pages just for the reference manual); building it
-requires a lot of time and memory. In addition to those particularly
-stringent needs and a long legacy \Sage was, at the time of writing
+requires a lot of time and memory. In addition -- due to those particularly
+stringent needs and a long legacy -- \Sage was, at the time of writing
 the proposal, using an outdated version of \Sphinx, crippled by many
 layers of customisation and adaptations that had accumulated over the
-years. This was becoming impossible to maintain.
+years. This was becoming impossible to maintain, and impeding
+\Sage's long term sustainability.
 
-\taskref{UI}{sage-sphinx} tackles this situation with, broadly
+Task \taskref{UI}{sage-sphinx} tackles this situation with, broadly
 speaking, two main goals:
 \begin{enumerate}
 \item a critically needed deep refactorisation to get rid of multiple
@@ -39,16 +40,21 @@ speaking, two main goals:
 \item optimizing resource usage for the documentation build.
 \end{enumerate}
 
-Although a lot has already been achieved, progress has been
+Although a lot has already been achieved with more than twenty two
+contributions to \Sage or upstream (see
+\url{https://github.com/OpenDreamKit/OpenDreamKit/issues/87} for an up
+to date list), progress has been
 significantly slower than originally planned for. In large part, this
 is because many upstream projects are involved: \Sphinx, \Docutils,
 \Pygments, \Cython, and \Python. We are thus dependent on their own
-independent schedule whenever an upstream contribution is needed. Such
+independent schedule whenever an upstream contribution is needed;
+an highlight of such sensitive contribution is PEP 580, a Python
+Enhancement Proposal for the core language implementation (see \S~\ref{cython}). Such
 a situation was foreseen in our Risk Management Plan and its impact on
 the overall project is negligible: on the one hand, no other task
 depends on \taskref{UI}{sage-sphinx}; on the other hand, it was easy to
 shuffle around some of our internal work plan, and reserve man power
-for this task during OpenDreamKit's final year and at Ghent University
+for this task during OpenDreamKit's final year, at Ghent University
 and Université Paris-Sud. Also, knowing that this was a long term
 endeavour and that the timeline was not critical, we decided on
 several occasions to invest in long term solutions that would benefit
@@ -56,7 +62,7 @@ not only \Sage but the community as a whole (see \S\,\ref{cython}).
 
 We report here on the current achievements, and detail the work plan for the
 final year. Formally speaking, this deliverable report concerns solely the
-first goal; however, as the two goals are closely interrelated, reporting on
+first goal of \taskref{UI}{sage-sphinx}; however, as the its goals are closely interrelated, reporting on
 both is required to explain the big picture.
 
 \section{Removing \Sage customisations}
@@ -65,23 +71,23 @@ both is required to explain the big picture.
 The word ``customised'' can mean any of the following:
 an actual patch to the source code,
 a monkey-patch (a patch at runtime),
-a fork of some plug-in or just a highly specialised configuration.
+a fork of some plug-in, or just a highly specialised configuration.
 
 One of the goals of this deliverable is to remove these
 customisations, allowing \Sage to use a standard \Sphinx.
 This can be achieved in two ways:
-either patch upstream \Sphinx to make the feature standard,
-or change \Sage (or some other project like \Cython or \Python)
+either contributing back the customization to upstream \Sphinx to make
+it a standard feature,
+or changing \Sage (or some other project like \Cython or \Python)
 to remove the need for the customisation.
 
 This has multiple advantages:
 first of all, having less custom code makes \Sage more maintainable.
-Second, it helps packaging of \Sage
-(see \taskref{component-architecture}{mod-packaging}):
-packagers know how to deal with \Sphinx
-but the non-standard \Sage stuff makes it more difficult for them.
-Third, if we push fixes upstream, then everybody (not just \Sage)
-can benefit from them.
+Second the customization contributed upstream benefit everybody
+and not just \Sage. Last, but not least, it helps packaging \Sage
+(see \taskref{component-architecture}{mod-packaging}),
+as packagers need not any produce and maintain a customized Sphinx
+package in addition to the standard one.
 
 \subsection{General clean up and minor fixes}
 
@@ -92,8 +98,10 @@ including using a more standard Sphinx configuration.
 We also removed a lot of irrelevant customisations to \texttt{autodoc},
 the extension for generating documentation from docstrings.
 We also made building the Sage documentation a lot more reliable:
-in the past, it often failed to build after an upgrade
-but this is no longer the case.
+in the past, it often failed to build incrementally after an upgrade,
+which required a resource expensive full rebuild. This was a burden
+for developers but also a barrier for efficient continuous integration
+(see \longdelivref{component-architecture}{multiplatform-buildbot}).
 
 \subsection{Support for Cython functions}\label{cython}
 
@@ -116,24 +124,26 @@ of Python functions.
 The problem is that such user-defined function classes
 are necessarily slower than built-in functions.
 This is not acceptable for \Sage where speed is very important.
-In June 2018, we submitted PEP 580, a Python Enhancement Proposal to fix this.
-At the May 2018 OpenDreamKit workshop in Cernay,
+In June 2018, we submitted
+\href{https://www.python.org/dev/peps/pep-0580/}{PEP 580} (see Appendix~\ref{pep580}), a Python Enhancement Proposal to fix this.
+At the May 2018 OpenDreamKit developers workshop in Cernay
+(see~\longdelivref{dissem}{workshops-3}),
 we already discussed an earlier variant of the PEP
 with the core \Cython developers and they were very positive about it.
 Both before and after submitting the PEP,
 we discussed it online with the Python community,
 leading to substantial changes.
 Unfortunately, the process of getting a PEP accepted is quite slow:
-at the time of writing this report, the PEP had not been accepted (nor rejected).
+at the time of writing this report, the PEP has not been accepted (nor rejected).
 
-If PEP 580 is accepted, \Cython can be changed to produce
+If PEP 580 is accepted, \Cython can be updated to produce
 functions which are equally fast as built-in functions
 and which support all documentation
 features that standard Python functions support.
 
-\subsection{Build the documentation in pieces}\label{pieces}
+\subsection{Parallel build of the reference manual as a single document}\label{pieces}\label{parallel}
 
-The Sage reference manual is not built as one monolithic document,
+The Sage reference manual is currently not built as one monolithic document,
 but in several pieces:
 one for each mathematical topic such as combinatorics or matrices.
 The original motivations were twofold: it makes it easy to build the various pieces
@@ -141,58 +151,50 @@ in parallel and it lowers the memory requirements.
 Unfortunately, these pieces are not completely independent:
 we still want to end up with one consistent document,
 so things like the index and references need to merged.
-This is implemented in the \Sage \texttt{multidocs} extension for \Sphinx.
+This required a custom \Sage \texttt{multidocs} extension for \Sphinx.
 
-Since it would be simpler to build the reference manual as a single document,
-we should work on removing the disadvantages mentioned here.
-In particular, the parallellisation (see \S\,\ref{parallel})
-should no longer be an issue.
-Once the disadvantages are gone, we can just build the reference manual
-as a single document again.
-This is future work.
+In addition, the natural granularity of the pieces at the semantic
+level never quite matched a proper granularity for parallelisation;
+the existence of a few long chapters like on combinatorics led to
+annoyingly long compilation.
 
-\subsection{Parallel documentation build}\label{parallel}
+Finally the parallelisation itself required a bespoke parallel
+docbuilder, as \Sphinx did not have parallel build features at the
+time. This is no more the case: \Sphinx now has native parallel
+support, even within single documents.
 
-One of the advantages of building the reference manual in pieces
-(see \S\,\ref{pieces}) is that we can build those pieces in parallel.
-However, \Sphinx itself now supports building in parallel.
-This was not the case at the time when \Sage
-implemented its own parallel docbuilder.
+Hence it is desirable to decouple parallelisation from documentation
+splitting and work on memory requirements, to be able to build again
+the reference manual as a single document.
 
-So instead of rolling our own parallel docbuilder,
-we should use the \Sphinx parallel builder.
-Given that the feature already exists, this is easy to do.
-But it can only be done after we have removed the existing
-splitting and parallel machinery.
-
-At the Sage Days 77 workshop organized by OpenDreamKit,
-we managed to create a proof-of-concept implementation
-to show that this can indeed be done.
+At the OpenDreamKit organized Sage Days 77 workshop in April 2016
+(see~\delivref{dissem}{workshops-3}), we had a coding sprint with with
+Robert Lehmann, one of the main \Sphinx developers, where we
+implemented a proof-of-concept showing the feasibility of this plan.
+Once the memory requirements will be tackled (see \S\,\ref{resources})
+it will be little work to finalize that plan.
 
 \subsection{Custom syntax highlighting}
 
-This is about a relatively small patch to \Pygments
-(a package for syntax highlighting).
-The patch allows to highlight \texttt{sage:} the same way
-as standard Python \texttt{>>>} prompts.
-
-No work has been done towards removing this patch,
-but it should be relatively simple.
-We should investigate whether we can customize \Pygments without
-patching it.
-Alternatively, support for \Sage should be pushed upstream to \Pygments.
+\Sage currently ships with a slightly patched version of \Pygments in
+order to support highlighting of the \texttt{sage:} prompt in addition
+to the standard Python \texttt{>>>} prompts. This is a burden for
+packagers. We need to investigate whether we can configure \Pygments
+without patching it, or push support for \Sage upstream to \Pygments.
+This will require little work.
 
 \section{Upgrading \Sphinx}
 
-In tandem with removing customisations, it is obvious that we
-should use the most recent release of \Sphinx.
-This is not as trivial as it sounds:
-some of the custom code integrates tightly with \Sphinx
-and must be regularly changed after an upgrade of \Sphinx.
-So, allowing smoother upgrades is yet another reason for
-removing the customisations mentioned in the previous section.
+In tandem with removing customisations, it is obvious that we should
+use the most recent release of \Sphinx. This is not as trivial as it
+sounds as we started with a very old version of \Sphinx in which the
+custom code integrated tightly with \Sphinx. Thanks to an incremental
+upgrade in a series of 6 tickets, \Sage is now using a reasonably
+recent version of \Sphinx (1.7.6). Allowing for smoother future
+upgrades is yet another reason for removing the customisations
+mentioned in the previous sections.
 
-\section{High resource usage}
+\section{High resource usage}\label{resources}
 
 Building the full Sage documentation takes a lot of resources:
 it needs about 3 gigabytes of memory and about 1.5 hours
@@ -204,13 +206,12 @@ suggested to skip building the Sage documentation.
 It is also a problem for automatic builds in continuous integration
 setups, which typically only have limited resources.
 
-At the Sage Days 77 workshop organized by OpenDreamKit,
-we have investigated where the high memory usage comes from.
-We did this together with Robert Lehmann, a \Sphinx developer.
+During the aforementioned Sage Days 77 coding sprint with a \Sphinx
+developer, we have investigated where the high memory usage comes from.
 It turns out that it is a combination of factors
 and that there is not a single obvious cause.
 Some of it is caching of data which is no longer needed,
-which is easy to fix.
+which should be easy to fix.
 Some of it is data structures using basic Python primitives such as a \texttt{dict}
 instead of more specialized (and space-efficient) structures.
 
@@ -227,31 +228,38 @@ Therefore, this will benefit all projects using \Sphinx.
 
 \section{Related work}
 
-We created the package ThebeLab, which uses the Jupyter protocol
-to turn the static examples in the documentation live:
-the user can edit them and see the output change.
-See \delivref{UI}{ipython-kernels}, where this is reported in detail.
-
 It is beneficial for \Sage packages to use the same theme
 and configuration for their documentation as \Sage.
 We simplified the process by implementing the \verb/sage-package/ utility
 (which contains among other things a copy of the Sphinx configuration for \Sage).
-The usage of this is illustrated in \verb/sage_sample/,
-a template for \Sage packages.
+Its usage is illustrated in the \verb/sage_sample/
+template for \Sage packages.
 We are investigating how to avoid the aforementioned copy.
 In any case, it is our goal to use as much as possible a standard \Sphinx setup,
 so this should be limited to some basic configuration and style options.
 
-Finally, we mention two solutions to turn documentation into \Jupyter notebooks:
-there is a stand-alone \verb/rst2ipynb/ program for converting a single
-\verb/.rst/ file.
-There is also a \Sphinx plugin \verb/sphinxcontrib-jupyter/ to which OpenDreamKit
-contributed.
-This integrates directly with \Sphinx, operating on a collection
-of documents instead of a single document.
-As such, it supports crosslinks, which makes it a lot more suitable
-for converting the Sage manuals, which consist of many documents.
-We are currently in the process of adding support for this
-in the Sage docbuilder, see \url{https://trac.sagemath.org/ticket/25909}
+In \longdelivref{UI}{ipython-kernels}, we report on
+\href{https://github.com/minrk/thebelab}{ThebeLab}, a JupyterLab based
+JavaScript library that turns static code examples in an HTML page
+into live code cells that the user can edit and execute. We configured
+\Sphinx to enable ThebeLab in the documentation of \Sage and \Sage
+packages.
+
+Finally, we mention two solutions to turn \Sphinx documentation into
+\Jupyter notebooks: \ODK members, with some external contributions,
+developed early on a stand-alone \verb/rst2ipynb/ program for
+converting a single \verb/.rst/ file to a Jupyter notebook. More
+recently a \Sphinx plugin \verb/sphinxcontrib-jupyter/ was developed
+by the community, with some \ODK contributions. This plugin integrates
+directly with \Sphinx, operating on a collection of documents instead
+of a single document. As such, it supports crosslinks, which makes it
+a lot more suitable for converting large documents such as books (see
+\longdelivref{dissem}{ibook1}) or the Sage manuals. We are currently
+in the process of adding support for this in the Sage docbuilder, see
+\url{https://trac.sagemath.org/ticket/25909}
+
+\appendix
+
+\input{pep-0580.tex}
 
 \end{document}
