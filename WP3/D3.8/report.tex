@@ -1,3 +1,4 @@
+\RequirePackage[hyphens]{url}
 \documentclass{deliverablereport}
 
 \deliverable{component-architecture}{multiplatform-buildbot}
@@ -168,17 +169,22 @@ process of porting Sage to Windows, and running Sage's tests on Windows
 system-level issues in software such as \GAP, ECL, and \PariGP among
 others.\TODO{Add links to those issues?}
 
+A remaining challenge for Sage is obtaining more machines that can run builds
+of Sage on non-free operating systems.  For macOS testing we currently have
+one ``official'' machine: a Mac mini donated personally by Sage's release
+manager Volker Braun. For Windows we currently have a few VMs running on the
+OpenStack infrastructure provided by Universit\'e Paris-Sud.  However, we have
+found the performance of Windows VMs on Linux hosts to be wanting, and
+difficult to improve. Although we will continue using this infrastructure for
+the foreseeable future, we are investigating the purchasing of some dedicated
+hardware to run a Windows build server natively.
+
 That said, there were also areas for improvement identified with Sage's
 existing CI practices, especially with regard for its relatively unreliable
 home-grown advisory CI system.  It was also realized that the now wide
 availability of Docker as a tool for CI could be leveraged to both improve
 Sage's CI practices, and make Sage development easier.  This work is discussed
 further in the next section.
-
-
-\TODO{Note issues with obtaining necessary hardware and software licenses for
-CI/build on non-free platforms: Windows, and ESPECIALLY macOS?  Or save that
-for later...?}
 
 
 \hypertarget{project-reports}{%
@@ -235,8 +241,7 @@ backend (but it can also be based on many other technologies.) These containers
 are essentially virtual machines that can be hosted in a central location but
 also on private computers. Unlike in the patchbot systems, Docker containers
 are standardized and isolated so that there is usually no issue of false
-positives. % note that I do not distinguish between Docker containers and
-% images; I think it's more confusing to the reader to make such a distinction.
+positives.
 
 GitLab CI now runs a ``pipeline'' for every change proposed by a developer.
 \TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
@@ -393,15 +398,6 @@ release       & of packages  & of authors & regression tests \\
 \end{center} 
 
 
-\subsection{Singular}
-
-
-% Maybe ??
-
-\subsection{PARI}
-
-% Maybe ??
-
 \subsection{Cysignals}
 
 The Cysignals
@@ -434,20 +430,58 @@ providing our own build runner machines (possibly even reusing the existing one
 from Sage's buildbot fleet) to test Cysignals against more OS platforms with a
 wider range of OS kernels than we might test otherwise.
 
-\hypertarget{best-practices}{%
-\section{Lessons learned and best practices}\label{best-practices}}
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+There does not appear to be a one-size-fits all solution for continuous
+integration.  Massive, complex projects like Sage, projects with many
+third-party contributed components such as GAP, projects with low-level system
+integrations like Cysignals, and everything in-between have different needs.
+Between that fact, and the advancements in free-for-open-source cloud-hosted
+CI providers, the idea of uniting OpenDreamKit projects under a single CI
+platform (whether Buildbot as used by Sage, or something else) would not have
+been practical or effective.
+
+What does remain clear -- and is a commonality between the projects mentioned
+in this report in particular, as well as others, is the need for easy access
+to ``hardware'' infrastructure with which one can easily spin up a virtual
+machine on which to install some operating system one does not have immediate
+access to.  In the case of non-free OSes, this includes a need for easy to
+obtain Windows licenses for running Windows VMs and, in the case of macOS,
+specialized hardware as well, as Apple's licensing is extremely restrictive
+when it comes to virtualization.  It should be noted that this need is not
+strictly for the use case of continuous integration, but also for building
+software releases for multiple platforms, investigation by developers of
+platform-specific bugs, and new development to improve multi-platform support
+in general.  For example, the author has personally experienced frustration
+with obtaining access to a macOS machine in order to investigate macOS-specific
+bugs in Sage, having not procured an Apple machine for personal use.
+
+The current situation is such that individual developers must find ways to
+access these kinds of computing resources, and the ease of doing so may depend
+on the level of institutional resources available to them.  At Universit\'e
+Paris-Sud we have found it easy to create and access VMs of free UNIX-like
+operating systems, but had to put several days of FTEs into getting a Windows
+VM up and running on that platform, with mixed results. And this provides us no
+help for macOS.  Meanwhile the build machines for \GAP hosted at St Andrews
+meet the project's needs for CI, but are not accessible outside the St Andrews
+firewall and are thus not easily accessible to \GAP developers at other
+institutions.  In both cases, some effort is required by the community to
+maintain their build hardware infrastructure, which this work might be more
+efficiently handed off to experts working in dedicated computing centers.
+
+For example, we are discussing the possibility of getting in touch with EGI and
+seeing if we might be able to use EGI-provided resources for a multi-platform
+cloud environment specifically for use by open source mathematics projects.
+Ideally we would want this to be provided in such a way that it isn't
+restricted to projects that are strictly European by nature (or maybe at the
+most have some European grant or contributors associated with it).  Or at the
+very least, we would want to be able to easily create server infrastructure
+for a given project which can then be shared as needed with other trusted
+developers of that project.  However, the exact nature of such an arrangement
+remains an open question to be resolved.
+
 \end{document}
-
-\TODO{This section might summarize some key bullet-points from the previous sections.}
-
-\TODO{We might want an additional section to discuss future work.  In
-particular, Nicolas and I discussed the possibility of getting in touch with
-EGI and seeing if we might be able to use EGI-provided resources for a
-multi-platform cloud environment specifically for use by open source
-mathematics projects.  In particular we would want this to be provided in such
-a way that it isn't restricted to projects that are strictly European by nature
-(or maybe at the most have some European grant or contributors associated with
-it).}
 
 %%% Local Variables:
 %%% mode: latex
