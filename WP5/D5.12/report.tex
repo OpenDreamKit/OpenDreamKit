@@ -202,20 +202,130 @@ encryption schemes (such as Paillier's or Naccach-Stern's) and random masking.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Software releases and integration}
 
+The software aspects of this deliverable invovle the LinBox library
+and its integration as a computing kernel in the \Sage software.
+The LinBox ecosystem provides high performance exact linear algebra kernels
+through and ecosystem of three libraries:
+\begin{description}
+  \item[Givaro] a library in charge of field and ring arithemtic: finite
+    fields, multiprecision integers and rationals, univariate polynomials, etc.
+  \item[fflas-ffpack] a library dedicacted to dense linear algebra over finite
+    fields. It offers a similar interface as the numerical BLAS and LAPACK
+    libraries whenever they make sense over a finite field.
+  \item[LinBox] a library for exact linear with dense, sparse or black-box
+    matrices. It is based on Givaro and fflas-ffpack, offers a higher level interface
+    to the core routines of fflas-ffpack and builds on top of them more
+    sophiscticated algorithms, such as Smith Normal Forms, diophantine and
+    rational solvers, etc.
+  \end{description}
+
 \subsection{LinBox ecosystem}
 
-\subsection{Integration in SageMath}
+During the course of the project 4 versions of givaro have been released, 
+\begin{description}
+  \item[givaro-4.0.1] released 24 Feb 2016
+  \item[givaro-4.0.2] released 30 Jul 2016
+  \item[givaro-4.0.3] released 17 Nov 2016
+  \item[givaro-4.0.4] released 23 Nov 2017
+  \item[givaro-4.1.0] in preparation (expected Oct 2018)
+\end{description}
+
+6 versions of \texttt{fflas-ffpack},
+\begin{description}
+  \item[fflas-ffpack-2.2.0] released 23 Feb 2016
+  \item[fflas-ffpack-2.2.1] released 8 Apr 2016
+  \item[fflas-ffpack-2.2.2] released 30 Jul 2016
+  \item[fflas-ffpack-2.3.0] released 17 Nov 2017
+  \item[fflas-ffpack-2.3.1] released 23 Nov 2017
+  \item[fflas-ffpack-2.3.2] released 21 Dec 2017
+  \item[fflas-ffpack-2.4.0] in preparation (expected Oct 2018)
+\end{description}
+and 4 versions of LinBox
+\begin{description}
+  \item[linbox-1.4.0] released 25 Feb 2016
+  \item[linbox-1.4.1] released 8 Apr 2016
+  \item[linbox-1.1.2] released 30 Jul 2016
+  \item[linbox-1.5.0] released 17 Nov 2017
+  \item[linbox-1.5.1] released 23 Nov 2017
+  \item[linbox-1.5.2] released 8 Dec 2017
+  \item[linbox-1.6.0] in preparation (expected Oct 2018)
+\end{description}
+
+Over these releases, the goal was twofolds: a strong improvement in the code
+quality improving its robstness and its maintainability and  the addition of new
+features, either new algorithms for existing interfaces or extending the scope
+of problem being adressed.
+
+The robustness of the code has been drastically increased by our adoption of more
+invovled standard for the test suite, the increase of the coverage for these
+test-suite and the intensive use of a two continuous integration frameworks:
+\texttt{ci.inria} (\url{http://ci.inria.fr/linbox}), a jenkins based solution run by Inria, and
+\texttt{travis} (\url{https://travis-ci.org/linbox-team/}).
+
+Among the new features introduced, we list below the most significant ones:
+\begin{itemize}
+\item The fully functional implementation of the new symmetric triangular
+  factorization resulting from our research in~\cite{DuPe18} achieving world's
+  best performance for this task, and compteting with the computational
+  efficiency of the corresponding numrical routines in LAPACK;
+\item the fully functional algorithms computing the rank profile matrix and
+  related echelon forms, following our research in~\cite{DPS17};
+\item a broader support of compiler and architectures, including a better
+  detection and use of SIMD vector instruction sets;
+\item a parallel implementation of the triangular matrix inverse;
+\item the deployment of randomized certificates acting as optional sanity checks;
+\item a rewrite of the prime field code in \texttt{Givaro}
+\end{itemize}
+\subsection{Integration in \Sage}
+
+
+The improvement of the integration of LinBox in \Sage and related issues have
+been conducted through the following tickets (available on \url{https://trac.sagemath.org/ticket}):
+{\small
+  \begin{description}
+\item[\href{https://trac.sagemath.org/ticket/22872}{\#22872}
+  Enhanced LinBox interface.]
+  This meta-ticket gathers information on all distinct tickets contributing to
+  the improvement of the integration of LinBox in \Sage. 
+\item[\href{https://trac.sagemath.org/ticket/22924}{\#22924}
+  Cleaning of linbox for dense integer matrices] (positive review, released in \Sage 8.0)
+\item[\href{https://trac.sagemath.org/ticket/22970}{\#22970}
+  Use \texttt{fmpq\_mat\_t} for rational dense matrices]
+  (positive review, released in \Sage 8.0)
+\item[\href{https://trac.sagemath.org/ticket/24544}{\#24544}
+  Cleaning linbox declarations + reimplement modn interface]
+  (needs work)
+\item[\href{https://trac.sagemath.org/ticket/23214}{\#23214}
+  Enhance sparse integer matrix with linbox]
+  (needs work)
+\item[\href{https://trac.sagemath.org/ticket/24214}{\#24214}
+  Upgrade to givaro-4.0.4 fflas-ffpack-2.3.2 and LinBox-1.5.2]
+  (positive review, released in \Sage 8.2)
+\item[\href{https://trac.sagemath.org/ticket/17635}{\#17635}
+  	Update Givaro, FFLAS-FFPACK and LinBox]
+  (positive review, released in Sage\-Math~7.4)
+\end{description}
+}
+
+TODO: populate more tickets and develop more text on the integration.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\refname{List of publications delivered}
+
 \bibliographystyle{plainnat}
 \bibliography{linbox}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Selection of research articles published in international journals or conferences}
 \label{app:papers}
 \includepdf[pages={1-8}]{DumasPernet18.pdf}
 
 \includepdf[pages={1-23}]{PernetStorjohann18.pdf}
+
+\includepdf[pages={1-8}]{DLP18.pdf}
+
 \end{document}
 
 %%% Local Variables:
