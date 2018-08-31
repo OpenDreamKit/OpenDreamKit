@@ -5,65 +5,107 @@
 \duedate{31/08/2018 (M36)}
 \author{Marcin Kostur, Jerzy Łuczka, Jan Aksamit, Jolanta Marzec}
 
+\newcommand{\screenshot}[2]{
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth,trim={0 0 0 1px},clip]{#1}
+  \caption{#2}
+  \label{#1}
+\end{figure}}
+
+\newcommand{\screenshotsmall}[2]{
+\begin{figure}[ht]
+  \includegraphics[width=0.8\textwidth,trim={0 0 0 1px},clip]{#1}
+  \caption{#2}
+  \label{#1}
+\end{figure}}
+
+
+
 \begin{document}
 \maketitle
 
-
+\tableofcontents
 % \githubissuedescription
+
 
 \section{Introduction}
 
-Interactive webpages have always been an attractive tool in
+Interactive web pages have always been an attractive tool in
 education. It has started in the age of Adobe-Flash technology, when a
-lot of educational materials have been created. The advent of
-javascript has led to significant improvements in that field: in the
-first place it created a possibility to author the content with
-Open Source tools and secondly it increased the portability to
-practically all devices equipped with modern web browser.
+lot of educational material was created. The advent of JavaScript has
+led to significant improvements in that field: in the first place it
+created a possibility to author the content using Open Source tools
+and secondly it increased the portability of the created documents to
+practically all devices equipped with a modern web browser.
 
-The problems which was persistent in those solutions was the big gap
-between the authoring process of interactive tools and their
-usage. Usually the code behind of interactive examples was not very
-educational and was not supposed to be edited by the student. On the
-other hand Open Source tools such as \Sage, delivered a versatile
-solution to this problem. Pricipally, the \texttt{@interact} decorator
-has made possibile to convert a scientific calculation into web-based
-interactive application. The biggest advantage of this solution is
-that one can create a visually appealing scintific interaction using
-the same environment in which the mathematical exlorations took place.
+The problem which was persistent in those solutions was the big gap
+between the authoring process of interactive documents and their usage.
+Usually the code behind an interactive examples was not very
+educational and was not supposed to be edited by the student.
 
-The source code of interactive books is hosted on github within
-OpenDreamKit organization in
-\href{https://github.com/OpenDreamKit/iODKbook2}{iODKbook2 repository}.
+Then emerged the concept of interactive widgets in the notebook,
+appearing first in Mathematica, then being popularized by the \Sage
+notebook, and recently getting huge traction with the \Jupyter
+notebook thanks to its wide audience. Interactive widgets, and in
+particular the very simple to use \texttt{@interact} decorator,
+delivered a versatile solution to this problem: they made it possible
+to turn with little efforts a mere scientific calculation into a
+visually appealing interactive application, all within the original
+environment where the mathematical explorations took place.
+
+The need of including computer technology for teaching was primarily
+originated by offering interdyscyplinary courses. In those fields it
+is common to master numerical tools for modeling and at the same time
+to gain an intuition. Integration of modern computer technology allows
+students to more efficiently analyse a system without tedious symbolic
+calculations. This has led to systematic integration of \Sage system
+with science education at Institute of Physics since 2011. In this
+deliverable we have created texbooks which consists of c.a.  500 pages
+with over hundred interactive code cells and code examples and tens of
+figures. The audience for those books are students of physics,
+biophysics, econophysics and medical physics. This work took 25
+PM of engagement of four people. 
+
+The source code of the interactive books is hosted on github within a
+dedicated repository of the OpenDreamKit organization:
+\url{https://github.com/OpenDreamKit/iODKbook2}.
 
 
 \section{Interactive book technology}
 
-We have used well known in Python community \Sphinx documentation
-generator for the main authoring tool. \Sphinx contains plugins system,
-which allows specialize it for a particular application. In our case
-we will apply extenstion able to: 
-
+We have used \Sphinx as main authoring tool: \Sphinx is originally a
+documentation generator which is popular in the Python world where
+it's used for the documentation of \Python itself, and many other
+projects. More generally it can be used to author large structured
+documents which are then exported to various formats, including HTML,
+PDF, EPub, and now even Jupyter notebooks. \Sphinx contains a plugin
+system enabling to taylor it for particular applications. We used
+plugins for
 \begin{itemize}
-\item embedd \Sage code and allow for interactive execution on a
-  remote server using SageMathCell technology (see
-  fig. \ref{fig:interact_sphinx}).
-\item use conditional compilation of parts depending e.g. if target
-  medium is interactive of not.
-\item include automatically \Jupyter notebooks with embedded output
-\item produce high quality pdf via \LaTeX system.
-\end{itemize}  
+\item embedding \Sage code as live cells which can be edited, executed
+  and interacted with (see Figure~\ref{fig:interact_sphinx}); under
+  the hood the computations are run on a remote service thanks to the
+  SageMathCell technology (\url{https://github.com/sagemath/sphinx-sagecell-ext});
+  an alternative would be to use Thebelab (see~\longdelivref{UI}{ipython-kernels});
+\item using conditional compilation of parts depending for example on
+  whether the target medium is interactive of not, or whether
+  solutions should be included,
+\item automatically including \Jupyter notebooks with embedded output;
+\item producing high quality pdf via \LaTeX system.
+\end{itemize}
 
-
-In the authoring process one can produce notebook (sagenb or \Jupyter
-based) and decide if it should be included into the \Sphinx book or
-choose selected examples and influde them as live SageCellServer code
-which can be used interactively. It has to be stressed that not only
-elemnents having \texttt{@interact} are usefull. Practically all
-excercises can be done inside the book in the interactive code
-boxes. It is reasonable, however, to limit the reader to write only
-short pieces of code in this way, because the code written in browser
-without login is volatile and can dissappear if one reloads the page.
+In the authoring process one can join interactive material in the form
+of notebooks (based on sagenb or \Jupyter) that can be embedded in
+full or in part into the \Sphinx book. In the HTML export, the
+material is then rendered as live SageCellServer code that the user
+can edit, execute, or interact with. It has to be stressed that not
+only interactive widgets written with \texttt{@interact} are useful.
+Practically all of exercises inside the book are illustrated by such
+interactive material. It's our experience however that such
+interactive material should not require or encourage the reader to do
+anything but small edits to the provided code; indeed such edits are
+volatile by essence; they take place anonymously in the browser with
+no storage behind the scene.
 
 \begin{figure}
 \centerline{\includegraphics[width=.7\textwidth]{interact_in_sphinx.png}}
@@ -71,6 +113,16 @@ without login is volatile and can dissappear if one reloads the page.
   \Sphinx generated web version of interactive book. The upper box
   shows the code and the lower box shows the output.}
 \end{figure}
+
+
+The authoring process is very similar to writing an \LaTeX paper. It
+is based on edit-compile-view cycle which is known to most of
+physicist and mathematicians. In some cases we have used a shared
+account on jupyter system for this process, where compilation commands
+where pre-coded in a \Jupyter notebook, which also included a link to
+web, and pdf versions. In such case is was very easy to help to
+academics less familar to computer science to just edit and modify the
+content.
 
 
 \section{ Nonlinear Processes in Biology }
@@ -82,7 +134,7 @@ converted into the interactive book with live examples.
 
 
 The book covers the classical topics in modeling in
-biology. Methodologically it can be split into following groups:
+biology. Methodologically it can be split into the following topics:
 
 \begin{enumerate}
 \item Methods of mathematical modelling of  processes based on ODE and PDE. 
@@ -97,7 +149,7 @@ biology. Methodologically it can be split into following groups:
   \item a graphical  presentation of all above  elements. 
   \end{itemize}
   
-  To each subject there is a list of related problems and
+  For each subject there is a list of related problems and
   supplementary tasks as homework. All requires symbolic manipulations
   as well as certain techniques from numerical analysis like root
   finding.
@@ -113,20 +165,19 @@ biology. Methodologically it can be split into following groups:
 
 It turned out that conceptually simple methods - like plotting a
 function of one variable, which depends on a parameter (see
-fig. \ref{fig:interact2}), can be very usefull for the analysis of
+Figure.~\ref{fig:interact2}), can be very useful for the analysis of
 models containing analytically untractable expressions. In this
-particular example, students can construct just a simple plot of a
-function, and with a help of \texttt{@interact} construction it can be
-easily converted intro an applet which allow for ananlysis of the
-system. 
+particular example, students construct just a simple plot of a
+function; then, with the help of \texttt{@interact} construction, the
+plot is easily turned intro an applet for the analysis of the system.
 
 The book covers the following  models: 
  \begin{itemize}
-  \item one-dimensional systems (Malthus, Verhulst, Ludwig, Alee models) 
-  \item two-dimensional systems (Lotka-Volterra, May models) 
-  \item kinetics of chemical reactions
-  \item Belousov-Zhabotinsky reactions
-  \item models of epidemics
+  \item one-dimensional systems (Malthus, Verhulst, Ludwig, Alee models);
+  \item two-dimensional systems (Lotka-Volterra, May models);
+  \item kinetics of chemical reactions;
+  \item Belousov-Zhabotinsky reactions;
+  \item models of epidemics.
  \end{itemize}
 
 \begin{figure}
@@ -139,45 +190,77 @@ The book covers the following  models:
 
 
 
+\section{Lectures on Linear Algebra}
 
 
 
+{\it The Linear Algebra book is dedicated to dr Jan Aksamit for his
+devotion, and endless patience in work with students. He has lectured
+linear algebra for physics studetns for almost 40 years of his
+life. With restless passion he spent last years of his life for
+preparing an electronic version of lectures notes.}
 
-\subsection{Lectures on Linear Algebra}
 
-This book is based on courses of linear algebra for physics students
+This book is based on Linear Algebra courses for physics students
 taught in recent years at the University of Silesia. It has been
 gradually equipped with interactive materials and extended by sections
 illustrating application of linear algebra in economy, computer
-science and other areas. The computations and the interactive part are
+science, and other areas. The computations and the interactive part are
 performed by \Sage, which is embedded in the book.
 
 Along the theory the user becomes familiar with the code used in
 \Sage. Their learning process is enhanced by various factors:
 \begin{itemize}
 \item numerous visualisations;
-\item interactive images which allow construction of a graphical
-  solution to a problem; this problem may be changed in real time by
-  the user by changing the code;
-\item place for experiments: the user may fill in the gaps in the code
+\item interactive images which allows for the construction of a
+  graphical solution to a problem; the problem may be changed in real
+  time by the user changing the code;
+\item a place for experiments: the user may fill in the gaps in the code
   to produce graphical interpretation of a chosen operation;
 \item possibility to perform the calculations with \Sage within the
   book; in particular, computations with real data and, thus, real
   life conclusions are possible;
-\item some longer coding exercises are equipped with the check points
-  (without revealing the answer) to ensure that the solution is
-  correct.
+\item some longer coding exercises are equipped with check points
+  (without revealing the answer) to ensure that the discovered
+  solution is correct.
 \end{itemize}
 
-Moreover, not only users benefits from interactive resources, but also
-can learn how to produce them themselves.
-
+Moreover, not only users benefit from interactive resources, but also
+learn how to produce them themselves.
 
 \section{Future work}
 
-The open texbooks are updated continously. We plan to add new models
-or excercises on regular basis. Also there are efford being done to
-encourage other lecturers to use contribute those materials.
+
+The two open textbooks are put to continuous use for the eponymous
+courses at university of Silesia; they are frequently updated with new
+material (new models, exercises, ...), and improved according to
+feedback from teachers and students. Also there are effort being done
+to encourage other lecturers to use them and contribute back.
+
+An important improvement will be inclusion of automatic testing in
+the compilation procedure. 
+
+Currently those materials exist in Polish and English versions, which
+are, however unsynchronized. In future we plan to update the English
+version only, mostly because of growing internationallity of
+studies. In some cases, mostly for theoretical parts of linear algebra
+book, the polish version will be kept in syncronisation.
+
+
+
+\clearpage
+\appendix
+\section{Screenshots}\label{screenshots}
+
+\screenshot{toc1.png}{Table of contents of Linear Algebra book.}
+\screenshot{toc2.png}{Table of contents of Linear Algebra book.}
+\screenshot{toc3.png}{Table of contents of Linear Algebra book.}
+
+\screenshot{la_book_ex.png}{An example of interactive element in web
+  version of Linear Algebra book.}  \screenshotsmall{rst.png}{The
+  source code of an example of interactive element in web version of
+  Linear Algebra book.}
+
 
 \end{document}
 

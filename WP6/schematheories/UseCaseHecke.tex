@@ -1,0 +1,309 @@
+\documentclass{llncs}
+%\pagestyle{plain}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+
+\def\Z{{\mathbb Z}}
+\def\Q{{\mathbb Q}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\def\N{{\mathcal{N}}}
+\def\O{{\mathcal{O}}}
+\def\p{{\mathfrak{p}}}
+
+\title{LMFDB use case: investigating Hecke fields of modular forms}
+\author{
+John Cremona\inst{1}
+David Lowry-Duda\inst{1}
+}
+\institute{
+University of Warwick
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  We describe a use case for intercommunication between LMFDB data and
+  either SageMath or PARI/GP.
+\end{abstract}
+
+\section{Introduction}
+We describe a use case for intercommunication between LMFDB data and
+either SageMath or PARI/GP.  The LMFDB contains many individual
+instances of several kinds of Modular Forms (which are the ``MF'' in
+``LMFDB''), including classical modular forms, Hilbert modular forms,
+Bianchi modular forms and others.  Each of these objects has
+associated to it an algebraic number field called its Hecke field.  A
+mathematically interesting project is to study these Hecke fields for
+the modular forms in each collection, collecting data about them such
+as their degree or class number (see the next section for definitions)
+and investigating how these are distributed.  Currently it is not even
+known how many of these Hecke fields are themselves in the LMFDB's own
+database of number fields; where they are, the associated invariants
+can simply be looked up in the LMFDB itself, but in cases where the
+Hecke field is not itself in the database, further computations using
+SageMath would become possible.
+
+Being able to access this LMFDB data directly from within a package
+with the ability to carry out its own computations with number fields
+would be a useful application.
+
+\section{Modular forms and their Hecke fields}
+We will not here give full definitions of the kinds of modular forms
+to be considered since even for the simplest ones this is a
+substantial mathematical theory dating back to the 19th century.  See
+\url{http://www.lmfdb.org/knowledge/show/mf} and the links there for
+brief definitions.  We limit ourselves to giving just those
+characteristics which are necessary for the current application, in
+the case of classical, Hilbert and Bianchi forms.
+
+\subsection{Base field and level}
+Each modular form has a \emph{base field} $F$ which is an algebraic
+number field (that is, a finite extension of the rational field~$\Q$).
+For classical modular forms we have $F=\Q$, for Hilbert Modular Forms
+(HMFs) $F$ is a totally real number field (meaning that every
+embedding of $f$ into $\C$ has image in $\R$, for example
+$F=\Q(\sqrt{5})$), and for Bianchi Modular Forms (BMFs), $F$ is an
+imaginary quadratic field (for example $F=\Q(\sqrt{-1})$).  We will
+mostly restrict to the case of Hilbert Modular Forms (HMFs); strictly
+speaking this includes classical modular forms (since $F=\Q$ is a
+totally real field) but we follow convention in only applying the term
+``Hilbert Modular Form'' when $F\not=\Q$.  Then the \emph{degree} of
+$F$ is an integer $n\ge2$.
+
+Our reason for excluding Bianchi Modular Forms from now on is simply
+that at present the LMFDB has almost no BMFs whose Hecke field is
+not~$\Q$.  The case of classical modular forms is mathematically very
+similar, but the means of storing these forms in the LMFDB is
+different, and also under current development, and would require a
+different interface.
+
+After specifying the base field, we must next give the \emph{level} of
+the modular form.  This is an (integral) ideal $\N$ of the ring of
+integers $\O_F$ of the base field $F$.
+
+In general, modular forms may also have an associated
+\emph{character}, but we only consider those with trivial character
+here, both for simplicity and also because at present the LMFDB only
+has HMFs with trivial character.  Similarly, in general modular forms
+have a \emph{weight}, and everything we will say would apply (with
+only minor changes) to forms of arbitrary weight; however, the HMFs
+currently in the LMFDB all have the same weight (parallel weight~$2$),
+so we will not mention the weight further.
+
+\subsection{Hilbert newforms and their Hecke fields}
+For a fixed base field~$F$, level~$\N$ (and fixed weight and
+character), the HMFs with these parameters form a finite-dimensional
+vector space.  In this space there is a finite set of distinguished
+elements called \emph{newforms}; the objects actually stored in the
+LMFDB are these newforms.  From now on when we refer to an HMF over
+some base field $F$, will will usually mean a Hilbert newform.
+
+Each newform $f$ is defined by and characterised by additional data in
+addition to the base field, level, weight and character.  This
+additional data serves to distinguish different newforms with the same
+base field and level, but also carries with it information of great
+significance in the study of these newforms.  Each newform has a
+\emph{Fourier expansion} indexed by elements $\alpha\in\O_K$, with
+Fourier coefficients $c_{\alpha}$ satisfying various multiplicative
+relations, including $c_1=1$.  The \emph{Hecke field} of~$f$ is the
+field~$K_f$ generated over $\Q$ by all these
+coefficients~$c_{\alpha}$, which is an algebraic number field (a
+finite extension of $\Q$).  The degree of the Hecke field~$K_f$ is
+called the \emph{dimension} of the newform.  For example, to say that
+the Hecke field $K_f=\Q$ is equivalent to the dimension being equal
+to~$1$ and to the statement that all Fourier coefficients $c_{\alpha}$
+lie in $\Q$.  Moreover all the Fourier coefficients are algebraic
+integers, so in fact all $c_{\alpha}\in\O_{K_f}$, and when $K_f=\Q$
+even $c_{\alpha}\in\Z$.
+
+The Hecke field has an alternate definition which explains the name,
+and is also used to establish some of the properties stated: on the
+complex vector space of all HMFs of a given level (and fixed weight
+and character) there is a commutative algebra of linear operators
+acting, called the \emph{Hecke Algebra}.  The newforms are
+``eigenforms'' for the action of this algebra, normalised by scaling
+so that $c_1=1$, and the coefficients $c_{\alpha}$ also arise as the
+eigenvalues of suitable operators in the Hecke algebra.  The
+multiplicative relations mentioned above mean that each newform is
+characterised by its eigenvalues, or coefficients, indexed by
+\emph{prime} elements of~$\O_F$, and that the coefficient~$c_{\alpha}$
+is unaffected by scaling $\alpha$ by units in $\O_F^*$.  Hence, and to
+summarize this discussion succinctly:
+\begin{enumerate}
+\item Every Hilbert newform $f$ has a base field $F$ and a level $\N$
+  which is an ideal in $\O_F$.
+\item To $f$ is also associated a number field~$K_f$ called its Hecke
+  field, containing all its Fourier coefficients (or Hecke
+  eigenvalues).
+\item The newform $f$ is uniquely determined by the collection
+  $\{c_\p\}$ indexed by prime ideals of the base field $F$, where each
+  $c_{\p}\in\O_{K_f}$.
+\item For fixed $F$ and $\N$ there are only finitely many newforms,
+  which may be distinguished by their coefficients $c_\p$ for a finite
+  collection of prime ideals~$\p$ of~$F$.
+\end{enumerate}
+
+\section{Relevant LMFDB databases and collections}
+At present the LMFDB data is stored in a Mongo database.  Under Mongo
+terminology the entire dataset is subdivided first into ``databases''
+and each database consists of a number of ``collections''.  The
+records in each collection can in principle have widely varying
+content, but in practice there is little variation and we may consider
+each record to have the same structure with a fixed set of keys each
+mapping to a value of a predefined type.
+
+All the Hilbert modular form data in the LMFDB is stored in a database
+called {\tt hmfs}.  Within this database there are three collections:
+{\tt hmfs.fields}, {\tt hmfs.forms}, and {\tt hmfs.hecke}.
+
+\subsection{The {\tt hmfs.fields} collection}
+The collection {\tt hmfs.fields} contains an entry for each base field
+(denoted $F$ above).  An inventory for the records in this collection
+may be seen at \url{http://www.lmfdb.org/inventory/hmfs/fields/}.
+Most relevant for the current discussion are the following keys:
+\begin{itemize}
+\item {\tt degree}: the degree of $F$ over $\Q$ (as an integer,
+  for example $2$).
+\item {\tt label}: a string holding the LMFDB label
+  of the field, for example {\tt 2.2.5.1}.  These labels allow
+  cross-referencing to the LMFDB fields database, where most data
+  about the base field is stored.
+\end{itemize}
+All fields which occur as base fields for HMFs in the database are
+themselves in the LMFDB's number field collection.  The other keys in
+{\tt hmfs.fields} are technical and need not concern us.  The main
+purpose of this collection is for displaying individual Hilbert
+newform data on the LMFDB website \url{www.lmfdb.org}.
+
+The collection {\tt hmfs.fields} contains $400$ entries, of base
+fields of degrees between $2$ and~$6$.
+
+\subsection{The {\tt hmfs.forms} collection}
+The collection {\tt hmfs.forms} contains an entry for each Hilbert
+newform (denoted $f$ above).  An inventory for the records in this
+collection may be seen at
+\url{http://www.lmfdb.org/inventory/hmfs/forms/}.  The relevant keys
+for our purposes are as follows:
+\begin{itemize}
+\item Keys relating to the base field $F$:
+\begin{itemize}
+\item {\tt deg}:  the degree $[F:\Q]$;
+  \item  {\tt field\_label}:  the LMFDB label of $F$.
+\end{itemize}
+\item Keys relating to the level  $\N$:
+\begin{itemize}
+\item {\tt level\_ideal}:  data from which the level may be
+  constructed;
+  \item {\tt level\_norm}: the norm of the level;
+\item {\tt level\_label} the standardised label for the level.
+\end{itemize}
+\item Key to specify the newform among others with the same base field
+  and level: {\tt label\_suffix}.
+\item Key giving the degree of the Hecke field: {\tt dimension}.
+\item Other keys give composite labels; {\tt label} is a concatenation
+  of the base field label, the level label and the suffix and
+  completely identifies this newform.
+\end{itemize}
+
+The collection {\tt hmfs.forms} contains $368356$ entries.  One
+example is
+\url{http://www.lmfdb.org/ModularForm/GL2/TotallyReal/4.4.16357.1/holomorphic/4.4.16357.1-55.1-c}.
+Here the vase field has label~{\tt 4.4.16357.1}, the level has
+label~{\tt 55.1} and the suffix specifying one particular newform at
+this level is~{\tt c}; the full label is then {\tt
+  4.4.16357.1-55.1-c}.  This example has dimension~$1$, meaning that
+the Hecke field is $\Q$.  Another example, which has dimension~$286$
+(the current maximum) is
+\url{http://www.lmfdb.org/ModularForm/GL2/TotallyReal/2.2.296.1/holomorphic/2.2.296.1-29.1-c}.
+
+\subsection{The {\tt hmfs.hecke} collection}
+The Fourier coefficients (or Hecke eigenvalues) of the newforms are
+stored in a separate collection {\tt hmfs.hecke} for technical
+reasons.  In the previous section we saw that the only information
+about the Hecke field stored in the main {\tt hmfs.forms} collection
+is the dimension, which is the degree of the Hecke field.  Here we
+specify the Hecke field itself and store the individual eigenvalues
+for each newform.
+
+There is one record {\tt hmfs.hecke} for each newforms in {\tt
+  hmfs.forms}, containing the following data.
+\begin{itemize}
+\item {\tt label}: the full label of the newform, matching the
+  associated record in {\tt hmfs.forms};
+\item {\tt hecke\_polynomial}: a string representing a polynomial
+  $g(x)$ with rational coefficients in the variable $x$.
+\item {\tt hecke\_eigenvalues}: a (finite) list of the first several
+  Hecke eigenvalues $c_{\p}$ of the newform, indexed by the primes
+  $\p$ of $\O_F$. Each $c_{\p}$ is stored as a string representing the
+  eigenvalue with respect to the power basis for the Hecke field in
+  the generator whose minimal polynomial is $g(x)$.
+\end{itemize}
+Note that the stored defining polynomials $g(x)$ are not canonical
+defining polynomials for the Hecke field, but essential arbitrary.
+(Often $g(x)$ will be the characteristic polynomial of the first
+nontrivial eigenvalue.)  Hence the same Hecke field may occur for
+different newforms with different defining polynomials; this will need
+to be taken into account when comparing Hecke fields: it is not
+sufficient to just compare the defining polynomials.  For example, the
+Hecke field $\Q(\sqrt{5})$ may occur with $g(x)=x^2-5$ and also with
+$x^2-x-1$.
+
+The collection {\tt hmfs.hecke} contains $368356$ entries, one for
+each entry in {\tt hmfs.forms}.  The Hecke fields have degrees up to $286$.
+
+\section{Possible investigations}
+\subsection{Degrees of Hecke fields} Over all newforms, or just those
+of each base field degree, describe the distribution of their
+dimensions, i.e. the degrees of the Hecke fields.  This only requires
+accessing the key {\tt hmfs.forms.dimension}, possibly subdivided by
+the value of  {\tt hmfs.forms.degree}.
+
+\subsection{The Hecke fields} Again this could be carried out over all
+newforms or just those with a fixed base field degree.  For each Hecke
+field degree, determine which distinct Hecke fields occur and with
+what frequencies.  This will require a database query to obtain the
+values of {\tt hmfs.hecke.hecke\_polynomial}, followed by construction
+of a field with each distinct polynomial found and a field isomorphism
+test, such as can be done by SageMath.  A variation of this would be
+to use SageMath's ability to find a unique canonical defining
+polynomial for every number field: this functionality is provided by
+the {\tt C} library {\tt pari} but there is already an interface to
+{\tt pari} from SageMath.
+
+Note that both the field isomorphism test and the canonicalization
+test become very expensive when the degree increases.  It may only be
+possible to carry out this (and subsequent) steps in the investigation
+for newforms of relatively low dimension, for this reason.  However,
+no-one has yet systematically tried to look at these higher degree
+fields at all, and would be interesting to have a list of them,
+especially if it were possible to find simpler representations of
+them.  Moreover there is an entry in the LMFDB wish-list to change the
+way to represent Hecke eigenvalues to something much more efficient
+and compact (in terms of storage space and of visual appearance on the
+web page), and a necessary first step would be to find such optimised
+representations.
+
+\subsection{Hecke field invariants} Following from the previous
+classification, a number of different invariants of each Hecke fields
+could be computed in SageMath: for example the class number.
+
+\subsection{Hecke eigenvalues and the ring they generate} Previous
+steps have only concerned the Hecke fields as fields, ignoring the
+lists of actual Hecke eigenvalues stored for each newform, in the {\tt
+  hmfs.hecke} collection.  It would be interesting to study what
+subring of the ring of integers of the Hecke field they generate, what
+index it has in the ring of integers, and how many individual Hecke
+eigenvalues are require to generate this ring.  All of these questions
+could be studied systematically in SageMath.
+
+%% \section{Interfaces needed}
+
+\section{Conclusion}
+
+
+\bibliographystyle{alpha}
+\bibliography{}
+\end{document}

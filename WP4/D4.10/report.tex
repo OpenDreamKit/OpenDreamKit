@@ -3,7 +3,7 @@
 \deliverable{UI}{pari-python-lib2}
 \deliverydate{31/08/2018}
 \duedate{31/08/2018 (M36)}
-\author{Jeroen Demeyer}
+\author{Vincent Delecroix, Jeroen Demeyer, Vincent Klein}
 
 \begin{document}
 \maketitle
@@ -14,29 +14,37 @@
 \section{Introduction}
 
 The \Pari library is a state-of-the-art library for number theory,
-developed at Universit\'e Bordeaux.
+developed at Universit\'e de Bordeaux.
 It is an important component of the \Sage computational system:
 \Sage uses it for example to implement number fields and elliptic curves.
 \Pari itself is just a C library but it comes with a command-line interface called GP.
-The complete package is called \PariGP.
+Together, these form the software package \PariGP.
 Thanks to OpenDreamKit (see \delivref{UI}{ipython-kernels-basic}),
 there is also a \Jupyter interface implementing the same language.
 Unfortunately, GP is a specialised language which is not so easy
 to integrate with other software.
 
-This deliverable is about creating a \Python interface for \PariGP.
+This deliverable is a Python interface for \PariGP.
 Since Python is a widely-used programming language,
 this makes it easy to integrate \PariGP with other (scientific) software.
 As such, it is an important component of a VRE
 for researchers who require number-theoretical computations.
-The interface between \Sage and \PariGP also uses the cypari2 package.
+
+Since \Sage is implemented in Python,
+it is also necessary for \Sage to have a Python interface to \PariGP.
+
+In the first reporting period of the OpenDreamKit project,
+we created \Python bindings for \PariGP in a package called \emph{cypari2}.
+We reported on that in \delivref{UI}{pari-python-lib1} and this deliverable is a follow-up.
 
 \clearpage
 \section{Examples}
 
-This is a basic example of using cypari2 to compute
+Let us start by giving two concrete examples of using cypari2.
+These examples were run in the IPython command line interface to Python.
+The first is a basic example of computing
 the number of points on the elliptic curve $Y^2 = X^3 + 2X + 3$
-over the finite field $\mathbb{F}_{11}$:
+over the finite field $\mathbb{F}_{11}$ (the answer is $12$):
 \begin{verbatim}
 In [1]: from cypari2 import Pari; pari = Pari()
 
@@ -53,7 +61,7 @@ In [1]: from cypari2 import Pari; pari = Pari()
 
 In [2]: pari.default("nbthreads", 2)
 
-In [3]: L = [2**i - 1 for i in range(1, 201)]
+In [3]: L = [2**n - 1 for n in range(1, 201)]
 
 In [4]: %time res = pari.parapply("factor", L)
 CPU times: user 6.76 s, sys: 170 ms, total: 6.93 s
@@ -67,23 +75,9 @@ This is because 2 threads were used in parallel
 
 \section{New features}
 
-In the first reporting period of the OpenDreamKit project,
-we created \Python bindings for \PariGP in a package called \emph{cypari2}.
-We reported on that in \delivref{UI}{pari-python-lib1} and this deliverable is a follow-up
-in which we added multiple new features, which we list here.
-
-\subsection{Plotting support}
-
-As part of the work for \delivref{UI}{ipython-kernels},
-we implemented SVG high-resolution plotting in \Pari.
-This was first developed for the \PariGP Jupyter kernel,
-but the same feature now also works using cypari2
-in the Python or Sage Jupyter kernels.
-
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth,trim={60px 100px 60px 1px},clip]{jupyter-cypari2.png}
-  \caption{Plotting using cypari2 in the Python Jupyter kernel}
-\end{figure}
+Since the first deliverable \delivref{UI}{pari-python-lib1},
+we added various new features to the cypari2 package,
+which we list here.
 
 \subsection{Support for GP lists}
 
@@ -110,6 +104,19 @@ In [5]: L
 Out[5]: List([1, 2, 5, 3])
 \end{verbatim}
 
+\subsection{Plotting support}
+
+As part of the work for \delivref{UI}{ipython-kernels},
+we implemented SVG high-resolution plotting in \Pari.
+This was first developed for the \PariGP Jupyter kernel,
+but the same feature now also works using cypari2
+in the Python or Sage Jupyter kernels.
+
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth,trim={60px 100px 60px 1px},clip]{jupyter-cypari2.png}
+  \caption{Plotting using cypari2 in the Python Jupyter kernel}
+\end{figure}
+
 \subsection{Avoiding copies from the PARI stack}
 
 The first version of cypari2 always copied the results from a
@@ -122,15 +129,16 @@ of allocating and copying memory
 For efficiency, \Pari internally uses a stack to store intermediate results.
 One of the goals stated for \taskref{UI}{pari-python} was to
 keep objects on the \Pari stack.
-This has been implemented in a new version of cypari2, which is not released yet.
+This has been implemented in a new version of cypari2 (which is not released yet).
 One disadvantage of a stack is that it is impossible
 to free an object in the middle of the used stack space:
 only the most recently allocated object can be freed.
 Therefore, cypari2 has a strategy to copy all objects
-from the stack to the heap anyway once too much stack space is used.
+from the stack to the heap once too much stack space is used.
 By delaying the copying, only the objects which are still referenced
 need to be copied.
-This is usually a significant saving over copying all objects.
+This is usually a significant saving over copying all objects
+since temporary objects typically do not need to be copied.
 
 \subsection{Improved auto-generation}
 
@@ -153,9 +161,44 @@ wanting to interface efficiently with \Pari.
 The Cython interface has the advantage of avoiding the
 overhead of calling Python methods and creating Python objects.
 It also allows finer control over PARI internals.
+This is an example showing the difference between using
+the Python interface of cypari2 and direct calling of \Pari
+functions:
+\begin{verbatim}
+In [1]: %load_ext cython
 
-\TODO{would you have a quick example illustrating the speed gain of
-  calling directly at the Cython level?}
+In [2]: %%cython
+   ...: from cysignals.signals cimport sig_on
+   ...: from cypari2.gen cimport Gen, GEN
+   ...: from cypari2.paridecl cimport gcos, DEFAULTPREC
+   ...: from cypari2.stack cimport new_gen
+   ...:
+   ...: def cosfixpoint_py(Gen a, Py_ssize_t iterations):
+   ...:     cdef Py_ssize_t i
+   ...:     for i in range(iterations):
+   ...:         a = a.cos()
+   ...:     return a
+   ...:
+   ...: def cosfixpoint_cy(Gen a, Py_ssize_t iterations):
+   ...:     cdef Py_ssize_t i
+   ...:     cdef GEN g = a.g
+   ...:     sig_on()
+   ...:     for i in range(iterations):
+   ...:         g = gcos(g, DEFAULTPREC)
+   ...:     return new_gen(g)
+
+In [3]: from cypari2 import Pari; pari = Pari()
+
+In [4]: %time cosfixpoint_py(pari(0.0), 100000)
+CPU times: user 177 ms, sys: 0 ns, total: 177 ms
+Wall time: 177 ms
+Out[4]: 0.739085133215161
+
+In [5]: %time cosfixpoint_cy(pari(0.0), 100000)
+CPU times: user 144 ms, sys: 0 ns, total: 144 ms
+Wall time: 143 ms
+Out[5]: 0.739085133215161
+\end{verbatim}
 
 Second, cypari2 now automatically
 generates a \texttt{DeprecationWarning}
@@ -175,16 +218,16 @@ Out[2]: [x, x^2 + 1]
 
 \subsection{Documentation}
 
-\PariGP has very extensive help documentation for each function.  This help is
-now translated to ``docstrings'' (in-line documentation for Python code) for
-the Python interface.
+\PariGP has very extensive documentation for each function, called \emph{help}.
+This help is now translated to \emph{docstrings}
+(in-line documentation for Python code) for the Python interface.
 This requires a translation from \LaTeX{}
-(the language used for the \PariGP documentation)
-to reStructuredText (which is used by Sphinx,
+(the language used for the \PariGP help)
+to reStructuredText (which is understood by \Sphinx,
 the package building the documentation for cypari2).
 
 Since the documentation appears in Cython-generated functions,
-we needed a few improvements in Sphinx to make it work
+we needed a few improvements in \Sphinx to make it work
 with Cython functions.
 This is detailed in the report of \delivref{UI}{sage-sphinx}.
 Following standard practice in the Python community,
@@ -216,24 +259,25 @@ other similar interfaces are also being moved away from \Sage.
 One such example is pplpy, an interface to PPL (Parma Polyhedra Library).
 
 We made several improvements to make cypari2 behave better as stand-alone package:
-the code is now fully compatible with Python 3 (starting with with version 3.4)
+the code is now fully compatible with \Python 3 (more precisely, version 3.4 or later)
 and with multiple versions of \PariGP (from 2.9.0 to the most recent release, 2.11.0).
 To ensure that it remains compatible, multiple \Python and \PariGP
-versions are tested on the continuous integration platform Travis CI.
+versions are tested on the continuous integration platform Travis CI
+(see \delivref{component-architecture}{multiplatform-buildbot}
+for more information about continuous integration in general).
 
-One of the original goals of this deliverable was replacing the original
-cypari package.
+One of the original goals of this deliverable was replacing the older cypari package.
 The main stumbling block for this is Windows compatibility of cysignals,
 a package for interrupt, signal and error handling
 of Cython code, written by OpenDreamKit as part of \taskref{UI}{pari-python}.
 This package is a dependency of cypari2 and it
 currently does not work natively on Windows,
 only on Unix-like systems
-(in particular on Linux and Mac OS X and also Cygwin on Windows).
-Because of that, cypari2 also does not work on Windows.
+(in particular on Linux and Mac OS X but also Cygwin on Windows).
+Because of that, cypari2 does not work on Windows either.
 Significant progress has been made to port cysignals to Windows.
 We plan to finish this task in the final year of OpenDreamKit,
-mainly with resources from Ghent University and Universit\'e Bordeaux.
+mainly with resources from Ghent University and Universit\'e de Bordeaux.
 Given that \PariGP itself does work on Windows,
 it should then be relatively easy to get cypari2 working on Windows.
 Once that is done, it will be a viable replacement for cypari.
