@@ -1,5 +1,6 @@
 \documentclass{deliverablereport}
 \usepackage{wrapfig}
+\usepackage{pdflscape}
 \lstset{stringstyle=\tiny}
 
 \deliverable{UI}{ipython-advanced-interacts}
@@ -102,10 +103,6 @@ see Figure~\ref{fig:math_viz} for some examples.
   \caption{Some graphical visualizations of mathematical objects}
   \label{fig:math_viz}
 \end{figure}
-
-%\TODO{search on wikipedia for a nice collection of pictures: a
-%  partition, a polyomino, an aztec diamond, a monomial ideal, a graph,
-%  a poset, a formula - fraction continue, a curve, ...}. diagramme de Venn ; th des 4 couleurs sur une carte mathématique
 
 We therefore can't hope to provide hand crafted solutions for each
 situation; instead we need to devise a toolbox of generic solutions
@@ -269,9 +266,16 @@ semantic model takes the form of an intermediate JSON data format,
 with JSON data being passed from the computational system to the
 browser.
 
-%\subsection{Francy, }
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{schemas/SensUnique}
+  \end{center}
+  \caption{Francy Data Flow}
+  \label{fig:dataflow1}
+\end{figure}
 
-\TODO{Time permitting: a picture of the data flow}
+
+%\subsection{Francy, }
 
 
 \subsection{A generic widget for objects with a grid-like representation}
@@ -308,15 +312,24 @@ drawing, but also \emph{interactive editing}: here, the interaction
 not only affects the visualization, but also induces changes to the
 the original mathematical objects via the intermediate data format.
 Thus the data flow is now bidirectional.
-\TODO{Time permitting: a picture of the bidirectional data flow}
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{schemas/DoubleSens}
+  \end{center}
+  \caption{Sage Combinat Widgets Data Flow}
+  \label{fig:dataflow1}
+\end{figure}
 
 Technically speaking, we aimed for the implementation of a generic
 Jupyter widget meant for all SAGE-objects admitting a grid-like
 representation.
 
-\TODO{NT: additional challenge: the interaction requires richer
-  messages where not only data representing the, but also questions
-  are asked (validity, valid changes, ...) + temporary invalidity. }.
+%\TODO{NT: additional challenge: the interaction requires richer
+%  messages where not only data representing the, but also questions
+%  are asked (validity, valid changes, ...) + temporary invalidity. }.
+% OB : I guess I addressed this on line ~371 - subsection ``description of
+% the design
 
 This use case combined several advantages:
 \begin{itemize}
@@ -336,16 +349,18 @@ resided in the the design of a generic solution that encapsulates as
 much of the technicalities as possible, enabling users to specialize
 the generic solution for their own pet objects with little expertise.
 
-\subsection{Description of the design, of the API that subclasses must
-  implement, code examples}
-
+\begin{landscape}
 \begin{figure}[h]
   \begin{center}
-    \includegraphics[width=\textwidth]{schemas/SageViewEditor}
+    \includegraphics[width=1.4\textheight]{schemas/SageViewEditor}
   \end{center}
   \caption{Sage View Editor classes}
   \label{fig:lmfdb}
 \end{figure}
+\end{landscape}
+
+\subsection{Description of the design, of the API that subclasses must
+  implement, code examples}
 
 We have developped a \emph{GridViewWidget} for representing - and
 interacting with - Sage Objects in Jupyter environment, in a browser.
@@ -356,6 +371,12 @@ The interaction possibilities currently are the following:
   \item adding or removing cells
   \item selecting cells for more interactions
 \end{itemize}
+
+Please notice an additional challenge here: while editing cells or
+adding/removing them, the editor has to \emph{reconstruct} a new
+object from its cells and this requires also \emph{checking} the type of this
+potential new object and displaying messages during the editing
+process, especially in case of a temporary invalidity.
 
 This \emph{GridViewWidget} is based on a \emph{GridViewEditor}, that
 is GUI-agnostic.
@@ -408,15 +429,22 @@ class StandardTableau:
 
 \subsection{Potential applications}
 
+%\begin{wrapfigure}{r}{0.25\textwidth}
+%    \begin{center}
+%      \includegraphics[width=100px]{images/TableauWidget}
+%      \caption{A tableau widget}
+%\end{center}
+%\end{wrapfigure}
+
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
-      \includegraphics[width=100px]{images/JDTSlide}
-      %\caption{A tableau widget}
+      \includegraphics[width=100px]{images/SkewTableauWidget}
+      \caption{Editable skew tableau}
 \end{center}
 \end{wrapfigure}
 
 Grid-like representable objects cover many algebraic or combinatoric
-objects: matrices, partitions, grid graphs, tableaus, ribbons ..
+objects: matrices, partitions, grid graphs, tableaux, ribbons ..
 
 Apart from displaying and editing an object, more possibilities can be
 imagined
@@ -424,7 +452,7 @@ imagined
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
       \includegraphics[width=100px]{images/dominos-azteque}
-      %\caption{A tableau widget}
+      \caption{Matching and flipping in a graph}
 \end{center}
 \end{wrapfigure}
 
