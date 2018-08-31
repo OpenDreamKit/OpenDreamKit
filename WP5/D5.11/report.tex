@@ -171,12 +171,8 @@ to get further values of $n_g$ by directly enumerating semigroups.
 
 Using adequate data structures and parallelization with \Cilk allowed
 F.~Hivert with his collaborator J.~Fromentin to obtain the number of numerical
-semigroups up to genus $g \leq 70$ and also to confirm the so-called
-Wilf~\cite{Wilf} conjecture
-\TODO{What is the Wilf conjecture? Is this the aforementioned exponential
-growth? If so that should be clarified, and if not it should also be clarified
-that it's another problem unrelated to the discussion so far}
-for $g \leq 60$. This work has led to the
+semigroups up to genus $g \leq 70$ and also to confirm for $g\leq 60$ another
+unrelated famous conjecture due to Wilf~\cite{Wilf}. This work has led to the
 publication~\cite{FromentinH16}.
 
 We would like to explain why exploring this tree is quite challenging as a
@@ -214,15 +210,12 @@ In our experiments, we have identified the following four kinds of problems:
 \item\label{enum-tree} \emph{Recursive parallel problems}: the computational
   problem is organized as a recursive tree which can be discovered on the fly
   during the computation.
-\item\label{enum-graph} \emph{Deep depended multi-task problems}:
-  \TODO{The phrasing 'deep depended multi-task' is strange to me; it does not
-sound like English.  Is this just some specific jargon I'm not familiar with?
-    Update: after our conversation, something like "Deep redundant recursive problems" works
-    (I would not also include "parallel" in that description lest it become a mouthful,
-     but you can clarify that these can be computed in parallel as well, with care,
-     and problem-specific knowledge / theorems)}
-  the computational problem is organized as a large set of tasks with a large
-  graph of dependencies.
+\item\label{enum-graph} \emph{Recursive redundant parallel problems}: this
+  kind of problem is similar to the previous one except that instead of a
+  tree, the computational problem is organized as a (directed acyclic) graph
+  so that they are multiple different way to reach the same computation. So the
+  computing units have to coordinate to avoid recomputing the same thing too
+  many time or to detect that all the prerequisite for a task are known.
 \item\label{enum-micro} \emph{Micro data structure parallel optimization}:
   for many combinatorial structures (permutations, partitions, monomials, Young
   tableaux), their data can be encoded as a small sequence of small integers
@@ -270,9 +263,10 @@ be conveniently dealt with by language extensions such as Open MP, Threading
 Building Block (TBB) or Cilk. At this level one important ingredient in
 optimization is the careful usage of shared memory.  Before getting into
 technical details, we recall in subsection~\ref{subsec:map-reduce:Sage} the
-small framework that was implemented in \Sage during D5.1\TODO{put a hyperref to the D5.1 report here} that also
-illustrates the typical problem one faces in combinatorics.  More details on
-the usage of \Cilk are provided in Section~\ref{sec:low:level}.
+small framework that was implemented in \Sage
+during~\longdelivref{hpc}{sage-paral-tree} that also illustrates the typical
+problem one faces in combinatorics.  More details on the usage of \Cilk are
+provided in Section~\ref{sec:low:level}.
 
 The last level of parallelism concerns computations with multiple nodes
 (e.g.~multiple computers on a network) and is not addressed by this
@@ -281,9 +275,7 @@ deliverable.
 \subsection{Map-reduce and its implementation in \Sage}
 \label{subsec:map-reduce:Sage}
 
-The goal is to present an example of a typical end-user interface
-\TODO{interface to what? I'm a little unclear on this sentence. I might delete it entirely.}
-we would like
+The goal is to present an example of a typical end-user feature we would like
 to be able to provide as an actual HPC component. This is a solution for
 type~(\ref{enum-tree}) problems in our classification.
 
@@ -315,9 +307,8 @@ The framework~\cite{map-reduce} we developed works on the following input:
 A \textbf{recursively enumerated set} given by:
 \begin{itemize}
 \item the \texttt{roots} of the recursion
-\item the \texttt{children} function computing \TODO{this seems like an incomplete phrase; I don't know what it's saying}
-\item the \texttt{postprocessing} function, which can also filter intermediate \TODO{in the example below this is spelled "post\_process", so maybe that would be clearer here}
-  nodes
+\item the \texttt{children} function computing the next level of the recursion
+\item the \texttt{post\_process} function, which can also filter intermediate nodes
 \end{itemize}
 Then, a \textbf{map-reduce problem} is given by:
 \begin{itemize}
@@ -388,37 +379,9 @@ Number of inversions of a permutation& $9.39$\\
 Cycle type of a permutation& $8.94$\\
 \end{tabular}
 \]
-As a more concrete example, here is how to sort an array of $16$~bytes:
-\TODO{While I understand the below code example well enough (you have shown me
-this code before!), it is pretty obscure and does not add much for the reader.
-I would move it to an appendix.}
-\begin{verbatim}
-// Sorting network Knuth AoCP3 Fig. 51 p 229.
-static const array<Perm16, 9> rounds =
-    {{ { 1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14},
-       { 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13},
-       [...]
-    }};
-
-Vect16 sort(Vect16 a) {
-  for (Perm16 round : rounds) {
-    Vect16 minab, maxab, blend, mask, b = a.permuted(round);
-    mask = _mm_cmplt_epi8(round, Perm16::one);
-    minab = _mm_min_epi8(a, b);
-    maxab = _mm_max_epi8(a, b);
-    a = _mm_blendv_epi8(minab, maxab, mask);
-  }
-  return a;
-}
-\end{verbatim}
-
-Unfortunately, from a developer's
-% Note: I changed "user" to "developer" here to make clear that we're talking
-% about coding algorithms, as opposed to merely using the algorithms you've
-% already coded
-point of view, this requires rethinking all the
-algorithms, and there is nearly no support from the compiler for automating
-this task.\bigskip
+Some actual code is shown in Appendix~\ref{code-sample}. Unfortunately, from a
+developer's point of view, this requires rethinking all the algorithms, and
+there is nearly no support from the compiler for automating this task.\bigskip
 
 So as part of the OpenDreamKit deliverable, we started to develop a new
 library called \texttt{HPCombi}\footnote{\url{https://github.com/hivert/HPCombi}}. The
@@ -429,7 +392,7 @@ transformations. We also have experimental code for partitions and boolean
 matrices.
 
 Despite its infancy the code is already used by libsemigroups
-\cite{libsemigroups} (which deals with a different kind of semigroup from
+\cite{libsemigroup} (which deals with a different kind of semigroup from
 numerical semigroups) by James Mitchell. It is a C++ library for semigroups and
 monoids using C++11, and is used in the Semigroups
 package for GAP. The development version is available on \GitHub, and there are
@@ -500,14 +463,13 @@ enough of them (more than 1K) as once.
 So this looked overall very promising for the first stage. However, for the
 second stage, in a reasonable use case, one needs to store the results of the
 computation in a large hash table which typically is at the limit if not
-larger than the size of the GPU's memory. So we decided to keep the hash table in
-the computer's main memory, external to the GPU. Because of this, performance
-suffered by random access and the CPU cache hierarchy. Nearly all memory access
-triggered a cache miss which resulted in slowdown of
-as much as $60\times$. An internal \TODO{what do you mean by "internal"?} report is currently being finalized
-and will soon be made widely available to the community through the standard
-preprint services (HAL, ARXIV).
-\bigskip
+larger than the size of the GPU's memory. So we decided to keep the hash table
+in the computer's main memory, external to the GPU. Because of this,
+performance suffered by random access and the CPU cache hierarchy. Nearly all
+memory access triggered a cache miss which resulted in slowdown of as much as
+$60\times$. A report is currently being finalized and will soon be made widely
+available to the community through the standard preprint services (HAL,
+ARXIV).  \bigskip
 
 So the conclusion is that in order to achieve a useful speedup with the GPU, the entire computation
 must be hosted inside the GPU's internal memory. This has two very important drawbacks:
@@ -657,12 +619,10 @@ behavior in our prototypical examples:
   doesn't scale for huge numbers of tasks. Intel's FAQ reads, ``A good rule of
   thumb is that an Intel TBB application should have approximately 10 tasks
   for every worker.'' Similarly, in \cite{LuLi}, they consider a problem
-  requiring micro-task computations of roughly 30k tasks,each of which takes 4k
+  requiring micro-task computations of roughly 30k tasks, each of which takes 4k
   CPU cycles. Whereas in the numerical monoid problem task takes around 60
   CPU cycles, the number of tasks easily exceeds 1 billion for a 1 minute long
-  computation.  \TODO{I rewrote this a bit but I'm not 100\% sure if I understood
-  the details correctly, so please check.  I wasn't sure if "1G" referred to the
-  number of tasks.}
+  computation.
 
 \item An indication that this is still a research-level problem is that we
   have found that there there is an ongoing PhD thesis by Blair Archibald under
