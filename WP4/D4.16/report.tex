@@ -305,7 +305,7 @@ variety of format: latex, pdf, various forms of ascii art, \dots; see
 This achieved the same two levels of decoupling as we have seen in Francy.
 
 We decided to build on this previous experience to explore not only
-drawing, but also \emph{interactive editing}: here, the interaction
+visualization, but also \emph{interactive editing}: here, the interaction
 not only affects the visualization, but also induces changes to the
 the original mathematical objects via the intermediate data format.
 Thus the data flow is now bidirectional.
@@ -319,36 +319,37 @@ Thus the data flow is now bidirectional.
 \end{figure}
 
 This brings new challenges.
+%
+% Please notice an additional challenge here: while editing cells or
+% adding/removing them, the editor has to \emph{reconstruct} a new
+% object from its cells and this requires also \emph{checking} the type of this
+% potential new object and displaying messages during the editing
+% process, especially in case of a temporary invalidity.
 
-First, updates may fail: given the intermediate data format does not
+First, updates may fail: given that the intermediate data format does not
 carry all the semantic of the mathematical objects, some interactive
 editions may be invalid; yet such editions should not be necessarily
 be forbidden, as it may take several elementary edition step to move
 from one valid state to another (think of a text editor that would
-block typing any key leading to an incorrectly spelled word!). Hence
+block typing any key leading to a temporarily incorrectly spelled word!). Hence
 some logic is needed to handle loss and recovery of sync between the
 state of the semantic representation model and that of the
 underlying mathematical object.
 
-In addition, rich editing features, requires richer interactions than
-just sending description of the object back and forth. For example,
-the view may need to request what are the valid edition steps for a
-given objects to provide visual hints to the user. Therefore, the
-semantic representation model needs to specify in addition to a data
-format, operations on that data format. A full API.
+In addition, rich editing features, requires richer message passing
+than just sending description of the object back and forth. For
+example, in order to provide visual hints to the user, the view may
+need to request what are the next valid edition steps for a given
+object; or in case an invalid step is taken, the object may return
+rich error messages enabling visual feedback. Also, for editing large
+objects, one may wish as well to send only incremental updates.
 
-\TODO{...}
-require not only sending back and forth a description of the object,
-but passing
-
-
-As it needs to operate on each in the same way,
-and in effect they have various method names, or signatures, or
-different features, we felt the need to define a list a methods to be
-implemented by them, i.e. an \emph{API}.
+Therefore, the semantic representation model needs not only to specify
+a \emph{data format} to represent instances of this model, but also
+\emph{operations} on them, that is an API.
 
 
-Aiming for interactive editing was inspired by the Larch Environment.
+Aiming for interactive editing was suggested by the Larch Environment.
 In his \href{https://core.ac.uk/download/pdf/9839511.pdf}{master
   thesis} (2013), Geoffrey W. French presents his own graphical
 interactive programming environment called \emph{larch}. One of his
@@ -370,14 +371,8 @@ remain inspiring.
 \label{section:grid}
 
 To explore interactive editing, we set as goal the implementation of a
-generic Jupyter widget meant for all SAGE-objects admitting a
+generic Jupyter widget meant for all \Sage-objects admitting a
 grid-like representation.
-
-%\TODO{NT: additional challenge: the interaction requires richer
-%  messages where not only data representing the, but also questions
-%  are asked (validity, valid changes, ...) + temporary invalidity. }.
-% OB : I guess I addressed this on line ~371 - subsection ``description of
-% the design
 
 This use case combined several advantages:
 \begin{itemize}
@@ -386,14 +381,17 @@ This use case combined several advantages:
 \item Little mathematical background was required; this, together with
   the previous point, made for a smooth learning curve for our
   Research Software Engineer;
-\item It was a low hanging fruit with a large coverage;
+\item It was a low hanging fruit with a large coverage in algebraic
+  combinatorics, including matrices, integer partitions, (standard)
+  (skew) tableaux, ribbons, ribbon tableaux, grid graphs, aztec
+  diagrams, etc.
 \item The end result is immediately useful to colleagues, enabling
   early feedback from users;
 \item There is a large variety of potential specializations, each with
   it's own quirks and specifics.
 \end{itemize}
 Hence, this use case provided a unique challenge: all the difficulty
-resided in the the design of a generic solution that encapsulates as
+resided in the the design of a generic editing solution that encapsulates as
 much of the technicalities as possible, enabling users to specialize
 the generic solution for their own pet objects with little expertise.
 
@@ -403,109 +401,51 @@ the generic solution for their own pet objects with little expertise.
     \includegraphics[width=1.4\textheight]{schemas/SageViewEditor}
   \end{center}
   \caption{Sage View Editor classes}
-  \label{fig:lmfdb}
+  \label{fig:schema}
 \end{figure}
 \end{landscape}
 
-\subsection{Description of the design, of the API that subclasses must
-  implement, code examples}
+\subsection{Overview of the features and design}
 
-We have developped a \emph{GridViewWidget} for representing - and
-interacting with - Sage Objects in Jupyter environment, in a browser.
-
-The interaction possibilities currently are the following:
+The developed \Jupyter widget \emph{GridViewWidget} has the following
+features:
 \begin{itemize}
-  \item editing a cell content
-  \item adding or removing cells
-  \item selecting cells for more interactions
+\item editing the content of cells
+\item adding or removing cells
+\item selecting cells for more interactions
+\item supporting temporarily invalid states
+\item recovering the underlying mathematical object, e.g. for
+  computations with it.
 \end{itemize}
 
-Please notice an additional challenge here: while editing cells or
-adding/removing them, the editor has to \emph{reconstruct} a new
-object from its cells and this requires also \emph{checking} the type of this
-potential new object and displaying messages during the editing
-process, especially in case of a temporary invalidity.
-
-This \emph{GridViewWidget} is based on a \emph{GridViewEditor}, that
-is GUI-agnostic.
-
-\emph{GridViewEditor} can operate in various Sage grid-representable objects like graphs,
-matrices, or tableaux. As it needs to operate on each in the same way,
-and in effect they have various method names, or signatures, or
-different features, we felt the need to define a list a methods to be
-implemented by them, i.e. an \emph{API}.
-
-Currently hidden in the \emph{GridViewEditor} itself, we intend to promote
-the development of adapters for the Sage objects, either by implementing Adapter
-classes as such, or by writing translating information. Here are a few code examples
-for both strategies:
-
-\begin{lstlisting}
-class GenericGraphGridViewAdapter(GenericGraph):
-  ...
-  def from_cells(self, cells={}):
-    g = GenericGraph()
-    g.add_vertices(list(cells.keys()))
-    return g
-
-class PartitionGridViewAdapter(Partition):
-  ....
-  def add_cell(self, coord):
-    return self.add_cell(self.coord[0], self.coord[1])
-
-class StandardTableauGridViewAdapter(StandardTableau):
-  ....
-  def from_cells(self, cells={}):
-      positions = sorted(list(cells.keys()))
-      try:
-        return StandardTableau([[cells[pos] for pos in positions if pos[0]==i] for i in uniq([t[0] for t in positions])])
-      except:
-      raise TypeError("Cannot generate a valid StandardTableau!")
-\end{lstlisting}
-
-Second strategy: a translator can be written directly in the source
-code, with \emph{Python annotations}:
-
-\begin{lstlisting}
-@grid_view_adapter(\{addable_cells:self.shape().addable_cells, removable_cells:removable_cells\})
-class StandardTableau:
-  /.../
-\end{lstlisting}
-
-%The users can specify their own tile shape. For example they can
-%use \emph{IPyWidgets} buttons or text inputs.
-
-\subsection{Potential applications}
-
-%\begin{wrapfigure}{r}{0.25\textwidth}
-%    \begin{center}
-%      \includegraphics[width=100px]{images/TableauWidget}
-%      \caption{A tableau widget}
-%\end{center}
-%\end{wrapfigure}
-
 \begin{wrapfigure}{r}{0.25\textwidth}
-    \begin{center}
-      \includegraphics[width=100px]{images/SkewTableauWidget}
-      \caption{Editable skew tableau}
-\end{center}
+  \begin{center}
+    \includegraphics[width=100px]{images/SkewTableauWidget}
+    \qquad
+    \includegraphics[width=100px]{images/dominos-azteque}
+  \end{center}
+  \caption{Editing a skew tableau, and flipping dominos on a grid graph}
 \end{wrapfigure}
 
-Grid-like representable objects cover many algebraic or combinatoric
-objects: matrices, partitions, grid graphs, tableaux, ribbons ..
+The semantic representation model takes the form of a Python class
+\emph{GridViewEditor} that is both agnostic of the GUI and of the
+mathematical objects. To enable the latter, the interaction with
+mathematical objects of a certain kind, say integer partitions, goes
+through an adapter class which implements the required API on top of
+that of integer partitions. See the Figure~\ref{fig:schema}.
 
-Apart from displaying and editing an object, more possibilities can be
-imagined
+The implementation of such an adapter shall be as simple as possible,
+to empower users to write new ones for their own pet mathematical
+objects. In particular, it should only require knowledge about the
+business logic of ditto mathematical objects. We explored different
+options, and battlefield tested them by writing adapters for a
+selection of mathematical objects of different nature, chosen in
+collaboration with potential users at the occasion of the experimental
+mathematics Spring school MathExp 2018 coorganised by \ODK
+(see~\longdelivref{dissem}{workshops-3}). The final design will be
+chosen according to users feedback.
 
-\begin{wrapfigure}{r}{0.25\textwidth}
-    \begin{center}
-      \includegraphics[width=100px]{images/dominos-azteque}
-      \caption{Matching and flipping in a graph}
-\end{center}
-\end{wrapfigure}
-
-As an example, we have developed a domino-like representation of
-\emph{grid-graph matchings} with a \emph{flipping} feature on neighboring dominos.
+\subsection{Dissemination strategy}
 
 The code is distributed as a Sage package
 \href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets}
@@ -513,13 +453,68 @@ which is meant to grow beyond this initial seed, attracting
 contributions from the community, and presumably be integrated
 progressively into SageMath.
 
-\subsection{Strategy to get feedback from users}
-
+The following steps will be taken to attract users and contributions:
 \begin{itemize}
-  \item Attending local seminars at \emph{Laboratoire de Recherche Informatique} or/and \emph{\href{https://www.lix.polytechnique.fr/}{Laboratoire d'Informatique de l'École Polytechnique}}
-  \item Release some implementation examples for a few object types ; write a tutorial on how to write your own ; invite users to write feedback, either on the development mailing list, or on the  project \emph{sage-combinat-widgets} issues interface
-  \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
+  \item Implementing adapters for the most classical object types, and
+    only them;
+  \item Writing tutorials on how to write new ones;
+  \item Running tutorials at the occasion of local work groups at
+    \emph{Laboratoire de Recherche Informatique} and
+    \emph{\href{https://www.lix.polytechnique.fr/}{Laboratoire
+        d'Informatique de l'École Polytechnique}}, and at upcoming
+    Sage Days.
+  \item Inviting users to provide feedback, either face to face, on
+    the development mailing list, or on the project
+    \emph{sage-combinat-widgets} issues interface.
 \end{itemize}
+
+
+% Currently hidden in the \emph{GridViewEditor} itself, we intend to promote
+% the development of adapters for the Sage objects, either by implementing Adapter
+% classes as such, or by writing translating information. Here are a few code examples
+% for both strategies:
+
+% \begin{lstlisting}
+% class GenericGraphGridViewAdapter(GenericGraph):
+%   ...
+%   def from_cells(self, cells={}):
+%     g = GenericGraph()
+%     g.add_vertices(list(cells.keys()))
+%     return g
+
+% class PartitionGridViewAdapter(Partition):
+%   ....
+%   def add_cell(self, coord):
+%     return self.add_cell(self.coord[0], self.coord[1])
+
+% class StandardTableauGridViewAdapter(StandardTableau):
+%   ....
+%   def from_cells(self, cells={}):
+%       positions = sorted(list(cells.keys()))
+%       try:
+%         return StandardTableau([[cells[pos] for pos in positions if pos[0]==i] for i in uniq([t[0] for t in positions])])
+%       except:
+%       raise TypeError("Cannot generate a valid StandardTableau!")
+% \end{lstlisting}
+
+% Second strategy: a translator can be written directly in the source
+% code, with \emph{Python annotations}:
+
+% \begin{lstlisting}
+% @grid_view_adapter(\{addable_cells:self.shape().addable_cells, removable_cells:removable_cells\})
+% class StandardTableau:
+%   /.../
+% \end{lstlisting}
+
+%The users can specify their own tile shape. For example they can
+%use \emph{IPyWidgets} buttons or text inputs.
+
+%\begin{wrapfigure}{r}{0.25\textwidth}
+%    \begin{center}
+%      \includegraphics[width=100px]{images/TableauWidget}
+%      \caption{A tableau widget}
+%\end{center}
+%\end{wrapfigure}
 
 \subsection{Future plans}
 
@@ -530,12 +525,12 @@ In the upcoming year, we plan to collaborate tightly with Francy to:
   the community that was so far only partially fulfilled by
   unsustainable prototypes like Sage's
   \href{http://doc.sagemath.org/html/en/reference/graphs/sage/graphs/graph_editor.html}{graph editor}.
-\item Further explore the design pattern with over kinds of graphical
-  representations (starting from the grid view representation of the
-  next section), with a similar decoupling between a Sage backend, a
-  semantic model, and a Jupyter/JS frontend.
+\item Further explore the semantic representation model design pattern
+  with over kinds of graphical representations, with a similar
+  decoupling between a \Sage backend, a semantic representation model,
+  and a Jupyter/JS frontend.
 \item Contribute the models and frontends to Francy, making the
-  features available to GAP.
+  features available to \GAP.
 \end{itemize}
 
 \section{Sage-explorer}
