@@ -103,7 +103,8 @@ on $\{1, \ldots, n\}$ which each entry exactly once. In a sample
 \begin{verbatim}
 sage: P = Permutations(3)
 sage: P.list()
-[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]
+[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1],
+ [3, 1, 2], [3, 2, 1]]
 \end{verbatim}
 Other elementary examples include integer partitions
 \begin{verbatim}
@@ -729,9 +730,11 @@ integral points in polytopes. The interface is completely transparent to the
 user as can be seen in the following Sage session:
 \begin{verbatim}
 sage: n = 10
-sage: ieqs1 = [[0] + [0]*i + [1] + [0]*(n-1-i) for i in range(n)]
-sage: ieqs2 = [[0] + [0]*i + [1,-1] + [0]*(n-2-i) for i in range(n-1)]
-sage: P = Polyhedron(ieqs=ieqs1 + ieqs2, eqns=[[-n] + [1]*n])
+sage: I1 = [[0] + [0]*i + [1] + [0]*(n-1-i)
+....:       for i in range(n)]
+sage: I2 = [[0] + [0]*i + [1,-1] + [0]*(n-2-i)
+....:       for i in range(n-1)]
+sage: P = Polyhedron(ieqs=I1 + I2, eqns=[[-n] + [1]*n])
 sage: P.integral_points_count()
 42
 \end{verbatim}
@@ -752,7 +755,7 @@ finalize the inclusion of this code and provide a \Sage interface to it.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Cythonization of combinatorics code}
+\subsection{Cythonization of combinatorics code}
 
 A huge amount of code in \Sage is written in plain Python; this is in
 particular true for a large amount of the combinatorics code. Thanks to
@@ -811,7 +814,7 @@ of solutions 2 to 3 times faster using a 4 core machine
 \section{Conclusion}
 \Sage is a general purpose computer algebra system with a lot of code related
 to combinatorics. The Python language has some weaknesses regarding speed and the
-aim of the deliverable was to circumvent this weakness. As we demonstrate,
+aim of the deliverable was to circumvent these weaknesses. As we demonstrated,
 using Cython and careful memory usage allows us to provide an
 important speed up in enumeration. Cython is at the same time an ideal
 tool to provide access to efficient implementations in C/C++ from Python.
