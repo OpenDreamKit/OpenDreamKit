@@ -267,7 +267,7 @@ browser.
   \begin{center}
     \includegraphics[width=\textwidth]{schemas/SensUnique}
   \end{center}
-  \caption{Francy Data Flow}
+  \caption{Interactive visualization Data Flow}
   \label{fig:dataflow1}
 \end{figure}
 
@@ -275,8 +275,8 @@ browser.
 %\subsection{Francy, }
 
 
-\subsection{A generic widget for objects with a grid-like representation}
-\label{section:grid}
+\subsection{Toward interactive edition}
+\label{section:editing}
 
 We have seen a \emph{design pattern} emerging in the previous section:
 without this being formalized, a similar approach had been taken in
@@ -314,9 +314,39 @@ Thus the data flow is now bidirectional.
   \begin{center}
     \includegraphics[width=\textwidth]{schemas/DoubleSens}
   \end{center}
-  \caption{Sage Combinat Widgets Data Flow}
+  \caption{Interactive edition Data Flow}
   \label{fig:dataflow1}
 \end{figure}
+
+This brings new challenges.
+
+First, updates may fail: given the intermediate data format does not
+carry all the semantic of the mathematical objects, some interactive
+editions may be invalid; yet such editions should not be necessarily
+be forbidden, as it may take several elementary edition step to move
+from one valid state to another (think of a text editor that would
+block typing any key leading to an incorrectly spelled word!). Hence
+some logic is needed to handle loss and recovery of sync between the
+state of the semantic representation model and that of the
+underlying mathematical object.
+
+In addition, rich editing features, requires richer interactions than
+just sending description of the object back and forth. For example,
+the view may need to request what are the valid edition steps for a
+given objects to provide visual hints to the user. Therefore, the
+semantic representation model needs to specify in addition to a data
+format, operations on that data format. A full API.
+
+\TODO{...}
+require not only sending back and forth a description of the object,
+but passing
+
+
+As it needs to operate on each in the same way,
+and in effect they have various method names, or signatures, or
+different features, we felt the need to define a list a methods to be
+implemented by them, i.e. an \emph{API}.
+
 
 Aiming for interactive editing was inspired by the Larch Environment.
 In his \href{https://core.ac.uk/download/pdf/9839511.pdf}{master
@@ -331,15 +361,17 @@ maintained a state of objects in order to automatically refresh the
 representation. This project was meant as an experimental platform,
 without a strong and widely use underlying infrastructure as \Jupyter,
 and was discontinued in 2014. Nevertheless the
-\href{https://www.youtube.com/watch?v=BaqaIw2c91o&t=29s}{videos}
+\href{https://www.youtube.com/watch?v=BaqaIw2c91o&t=29s}{online videos}
 remain inspiring.
 % However, the Larch environment was designed to run
 % locally, i.e. not within any browser, and
 
+\subsection{A generic widget for objects with a grid-like representation}
+\label{section:grid}
 
-Technically speaking, we aimed for the implementation of a generic
-Jupyter widget meant for all SAGE-objects admitting a grid-like
-representation.
+To explore interactive editing, we set as goal the implementation of a
+generic Jupyter widget meant for all SAGE-objects admitting a
+grid-like representation.
 
 %\TODO{NT: additional challenge: the interaction requires richer
 %  messages where not only data representing the, but also questions
