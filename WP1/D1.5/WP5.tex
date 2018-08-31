@@ -171,26 +171,39 @@ at \url{https://github.com/rimbach/Ccluster}.
   The goal of this task is to use combinatorics as a source of challenges to
   experiment on various HPC techniques. In the first
   deliverable~\longdelivref{hpc}{sage-paral-tree}, we successfully implement a
-  MapReduce programming model on large datasets described by a recursion
-  tree, which are too big to fit in memory. After chasing around some bug on
-  MacOS posix support, the code was integrated in Sage (Trac Ticket 13580) and
-  presented at the "journée du groupe de travail LaMHA" at the Université Pierre et
-  Marie Curie on November the 26th of 2016.
+  MapReduce programming model on large datasets described by a recursion tree,
+  which are too big to fit in memory.  Since it is written purely in Python,
+  the code doesn't perform well when the computation in each node is short. A
+  good technology for handling such situations with fine grain parallelism,
+  is \software{Cilk++}. However since both Intel and GCC teams decided to
+  discontinue \software{Cilk++} support, we looked for some replacement and
+  also to scale from shared memory to cluster. It turns out that there isn't
+  currently any widespread well maintained replacement.
 
-  Since it is written purely in Python, the code doesn't perform well when the
-  computation in each node is short. A good technology for handling such
-  situations with fine grain parallelism, seems to be the 
-  \software{Cilk++} runtime, and we are currently doing experiment which goal is to have a two
-  stage parallel computation, where \software{Cilk++} is doing the load balancing on a
-  machine (shared memory) and Python the load balancing among machines. As a
-  base for our experiment, we are working on the enumeration of numerical
-  monoids; indeed, it is a very challenging problem as the explored recursion
-  tree is extremely unbalanced. We are currently able to have a code
-  generating and process 50Gio/s on a single 8 core i7 machine. When the
-  problem of re-balancing the work among several machines will be solved we
-  hope to be able to have throughput higher than 1To/s on a network of machines.
-  To this end, we are also experimenting with the \texttt{Spark}
-  technology for distributed computations.
+  On the other hand, while writing our code to experiment with various
+  solutions, we came to realize that designing new algorithms based on the
+  vector primitive of the modern processor (AVX instruction set) allows to
+  gain large speedup ($2\times$ to $50\times$) on the handling of small
+  combinatorial objects. This is definitely a research question. As a
+  preliminary results, we started to develop a library called HPCombi which
+  can already speed up some computation of \software{GAP} and \software{Sage}
+  through the \software{libsemigroup} library. This work resulted in a keynote
+  talk at the PASCO 2017 conference and an invitation to the Scottish
+  Programming Language Seminar 2018.
+
+  On the less experimental side, progress has been made into sage to compute
+  with integer vector which are ubiquitous in combinatorics. Using Cython, we
+  wrote a bridge called \software{PPLPy} for the \software{PPL} library which
+  now provides access to the PPL library to any Python user. This package use
+  general linear programming techniques to enumerate integer vectors. And
+  improving \Sage capabilities in polytope computations and linear algebra is
+  critical for combinatorics. Similarly two other interface has been developed
+  to \software{LaTTe} (counting integral points in polytopes) and
+  \software{Polymake} (the eference software for Polyhedral computations).
+  Finally, some more combinatorial object where optimized using the Cython
+  technology namely permutations and Lyndon words (which are a combinatorial
+  tools to deals with vector upto cyclic permutation).
+
 
   \subparagraph{\longtaskref{hpc}{pythran}}
 
