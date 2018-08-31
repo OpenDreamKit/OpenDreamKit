@@ -1,3 +1,4 @@
+\RequirePackage[hyphens]{url}
 \documentclass{deliverablereport}
 
 \deliverable{component-architecture}{multiplatform-buildbot}
@@ -29,13 +30,13 @@ are introduced into the mainline.  Both the process, and the associated tools
 (e.g. automated continuous integration servers) are an essential part of the
 day-to-day work of developers on those projects that use it.
 
-Modern CI requires server infrastructure -- at the very least one machine which
-is always running that both performs software builds and reports the results of
-those builds back to developers so that are kept regularly up-to-date on the
+Modern CI requires server infrastructure. At the very least one server is needed
+to both perform software builds and serve (usually through a web-based UI) reports
+back to developers so that they are kept regularly up-to-date on the
 ``health'' of the build.  For some projects --  especially those that support
 multiple software platforms -- continuous integration infrastructure can involve
 a whole fleet of hardware systems, each of which perform builds and tests of
-the software and report results back to a ``master server'' which collates them
+the software and report results back to a central server which collates them
 into a single multi-platform build report for developers to examine.
 Unsurprisingly, as the CI needs of a project grow, so too does the size of its
 CI infrastructure, and the time, financial resources, and expertise required to
@@ -55,18 +56,17 @@ platforms supported by Sage's buildbot infrastructure -- in particular adding
 Windows builds to coincide with Sage's newfound Windows support
 \TODO{reference D3.7 here}.
 
-\TODO{I don't quite understand what you are trying to say with the following
-two sentences. Especially the ``nevertheless'' seems out of place --- Jeroen}
 In practice, the needs of the OpenDreamKit community as a whole with respect to
 multi-platform CI, and in particular the need for a ``common infrastructure''
-for CI, did align with our original expectations, for reasons that are
-enumerated in the following section.  Nevertheless, significant achievements
+for CI, did not align with our original expectations, for reasons that are
+enumerated in the following sections.  Nevertheless, significant achievements
 were made by OpenDreamKit projects in the area of CI, and there are lessons
 learned that we are communicating through this report with plans for future
-cross-polination on the subject.  Our experiences have also taught us that
+cross-pollination on the subject.  Our experiences have also taught us that
 although there is not a one-size-fits-all solution to CI, there remains a clear
 need in the community for easier access to multi-platform build and development
-infrastructure, especially for non-free operating systems such as Windows and macOS.
+infrastructure, especially for non-free operating systems such as Windows and
+macOS.
 
 \hypertarget{changes-to-deliverable}{%
 \section{Changes in scope of the deliverable}\label{changes-to-deliverable}}
@@ -101,23 +101,22 @@ system should catch the bug fairly quickly).
 
 However, in distributed, open source projects like those hosted on \GitHub or
 \GitLab, one does not want to give just anyone permission to push changes to
-the mainline.  Instead, most developers submit {\em pull requests} -- a change
+the mainline.  Instead, most developers submit a {\em pull request} -- a change
 proposal that is not immediately merged into the mainline, but which a project
-administrator with sufficiently high authority can merge
-into the mainline, after the changes have been reviewed and deemed
-acceptable and sufficiently stable.  Advisory CI can help immensely in
+administrator can merge into the mainline after it has been reviewed and
+deemed acceptable and sufficiently stable.  Advisory CI can help immensely in
 determining when a proposed pull request is ``sufficiently stable''.  Under
-this model the CI framework takes the latest version of the project's mainline,
-applies the proposed changes on top of it (if possible -- if not the build is
-rejected), and then attempts building the code and running its test suite with
-just those changes applied.  If this works, then one can have reasonable
-confidence (after a manual code review, and acceptance of the change on its
-merits) that the change is safe to include in the mainline.  This is not a
-silver bullet: it is possible that two mutually independent pull requests can
+this model the CI framework builds the version of the code in the pull request
+{\em as though} it were the project's mainline (without ever changing the real
+mainline) and then attempts to build the code and run its test suite in isolation
+from any other pending changes to the code.  If this works, then one can have
+reasonable confidence (after a manual code review, and acceptance of the change
+on its merits) that the change is safe to include in the mainline.  This is not
+a silver bullet: it is possible that two mutually independent pull requests can
 pass through the CI system on their own, but conflict with each other in a way
 that is only apparent after they have been merged into the mainline.  In this
-case one has the traditional CI problem of a ``broken build''.  But this
-scenario is relatively uncommon, especially in well-structured projects.
+case one has the traditional CI problem of a ``broken build''.  But this scenario
+is relatively uncommon, especially in well-structured projects.
 
 Therefore, between the relative ease of setting up free continuous integration
 systems for use on one's project, and the added convenience of advisory CI that
@@ -133,7 +132,7 @@ achieve some multi-platform support -- especially across those three major OSes
 -- they can do so by configuring a combination of CI services for the project,
 and many projects do just this.
 
-In practice though, multi-platform CI does not have as much demand as we
+In practice though, multi-platform CI has not had as much demand as we
 anticipated.  Most mathematical software projects do not have a great deal of
 system-specific code, and are mostly numerical in nature (e.g.~C++ libraries
 such as \Linbox and \Givaro).  These have relatively little need for
@@ -144,15 +143,17 @@ common for them to occur when building the project, rather than at run time.
 To this end, the \Sage project is already providing implicit cross-platform
 build testing for many projects; see the next section for details.
 
-\TODO{Say something here about conda-forge?}
+\TODO{Say something here about conda-forge? jrueth would be happy to say
+something about conda-forge. What did embray have in mind?}
 
 \subsection{Sage remains a special case}
 In the case of Sage, it is still useful for now to have the self-managed
 infrastructure due to the unique nature of Sage and the fact that it includes
 an entire software distribution.  Its builds can take a very long time and run
 up against limits imposed by the free services.  It is also useful to test
-Sage across a wide number of platforms due to the likelihood of
-platform-specific build issues across its more than 150 dependencies.
+Sage across a wider number of platforms than those offered by the popular free
+CI providers due to the likelihood of platform-specific build issues across its
+more than 150 dependencies.
 
 It is also worth noting that being a software distribution comprising so many
 components, Sage is providing implicit cross-platform build and runtime testing of
@@ -168,17 +169,22 @@ process of porting Sage to Windows, and running Sage's tests on Windows
 system-level issues in software such as \GAP, ECL, and \PariGP among
 others.\TODO{Add links to those issues?}
 
+A remaining challenge for Sage is obtaining more machines that can run builds
+of Sage on non-free operating systems.  For macOS testing we currently have
+one ``official'' machine: a Mac mini donated personally by Sage's release
+manager Volker Braun. For Windows we currently have a few VMs running on the
+OpenStack infrastructure provided by Universit\'e Paris-Sud.  However, we have
+found the performance of Windows VMs on Linux hosts to be wanting, and
+difficult to improve. Although we will continue using this infrastructure for
+the foreseeable future, we are investigating the purchasing of some dedicated
+hardware to run a Windows build server natively.
+
 That said, there were also areas for improvement identified with Sage's
 existing CI practices, especially with regard for its relatively unreliable
 home-grown advisory CI system.  It was also realized that the now wide
 availability of Docker as a tool for CI could be leveraged to both improve
-Sage's CI practices, and make possibly make Sage development easier.  This
-work is discussed further in the next section.
-
-
-\TODO{Note issues with obtaining necessary hardware and software licenses for
-CI/build on non-free platforms: Windows, and ESPECIALLY OSX?  Or save that
-for later...?}
+Sage's CI practices, and make Sage development easier.  This work is discussed
+further in the next section.
 
 
 \hypertarget{project-reports}{%
@@ -216,13 +222,13 @@ the Sage community and by those that run the patchbots on their private
 machines. The fact that it is running on private machines means that due to
 load, connectivity issues, and other temporary issues on these machines, the
 patchbots are very frequently reporting false positive errors.
-This noise can be very
-frustrating as it makes the patchbot system unreliable and in particular harder
-to understand for new contributors. Finally, due to limitations of the patchbot
-architecture, not all types of changes can be tested, in particular it can not
-test changes that involve dependent software packages. This can be frustrating
-as testing such changes is often the most time consuming task for developers
-and it would be particularly nice to give such tasks away to a CI system.
+This noise can be very frustrating as it makes the patchbot system unreliable
+and in particular harder to understand for new contributors. Finally, due to
+limitations of the patchbot architecture, not all types of changes can be
+tested, in particular it can not test changes that involve dependent software
+packages. This can be frustrating as testing such changes is often the most
+time consuming task for developers and it would be particularly nice to give
+such tasks away to a CI system.
 
 \subsubsection{Modern CI with GitLab CI and CircleCI}
 To fix these issues we were looking at best pratices that would give the
@@ -235,8 +241,7 @@ backend (but it can also be based on many other technologies.) These containers
 are essentially virtual machines that can be hosted in a central location but
 also on private computers. Unlike in the patchbot systems, Docker containers
 are standardized and isolated so that there is usually no issue of false
-positives. % note that I do not distinguish between Docker containers and
-% images; I think it's more confusing to the reader to make such a distinction.
+positives.
 
 GitLab CI now runs a ``pipeline'' for every change proposed by a developer.
 \TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
@@ -291,9 +296,9 @@ of the system or any other package. On the other hand, changes in \GAP are only
 permitted to have a disruptive effect on package functionality in a major
 release, and we aim to identify such situations in advance and resolve them
 in cooperation with package authors. Hence continuous integration facilities
-in \GAP are designed to suite the following primary goals:
+in \GAP are designed to suit the following primary goals:
 \begin{itemize}
-\item checking pull requests which propose changes in the core \GAP system
+\item checking pull requests which propose changes to the core \GAP system
 \item checking for new versions of \GAP packages redistributed with \GAP;
 retrieving and storing them, and combining them for testing and redistribution
 \item running package integration tests which check that \GAP packages redistributed
@@ -329,16 +334,16 @@ due to reliability and performance issues):
 \item A collection of Docker containers with various configurations available from
 Docker Hub: \url{https://hub.docker.com/r/gapsystem/}
 \end{itemize}
-All links to critical CI builds are collected together 
+All links to critical CI builds are collected together
 at \url{https://github.com/gap-system/gap-distribution}.
 
-The core \GAP system tests use Travis CI and AppVeyor 
-to check every pull request submitted to the main \GAP repository,
-and publish code coverage at Codecov. In the last 6 month, code
-coverage on Travis CI increased from 70\% to 75\%, mainly due to
-new tests added by our external collaborator Max Horn (University of Gie{\ss}en).
-In addition to that, several extended tests are performed on Jenkins,
-as they are more time consuming. 
+The core \GAP system tests use Travis CI and AppVeyor to check every pull
+request submitted to the main \GAP repository on both Linux and Windows, and to
+publish code coverage reports to Codecov. In the last 6 months, code coverage
+on Travis CI increased from 70\% to 75\%, mainly due to new tests added by our
+external collaborator Max Horn (University of Gie{\ss}en).  In addition to
+that, several extended tests are performed on Jenkins, as they are more time
+consuming.
 
 \GAP package authors are advised to provide with each package a short
 test suite, which may be used to check that a package works as expected,
@@ -359,7 +364,7 @@ Codecov setup for GAP packages, available in the \software{Example} package
 customised by most of the \GAP packages developed on \GitHub (see their
 list at \url{https://gap-packages.github.io/}). Furthermore, there are
 tools for creating and publishing packages, primarily developed by our
-external collaborator Max Horn: 
+external collaborator Max Horn:
 \software{PackageMaker}\footnote{\url{https://github.com/gap-system/PackageMaker}},
 \software{ReleaseTools}\footnote{\url{https://github.com/gap-system/ReleaseTools}}
 and \software{GitHubPagesForGAP}\footnote{\url{https://github.com/gap-system/GitHubPagesForGAP}}.
@@ -393,15 +398,6 @@ release       & of packages  & of authors & regression tests \\
 \end{center} 
 
 
-\subsection{Singular}
-
-
-% Maybe ??
-
-\subsection{PARI}
-
-% Maybe ??
-
 \subsection{Cysignals}
 
 The Cysignals
@@ -434,20 +430,58 @@ providing our own build runner machines (possibly even reusing the existing one
 from Sage's buildbot fleet) to test Cysignals against more OS platforms with a
 wider range of OS kernels than we might test otherwise.
 
-\hypertarget{best-practices}{%
-\section{Lessons learned and best practices}\label{best-practices}}
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+There does not appear to be a one-size-fits all solution for continuous
+integration.  Massive, complex projects like Sage, projects with many
+third-party contributed components such as GAP, projects with low-level system
+integrations like Cysignals, and everything in-between have different needs.
+Between that fact, and the advancements in free-for-open-source cloud-hosted
+CI providers, the idea of uniting OpenDreamKit projects under a single CI
+platform (whether Buildbot as used by Sage, or something else) would not have
+been practical or effective.
+
+What does remain clear -- and is a commonality between the projects mentioned
+in this report in particular, as well as others, is the need for easy access
+to ``hardware'' infrastructure with which one can easily spin up a virtual
+machine on which to install some operating system one does not have immediate
+access to.  In the case of non-free OSes, this includes a need for easy to
+obtain Windows licenses for running Windows VMs and, in the case of macOS,
+specialized hardware as well, as Apple's licensing is extremely restrictive
+when it comes to virtualization.  It should be noted that this need is not
+strictly for the use case of continuous integration, but also for building
+software releases for multiple platforms, investigation by developers of
+platform-specific bugs, and new development to improve multi-platform support
+in general.  For example, the author has personally experienced frustration
+with obtaining access to a macOS machine in order to investigate macOS-specific
+bugs in Sage, having not procured an Apple machine for personal use.
+
+The current situation is such that individual developers must find ways to
+access these kinds of computing resources, and the ease of doing so may depend
+on the level of institutional resources available to them.  At Universit\'e
+Paris-Sud we have found it easy to create and access VMs of free UNIX-like
+operating systems, but had to put several days of FTEs into getting a Windows
+VM up and running on that platform, with mixed results. And this provides us no
+help for macOS.  Meanwhile the build machines for \GAP hosted at St Andrews
+meet the project's needs for CI, but are not accessible outside the St Andrews
+firewall and are thus not easily accessible to \GAP developers at other
+institutions.  In both cases, some effort is required by the community to
+maintain their build hardware infrastructure, which this work might be more
+efficiently handed off to experts working in dedicated computing centers.
+
+For example, we are discussing the possibility of getting in touch with EGI and
+seeing if we might be able to use EGI-provided resources for a multi-platform
+cloud environment specifically for use by open source mathematics projects.
+Ideally we would want this to be provided in such a way that it isn't
+restricted to projects that are strictly European by nature (or maybe at the
+most have some European grant or contributors associated with it).  Or at the
+very least, we would want to be able to easily create server infrastructure
+for a given project which can then be shared as needed with other trusted
+developers of that project.  However, the exact nature of such an arrangement
+remains an open question to be resolved.
+
 \end{document}
-
-\TODO{This section might summarize some key bullet-points from the previous sections.}
-
-\TODO{We might want an additional section to discuss future work.  In
-particular, Nicolas and I discussed the possibility of getting in touch with
-EGI and seeing if we might be able to use EGI-provided resources for a
-multi-platform cloud environment specifically for use by open source
-mathematics projects.  In particular we would want this to be provided in such
-a way that it isn't restricted to projects that are strictly European by nature
-(or maybe at the most have some European grant or contributors associated with
-it).}
 
 %%% Local Variables:
 %%% mode: latex

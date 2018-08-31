@@ -8,119 +8,39 @@ In this section, we describe the parts of the MitM ontology, which is a formal d
 The formalizations can be found at \url{https://gl.mathhub.info/MitM/}.
 That location also contains various other archives in the \href{https://gl.mathhub.info/MitM/}{\texttt{MitM} library}, which are experiments, where the MitM ontology has been picked up by other projects.
 
-\ednote{announce that the MitM solution consists of two parts
-  Foundation + Core that will now be described}
+The MitM ontology consists of two parts: the \textbf{MitM Foundation} which provides the logical language in which the mathematical domains in the MitM ontology can be described, and the \textbf{MitM Core}, which consists of the knowledge about these domains represented in the MitM foundation.
 
-\subsection{Foundation}
+\subsection{The MitM Foundation}\label{sec:foundation}
 
-\ednote{$\operatorname{Field}$ looks nicer than than $Field$}
-
-The foundation provides the type system and logic for the MitM ontology, i.e., the basic representational infrastructure used in the MitM ontology.
+The MitM foundation provides the type system and logic for the MitM ontology, i.e., the basic representational infrastructure used in the MitM ontology.
 It is developed in the archive  \href{https://gl.mathhub.info/MitM/Foundation}{\texttt{Foundation}} (4 files, 539k LoF (lines
 of formalization), 103 commits).
 
-While the logic is relatively straightforward, the standardization of
-the type system was very difficult because mathematics requires a
-rich, open-ended type system, yet concrete implementations must stay as simple as possible.
-After surveying the OpenDreamKit systems, we developed the types described below.
+While the logic is relatively straightforward, the standardization of the type system was very difficult because mathematics requires a rich, open-ended type system, yet concrete implementations must stay as simple as possible.
+After surveying the OpenDreamKit systems, we developed the types described in appendix~\ref{app:types}.
 
-\ednote{reading through the exhaustive list of types is not super
-  informative; move the list to the appendix, and just give a few
-  examples of types, that are either typical, or where a specific
-  design decision / curation step had to be taken}
+In a nutshell, the MitM foundation provides base types for all arithmetical number systems and common data structures like strings/words and Boolean values.
+Complex types build on this include structural ones like (total and partial dependent) function, product, record, types, and mathematical constructions like sets, multisets, ists, vectors, and matrices.
+In particular, dependent record types allow to represent types for mathematical structures (e.g. rings, fields, polynomials, finite maps, etc.) and their models.
+These can also be constructed from OMDoc/MMT theories via the novel \textsf{Mod} operator~\cite{MueRabKoh:tat18}.
 
-\subsubsection{Types}
-
-Concretely, the type system defines the following \textbf{types}:
-\begin{itemize}
-\item Base types
-\begin{compactitem}
- \item number types (all unbounded in size):
-  \begin{compactitem}
-   \item natural numbers: $N$ (including $0$), $Pos$ (positive, excluding $0$), $Prime$ (prime numbers, not excluding $0$ and $1$)
-   \item integer numbers: $Z$
-   \item integer numbers modulo $m$: $Z(m)$ (for $m\in Pos$)
-   \item rational numbers: $Q$
-   \item real numbers: $R$ \ednote{FR: it's unclear which irrational numbers we need to support and how to represent them}
-   \item complex numbers: $C$
-   \item $p$-adic numbers: $Qp(p)$ (for prime $p$)
-  \end{compactitem}
- \item strings: $String$
- \item booleans: $Boolean$
-\end{compactitem}
-\item Function types
- \begin{itemize}
- \item the type $T_1\to T_2$ of total functions from $T_1$ to $T_2$,
- \item shallow polymorphic types $\{a_1,\ldots,a_n\}T(a_1,\ldots,a_n)$ for a type $T$ with $n$ free type variables, with the restriction that polymorphic types may not occur as subexpressions of any of the other type constructors,
- \end{itemize}
-\item Aggregating type constructors for types $T_1,\ldots,T_n$
-\begin{compactitem}
- \item product types: $T_1*\cdots * T_n$
- \item record types: $\record{a_1: T_1, \ldots, a_n:T_n}$ for identifiers $a_i$
- \item disjoint union types: $T_1+\ldots + T_n$ \ednote{FR: not sure if we need these as they rarely come up yet as they are dual to product types}
- \item labeled disjoint union types: $\union{a_1:T_1,\ldots,a_n: T_n}$ for identifiers $a_i$ \ednote{FR: not sure if we need these as they rarely come up yet; they are dual to record types}
-\end{compactitem}
-In record and labeled disjoint union types, the order of fields is not relevant.
-\item Collecting type constructors for any type $T$
-\begin{compactitem}
- \item option types (list of length up to $1$): $Opt(T)$
- \item vectors (fixed-length lists): $Vec(T,n)$ for $n\in N$
- \item lists (arbitrary finite length): $List(T)$
- \item sets (finite subsets): $FiniteSet(T)$
- \item multisets (finite multiset subsets): $FiniteMultiset(T)$
- \item finite hybrid sets: $FiniteHybridset(T)$ are like multisets but also allow negative
-   multiplicities.
- \item matrices: $Mat(T,m,n)$ for $m,n\in N$
-\end{compactitem}
-\item Erasure of dependent parameters: for a type constructor $T(k)$ (not necessarily unary) that takes a parameter $k$ of number type, we write $T(\_)$ for the type obtained by taking the unions over all possible parameters. In particular, we have
-\begin{compactitem}
- \item $Mat(T,m,\_)$, $Mat(T,\_,n)$ and $Mat(T,\_,\_)$ for matrices with arbitrary dimensions
- \item $List(T)=Vec(T,\_)$
-\end{compactitem}
-\item Mathematical structures
-\begin{compactitem}
- \item finite maps (partial functions with finite support): $FiniteMap(T_1,T_2)$ for types $T_i$
- \item polynomials: $Polynomial(r,[x_1,\ldots x_n])$ for ring $r\in Ring$ and identifiers $x_i$
- \item rings: $Ring$ (multiplication is a commutative monoid)
- \item fields: $Field$
- \item elements of structures: every structure $S$ (e.g., $S\in Ring$ or $S\in Field$) is a type itself; the elements of $S$ are represented as elements of the underlying type of $S$, which must be defined separately for every structure $S$.
-\end{compactitem}
-More generally than fixing $Ring$ and $Field$, we actually allow $Mod(T)$ for any theory $T$.
-But the types listed above are sufficient for our purposes here.
-\end{itemize}
-
-The \textbf{subtyping} relation $S\sq T$ is the order generated by
-\begin{compactitem}
- \item $Prime\sq Pos\sq N\sq Z\sq Q\sq R\sq C$
- \item $T(k)\sq T(\_)$ for any type constructor $T$ (not necessarily unary) that allows a wildcard parameter
- \item All collecting and aggregating type constructors are covariant in all type arguments. For example, if $S\sq T$, then $List(S)\sq List(T)$.
- \item Horizontal subtyping: Record types become smaller, labeled disjoint union types bigger when adding fields.
- \item $FiniteMap$ is covariant in both type arguments.\footnote{Note that it is normal for \emph{partial} functions to be covariant in the domain.}
- \item $Ring\sq Field$
- \item For structures $s,S$ of type $T$, we have $s\sq S$ iff $s\leq_T S$. 
-\end{compactitem}
-
-Here we have used the submodel order $s\leq_T S$ which holds if $s$ is submodel of $S$ with respect to theory $T$.
-$T$ can be the type of models of any theory, but for our purposes, it is sufficient to consider only the case $T\in\{Ring,Field\}$.
-We use only the following sub-models
-\begin{compactitem}
- \item $Z\leq_{Ring} Q\leq_{Field} R\sq\leq_{Field} C$
- \item $Polynomial(r,x)\leq_{Ring} Polynomial(s,y)$ if $r\leq_{Ring} s$ and every variable in $x$ also occurs in $y$.
- \item If $T\sq T'$, then $s\leq_T S$ implies $s\leq{T'}S$.
-\end{compactitem}
+Finally, the MtiM foundation supports subtyping for the arithmetical number systems ($\mathbb{N}\subseteq\mathbb{Z}\subseteq\mathbb{Q}\subseteq\mathbb{R}\subseteq\mathbb{C}$), and along the sub-model relation.
+This allows to express many mathematical identies very naturally.
 
 \subsubsection{Expressions}
 
-The logic allows the following \textbf{formulas}, i.e., expression of type $Boolean$:
+The MitM foundation allows the following \textbf{formulas}, i.e., expression of type $Boolean$:
 \begin{itemize}
 \item the propositional connectives: conjunction, disjunction, implication, negation, and equivalence of formulas as well as truth and falsity,
 \item typed equality: $t\doteq_T t'$ for any two terms $t,t'$ of type $T$,
 \item typed quantifiers: $\forall x:T.F(x)$ and $\exists x:T.F(x)$ for a type $T$ and a formula $F$,
 \end{itemize}
-Additionally, we allow shallow quantification over types: ${a}F(a)$ for a formula $F$ and a type variable $a$ is a formula but it may not --- to avoid inconsistency issues --- occur as a subformula of any of the above formula constructors.
+Additionally, we allow shallow quantification over types: $\{a\}F(a)$ for a formula $F$ and a type variable $a$ is a formula but it may not --- to avoid inconsistency issues --- occur as a subformula of any of the above formula constructors.
 
 We do not give the remaining straightforward \textbf{term} constructors in detail and only remark on a few important aspects.
-Most critically, we allow types to have multiple representations that are semantically equivalent but practically different in meaningful ways (e.g., because converting between representations is expensive or imprecise).
+Most critically, we allow types to have multiple representations that are semantically
+equivalent but practically different in meaningful ways (e.g., because converting between
+representations is expensive or imprecise). Moreover, some types have multiple constructors similar to an inductive type. In the sequel, we describe which representations are supported in those cases.
 
 \paragraph{Integers Modulo}
 The elements of $Z(m)$ are represented by $0,\ldots,m-1$.
@@ -234,11 +154,13 @@ field well outside of mathematics, namely for modeling and simulation
 in opto-electronics.
 
 %%% Local Variables:
+%%% mode: visual-line
+%%% fill-column: 5000
 %%% mode: latex
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  formalizations texttt formalization standardization subsubsection textbf
+%  LocalWords:  formalizations texttt formalization standardization subsubsection textbf newcommand subseteq textsf MueRabKoh:tat18
 %  LocalWords:  compactitem ednote adic ldots,a_n ldots,a_n ldots,T_n ldots Vec monoid sq
 %  LocalWords:  FiniteHybridset subtyping emph leq_T leq_ leq_ leq_ r,x s,y leq doteq_T
 %  LocalWords:  t,t forall subformula u,p ldots,x cdot cdot Qsqrt Qzeta th smglom fbox
