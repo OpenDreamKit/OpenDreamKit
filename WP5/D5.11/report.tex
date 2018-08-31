@@ -73,7 +73,7 @@ held in spring 2018 in Cernay-la-Ville (France).
 
 \section{Two examples from algebra}
 
-To compare technologies, one needs to develop solution of some problem in
+To compare technologies, one needs to develop solutions of some problem in
 every tested technologies. It is therefore important to identify archetypal
 problems which are both easy to implement and demanding on the technologies.
 We first present two such problems.
@@ -238,101 +238,16 @@ algebra as implemented in the LinBox library. The relevance in the context
 of combinatorics is discussed in Section~\ref{subsec:combi:SIMD}.
 
 The second level of parallelization concerns multi-core computations. This can
-be conveniently dealt with language extensions such as Open MP,
-Threading Building Block (TBB) or Cilk. At this level one important
-ingredient in optimization is the careful usage of shared memory.
-Before entering into technical details, we describe in
-Section~\ref{subsec:map-reduce:Sage} a small framework that was
-implemented in \Sage that also illustrates the typical problem one faces
-in combinatorics. More detailed on the usage of \Cilk are provided
-in Sections~\ref{sec:low:level}.
+be conveniently dealt with language extensions such as Open MP, Threading
+Building Block (TBB) or Cilk. At this level one important ingredient in
+optimization is the careful usage of shared memory.  Before entering into
+technical details, we recall in in subsection~\ref{subsec:map-reduce:Sage} the
+small framework that was implemented in \Sage during D5.1 that also
+illustrates the typical problem one faces in combinatorics.  More detailed on
+the usage of \Cilk are provided in Sections~\ref{sec:low:level}.
 
 The last level of parallelism concerns computations with multiple nodes
 and is not addressed by this deliverable.
-
-\subsection{Combinatorial structures and vector instructions}
-\label{subsec:combi:SIMD}
-
-SIMD instruction sets appeared
-in three stages: MMX (set of single instruction multiple data instruction set
-introduced in 1997), SSE (Streaming SIMD Extensions, introduced in 1999) and
-more recently AVX (Advanced Vector Extensions, introduced in 2008). 
-
-In many combinatorial structures (permutations, partitions, monomials, young
-tableaux), the data can be encoded as a small sequence of small integers that
-can often efficiently be handled thanks to vector instructions.  For example,
-on the current \texttt{x86} machines, small permutations ($N\leq 16$) are very
-well handled. Indeed thanks to machine instructions such as \verb+PSHUFB+ (Packed
-Shuffle Bytes), applying a permutation on a vector only takes a few cycles.  Here
-are some examples of operation with their typical speedups:
-\[
-\begin{tabular}{l|c}
-Operation & Speedup \\\hline
-Sum of a vector of bytes & $3.81$\\
-Sorting a vector of bytes& $21.3$\\
-Inverting a permutation& $1.97$\\
-Number of cycles of a permutation& $41.5$\\
-Number of inversions of a permutation& $9.39$\\
-Cycle type of a permutation& $8.94$\\
-\end{tabular}
-\]
-As a more concrete example, here is how to sort an array of $16$~bytes:
-\begin{verbatim}
-// Sorting network Knuth AoCP3 Fig. 51 p 229.
-static const array<Perm16, 9> rounds =
-    {{ { 1, 0, 3, 2, 5, 4, 7, 6, 9, 8,11,10,13,12,15,14},
-       { 2, 3, 0, 1, 6, 7, 4, 5,10,11, 8, 9,14,15,12,13},
-       [...]
-    }};
-
-Vect16 sort(Vect16 a) {
-  for (Perm16 round : rounds) {
-    Vect16 minab, maxab, blend, mask, b = a.permuted(round);
-    mask = _mm_cmplt_epi8(round, Perm16::one);
-    minab = _mm_min_epi8(a, b);
-    maxab = _mm_max_epi8(a, b);
-    a = _mm_blendv_epi8(minab, maxab, mask);
-  }
-  return a;
-}
-\end{verbatim}
-
-Unfortunately from a user point of view, this requires rethinking all the
-algorithms, and there is nearly no support by the compiler.\bigskip
-
-So has part of the OpenDreamKit deliverable, we started to develop a new
-library called \texttt{HPCombi} \url{https://github.com/hivert/HPCombi}. The
-goal is to use SSE and AVX instruction sets for very fast manipulation of
-combinatorial objects of small sizes. Is it still in a experimental stage and
-currently deals only with permutation, transformation and partial
-transformations. We have experimental code for partitions and boolean
-matrices.
-
-Despite its infancy the code is already used by LibSemigroup
-\cite{libsemigroup} (which deals with a different kinds of semigroup than the
-numerical one) by James Mitchell. It is a C++ library for semigroups and
-monoids using C++11; The libsemigroups library is used in the Semigroups
-package for GAP. The development version is available on Github, and there are
-python bindings which makes it usable from Sage. The development of a more
-thorough Sage interface is planned.
-
-Finally, we want to stress out that this is actually a research
-problem. Indeed, except for sorting a vector where we used a classical sorting
-network algorithm, all the operation in the array above requires the design of
-a new algorithm as no know algorithm where conceived with vector instructions
-in minds. For example, for the simple task of inverting a permutation, we
-designed 4 new different algorithms:
-\begin{itemize}
-\item \verb|inverse_sort|: which use a sort internally;
-\item \verb|inverse_search|: which uses some kinds of parallel binary search. With
-  the current size of vector registers ($16$~bytes), it is not the fastest one
-  but it is the only of logarithmic complexity so that it should be the
-  fastest once larger register will be available;
-\item \verb|inverse_power|: which use a binary powering;
-\item \verb|inverse_cycle|: which use the theoretical notion of cycle
-  decomposition. It is currently the fastest.
-\end{itemize}
-
 
 \subsection{Map-reduce and its implementation in \Sage}
 \label{subsec:map-reduce:Sage}
@@ -401,10 +316,157 @@ representation theory of monoids to the combinatorial study of the C3
 linearization algorithm used to compute the method resolution order (MRO) in
 scripting language such as \Python and Perl~\cite{C3-controled}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Low-level experimentations}
 \label{sec:low:level}
+
+\subsection{Combinatorial structures and vector instructions}
+\label{subsec:combi:SIMD}
+
+SIMD instruction sets appeared
+in three stages: MMX (set of single instruction multiple data instruction set
+introduced in 1997), SSE (Streaming SIMD Extensions, introduced in 1999) and
+more recently AVX (Advanced Vector Extensions, introduced in 2008). 
+
+In many combinatorial structures (permutations, partitions, monomials, young
+tableaux), the data can be encoded as a small sequence of small integers that
+can often efficiently be handled thanks to vector instructions.  For example,
+on the current \texttt{x86} machines, small permutations ($N\leq 16$) are very
+well handled. Indeed thanks to machine instructions such as \verb+PSHUFB+ (Packed
+Shuffle Bytes), applying a permutation on a vector only takes a few cycles.  Here
+are some examples of operation with their typical speedups:
+\[
+\begin{tabular}{l|c}
+Operation & Speedup \\\hline
+Sum of a vector of bytes & $3.81$\\
+Sorting a vector of bytes& $21.3$\\
+Inverting a permutation& $1.97$\\
+Number of cycles of a permutation& $41.5$\\
+Number of inversions of a permutation& $9.39$\\
+Cycle type of a permutation& $8.94$\\
+\end{tabular}
+\]
+As a more concrete example, here is how to sort an array of $16$~bytes:
+\begin{verbatim}
+// Sorting network Knuth AoCP3 Fig. 51 p 229.
+static const array<Perm16, 9> rounds =
+    {{ { 1, 0, 3, 2, 5, 4, 7, 6, 9, 8,11,10,13,12,15,14},
+       { 2, 3, 0, 1, 6, 7, 4, 5,10,11, 8, 9,14,15,12,13},
+       [...]
+    }};
+
+Vect16 sort(Vect16 a) {
+  for (Perm16 round : rounds) {
+    Vect16 minab, maxab, blend, mask, b = a.permuted(round);
+    mask = _mm_cmplt_epi8(round, Perm16::one);
+    minab = _mm_min_epi8(a, b);
+    maxab = _mm_max_epi8(a, b);
+    a = _mm_blendv_epi8(minab, maxab, mask);
+  }
+  return a;
+}
+\end{verbatim}
+
+Unfortunately from a user point of view, this requires rethinking all the
+algorithms, and there is nearly no support by the compiler.\bigskip
+
+So has part of the OpenDreamKit deliverable, we started to develop a new
+library called \texttt{HPCombi} \url{https://github.com/hivert/HPCombi}. The
+goal is to use SSE and AVX instruction sets for very fast manipulation of
+combinatorial objects of small sizes. Is it still in a experimental stage and
+currently deals only with permutation, transformation and partial
+transformations. We have experimental code for partitions and boolean
+matrices.
+
+Despite its infancy the code is already used by LibSemigroup
+\cite{libsemigroup} (which deals with a different kinds of semigroup than the
+numerical one) by James Mitchell. It is a C++ library for semigroups and
+monoids using C++11; The libsemigroups library is used in the Semigroups
+package for GAP. The development version is available on Github, and there are
+python bindings which makes it usable from Sage. The development of a more
+thorough Sage interface is planned.
+\bigskip
+
+Finally, we want to stress out that this is actually a research
+problem. Indeed, except for sorting a vector where we used a classical sorting
+network algorithm, all the operations in the array above requires the design
+of a new algorithms as nearly no combinatorial algorithm where conceived with
+vector instructions in minds. For example, for the simple task of inverting a
+permutation, we designed 4 new different algorithms:
+\begin{itemize}
+\item \verb|inverse_sort|: which use a sort internally;
+\item \verb|inverse_search|: which uses some kinds of parallel binary
+  search. With the current size of vector registers ($16$~bytes) which support
+  arbitrary array manipulation (in particular the shuffle instruction), it is
+  not the fastest one but it is the only of logarithmic complexity so that it
+  should be the fastest once larger register will be available;
+\item \verb|inverse_power|: which use a binary powering;
+\item \verb|inverse_cycle|: which use the theoretical notion of cycle
+  decomposition. It is currently the fastest.
+\end{itemize}
+Preliminary result on this work where presented as a keynote invited talk at
+the 8th International Workshop on Parallel Symbolic Computation (PASCO 2017),
+Kaiserslautern, Germany, July 23-24, 2017 and at the Scottish Programming
+Languages Seminar, 5th June 2018, Heriot-Watt University. A research paper on
+this subject is in preparation as the result of this work.
+
+\subsection{Combinatorial structures and GPU computations}
+
+In the previous section we presented how vector instruction of modern central
+processing unit (CPU) allows to get large speedup of \emph{small combinatorial
+  objects}. The main requirement is that the datastructure fits in one or a
+handful of the CPU registers. Though this covers a lot of practical case on
+algebraic combinatorics, due to combinatorial explosion, there is sometimes a
+need for larger combinatorial object. One lead was to investigate if graphic
+processing unit (GPU) could speedup computations. Our benchmark was to write a
+toy implementation of the algorithm used in
+libsemigroup~\cite{libsemigroup}. Those algorithms enumerate the elements of a
+transformations semigroups.
+
+This kind of computation typically involve the repetition a two stages
+computation:
+\begin{enumerate}
+\item compute the composition of large functions on a discrete set;
+\item store them in a hash table to remove duplicates.
+\end{enumerate}
+It should be noted that in the first stage the computation doesn't require any
+arithmetics but amount to shuffle large chunk of memories. This is a very
+atypical usage of a GPU and it was very hard to predict the behavior. One
+expected problem is the communication time between the CPU and the GPU.
+
+The outcome of the experiments lead by Daniel Vanzo (research engineer at
+LRI/UPSud) under the supervision of Florent Hivert is that
+\begin{itemize}
+\item Composition of large function can be greatly accelerated (typically
+  $\times 100$) by the GPU, \emph{provided the CPU ask the GPU to perform
+    enough of them (more than 1K) as once}.
+\item The same is true for computation of hash value.
+\end{itemize}
+So this looked overall very promising for the first stage. However, for the
+second stage, in a reasonable use case, one needs to store the results of the
+computation in a large hash table which typically is at the limit if not
+larger of the size of the GPU memory. So we decided to keep the hash table in
+the main memory. Then the speed was killed by the random access and the cache
+hierarchy. Nearly all access trigger a cache miss which results in slowdown as
+large as $60\times$.
+\bigskip
+
+So the conclusion is that to get good speedup with GPU, the entire computation
+needs to be hosted inside the GPU. This has two very important drawback
+\begin{itemize}
+\item It drastically limits the size of the computation as CPU memory tend to
+  be somehow $10\times$ larger than the GPU one.
+\item Since GPU programming is not a widely spread skill, it forces to write
+  black block monolithic algorithms.
+\end{itemize}
+This second point doesn't fit well in the research driven use case which is
+typical in the OpenDreamKit project. So we don't think this is an interesting
+technologies for algebraic combinatorics except perhaps on very specific
+computation where we are ready to pay the price of a large specific and poorly
+reusable code.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % \subsection{Integer vectors up to permutations}
 % \label{subec:integer:vectors}
@@ -456,16 +518,16 @@ scripting language such as \Python and Perl~\cite{C3-controled}.
 \label{subsec:numerical-semigroups}.
 
 As we already explained, we picked up the computation of numerical semigroup
-as a good challenge for large trees explorations. This is a classical
-computational problem as there are various technologies to solve it. The idea
-here is that different branches of the tree can be explored in parallel by
-different cores of the computer. The tricky part is to ensure that all cores
-are busy, giving a new branch when a core is done with a former one.
+as a good challenge for large trees explorations. This kinds of problems are
+classical and there are various technologies to solve them. The idea here is
+that different branches of the tree can be explored in parallel by different
+cores of the computer. The tricky part is to ensure that all cores are busy,
+giving a new branch when a core is done with a former one.
 
 What makes combinatorics particular is the size of the trees (upto $10^{15}$
-in our experiments and the granularity of the computation (less than $100ns$
-is spent on each tree node). This is extremely demanding on the load balancing
-algorithms and their implementation.
+in our experiments and the granularity of the computation (typically only
+$10-50$ns is spent on each tree node). This is extremely demanding on the load
+balancing algorithms and their implementation.
 
 The clear algorithmic solution is to use a work stealing algorithms. They have
 been described in \cite{10.1109/SFCS.1994.365680, BlumofeL99} and we made a
@@ -520,8 +582,23 @@ behavior in our prototypical examples:
   Unfortunately for the kinds of computation like numerical semigroup, there
   is a huge number of small task that are spawned. We used the implementation
   from GCC compiler. At the time of our experiment, the finding was that the
-  scheduler doesn't scale to this huge number of task. The overhead was
-  several order of magnitude larger than \CilkP.
+  scheduler doesn't scale to this huge number of task. The scheduling overhead
+  was several order of magnitude larger than \CilkP making it unusable for
+  this kinds of computations.
+
+\item Intel's \emph{Threading Building Blocks} is a C++ template library
+  developed by Intel for parallel programming on multi-core processors. Using
+  TBB, a computation is broken down into tasks that can run in parallel. The
+  library manages and schedules threads to execute these tasks.
+
+  However, it suffers exactly the same problem as OpenMP, the scheduler
+  doesn't scale for huge number of task. Intel's FAQ says ``A good rule of
+  thumb is that an Intel TBB application should have approximately 10 tasks
+  for every worker.'' Similarly in \cite{6079453}, they consider as
+  micro task problem computation needing 30k task each of which takes 4k
+  cycles clock whereas in the numerical monoid problem task takes around 60
+  clock cycles the number of which easily exceeds 1G for a 1 minute long
+  computation.
 
 \item An indication that this is still a research level problem is that we
   have found that at the university of Glasgow there where a thesis exactly on
@@ -553,7 +630,10 @@ behavior in our prototypical examples:
 As a conclusion for large combinatorial trees explorations our current
 recommendation is to use \CilkP which is both very efficient and simple to use
 and learn. We hope that the alternative will manage to get to similar
-performances.
+performances. A promissing newcommer is the Cilk Hub initiative:
+http://cilk.mit.edu/ but we haven't yet had time to seriously experiment with
+it.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
