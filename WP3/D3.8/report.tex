@@ -53,8 +53,8 @@ of this deliverable was to see if other projects under the OpenDreamKit umbrella
 could benefit from using Sage's buildbots, and thus achieve better
 multi-platform CI.  Additionally, we would look into widening the set of
 platforms supported by Sage's buildbot infrastructure -- in particular adding
-Windows builds to coincide with Sage's newfound Windows support
-\TODO{reference D3.7 here}.
+Windows builds to coincide with Sage's newfound Windows support (see
+\longdelivref{component-architecture}{portability-cygwin}).
 
 In practice, the needs of the OpenDreamKit community as a whole with respect to
 multi-platform CI, and in particular the need for a ``common infrastructure''
@@ -88,7 +88,11 @@ estimate\footnote{\url{https://blog.travis-ci.com/2016-07-28-what-we-learned-fro
 2016 Travis CI was in use by nearly a third of active GitHub projects.  Without
 the existence of these free services, most projects -- especially smaller
 ones -- would not have the resources to maintain CI infrastructure even if they
-wanted to.
+wanted to\footnote{Travis CI has also become popular for the use case of
+automated deployment of non-software projects such as static websites and (as
+demonstrated in
+\longdelivref{dissem}{ils-tool}) Jupyter
+notebook galleries.}.
 
 Another advantage of services that integrate with \GitHub is that it enables a
 particular type of continuous integration sometimes referred to as ``advisory
@@ -241,7 +245,16 @@ are standardized and isolated so that there is usually no issue of false
 positives.
 
 GitLab CI now runs a ``pipeline'' for every change proposed by a developer.
-\TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/gitlab}
+    \caption{An example build pipeline for Sage on GitLab. Demonstrates multiple
+    pipeline jobs including building Sage, testing it, and publishing the build
+    as a Docker image.}
+    \label{fig:sage-gitlab}
+\end{figure}
+
 This pipeline goes in stages. In the setup for Sage, the first stage builds
 several flavors of Docker container which contain a built version of Sage. The
 second stage runs tests on these containers. Finally the Docker containers from
@@ -256,8 +269,17 @@ download these containers; in typical cases they only have to download a few MB
 to get a hold of the Docker container.
 
 \subsubsection{Use Cases of Docker Containers}
-Having these Docker containers readily available as a by-product of our CI turned out to be very valuable.
-\TODO{Maybe insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/dockerhub.png} here.}
+Having these Docker containers readily available as a by-product of our CI turned out to be very valuable
+(see Figure \ref{fig:sage-dockerhub}).
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/dockerhub}
+    \caption{The DockerHub landing page for Sage's Docker images, including
+    up-to-date build status read from the GitLab pipeline.}
+    \label{fig:sage-dockerhub}
+\end{figure}
+
 
 It means that recent stable \& unstable versions of Sage are automatically made
 available for anybody to work with, without the need of having to understand
@@ -278,6 +300,7 @@ public web interfaces.  This means that anybody can easily experiment with the
 latest unreleased features in a web browser without having to go through any
 local installation.
 
+\clearpage
 \subsection{GAP}
 
 \GAP has a mechanism for user contributions in the form of packages,
@@ -400,8 +423,8 @@ release       & of packages  & of authors & regression tests \\
 The Cysignals
 project\footnote{\url{https://cysignals.readthedocs.io/en/latest/}} has been
 using Travis CI\footnote{\url{https://travis-ci.org/sagemath/cysignals}} for
-continuous integration on Linux practically since its inception (see \TODO{link
-to D4.1 which contains first mention of cysignals}).  In Spring of 2018 we made
+continuous integration on Linux practically since its inception (see
+\longdelivref{UI}{pari-python-lib1}).  In Spring of 2018 we made
 initial progress towards adding native Windows support to
 Cysignals\footnote{\url{https://github.com/sagemath/cysignals/pull/76}} as well
 as continuous integration for both native Windows and Cysignals on Cygwin using
