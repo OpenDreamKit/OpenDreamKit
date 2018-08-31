@@ -5,10 +5,16 @@ A mathematical Virtual Research Environment (VRE) needs both kinds of interface 
 Notebook interfaces also use the document metaphor at the surface; however the REPL interaction
 tends to take structural precedence, leading to documents consisting of a sequence of computational cells within which the mathematical discourse is interspersed in the form of ``rich comments''.
 
-A ``literate computing'' version of notebooks which gives mathematical discourse structural precedence is possible in principle, but has not been supported consistently at the system level.\ednote{MK: put the following sentence somewhere: A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle, but has not been supported consistently at the system level.}
+A ``literate computing'' version of notebooks\footnote {A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle, but has not been supported consistently at the system level.} which gives mathematical discourse structural precedence is possible in principle, but has not been supported consistently at the system level.
 This tension and trade-off has been explored in OpenDreamKit Deliverable D4.2~\cite{ODK-D4.2}, and the concept of in-document computation in OpenDreamKit Deliverable D4.9~\cite{ODK-D4.9}.
 In both cases, the integration was incomplete, since it lacked a full integration of the
 underlying knowledge/computation services.
+
+The goal of this deliverable is to integrate Jupyter notebooks into MathHub and make them compatible with MMT, in a way that we can conveniently use MMT syntax in these notebooks and also a little bit of extra functionality like e.g. the Jupyter widgets.
+% The first step is setting up a Jupyter server, which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
+% For this server, we have developed a custom kernel, that forwards the input entered into the Jupyter notebook to the MMT backend.
+% This then processes said input and sends the response back to the Jupyter frontend via the kernel.
+% We will cover the implementation of the Jupyter kernel and the MMT-backend, later in this report.
 
 Generally, the integration of MathHub and Jupyter consists of two parts:
 \begin{inparaenum}[\em a\rm )]
@@ -17,27 +23,14 @@ Generally, the integration of MathHub and Jupyter consists of two parts:
 \end{inparaenum}
 Here we report on progress in both; recall that MMT is the knowledge management service behind MathHub (and more generally for the Math-in-the-Middle based system integration; see OpenDreamKit Deliverable D6.5~\cite{ODK-D6.5}).
 %
-For the service integration we present an MMT kernel for Jupyter.
-%
-\ednote{specify what Jupyter widgets are; NT: you may want to reuse some of the language of the D4.16 report, around l21 of https://github.com/OpenDreamKit/OpenDreamKit/blob/master/WP4/D4.16/report.tex}
-%
+For the service integration we present an MMT kernel for Jupyter: this not only makes the MMT REPL available at the Jupyter level, but also deeply integrates with Jupyter widgets with the MMT Scala level.  Widgets are a key Juypther feature that reaches far beyond the standard REPL interaction; they e.g.  enable real time interactive data visualizations; the Jupyter community has developed a large array of widgets for interactive 2D and 3D visualization of data in the form of charts, maps, tables, etc;
+
 Reciprocally, for the user interface integration, we show how the Jupyter widgets can be deeply integrated within the MMT knowledge management facilities to give semantics-aware interaction facilities, extending the front-end capabilities of MathHub/Jupyter Notebooks by semantic widgets driven by the MMT in-document knowledge management services.
 
 We show and evaluate the integration on two case studies: in-document computing facilities in active documents and a knowledge-based specification dialog for modeling and simulation. 
 
 This report is structured as follows. In Section~\ref{sec:mmt-jp} we report on the MathHub/Jupyter integration at the system level: a Jupyter server as part of the MathHub system and a MMT kernel for Jupyter. Section~\ref{sec:nb-mh} presents the integration of Jupyter Notebooks as active documents in the (new) MathHub front-end, and Section~\ref{sec:mitm-nb} presents the two case studies. Section~\ref{sec:concl} concludes the report and discusses future work.
 
-\ednote{this paragraph seems a bit out of place after the description of the structure of the document}
-The goal of this report\ednote{of this deliverable?} is to integrate Jupyter notebooks into MathHub
-and make them compatible with MMT, in a way that we can conveniently use 
-MMT syntax in these notebooks and also a little bit of extra functionality
-like e.g. the Jupyter widgets. The first step is setting up a Jupyter server,
-which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
-For this server, we have developed a custom kernel, that forwards the input 
-entered into the Jupyter notebook to the MMT backend. This then processes 
-said input and sends the response back to the Jupyter frontend via the kernel.
-We will cover the implementation of the Jupyter kernel and the MMT-backend,
-later in this report.
 
 
 \paragraph{Acknowledgements} The authors gratefully acknowledge the support of the Jupyter team and in particular the advice of Benjamin Ragan-Kelly. Also, the input of Theresa Pollinger and her work on the MoSIS system~\cite{PolKohKoe:kacse18} has shaped our perception of the integration reported here. 

@@ -1,0 +1,650 @@
+\section{PEP: 580}
+\label{pep580}
+
+\begin{description}
+\item[Title] The C call protocol
+\item[Author] Jeroen Demeyer \textless{}\href{mailto:J.Demeyer@UGent.be}{\nolinkurl{J.Demeyer@UGent.be}}\textgreater{}
+\item[Status] Draft
+\item[Type] Standards Track
+\item[URL] \url{https://www.python.org/dev/peps/pep-0580/}
+\item[Content-Type] text/x-rst
+\item[Created] 14-Jun-2018
+\item[Python-Version] 3.8
+\item[Post-History] 20-Jun-2018, 22-Jun-2018, 16-Jul-2018
+\end{description}
+
+\subsection{Abstract}
+
+A new "C call" protocol is proposed. It is meant for classes
+representing functions or methods which need to implement fast calling.
+The goal is to generalize existing optimizations for built-in functions
+to arbitrary extension types.
+
+In the reference implementation, this new protocol is used for the
+existing classes \texttt{builtin\_function\_or\_method} and
+\texttt{method\_descriptor}. However, in the future, more classes may
+implement it.
+
+\textbf{NOTE}: This PEP deals only with the Python/C API, it does not
+affect the Python language or standard library.
+
+\subsection{Motivation}
+
+Currently, the Python bytecode interpreter has various optimizations for
+calling instances of \texttt{builtin\_function\_or\_method},
+\texttt{method\_descriptor}, \texttt{method} and \texttt{function}.
+However, none of these classes is subclassable. Therefore, these
+optimizations are not available to user-defined extension types.
+
+If this PEP is implemented, then the checks for
+\texttt{builtin\_function\_or\_method} and \texttt{method\_descriptor}
+could be replaced by simply checking for and using the C call protocol.
+This simplifies existing code.
+
+We also design the C call protocol such that it can easily be extended
+with new features in the future.
+
+For more background and motivation, see PEP 579.
+
+\subsection{Basic idea}
+
+Currently, CPython has multiple optimizations for fast calling for a few
+specific function classes. Calling instances of these classes using a
+plain \texttt{tp\_call} is slower than using the optimizations. The
+basic idea of this PEP is to allow user-defined extension types (not
+Python classes) to use these optimizations also, both as caller and as
+callee.
+
+The existing class \texttt{builtin\_function\_or\_method} and a few
+others use a \texttt{PyMethodDef} structure for describing the
+underlying C function and its signature. The first concrete change is
+that this is replaced by a new structure \texttt{PyCCallDef}. This
+stores some of the same information as a \texttt{PyMethodDef}, but with
+one important addition: the "parent" of the function (the class or
+module where it is defined). Note that \texttt{PyMethodDef} arrays are
+still used to construct functions/methods but no longer for calling
+them.
+
+Second, we want that every class can use such a \texttt{PyCCallDef} for
+optimizing calls, so the \texttt{PyTypeObject} structure gains a
+\texttt{tp\_ccalloffset} field giving an offset to a
+\texttt{PyCCallDef\ *} in the object structure and a flag
+\texttt{Py\_TPFLAGS\_HAVE\_CCALL} indicating that
+\texttt{tp\_ccalloffset} is valid.
+
+Third, since we want to deal efficiently with unbound and bound methods
+too (as opposed to only plain functions), we need to handle
+\texttt{\_\_self\_\_} too: after the \texttt{PyCCallDef\ *} in the
+object structure, there is a \texttt{PyObject\ *self} field. These two
+fields together are referred to as a \texttt{PyCCallRoot} structure.
+
+The new protocol for efficiently calling objects using these new
+structures is called the "C call protocol".
+
+\subsection{New data structures}
+
+The \texttt{PyTypeObject} structure gains a new field
+\texttt{Py\_ssize\_t\ tp\_ccalloffset} and a new flag
+\texttt{Py\_TPFLAGS\_HAVE\_CCALL}. If this flag is set, then
+\texttt{tp\_ccalloffset} is assumed to be a valid offset inside the
+object structure (similar to \texttt{tp\_weaklistoffset}). It must be a
+strictly positive integer. At that offset, a \texttt{PyCCallRoot}
+structure appears:
+
+\begin{verbatim}
+typedef struct {
+    PyCCallDef *cr_ccall;
+    PyObject   *cr_self;     /* __self__ argument for methods */
+} PyCCallRoot;
+\end{verbatim}
+
+The \texttt{PyCCallDef} structure contains everything needed to describe
+how the function can be called:
+
+\begin{verbatim}
+typedef struct {
+    uint32_t  cc_flags;
+    PyCFunc   cc_func;    /* C function to call */
+    PyObject *cc_parent;  /* class or module */
+} PyCCallDef;
+\end{verbatim}
+
+The reason for putting \texttt{\_\_self\_\_} outside of
+\texttt{PyCCallDef} is that \texttt{PyCCallDef} is not meant to be
+changed after creating the function. A single \texttt{PyCCallDef} can be
+shared by an unbound method and multiple bound methods. This wouldn't
+work if we would put \texttt{\_\_self\_\_} inside that structure.
+
+\textbf{NOTE}: unlike \texttt{tp\_dictoffset} we do not allow negative
+numbers for \texttt{tp\_ccalloffset} to mean counting from the end.
+There does not seem to be a use case for it and it would only complicate
+the implementation.
+
+\subsubsection{Parent}
+
+The \texttt{cc\_parent} field (accessed for example by a
+\texttt{\_\_parent\_\_} or \texttt{\_\_objclass\_\_} descriptor from
+Python code) can be any Python object. For methods of extension types,
+this is set to the class. For functions of modules, this is set to the
+module. However, custom classes are free to set \texttt{cc\_parent} to
+whatever they want, it can also be \texttt{NULL}. It is only used by the
+C call protocol if the \texttt{CCALL\_OBJCLASS} flag is set.
+
+The parent serves multiple purposes: for methods of extension types
+(more precisely, when the flag \texttt{CCALL\_OBJCLASS} is set), it is
+used for type checks like the following:
+
+\begin{verbatim}
+>>> list.append({}, "x")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: descriptor 'append' requires a 'list' object but received a 'dict'
+\end{verbatim}
+
+PEP 573 specifies that every function should have access to the module
+in which it is defined. It is recommended to use the parent for this,
+which works directly for functions of a module. For methods, this works
+indirectly through the class, assuming that the class has a pointer to
+the module.
+
+The parent would also typically be used to implement
+\texttt{\_\_qualname\_\_}. The new C API function
+\texttt{PyCCall\_GenericGetQualname()} does exactly that.
+
+\textbf{NOTE}: for functions of modules, the parent is exactly the same
+as \texttt{\_\_self\_\_}. However, using \texttt{\_\_self\_\_} for the
+module is a quirk of the current implementation: in the future, we want
+to allow functions which use \texttt{\_\_self\_\_} in the normal way,
+for implementing methods. Such functions can still use
+\texttt{cc\_parent} instead to refer to the module.
+
+\subsubsection{Using tp\_print}
+
+We propose to replace the existing unused field \texttt{tp\_print} by
+\texttt{tp\_ccalloffset}. Since \texttt{Py\_TPFLAGS\_HAVE\_CCALL} would
+\emph{not} be added to \texttt{Py\_TPFLAGS\_DEFAULT}, this ensures full
+backwards compatibility for existing extension modules setting
+\texttt{tp\_print}. It also means that we can require that
+\texttt{tp\_ccalloffset} is a valid offset when
+\texttt{Py\_TPFLAGS\_HAVE\_CCALL} is specified: we do not need to check
+\texttt{tp\_ccalloffset\ !=\ 0}. In future Python versions, we may
+decide that \texttt{tp\_print} becomes \texttt{tp\_ccalloffset}
+unconditionally, drop the \texttt{Py\_TPFLAGS\_HAVE\_CCALL} flag and
+instead check for \texttt{tp\_ccalloffset\ !=\ 0}.
+
+\subsection{The C call protocol}
+
+We say that a class implements the C call protocol if it has the
+\texttt{Py\_TPFLAGS\_HAVE\_CCALL} flag set (as explained above, it must
+then set \texttt{tp\_ccalloffset\ \textgreater{}\ 0}). Such a class must
+implement \texttt{\_\_call\_\_} as described in this subsection (in
+practice, this just means setting \texttt{tp\_call} to
+\texttt{PyCCall\_Call}).
+
+The \texttt{cc\_func} field is a C function pointer, which plays the
+same role as the existing \texttt{ml\_meth} field of
+\texttt{PyMethodDef}. Its precise signature depends on flags. Below are
+the possible values for \texttt{cc\_flags\ \&\ CCALL\_SIGNATURE}
+together with the arguments that the C function takes. The return value
+is always \texttt{PyObject\ *}. The following are analogous to the
+existing \texttt{PyMethodDef} signature flags:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{CCALL\_VARARGS}:
+  \texttt{cc\_func(PyObject\ *self,\ PyObject\ *args)}
+\item
+  \texttt{CCALL\_VARARGS\ \textbar{}\ CCALL\_KEYWORDS}:
+  \texttt{cc\_func(PyObject\ *self,\ PyObject\ *args,\ PyObject\ *kwds)}
+\item
+  \texttt{CCALL\_FASTCALL}:
+  \texttt{cc\_func(PyObject\ *self,\ PyObject\ *const\ *args,\ Py\_ssize\_t\ nargs)}
+\item
+  \texttt{CCALL\_FASTCALL\ \textbar{}\ CCALL\_KEYWORDS}:
+  \texttt{cc\_func(PyObject\ *self,\ PyObject\ *const\ *args,\ Py\_ssize\_t\ nargs,\ PyObject\ *kwnames)}
+  (\texttt{kwnames} is either \texttt{NULL} or a non-empty tuple of
+  keyword names)
+\item
+  \texttt{CCALL\_NOARGS}:
+  \texttt{cc\_func(PyObject\ *self,\ PyObject\ *unused)} (second
+  argument is always \texttt{NULL})
+\item
+  \texttt{CCALL\_O}: \texttt{cc\_func(PyObject\ *self,\ PyObject\ *arg)}
+\end{itemize}
+
+The flag \texttt{CCALL\_FUNCARG} may be combined with any of these. If
+so, the C function takes an additional argument as first argument before
+\texttt{self}. This argument is used to pass the function object (the
+\texttt{self} in \texttt{\_\_call\_\_} but see NOTE below). For example,
+we have the following signature:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{CCALL\_FUNCARG\ \textbar{}\ CCALL\_VARARGS}:
+  \texttt{cc\_func(PyObject\ *func,\ PyObject\ *self,\ PyObject\ *args)}
+\end{itemize}
+
+One exception is \texttt{CCALL\_FUNCARG\ \textbar{}\ CCALL\_NOARGS}: the
+\texttt{unused} argument is dropped, so the signature becomes
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{CCALL\_FUNCARG\ \textbar{}\ CCALL\_NOARGS}:
+  \texttt{cc\_func(PyObject\ *func,\ PyObject\ *self)}
+\end{itemize}
+
+\textbf{NOTE}: in the case of bound methods, it is currently unspecified
+whether the "function object" in the paragraph above refers to the bound
+method or the original function (which is wrapped by the bound method).
+In the reference implementation, the bound method is passed. In the
+future, this may change to the wrapped function. Despite this ambiguity,
+the implementation of bound methods guarantees that
+\texttt{PyCCall\_CCALLDEF(func)} points to the \texttt{PyCCallDef} of
+the original function.
+
+\textbf{NOTE}: unlike the existing \texttt{METH\_...} flags, the
+\texttt{CCALL\_...} constants do not necessarily represent single bits.
+So checking \texttt{(cc\_flags\ \&\ CCALL\_VARARGS)\ ==\ 0} is not a
+valid way for checking the signature. There are also no guarantees of
+binary compatibility between Python versions for these flags.
+
+\subsubsection{\texorpdfstring{Checking
+\_\_\href{name__\%20attribute}{objclass}}{Checking \_\_objclass}}
+
+If the \texttt{CCALL\_OBJCLASS} flag is set and if \texttt{cr\_self} is
+NULL (this is the case for unbound methods of extension types), then a
+type check is done: the function must be called with at least one
+positional argument and the first (typically called \texttt{self}) must
+be an instance of \texttt{cc\_parent} (which must be a class). If not, a
+\texttt{TypeError} is raised.
+
+\subsubsection{Self slicing}
+
+If \texttt{cr\_self} is not NULL or if the flag \texttt{CCALL\_SELFARG}
+is not set in \texttt{cc\_flags}, then the argument passed as
+\texttt{self} is simply \texttt{cr\_self}.
+
+If \texttt{cr\_self} is NULL and the flag \texttt{CCALL\_SELFARG} is
+set, then the first positional argument is removed from \texttt{args}
+and instead passed as first argument to the C function. Effectively, the
+first positional argument is treated as \texttt{\_\_self\_\_}. If there
+are no positional arguments, \texttt{TypeError} is raised.
+
+This process is called "self slicing" and a function is said to have
+self slicing if \texttt{cr\_self} is NULL and \texttt{CCALL\_SELFARG} is
+set.
+
+Note that a \texttt{CCALL\_NOARGS} function with self slicing
+effectively has one argument, namely \texttt{self}. Analogously, a
+\texttt{CCALL\_O} function with self slicing has two arguments.
+
+\subsubsection{Descriptor behavior}
+
+Classes supporting the C call protocol must implement the descriptor
+protocol in a specific way. This is required for an efficient
+implementation of bound methods: it allows sharing the
+\texttt{PyCCallDef} structure between bound and unbound methods. It is
+also needed for a correct implementation of
+\texttt{\_PyObject\_GetMethod} which is used by the
+\texttt{LOAD\_METHOD}/\texttt{CALL\_METHOD} optimization. First of all,
+if \texttt{func} supports the C call protocol, then
+\texttt{func.\_\_set\_\_} must not be implemented.
+
+Second, \texttt{func.\_\_get\_\_} must behave as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  If \texttt{cr\_self} is not NULL, then \texttt{\_\_get\_\_} must be a
+  no-op in the sense that
+  \texttt{func.\_\_get\_\_(obj,\ cls)(*args,\ **kwds)} behaves exactly
+  the same as \texttt{func(*args,\ **kwds)}. It is also allowed for
+  \texttt{\_\_get\_\_} to be not implemented at all.
+\item
+  If \texttt{cr\_self} is NULL, then
+  \texttt{func.\_\_get\_\_(obj,\ cls)(*args,\ **kwds)} (with
+  \texttt{obj} not None) must be equivalent to
+  \texttt{func(obj,\ *args,\ **kwds)}. In particular,
+  \texttt{\_\_get\_\_} must be implemented in this case. Note that this
+  is unrelated to self slicing: \texttt{obj} may be passed as
+  \texttt{self} argument to the C function or it may be the first
+  positional argument.
+\item
+  If \texttt{cr\_self} is NULL, then
+  \texttt{func.\_\_get\_\_(None,\ cls)(*args,\ **kwds)} must be
+  equivalent to \texttt{func(*args,\ **kwds)}.
+\end{itemize}
+
+There are no restrictions on the object
+\texttt{func.\_\_get\_\_(obj,\ cls)}. The latter is not required to
+implement the C call protocol for example. It only specifies what
+\texttt{func.\_\_get\_\_(obj,\ cls).\_\_call\_\_} does.
+
+For classes that do not care about \texttt{\_\_self\_\_} and
+\texttt{\_\_get\_\_} at all, the easiest solution is to assign
+\texttt{cr\_self\ =\ Py\_None} (or any other non-NULL value).
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The C call protocol requires that the function has a
+\texttt{\_\_name\_\_} attribute which is of type \texttt{str} (not a
+subclass).
+
+Furthermore, this must be idempotent in the sense that getting the
+\texttt{\_\_name\_\_} attribute twice in a row must return exactly the
+same Python object. This implies that it cannot be a temporary object,
+it must be stored somewhere. This is required because
+\texttt{PyEval\_GetFuncName} uses a borrowed reference to the
+\texttt{\_\_name\_\_} attribute.
+
+\subsubsection{Generic API functions}
+
+This subsection lists the new public API functions or macros dealing with
+the C call protocol.
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{int\ PyCCall\_Check(PyObject\ *op)}: return true if
+  \texttt{op} implements the C call protocol.
+\end{itemize}
+
+All the functions and macros below apply to any instance supporting the
+C call protocol. In other words, \texttt{PyCCall\_Check(func)} must be
+true.
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{PyObject\ *PyCCall\_Call(PyObject\ *func,\ PyObject\ *args,\ PyObject\ *kwds)}:
+  call \texttt{func} with positional arguments \texttt{args} and keyword
+  arguments \texttt{kwds} (\texttt{kwds} may be NULL). This function is
+  meant to be put in the \texttt{tp\_call} slot.
+\item
+  \texttt{PyObject\ *PyCCall\_FASTCALL(PyObject\ *func,\ PyObject\ *const\ *args,\ Py\_ssize\_t\ nargs,\ PyObject\ *kwds)}:
+  call \texttt{func} with \texttt{nargs} positional arguments given by
+  \texttt{args{[}0{]}}, \ldots{}, \texttt{args{[}nargs-1{]}}. The
+  parameter \texttt{kwds} can be NULL (no keyword arguments), a dict
+  with \texttt{name:value} items or a tuple with keyword names. In the
+  latter case, the keyword values are stored in the \texttt{args} array,
+  starting at \texttt{args{[}nargs{]}}.
+\end{itemize}
+
+Macros to access the \texttt{PyCCallRoot} and \texttt{PyCCallDef}
+structures:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{PyCCallRoot\ *PyCCall\_CCALLROOT(PyObject\ *func)}: pointer to
+  the \texttt{PyCCallRoot} structure inside \texttt{func}.
+\item
+  \texttt{PyCCallDef\ *PyCCall\_CCALLDEF(PyObject\ *func)}: shorthand
+  for \texttt{PyCCall\_CCALLROOT(func)-\textgreater{}cr\_ccall}.
+\item
+  \texttt{PyCCallDef\ *PyCCall\_FLAGS(PyObject\ *func)}: shorthand for
+  \texttt{PyCCall\_CCALLROOT(func)-\textgreater{}cr\_ccall-\textgreater{}cc\_flags}.
+\item
+  \texttt{PyObject\ *PyCCall\_SELF(PyOject\ *func)}: shorthand for
+  \texttt{PyCCall\_CCALLROOT(func)-\textgreater{}cr\_self}.
+\end{itemize}
+
+Generic getters, meant to be put into the \texttt{tp\_getset} array:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{PyObject\ *PyCCall\_GenericGetParent(PyObject\ *func,\ void\ *closure)}:
+  return \texttt{cc\_parent}. Raise \texttt{AttributeError} if
+  \texttt{cc\_parent} is NULL.
+\item
+  \texttt{PyObject\ *PyCCall\_GenericGetQualname(PyObject\ *func,\ void\ *closure)}:
+  return a string suitable for using as \texttt{\_\_qualname\_\_}. This
+  uses the \texttt{\_\_qualname\_\_} of \texttt{cc\_parent} if possible.
+  It also uses the \texttt{\_\_name\_\_} attribute.
+\end{itemize}
+
+\subsubsection{Profiling}
+
+The profiling events \texttt{c\_call}, \texttt{c\_return} and
+\texttt{c\_exception} are only generated when calling actual instances
+of \texttt{builtin\_function\_or\_method} or
+\texttt{method\_descriptor}. This is done for simplicity and also for
+backwards compatibility (such that the profile function does not receive
+objects that it does not recognize). In a future PEP, we may extend
+C-level profiling to arbitrary classes implementing the C call protocol.
+
+\subsection{Changes to built-in functions and methods}
+
+The reference implementation of this PEP changes the existing classes
+\texttt{builtin\_function\_or\_method} and \texttt{method\_descriptor}
+to use the C call protocol. In fact, those two classes are almost
+merged: the implementation becomes very similar, but they remain
+separate classes (mostly for backwards compatibility). The
+\texttt{PyCCallDef} structure is simply stored as part of the object
+structure. Both classes use \texttt{PyCFunctionObject} as object
+structure. This is the new layout for both classes:
+
+\begin{verbatim}
+typedef struct {
+    PyObject_HEAD
+    PyCCallDef  *m_ccall;
+    PyObject    *m_self;         /* Passed as 'self' arg to the C function */
+    PyCCallDef   _ccalldef;      /* Storage for m_ccall */
+    PyObject    *m_name;         /* __name__; str object (not NULL) */
+    PyObject    *m_module;       /* __module__; can be anything */
+    const char  *m_doc;          /* __text_signature__ and __doc__ */
+    PyObject    *m_weakreflist;  /* List of weak references */
+} PyCFunctionObject;
+\end{verbatim}
+
+For functions of a module and for unbound methods of extension types,
+\texttt{m\_ccall} points to the \texttt{\_ccalldef} field. For bound
+methods, \texttt{m\_ccall} points to the \texttt{PyCCallDef} of the
+unbound method.
+
+\textbf{NOTE}: the new layout of \texttt{method\_descriptor} changes it
+such that it no longer starts with \texttt{PyDescr\_COMMON}. This is
+purely an implementation detail and it should cause few (if any)
+compatibility problems.
+
+\subsubsection{C API functions}
+
+The following function is added (also to the stable ABI\footnote{Löwis,
+  PEP 384 -- Defining a Stable ABI,
+  \url{https://www.python.org/dev/peps/pep-0384/}}):
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{PyObject\ *\ PyCFunction\_ClsNew(PyTypeObject\ *cls,\ PyMethodDef\ *ml,\ PyObject\ *self,\ PyObject\ *module,\ PyObject\ *parent)}:
+  create a new object with object structure \texttt{PyCFunctionObject}
+  and class \texttt{cls}. The entries of the \texttt{PyMethodDef}
+  structure are used to construct the new object, but the pointer to the
+  \texttt{PyMethodDef} structure is not stored. The flags for the C call
+  protocol are automatically determined in terms of
+  \texttt{ml-\textgreater{}ml\_flags}, \texttt{self} and
+  \texttt{parent}.
+\end{itemize}
+
+The existing functions \texttt{PyCFunction\_New},
+\texttt{PyCFunction\_NewEx} and \texttt{PyDescr\_NewMethod} are
+implemented in terms of \texttt{PyCFunction\_ClsNew}.
+
+The undocumented functions \texttt{PyCFunction\_GetFlags} and
+\texttt{PyCFunction\_GET\_FLAGS} are removed because it would be
+non-trivial to support them in a backwards-compatible way.
+
+\subsection{Inheritance}
+
+Extension types inherit the type flag \texttt{Py\_TPFLAGS\_HAVE\_CCALL}
+and the value \texttt{tp\_ccalloffset} from the base class, provided
+that they implement \texttt{tp\_call} and \texttt{tp\_descr\_get} the
+same way as the base class. Heap types never inherit the C call protocol
+because that would not be safe (heap types can be changed dynamically).
+
+\subsection{Performance}
+
+This PEP should not impact the performance of existing code (in the
+positive or negative sense). It is meant to allow efficient new code to
+be written, not to make existing code faster.
+
+Here are a few pointers to the \texttt{python-dev} mailing list where
+performance improvements are discussed:
+
+\begin{itemize}
+\tightlist
+\item
+  \url{https://mail.python.org/pipermail/python-dev/2018-July/154571.html}
+\item
+  \url{https://mail.python.org/pipermail/python-dev/2018-July/154740.html}
+\item
+  \url{https://mail.python.org/pipermail/python-dev/2018-July/154775.html}
+\end{itemize}
+
+\subsection{Stable ABI}
+
+None of the functions, structures or constants dealing with the C call
+protocol are added to the stable ABI\footnote{Löwis, PEP 384 -- Defining
+  a Stable ABI, \url{https://www.python.org/dev/peps/pep-0384/}}.
+
+There are two reasons for this: first of all, the most useful feature of
+the C call protocol is probably the \texttt{METH\_FASTCALL} calling
+convention. Given that this is not even part of the public API (see also
+PEP 579, issue 6), it would be strange to add anything else from the C
+call protocol to the stable ABI.
+
+Second, we want the C call protocol to be extensible in the future. By
+not adding anything to the stable ABI, we are free to do that without
+restrictions.
+
+\subsection{Backwards compatibility}
+
+There is no difference at all for the Python interface, nor for the
+documented C API (in the sense that all functions remain supported with
+the same functionality).
+
+The removed function \texttt{PyCFunction\_GetFlags}, is officially part
+of the stable ABI\footnote{Löwis, PEP 384 -- Defining a Stable ABI,
+  \url{https://www.python.org/dev/peps/pep-0384/}}. However, this is
+probably an oversight: first of all, it is not even documented. Second,
+the flag \texttt{METH\_FASTCALL} is not part of the stable ABI but it is
+very common (because of Argument Clinic). So, if one cannot support
+\texttt{METH\_FASTCALL}, it is hard to imagine a use case for
+\texttt{PyCFunction\_GetFlags}. The fact that
+\texttt{PyCFunction\_GET\_FLAGS} and \texttt{PyCFunction\_GetFlags} are
+not used at all by CPython outside of \texttt{Objects/call.c} further
+shows that these functions are not particularly useful.
+
+Concluding: the only potential breakage is with C code which accesses
+the internals of \texttt{PyCFunctionObject} and
+\texttt{PyMethodDescrObject}. We expect very few problems because of
+this.
+
+\subsection{Rationale}
+
+\subsubsection{Why is this better than PEP 575?}
+
+One of the major complaints of PEP 575 was that is was coupling
+functionality (the calling and introspection protocol) with the class
+hierarchy: a class could only benefit from the new features if it was a
+subclass of \texttt{base\_function}. It may be difficult for existing
+classes to do that because they may have other constraints on the layout
+of the C object structure, coming from an existing base class or
+implementation details. For example, \texttt{functools.lru\_cache}
+cannot implement PEP 575 as-is.
+
+It also complicated the implementation precisely because changes were
+needed both in the implementation details and in the class hierarchy.
+
+The current PEP does not have these problems.
+
+\subsubsection{Why store the function pointer in the instance?}
+
+The actual information needed for calling an object is stored in the
+instance (in the \texttt{PyCCallDef} structure) instead of the class.
+This is different from the \texttt{tp\_call} slot or earlier attempts at
+implementing a \texttt{tp\_fastcall} slot\footnote{Add tp\_fastcall to
+  PyTypeObject: support FASTCALL calling convention for all callable
+  objects, \url{https://bugs.python.org/issue29259}}.
+
+The main use case is built-in functions and methods. For those, the C
+function to be called does depend on the instance.
+
+Note that the current protocol makes it easy to support the case where
+the same C function is called for all instances: just use a single
+static \texttt{PyCCallDef} structure for every instance.
+
+\subsubsection{Why CCALL\_OBJCLASS?}
+
+The flag \texttt{CCALL\_OBJCLASS} is meant to support various cases
+where the class of a \texttt{self} argument must be checked, such as:
+
+\begin{verbatim}
+>>> list.append({}, None)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: append() requires a 'list' object but received a 'dict'
+
+>>> list.__len__({})
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: descriptor '__len__' requires a 'list' object but received a 'dict'
+
+>>> float.__dict__["fromhex"](list, "0xff")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: descriptor 'fromhex' for type 'float' doesn't apply to type 'list'
+\end{verbatim}
+
+In the reference implementation, only the first of these uses the new
+code. The other examples show that these kind of checks appear in
+multiple places, so it makes sense to add generic support for them.
+
+\subsubsection{Why CCALL\_SELFARG?}
+
+The flag \texttt{CCALL\_SELFARG} and the concept of self slicing are
+needed to support methods: the C function should not care whether it is
+called as unbound method or as bound method. In both cases, there should
+be a \texttt{self} argument and this is simply the first positional
+argument of an unbound method call.
+
+For example, \texttt{list.append} is a \texttt{METH\_O} method. Both the
+calls \texttt{list.append({[}{]},\ 42)} and \texttt{{[}{]}.append(42)}
+should translate to the C call \texttt{list\_append({[}{]},\ 42)}.
+
+Thanks to the proposed C call protocol, we can support this in such a
+way that both the unbound and the bound method share a
+\texttt{PyCCallDef} structure (with the \texttt{CCALL\_SELFARG} flag
+set).
+
+Concluding, \texttt{CCALL\_SELFARG} has two advantages: there is no
+extra layer of indirection for calling and constructing bound methods
+does not require setting up a \texttt{PyCCallDef} structure.
+
+\subsubsection{Replacing tp\_print}
+
+We repurpose \texttt{tp\_print} as \texttt{tp\_ccalloffset} because this
+makes it easier for external projects to backport the C call protocol to
+earlier Python versions. In particular, the Cython project has shown
+interest in doing that (see
+\url{https://mail.python.org/pipermail/python-dev/2018-June/153927.html}).
+
+\subsection{Alternative suggestions}
+
+PEP 576 is an alternative approach to solving the same problem as this
+PEP. See
+\url{https://mail.python.org/pipermail/python-dev/2018-July/154238.html}
+for comments on the difference between PEP 576 and PEP 580.
+
+\subsection{Reference implementation}
+
+The reference implementation can be found at
+\url{https://github.com/jdemeyer/cpython/tree/pep580}
+
+\subsection{Copyright}
+
+This document has been placed in the public domain.

@@ -3,7 +3,7 @@
 \deliverable{component-architecture}{multiplatform-buildbot}
 \deliverydate{31/08/2018}
 \duedate{31/08/2018 (M36)}
-\author{Erik Bray, et. al.}
+\author{E. M. Bray, Alexander Konovalov, Julian R\"uth}
 
 \usepackage{graphicx}
 \usepackage{subcaption}
@@ -29,17 +29,17 @@ are introduced into the mainline.  Both the process, and the associated tools
 (e.g. automated continuous integration servers) are an essential part of the
 day-to-day work of developers on those projects that use it.
 
-Modern CI requires server infrastructure -- at the very least one machine which
-is always running that both performs software builds and reports the results of
-those builds back to developers so that are kept regularly up-to-date on the
-``health'' of the build \TODO{grammar in the preceding sentence is broken}.
-For some projects --  especially those that support multiple software platforms
--- continuous integration infrastructure can involve a whole fleet of hardware
-systems, each of which perform builds and tests of the software and report
-results back to a ``master server'' which collates them into a single
-multi-platform build report for developers to examine.  Unsurprisingly, as the
-CI needs of a project grow, so to does the size of its CI infrastructure, and
-the time, financial resources, and expertise required to maintain it.
+Modern CI requires server infrastructure. At the very least one server is needed
+to both perform software builds and serve (usually through a web-based UI) reports
+back to developers so that they are kept regularly up-to-date on the
+``health'' of the build.  For some projects --  especially those that support
+multiple software platforms -- continuous integration infrastructure can involve
+a whole fleet of hardware systems, each of which perform builds and tests of
+the software and report results back to a central server which collates them
+into a single multi-platform build report for developers to examine.
+Unsurprisingly, as the CI needs of a project grow, so too does the size of its
+CI infrastructure, and the time, financial resources, and expertise required to
+maintain it.
 
 The \Sage project, being quite large both in terms of number of contributors
 and in terms of overall code base (and by extension the length of time required
@@ -48,25 +48,23 @@ address this it has, over time, amassed a small multi-platform fleet of build
 machines as part of its ``buildbot'' infrastructure (based on the
 Buildbot\footnote{\url{https://buildbot.net/}} CI software framework), as well
 as expertise needed to maintain that infrastructure.  One of the original aims
-of deliverable was to see if other projects under the OpenDreamKit umbrella
+of this deliverable was to see if other projects under the OpenDreamKit umbrella
 could benefit from using Sage's buildbots, and thus achieve better
 multi-platform CI.  Additionally, we would look into widening the set of
 platforms supported by Sage's buildbot infrastructure -- in particular adding
-Windows builds to coincide with the Sage's newfound Windows support
+Windows builds to coincide with Sage's newfound Windows support
 \TODO{reference D3.7 here}.
 
 In practice, the needs of the OpenDreamKit community as a whole with respect to
 multi-platform CI, and in particular the need for a ``common infrastructure''
-for CI, did align with our original expectations, for reasons that are
-enumerated in the following section\TODO{Should the preceding sentence be
-negated?}.  Nevertheless, significant achievements were made by OpenDreamKit
-projects in the area of CI, and there are lessons learned that we are
-communicating through this report in the hopes of future
-cross-polination\TODO{cross-pollination?} on the subject.  Our experiences have
-also taught us that although there is not a one-size-fits-all solution to CI,
-there remains a clear need in the community for easier access to multi-platform
-build and development infrastructure, epecially for non-free operating systems
-such as Windows an macOS.
+for CI, did not align with our original expectations, for reasons that are
+enumerated in the following section.  Nevertheless, significant achievements
+were made by OpenDreamKit projects in the area of CI, and there are lessons
+learned that we are communicating through this report with plans for future
+cross-polination on the subject.  Our experiences have also taught us that
+although there is not a one-size-fits-all solution to CI, there remains a clear
+need in the community for easier access to multi-platform build and development
+infrastructure, especially for non-free operating systems such as Windows and macOS.
 
 \hypertarget{changes-to-deliverable}{%
 \section{Changes in scope of the deliverable}\label{changes-to-deliverable}}
@@ -94,34 +92,32 @@ Another advantage of services that integrate with \GitHub is that it enables a
 particular type of continuous integration sometimes referred to as ``advisory
 CI''.  This contrasts with traditional CI, wherein all developers on a project
 are allowed to push changes to a central version control system, and the CI
-system builds from that shared ``mainline''.  This means that a developer
-pushes a change that breaks the code, while a correctly functioning CI system
-should catch this bug fairly quickly, in the meantime the code is ``broken''
-for all other developers on the project.
+system builds from that shared ``mainline''.  So, if a developer
+pushes a change that breaks the code, the code is ``broken''
+for all other developers on the project (even if a correctly functioning CI
+system should catch the bug fairly quickly).
 
 However, in distributed, open source projects like those hosted on \GitHub or
 \GitLab, one does not want to give just anyone permission to push changes to
 the mainline.  Instead, most developers submit a {\em pull request} -- a change
 proposal that is not immediately merged into the mainline, but which a project
-administrator can accept into the mainline after it has been reviewed and
+administrator can merge into the mainline after it has been reviewed and
 deemed acceptable and sufficiently stable.  Advisory CI can help immensely in
 determining when a proposed pull request is ``sufficiently stable''.  Under
-this model the CI framework takes the latest version of the project's mainline,
-applies the proposed changes on top of it \TODO{This is not true for the CIs
-that jrueth is familiar with. They'll not merge in master but just take what's
-on that branch.} (if possible -- if not the build is rejected), and then
-attempts building the code and running its test suite with just those changes
-applied.  If this works, then one can have reasonable confidence (after a
-manual code review, and acceptance of the change on its merits) that the change
-is safe to include in the mainline.  This is not a silver bullet: it is
-possible that two mutually independent pull requests can pass through the CI
-system on their own, but conflict with each other in a way that is only
-apparent after they have been merged into the mainline.  In this case one has
-the traditional CI problem of a ``broken build''.  But this scenario is
-relatively uncommon, especially in well-structured projects.
+this model the CI framework builds the version of the code in the pull request
+{\em as though} it were the project's mainline (without ever changing the real
+mainline) and then attempts to build the code and run its test suite in isolation
+from any other pending changes to the code.  If this works, then one can have
+reasonable confidence (after a manual code review, and acceptance of the change
+on its merits) that the change is safe to include in the mainline.  This is not
+a silver bullet: it is possible that two mutually independent pull requests can
+pass through the CI system on their own, but conflict with each other in a way
+that is only apparent after they have been merged into the mainline.  In this
+case one has the traditional CI problem of a ``broken build''.  But this scenario
+is relatively uncommon, especially in well-structured projects.
 
 Therefore, between the relative ease of setting up free continuous integration
-systems for use on one's project, and the added convenience advisory CI that
+systems for use on one's project, and the added convenience of advisory CI that
 integrates directly with the project's issue tracker, there is relatively
 little demand for self-managed CI infrastructure such as that used for Sage.
 However, there is still the question -- anticipated by the original proposal
@@ -135,9 +131,9 @@ achieve some multi-platform support -- especially across those three major OSes
 and many projects do just this.
 
 In practice though, multi-platform CI has not had as much demand as we
-anticipated.  Many mathematical software projects do not have a great deal
+anticipated.  Most mathematical software projects do not have a great deal of
 system-specific code, and are mostly numerical in nature (e.g.~C++ libraries
-such as \Linbox and \Givaro), and have relatively little need for
+such as \Linbox and \Givaro).  These have relatively little need for
 multi-platform testing.  While platform-specific issues can still arise in such
 software, it is not always typical enough to merit the extra overhead of
 multi-platform testing.  When platform-specific issues do arise, it is more
@@ -149,16 +145,16 @@ build testing for many projects; see the next section for details.
 something about conda-forge. What did embray have in mind?}
 
 \subsection{Sage remains a special case}
-In Sage's case it is still useful, for now, to have the self-managed
+In the case of Sage, it is still useful for now to have the self-managed
 infrastructure due to the unique nature of Sage and the fact that it includes
 an entire software distribution.  Its builds can take a very long time and run
-up against limits imposed by the free services, and it is also useful to test
+up against limits imposed by the free services.  It is also useful to test
 Sage across a wider number of platforms than those offered by the popular free
 CI providers due to the likelihood of platform-specific build issues across its
 more than 150 dependencies.
 
 It is also worth noting that being a software distribution comprising so many
-components, Sage is providing implicit cross-platform build and runtime testing
+components, Sage is providing implicit cross-platform build and runtime testing of
 OpenDreamKit-affiliated projects and dozens of other mathematical software
 systems.  While Sage's test suite does not provide full test coverage for its
 dependent packages, it does exercise most of them extensively.  In particular,
@@ -187,53 +183,213 @@ for later...?}
 \hypertarget{project-reports}{%
 \section{Continuous integration achievements of OpenDreamKit projects}\label{project-reports}}
 
-\subsection{SageMath}
+\subsection{Sage}
 
-% Julian should remark on his efforts here: In particular what problems
-% motivated his efforts, and how he thinks this will improve things in the
-% future.  Maybe make note here about producing Docker images as build
-% artifacts (TODO: confirm if GAP is doing this too), and further how
-% mybinder.org turns out to be a useful development tool in conjunction
-% with Dockerized builds.  Not sure how much to say about that here, or
-% leave it to the conclusion.
+The Sage project had traditionally employed two distinct CI systems, the
+Buildbot and Sage's own development, the
+patchbot\footnote{\url{https://github.com/sagemath/sage-patchbot}}.
+
+\subsubsection{Buildbot and patchbot}
+Sage's Buildbot runs as a non-advisory CI system on a wide variety of
+platforms. It builds Sage and runs its test suite for every change that gets
+accepted into the mainline of the Sage code. Its main purpose is not to be an
+advisory tool for developers but to catch problems and incompatibilities of
+Sage or its dependencies, in particular on more obscure platforms that
+dependent projects often do not test for. Due to the vast range of platforms
+covered, the Buildbot can not realistically be turned into an advisory CI
+system as it is not conceivable to provision and administer the number of
+machines that would be necessary to run Sage's test suite at every stage of a
+test that gets proposed by a developer.
+
+Therefore, the Sage community at some point developed its own patchbot system
+which runs Sage's test suite at every stage of a proposed change. Anybody can
+run a patchbot on their private computer, typically a Linux system. These
+patchbots will then look for proposed changes to Sage, run Sage's test suite,
+and report findings back to a central server. It is worth noting that the
+patchbot system predates most of the currently popular CI systems.
+
+The patchbot system comes with a number of issues: It is not nearly as polished
+as the professional offerings which means that its workings can often be
+confusing and that it also requires continuous maintenance and development from
+the Sage community and by those that run the patchbots on their private
+machines. The fact that it is running on private machines means that due to
+load, connectivity issues, and other temporary issues on these machines, the
+patchbots are very frequently reporting false positive errors.
+This noise can be very
+frustrating as it makes the patchbot system unreliable and in particular harder
+to understand for new contributors. Finally, due to limitations of the patchbot
+architecture, not all types of changes can be tested, in particular it can not
+test changes that involve dependent software packages. This can be frustrating
+as testing such changes is often the most time consuming task for developers
+and it would be particularly nice to give such tasks away to a CI system.
+
+\subsubsection{Modern CI with GitLab CI and CircleCI}
+To fix these issues we were looking at best pratices that would give the
+Sage community fast, reproducible, reliable CI with minimal maintenance and
+continuous development necessary to keep the CI working for everybody.  We
+settled for GitLab CI, a modern open-source CI system, and CircleCI, a popular
+closed-source system. Which one to use is up to each developer. For simplicity
+we focus on GitLab CI here. GitLab CI typically uses Docker containers as its
+backend (but it can also be based on many other technologies.) These containers
+are essentially virtual machines that can be hosted in a central location but
+also on private computers. Unlike in the patchbot systems, Docker containers
+are standardized and isolated so that there is usually no issue of false
+positives. % note that I do not distinguish between Docker containers and
+% images; I think it's more confusing to the reader to make such a distinction.
+
+GitLab CI now runs a ``pipeline'' for every change proposed by a developer.
+\TODO{Insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/gitlab.png} here.}
+This pipeline goes in stages. In the setup for Sage, the first stage builds
+several flavors of Docker container which contain a built version of Sage. The
+second stage runs tests on these containers. Finally the Docker containers from
+the first stage are made publicly available.
+
+It should be noted that the first stage is where most complications for Sage
+arise. Building Sage takes several hours on most machines, so a lot of effort
+went into speeding this up in a sane and reproducible way to about 10 minutes.
+Also, we try to make the resulting Docker containers as small as possible. This
+speeds up the whole CI pipeline and also makes it easier for developers to
+download these containers; in typical cases they only have to download a few MB
+to get a hold of the Docker container.
+
+\subsubsection{Use Cases of Docker Containers}
+Having these Docker containers readily available as a by-product of our CI turned out to be very valuable.
+\TODO{Maybe insert \url{https://trac.sagemath.org/raw-attachment/ticket/24655/dockerhub.png} here.}
+
+It means that recent stable \& unstable versions of Sage are automatically made
+available for anybody to work with, without the need of having to understand
+how to build Sage on their machine.
+
+Sage developers can use these to reproduce and understand issues
+reported by the CI system simply by downloading the container and running the
+Sage version contained in that container.
+
+Projects that depend on Sage can use these Docker containers for their own CI
+needs and run their tests based on these containers. Without such Docker
+containers, most such projects would refrain from using CI as setting up Sage
+in a CI system appeared to be too complicated.
+
+Sage (and projects depending on Sage) can link to these containers through
+mybinder.org \TODO{link to something, maybe screenshot something?} to make
+different versions of their systems available through public web interfaces.
+This means that anybody can easily experiment with the latest unreleased
+features in a web browser without having to go through any local installation.
 
 \subsection{GAP}
 
-% Via Alex [can he write a couple paragraphs about this?]:
-% I will be ready to add a section with the overview of the current state of
-% continuous integration in GAP. In addition to the private Jenkins CI instance
-% that we use for wrapping and testing release candidates, checking for GAP
-% package updates and testing new versions of GAP packages, we now use Travis
-% CI to run a number of tests for the main GAP repositories at
-% https://travis-ci.org/gap-system/. These include not only CI test for the
-% main GAP development repository, but also package integration tests that use
-% a set of Docker containers build in various settings
-% (https://hub.docker.com/r/gapsystem/). We have a standard CI setup for GAP
-% packages, which package authors may adopt and customise. GAP packages using
-% Travis CI in the gap-packages VO can be seen at
-% https://travis-ci.org/gap-packages/ (some more at
-% https://gap-packages.github.io/). Also, GAP and packages use CodeCov to
-% measure code coverage: see https://codecov.io/gh/gap-system/gap for GAP and
-% https://codecov.io/gh/gap-packages/ for GAP packages.
-% 
-% @embray
-% > Much of the context to this deliverable is about multi-platform testing and
-% support. What aspect of our work addresses this? The Travis-CI builds for GAP
-% appear to be entirely, or at least almost entirely for Linux (@alex-konovalov
-% can clarify). I don't see any OSX builds, and Travis does not support
-% Windows.
-% Good point about Windows - forgot to mention that we also use AppVeyor:
-% https://ci.appveyor.com/project/gap-system/gap
+\GAP has a mechanism for user contributions in the form of packages,
+which may be submitted for refereeing and for the redistribution with \GAP.
+They extend the functionality of the system and may implement mathematical
+algorithms, provide mathematical databases, interfaces to other systems or
+enhancements of the system's infrastructure such as tools for debugging
+and profiling, and building documentation. 
 
-% About Linux vs macOS: package integration tests (all but one badges at
-% https://github.com/gap-system/gap-distribution) use Docker container, hence
-% use Linux. The core system tests used both Linux and macOS builds in the
-% past, but then were disabled because of performance problems:
+Packages are developed and released independently of the core \GAP system.
+They should be properly integrated into \GAP to not to break the functionality
+of the system or any other package. On the other hand, changes in \GAP are only
+permitted to have a disruptive effect on package functionality in a major
+release, and we aim to identify such situations in advance and resolve them
+in cooperation with package authors. Hence continuous integration facilities
+in \GAP are designed to suite the following primary goals:
+\begin{itemize}
+\item checking pull requests which propose changes in the core \GAP system
+\item checking for new versions of \GAP packages redistributed with \GAP;
+retrieving and storing them, and combining them for testing and redistribution
+\item running package integration tests which check that \GAP packages redistributed
+with GAP do not break the functionality of the core \GAP system
+\item wrapping and testing \GAP releases
+\item testing official package releases for their readiness for the next \GAP release
+\item testing package development versions for their compatibility with the \GAP development version
+\end{itemize}
 
-% https://github.com/gap-system/gap/blob/c8104cd056833f60c9f40efcb81b37b9cec76198/.travis.yml#L66
+This is supported by the following infrastructure:
+\begin{itemize}
+\item Jenkins CI\footnote{Another popular framework for self-hosted CI
+services; \url{https://jenkins.io/}} instance at the University of St Andrews,
+providing Linux, macOS and Windows nodes (available only within St
+Andrews network due to security restrictions)
+\item Travis CI accounts to test builds on Linux (both on native 
+Travis CI infrastructure and on Docker containers for \GAP; we
+also used macOS builds in the past, but then they were disabled
+due to reliability and performance issues):
+\begin{itemize}
+\item for the core \GAP system: \url{https://travis-ci.org/gap-system/}
+\item for \GAP packages: \url{https://travis-ci.org/gap-packages/}
+\end{itemize}
+\item Codecov\footnote{A specialized supplement to CI systems for hosting code
+ coverage reports -- that is, measures of how well a project's test suite
+ tests or ``covers'' lines of code and different code branches;
+ \url{https://codecov.io/}} accounts:
+\begin{itemize}
+\item for the core \GAP system: \url{https://codecov.io/gh/gap-system/gap}
+\item for \GAP packages: \url{https://codecov.io/gh/gap-packages/}
+\end{itemize}
+\item AppVeyor account to test builds on Windows under Cygwin: \url{https://ci.appveyor.com/project/gap-system/gap}
+\item A collection of Docker containers with various configurations available from
+Docker Hub: \url{https://hub.docker.com/r/gapsystem/}
+\end{itemize}
+All links to critical CI builds are collected together 
+at \url{https://github.com/gap-system/gap-distribution}.
 
-% We have all three systems - Linux, Windows and macOS - available as Jenkins
-% nodes in St Andrews, so we find this to be satisfactory for the moment.
+The core \GAP system tests use Travis CI and AppVeyor 
+to check every pull request submitted to the main \GAP repository,
+and publish code coverage at Codecov. In the last 6 month, code
+coverage on Travis CI increased from 70\% to 75\%, mainly due to
+new tests added by our external collaborator Max Horn (University of Gie{\ss}en).
+In addition to that, several extended tests are performed on Jenkins,
+as they are more time consuming. 
+
+\GAP package authors are advised to provide with each package a short
+test suite, which may be used to check that a package works as expected,
+together with metadata which informs \GAP how to run that test suite.
+Such tests are run regularly as a part of the standard \GAP test suite.
+Since Jenkins CI outputs are not accessible outside St Andrews, we use
+a two-tier approach: new versions of \GAP packages are picked up and
+tested internally on the Jenkins CI instance in St Andrews; approved
+versions are then published to be used in all further tests of \GAP
+(core system and package integration tests) on Travis CI, and to run
+standard tests of GAP packages in a way making their output available
+to their authors. These builds use Docker containers for the latest
+\GAP release and for the two release branches of the \GAP repository.
+
+For more comprehensive testing, we provide a standard Travis CI and 
+Codecov setup for GAP packages, available in the \software{Example} package
+\url{https://github.com/gap-packages/example}. It has been adopted and
+customised by most of the \GAP packages developed on \GitHub (see their
+list at \url{https://gap-packages.github.io/}). Furthermore, there are
+tools for creating and publishing packages, primarily developed by our
+external collaborator Max Horn: 
+\software{PackageMaker}\footnote{\url{https://github.com/gap-system/PackageMaker}},
+\software{ReleaseTools}\footnote{\url{https://github.com/gap-system/ReleaseTools}}
+and \software{GitHubPagesForGAP}\footnote{\url{https://github.com/gap-system/GitHubPagesForGAP}}.
+All these measures facilitate interaction between contributors to packages
+and the core GAP system, improve reliability of our software and help to
+keep regular release cycles.
+
+The following table shows the dynamics of the number of packages redistributed
+with \GAP, number of authors involved in them, and adoption of standard tests
+by packages included in selected \GAP releases in 2012--2018.
+
+\begin{center}
+\begin{tabular}{ |l|c|c|c| } 
+\hline
+GAP           & Number of    & Number     & Have standard \\
+release       & of packages  & of authors & regression tests \\
+\hline
+4.5.4 (06/2012) &  99 & 129 & 46 \\
+4.5.7 (12/2012) & 105 & 130 & 47 \\
+4.6.2 (02/2013) & 106 & 133 & 58 \\
+4.7.2 (12/2013) & 114 & 140 & 51 \\
+4.7.6 (11/2014) & 115 & 151 & 53 \\
+4.7.9 (11/2015) & 119 & 158 & 57 \\
+4.8.2 (02/2016) & 131 & 167 & 69 \\
+4.8.6 (11/2016) & 131 & 171 & 69 \\
+4.8.9 (12/2017) & 132 & 186 & 73 \\
+4.9.1 (05/2018) & 134 & 186 & 85 \\
+4.9.3 (to appear) & 140 & 187 & 91 \\
+\hline
+\end{tabular}
+\end{center} 
 
 
 \subsection{Singular}
@@ -244,6 +400,38 @@ for later...?}
 \subsection{PARI}
 
 % Maybe ??
+
+\subsection{Cysignals}
+
+The Cysignals
+project\footnote{\url{https://cysignals.readthedocs.io/en/latest/}} has been
+using Travis CI\footnote{\url{https://travis-ci.org/sagemath/cysignals}} for
+continuous integration on Linux practically since its inception (see \TODO{link
+to D4.1 which contains first mention of cysignals}).  In Spring of 2018 we made
+initial progress towards adding native Windows support to
+Cysignals\footnote{\url{https://github.com/sagemath/cysignals/pull/76}} as well
+as continuous integration for both native Windows and Cysignals on Cygwin using
+AppVeyor\footnote{\url{https://github.com/sagemath/cysignals/pull/95}}, the
+initial results of which have been promising.  The process of adding Cygwin
+testing on AppVeyor even exposed new Cygwin-specific bugs with Cysignals that
+had not been previously caught.
+
+However, multi-platform testing still remains an interesting problem for
+Cysignals in particular.  The low-level details of Cysignals are such that its
+functionality can depend heavily on the underlying operating system kernel
+(even different versions of the Linux kernel).  As such, one would like to be
+able to test against different kernels.  Because most CI services -- including
+Travis CI -- are using container-based technology, this means that even testing
+different OS platforms via containers is not entirely helpful, because all
+containers running on the system host system are using the same underlying
+kernel. Another problem is that although Travis CI supports build
+configurations using macOS, it does not support this by default for
+Python-based projects without employing various unsupported workarounds.
+
+Thus, an area for future work might be to try using GitLab's CI framework and
+providing our own build runner machines (possibly even reusing the existing one
+from Sage's buildbot fleet) to test Cysignals against more OS platforms with a
+wider range of OS kernels than we might test otherwise.
 
 \hypertarget{best-practices}{%
 \section{Lessons learned and best practices}\label{best-practices}}
