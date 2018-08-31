@@ -22,18 +22,18 @@ or from so-called \emph{docstrings}, that is snippets of documentation
 interspersed in the code it documents.
 
 One specific challenge is scaling to the sheer size of the \Sage
-documentation (13k pages just for the reference manual); building it
+documentation (13k pages just for the reference manual): building it
 requires a lot of time and memory. In addition to those particularly
-stringent needs and a long legacy \Sage was, at the time of writing
-the proposal, using an outdated version of \Sphinx, crippled by many
+stringent needs and a long legacy, \Sage was (at the time of writing
+the proposal) using an outdated version of \Sphinx, crippled by many
 layers of customisation and adaptations that had accumulated over the
 years. This was becoming impossible to maintain.
 
 \taskref{UI}{sage-sphinx} tackles this situation with, broadly
 speaking, two main goals:
 \begin{enumerate}
-\item a critically needed deep refactorisation to get rid of multiple
-  duplication, and foster sustainability by outsourcing back to
+\item a critically needed deep refactorisation to
+  foster sustainability by outsourcing back to
   \Sphinx all generic aspects (parallel compilation, index generation,
   etc);
 \item optimizing resource usage for the documentation build.
@@ -91,7 +91,7 @@ In particular, various fixes were made to the build system for the documentation
 including using a more standard Sphinx configuration.
 We also removed a lot of irrelevant customisations to \texttt{autodoc},
 the extension for generating documentation from docstrings.
-We also made building the Sage documentation a lot more reliable:
+We also made building the \Sage documentation a lot more reliable:
 in the past, it often failed to build after an upgrade
 but this is no longer the case.
 
@@ -104,7 +104,9 @@ By default, functions in Cython become Python \emph{built-in} functions.
 These are a special kind of optimised functions, implemented in C.
 
 Unfortunately, built-in functions do not work well with \Sphinx.
-In particular, \Sphinx cannot determine the arguments of such functions.
+In particular, \Sphinx cannot determine the input arguments of such functions.
+Since the arguments are an important part of the documentation
+of a function, this is a big problem.
 \Sage and \Cython have various hacks to make it work anyway.
 These are quite ugly, so it would not make much sense to support those in \Sphinx.
 
@@ -112,7 +114,7 @@ Fixing this properly requires adding support in \Python
 for fast user-defined function classes.
 For user-defined function classes, \Cython can add whatever attributes
 are needed to support \Sphinx and other use cases that require deep introspection
-of Python functions.
+of functions.
 The problem is that such user-defined function classes
 are necessarily slower than built-in functions.
 This is not acceptable for \Sage where speed is very important.
@@ -122,7 +124,7 @@ we already discussed an earlier variant of the PEP
 with the core \Cython developers and they were very positive about it.
 Both before and after submitting the PEP,
 we discussed it online with the Python community,
-leading to substantial changes.
+leading to substantial improvements.
 Unfortunately, the process of getting a PEP accepted is quite slow:
 at the time of writing this report, the PEP had not been accepted (nor rejected).
 
@@ -133,7 +135,7 @@ features that standard Python functions support.
 
 \subsection{Build the documentation in pieces}\label{pieces}
 
-The Sage reference manual is not built as one monolithic document,
+The \Sage reference manual is not built as one monolithic document,
 but in several pieces:
 one for each mathematical topic such as combinatorics or matrices.
 The original motivations were twofold: it makes it easy to build the various pieces
@@ -146,7 +148,7 @@ This is implemented in the \Sage \texttt{multidocs} extension for \Sphinx.
 Since it would be simpler to build the reference manual as a single document,
 we should work on removing the disadvantages mentioned here.
 In particular, the parallellisation (see \S\,\ref{parallel})
-should no longer be an issue.
+should then no longer be an issue.
 Once the disadvantages are gone, we can just build the reference manual
 as a single document again.
 This is future work.
@@ -177,7 +179,7 @@ The patch allows to highlight \texttt{sage:} the same way
 as standard Python \texttt{>>>} prompts.
 
 No work has been done towards removing this patch,
-but it should be relatively simple.
+but it should be rather simple.
 We should investigate whether we can customize \Pygments without
 patching it.
 Alternatively, support for \Sage should be pushed upstream to \Pygments.
@@ -186,6 +188,8 @@ Alternatively, support for \Sage should be pushed upstream to \Pygments.
 
 In tandem with removing customisations, it is obvious that we
 should use the most recent release of \Sphinx.
+So we are indeed regularly upgrading the version of \Sphinx
+that is packaged with \Sage.
 This is not as trivial as it sounds:
 some of the custom code integrates tightly with \Sphinx
 and must be regularly changed after an upgrade of \Sphinx.
@@ -194,13 +198,13 @@ removing the customisations mentioned in the previous section.
 
 \section{High resource usage}
 
-Building the full Sage documentation takes a lot of resources:
+Building the full \Sage documentation takes a lot of resources:
 it needs about 3 gigabytes of memory and about 1.5 hours
 on an averge personal computer to build the documentation from scratch.
 This makes it the most resource-intensive part of
 building the complete \Sage computational system.
 Because of this, \Sage users who wish to build from source are often
-suggested to skip building the Sage documentation.
+suggested to skip building the \Sage documentation.
 It is also a problem for automatic builds in continuous integration
 setups, which typically only have limited resources.
 

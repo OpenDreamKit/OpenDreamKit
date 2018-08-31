@@ -35,7 +35,7 @@ and more specifically in exact linear algebra for computing nullspace basis,
 rank and rank profiles, determinants, characteristic polynomials, etc.
 
 \paragraph{Rank deficient LU decomposition} Before the start of the project, we had a series of contributions in the
-developpment of fast Gaussian elimination algorithms in the context of exact
+development of fast Gaussian elimination algorithms in the context of exact
 linear algebra, namely
 \begin{enumerate}
 \item identifying and connecting all triangular matrix decomposition, revealing
@@ -49,7 +49,7 @@ linear algebra, namely
 \item a block recursive and a base case iterative algorithm which implementation
   in \texttt{fflas-ffpack} sets the state of the art in terms of computing
   efficiency in sequential and parallel multithreaded contexts, and competes
-  with the efficiency of the equivalent numerical gaussian elimination routine;
+  with the efficiency of the equivalent numerical Gaussian elimination routine;
 \item an exhaustive study of the required
 conditions on the pivoting strategy for a Gaussian elimination algorithm to
 reveal the rank profile matrix invariant.
@@ -75,8 +75,11 @@ square roots (for the Cholesky factorization), the rank structure and the
 pivoting strategy to be used.
 
 If the block iterative algorithms with partial or full pivoting are well studied
-in nunmerical linear algebra, the recursive block algorithms were only
-approached recently and with strong restrictions on the pivoting strategy.
+in numerical linear algebra, the recursive block algorithms were only
+approached recently and with strong restrictions on the pivoting
+strategy\footnote{See for instance 
+\href{http://www.netlib.org/lapack/lawnspdf/lawn294.pdf}{LAPACK
+  Working Note 294, Dec. 2017}, and references therein.}.
 We proposed in \cite{DuPe18} (see Appendix~\ref{app:papers}) a generalization of the Aasen algorithm in a block
 recursive structure, producing a LDLT factorization with partial pivoting. In
 particular, this algorithm is able to also compute the rank profile matrix
@@ -113,7 +116,7 @@ $10000$ & 14.948 & 11.981 & 13.396 & 12.008 & 24.115 & 10.904 & 23.985 & 11.209 
 %
 first confirm the expected speed-up factor of 2 with respect
 to the unsymmetric LU factorization, but also show that it performs similarly or
-faster than the lastest implementation of the corresponding numerical routine in LAPACK.
+faster than the latest implementation of the corresponding numerical routine in LAPACK.
 
 \subsection{Quasiseparable matrices}
 
@@ -121,13 +124,13 @@ Exploiting some structure in a matrix to speed up computations is a whole field
 in linear algebra algorithmic. Quasiseparable matrices are  structured by a
 bounding condition on the rank of any of their submatrices below or above
 the main diagonal. It is a well studied field in numerical linear algebra, as
-these matrices occur sevral major applications, such as solving particule
-interraction, or generalized eigenvalues problems.
+these matrices occur several major applications, such as solving particle
+interaction, or generalized eigenvalues problems.
 In exact linear algebra this class of structured matrices seemed to be absent
-from the litterature and software ecosystem.
+from the literature and software ecosystem.
 
 We introduced this class to the field in~\cite{Per16} and~\cite{PeSt18} (see Appendix~\ref{app:papers}) where we
-contributed with two new storages for these matrices and the related algorithmic
+contributed with two new storage formats for these matrices and the related algorithms
 to compute with. The key innovations there are the following:
 \begin{enumerate}
 \item the first reduction in time complexity for the basic arithmetic with these
@@ -136,8 +139,8 @@ to compute with. The key innovations there are the following:
   of quasiseparability.
 \item the first flat (i.e. non-hierarchical) compact representation for these
   matrices reaching the best space and time complexities. This was made possible
-  thanks to a non-trivial conncection with the notion of rank profile matrix,
-  which we developped in~\cite{DPS17}.
+  thanks to a non-trivial connection with the notion of rank profile matrix,
+  which we developed in~\cite{DPS17}.
 \end{enumerate}
 
 
@@ -147,28 +150,30 @@ A more exploratory aspect of our contribution deals with the design of secure
 protocols for outsourced or multiparty computations.
 With the emergence of huge computing infrastructures on the Cloud, large scale
 computations are likely to no longer be handled in a controlled environment but
-instead be delegated to third party infrastructures. This raises several
-problematics regarding the privacy in the data, and the trust in the result.
+instead to be delegated to third party infrastructures. This raises several
+problems regarding the privacy in the data, and the trust in the result.
 
-In this context we have stared investigations in two directions: the design of
+In this context we have started investigations in two directions: the design of
 certificates of correctness ensuring trust and of multiparty computation
 protocols, ensuring privacy.
 
 \subsubsection{Certificates}
 
-In this setting, the provider of computing resources is called a prover has to
-convince the client (named verifier) that the result which he computed is
+In this setting, the provider of computing resources is called a
+prover and has to
+convince his client (denoted the verifier) that the result which he computed is
 correct.
-Most approaches to interractive certification rely on generic techniques for
+Most approaches to interactive certification rely on generic techniques for
 circuit transformations and are therefore mostly relevant for theoretical result
 on asymptotic complexities. 
 
 Alternatively our approach is to design problem specific certification protocols
-taking advantage of the algebraic nature of the computation and avoid the use of
+taking advantage of the algebraic nature of the computation and
+reducing the use of costly
 cryptographic primitives. A first instance, for matrix vector products is
 proposed in~\cite{DuZu17}.
 
-In \cite{DLP17} (see Appendix~\ref{app:papers}), we propose interractive
+In \cite{DLP17} (see Appendix~\ref{app:papers}), we propose dedicated interactive
 certificates for the determinant, echelon forms and the rank profile matrix,
 achieving linear communication and verifier complexity and no overhead for the prover.
 
@@ -182,8 +187,9 @@ module of polynomial matrices, we designed a certificate for rowspace membership
 that is used as a building block for all other problems (Hermite and Popov form,
 saturation basis, kernel basis, etc).
 
-Laslty we propose in~\cite{DKVZ17} a more complexity theoretic result on
-polynomial time and space certificates for linear algebra in exponential sizes.
+Lastly we propose in~\cite{DKVZ17} a new result that shows that 
+{\em polynomial} time and space certificates are attainable for linear
+algebra in exponential sizes. 
 
 \subsubsection{Secure multiparty computation}
 
@@ -192,9 +198,10 @@ matrices that are split into into shares between them. The end goal is to
 perform this computation ensuring correctness and resilience (malicious players
 can not perturb the computation wihtout being detected) while preserving privacy (each
 share should remain secret for the other players).
-Here again generic approaches exist but suffer from large overheads making them
-unpracticable on large scales.
-Our approach is to design problem specific protocols for scalar
+Here again generic approaches do exist but usually suffer from large overheads
+making them 
+unpractical on large scales.
+Our approach is also to design problem specific protocols for scalar
 products~\cite{DLOP17}, and matrix multiplication~\cite{DFLLOPP18}, based on
 Strassen's algorithm. The approach combines the use of semi-homomorphic
 encryption schemes (such as Paillier's or Naccach-Stern's) and random masking.
@@ -202,20 +209,20 @@ encryption schemes (such as Paillier's or Naccach-Stern's) and random masking.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Software releases and integration}
 
-The software aspects of this deliverable invovle the LinBox library
+The software aspects of this deliverable involve the LinBox library
 and its integration as a computing kernel in the \Sage software.
 The LinBox ecosystem provides high performance exact linear algebra kernels
 through and ecosystem of three libraries:
 \begin{description}
-  \item[Givaro] a library in charge of field and ring arithemtic: finite
+  \item[Givaro] a library in charge of field and ring arithmetic: finite
     fields, multiprecision integers and rationals, univariate polynomials, etc.
-  \item[fflas-ffpack] a library dedicacted to dense linear algebra over finite
+  \item[fflas-ffpack] a library dedicated to dense linear algebra over finite
     fields. It offers a similar interface as the numerical BLAS and LAPACK
     libraries whenever they make sense over a finite field.
   \item[LinBox] a library for exact linear with dense, sparse or black-box
     matrices. It is based on Givaro and fflas-ffpack, offers a higher level interface
     to the core routines of fflas-ffpack and builds on top of them more
-    sophiscticated algorithms, such as Smith Normal Forms, diophantine and
+    sophisticated algorithms, such as Smith Normal Forms, Diophantine and
     rational solvers, etc.
   \end{description}
 
@@ -251,23 +258,23 @@ and 4 versions of LinBox
   \item[linbox-1.6.0] in preparation (expected Oct 2018)
 \end{description}
 
-Over these releases, the goal was twofolds: a strong improvement in the code
-quality improving its robstness and its maintainability and  the addition of new
+Over these releases, the goal was twofold: a strong improvement in the code
+quality improving its robustness and its maintainability and  the addition of new
 features, either new algorithms for existing interfaces or extending the scope
-of problem being adressed.
+of problem being addressed.
 
 The robustness of the code has been drastically increased by our adoption of more
-invovled standard for the test suite, the increase of the coverage for these
+involved standard for the test suite, the increase of the coverage for these
 test-suite and the intensive use of a two continuous integration frameworks:
-\texttt{ci.inria} (\url{http://ci.inria.fr/linbox}), a jenkins based solution run by Inria, and
+\texttt{ci.inria} (\url{http://ci.inria.fr/linbox}), a Jenkins based solution run by Inria, and
 \texttt{travis} (\url{https://travis-ci.org/linbox-team/}).
 
 Among the new features introduced, we list below the most significant ones:
 \begin{itemize}
 \item The fully functional implementation of the new symmetric triangular
   factorization resulting from our research in~\cite{DuPe18} achieving world's
-  best performance for this task, and compteting with the computational
-  efficiency of the corresponding numrical routines in LAPACK;
+  best performance for this task, and competing with the computational
+  efficiency of the corresponding numerical routines in LAPACK;
 \item the fully functional algorithms computing the rank profile matrix and
   related echelon forms, following our research in~\cite{DPS17};
 \item a broader support of compiler and architectures, including a better
@@ -330,6 +337,8 @@ TODO: populate more tickets and develop more text on the integration.
 
 %%% Local Variables:
 %%% mode: latex
+%%% mode: flyspell
+%%% ispell-local-dictionary: "american"
 %%% TeX-master: t
 %%% End:
 
