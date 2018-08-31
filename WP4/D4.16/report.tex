@@ -1,5 +1,6 @@
 \documentclass{deliverablereport}
 \usepackage{wrapfig}
+\lstset{stringstyle=\tiny}
 
 \deliverable{UI}{ipython-advanced-interacts}
 \deliverydate{31/08/2018}
@@ -216,13 +217,6 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
   in order to automatically refresh the representation.
   However, the Larch environment is designed to run locally, i.e. not
   within any browser, and the project was discontinued in 2014.
-\item Already within
-  \href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project
-  (2003-2004), an API was developed for a graphical representation
-  combinatorial objects and their properties ; see
-  \href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial
-    Class With 2DBoxedRepresentation}. Yet this representation was
-  limited to text-graphics i.e. ``ASCII art''.
 \end{itemize}
 
 \section{Interactive visualization of combinatorial objects}
@@ -242,8 +236,11 @@ graph drawing features and are not particularly impressive by
 themselves: after all, interactive graph drawing and editing has been
 the subject of a whole community, with series of conferences such as
 the \emph{International Symposium on Graph Drawing and Network
-  Visualization}, and acclaimed tools like \lstinline{graphviz}. What
-makes Francy stand is \TODO{...}
+  Visualization}, and acclaimed tools like \lstinline{graphviz} or
+\lstinline{tulip}. What makes Francy stand is to bring those feature
+to computational systems and, more importantly, explore how to best
+leverage the technology to empower users of such systems to adapt it
+to their needs.
 
 \TODO{somewhere: macaulay's package}
 
@@ -268,26 +265,30 @@ desired graphical representations for its mathematical objects in the
 semantic model. Similarly, integrating GUI framework reduces to
 providing a frontend describing how to concretely render and interact
 with the graphical representations from the model. In practice, the
-graphical representations take the form of JSON data that is passed
-back and forth between the computational system and the browser.
+semantic model takes the form of an intermediate JSON data format,
+with JSON data being passed from the computational system to the
+browser.
 
-In the upcoming year, we plan to collaborate tightly with Francy to:
-\begin{itemize}
-\item Bring Francy's features to \Sage by implementing a backend. This
-  would finally bring a solution to a long time yet pressing need of
-  the community that was so far only partially fulfilled by
-  unsustainable prototypes.
-\item Get inspiration to derive a similar decoupling for objects
-  admitting a grid view, with a Sage backend, a semantic model, and a
-  Jupyter/JS frontend.
-\item Contribute the models and frontends to Francy, making the
-  features available to GAP.
-\end{itemize}
+%\subsection{Francy, }
+
+\TODO{Time permitting: a picture of the data flow}
+
 
 \subsection{A generic widget for objects with a grid-like representation}
 \label{grid}
 
-\subsection{A generic grid view widget}
+We have seen a \emph{design pattern} emerging in the previous section:
+without this being formalized, a similar approach had been taken in
+Sage for static graph drawing, using the so-called ``dot'' format of
+the graphviz project as intermediate data format, to later produce
+graph pictures in a variety of formats (latex, pdf, svg).
+
+Similarly, in the
+\href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project a
+generic intermediate data format was designed for all objects that can be
+drawn by filling out certain cells in a 2-dimensional grid. Here is,
+for example, a drawing of \emph{skew tableau}, an important kind of
+combinatorial object arising in representation theory:
 
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
@@ -295,12 +296,27 @@ In the upcoming year, we plan to collaborate tightly with Francy to:
       %\caption{A grid widget}
 \end{center}
 \end{wrapfigure}
+We will call such a drawing a \emph{grid-like representation}.
 
-We decided to first implement a generic widget meant for all SAGE-objects that can
-be grid-like represented, i.e. all objects that can be described by
-filling out some of the boxes in a 2-dimensional grid.
+From the intermediate data format, drawings could be produced in a
+variety of format: latex, pdf, various forms of ascii art, ...; see
+\href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial Class With 2DBoxedRepresentation}.
+This achieved the same two levels of decoupling as we have seen in Francy.
 
-For example a skew tableau:
+We decided to build on this previous experience to explore not only
+drawing, but also \emph{interactive editing}: here, the interaction
+not only affects the visualization, but also induces changes to the
+the original mathematical objects via the intermediate data format.
+Thus the data flow is now bidirectional.
+\TODO{Time permitting: a picture of the bidirectional data flow}
+
+Technically speaking, we aimed for the implementation of a generic
+Jupyter widget meant for all SAGE-objects admitting a grid-like
+representation.
+
+\TODO{NT: additional challenge: the interaction requires richer
+  messages where not only data representing the, but also questions
+  are asked (validity, valid changes, ...) + temporary invalidity. }.
 
 This use case combined several advantages:
 \begin{itemize}
@@ -323,23 +339,72 @@ the generic solution for their own pet objects with little expertise.
 \subsection{Description of the design, of the API that subclasses must
   implement, code examples}
 
-This widget, called \emph{GridViewWidget}, implements the following:
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{schemas/SageViewEditor}
+  \end{center}
+  \caption{Sage View Editor classes}
+  \label{fig:lmfdb}
+\end{figure}
 
+We have developped a \emph{GridViewWidget} for representing - and
+interacting with - Sage Objects in Jupyter environment, in a browser.
+
+The interaction possibilities currently are the following:
 \begin{itemize}
- \item loading an object and calculating its cells positions and
-   contents
- \item getting/setting this object
- \item editing a cell
- \item adding/removing cells
- \item after a change, checking the new object type
+  \item editing a cell content
+  \item adding or removing cells
+  \item selecting cells for more interactions
 \end{itemize}
 
-\emph{GridViewWidget} is subclassed to \emph{TileGridWidget} class,
-which implements the actual grid-like display with one tile for each
-object cell.
+This \emph{GridViewWidget} is based on a \emph{GridViewEditor}, that
+is GUI-agnostic.
 
-The users can specify their own tile shape. For example they can
-use \emph{IPyWidgets} buttons or text inputs.
+\emph{GridViewEditor} can operate in various Sage grid-representable objects like graphs,
+matrices, or tableaux. As it needs to operate on each in the same way,
+and in effect they have various method names, or signatures, or
+different features, we felt the need to define a list a methods to be
+implemented by them, i.e. an \emph{API}.
+
+Currently hidden in the \emph{GridViewEditor} itself, we intend to promote
+the development of adapters for the Sage objects, either by implementing Adapter
+classes as such, or by writing translating information. Here are a few code examples
+for both strategies:
+
+\begin{lstlisting}
+class GenericGraphGridViewAdapter(GenericGraph):
+  ...
+  def from_cells(self, cells={}):
+    g = GenericGraph()
+    g.add_vertices(list(cells.keys()))
+    return g
+
+class PartitionGridViewAdapter(Partition):
+  ....
+  def add_cell(self, coord):
+    return self.add_cell(self.coord[0], self.coord[1])
+
+class StandardTableauGridViewAdapter(StandardTableau):
+  ....
+  def from_cells(self, cells={}):
+      positions = sorted(list(cells.keys()))
+      try:
+        return StandardTableau([[cells[pos] for pos in positions if pos[0]==i] for i in uniq([t[0] for t in positions])])
+      except:
+      raise TypeError("Cannot generate a valid StandardTableau!")
+\end{lstlisting}
+
+Second strategy: a translator can be written directly in the source
+code, with \emph{Python annotations}:
+
+\begin{lstlisting}
+@grid_view_adapter(\{addable_cells:self.shape().addable_cells, removable_cells:removable_cells\})
+class StandardTableau:
+  /.../
+\end{lstlisting}
+
+%The users can specify their own tile shape. For example they can
+%use \emph{IPyWidgets} buttons or text inputs.
 
 \subsection{Potential applications}
 
@@ -356,8 +421,6 @@ objects: matrices, partitions, grid graphs, tableaus, ribbons ..
 Apart from displaying and editing an object, more possibilities can be
 imagined
 
-\TODO{imagination}
-
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
       \includegraphics[width=100px]{images/dominos-azteque}
@@ -367,8 +430,6 @@ imagined
 
 As an example, we have developed a domino-like representation of
 \emph{grid-graph matchings} with a \emph{flipping} feature on neighboring dominos.
-
-\TODO{an image with dominos in an Aztec Diamond}
 
 The code is distributed as a Sage package
 \href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets}
@@ -384,6 +445,23 @@ progressively into SageMath.
   \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
 \end{itemize}
 
+\subsection{Future plans}
+
+In the upcoming year, we plan to collaborate tightly with Francy to:
+\begin{itemize}
+\item Bring Francy's features to \Sage by implementing a backend. This
+  would finally bring a solution to a long time yet pressing need of
+  the community that was so far only partially fulfilled by
+  unsustainable prototypes like Sage's
+  \href{http://doc.sagemath.org/html/en/reference/graphs/sage/graphs/graph_editor.html}{graph editor}.
+\item Further explore the design pattern with over kinds of graphical
+  representations (starting from the grid view representation of the
+  next section), with a similar decoupling between a Sage backend, a
+  semantic model, and a Jupyter/JS frontend.
+\item Contribute the models and frontends to Francy, making the
+  features available to GAP.
+\end{itemize}
+
 \section{Sage-explorer}
 \label{section:sage-explorer}
 
@@ -392,14 +470,25 @@ progressively into SageMath.
 
 \subsection{Sage-explorer should be as rich as LMFDB, and is interactive}
 
-\TODO{Screenshot of http://www.lmfdb.org/EllipticCurve/Q/11/a/2}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/LMFDB-11a2}
+  \end{center}
+  \caption{L-fonctions database on elliptic curve ``11a2''}
+  \label{fig:lmfdb}
+\end{figure}
+
 \TODO{Comparative screenshot of the same curve in sage-explorer}
+
+In LMFDB, many methods results are calculated at page opening, while
+with Sage Explorer, the calculation is run only on demand, except for
+some widely used \emph{properties}.
 
 \TODO{A bunch of screenshots}
 
 \subsection{Overview}
 
-Sage-explorer is a container widget that comprises:
+Sage-explorer comprises:
 
 \begin{itemize}
   \item A block made of a title and a list of properties for the object
@@ -408,95 +497,36 @@ Sage-explorer is a container widget that comprises:
   \item A panel for documentation and computations
 \end{itemize}
 
-\TODO{Illustration des zones}
+We wanted to make available key information at once and, apart from
+that, let the user run the methods they like.
 
-\subsection{Object Properties}
+This is why we select only some of the methods, the results of which
+are called \emph{properties} and are configurable.
 
-The title block displays an object-identifying \emph{title}, its
-\emph{category} and a list of its \emph{properties}.
+\TODO{Example configuration source code}
 
-Actually, there is no concept of \emph{property} in itself in Sage.
+The object graphical representations try to be as ``natural'' as
+possible for the user. So we use plotting when relevant. For
+combinatorial objects, we call the \emph{sage-combinat-widgets}
+package. As soon as integration is made with the \emph{sage-combinat-widgets},
+the graphical representation will mirror the object changes in real
+time, too.
 
-Yet some of the Sage object methods return a piece of information that
-can be considered as \emph{properties}. Such as a the degree for a
-polynomial degree, the dimension for a curve, or whether a graph is
-planar or has loops ..
+The widget choice is also specified in the configuration. Yet we
+intend to make it available directly within Sage source code, thanks
+to \emph{Python annotations}.
 
-The fact, for a method result, to be possibly considered as a property
-is in itself a piece of semantic information that can be stored in a
-configuration file (which is the case with current published version),
-or can be stored in the Sage code itself (which will in a way or
-another most probably be the adopted solution in the future). See~\ref{semantics}
+Sage object methods are listed in the menus to facilite
+discovering, alphabetically ordered. As method lists can be very long,
+we have split them according to the class where they appear in Sage source
+code and we intend to find more than one categorization way.
 
-\subsection{Object Graphical Representation}
-\label{representation}
+When a method is selected, its documentation and signature are made
+available. The user can then fill out the argument and run the method
+to get a result.
 
-The Sage explorer looks for any ``natural'' way of representing the
-object graphically.
-
-For a curve, or any mathplot-plottable object, there is already such a
-``natural'' response.
-
-For others, we try to use the work done in the
-\emph{sage-combinat-widget} project.
-
-As for properties (see above), the name of the widget class for an
-object graphical representation is a piece of semantic information,
-currently stored in the Sage-explorer configuration file, later very
-possibly in the Sage source code itself (see \ref{semantics}).
-
-The object graphical representation is meant to be responsive to some
-actions on the object, such as highlighting elements, adding nodes ..
-
-These interactions are not currently implemented in the library widgets but
-this will be one of our high priority task in the next future.
-
-\subsection{Object Methods}
-
-The core of Sage explorer features is its list of methods.
-
-All these methods are presented as menu entries, and dispatched in the
-object parent class hierarchy, depending from
-which class they get their definition.
-
-\subsection{Object Documentation}
-
-Within the main zone, a tab is dedicated to displaying documentation.
-
-When no method is selected, it displays the documentation for the object itself.
-
-When a method is selected, it displays the method documentation.
-
-\subsection{Computations}
-
-Within the main zone, a tab is dedicated to computations.
-
-This tab is empty when no method is selected.
-
-As soon as a method is selected, boxes appear, one for each method
-argument (following the method signature and with names matching those
-in the displayed documentation).
-
-The user is invited to fill the boxes and then to press the
-\emph{Run!} button. The explorer then calls Sage kernel to do the
-computation and displays the result below the arguments boxes.
-
-In a near future, some of the computation results will be graphically
-displayed as well - on the widget. See \ref{representation}
-
-\TODO{Description of how the page is built}
-
-\subsection{Navigation}
-
-Numerous links to new Sage objects appear in various explorer zones,
-especially in properties and in method results.
-
-Clicking on any link opens a new Explorer, for a new object.
-
-A history is kept, in order to enable going back to the previous object.
-
-An index page is also provided, displaying various lists of Python
-categories to click on.
+Finally, links appear in many places in the explorer. Clicking on one
+of those links opens a new object in the explorer.
 
 \subsection{Configuration and semantics}
 \label{semantics}
