@@ -1,5 +1,6 @@
 \documentclass{deliverablereport}
 \usepackage{wrapfig}
+\usepackage{pdflscape}
 \lstset{stringstyle=\tiny}
 
 \deliverable{UI}{ipython-advanced-interacts}
@@ -36,14 +37,21 @@ or layout control).
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth]{images/Velocity}
-  \end{center}
   \caption{A Jupyter widget displaying an interactive map based on
-    OpenStreetMap data, overlayed with a visualisation of wind velocity
-    data (courtesy of the \lstinline{ipyleaflet} documentation).}
+  OpenStreetMap data, overlayed with a visualisation of wind velocity
+  data \tiny{(courtesy of the \lstinline{ipyleaflet} documentation)}.}
   \label{fig:ipyleaflet}
+  \end{center}
 \end{figure}
 
-\TODO{screenshot: some Jupyter based web application}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/sc-ipyleaflet}
+    \caption{A Jupyter application displaying survey results on San
+      Francisco city districts \tiny{(courtesy of the \lstinline{ipyleaflet} documentation)}.}
+  \label{fig:ipyleaflet}
+  \end{center}
+\end{figure}
 
 Hence, the Jupyter stack provides a very flexible environment catering
 for use cases ranging from a novice users typing just a few commands
@@ -103,10 +111,6 @@ see Figure~\ref{fig:math_viz} for some examples.
   \label{fig:math_viz}
 \end{figure}
 
-%\TODO{search on wikipedia for a nice collection of pictures: a
-%  partition, a polyomino, an aztec diamond, a monomial ideal, a graph,
-%  a poset, a formula - fraction continue, a curve, ...}. diagramme de Venn ; th des 4 couleurs sur une carte mathématique
-
 We therefore can't hope to provide hand crafted solutions for each
 situation; instead we need to devise a toolbox of generic solutions
 from which users can easily derive specialized visualizations for
@@ -164,7 +168,19 @@ objects. We report on our prototype
 system to produce a reasonable overview page automatically tailored to
 each object.
 
-\TODO{Screenshot of Sage-explorer?}
+%\TODO{Screenshot of Sage-explorer?}
+% here is one, on the usual StandardTableau(15)
+% I can try to make more, but at least the PetersenGraph fails (the
+% cell is much too small for seing anything)
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/TableauExplorer}
+  \end{center}
+  \caption{Sage Explorer}
+  \label{fig:tableau-explorer}
+\end{figure}
+
 
 Altogether, the Jupyter Widget technology has proven as mature and
 flexible as we hoped for. Designing new widgets does take some
@@ -223,7 +239,7 @@ In addition to the interactive widgets already delivered with ipywidgets (e.g. S
 \label{section:combi}
 
 \subsection{Francy: an Interactive Discrete Mathematics Framework for GAP}
-\label{francy}
+\label{section:francy}
 
 Francy is a package for interactive visualisation in discrete
 mathematics. It's developed mainly by Manuel Martins, with supervision
@@ -269,13 +285,20 @@ semantic model takes the form of an intermediate JSON data format,
 with JSON data being passed from the computational system to the
 browser.
 
-%\subsection{Francy, }
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{schemas/SensUnique}
+  \end{center}
+  \caption{Francy Data Flow}
+  \label{fig:dataflow1}
+\end{figure}
 
-\TODO{Time permitting: a picture of the data flow}
+
+%\subsection{Francy, }
 
 
 \subsection{A generic widget for objects with a grid-like representation}
-\label{grid}
+\label{section:grid}
 
 We have seen a \emph{design pattern} emerging in the previous section:
 without this being formalized, a similar approach had been taken in
@@ -308,15 +331,24 @@ drawing, but also \emph{interactive editing}: here, the interaction
 not only affects the visualization, but also induces changes to the
 the original mathematical objects via the intermediate data format.
 Thus the data flow is now bidirectional.
-\TODO{Time permitting: a picture of the bidirectional data flow}
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{schemas/DoubleSens}
+  \end{center}
+  \caption{Sage Combinat Widgets Data Flow}
+  \label{fig:dataflow1}
+\end{figure}
 
 Technically speaking, we aimed for the implementation of a generic
 Jupyter widget meant for all SAGE-objects admitting a grid-like
 representation.
 
-\TODO{NT: additional challenge: the interaction requires richer
-  messages where not only data representing the, but also questions
-  are asked (validity, valid changes, ...) + temporary invalidity. }.
+%\TODO{NT: additional challenge: the interaction requires richer
+%  messages where not only data representing the, but also questions
+%  are asked (validity, valid changes, ...) + temporary invalidity. }.
+% OB : I guess I addressed this on line ~371 - subsection ``description of
+% the design
 
 This use case combined several advantages:
 \begin{itemize}
@@ -336,16 +368,18 @@ resided in the the design of a generic solution that encapsulates as
 much of the technicalities as possible, enabling users to specialize
 the generic solution for their own pet objects with little expertise.
 
-\subsection{Description of the design, of the API that subclasses must
-  implement, code examples}
-
+\begin{landscape}
 \begin{figure}[h]
   \begin{center}
-    \includegraphics[width=\textwidth]{schemas/SageViewEditor}
+    \includegraphics[width=1.4\textheight]{schemas/SageViewEditor}
   \end{center}
   \caption{Sage View Editor classes}
   \label{fig:lmfdb}
 \end{figure}
+\end{landscape}
+
+\subsection{Description of the design, of the API that subclasses must
+  implement, code examples}
 
 We have developped a \emph{GridViewWidget} for representing - and
 interacting with - Sage Objects in Jupyter environment, in a browser.
@@ -356,6 +390,12 @@ The interaction possibilities currently are the following:
   \item adding or removing cells
   \item selecting cells for more interactions
 \end{itemize}
+
+Please notice an additional challenge here: while editing cells or
+adding/removing them, the editor has to \emph{reconstruct} a new
+object from its cells and this requires also \emph{checking} the type of this
+potential new object and displaying messages during the editing
+process, especially in case of a temporary invalidity.
 
 This \emph{GridViewWidget} is based on a \emph{GridViewEditor}, that
 is GUI-agnostic.
@@ -408,15 +448,22 @@ class StandardTableau:
 
 \subsection{Potential applications}
 
+%\begin{wrapfigure}{r}{0.25\textwidth}
+%    \begin{center}
+%      \includegraphics[width=100px]{images/TableauWidget}
+%      \caption{A tableau widget}
+%\end{center}
+%\end{wrapfigure}
+
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
-      \includegraphics[width=100px]{images/JDTSlide}
-      %\caption{A tableau widget}
+      \includegraphics[width=100px]{images/SkewTableauWidget}
+      \caption{Editable skew tableau}
 \end{center}
 \end{wrapfigure}
 
 Grid-like representable objects cover many algebraic or combinatoric
-objects: matrices, partitions, grid graphs, tableaus, ribbons ..
+objects: matrices, partitions, grid graphs, tableaux, ribbons ..
 
 Apart from displaying and editing an object, more possibilities can be
 imagined
@@ -424,7 +471,7 @@ imagined
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
       \includegraphics[width=100px]{images/dominos-azteque}
-      %\caption{A tableau widget}
+      \caption{Matching and flipping in a graph}
 \end{center}
 \end{wrapfigure}
 
@@ -478,13 +525,21 @@ In the upcoming year, we plan to collaborate tightly with Francy to:
   \label{fig:lmfdb}
 \end{figure}
 
-\TODO{Comparative screenshot of the same curve in sage-explorer}
+%\TODO{Comparative screenshot of the same curve in sage-explorer}
 
 In LMFDB, many methods results are calculated at page opening, while
 with Sage Explorer, the calculation is run only on demand, except for
 some widely used \emph{properties}.
 
-\TODO{A bunch of screenshots}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/SageExplorer-11a2}
+  \end{center}
+  \caption{Sage Explorer on elliptic curve ``11a2''}
+  \label{fig:lmfdb}
+\end{figure}
+
+\TODO{A bunch of screenshots: Tableau? Petersen graph?}
 
 \subsection{Overview}
 
@@ -501,9 +556,29 @@ We wanted to make available key information at once and, apart from
 that, let the user run the methods they like.
 
 This is why we select only some of the methods, the results of which
-are called \emph{properties} and are configurable.
+are called \emph{properties} and are configurable, as appears in this
+small (\emph{YAML} syntax) code extract:
 
-\TODO{Example configuration source code}
+%\TODO{Example configuration source code}
+\begin{lstlisting}
+cardinality:
+  in: EnumeratedSets.Finite
+
+multiplication_table:
+  in: Semigroups.Finite
+  when: cardinality < 21
+
+characteristic:
+  in: Fields
+
+polynomial:
+  in: Fields.Finite
+
+genus:
+  isinstance: sage.schemes.elliptic_curves.ell_generic.EllipticCurve_generic
+
+cremona_label: ..
+\end{lstlisting}
 
 The object graphical representations try to be as ``natural'' as
 possible for the user. So we use plotting when relevant. For
