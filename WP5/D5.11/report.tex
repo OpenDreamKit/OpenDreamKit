@@ -39,11 +39,11 @@
 
 \section{Introduction}
 
-Computer experimentations in discrete mathematics in particular
-enumerative and algebraic combinatorics require high performance
-computing. The search space are often huge and the best algorithmic
-strategy for the exploration is not evident and depend often on
-the answer to the question. Let us cite the following description
+Computer experimentations in discrete mathematics, in particular
+enumerative and algebraic combinatorics, require high performance
+computing. The search spaces are often huge and the best algorithmic
+strategy for the exploration or problem spaces is not evident and depend often on
+the answer to the question being probed. Let us cite the following description
 from~\cite{LoidlTrinder-Hecke}:
 \begin{quote}{}
   Some discrete mathematical problems are embarrassingly parallel, and this
@@ -64,7 +64,7 @@ that involve low-level optimization and parallelization as
 well as the integration of these techniques in the computer
 algebra system \Sage.
 
-This deliverable has greatly beneficiated from the \ODK development
+This deliverable has greatly benefited from the \ODK development
 workshops \textit{Sage Days 84} held in Olot (Spain) in spring 2017
 and \textit{Interfacing (math) software with low level libraries}
 held in spring 2018 in Cernay-la-Ville (France).
@@ -73,8 +73,8 @@ held in spring 2018 in Cernay-la-Ville (France).
 
 \section{Two examples from algebra}
 
-To compare technologies, one needs to develop solutions of some problem in
-every tested technologies. It is therefore important to identify archetypal
+To compare computation technologies, one needs to develop solutions to some problem in
+each technology to be tested. It is therefore important to identify archetypal
 problems which are both easy to implement and demanding on the technologies.
 We first present two such problems.
 
@@ -84,11 +84,11 @@ We first present two such problems.
 Integer vectors, that is finite sequences of integers, are central
 in combinatorics as they can be used to encode many different
 objects. In each situation the integer vectors are subject to various
-constraints and we will be interested in three different kind
+constraints and we will be interested in three different kinds:
 \begin{itemize}
 \item linear constraints (e.g. lower or upper bounds on the entries,
-maximum difference between adjacent position, etc)
-\item restriction on the content (e.g. each value should be used
+maximum differences between adjacent positions, etc.)
+\item restrictions on the content (e.g. each value should be used
 at most once)
 \item symmetries (e.g. lexicographically smallest among all possible
 cyclic permutations).
@@ -98,8 +98,8 @@ efficient enumeration of integer vectors subject to these kind of
 constraints.
 
 For example, permutations of $\{1, \ldots, n\}$ are encoded by integer vectors
-on $\{1, \ldots, n\}$ which contain exactly once each entry. In a sample
-\Sage session the list can be obtained as follows
+on $\{1, \ldots, n\}$ which each entry exactly once. In a sample
+\Sage session the list can be obtained as follows:
 \begin{verbatim}
 sage: P = Permutations(3)
 sage: P.list()
@@ -109,8 +109,8 @@ sage: P.list()
 Other elementary examples include integer partitions
 \begin{verbatim}
 sage: Partitions(5).list()
-[[5], [4, 1], [3, 2], [3, 1, 1], [2, 2, 1],
- [2, 1, 1, 1], [1, 1, 1, 1, 1]]
+[[5], [4, 1], [3, 2], [3, 1, 1], [2, 2, 1], [2, 1, 1, 1],
+ [1, 1, 1, 1, 1]]
 \end{verbatim}
 or Lyndon words
 \begin{verbatim}
@@ -118,9 +118,11 @@ sage: LyndonWords(2,4).list()
 [word: 1112, word: 1122, word: 1222]
 \end{verbatim}
 
-Sometimes, one often just want to count the objects and possibly avoid
-generating the list. In \Sage, access to this counting is very often
-done by other means
+Sometimes, one just wants to count the number objects in some set and possibly
+avoid generating the complete list of objects. In \Sage, access to this
+counting is often implemented by a {\tt cardinality()} method, the
+implementation of which can be often be different from the implementation for
+enumerating the objects themselves:
 \begin{verbatim}
 sage: Permutations(30).cardinality()
 265252859812191058636308480000000
@@ -132,26 +134,27 @@ sage: LyndonWords(2, 120).cardinality()
 
 In this deliverable we will demonstrate how the interface to the LaTTe package
 in \Sage allows more efficient counting and how Cython has helped faster enumeration
-in \Sage. We will also present some promising experimentations involving among
+in \Sage. We will also present some promising experiments involving among
 other things vectorization techniques (MMX, SSE and AVX instruction sets) and
 shared memory multicore computing with \CilkP.
 
 \subsection{Numerical semigroups}
 
-The computation with numerical semigroup in known as Frobenius coin
-problem. It ask for the largest monetary amount that cannot be obtained using
-only coins of specified denominations. Fomally
+A computation involving numerical semigroups in known as Frobenius coin
+problem.  Given a set of coins of specifified denominations, it asks what is
+the largest monetary sum that {\em cannot} be obtained using only coins in that
+set. Formally,
 \begin{defi}
   A \emph{numerical semigroup} $S$ is a subset of $\NN$ containing $0$, closed
   under addition and of finite complement in $\NN$.
 \end{defi}
 For example the set $S_E=\{0,3,6,7,9,10\}\cup\{x\in\NN, x\geq 12\}$
-is a numerical semigroup. One of the challenging problem in the field of
-semigroup is to understand how much numerical semigroups there are with some
-given constraints. To state precisely the question we need a little
-terminology.
+is a numerical semigroup. One of the challenging problems in the field of
+semigroup analysis is to understand how many numerical semigroups there are with some
+given constraints. To state the question precisely we need a little
+terminology:
 \begin{defi}
-  Let $S$ be a numerical semigroup. We call \emph{genus} of $S$ the
+  Let $S$ be a numerical semigroup. We call the \emph{genus} of $S$ the
   cardinality of the complementary set $g(S)=\operatorname{card}(\NN\setminus
   S)$.
 \end{defi}
@@ -163,40 +166,45 @@ $g$ is finite and is denoted by $n_g$. In J.A. Sloane's \emph{on-line
 encyclopedia of integer sequences}~\cite{OEIS} we find the values of $n_g$
 for $g\leq 52$. These values were obtained by M. Bras-Amor\'os
 (\cite{BrasAmoros2008} for more details). It is conjectured that the number of
-those semigroup grows exponentially. So it makes it both interresting and hard
-to get further number by enumerating semigroups.
+those semigroups grows exponentially as for larger $g$. So it makes it both interesting and hard
+to get further values of $n_g$ by directly enumerating semigroups.
 
 Using adequate data structures and parallelization with \Cilk allowed
 F.~Hivert with his collaborator J.~Fromentin to obtain the number of numerical
-semigroups up to genus $g \leq 70$ and also confirm the so called
-Wilf~\cite{Wilf} conjecture for $g \leq 60$. This work has led to the
+semigroups up to genus $g \leq 70$ and also to confirm the so-called
+Wilf~\cite{Wilf} conjecture
+\TODO{What is the Wilf conjecture? Is this the aforementioned exponential
+growth? If so that should be clarified, and if not it should also be clarified
+that it's another problem unrelated to the discussion so far}
+for $g \leq 60$. This work has led to the
 publication~\cite{FromentinH16}.
 
 We would like to explain why exploring this tree is quite challenging as a
-parallel problem. The comnputation for $g=70$ involves exploring a extremely
-large tree with $10^{15}$ node. Of course when exploring such a tree,
-different branch can be explored in parallel. However if the tree is
+parallel problem. The computation for $g=70$ involves exploring an extremely
+large tree with $10^{15}$ nodes. Of course, when exploring such a tree,
+different branches can be explored in parallel. However, if the tree is
 unbalanced, we need a mechanism to rebalance the computation. It appears that
-the tree of numerical semigroup is extremely unbalanced an is therefore a good
-prototypical challenge of such kinds of computation. To give a few figure: We
+the tree of numerical semigroups is extremely unbalanced and is therefore a good
+prototypical challenge for such a computation. To give a few figures: We
 compare nodes at depth $30$ and $45$: The number of nodes at depth 30 and 45
-are $5\,646\,773$ and $8\,888\,486\,816$. If we sort decreassingly the nodes
-at depth $30$ by their number of descendants at depth $45$, then
+are $5\,646\,773$ and $8\,888\,486\,816$ respectively. If we sort the nodes
+at depth $30$ decreasingly by their number of descendants at depth $45$, then
 \begin{itemize}
 \item The first node has $42\%$~of the descendants;
-\item The second one node has $7.5\%$~of the descendants;
-\item The $1000$~first node have $99.4\%$~of the descendants;
+\item The second node has $7.5\%$~of the descendants;
+\item The $1000$~first nodes have $99.4\%$~of the descendants;
 \item Only $27\,321$ nodes have descendants at depth~$45$;
-\item Only $257$ nodes have more than $10^6$~descendants;
+\item Only $257$ nodes have more than $10^6$~descendants.
 \end{itemize}
-As a consequence, any solution going at some more or less large depth and
-treating the problem as an embarassingly parallel one is doomed. There must be
-some non trivial load balancing to get good performance.  We will discuss the
+As a consequence, any solution going straight to some large depth in the tree and
+treating the problem as an embarrassingly parallel one is doomed, as the majority
+of the time may be spent in just a few branches. There must be
+some non-trivial load balancing to achieve good performance.  We will discuss the
 different technologies to solve this problem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-\subsection{Classes of problems appearing in algebra an combinatorics}
+\subsection{Classes of problems appearing in algebra and combinatorics}
 
 In our experiments, we have identified the following four kinds of problems:
 \begin{enumerate}
@@ -206,13 +214,19 @@ In our experiments, we have identified the following four kinds of problems:
 \item\label{enum-tree} \emph{Recursive parallel problems}: the computational
   problem is organized as a recursive tree which can be discovered on the fly
   during the computation.
-\item\label{enum-graph} \emph{Deep depended multi-task problems}: the
-  computational problem is organized as a large set of task with a large graph
-  of dependency.
+\item\label{enum-graph} \emph{Deep depended multi-task problems}:
+  \TODO{The phrasing 'deep depended multi-task' is strange to me; it does not
+sound like English.  Is this just some specific jargon I'm not familiar with?
+    Update: after our conversation, something like "Deep redundant recursive problems" works
+    (I would not also include "parallel" in that description lest it become a mouthful,
+     but you can clarify that these can be computed in parallel as well, with care,
+     and problem-specific knowledge / theorems)}
+  the computational problem is organized as a large set of tasks with a large
+  graph of dependencies.
 \item\label{enum-micro} \emph{Micro data structure parallel optimization}:
-  many combinatorial structures (permutations, partitions, monomials, young
-  tableaux), the data can be encoded as a small sequence of small integers
-  that can often efficiently be handled thanks to vector instructions.
+  for many combinatorial structures (permutations, partitions, monomials, Young
+  tableaux), their data can be encoded as a small sequence of small integers
+  that can often be be handled efficiently by a CPU thanks to vector instructions.
 \end{enumerate}
 In this work we have mostly focused on point (\ref{enum-tree}) and
 (\ref{enum-micro}) as (\ref{enum-flat}) is easy and (\ref{enum-graph}) cannot
@@ -223,59 +237,64 @@ problematic.
 
 \section{An overview of techniques and technology}
 
-Before entering into more depth into details of this deliverable it is
-important to draw a general picture of the algorithmic techniques
-and the hardware and software technologies available.
+Before delving deeper into the details of this deliverable it is important to
+draw a general picture of the algorithmic techniques and the hardware and
+software technologies available.
 
 Let us first distinguish the following two families of programming
-languages. On the one hand the interpreted languages
-such as \Python or Julia. And on the other hand we have the compiled languages
+languages: On the one hand there are the interpreted languages
+such as \Python or Julia. On the other hand we have the compiled languages
 such as C/C++. The former languages are very convenient for end-users as
 they provide high level data structures and instructions as well as automatic
-memory management. This is one of the reason of the choice for \Python as the
-base language for \Sage. Though, these higher level languages suffer slowness,
-especially when large iterations have to be performed. In this situation, it is
-preferable to go in the details of memory allocation and CPU instructions.
+memory management. This is one of the reasons for the choice for \Python as the
+base language for \Sage. However, these higher level languages tend to suffer
+by comparison to low-level languages in performance, especially when large
+iterations have to be performed. In this situation, it is preferable to be able
+to delve into the details of memory allocation and CPU instructions.
 
 A first ingredient of optimization that provides a bridge between interpreted
-and compiled language is provided by Cython that is a Python
-to C/C++ compiler. Cython plays an important role in this deliverable in two
-different ways. First by replacing Python code with Cython code which results
-in faster code. Secondly by developing interfaces to C/C++ libraries.
+and compiled language is provided by \Cython, a Python
+to C/C++ compiler. \Cython plays an important role in this deliverable in two
+different ways. First, by replacing Python code with Cython code, which generally results
+immediately in faster code. Second, by developing interfaces to C/C++ libraries.
 
-When one consider a low-level language such as C, one has on the first hand
-access to CPU vectorized instructions, that is to say a single instruction that
-is performed on multiple data (SIMD). These
-instructions are also of critical importance for performant linear
-algebra as implemented in the LinBox library. The relevance in the context
-of combinatorics is discussed in Section~\ref{subsec:combi:SIMD}.
+When considering a low-level language such as C, an initial level of
+parallelization that becomes available to us is access to CPU vectorized
+instructions, that is to say single instructions that perform the same operation on multiple
+numerical values simultaneously (SIMD). These instructions are also of critical importance for performant
+linear algebra algorithms as implemented in the \Linbox library. The relevance of these instructions in the
+context of combinatorics is discussed in Section~\ref{subsec:combi:SIMD}.
 
 The second level of parallelization concerns multi-core computations. This can
-be conveniently dealt with language extensions such as Open MP, Threading
+be conveniently dealt with by language extensions such as Open MP, Threading
 Building Block (TBB) or Cilk. At this level one important ingredient in
-optimization is the careful usage of shared memory.  Before entering into
-technical details, we recall in in subsection~\ref{subsec:map-reduce:Sage} the
-small framework that was implemented in \Sage during D5.1 that also
-illustrates the typical problem one faces in combinatorics.  More detailed on
-the usage of \Cilk are provided in Sections~\ref{sec:low:level}.
+optimization is the careful usage of shared memory.  Before getting into
+technical details, we recall in subsection~\ref{subsec:map-reduce:Sage} the
+small framework that was implemented in \Sage during D5.1\TODO{put a hyperref to the D5.1 report here} that also
+illustrates the typical problem one faces in combinatorics.  More details on
+the usage of \Cilk are provided in Section~\ref{sec:low:level}.
 
 The last level of parallelism concerns computations with multiple nodes
-and is not addressed by this deliverable.
+(e.g.~multiple computers on a network) and is not addressed by this
+deliverable.
 
 \subsection{Map-reduce and its implementation in \Sage}
 \label{subsec:map-reduce:Sage}
 
-The goal is to present a typical end-user interface we would like to be able
-to provide as an actual HPC component. This is a solution for
+The goal is to present an example of a typical end-user interface
+\TODO{interface to what? I'm a little unclear on this sentence. I might delete it entirely.}
+we would like
+to be able to provide as an actual HPC component. This is a solution for
 type~(\ref{enum-tree}) problems in our classification.
 
-Map-reduce is a general programming model that is shared by many
-parallelization problem and is relevant to our situation. In this section we
-present a small framework implemented in Sagemath~\cite{sage} allowing
-performance map/reduce like computations on
-large recursively defined sets. Map-Reduce is a classical programming model
-for distributed computations where one maps a function on a large data set and
-uses a reduce function to summarize all the produced information. It has a
+Map-reduce is a general programming model that is shared by
+parallelized solutions to many problems and is relevant to our situation. In this section we
+present a small framework implemented in Sage~\cite{sage} which enables
+performant map/reduce-like computations on
+large recursively defined sets. Map-reduce is a classical programming model
+for distributed computations where one maps a function on a large data set --
+inputting each element of the data set to the same function -- then
+uses a ``reduce'' function to summarize all the ``map'' results. It has a
 large range of intensive applications in combinatorics:
 \begin{itemize}
   \item Compute the cardinality;
@@ -287,23 +306,24 @@ large range of intensive applications in combinatorics:
 Use cases in combinatorics often have two specificities: First of all, due to
 combinatorial explosion, sets often don't fit in the computer's memory or
 disks and are enumerated on the fly. Then, many problems are flat, leading to
-embarassingly parallel computations which are easy to parallelize. However, a
-second very common use case is to have data sets that are described by
+embarrassingly parallel computations which are easy to parallelize. However, a
+second very common use case is to have data sets that are described by a
 recursion tree which may be heavily unbalanced (as with numerical semigroups
-described in previous section).
+described in the previous section).
 
 The framework~\cite{map-reduce} we developed works on the following input:
 A \textbf{recursively enumerated set} given by:
 \begin{itemize}
 \item the \texttt{roots} of the recursion
-\item the \texttt{children} function computing
-\item the \texttt{postprocessing} function that can also filter intermediate
+\item the \texttt{children} function computing \TODO{this seems like an incomplete phrase; I don't know what it's saying}
+\item the \texttt{postprocessing} function, which can also filter intermediate \TODO{in the example below this is spelled "post\_process", so maybe that would be clearer here}
   nodes
 \end{itemize}
-Then, a \textbf{Map/Reduce problem} is given by:
+Then, a \textbf{map-reduce problem} is given by:
 \begin{itemize}
-\item the \texttt{mapped} function
-\item the \verb|reduce_init| function
+\item the \texttt{map} function
+\item the \verb|reduce_init| function, which specifies an initial value for
+    the reduction process
 \item the \texttt{reduce} function
 \end{itemize}
 Here is an example where we count binary sequence of length 15:
@@ -318,9 +338,11 @@ sage: sage: S.map_reduce(
 ....:   reduce_init = 0 )
 32768
 \end{verbatim}
-This framework uses a multi-process implementation of a work-stealing
-algorithm~\cite{BlumofeL99, BlumofeL99}, and scales relatively well, as shown
-below in a typical computation:
+This framework uses a multi-process implementation of a {\em work-stealing}
+algorithm~\cite{BlumofeL99, BlumofeL99} meaning that if work is divided
+unevenly between processes, when one process becomes idle it can ``steal'' new
+work to do from another process's work queue.  It scales relatively well, as
+shown below in a typical computation:
 \[\begin{tabular}{ccccc}
 \# processors & 1 & 2 & 4 & 8 \\
 Time (s) & 250& 161& 103 & 87 \\
@@ -328,32 +350,33 @@ Time (s) & 250& 161& 103 & 87 \\
 \]
 
 Though it doesn't really qualify as HPC, principally due to the use of Python,
-it allowed to efficiently parallelize a dozen of experiments ranging from
-Coxeter group and representation theory of monoids to the combinatorial study
+it allowed us to efficiently parallelize dozens of experiments ranging from
+Coxeter group and representation theory of monoids, to the combinatorial study
 of the C3 linearization algorithm used to compute the method resolution order
-(MRO) in scripting language such as \Python and Perl~\cite{C3-controled}.
+(MRO) in scripting languages such as \Python and Perl~\cite{C3-controled}.
 
-\section{Low-level experimentations}
+\section{Low-level experiments}
 \label{sec:low:level}
 
 We now present the result of the evaluation of various parallelization
-technology applied to algebraic combinatorics computations.
+technologies applied to algebraic combinatorics computations.
 
 \subsection{Combinatorial structures and vector instructions}
 \label{subsec:combi:SIMD}
 
-SIMD instruction sets appeared
+Current SIMD instruction sets were introduced
 in three stages: MMX (set of single instruction multiple data instruction set
 introduced in 1997), SSE (Streaming SIMD Extensions, introduced in 1999) and
 more recently AVX (Advanced Vector Extensions, introduced in 2008). 
 
-In many combinatorial structures (permutations, partitions, monomials, young
+In many combinatorial structures (permutations, partitions, monomials, Young
 tableaux), the data can be encoded as a small sequence of small integers that
-can often efficiently be handled thanks to vector instructions.  For example,
-on the current \texttt{x86} machines, small permutations ($N\leq 16$) are very
-well handled. Indeed thanks to machine instructions such as \verb+PSHUFB+ (Packed
-Shuffle Bytes), applying a permutation on a vector only takes a few cycles.  Here
-are some examples of operation with their typical speedups:
+can often be handled efficiently thanks to these vector instructions.  For
+example, on current desktop CPU architectures ({\texttt x86}), small
+permutations ($N\leq 16$) are very
+well handled. Indeed, thanks to machine instructions such as \verb+PSHUFB+ (Packed
+Shuffle Bytes), applying a permutation on a vector only takes a few CPU cycles.  Here
+are some examples of operations with their typical speedups via SIMD instructions:
 \[
 \begin{tabular}{l|c}
 Operation & Speedup \\\hline
@@ -366,11 +389,14 @@ Cycle type of a permutation& $8.94$\\
 \end{tabular}
 \]
 As a more concrete example, here is how to sort an array of $16$~bytes:
+\TODO{While I understand the below code example well enough (you have shown me
+this code before!), it is pretty obscure and does not add much for the reader.
+I would move it to an appendix.}
 \begin{verbatim}
 // Sorting network Knuth AoCP3 Fig. 51 p 229.
 static const array<Perm16, 9> rounds =
-    {{ { 1, 0, 3, 2, 5, 4, 7, 6, 9, 8,11,10,13,12,15,14},
-       { 2, 3, 0, 1, 6, 7, 4, 5,10,11, 8, 9,14,15,12,13},
+    {{ { 1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14},
+       { 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13},
        [...]
     }};
 
@@ -386,105 +412,116 @@ Vect16 sort(Vect16 a) {
 }
 \end{verbatim}
 
-Unfortunately from a user point of view, this requires rethinking all the
-algorithms, and there is nearly no support by the compiler.\bigskip
+Unfortunately, from a developer's
+% Note: I changed "user" to "developer" here to make clear that we're talking
+% about coding algorithms, as opposed to merely using the algorithms you've
+% already coded
+point of view, this requires rethinking all the
+algorithms, and there is nearly no support from the compiler for automating
+this task.\bigskip
 
-So has part of the OpenDreamKit deliverable, we started to develop a new
-library called \texttt{HPCombi} \url{https://github.com/hivert/HPCombi}. The
+So as part of the OpenDreamKit deliverable, we started to develop a new
+library called \texttt{HPCombi}\footnote{\url{https://github.com/hivert/HPCombi}}. The
 goal is to use SSE and AVX instruction sets for very fast manipulation of
-combinatorial objects of small sizes. Is it still in a experimental stage and
-currently deals only with permutation, transformation and partial
-transformations. We have experimental code for partitions and boolean
+combinatorial objects of small sizes. Is it still in an experimental stage and
+currently deals only with permutations, transformations and partial
+transformations. We also have experimental code for partitions and boolean
 matrices.
 
-Despite its infancy the code is already used by LibSemigroup
-\cite{libsemigroup} (which deals with a different kinds of semigroup than the
-numerical one) by James Mitchell. It is a C++ library for semigroups and
-monoids using C++11; The libsemigroups library is used in the Semigroups
-package for GAP. The development version is available on Github, and there are
-python bindings which makes it usable from Sage. The development of a more
+Despite its infancy the code is already used by libsemigroups
+\cite{libsemigroups} (which deals with a different kind of semigroup from
+numerical semigroups) by James Mitchell. It is a C++ library for semigroups and
+monoids using C++11, and is used in the Semigroups
+package for GAP. The development version is available on \GitHub, and there are
+Python bindings which makes it usable from \Sage. The development of a more
 thorough Sage interface is planned.
 \bigskip
 
 Finally, we want to stress out that this is actually a research
 problem. Indeed, except for sorting a vector where we used a classical sorting
-network algorithm, all the operations in the array above requires the design
-of a new algorithms as nearly no combinatorial algorithm where conceived with
-vector instructions in minds. For example, for the simple task of inverting a
-permutation, we designed 4 new different algorithms:
+network algorithm, all the operations in the previous table of operations require the design
+of a new algorithms as nearly no combinatorial algorithms where conceived of with
+vector instructions in mind. For example, for the simple task of inverting a
+permutation, we designed 4 different new algorithms:
 \begin{itemize}
-\item \verb|inverse_sort|: which use a sort internally;
+\item \verb|inverse_sort|: which uses a classical sort algorithm internally;
 \item \verb|inverse_search|: which uses some kinds of parallel binary
-  search. With the current size of vector registers ($16$~bytes) which support
+  search. Limited by the current size of vector registers ($16$~bytes) which support
   arbitrary array manipulation (in particular the shuffle instruction), it is
-  not the fastest one but it is the only of logarithmic complexity so that it
-  should be the fastest once larger register will be available;
-\item \verb|inverse_power|: which use a binary powering;
-\item \verb|inverse_cycle|: which use the theoretical notion of cycle
+  not the fastest algorithm. Yet it is the only of {\em logarithmic} complexity,
+  so it should become the fastest if and when a CPU supporting larger registers
+  for this instruction become available;
+\item \verb|inverse_power|: which uses the binary powering algorithm;
+\item \verb|inverse_cycle|: which uses the theoretical notion of cycle
   decomposition. It is currently the fastest.
 \end{itemize}
-Preliminary result on this work where presented as a keynote invited talk at
+Preliminary results from this work where presented as a keynote invited talk at
 the 8th International Workshop on Parallel Symbolic Computation (PASCO 2017),
 Kaiserslautern, Germany, July 23-24, 2017 and at the Scottish Programming
 Languages Seminar, 5th June 2018, Heriot-Watt University. A research paper on
-this subject is in preparation as the result of this work.
+this subject is in preparation as a result of this work.
 
 \subsection{Combinatorial structures and GPU computations}
 
-In the previous section we presented how vector instruction of modern central
-processing unit (CPU) allows to get large speedup of \emph{small combinatorial
+In the previous section we presented how the vector instruction of modern
+CPUs enabled a large speedup of \emph{small combinatorial
   objects}. The main requirement is that the datastructure fits in one or a
-handful of the CPU registers. Though, due to combinatorial explosion, this
-covers a lot of practical case on algebraic combinatorics there is sometimes a
-need for larger combinatorial object. One lead was to investigate if graphic
-processing unit (GPU) could speedup computations. Our benchmark was to write a
-toy implementation of the algorithm used in libsemigroup~\cite{libsemigroup}
+handful of the CPU registers (data storage areas internal to the CPU, where
+intermediate results of computations are stored). However, while this
+covers a lot of practical case on algebraic combinatorics, due to combinatorial
+explosion there is sometimes a
+need for larger combinatorial objects. One lead was to investigate if graphics
+processing units (GPUs) could speed up these kinds of computations. Our benchmark was to write a
+toy implementation of the algorithm used in libsemigroups~\cite{libsemigroups}
 replacing the use of HPCombi and AVX CPU vector instruction by some GPU
-code. Those algorithms enumerate the elements of a transformations semigroups.
+code. Those algorithms enumerate the elements of a transformation of semigroups.
 
-This kind of computation typically involve the repetition a two stages
-computation:
+This kind of computation typically involves the repetition of two computation
+stages:
 \begin{enumerate}
 \item compute the composition of large functions on a discrete set;
 \item store them in a hash table to remove duplicates.
 \end{enumerate}
-It should be noted that the first stage doesn't require any arithmetics but
-amount to shuffle large chunk of memories. This is a very atypical usage of a
-GPU which is tailored to do arithmetics on larger vector and it was very hard
-to predict the behavior. One expected problem though is the communication time
+It should be noted that the first stage doesn't require any arithmetic, but
+amount to shuffling around large chunks of data in memory. This is a very atypical usage of a
+GPU which is tailored to do arithmetic on larger vectors of floating point numbers, and it was very difficult
+to predict the behavior. One expected cause of this inconsistency is the communication time
 between the CPU and the GPU.
 \medskip
 
 The outcome of the experiments lead by Daniel Vanzo (research engineer at
-LRI/UPSud) under the supervision of Florent Hivert is that
+LRI/UPSud) under the supervision of Florent Hivert were that:
 \begin{itemize}
-\item Composition of large function can be greatly accelerated (typically
-  $\times 100$) by the GPU, \emph{provided the CPU ask the GPU to perform
-    enough of them (more than 1K) as once}.
-\item The same is true for computation of hash value.
+\item Composition of large functions can be greatly accelerated (typically
+$\times 100$) by the GPU, \emph{provided} that the CPU ask the GPU to perform
+enough of them (more than 1K) as once.
+\item The same is true for the computation of hash values.
 \end{itemize}
 So this looked overall very promising for the first stage. However, for the
 second stage, in a reasonable use case, one needs to store the results of the
 computation in a large hash table which typically is at the limit if not
-larger of the size of the GPU memory. So we decided to keep the hash table in
-the main memory. Then the speed was killed by the random access and the cache
-hierarchy. Nearly all access trigger a cache miss which results in slowdown as
-large as $60\times$. An internal report in currently at the finalization stage
-and will soon be widely made available to the community using the standard
-preprint servers (HAL, ARXIV).
+larger than the size of the GPU's memory. So we decided to keep the hash table in
+the computer's main memory, external to the GPU. Because of this, performance
+suffered by random access and the CPU cache hierarchy. Nearly all memory access
+triggered a cache miss which resulted in slowdown of
+as much as $60\times$. An internal \TODO{what do you mean by "internal"?} report is currently being finalized
+and will soon be made widely available to the community through the standard
+preprint services (HAL, ARXIV).
 \bigskip
 
-So the conclusion is that to get good speedup with GPU, the entire computation
-needs to be hosted inside the GPU. This has two very important drawback:
+So the conclusion is that in order to achieve a useful speedup with the GPU, the entire computation
+must be hosted inside the GPU's internal memory. This has two very important drawbacks:
 \begin{itemize}
-\item It drastically limits the size of the computation as CPU memory tend to
-  be somehow $10\times$ larger than the GPU one.
-\item Since GPU programming is not a widely spread skill, it forces to write
-  black block monolithic algorithms.
+\item It drastically limits the size of the computation as CPU memory tends to
+  be around $10\times$ larger than the GPU's.
+\item Since GPU programming is not a widespread skill, it forces us to write
+  seemingly black-box, monolithic algorithms.
 \end{itemize}
-This second point doesn't fit well in the research driven use case which is
-typical in the OpenDreamKit project. So we don't think this is an interesting
-technologies for algebraic combinatorics except perhaps on very specific
+This second point doesn't fit well within the research-driven use case
+typical of the OpenDreamKit project; that is, it is difficult to understand
+or modify by a typical researcher. % Note: I added an additional clause here, clarifying what I think you meant.
+So we don't think this is an interesting
+technology for algebraic combinatorics except perhaps for very specific
 computation where we are ready to pay the price of developing a large
 specific and poorly reusable code.
 
@@ -543,47 +580,48 @@ specific and poorly reusable code.
 
 As we already explained, we picked up the computation of numerical semigroup
 as a good challenge for large trees explorations (case (\ref{enum-tree}) in our
-classification). This kinds of problems are classical and there are various
+classification). These kinds of problems are classical and there are various
 technologies to solve them. The idea here is that different branches of the
-tree can be explored in parallel by different cores of the computer. The
-tricky part is to ensure that all cores are busy, giving a new branch when a
-core is done with a former one.
+tree can be explored in parallel by different CPU cores. The
+tricky part is to ensure that all cores are busy, always having a new branch to
+explore at the ready done with the previous branch.
 
-What makes combinatorics particular is the size of the trees (upto $10^{15}$
-in our experiments) and the granularity of the computation (typically only
-$10-50$ns is spent on each tree node). This is extremely demanding on the load
-balancing algorithms and their implementation.
+What makes combinatorics particularly difficult is the typical size of the
+trees (up to $10^{15}$ in our experiments) and the granularity of the
+computation (typically only $10-50$ns is spent on each tree node). This is
+extremely demanding on the load balancing algorithms and their implementations.
 
 The clear algorithmic solution is to use a work stealing algorithms. They have
 been described in \cite{10.1109/SFCS.1994.365680, BlumofeL99} and we made a
 Python implementation with a map-reduce fronted in deliverable
 5.1~\cite{map-reduce}. However, it was clear from the beginning that this
-implementation was a tool to help rapid prototyping in a day-to-day research
-use case but it wasn't meant as high performance computing. So we experimented
-with a few low level technologies. We present them here together with their
+implementation was a tool to help rapid prototyping in day-to-day research,
+but it wasn't meant for a high performance computing use case. So we experimented
+with a few low-level technologies. We present them here together with their
 behavior in our prototypical examples:
 \begin{itemize}
 \item The \CilkP~\cite{CilkIntel} technology is particularly well suited for
   those kinds of problems. For our computation, we used the free version which
-  is integrated since version 5.8 of the GNU~C compiler~\cite{GCCcilk}.
+  is integrated into the GNU~C compiler~\cite{GCCcilk} since version 5.8.
 
   \Cilk is a general-purpose language designed for multithreaded parallel
-  computing. The \CPP incarnation is called \CilkP. The biggest principle
+  computing. The \CPP incarnation is called \CilkP. The main principle
   behind the design of the \Cilk language is that the programmer should be
   responsible for \emph{exposing} the parallelism, identifying elements that
-  can safely be executed in parallel; the run-time environment decide during
-  execution how to actually divide the work between cores. The parallel
+  can safely be executed in parallel; the run-time environment decides during
+  execution how to actually divide the work between CPU cores. The parallel
   features of \CilkP are used mainly through the \texttt{cilk\_spawn} keyword:
   used on a procedure call, it indicates that the call can safely operate in
   parallel with the remaining code of the current function. Note that the
   scheduler is not obliged to run this procedure in parallel; the keyword
   merely alerts the scheduler that it can do so.
 
-  Allover, this makes \CilkP very easy to use, with short and very readable
-  source code. Moreover, it turn out that \CilkP is extremely good to solve
-  those kind of problems.  To give some figure of the performance we managed
-  to achieve, we performed a full exploration of the tree up to depth~$70$ on
-  a $32$~Haswell core at $2.3$~Ghz. The number of monoid at depth $70$ is
+  Overall, this makes \CilkP very easy to use, with short and very readable
+  source code. Moreover, it turns out that \CilkP is extremely good at solving
+  the problems we were interested in. To provide some figures of the performance we managed
+  to achieve in counting monoids--a problem similar to that of counting
+  semigroups. We performed a full exploration of the tree up to a depth of~$70$ on
+  a $32$~core Haswell CPU at $2.3$~Ghz. The number of monoids at depth $70$ is
   $1607394814170158$.  It tooks $2.528\cdot10^{6}~s$ ($29$~days and $6$~hours)
   exploring $2590899247785594=2.59\cdot10^{15}$ monoids at a rate of
   $1.02\cdot10^{9}$ monoids per second. Each monoid is stored in
@@ -591,103 +629,105 @@ behavior in our prototypical examples:
   $6.22\cdot10^{17}$~bytes of data, which means that we generated
   $2.46\cdot10^{11}$~bytes of data per second.
 
-  The main drawback which is huge is that both Intel and the GCC team decided
+  The main drawback, which is huge, is that both Intel and the GCC team decided
   to \textbf{deprecate and no longer maintain the \CilkP extension}. So we
   looked for alternatives.
 
 
-\item The \emph{OpenMP} (Open Multi-Processing) is an application programming
+\item \emph{OpenMP} (Open Multi-Processing) is an application programming
   interface (API) that supports multi-platform shared memory multiprocessing
   programming in C, C++, and Fortran. It consists of a set of compiler
   directives, library routines, and environment variables that influence
-  run-time behavior. It allows to spawn task using pragma directive on the
+  run-time behavior. It allows to spawn tasks using special pragma directives on the
   compiler.
 
-  Unfortunately for the kinds of computation like numerical semigroup, there
-  is a huge number of small task that are spawned. We used the implementation
-  from GCC compiler. At the time of our experiment, the finding was that the
-  scheduler doesn't scale to this huge number of task. The scheduling overhead
+  Unfortunately, for tcomputations like numerical semigroups, there
+  is a huge number of small tasks that are spawned. We used the implementation
+  from the GCC compiler. At the time of our experiment, the finding was that the
+  scheduler doesn't scale to this huge number of tasks required. The scheduling overhead
   was several order of magnitude larger than \CilkP making it unusable for
-  this kinds of computations.
+  these kinds of computations.
 
 \item Intel's \emph{Threading Building Blocks} is a C++ template library
   developed by Intel for parallel programming on multi-core processors. Using
   TBB, a computation is broken down into tasks that can run in parallel. The
   library manages and schedules threads to execute these tasks.
 
-  However, it suffers exactly the same problem as OpenMP, the scheduler
-  doesn't scale for huge number of task. Intel's FAQ says ``A good rule of
+  However, it suffers exactly the same problem as OpenMP: the scheduler
+  doesn't scale for huge numbers of tasks. Intel's FAQ reads, ``A good rule of
   thumb is that an Intel TBB application should have approximately 10 tasks
-  for every worker.'' Similarly in \cite{LuLi}, they consider as
-  micro task problem computation needing 30k task each of which takes 4k
-  cycles clock whereas in the numerical monoid problem task takes around 60
-  clock cycles the number of which easily exceeds 1G for a 1 minute long
-  computation.
+  for every worker.'' Similarly, in \cite{LuLi}, they consider a problem
+  requiring micro-task computations of roughly 30k tasks,each of which takes 4k
+  CPU cycles. Whereas in the numerical monoid problem task takes around 60
+  CPU cycles, the number of tasks easily exceeds 1 billion for a 1 minute long
+  computation.  \TODO{I rewrote this a bit but I'm not 100\% sure if I understood
+  the details correctly, so please check.  I wasn't sure if "1G" referred to the
+  number of tasks.}
 
-\item An indication that this is still a research level problem is that we
-  have found that there where an ongoing PhD thesis by Blair Archibald under
-  the supervision of Phil Trinder from university of Glasgow exactly on this
+\item An indication that this is still a research-level problem is that we
+  have found that there there is an ongoing PhD thesis by Blair Archibald under
+  the supervision of Phil Trinder at University of Glasgow exactly on this
   problem. Their goal is moreover to distribute the computation on a cluster
-  of machine. As a result they developped a C++ library called
+  of machines. As a result, they developed a C++ library called
   YewPar~\cite{YewPar} which they present as ``A Collection of High
   Performance Parallel Skeletons for Tree Search Problems'' using the well
   established HPX~\cite{HPX} parallel library/runtime.
 
-  At the time we got in contact, they already had decided to use our numerical
+  By the time we got in contact with them, they had already decided to use our numerical
   semigroup algorithm as a benchmark for their scheduling implementation. We
-  think that this is a good indication that our choice was right. Though not
-  as easy as \CilkP, it is easy to fit in one of YewPar skeleton, and moreover
-  we gain distribution of the algorithm on several machine. If only used on
-  one multicore machine, YewPar is more or less only $2.5$ time slower than
-  \CilkP. The main question is long term maintenance: the web site says ``This
-  library is currently experimental and should be considered very unstable''
-  and being the work of a PhD student, there is no warranty that it still will
-  be there in a few years.
+  think that this is a good indication that our choice was correct. Though not
+  as easy as \CilkP, it is easy to fit the task into in one of YewPar's skeleton data structures, and moreover
+  we gain distribution of the algorithm across several machines. If only used on
+  one multicore machine, YewPar is more or less only $2.5$ times slower than
+  \CilkP. The main question is long term maintenance: the website says ``This
+  library is currently experimental and should be considered very unstable,''
+  and being the work of a PhD student, there is no warranty that it will
+  still be maintained in a few years.
 
-\item We also advised three master student internship namely, Adrien Pavão,
-  Thomas Foltête and Edgar Fournival to explore the Spark technology and the
+\item We also advised three master student interns; namely, Adrien Pavão,
+  Thomas Foltête, and Edgar Fournival to explore the Spark technology and the
   Go language. It turned out that these technology weren't fit for our
-  needs. On the other hand, the work allowed to find a basic bug in GCC
+  needs. On the other hand, their work led to discovery of a basic bug in the GCC
   implementation of \CilkP \cite{gcc-bug-80038}.
 \end{itemize}
 
-As a conclusion for large combinatorial trees explorations our current
+In conclusion, for large combinatorial trees explorations our current
 recommendation is to use \CilkP which is both very efficient and simple to use
-and learn. We hope that the alternative will manage to get to similar
-performances. A promissing newcommer is the Cilk Hub initiative:
-http://cilk.mit.edu/ but we haven't yet had time to seriously experiment with
-it.
+and learn. We hope that an eventual alternative will manage to achieve similar
+performance. A promising newcomer is the Cilk Hub initiative\footnote{\url{http://cilk.mit.edu/}}
+to continue maintaining Cilk under a new project, but we have not yet had ocassion to seriously
+experiment with it.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Improvements of the \Sage software}
+\section{Improvements to the \Sage platform}
 
 
 \subsection{Polytopes and linear programming}
 \label{subsec:polytopes}
 
-As mentioned in the Introduction, see~\ref{subsec:intro:integer:vectors},
+As mentioned in the introduction, see~\ref{subsec:intro:integer:vectors},
 integer vectors are omnipresent in combinatorics. In many situations,
 the combinatorial constraints are linear equalities or inequalities.
 For example, the partitions of $n$ are given by non-negative integer
 vectors $(x_1, \ldots, x_n)$ in $\mathbb{R}^n$ so that $x_1 \geq x_2 \ldots x_n$.
 In other words, some general linear programming techniques come into
-play. Improving \Sage capabilities in polytope computations and linear algebra
+play. Improving Sage's capabilities in polytope computations and linear algebra
 is critical for combinatorics.
 
-Many libraries, often written in C/C++ exist and one of our task was to
-create or improve the existing \Sage interfaces. Most of these interfaces
-rely on Cython that provide a bridge between \Python and C/C++. Let
-us mention the creation of pplpy~\cite{pplpy-code} which now provides
-access to the PPL library to any Python user.
+Many libraries, often written in C/C++ exist and one of our tasks was to
+create or improve the existing \Sage interfaces to those libraries. Most of these interface
+rely on Cython to provide a bridge between \Python and C/C++. Let
+us mention the creation of the stand-alone library pplpy~\cite{pplpy-code} which now provides
+access to the PPL library to any Python user, and is integrated into \Sage.
 
 At a higher level of interaction, an interface to LaTTe in \Sage has
 been developed (see trac tickets~\cite{trac-18211}
 and~\cite{trac-22497}). It allows efficent counting of
 integral points in polytopes. The interface is completely transparent to the
-user as can be seen in the following Sage session.
+user as can be seen in the following Sage session:
 \begin{verbatim}
 sage: n = 10
 sage: I1 = [[0] + [0]*i + [1] + [0]*(n-1-i)
@@ -701,54 +741,54 @@ sage: P.integral_points_count()
 Let us also mention the \Sage interface to the Polymake
 software~\cite{polymake-code} which allows direct interaction from
 \Sage. Polymake is a reference software for Polyhedral computations
-and its inclusion in Sage has been of great benefice.
+and its inclusion in Sage has been greatly beneficial.
 
-Polyhedral computations are not restricted to rationals. Since long time
-floating point polyhedral libraries exist. However, they are often not
-satisfactory as rounding can lead to subtle contradictions. In the framework
+Polyhedral computations are not restricted to rational numbers. For a long time
+floating point polyhedral libraries have existed. However, they are often not
+satisfactory, as floating-point rounding errors can lead to subtle contradictions. In the framework
 of \ODK, V.~Delecroix started a C/C++ library for computations with embedded
 number fields called e-antic~\cite{eantic-code}. It allows exact computations
 over algebraic numbers. This has successfully been included in the
 Normaliz~\cite{normaliz-code} software and it is now possible to use
-it to construct very efficiently polytope over number fields. We aim to
+it to very efficiently construct polytopes over number fields. We aim to
 finalize the inclusion of this code and provide a \Sage interface to it.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Cythonization of combinatorics code}
 
-A huge amount of code in \Sage is written in plain Python, this is in
+A huge amount of code in \Sage is written in plain Python; this is in
 particular true for a large amount of the combinatorics code. Thanks to
-Cython one can easily gain speed-up in computations. A lot of effort has
-been made to improve the performance of the current code. We emhasize
-some of the efforts thas has been made in \ODK.
+Cython, one can easily gain speed-ups in computations. A lot of effort has
+been made to improve the performance of the current code. We emphasize
+some of the efforts that has been made in \ODK.
 
-Two examples of successful cythonization happend for
+Two examples of successful ``cythonization'' were achieved for
 permutations~\cite{trac-23734} and Lyndon words~\cite{trac-26111}.
-This combinatorial objects were already mentioned in the
-Introduction, see~\ref{subsec:intro:integer:vectors}.
+These combinatorial objects were already mentioned in the
+introduction; see~\ref{subsec:intro:integer:vectors}.
 The challenge was to write as efficient as possible iterators
-together with simple Python wrapper intended for \Sage users.
+together with a simple Python wrapper intended for \Sage users.
 In both situations that we present, efficient algorithms exist.
 Let us distinguish three levels of optimization:
 \begin{itemize}
 \item \textit{basic cythonization}. Cython does a decent job in
 direct optimization with little human intervention. 
-\item \textit{in place iteration}. As we already mentioned several
+\item \textit{in-place iteration}. As we already mentioned several
 times, combinatorial objects are typically represented by
 integer vectors. Dealing with a lot of plain lists in Python has a huge
 cost in memory allocation. The most natural way to get rid of
-this problem is to provide in place iterator, that is iterator that does
+this problem is to provide an in-place iterator, that is, an iterator that performs
 modification of the data without creating new objects.
-\item \textit{use C arrays}. Finally, using Python datastructure closer to C
-than plain lists, typically arrays, allows to win another factor.
+\item \textit{use C arrays}. Finally, using a Python data structure closer to C
+arrays than Python's built-in ``list'' type allows us to gain another speedup factor.
 \end{itemize}
 Below we present simple timings of the iteration through all permutations
-of $\{1, 2, \ldots, n\}$ with three times the same algorithms. It consists
-in modifying a given permutation into the next one for the lexicographic
+of $\{1, 2, \ldots, n\}$ with three runs of the same algorithm. It consists
+of modifying a given permutation into the next one for the lexicographic
 order. The three columns represent the different versions: in Python
-using plain lists, in Cython using plain lists and finally in Cython
-using arrays.
+using Python lists, in Cython using Python lists and finally in Cython
+using C arrays.
 \begin{center}\begin{tabular}{c|c|c|c}
 n & Python & Cython on lists & Cython on arrays \\
 \hline
@@ -758,24 +798,24 @@ n & Python & Cython on lists & Cython on arrays \\
 12 & $>$ 2 min & 36.3s & 19.5s \\
 \end{tabular}\end{center}
 As can be seen, passing to Cython (with almost no modification) already
-provides a 10x speedup. Using arrays instead of lists provide an
+provides a 10x speedup. Using arrays instead of lists provides an
 additional 2x speedup.
 
-Let us also mention a slightly different work related to combinatorics.
-Dancing links is the name of an algorithm that find all solutions to
-the so called exact cover problem. It can efficiently be used to
+Let us also mention a slightly different work related to combinatorics:
+Dancing links is the name of an algorithm that finds all solutions to
+the so-called exact cover problem. It can efficiently be used to
 solve tiling problems. Using an embarrassingly parallel method,
-naive parallelization approach allowed to have access to the list
-of solutions 2 to 3 times faster using a 4 cores machine
+this naive parallelization approach allowed us to obtain the list
+of solutions 2 to 3 times faster using a 4 core machine
 (see~\cite{trac-25125}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusion}
 \Sage is a general purpose computer algebra system with a lot of code related
-to combinatorics. The Python language has some weakness regarding speed and the
-aim of the deliverable was to circumvent this weakness. As we demonstrated,
-using Cython and careful memory usage allows to provide an
+to combinatorics. The Python language has some weaknesses regarding speed and the
+aim of the deliverable was to circumvent these weaknesses. As we demonstrated,
+using Cython and careful memory usage allows us to provide an
 important speed up in enumeration. Cython is at the same time an ideal
 tool to provide access to efficient implementations in C/C++ from Python.
 
