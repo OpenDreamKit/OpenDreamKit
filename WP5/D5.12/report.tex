@@ -89,22 +89,21 @@ Table~\ref{tab:ldlt}
 %
 \begin{table}[htb]\centering
   \footnotesize
-    \begin{tabular}{rrrrrrrrrrr}
+    \begin{tabular}{rrrrrrrrr}
   \toprule
   \multirow{3}{*}{$n$} & 
   \multicolumn{4}{c}{Gen. rank prof.} & \multicolumn{2}{c}{Gen. rank prof.} &
-  \multicolumn{2}{c}{Random RPM} & \multicolumn{2}{c}{Random RPM}\\
-  &\multicolumn{4}{c}{ $r=n$}&\multicolumn{2}{c}{ $r=n$}&
-  \multicolumn{2}{c}{ $r=n$}&\multicolumn{2}{c}{ $r=n/2$}\\
-  & \texttt{dgetrf} & \texttt{dsytrf} & \texttt{dsytrf\_rk} & \texttt{dsytrf\_aa} & PLUQ & LDLT & PLUQ& LDLT & PLUQ & LDLT\\
+  \multicolumn{2}{c}{Random RPM}\\
+  &\multicolumn{4}{c}{ $r=n$}&\multicolumn{2}{c}{ $r=n$}&\multicolumn{2}{c}{ $r=n/2$}\\
+  & \texttt{dgetrf} & \texttt{dsytrf} & \texttt{dsytrf\_rk} & \texttt{dsytrf\_aa} & PLUQ & LDLT  & PLUQ & LDLT\\
   \midrule
-$100$   & 1.17e-04 & 1.31e-04 & 1.37e-04 & 9.21e-05 & 4.64e-04 & 3.23e-04 & 5.59e-04 & 5.22e-04 & 3.20e-04 & 3.80e-04\\
-$200$   & 3.73e-04 & 4.39e-04 & 5.51e-04 & 4.48e-04 & 1.87e-03 & 8.80e-04 & 2.58e-03 & 1.59e-03 & 1.58e-03 & 1.33e-03\\
-$500$   & 3.31e-03 & 3.78e-03 & 4.88e-03 & 3.87e-03 & 1.73e-02 & 5.21e-03 & 2.83e-02 & 9.85e-03 & 1.88e-02 & 7.92e-03\\
-$1000$  & 2.19e-02 & 2.09e-02 & 2.58e-02 & 2.05e-02 & 8.84e-02 & 2.30e-02 & 9.95e-02 & 4.01e-02 & 6.27e-02 & 3.18e-02\\
-$2000$  & 0.145 & 0.127 & 0.154 & 0.127 & 0.438 & 0.127 & 0.490 & 0.191 & 0.274 & 0.150\\
-$5000$  & 2.005 & 1.604 & 1.871 & 1.598 & 3.904 & 1.591 & 3.849 & 1.744 & 2.431 & 1.294\\
-$10000$ & 14.948 & 11.981 & 13.396 & 12.008 & 24.115 & 10.904 & 23.985 & 11.209 & 14.775 & 7.894\\
+$100$   & 1.17e-04 & 1.31e-04 & 1.37e-04 & 9.21e-05 & 4.64e-04 & 3.23e-04 & 3.20e-04 & 3.80e-04\\
+$200$   & 3.73e-04 & 4.39e-04 & 5.51e-04 & 4.48e-04 & 1.87e-03 & 8.80e-04 & 1.58e-03 & 1.33e-03\\
+$500$   & 3.31e-03 & 3.78e-03 & 4.88e-03 & 3.87e-03 & 1.73e-02 & 5.21e-03 & 1.88e-02 & 7.92e-03\\
+$1000$  & 2.19e-02 & 2.09e-02 & 2.58e-02 & 2.05e-02 & 8.84e-02 & 2.30e-02 & 6.27e-02 & 3.18e-02\\
+$2000$  & 0.145 & 0.127 & 0.154 & 0.127 & 0.438 & 0.127 &  0.274 & 0.150\\
+$5000$  & 2.005 & 1.604 & 1.871 & 1.598 & 3.904 & 1.591 &  2.431 & 1.294\\
+$10000$ & 14.948 & 11.981 & 13.396 & 12.008 & 24.115 & 10.904 & 14.775 & 7.894\\
   \bottomrule 
   \end{tabular}
   \caption{Comparing computation time (s) of numerical routines with the
@@ -114,9 +113,24 @@ $10000$ & 14.948 & 11.981 & 13.396 & 12.008 & 24.115 & 10.904 & 23.985 & 11.209 
 \label{tab:ldlt}
  \end{table}
 %
-first confirm the expected speed-up factor of 2 with respect
-to the unsymmetric LU factorization, but also show that it performs similarly or
-faster than the latest implementation of the corresponding numerical routine in LAPACK.
+%% first confirm the expected speed-up factor of 2 with respect
+%% to the unsymmetric LU factorization, but also show that it performs similarly or
+%% faster than the latest implementation of the corresponding numerical routine in LAPACK.
+
+Table~\ref{tab:timings} compares the computation time of the finite field symmetric
+decomposition algorithm with several other routines: the unsymmetric elimination
+over a finite field (running the PLUQ algorithm of~\cite{jgd:2017:bruhat}) and the
+numerical elimination routines in double precision of LAPACK~\cite{LAPACK99}
+provided by OpenBLAS: \texttt{dgetrf} (LU decomposition), and 3 variants of
+\texttt{dsytrf}~\cite{lawn294} (symmetric LDLT decomposition with pivoting). 
+These experiments first confirm a speed-up factor
+of about 2 between the symmetric and unsymmetric case over a finite field, which
+is the expected gain. 
+On small dimensions, the numercial routines perform best as the
+quadratic modular reductions is penalizing the routines over a finite
+field. However, this is compensated by use of Strassen's algorithm, making our
+implementation outperform  LAPACK's best \dsytrf for larger dimension, even when
+the rank profile is not generic.
 
 \subsection{Quasiseparable matrices}
 
