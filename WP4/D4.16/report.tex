@@ -1,5 +1,6 @@
 \documentclass{deliverablereport}
 \usepackage{wrapfig}
+\lstset{stringstyle=\tiny}
 
 \deliverable{UI}{ipython-advanced-interacts}
 \deliverydate{31/08/2018}
@@ -338,23 +339,72 @@ the generic solution for their own pet objects with little expertise.
 \subsection{Description of the design, of the API that subclasses must
   implement, code examples}
 
-This widget, called \emph{GridViewWidget}, implements the following:
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{schemas/SageViewEditor}
+  \end{center}
+  \caption{Sage View Editor classes}
+  \label{fig:lmfdb}
+\end{figure}
 
+We have developped a \emph{GridViewWidget} for representing - and
+interacting with - Sage Objects in Jupyter environment, in a browser.
+
+The interaction possibilities currently are the following:
 \begin{itemize}
- \item loading an object and calculating its cells positions and
-   contents
- \item getting/setting this object
- \item editing a cell
- \item adding/removing cells
- \item after a change, checking the new object type
+  \item editing a cell content
+  \item adding or removing cells
+  \item selecting cells for more interactions
 \end{itemize}
 
-\emph{GridViewWidget} is subclassed to \emph{TileGridWidget} class,
-which implements the actual grid-like display with one tile for each
-object cell.
+This \emph{GridViewWidget} is based on a \emph{GridViewEditor}, that
+is GUI-agnostic.
 
-The users can specify their own tile shape. For example they can
-use \emph{IPyWidgets} buttons or text inputs.
+\emph{GridViewEditor} can operate in various Sage grid-representable objects like graphs,
+matrices, or tableaux. As it needs to operate on each in the same way,
+and in effect they have various method names, or signatures, or
+different features, we felt the need to define a list a methods to be
+implemented by them, i.e. an \emph{API}.
+
+Currently hidden in the \emph{GridViewEditor} itself, we intend to promote
+the development of adapters for the Sage objects, either by implementing Adapter
+classes as such, or by writing translating information. Here are a few code examples
+for both strategies:
+
+\begin{lstlisting}
+class GenericGraphGridViewAdapter(GenericGraph):
+  ...
+  def from_cells(self, cells={}):
+    g = GenericGraph()
+    g.add_vertices(list(cells.keys()))
+    return g
+
+class PartitionGridViewAdapter(Partition):
+  ....
+  def add_cell(self, coord):
+    return self.add_cell(self.coord[0], self.coord[1])
+
+class StandardTableauGridViewAdapter(StandardTableau):
+  ....
+  def from_cells(self, cells={}):
+      positions = sorted(list(cells.keys()))
+      try:
+        return StandardTableau([[cells[pos] for pos in positions if pos[0]==i] for i in uniq([t[0] for t in positions])])
+      except:
+      raise TypeError("Cannot generate a valid StandardTableau!")
+\end{lstlisting}
+
+Second strategy: a translator can be written directly in the source
+code, with \emph{Python annotations}:
+
+\begin{lstlisting}
+@grid_view_adapter(\{addable_cells:self.shape().addable_cells, removable_cells:removable_cells\})
+class StandardTableau:
+  /.../
+\end{lstlisting}
+
+%The users can specify their own tile shape. For example they can
+%use \emph{IPyWidgets} buttons or text inputs.
 
 \subsection{Potential applications}
 
@@ -371,8 +421,6 @@ objects: matrices, partitions, grid graphs, tableaus, ribbons ..
 Apart from displaying and editing an object, more possibilities can be
 imagined
 
-\TODO{imagination}
-
 \begin{wrapfigure}{r}{0.25\textwidth}
     \begin{center}
       \includegraphics[width=100px]{images/dominos-azteque}
@@ -382,8 +430,6 @@ imagined
 
 As an example, we have developed a domino-like representation of
 \emph{grid-graph matchings} with a \emph{flipping} feature on neighboring dominos.
-
-\TODO{an image with dominos in an Aztec Diamond}
 
 The code is distributed as a Sage package
 \href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets}
@@ -424,8 +470,19 @@ In the upcoming year, we plan to collaborate tightly with Francy to:
 
 \subsection{Sage-explorer should be as rich as LMFDB, and is interactive}
 
-\TODO{Screenshot of http://www.lmfdb.org/EllipticCurve/Q/11/a/2}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/LMFDB-11a2}
+  \end{center}
+  \caption{L-fonctions database on elliptic curve ``11a2''}
+  \label{fig:lmfdb}
+\end{figure}
+
 \TODO{Comparative screenshot of the same curve in sage-explorer}
+
+In LMFDB, many methods results are calculated at page opening, while
+with Sage Explorer, the calculation is run only on demand, except for
+some widely used \emph{properties}.
 
 \TODO{A bunch of screenshots}
 
