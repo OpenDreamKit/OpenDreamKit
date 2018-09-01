@@ -3,7 +3,7 @@ Due to space restrictions, we only describe the ontology for computational group
 This formalization can be found at~\cite{mitm:groups:on}.
 % \ednote{FR@all: This section is incomplete -  it lacks the description rings etc. This must be fixed but cannot be fixed on short notice. So I'm carefully phrasing this paragraph to work around it.}
 
-\subsection{Type Theory and Logic}
+\subsection{Foundation}
 
 \OMMT formalizations must be relative to foundational logic, which is itself formalized in \OMMT.
 As foundation for all formalizations in MitM \cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
@@ -18,17 +18,28 @@ The latter makes type-checking undecidable, but that is necessary for natural fo
 
 \begin{wrapfigure}r{8cm}\vspace*{-1em}
   \includegraphics[width=.5\textwidth]{mitm1}
-  \caption{MitM ontology Fragment}\label{fig:mitm1}
+  \caption{MitM Ontology Fragment}\label{fig:mitm1}
 \end{wrapfigure}
-Additionally we extend our type theory with record types, which is critical for formalizing mathematical structures.
-In particular, \lstinline|ModelsOf T| is the record type of models of the theory \lstinline|T|.
-This lets us, e.g., define groups by the theory of operations and its signature and axioms, while \lstinline|group=ModelsOf group_theory| is the type of all models of said theory, i.e., all groups, as seen in Figure~\ref{fig:mitm1}.
+
+A critical question is what additional types to provide.
+To be practical at all, this must include basic types for aggregation (e.g., records) and collection (e.g., lists).
+Based on a survey of practical needs, we compiled such a set in Deliverable 6.8.\ednote{@MK: make this a proper reference}
+
+Moreover, we need an open-ended set of types for mathematical structures such as fields and rings.
+Here we have developed a novel type constructor \ednote{@MK: cite Theories as Types paper} that turns any MMT theory into the corresponding dependent record type.
+This combines the benefits of MMT's axiomatic theories and a flexible type system.
+Concretely, for a theory \lstinline|T|, the type \lstinline|ModelsOf T| is the record type of models of \lstinline|T|.
+For example, in Figure~\ref{fig:mitm1} we define groups in terms of an MMT theory \lstinline|group_theory| that declares the operations and axioms in a way that corresponds to the mathematical definition of groups.
+Then \lstinline|group=ModelsOf group_theory| is the type of all models of that theory, i.e., the type of groups.
 Any element \lstinline|g:group| thus represents an actual group, whose operations and axioms can be accessed via record field projections (e.g. \lstinline|g.inverse| yields the inverse operation of \lstinline|g|.
 Since axioms are turned into record type fields as well, actually constructing a record of type \lstinline|group| corresponds to proving that the field \lstinline|universe| and the operations provided in the record do in fact form a group.
 
-\subsection{Group Theory}
+\subsection{Domain Ontologies}
 
-Our formalization of CGT follows the template of its implementation in \GAP, and requires different levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
+Relative to the foundation, we can formalize the actual mathematical knowledge we are interested in.
+As a running example, we describe a formalization of computational group theory (CGT), which is inspired by the corresponding implementation in \GAP.
+It uses several different levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}.
+From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
 The left box in Figure \ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP.
 
 \begin{figure}[ht]\centering
@@ -81,7 +92,6 @@ for a group that was defined this way, and naturally considers the group to be a
 subgroup of $S_{[1..n]}$, where $n$ is the largest point moved.
 
 \paragraph{Concrete Level}
-
 It is at the concrete level where the computation happens: while the higher levels
 are suitable for mathematical deduction and inference, this level is where \GAP
 (or any other system providing computational group theory) does its work.
@@ -124,10 +134,10 @@ hierarchies.  \ednote{MP@FR+DM: I commented this out because I believe the parag
   describes what was done in MMT to accommodate for the CGT MitM ontology}
 \end{oldpart}
 
+\ednote{FR: the formalization of elliptic curves could be moved here as a second example}
+
 %%% Local Variables:
 %%% mode: latex
-%%% mode: visual-line
-%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
