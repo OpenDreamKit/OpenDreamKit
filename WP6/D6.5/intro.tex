@@ -18,29 +18,30 @@ What we would want is a ``programmatic, mathematical API'' which would give acce
 
 \ednote{NT: one should say something about previous attempts, e.g. OpenMath, why it does not do the job, and how we mean to fix that.}
 
-\paragraph{Towards a Virtual Research Environment for Mathematics} One goal of the OpenDreamKit project is tackling these problems systematically by building virtual research environments (VRE) on top of the existing systems.  To build a VRE from individual systems, we need a joint user interface -- the OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active documents~\cite{KohDavGin:psewads11} -- and an interoperability layer that allows passing problems and results between the disparate systems.  For the latter, it proposes the Math-in-the-Middle (MitM~\cite{DehKohKon:iop16}) paradigm, an interoperability framework based on a central, system-independent ontology of mathematical knowledge and system API theories that specify the interfaces of the various systems in the same, modular knowledge representation format: OMDoc/MMT aligned with the MitM ontology by special representations of mathematical equivalence called \textbf{alignments}.\ednote{MK: rework this sentence}.
+\paragraph{Towards a Virtual Research Environment for Mathematics}
+One goal of the OpenDreamKit project is tackling these problems systematically by building virtual research environments (VRE) on top of the existing systems.
+To build a VRE from individual systems, we need a joint user interface --- the OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active documents~\cite{KohDavGin:psewads11} --- and an interoperability layer that allows passing problems and results between the disparate systems.
+For the latter, it proposes the Math-in-the-Middle paradigm (MitM~\cite{DehKohKon:iop16}): an interoperability framework based on a central, system-independent ontology of mathematical knowledge and system API theories that specify the interfaces of the various systems in the same, modular knowledge representation format.
+We use \ommt as this format together with alignments the describe the relations between the functions declared in the ontology and those realized in the various system APIs.
 
 \paragraph{Contribution}
 In this \papertype we instantiate the MitM paradigm in two concrete case studies.
 In the first one, we show distributed computation involving the \GAP, \Sage, and \Singular systems.
-In the second one, we show the integration of the mathematical knowledge base \LMFDB into MitM-based computation.\ednote{MK: preview the contribution of the MitM paradigm here.}
+In the second one, we show the integration of the mathematical knowledge base \LMFDB into MitM-based computation.\ednote{maybe preview contributions of the MitM paradigm here}
 
-\begin{newpart}{MK: for the second part}
-    This \papertype takes a step into this direction by interpreting large knowledge bases as \ommt theories -- modular representations of mathematical objects and their properties. 
-  For this, we generalize \ommt theories to ``virtual theories'' -- theories so big that they do not fit into main memory -- and update its knowledge management algorithms so that they can work directly with objects stored in external knowledge bases.
-  An additional technical contribution is the introduction of a codec system that bridges between low-level encodings in databases and the abstract construction of mathematical objects.
-\end{newpart}
+%\begin{oldpart}{FR: moved here from the LMFDb paper; if we want to use this text, it should be integrated here somewhere}
+%This \papertype takes a step into this direction by interpreting large knowledge bases as \ommt theories -- modular representations of mathematical objects and their properties. 
+%For this, we generalize \ommt theories to ``virtual theories'' -- theories so big that they do not fit into main memory -- and update its knowledge management algorithms so that they can work directly with objects stored in external knowledge bases.
+%An additional technical contribution is the introduction of a codec system that bridges between low-level encodings in databases and the abstract construction of mathematical objects.
+%
+%Our diagnosis is that {\lmfdb} -- and most other mathematical knowledge databases -- suffer from two problems:
+%\begin{compactitem}
+%\item \emph{human/computer mismatch}: humans have problems interacting with \lmfdb programmatically, because they must speak the system language instead of mathematical language
+%\item \emph{computer/computer mismatch}: mathematical computer systems cannot interoperate with \lmfdb without extending their code, because their system languages differ.
+%\end{compactitem}
+%Using the MitM approach, we can solve both problems at the same time by lifting the communication to the level of \ommt-encoded MitM objects, which both MitM-compatible software systems and humans can understand.
+%\end{oldpart}
 
-\begin{oldpart}{FR: moved here from the LMFDb section; if we want to use this text, it should be integrated here somewhere}
-Our diagnosis is that {\lmfdb} -- and most other mathematical knowledge databases -- suffer from two problems:
-\begin{compactitem}
-\item \emph{human/computer mismatch}: humans have problems interacting with \lmfdb programmatically, because they must speak the system language instead of mathematical language
-\item \emph{computer/computer mismatch}: mathematical computer systems cannot interoperate with \lmfdb without extending their code, because their system languages differ.
-\end{compactitem}
-Using the MitM approach, we can solve both problems at the same time by lifting the communication to the level of \ommt-encoded MitM objects, which both MitM-compatible software systems and humans can understand.
-\end{oldpart}
-
-\paragraph{Case Studies and Running Examples}
 For the CAS case study, we will use the following running example from computational group theory: Jane wants to experiment with invariant theory of finite groups.
 She works in the polynomial ring $R=\mathbb{Z}[X_1,\ldots,X_n]$, and wants to construct an ideal $I$ in this ring that is fixed by a group $G \leq S_n$ acting on the variables, linking properties of the group to properties of $I$ and the quotient of $R$ by $I$.
 
@@ -69,18 +70,16 @@ For example, the Hecke field $K=\Q(\sqrt{2})$ may occur for more than one HMF, d
 Hence Jane would like to be able to extract these defining polynomials from the LMFDB, use them to define number fields in \Sage, find simpler polynomials defining the same fields, and study their arithmetic properties (for example, their class numbers).
 To this end, some of the Hecke fields may themselves be in the LMFDB's collection of number fields, in which case the information about them which Jane needs is already computed and stored, but this will in most cases be hidden since the defining polynomials used in the HMF database will often not be the one stored in the number fields database.
 
-\begin{newpart}{FR: reworked}
 \paragraph{Overview}
 In Section~\ref{sec:mitm}, we recap the MitM paradigm.
 %MitM solutions consist of three parts: a central ontology, specifications of the abstract languages of the involved systems, and the distributed computation infrastructure that connects the systems via the ontology as an intermediate representation.
 %The rest of the \papertype develops these three parts for our case study:
 In Section~\ref{sec:cgt}, we describe the MitM ontology.
 While the ontology describes the \emph{abstract} syntax of mathematical objects, Section~\ref{sec:codecs} introduces a codec framework for describing their \emph{concrete} syntax in different systems.
-In Section~\ref{sec:apit} and~\ref{sec:databases}, we describe the integration of the computation systems \GAP, \Sage, and \Singular and the databases with the MitM architecture.
-Section~\ref{sec:case}, we present the resulting virtual research environment built on
+In Section~\ref{sec:apit} and~\ref{sec:databases}, we describe the integration of the computation systems \GAP, \Sage, and \Singular and the \lmfdb databases with the MitM architecture.
+In Section~\ref{sec:case}, we present the resulting virtual research environment built on
 these systems in action.
 Section~\ref{sec:concl} concludes the paper.
-\end{newpart}
 
 %%% Local Variables:
 %%% mode: latex
