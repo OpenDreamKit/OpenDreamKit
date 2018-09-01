@@ -120,10 +120,31 @@ For example, the dihedral group $D_4$ is serialized as a binary string, which en
 The first three lines recover the constructors for integers and for dihedral groups from \Sage's library.
 The last line applies them to construct successively the integer $4$ and $D_4$.
 
-Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.\ednote{Add the translation of the above in OpenMath}
+Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.
 We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python library~\cite{py-openmath:on}).
-This has the advantage of using optimizations implemented in \Python's serialization, e.g., structure sharing for identical subexpressions.
-  % For example, a list of integers modulo 2 will be serialized as a
+The following shows the corresponding OpenMath syntax tree in Python and XML respectively:
+\begin{lstlisting}
+OMApplication(
+  elem=OMSymbol(name='DihedralGroup',
+                cd='sage.groups.perm_gps.permgroup_named', cdbase='http://python.org'),
+  arguments=[OMApplication(
+    elem=OMSymbol(name='make_integer',
+                  cd='sage.rings.integer', cdbase='http://python.org'),
+    arguments=[OMBytes(bytes='4')])])
+\end{lstlisting}
+\begin{lstlisting}
+<OMA xmlns="http://www.openmath.org/OpenMath">
+  <OMS name="DihedralGroup"
+       cd="sage.groups.perm_gps.permgroup_named" cdbase="http://python.org"/>
+  <OMA>
+    <OMS name="make_integer" cd="sage.rings.integer" cdbase="http://python.org"/>
+    <OMB>NA==</OMB>
+  </OMA>
+</OMA>
+\end{lstlisting}
+This approach has the additional advantage of benefiting from future optimizations implemented in \Python's serialization, like structure sharing for identical subexpressions.
+
+% For example, a list of integers modulo 2 will be serialized as a
   % program like:
 
   %       Z2 = IntegerModRing(2)
