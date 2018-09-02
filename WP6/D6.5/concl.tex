@@ -1,25 +1,32 @@
-  We have implemented the MitM approach to integrating mathematical software systems based on formalizations of the underlying mathematical knowledge.
-  The main investment here was the curation of an MitM Ontology, the generation of formal specifications of system APIs for \Sage, \GAP, and \Singular, identifying the alignments of these APIs with the ontology, implementing an MitM server that can use alignments to translate between systems, and implementing the \SCSCP protocol for all involved systems.
+\paragraph{Summary}
+The MitM approach envisions integrating mathematical software systems based on formalizations of the underlying mathematical knowledge that provide the center of a star-shaped communication architecture.
+The evaluation and application of this approach requires several major practical investments:
+\begin{itemize}
+\item the curation of the MitM Ontology,
+\item the generation of formal specifications of APIs for concrete systems,
+\item the alignment of the ontology and the system APIs,
+\item the implementation of a MitM server that uses alignments to translate between systems,
+\item communication modules in each concrete system that communicate with the MitM server (using the \SCSCP protocol).
+\end{itemize}
 
-  We have also shown how to extend the Math-in-the-Middle framework for integrating systems to mathematical data bases like the \lmfdb. 
-The main idea is to embed knowledge sources as virtual theories, i.e. theories that are not -- theoretically or in practice -- limited in the number of declarations and allow dynamic loading and processing. 
-For accessing real-world knowledge sources, we have developed the notion of codecs and integrated them into the MitM ontology framework. 
-These codecs (and their MitM types) lift knowledge source access to the MitM level and thus enable object-level interoperability and allow humans (mathematicians) access using the concepts they are familiar with. 
-Finally, we have shown a prototypical query translation facility that allows to delegate some of the processing to the underlying knowledge source and thus avoid thrashing of virtual theories. 
+In this \papertype, we have described substantial progress on each aspect.
+Due to the enormousness of the overall goal, we have focused on concrete case studies that have driven this progress.
+Concretely, we focused on group theory and a few adjacent areas of mathematics to draw integration examples from.
+Moreover, we picked four concrete systems to integrate: the computation systems \Sage, \GAP, and \Singular, and the mathematical database collection \lmfdb.
 
-\paragraph{Related Work} Most other integration schemes employ a \textbf{homogenous approach}, where there is a master system and all data is converted into that system. 
-A paradigmatic example of this is the Wolfram Language~\cite{WolframLanguage:wikipedia} and the Wolfram Alpha search engine~\cite{WolframAlpha:on}, which are based on the Mathematica kernel. 
-This is very flexible for anyone owning a Mathematica license and experienced in the Mathematica language and environment.
+Our efforts led to several foundational innovations that were needed to apply MitM in practice.
+These included the notion of virtual theories and mathematical codecs that relate large collections of mathematical objects to high-level formalizations of mathematics.
+Virtual theories provide feasibly small windows to large databases.
+And codecs perform systematic syntax translations between mathematical language and general purpose database languages.
 
-The MitM-based approach to interoperability of data sources and systems proposed in this paper is inherently a \textbf{heterogeneous approach}: systems and data sources are kept ``as is'', but their APIs are documented in a machine-actionable way that can be utilized for remote procedure calls, content format mediation, and service discovery. 
-As a consequence, interaction between systems is very flexible.
-For the data source integration via virtual theories presented in this paper this is important. 
-For instance, we can just make an extension of \mmt or \Sage\ which just act as a programmatic interface for e.g. \lmfdb. 
-
+\paragraph{Evaluation}
 Our case studies show that MitM-based integration is an achievable goal.
+Critically, the MitM-based approach to interoperability of data sources and systems keeps systems and data sources ``as is''.
+Only their APIs are documented in a machine-actionable way that can be utilized for remote procedure calls, content format mediation, and service discovery.
+As a consequence, interaction between systems is very flexible and requires only relatively small investments for each system's developer community.
 Delegation-based workflows can either be programmed directly or embedded into the interaction language of the mathematical software systems.
+Moreover, this can be done in a way that requires only minimal changes to users' existing work flows.
 
-The main advantages and challenges claimed by the MitM framework come from its loosely coupled and knowledge-based nature.
 Compared to ad-hoc translations, MitM-based interoperability is relatively expensive as objects have to be serialized into (possibly large) \OMMT objects, transferred via \SCSCP to \MMT, parsed, translated into another system dialect, serialized and transferred, and parsed again.
 On the other hand, instead of implementing and maintaining $n^2$ translations, we only have to establish and maintain $n$ collections of system APIs and their alignments to the
 MitM ontology.
@@ -31,38 +38,25 @@ We expect it to be well-maintained, since it can directly be used as a documenta
 \end{compactenum}
 All in all, these translate into a ``business model'' for MitM-based cooperation in terms of the necessary investment and achievable results, which is based on the well-known \emph{network effects}: the joining costs are in the size of the respective system, whereas the rewards -- i.e. the functionality available by delegation -- is in the size of the network.
 
-This network effect can be enhanced by technical refinements we are currently studying:
-For instance, if we annotate alignments with a ``priority'' value that specifies how canonically/efficiently/powerfully a given system implements a given MitM operation, then we can let
-the \MMT mediator automatically choose a suitable target system for a requested computation (as opposed to our current setup where Jane specifies which systems she wants to use). On the other hand, for workflows where we do not need or want service-discovery, alignments can be ``compiled'' into $n^2$ transport-efficient direct translations that may even eliminate the need for serialization and parsing.
+\paragraph{Future Work}
+The most obvious path of future work is in scaling up the approach in two orthogonal direction: write ontologies for more areas of mathematics and connect more systems and databases to the MitM ecosystem.
+Both will require tremendous future efforts but due to our initial developments the marginal costs are now quite affordable.
+In the long run, we expect that the MitM-generated qualitative boost to mathematicians' productivity will these costs.
 
-\begin{oldpart}{MK: the MACIS-17-interop conclusion}
-We have shown how to extend the Math-in-the-Middle framework for integrating systems to mathematical data bases like the \lmfdb. 
-The main idea is to embed knowledge sources as virtual theories, i.e. theories that are not -- theoretically or in practice -- limited in the number of declarations and allow dynamic loading and processing. 
-For accessing real-world knowledge sources, we have developed the notion of codecs and integrated them into the MitM ontology framework. 
-These codecs (and their MitM types) lift knowledge source access to the MitM level and thus enable object-level interoperability and allow humans (mathematicians) access using the concepts they are familiar with. 
-Finally, we have shown a prototypical query translation facility that allows to delegate some of the processing to the underlying knowledge source and thus avoid thrashing of virtual theories. 
-\end{oldpart}
+Concrete candidates for additional systems include PARI GP and the remaining databases of \lmfdb.
+Moreover, we are working on integrating the Online Encyclopedia of Integer Sequences (OEIS~\cite{Sloane:OEIS,oeis}) --- a difficult undertaking due to the weak structure it enforces on its data.
+In~\cite{LuzKoh:fsarfo16} we have already (heuristically) formalized OEIS contents in \ommt; the next step will be to come up with appropriate codecs based on this basis and develop schema theories for OEIS.
 
-\paragraph{Related Work} Most other integration schemes employ a \textbf{homogenous approach}, where there is a master system and all data is converted into that system. 
-A paradigmatic example of this is the Wolfram Language~\cite{WolframLanguage:wikipedia} and the Wolfram Alpha search engine~\cite{WolframAlpha:on}, which are based on the Mathematica kernel. 
-This is very flexible for anyone owning a Mathematica license and experienced in the Mathematica language and environment.
+The network effect described above can be enhanced further by technical refinements.
+For instance, if we annotate alignments with a ``priority'' value that specifies how canonically/efficiently/powerfully a given system implements a given MitM operation, then we can let the \MMT mediator automatically choose a suitable target system for a requested computation (as opposed to our current setup where Jane specifies which systems she wants to use).
+On the other hand, for workflows where we do not need or want service-discovery, alignments can be ``compiled'' into $n^2$ transport-efficient direct translations that may even eliminate the need for serialization and parsing.
 
-The MitM-based approach to interoperability of data sources and systems proposed in this paper is inherently a \textbf{heterogeneous approach}: systems and data sources are kept ``as is'', but their APIs are documented in a machine-actionable way that can be utilized for remote procedure calls, content format mediation, and service discovery. 
-As a consequence, interaction between systems is very flexible.
-For the data source integration via virtual theories presented in this paper this is important. 
-For instance, we can just make an extension of \mmt or Sage which just act as a programmatic interface for e.g. \lmfdb. 
+For local applications, where all involved systems and the mediator run on the same machine, we have started investigating programming language bridges that would allow direct communication between systems and the \MMT mediator.
+This would allow by-passing the overhead of serialization and parsing and network communication.
+Concretely, \MMT can now communicate bidirectionally with Python, the underlying language of \Sage.
 
-\paragraph{Future Work}\ednote{MK: this is essentially future work only for LMFDB, we need future work also for MitM here.}
-\ednote{MK@FR: could you please describe the MMT Python bridge and how this could be used for SCSCP-less communication with Sage. The MitM-work here is to allow for compilation of the alignment based translations into code.}
-We have discussed the MitM+virtual theories methodology on the elliptic curves sub-base of the \lmfdb, which we have fully integrated. 
-We are currently working on additional \lmfdb sub-bases. 
-The main problem to be solved is to elicit the information for the respective schema theories from the \lmfdb community. 
-Once that is accomplished, specifying them in the format discussed in this paper and writing the respective codecs is straightforward. 
-
-Moreover, we are working on integrating the the Online Encyclopedia of Integer Sequences (OEIS~\cite{Sloane:OEIS,oeis}). 
-Here we have a different problem: the OEIS database is essentially a flat ASCII file with different slots (for initial segments of the sequences, references, comments, and formulae); all minimally marked up ASCII art. 
-In~\cite{LuzKoh:fsarfo16} we have already (heuristically) flexiformalized OEIS contents in \ommt; the next step will be to come up with codecs based on this basis and develop schema theories for OEIS.
-
+Another path to increased efficiency is to statically compile alignments into translation modules that would allow MitM-aware communication without the need for a dynamic mediator.
+This would speed up communication as only one recursive translation function would be needed instead of two.
 
 \paragraph*{Acknowledgments}
 The authors gratefully acknowledge the fruitful discussions with other participants of
