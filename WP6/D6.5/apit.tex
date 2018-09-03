@@ -106,7 +106,7 @@ adopted by the community) or using type inference in \Sage and/or MitM.
 %\item Some amount of type inference, either at the \Sage or MitM levels.
 %\end{itemize}
 
-\subsubsection{Serialization and Deserialization}
+\subsubsection{Serialization and Deserialization}\label{lst:sagedihedral}
 
 Because \Sage is based on \Python, it benefits from its native serialization support.
 For example, the dihedral group $D_4$ is serialized as a binary string, which encodes the following straight line program to be executed upon deserialization:
@@ -262,16 +262,53 @@ Figure~\ref{fig:knowl} shows the knowl for a ``Hecke Algebra'', where another kn
   \includegraphics[width=14cm]{knowl}
   \caption{Knolws in the \LMFDB User Interface}\label{fig:knowl}
 \end{figure}
-\subsection{Alignments}
 
-Finally we have to curate the alignments between the system dialects and the MitM ontology.
-These alignments are currently produced and curated manually using the approach, repository, and syntax described in~\cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17}.
+\subsection{Alignments}\label{sec:integrating:alignments}
+
+Finally we have to curate the \textbf{alignments} between the system dialects and the MitM ontology. 
+
+To make the systems interoperable and translate objects and expressions, it is crucial to inform the system which symbols in the 
+respective system API theories represent the same mathematical concepts. Then translation (as a first approximation) reduces to simply substituting symbols in an expression (see example below).\medskip
+
+However, even when $A$ and $B$ deal with the ``same mathematical objects'', these may be constructed and represented differently, e.g., symbols can differ in name,
+argument order/number, types, etc.
+A major difficulty for system interoperability is correctly handling these subtle differences.
+To formalize the details of this relation, \cite{MueGauKal:cacfms17} introduced \OMMT \textbf{alignments}.
+Technically, these are pairs of \OMMT symbol identifiers decorated by a set of key-value pairs.
+The alignments of $a$-symbols with the MitM ontology determine which $A$-objects correspond to MitM-objects.
+
+The alignment of $a$-symbols to ontology symbols must be spelled out manually.
+But this is usually straightforward and easy even for inexperienced users. For example, the following line aligns GAP's symbol \textsf{IsCyclic} (in the file \lstinline|lib/grp.gd|) with the corresponding symbol \textsf{cyclic} in the MitM ontology.
+The key-value pairs are used to signify that this alignment is part of a group of alignments called ``VRE'' and can be used for translations in both directions.
+
+\begin{verbatim}
+gap:/lib?grp?IsCyclic  mitm:/smglom/algebra?group?cylic
+    direction="both" type="VRE"
+\end{verbatim}
+
+Thus we can reduce the problem of interfacing $n$ systems to
+\begin{inparaenum}[\em i\rm)]
+\item curating the MitM ontology for the joint mathematical domain,
+\item generating $n$ theory graphs for the system dialects,
+\item maintaining $n$ collections of alignments with the MitM ontology.
+\end{inparaenum}\medskip
+
+For an example, consider again the dihedral group $D_4$ in \Sage (see Section \ref{lst:sagedihedral}). We can align the relevant symbol 
+\verb+http://python.org?sage.groups.perm_gps.permgroup_named?DihedralGroup+
+with an abstract representation of dihedral groups in the MitM ontology (say, \verb+mitm:?Groups?dihedralGroup+). The \MMT system, when translating from \Sage to e.g. \GAP, then knows to replace the sage-specific symbol \verb+?DihedralGroup+ by its system neutral equivalent in MitM, and the complex expression \verb+make_integer(4)+ by the plain OpenMath integer 4. To translate the resulting statement in MitM to \GAP, we only need to align \verb+mitm:?Groups?dihedralGroup+ with the constructor for dihedral groups in \GAP, namely \verb+gap:/grp?basic?DihedralGroupCons+. Translating to \GAP is then merely a matter of substituting this symbol in the OpenMath expression (\GAP already uses OpenMath integers for remote procedure calls via \SCSCP) to reconstruct the original \Sage object in \GAP.
+\medskip
+
+Alignments form an independent part of the MitM interoperability infrastructure.
+Incidentally, they obey a separate development schedule: the MitM ontology is developed by the community as a whole as the understanding of a mathematical domain changes.
+The system dialects are released together with the systems according to their respective development cycle.
+The alignments bridge between them and have to mediate these cycles.
+
+These alignments are currently produced and curated using the approach, repository, and syntax described in~\cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17}.
 In the future, we will also consider automatically extracting alignments from the existing ad-hoc \Sage-to-$X$ translations.
 These are (mainly) given as \Sage code annotations that relate \Sage operations and constructors with those of system $X$.
 
-Figure~\ref{fig:cgtontology} shows some example alignments between symbols in the GAP content dictionary and the MitM ontology. The most difficult challenges here relate to the types of the symbols in the respective system API theories. GAP for example does not use a hard type system for its ontology. Furthermore, the exact number and types of arguments of various constructors (e.g. for polynomials or ring extensions) can differ slightly across systems. In these cases, the MitM interface theories used for translating content between systems need to be carefully chosen and aligned to function as intended.
+Figure~\ref{fig:cgtontology} shows some example alignments between symbols in the GAP content dictionary and the MitM ontology.
 
-\ednote{FR: This section is very weak. It should give examples of alignments and discuss some of the difficulties and solutions.}
 
 
 
