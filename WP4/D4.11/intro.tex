@@ -1,39 +1,44 @@
-In this report we present a prototypical integration of the Jupyter notebooks into the MathHub.info portal for active mathematical documents and a versioned hosting system for flexiformal mathematics.
-MathHub.info offers a rich interface for reading, writing, and interacting with mathematical documents and knowledge. Jupyter offers a uniform interface to the computation facilities of the OpenDreamKit VRE toolkit in the form of a read-eval-print loop (REPL).
+A mathematical Virtual Research Environment (VRE) needs to support two kinds of user interface paradigms.
+Firstly, mathematical \emph{documents} have been very successful for presenting mathematical knowledge.
+While there have been efforts to make them modular and interactive, they predominantly remain in the mode of archiving and transporting knowledge in Mathematics.
+Secondly, \emph{notebook} interfaces focus on REPL interaction leading to documents consisting of a sequence of computational cells within which the mathematical discourse is interspersed in the form of rich comments.
+%\footnote {A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle but has not been supported consistently at the system level.}
 
-A mathematical Virtual Research Environment (VRE) needs both kinds of interface functionality: mathematical documents have been very successful for presenting mathematical knowledge, and while there have been efforts to make them modular and interactive they predominantly remain in the mode of archiving and transporting knowledge in Mathematics.
-Notebook interfaces also use the document metaphor at the surface; however the REPL interaction
-tends to take structural precedence, leading to documents consisting of a sequence of computational cells within which the mathematical discourse is interspersed in the form of ``rich comments''.
+In this report we present a prototypical integration of Jupyter Notebooks into the MathHub document hosting platform.
+In addition to versioned persistent storage, MathHub offers an interface for reading, writing, and interacting with mathematical documents.
+Jupyter offers a uniform interface to the computation facilities of the OpenDreamKit VRE toolkit in the form of a read-eval-print loop (REPL).
+The tension between these systems has previously been explored in OpenDreamKit Deliverable D4.2~\cite{ODK-D4.2}, and the concept of in-document computation in OpenDreamKit Deliverable D4.9~\cite{ODK-D4.9}.
+In both cases, the integration was incomplete, since it lacked a full integration of the underlying knowledge management and computation services.
 
-A ``literate computing'' version of notebooks\footnote {A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle, but has not been supported consistently at the system level.} which gives mathematical discourse structural precedence is possible in principle, but has not been supported consistently at the system level.
-This tension and trade-off has been explored in OpenDreamKit Deliverable D4.2~\cite{ODK-D4.2}, and the concept of in-document computation in OpenDreamKit Deliverable D4.9~\cite{ODK-D4.9}.
-In both cases, the integration was incomplete, since it lacked a full integration of the
-underlying knowledge/computation services.
+Generally, the integration of MathHub and Jupyter consists of two challenges:
+\begin{inparaenum}[\em a\rm )]
+\item the integration of the document paradigms and user interfaces and
+\item the integration of the knowledge management and computation services.
+\end{inparaenum}
+The latter requires defining the semantics of the mathematical knowledge maintained in the user interfaces, and both Jupyter and MathHub are parametric in this semantics.
+In Jupyter, a separate kernel must be provided for each concrete language, in particular there are separate kernels for all computation systems used in OpenDreamKit.
+In MathHub, the determination of the semantics is delegated to the MMT system.
+Moreover, MMT is also used in OpenDreamKit as the center of the Math-in-the-Middle based system integration (see OpenDreamKit Deliverable D6.5~\cite{ODK-D6.5}).
 
-The goal of this deliverable is to integrate Jupyter notebooks into MathHub and make them compatible with MMT, in a way that we can conveniently use MMT syntax in these notebooks and also a little bit of extra functionality like e.g. the Jupyter widgets.
 % The first step is setting up a Jupyter server, which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
 % For this server, we have developed a custom kernel, that forwards the input entered into the Jupyter notebook to the MMT backend.
 % This then processes said input and sends the response back to the Jupyter frontend via the kernel.
 % We will cover the implementation of the Jupyter kernel and the MMT-backend, later in this report.
 
-Generally, the integration of MathHub and Jupyter consists of two parts:
-\begin{inparaenum}[\em a\rm )]
-\item the integration of the user interfaces (as reported previously) and
-\item the integration of the knowledge/computation management services.
-\end{inparaenum}
-Here we report on progress in both; recall that MMT is the knowledge management service behind MathHub (and more generally for the Math-in-the-Middle based system integration; see OpenDreamKit Deliverable D6.5~\cite{ODK-D6.5}).
-%
-For the service integration we present an MMT kernel for Jupyter: this not only makes the MMT REPL available at the Jupyter level, but also deeply integrates with Jupyter widgets with the MMT Scala level.  Widgets are a key Juypther feature that reaches far beyond the standard REPL interaction; they e.g.  enable real time interactive data visualizations; the Jupyter community has developed a large array of widgets for interactive 2D and 3D visualization of data in the form of charts, maps, tables, etc;
+This reports describes progress in both integration challenges.
 
-Reciprocally, for the user interface integration, we show how the Jupyter widgets can be deeply integrated within the MMT knowledge management facilities to give semantics-aware interaction facilities, extending the front-end capabilities of MathHub/Jupyter Notebooks by semantic widgets driven by the MMT in-document knowledge management services.
+In Section~\ref{sec:mmt-jp}, for the integration of services, we present an MMT kernel for Jupyter.
+This not only makes the MMT functionality available at the Jupyter level, but also deeply integrates Jupyter widgets with the MMT Scala level.
+Widgets are a key Juypter feature that reaches far beyond the standard REPL interaction, e.g., the Jupyter community has developed a large array of widgets for interactive 2D and 3D visualization of data in the form of charts, maps, tables, etc.
 
-We show and evaluate the integration on two case studies: in-document computing facilities in active documents and a knowledge-based specification dialog for modeling and simulation. 
+In Section~\ref{sec:nb-mh}, for the integration of document paradigms, we first show how to extend MathHub with a Jupyter server that allows viewing notebooks stored in MathHub.
+Then we present a MathHub feature that allows using interactive, ephemeral Jupyter Notebooks as subdocuments of static mathematical documents, e.g., HTML pages generated from scientific articles.
 
-This report is structured as follows. In Section~\ref{sec:mmt-jp} we report on the MathHub/Jupyter integration at the system level: a Jupyter server as part of the MathHub system and a MMT kernel for Jupyter. Section~\ref{sec:nb-mh} presents the integration of Jupyter Notebooks as active documents in the (new) MathHub front-end, and Section~\ref{sec:mitm-nb} presents the two case studies. Section~\ref{sec:concl} concludes the report and discusses future work.
+In Section~\ref{sec:mitm-nb}, we present two cases studies that evaluate our results: in-document computing facilities in active documents and a knowledge-based specification dialog for modeling and simulation. 
 
-
-
-\paragraph{Acknowledgements} The authors gratefully acknowledge the support of the Jupyter team and in particular the advice of Benjamin Ragan-Kelly. Also, the input of Theresa Pollinger and her work on the MoSIS system~\cite{PolKohKoe:kacse18} has shaped our perception of the integration reported here. 
+\paragraph{Acknowledgements}
+The authors gratefully acknowledge the support of the Jupyter team and in particular the advice of Benjamin Ragan-Kelly.
+The MoSIS system was developed in collaboration with Theresa Pollinger~\cite{PolKohKoe:kacse18}. 
 
 %%% Local Variables:
 %%% mode: latex

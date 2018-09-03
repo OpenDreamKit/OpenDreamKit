@@ -1,5 +1,6 @@
 We designed and implemented a Jupyter kernel for MMT.
 We describe its interface in Section~\ref{sec:kernel:syntax} and the implementation in Section~\ref{sec:kernel:impl}.
+In Section~\ref{sec:kernel:widgets}, we extend both to graphical interfaces via Jupyter widgets.
 
 \subsection{Interface}\label{sec:kernel:syntax}
 
@@ -104,7 +105,7 @@ Similarly, Scala collections like lists are not automatically seen as their coun
 Therefore, we wrote a Python module (which is distributed with MMT\footnote{This is currently at \url{https://github.com/UniFormal/MMT/blob/devel/src/python-mmt/example/mmt.py} but may be moved in the future.}) that performs the bureaucracy of matching up advanced Python and Scala features.
 
 
-\subsection{Graphical User Interfaces via Jupyter Widgets}
+\subsection{Graphical User Interfaces via Jupyter Widgets}\label{sec:kernel:widgets}
 
 Jupyter widgets are interactive GUI components (e.g., input fields, sliders, etc.) that allow Jupyter kernels to provide graphical interfaces.
 While the concept is general, it is most commonly used to refer to the Python-based widget library developed for the Python kernel.
@@ -133,6 +134,8 @@ As usual, GUI components may themselves carry callback functions for handling ev
 While conceptually straightforward, this leads to an unusually deep nesting of cross-programming language callbacks.
 When creating a widget, the Scala-based GUI application may pass Scala callbacks $D$ whose implementation makes use of the $C$-callbacks provided by the top layer.
 Thus, a user interaction triggers an MMT callback $D$ in the Python top layer, which is executed on the Scala side via Py4J, which in turn may call the Python callbacks $C$ exposed via Py4J.
+
+Our design makes it very easy to build and deploy simple GUI applications for MMT --- we still have the full power of Jupyter widgets at our fingertips.
 
 %\paragraph{Jupyter/MMT Widgets}
 %The use of a Python-JVM bridge pays off in particular when it allows us to reuse the widget library that is already part of the Python codebase of Jupyter.
@@ -164,40 +167,6 @@ The user can edit these fields and press the button to compute the other values.
 In that case, a the button carries the callback $D$, which results in a call to our application on the Scala side.
 It uses MMT to perform the computation and then calls the $C$ callbacks to update the values in the widgets.
 No additional work is needed to implement the synchronization between the Python top layer and the HTML frontend as this is a standard feature of Jupyter widgets.
-\bigskip
-
-\subsection{Document/Notebook Integration}
-
-Our design makes it very easy to build and deploy such simple GUI applications for MMT --- we still have the full power of Jupyter widgets at our fingertips.
-To achieve full document/notebook integration, as envisioned in D4.2~\cite{ODK-D4.2}, we only have to embed this notebook interface into the HTML5 presentation of the outer document (the one that contains the equation $E=mc^2$) and feed the document context information into the interior notebook as described in~\cite{ODK-D4.9} (this part of the integration can be re-used directly).
-
-For this integration we have developed a tool that interactively generates Jupyter notebooks from HTML documents.
-Figure~\ref{fig:conversionHTML} shows an example of a scientific HTML document, in which the user can use a context menu to trigger the notebook generation on a particular formula.
-The context menu is generated using Javascript that picks up on annotations of MMT formulas with specific CSS classes.
-Currently the author has to manually annotate the formulas, but we are working on a mechanism to automatically create it from the document context.
-
-Figure~\ref{fig:conversionNotebook} shows the notebook created by our tool.
-The downloaded notebooks can easily be uploaded to the Jupyter server on MathHub.info (see Section~\ref{sec:nb-mh}) or to a locally deployed version of the system per drag-and-drop.
-Note that the generated notebook starts with several \texttt{include} declarations that import the context of the formula.
-
-%The two predominant cell types in Jupyter notebooks are \texttt{code} and \texttt{markdown} cells. 
-%Code Cells contain user input, like described in section \ref{sec:kernel:syntax}.
-%The HTML elements that contain the input for these code cells are usually not visible, since they do not fit into the context of a scientific document and may not be understood by reviewers that are not familiar with MMT syntax. 
-%The other cell type: markdown cells, can contain any type of plain text and support GitHub flavoured markdown. 
-%Therefore markdown cells are used for providing notebooks with additional selectable information from the original HTML document.
-\ednote{MK@KA/FR: For the evaluation (and Kai's thesis) we should make an sTeX document that contains $E=mc^2$ (e.g. by copying parts of \texttt{https://en.wikipedia.org/wiki/Mass-energy\_equivalence}) and really implement the in-document computation example. This would make a wonderful demo in Brussels.}
-
-\begin{figure}[ht]\centering
-\includegraphics[width=12cm]{conversionHTML}
-\caption{HTML document and the context menu for converting}
-\label{fig:conversionHTML}
-\end{figure}
-
-\begin{figure}[ht]\centering
-\includegraphics[width=12cm]{conversionNotebook}
-\caption{The resulting Jupyter notebook}
-\label{fig:conversionNotebook}
-\end{figure}
 
 %%% Local Variables:
 %%% mode: latex
