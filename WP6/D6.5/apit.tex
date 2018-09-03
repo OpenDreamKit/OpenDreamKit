@@ -106,11 +106,11 @@ adopted by the community) or using type inference in \Sage and/or MitM.
 %\item Some amount of type inference, either at the \Sage or MitM levels.
 %\end{itemize}
 
-\subsubsection{Serialization and Deserialization}\label{lst:sagedihedral}
+\subsubsection{Serialization and Deserialization}
 
 Because \Sage is based on \Python, it benefits from its native serialization support.
 For example, the dihedral group $D_4$ is serialized as a binary string, which encodes the following straight line program to be executed upon deserialization:
-\begin{lstlisting}
+\begin{lstlisting}[]
   pg_unreduce = unpickle_global('sage.structure.unique_representation', 'unreduce')
   pg_DihedralGroup = 
        unpickle_global('sage.groups.perm_gps.permgroup_named', 'DihedralGroup')
@@ -123,7 +123,7 @@ The last line applies them to construct successively the integer $4$ and $D_4$.
 Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.
 We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python library~\cite{py-openmath:on}).
 The following shows the corresponding OpenMath syntax tree in Python
-\begin{lstlisting}[basicstyle=\sf\small]
+\begin{lstlisting}[basicstyle=\sf\small,label=lst:sagedihedral:om,caption={The dihedral group $D_4$ in OpenMath Syntax}]
 OMApplication(
   elem=OMSymbol(name='DihedralGroup',
                 cd='sage.groups.perm_gps.permgroup_named', cdbase='http://python.org'),
@@ -133,7 +133,7 @@ OMApplication(
     arguments=[OMBytes(bytes='4')])])
 \end{lstlisting}
  and XML respectively:
-\begin{lstlisting}[basicstyle=\sf\small]
+\begin{lstlisting}[basicstyle=\sf\small,label=lst:sagedihedral:xml,caption={The dihedral group $D_4$ in XML Format}]
 <OMA xmlns="http://www.openmath.org/OpenMath">
   <OMS name="DihedralGroup"
        cd="sage.groups.perm_gps.permgroup_named" cdbase="http://python.org"/>
@@ -297,13 +297,35 @@ Thus we can reduce the problem of interfacing $n$ systems to
 \item maintaining $n$ collections of alignments with the MitM ontology.
 \end{inparaenum}\medskip
 
-For an example, consider again the dihedral group $D_4$ in \Sage (see Section \ref{lst:sagedihedral}). We can align the relevant symbol 
+For an example, consider again the dihedral group $D_4$ in \Sage (see Listings \ref{lst:sagedihedral:om} and \ref{lst:sagedihedral:xml}). We can align the relevant symbol 
 \begin{lstlisting}
-http://python.org?sage.groups.perm_gps.permgroup_named?DihedralGroup
+sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
 \end{lstlisting}
-with an abstract representation of dihedral groups in the MitM ontology (say, for instance \lstinline|mitm:?Groups?dihedralGroup|).
-The \MMT system, when translating from \Sage to e.g. \GAP, then knows to replace the sage-specific symbol \lstinline|?DihedralGroup| by its system neutral equivalent in MitM, and the complex expression \lstinline+make_integer(4)+ by the plain OpenMath integer 4. To translate the resulting statement in MitM to \GAP, we only need to align \lstinline+mitm:?Groups?dihedralGroup+ with the constructor for dihedral groups in \GAP, namely \lstinline+gap:/grp?basic?DihedralGroupCons+. Translating to \GAP is then merely a matter of substituting this symbol in the OpenMath expression (\GAP already uses OpenMath integers for remote procedure calls via \SCSCP) to reconstruct the original \Sage object in \GAP.
+with an abstract representation of dihedral groups in the MitM ontology (say, for instance \lstinline|mitm:?group?dihedralGroup|).
+The \MMT system, when translating from \Sage to e.g. \GAP, then knows to replace the sage-specific symbol \lstinline|?DihedralGroup| by its system neutral equivalent in MitM, and the complex expression \lstinline+make_integer(4)+ by the plain OpenMath integer 4. To translate the resulting statement in MitM to \GAP, we only need to align \lstinline+mitm:?Groups?dihedralGroup+ with the constructor for dihedral groups in \GAP, namely \lstinline+gap:/grp?basic?DihedralGroupCons+. Translating to \GAP is then merely a matter of substituting this symbol in the OpenMath expression (\GAP already uses OpenMath integers for remote procedure calls via \SCSCP) to reconstruct the original \Sage object in \GAP. This yields the stepwise translation given in Figure \ref{fig:sagetogap}
 \medskip
+
+\begin{figure}\label{fig:sagetogap}
+
+\begin{lstlisting}
+sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
+	mitm:?group?dihedralGroup 
+	direction="both" type="VRE"
+gap:/grp?basic?DihedralGroupCons							
+	mitm:?group?dihedralGroup 
+	direction="both" type="VRE"
+\end{lstlisting}\medskip
+
+\begin{tabular}{|lp{0.6\textwidth}|}\hline
+\Sage & \lstinline|DihedralGroup(4)| \\
+OpenMath (\Sage Dialect) & See Listing \ref{lst:sagedihedral:om} \\
+OpenMath (MitM) & \lstinline|OMApplication(elem=OMSymbol(name='dihedralGroup', cd='group', cdbase='mitm'),arguments=[OMInteger(4)])| \\
+OpenMath (\GAP Dialect) & \lstinline|OMApplication(elem=OMSymbol(name='DihedralGroupCons', cd='basic', cdbase='http://www.gap-system.org/grp'),arguments=[OMInteger(4)])| \\
+	\GAP & \lstinline|DihedralGroupCons(4)|
+\end{tabular}
+
+\caption{Alignments and Stepwise Translation of Dihedral Group $D_4$ from \Sage to \GAP}
+\end{figure}
 
 Alignments form an independent part of the MitM interoperability infrastructure.
 Incidentally, they obey a separate development schedule: the MitM ontology is developed by the community as a whole as the understanding of a mathematical domain changes.
