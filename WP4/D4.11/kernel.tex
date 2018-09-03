@@ -12,12 +12,12 @@ To adequately handle these subtleties, we systematically specified a new interfa
 
 \paragraph{Sessions}
 Jupyter interactions are managed in \textbf{sessions}: every browser page opening a notebook creates a new session.
-Sessions are represented as MMT documents, which gives them a unique URI.
+Sessions are represented as (ephemeral\footnote{We call an MMT document \textbf{ephemeral}, iff it is (at least initially; it can be serialized and saved) created only in memory in the MMT process; apart from this, it behaves like any other MMT document}) MMT documents, which gives them a unique MMT URI, which in turn allows full referencing of all document components.
 All commands executed within a session manipulate the associated document, most importantly by interactively creating new theories and then calling MMT algorithms on them.
 The latter include but are not limited to computation.
 
 \paragraph{Input}
-The possible inputs excepted by the MMT kernel are divided into three groups.
+The possible inputs accepted by the MMT kernel are divided into three groups.
 \begin{itemize}
 \item \textbf{Global management commands} allow displaying and deleting all current sessions.
  In practice, these commands are typically not available to common users, which should only have access to their own session.
@@ -25,9 +25,9 @@ The possible inputs excepted by the MMT kernel are divided into three groups.
 \item \textbf{Content commands} are the mathematically meaningful commands and described below.
 \end{itemize}
 
-The content commands are divided into two groups:
+The content commands are again divided into two groups:
 \begin{itemize}
- \item \textbf{Write-commands} send new content to the backend in order to build the current MMT document step by step.
+ \item \textbf{Write-commands} send new content to the MMT backend to build the current MMT document step by step.
    The backend maintains one implicit, ephemeral MMT document for each session, and any write command changes that document.
  \item \textbf{Read-commands} retrieve information from the backend without changing the session's document.
    These include lookups (both in the session document and in any other accessible document) or computations.
@@ -40,13 +40,13 @@ for many current kernels, it makes sense to simplify the implementation by requi
 
 In our MMT kernel, all declarations that may contain nested declarations (most importantly all MMT documents and theories) are split into parts as follows: the header, the list of nested declarations, and a special end-of-nesting marker.
 Each of these is communicated in a separate write-command.
-The semantics of MMT is carefully designed in such a way that (i) any local scope arising from nesting has a unique URI, and (ii) if a well-formed MMT document is built incrementally by appending individual declarations to a currently open local scope, any intermediate document is also well-formed.
+The semantics of MMT is carefully designed in such a way that \emph{i}) any local scope arising from nesting has a unique URI, and \emph{ii}) if a well-formed MMT document is built incrementally by appending individual declarations to a currently open local scope, any intermediate document is also well-formed.
 This is critical to make our implementation feasible: the MMT kernel maintains the current document as well as the URI of the current scope; any write-command affects the current scope, possibly closing it or creating new subscopes.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
 
 For example, the sequence of commands on the left of Figure~\ref{fig:test_theory} builds two nested theories, where the inner one refers to the type \texttt{a} declared in the outer one.
 The right-hand side of Figure~\ref{fig:test_theory} shows the equivalent MMT surface syntax on the right.
-Semantically, there is no difference between entering the left-hand side interactively via our new kernel or processing the right-hand side with the old MMT parser.
+Semantically, there is no difference between entering the left-hand side interactively via our new kernel or processing the write commands on the right with the standard MMT parser.
 \begin{figure}[ht]\centering
 \begin{minipage}[c]{10cm}\includegraphics[width=10cm]{test_theory_jupyter}\end{minipage}
 \begin{minipage}[c]{5cm}\includegraphics[width=5cm]{test_theory}\end{minipage}
@@ -84,7 +84,7 @@ However, actually executing the user's commands requires a strong integration wi
 That made it advisable to implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant logic is handled in Scala.
 
 Therefore, our implementation consists of three layers.
-The top layer is a Python module that implements the abstract class for Jupyter kernels.
+The top layer (depiced on the left of Figure~\ref{fig:architecture-diagram}) is a Python module that implements the abstract class for Jupyter kernels.
 The bottom layer is a Scala class adding a general-purpose REPL to MMT that handles all the logic of MMT documents.
 This can be reused easily in other frontends.
 User commands are entered on the client and sent to the top layer, which forwards all requests to the bottom layer and all responses from the bottom layer to the client.
@@ -158,7 +158,7 @@ This shows a notebook in which our application is returned as the response to ce
 
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=12cm]{activecomp}
+  \includegraphics[width=15cm]{activecomp}
   \caption{Active Computation in Jupyter Notebooks via Jupyter/MMT Widgets}\label{fig:ac}
 \end{figure}
 
