@@ -51,7 +51,7 @@ However, if these $B$-objects need to be acted on by native operations of $A$ or
 %to export the desired API content dictionaries and support
 %(de)serialization.
 
-\subsubsection{API}
+\subsubsection{\Sage API Theories}
 
 In \cite{DehKohKon:iop16} we describe the extraction of some of \Sage's API from its \defemph{categories}.
 This exploited the mathematical knowledge explicitly embedded in the code to cover a fairly large area  of mathematics (hundreds of kinds of algebraic structures such as groups, algebras, fields, ...), with little additional efforts or need to curate the output.
@@ -75,16 +75,10 @@ Therefore, by a simple instrumentation of \Sage's test framework, we could run o
 
 The process remains brittle and the export will eventually require much curation:
 \begin{compactitem}
-\item The signature of methods is incomplete: it specifies the number and names of the
-  arguments, but only the type of the first argument.
-\item For constructors, the type of all the arguments is known, but
-  only for the specific call that led to the construction of the
-  introspected object.
-\item There is no distinction between mathematically relevant methods
-  and purely technical ones like data structure manipulation helpers.
-\item The export is very large and seems of limited use without
-  alignments with the MitM ontology. At this stage we do not foresee
-  much opportunities to produce such alignments other than manually.
+\item The signature of methods is incomplete: it specifies the number and names of the arguments, but only the type of the first argument.
+\item For constructors, the type of all the arguments is known, but only for the specific call that led to the construction of the introspected object.
+\item There is no distinction between mathematically relevant methods and purely technical ones like data structure manipulation helpers.
+\item The export is very large and seems of limited use without alignments with the MitM ontology. At this stage we do not foresee much opportunities to produce such alignments other than manually (but cf.~\cite{MueGauKal:cacfms17} for a machine-learning based approach).
 \end{compactitem}
 
 Nonetheless, we consider this an important first step toward fully automatic extraction of the \Sage API.
@@ -121,7 +115,7 @@ The first three lines recover the constructors for integers and for dihedral gro
 The last line applies them to construct successively the integer $4$ and $D_4$.
 
 Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.
-We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python library~\cite{py-openmath:on}).
+We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python OpenMath interface library~\cite{py-openmath:on} developed in the OpenDreamKit project).
 The following shows the corresponding OpenMath syntax tree in Python
 \begin{lstlisting}[basicstyle=\sf\small,label=lst:sagedihedral:om,caption={The dihedral group $D_4$ in OpenMath Syntax}]
 OMApplication(
@@ -155,17 +149,13 @@ This approach has the additional advantage of benefiting from future optimizatio
   % this case, building Z2(0) and Z2(1) only once.
 
 Still, systematically expanding \OMMT serialization to the \emph{entire} \Sage library requires significant manpower and can only be a long-term goal.
-To increase community support, our design elegantly decouples the problem into (i) instrumenting the serialization to generate \OMMT as an alternative target format, and (ii) structural improvements of the serialization that benefit \Sage in general.
+To increase community support, our design elegantly decouples the problem into \emph{i}) instrumenting the serialization to generate \OMMT as an alternative target format, and \emph{ii}) structural improvements of the serialization that benefit \Sage in general.
 
 In particular, our serialization of \Sage objects is \defemph{by construction} rather than \defemph{by representation}, i.e., we serialize the constructor call that was used to build an object instead of the low-level \Python representation of the resulting object.
 This is important to hide implementation details and allow for straightforward alignments.
-From the origin, the \Sage community has internally promoted
-good support for serialization as this is a fundamental building
-block for communication between parallel processes, databases, etc.
-Thus, it already values serialization by construction as
-superior because it is usually more concise and more robust under
-changes to \Sage. Therefore, independent of the purposes of this
-\papertype, we expect a synergy with the \Sage community toward improving
+From the origin, the \Sage community has internally promoted good support for serialization as this is a fundamental building block for communication between parallel processes, databases, etc.
+Thus, it already values serialization by construction as superior because it is usually more concise and more robust unde rhanges to \Sage.
+Therefore, independent of the purposes of this \papertype, we expect a synergy with the \Sage community toward improving
 serialization.
 
   % There are generic tests; it is an official part of the review
@@ -249,25 +239,11 @@ These are part of a standard group of content dictionaries that describe (some) 
 
 Building on the OpenMath toolkits for OpenMath phrasebooks~\cite{py-openmath:on} and SCSCP communication~\cite{py-scscp:on} in {\Python} -- which were developed for \Sage in the
 OpenDreamKit project, we wrapped \Singular in a thin layer of \Python code that provides \SCSCP communication.
-This work was undertaken by the sixth author as part of a summer internship in about a week without prior expert knowledge of the system. Of course, if we want to achieve a more comprehensive coverage of the \Singular dialect, we will have to either manually write a theory graph or instrument \Singular for extraction as we did for \Sage or \GAP above. 
+This work was undertaken by a student as part of a summer internship in about a week without prior expert knowledge of the system.
 
-\subsection{\LMFDB}
+Since then, Sebastian Gutsche has tested the feasibility of the MitM approach by testing the effort of adding a set of system API theories for the \Singular system. He has generated the full set necessary achieve a comprehensive coverage of the \Singular dialect by heuristically parsing definitions, call patterns, and comment strings in the Singular C code. The pure coding exercise took him -- a very experienced Singular user and part-time developer -- three days. This shows that the joining costs involved in adding a CAS is small, in this case smaller than developing the \Sage glue code had been.  
 
-Since 2011, the the ``L-Functions and Modular Forms Database'' (\LMFDB)~\cite{Cremona:LMFDB16,lmfdb:on} documents the system functionality in a system of ``knowls'' (knowledge items), which contain short informal definitions of the mathematical concepts and information about their relation to others.
-The \LMFDB currently contains almost 1000 knowls covering most of the \LMFDB.
-Knowls were originally intended to make the \LMFDB user interface self-contained and self-documenting.
-Figure~\ref{fig:knowl} shows the knowl for a ``Hecke Algebra'', where another knowl for the ``weight'' of a Bianchi modular form is displayed inline (the typical mode of interaction with knowls).
-In \LMFDB, the set of knowls can be downloaded from the system API as a JSON where the
-text is encoded as HTML5 with {\LaTeX} and knowl references as custom markup. As the
-contents are informal, we generate \sTeX-encoded \ommt theories from them, which can serve as interface theories.
-\sTeX~\cite{Kohlhase:ulsmf08,sTeX:github:on} is a variant of {\TeX/\LaTeX}, which uses special {\TeX} macros for marking up \ommt structures and can thus be used as a surface language for the MMT system.
-As its syntax is close to the {\LaTeX} markup prevalent in Mathematics and it can also be processed by \texttt{pdflatex} to get PDF output, it is a practical surface language for flexiformal \ommt.
-There are currently 945 knowls in \LMFDB, which about as many mathematical concepts (some knowls introduce multiple concepts, some are non-mathematical). 
 
-\begin{figure}[ht]\centering
-  \includegraphics[width=14cm]{knowl}
-  \caption{Knolws in the \LMFDB User Interface}\label{fig:knowl}
-\end{figure}
 
 \subsection{Alignments}\label{sec:integrating:alignments}
 

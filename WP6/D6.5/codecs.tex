@@ -1,14 +1,15 @@
 % !TEX root = ../thesis.tex
 
 When integrating systems with the star-shaped MitM architecture, some translation of concrete formats is necessary.
-While this is not surprising, it leads to an important different between the integration of computation systems and databases: the former but not the latter include a programming environment that provides all necessary infrastructure for implementing the reformatting.
+While this is not surprising, it leads to an important different between the integration of computation systems and knowledge bases: the former but not the latter include a programming environment that provides all necessary infrastructure for implementing the reformatting.
 Therefore, to integrate with databases, it is convenient to standardize some encodings that translate between high-level datatypes in the MitM ontology and concrete representations that can be send to and received from databases.
+Even though the concepts and implementations are universally appliccable, we will use the \LMFDB as a concrete motivating setting. 
 
 This is particularly critical as the databases used for the scalable physical storage of large datasets usually offer only very simple data structures.
 For example, a JSON database (as underlies \lmfdb) offers only limited-precision integers, boolean, strings, lists, and records as primitive objects.
 An SQL database offers only records of basic objects.
-Neither provides a type system
-Consequently, the objects stored in the database are very different from the sophisticated mathematical objects expected by the schema theory.
+Neither provides a type system.
+Consequently, the objects stored in the database are very different from the sophisticated mathematical objects expected by the mathematical software systems in the OpenDreamKit VRE toolkit. 
 
 Therefore, databases like \lmfdb must encode this complex mathematical objects as simple database objects.
 Consider, for example, the \identifier{degree} of an elliptic curve (as we will in Section~\ref{sec:databases}.
@@ -22,6 +23,7 @@ Our codecs are indexed by semantic types: the type constructor \codectt maps a s
 For instance, the object \identifier{StandardInt} of type $\codectt\;\mathbb{Z}$ is a codec that translates between \lmfdb's idiosyncratic float/string-representation and MitM's integers.
 Note that there can be multiple different codecs for the same semantic type.
 For example, \identifier{IntAsArray} encodes integers $x$ as lists of $64$-bit integers consisting of the digits of $x$ with respect to base $2^{64}$.
+Figure~\ref{fig:codecs} shows a collection of atomic codecs useful in the \LMFDB context. 
 
 \begin{figure}[ht]\centering
   \begin{tikzpicture}\footnotesize
@@ -44,7 +46,7 @@ For example, \identifier{IntAsArray} encodes integers $x$ as lists of $64$-bit i
     };
   \end{tikzpicture}
   \caption[List of Codecs]{
-    Codecs specified in \mmt ($\mathbb{N}$, $\mathbb{Z}$, $\mathbb{Z}^{+}$ are as usual, $\mathbb{B}$ are booleans, and
+    Some Codecs specified in \mmt ($\mathbb{N}$, $\mathbb{Z}$, $\mathbb{Z}^{+}$ are as usual, $\mathbb{B}$ are booleans, and
     $\mathbb{S}$ are Unicode strings)
   }
   \label{fig:codecs}
@@ -54,7 +56,7 @@ We do not (and do not have to) define the actual encoding/decoding functions in 
 It is more important to identify the codecs needed in practice, introduce names for them, and spell out their semantics.
 Then it is straightforward to implement them in any other programming language used interfacing with \lmfdb.
 
-In particular, we have implemented them in Scala, the language underlying the \mmt system.
+Concretely, we have implemented them in Scala, the language underlying the \mmt system.
 Additionally, the \textsf{Codecs} theory annotates each codec declaration with a reference to the Scala class implementing the codec.
 That way, \mmt can run the encoding/decoding functions of the codec.
 
@@ -71,7 +73,7 @@ The above is only sufficient for atomic semantic types, which typically correspo
 Consider now the field \identifier{isogeny\_matrix} of elliptic curves.
 The semantic representation of one possible value (namely for the curve \identifier{11a1}) of this field is the matrix on the right.
 
-The semantic type operator $\mathrm{Matrix}$ takes $1$ type argument (the element type, integers in this case) and two value arguments (the dimensions, $3$ and $3$ in this case) and constructs the respective matrix type. 
+The semantic type operator $\mathrm{Matrix}$ takes one type argument (the element type, integers in this case) and two value arguments (the dimensions, $3$ and $3$ in this case) and constructs the respective matrix type. 
 In principle, one could give a codec for each matrix type that comes up in a database schema. 
 But a much more elegant solution is to specify \textbf{codec operator}s in analogy to type operators.
 A codec operator for a type operator with $k$ type and $l$ value arguments, takes $k$ codec and $l$ value arguments.
@@ -95,20 +97,20 @@ For example, a codec operator for matrices takes a codec $C:\codectt\, E$ for th
     };
   \end{tikzpicture}
   \caption[List of Codec Operators]{
-    Second annotated subset of the codecs theory containing a selection of codec operators found in \mmt. 
-    Compare with Figure~\ref{fig:codecs}. 
+    Some \mmt Codec Operators for \LMFDB; 
+    compare with Figure~\ref{fig:codecs}. 
   }
   \label{fig:codecops}
 \end{figure}
-Like codecs, codec operators are represented in \mmt in two ways: as declarations inside the theory \identifier{Codecs} (see Figure~\ref{fig:codecops} for a list, compare again with Figure~\ref{fig:vtarch}) and as a corresponding Scala function that maps codecs to codecs. 
+Like codecs, codec operators are represented in \mmt in two ways: as declarations inside the theory \identifier{Codecs} (see Figure~\ref{fig:codecops} for a list and Figure~\ref{fig:vtarch} in Section~\ref{sec:lmfdb} for the general seeting) and as a corresponding Scala function that maps codecs to codecs. 
 When reading the declarations, note that we make use of the dependent function types of the MitM foundation: curly brackets denote dependent function arguments, i.e., arguments that may occur in later argument types and the result type.
 
 With these declarations, we recover the \lmfdb encoding of isogeny matrices by applying the codec operator \identifier{StandardMatrix}, which encodes matrices as lists of lists, to the codec \identifier{StandardInt} and the dimension $3$ and $3$.
 The resulting codec \[\plaintt{StandardMatrix}(\mathbb{Z}, 3, 3, \plaintt{StandardInt})\] encodes the above matrix as\ \lstinline|[[1,5,25],[5,1,5],[25,5,1]]|.
 
 %%% Local Variables:
+%%% mode: latex 
 %%% mode: visual-line
 %%% fill-column: 5000
-%%% mode: latex
 %%% TeX-master: "report"
 %%% End:
