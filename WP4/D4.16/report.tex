@@ -13,10 +13,10 @@
 % This will be the abstract, fetched from the github description
 \githubissuedescription
 
-\section{Introduction}
+\clearpage
+\tableofcontents
 
-\TODO{Write a one (half) page summary of this introduction, and put it
-  in the github description}
+\section{Introduction}
 
 The \href{https://jupyter.org}{Jupyter Notebook} is a web application
 that enables the creation and sharing of executable documents
@@ -32,7 +32,12 @@ See Figure~\ref{fig:ipyleaflet} for an example, and
 \delivref{UI}{vis3d} for ODK's contribution to 3D visualization.
 Furthermore, widgets can be \emph{composed} to build rich
 applications, with all the usual UI components (e.g. menus, sliders,
-or layout control).
+or layout control); see Figure~\ref{fig:ipyleaflet2}.
+%
+Hence, the Jupyter stack provides a very flexible environment catering
+for use cases ranging from a novice user typing just a few commands
+or browsing interactive documents to more advanced users authoring
+rich interactive applications for their fellows.
 
 \begin{figure}[h]
   \begin{center}
@@ -49,14 +54,9 @@ or layout control).
     \includegraphics[width=\textwidth]{images/sc-ipyleaflet}
     \caption{A Jupyter application displaying survey results on San
       Francisco city districts \tiny{(courtesy of the \lstinline{ipyleaflet} documentation)}.}
-  \label{fig:ipyleaflet}
+  \label{fig:ipyleaflet2}
   \end{center}
 \end{figure}
-
-Hence, the Jupyter stack provides a very flexible environment catering
-for use cases ranging from a novice users typing just a few commands
-or browsing interactive documents to more advanced users authoring
-rich interactive applications for their fellows.
 
 The question we are tackling in this report is how this technology --
 and specifically Jupyter widgets -- can be leveraged for pure
@@ -64,6 +64,11 @@ mathematics. The unique challenge comes from the huge variety of
 mathematical objects that the user may want to visualize and
 interact with, and the variety of graphical representations;
 see Figure~\ref{fig:math_viz} for some examples.
+%
+We therefore can't hope to provide hand crafted solutions for each
+situation; instead we need to devise a toolbox of generic solutions
+from which users can easily derive specialized visualizations for
+their own pet objects.
 
 %\newpage
 
@@ -111,12 +116,7 @@ see Figure~\ref{fig:math_viz} for some examples.
   \label{fig:math_viz}
 \end{figure}
 
-We therefore can't hope to provide hand crafted solutions for each
-situation; instead we need to devise a toolbox of generic solutions
-from which users can easily derive specialized visualizations for
-their own pet objects.
-
-In this report, we pursue two directions.
+We pursue two directions:
 
 In Section~\ref{section:combi}, we explore the development of widgets
 for the graphical visualization in combinatorics -- or more generally
@@ -130,7 +130,7 @@ explores the natural use case of objects that admit a graph-like
 representation: trees, graphs, lattices of subgroups, crystals,
 posets, discrete markov chains, just to name a few. At this stage, ODK
 has a light contribution to the development of this package, through
-the supervision(?) of ODK's member Markus Pfeiffer. We highlight the
+the supervision of \ODK's member Markus Pfeiffer. We highlight the
 lessons learned there and describe upcoming collaboration toward
 bringing Francy\'s features to SageMath.
 
@@ -164,7 +164,7 @@ can make easy to discover and emphasize according to relevance. The
 challenge is that, given the huge variety of objects in a system like
 SageMath, we can't afford to hand craft such pages for each type of
 objects. We report on our prototype
-\lstinline{sage-explorer} that exploits the semantic embedded into the
+Sage-Explore that exploits the semantic embedded into the
 system to produce a reasonable overview page automatically tailored to
 each object.
 
@@ -177,7 +177,7 @@ each object.
   \begin{center}
     \includegraphics[width=\textwidth]{images/TableauExplorer}
   \end{center}
-  \caption{Sage Explorer}
+  \caption{Interactive introspection on a standard tableau with Sage-Explorer}
   \label{fig:tableau-explorer}
 \end{figure}
 
@@ -213,27 +213,8 @@ explore and tackle during the last year of OpenDreamKit:
   will it be to resolve it?
 \end{itemize}
 
-\section{State of the art}
-
-\TODO{A standalone section? Or comments about it in the intro and along the way?}
-
-In addition to the interactive widgets already delivered with ipywidgets (e.g. Sliders), numerous investigations, towards these goals, have been conducted in mathematical environments.
-
-\begin{itemize}
-\item The \href{http://www.lmfdb.org/}{LFMDB} database displays a comprehensive view of L-functions and Modular Forms in a web browser, yet misses manipulation possibilities on the objects.
-\item In the \href{https://core.ac.uk/download/pdf/9839511.pdf}{The
-  Larch Environment} document (2013), Geoffrey W. French presents his own graphical
-  interactive programming environment called \emph{larch}.
-  One of his main ideas is to
-  \emph{coerce} objects into graphical representations. Meaning that
-  every object must know how it can be graphically represented, this
-  representation being the default one and can be tailored by the
-  user: G.W. French speaks of different \emph{perspectives} for the
-  same object. The Larch Environment also maintains a state of objects
-  in order to automatically refresh the representation.
-  However, the Larch environment is designed to run locally, i.e. not
-  within any browser, and the project was discontinued in 2014.
-\end{itemize}
+% \TODO{tension SAGE/javascript concernant l'emplacement des appels de
+%   méthodes}
 
 \section{Interactive visualization of combinatorial objects}
 \label{section:combi}
@@ -257,8 +238,6 @@ the \emph{International Symposium on Graph Drawing and Network
 to computational systems and, more importantly, explore how to best
 leverage the technology to empower users of such systems to adapt it
 to their needs.
-
-\TODO{somewhere: macaulay's package}
 
 At this stage, Francy is a package for the GAP computer algebra
 system. However its features would be extremely valuable for other
@@ -289,7 +268,7 @@ browser.
   \begin{center}
     \includegraphics[width=\textwidth]{schemas/SensUnique}
   \end{center}
-  \caption{Francy Data Flow}
+  \caption{Interactive visualization Data Flow}
   \label{fig:dataflow1}
 \end{figure}
 
@@ -297,8 +276,8 @@ browser.
 %\subsection{Francy, }
 
 
-\subsection{A generic widget for objects with a grid-like representation}
-\label{section:grid}
+\subsection{Toward interactive edition}
+\label{section:editing}
 
 We have seen a \emph{design pattern} emerging in the previous section:
 without this being formalized, a similar approach had been taken in
@@ -306,28 +285,28 @@ Sage for static graph drawing, using the so-called ``dot'' format of
 the graphviz project as intermediate data format, to later produce
 graph pictures in a variety of formats (latex, pdf, svg).
 
+\begin{wrapfigure}{r}{0.25\textwidth}
+  \includegraphics[width=100px]{images/JDTSlide}
+  \caption{A skew-tableau}
+  \label{fig:skew_tableau}
+\end{wrapfigure}
 Similarly, in the
 \href{http://mupad-combinat.sourceforge.net}{MuPAD-Combinat} project a
-generic intermediate data format was designed for all objects that can be
-drawn by filling out certain cells in a 2-dimensional grid. Here is,
-for example, a drawing of \emph{skew tableau}, an important kind of
-combinatorial object arising in representation theory:
-
-\begin{wrapfigure}{r}{0.25\textwidth}
-    \begin{center}
-      \includegraphics[width=100px]{images/JDTSlide}
-      %\caption{A grid widget}
-\end{center}
-\end{wrapfigure}
+generic intermediate data format was designed for all objects that can
+be drawn by filling out certain cells in a 2-dimensional grid. For
+example Figure~\ref{fig:skew_tableau} shows a drawing of \emph{skew
+  tableau}, an important kind of combinatorial object arising in
+representation theory.
 We will call such a drawing a \emph{grid-like representation}.
 
+
 From the intermediate data format, drawings could be produced in a
-variety of format: latex, pdf, various forms of ascii art, ...; see
+variety of format: latex, pdf, various forms of ascii art, \dots; see
 \href{http://mupad-combinat.sourceforge.net/doc/en/Cat_Combinat/CombinatorialClassWith2DBoxedRepresentation.html}{Combinatorial Class With 2DBoxedRepresentation}.
 This achieved the same two levels of decoupling as we have seen in Francy.
 
 We decided to build on this previous experience to explore not only
-drawing, but also \emph{interactive editing}: here, the interaction
+visualization, but also \emph{interactive editing}: here, the interaction
 not only affects the visualization, but also induces changes to the
 the original mathematical objects via the intermediate data format.
 Thus the data flow is now bidirectional.
@@ -336,19 +315,65 @@ Thus the data flow is now bidirectional.
   \begin{center}
     \includegraphics[width=\textwidth]{schemas/DoubleSens}
   \end{center}
-  \caption{Sage Combinat Widgets Data Flow}
-  \label{fig:dataflow1}
+  \caption{Interactive edition Data Flow}
+  \label{fig:dataflow2}
 \end{figure}
 
-Technically speaking, we aimed for the implementation of a generic
-Jupyter widget meant for all SAGE-objects admitting a grid-like
-representation.
+This brings new challenges.
+%
+% Please notice an additional challenge here: while editing cells or
+% adding/removing them, the editor has to \emph{reconstruct} a new
+% object from its cells and this requires also \emph{checking} the type of this
+% potential new object and displaying messages during the editing
+% process, especially in case of a temporary invalidity.
 
-%\TODO{NT: additional challenge: the interaction requires richer
-%  messages where not only data representing the, but also questions
-%  are asked (validity, valid changes, ...) + temporary invalidity. }.
-% OB : I guess I addressed this on line ~371 - subsection ``description of
-% the design
+First, updates may fail: given that the intermediate data format does not
+carry all the semantic of the mathematical objects, some interactive
+editions may be invalid; yet such editions should not be necessarily
+be forbidden, as it may take several elementary edition step to move
+from one valid state to another (think of a text editor that would
+block typing any key leading to a temporarily incorrectly spelled word!). Hence
+some logic is needed to handle loss and recovery of sync between the
+state of the semantic representation model and that of the
+underlying mathematical object.
+
+In addition, rich editing features, requires richer message passing
+than just sending description of the object back and forth. For
+example, in order to provide visual hints to the user, the view may
+need to request what are the next valid edition steps for a given
+object; or in case an invalid step is taken, the object may return
+rich error messages enabling visual feedback. Also, for editing large
+objects, one may wish as well to send only incremental updates.
+
+Therefore, the semantic representation model needs not only to specify
+a \emph{data format} to represent instances of this model, but also
+\emph{operations} on them, that is an API.
+
+
+Aiming for interactive editing was suggested by the Larch Environment.
+In his \href{https://core.ac.uk/download/pdf/9839511.pdf}{master
+  thesis} (2013), Geoffrey W. French presents his own graphical
+interactive programming environment called \emph{larch}. One of his
+main ideas is to \emph{coerce} objects into graphical representations,
+meaning that every object must know how it can be graphically
+represented. Moreover, this representation is only a default one and can be
+tailored by the user: G.W. French speaks of different
+\emph{perspectives} for the same object. The Larch Environment also
+maintained a state of objects in order to automatically refresh the
+representation. This project was meant as an experimental platform,
+without a strong and widely used underlying infrastructure as \Jupyter,
+and was discontinued in 2014. Nevertheless the
+\href{https://www.youtube.com/watch?v=BaqaIw2c91o&t=29s}{online videos}
+remain inspiring.
+% However, the Larch environment was designed to run
+% locally, i.e. not within any browser, and
+
+\subsection{A generic widget for objects with a grid-like representation}
+\label{section:grid}
+
+To explore interactive editing, we set as goal the implementation of a
+generic Jupyter widget meant for all \Sage-objects admitting a
+grid-like representation.
 
 This use case combined several advantages:
 \begin{itemize}
@@ -357,16 +382,59 @@ This use case combined several advantages:
 \item Little mathematical background was required; this, together with
   the previous point, made for a smooth learning curve for our
   Research Software Engineer;
-\item It was a low hanging fruit with a large coverage;
+\item It was a low hanging fruit with a large coverage in algebraic
+  combinatorics, including matrices, integer partitions, (standard)
+  (skew) tableaux, ribbons, ribbon tableaux, grid graphs, aztec
+  diagrams, etc.
 \item The end result is immediately useful to colleagues, enabling
   early feedback from users;
 \item There is a large variety of potential specializations, each with
   it's own quirks and specifics.
 \end{itemize}
 Hence, this use case provided a unique challenge: all the difficulty
-resided in the the design of a generic solution that encapsulates as
+resided in the the design of a generic editing solution that encapsulates as
 much of the technicalities as possible, enabling users to specialize
 the generic solution for their own pet objects with little expertise.
+
+\subsection{Overview of the features and design}
+
+The developed \Jupyter widget \emph{GridViewWidget} has the following
+features:
+\begin{itemize}
+\item editing the content of cells
+\item adding or removing cells
+\item selecting cells for more interactions
+\item supporting temporarily invalid states
+\item recovering the underlying mathematical object for further
+  computations.
+\end{itemize}
+
+\begin{wrapfigure}{r}{0.32\textwidth}
+  \begin{center}
+    \includegraphics[width=.20\textwidth]{images/SkewTableauWidget}
+    \qquad
+    \includegraphics[width=.30\textwidth]{images/dominos-azteque}
+  \end{center}
+  \caption{Editing a skew tableau, and flipping dominos on a grid graph}
+\end{wrapfigure}
+
+The semantic representation model takes the form of a Python class
+\emph{GridViewEditor} that is both agnostic of the GUI and of the
+mathematical objects. To enable the latter, the interaction with
+mathematical objects of a certain kind, say integer partitions, goes
+through an adapter class which implements the required API on top of
+that of integer partitions. See the Figure~\ref{fig:schema}.
+
+The implementation of such an adapter shall be as simple as possible,
+to empower users to write new ones for their own pet mathematical
+objects. In particular, it should only require knowledge about the
+business logic of ditto mathematical objects. We explored different
+options, and battlefield tested them by writing adapters for a
+selection of mathematical objects of different nature, chosen in
+collaboration with potential users at the occasion of the experimental
+mathematics Spring school MathExp 2018 coorganised by \ODK
+(see~\longdelivref{dissem}{workshops-3}). The final design will be
+chosen according to users feedback.
 
 \begin{landscape}
 \begin{figure}[h]
@@ -374,79 +442,74 @@ the generic solution for their own pet objects with little expertise.
     \includegraphics[width=1.4\textheight]{schemas/SageViewEditor}
   \end{center}
   \caption{Sage View Editor classes}
-  \label{fig:lmfdb}
+  \label{fig:schema}
 \end{figure}
 \end{landscape}
 
-\subsection{Description of the design, of the API that subclasses must
-  implement, code examples}
+\subsection{Dissemination strategy}
 
-We have developped a \emph{GridViewWidget} for representing - and
-interacting with - Sage Objects in Jupyter environment, in a browser.
+The code is distributed as a Sage package
+\href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets},
+endowed with a Binder-based online demo.
+This package is meant to grow beyond this initial seed, attracting
+contributions from the community, and presumably be integrated
+progressively into SageMath. 
 
-The interaction possibilities currently are the following:
+The following steps will be taken to attract users and contributions:
 \begin{itemize}
-  \item editing a cell content
-  \item adding or removing cells
-  \item selecting cells for more interactions
+  \item Implementing adapters for the most classical object types, and
+    only them;
+  \item Writing tutorials on how to write new ones;
+  \item Running tutorials at the occasion of local work groups at
+    \emph{Laboratoire de Recherche Informatique} and
+    \emph{\href{https://www.lix.polytechnique.fr/}{Laboratoire
+        d'Informatique de l'École Polytechnique}}, and at upcoming
+    Sage Days.
+  \item Inviting users to provide feedback, either face to face, on
+    the development mailing list, or on the project
+    \emph{sage-combinat-widgets} issues interface.
 \end{itemize}
 
-Please notice an additional challenge here: while editing cells or
-adding/removing them, the editor has to \emph{reconstruct} a new
-object from its cells and this requires also \emph{checking} the type of this
-potential new object and displaying messages during the editing
-process, especially in case of a temporary invalidity.
 
-This \emph{GridViewWidget} is based on a \emph{GridViewEditor}, that
-is GUI-agnostic.
+% Currently hidden in the \emph{GridViewEditor} itself, we intend to promote
+% the development of adapters for the Sage objects, either by implementing Adapter
+% classes as such, or by writing translating information. Here are a few code examples
+% for both strategies:
 
-\emph{GridViewEditor} can operate in various Sage grid-representable objects like graphs,
-matrices, or tableaux. As it needs to operate on each in the same way,
-and in effect they have various method names, or signatures, or
-different features, we felt the need to define a list a methods to be
-implemented by them, i.e. an \emph{API}.
+% \begin{lstlisting}
+% class GenericGraphGridViewAdapter(GenericGraph):
+%   ...
+%   def from_cells(self, cells={}):
+%     g = GenericGraph()
+%     g.add_vertices(list(cells.keys()))
+%     return g
 
-Currently hidden in the \emph{GridViewEditor} itself, we intend to promote
-the development of adapters for the Sage objects, either by implementing Adapter
-classes as such, or by writing translating information. Here are a few code examples
-for both strategies:
+% class PartitionGridViewAdapter(Partition):
+%   ....
+%   def add_cell(self, coord):
+%     return self.add_cell(self.coord[0], self.coord[1])
 
-\begin{lstlisting}
-class GenericGraphGridViewAdapter(GenericGraph):
-  ...
-  def from_cells(self, cells={}):
-    g = GenericGraph()
-    g.add_vertices(list(cells.keys()))
-    return g
+% class StandardTableauGridViewAdapter(StandardTableau):
+%   ....
+%   def from_cells(self, cells={}):
+%       positions = sorted(list(cells.keys()))
+%       try:
+%         return StandardTableau([[cells[pos] for pos in positions if pos[0]==i] for i in uniq([t[0] for t in positions])])
+%       except:
+%       raise TypeError("Cannot generate a valid StandardTableau!")
+% \end{lstlisting}
 
-class PartitionGridViewAdapter(Partition):
-  ....
-  def add_cell(self, coord):
-    return self.add_cell(self.coord[0], self.coord[1])
+% Second strategy: a translator can be written directly in the source
+% code, with \emph{Python annotations}:
 
-class StandardTableauGridViewAdapter(StandardTableau):
-  ....
-  def from_cells(self, cells={}):
-      positions = sorted(list(cells.keys()))
-      try:
-        return StandardTableau([[cells[pos] for pos in positions if pos[0]==i] for i in uniq([t[0] for t in positions])])
-      except:
-      raise TypeError("Cannot generate a valid StandardTableau!")
-\end{lstlisting}
-
-Second strategy: a translator can be written directly in the source
-code, with \emph{Python annotations}:
-
-\begin{lstlisting}
-@grid_view_adapter(\{addable_cells:self.shape().addable_cells, removable_cells:removable_cells\})
-class StandardTableau:
-  /.../
-\end{lstlisting}
+% \begin{lstlisting}
+% @grid_view_adapter(\{addable_cells:self.shape().addable_cells, removable_cells:removable_cells\})
+% class StandardTableau:
+%   /.../
+% \end{lstlisting}
 
 %The users can specify their own tile shape. For example they can
 %use \emph{IPyWidgets} buttons or text inputs.
-
-\subsection{Potential applications}
 
 %\begin{wrapfigure}{r}{0.25\textwidth}
 %    \begin{center}
@@ -454,43 +517,6 @@ class StandardTableau:
 %      \caption{A tableau widget}
 %\end{center}
 %\end{wrapfigure}
-
-\begin{wrapfigure}{r}{0.25\textwidth}
-    \begin{center}
-      \includegraphics[width=100px]{images/SkewTableauWidget}
-      \caption{Editable skew tableau}
-\end{center}
-\end{wrapfigure}
-
-Grid-like representable objects cover many algebraic or combinatoric
-objects: matrices, partitions, grid graphs, tableaux, ribbons ..
-
-Apart from displaying and editing an object, more possibilities can be
-imagined
-
-\begin{wrapfigure}{r}{0.25\textwidth}
-    \begin{center}
-      \includegraphics[width=100px]{images/dominos-azteque}
-      \caption{Matching and flipping in a graph}
-\end{center}
-\end{wrapfigure}
-
-As an example, we have developed a domino-like representation of
-\emph{grid-graph matchings} with a \emph{flipping} feature on neighboring dominos.
-
-The code is distributed as a Sage package
-\href{https://github.com/sagemath/sage-combinat-widgets/}{sage-combinat-widgets}
-which is meant to grow beyond this initial seed, attracting
-contributions from the community, and presumably be integrated
-progressively into SageMath.
-
-\subsection{Strategy to get feedback from users}
-
-\begin{itemize}
-  \item Attending local seminars at \emph{Laboratoire de Recherche Informatique} or/and \emph{\href{https://www.lix.polytechnique.fr/}{Laboratoire d'Informatique de l'École Polytechnique}}
-  \item Release some implementation examples for a few object types ; write a tutorial on how to write your own ; invite users to write feedback, either on the development mailing list, or on the  project \emph{sage-combinat-widgets} issues interface
-  \item Take advantage on the next SAGE-days to organize a dedicated workshop and collect direct feedback there
-\end{itemize}
 
 \subsection{Future plans}
 
@@ -501,168 +527,249 @@ In the upcoming year, we plan to collaborate tightly with Francy to:
   the community that was so far only partially fulfilled by
   unsustainable prototypes like Sage's
   \href{http://doc.sagemath.org/html/en/reference/graphs/sage/graphs/graph_editor.html}{graph editor}.
-\item Further explore the design pattern with over kinds of graphical
-  representations (starting from the grid view representation of the
-  next section), with a similar decoupling between a Sage backend, a
-  semantic model, and a Jupyter/JS frontend.
+\item Further explore the semantic representation model design pattern
+  with over kinds of graphical representations, with a similar
+  decoupling between a \Sage backend, a semantic representation model,
+  and a Jupyter/JS frontend.
 \item Contribute the models and frontends to Francy, making the
-  features available to GAP.
+  features available to \GAP.
+\item Seek collaboration with Macaulay2's
+  \href{http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.11/share/doc/Macaulay2/Visualize/html/}{Visualize
+    package} that share similar aims (though not yet Jupyter based).
+\item Write tutorials and collect best practices on how to develop new
+  graphical representations on top of Jupyter widgets.
 \end{itemize}
 
-\section{Sage-explorer}
+\section{Sage-Explorer}
 \label{section:sage-explorer}
 
-\TODO{tension SAGE/javascript concernant l'emplacement des appels de
-  méthodes}
+\subsection{History}
 
-\subsection{Sage-explorer should be as rich as LMFDB, and is interactive}
+The idea behind Sage-Explorer originated at a workshop organized by
+Paul-Olivier Dehaye and the second author at ICMS in 2013. The aim of
+this workshop was to bring together developers of online mathematical
+databases like the \LMFDB and computational mathematical software like
+\Sage.
 
+\LMFDB is an online database in number theory for L-functions and
+Modular Forms. One key asset, beyond advanced searches, is the ability
+to display objects together with a lot of contextual information, such
+as relevant invariants, related objects, and associated mathematical
+knowledge; see Figure~\ref{fig:lmfdb-11a2}.
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth]{images/LMFDB-11a2}
   \end{center}
-  \caption{L-fonctions database on elliptic curve ``11a2''}
-  \label{fig:lmfdb}
+  \caption{The LMFDB page for the elliptic curve ``11a2''.}
+  \label{fig:lmfdb-11a2}
 \end{figure}
+For each type of mathematical object the content of the page is
+handpicked by experts, which ensures a highly relevant selection.
+However this process does not scale well when the variety of objects
+increases. Also, the page can only show precomputed data.
 
-%\TODO{Comparative screenshot of the same curve in sage-explorer}
+Computational systems like Sage on the other hand let's one compute
+with a wide variety of objects; semantic information embedded into the
+system makes this scalable by enabling generic code. However, in the
+usual Read-Eval-Print loop of a computational system, objects are
+displayed without contextual information. Most of the information is
+readily available, typically through introspection; however that
+introspection needs to be carried out manually which hampers fast pace
+interaction and discoverability.
 
-In LMFDB, many methods results are calculated at page opening, while
-with Sage Explorer, the calculation is run only on demand, except for
-some widely used \emph{properties}.
+One of many projects at that workshop was to explore whether one could
+bridge some of the gap between the two worlds and get the best of
+both. Namely, given an object in a computational system, exploiting
+the semantic information embedded into the system to generate
+automatically a page that displays it together with a relevant
+selection of contextual information. Of course, one can't hope to beat
+with a generic solution a thoughtful selection made by experts of the
+field; nevertheless this may be compensated by the large coverage of
+types of objects.
 
+A proof of concept was implemented by Jason Bandlow and the second
+author in a matter of days. The implementation was very crude and not
+sustainable due to the use of web technologies that did not meld well
+with \Sage. Nevertheless, it showed that the concept was meaningful;
+more importantly, it led to the discovery that this approach invited
+users to go on a journey, exploring \Sage by jumping from objects to
+related objects, hence the name, \Sage-Explorer.
+
+
+\subsection{A \Jupyter-based \Sage-Explorer}
+
+The emergence of the \Jupyter and \Jupyter widget technology at the
+time of writing \ODK's proposal opened an opportunity for
+reimplementing \Sage-Explorer on top of a sustainable foundation. The
+current implementation started in June 2018 and took a few weeks. For
+any \Sage object o in a Jupyter session, running \texttt{explore(o)}
+opens a page with the following contextual information:
+\begin{itemize}
+\item a representation of the object, as text, latex formulae,
+  graphics, or interactive widget depending on availability;
+\item a list of operations (methods) available for the object, sorted
+  by the class providing that operation, with the ability to swiftly
+  lookup the documentation or run the operation, possibly providing
+  additional arguments;
+\item a selection of \emph{properties}, that is relevant invariants or
+  related objects.
+\end{itemize}
+See Figure~\ref{fig:sage-explorer-11a2} for the page produced by
+Sage-Explorer on the same elliptic curve as above.
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth]{images/SageExplorer-11a2}
   \end{center}
-  \caption{Sage Explorer on elliptic curve ``11a2''}
-  \label{fig:lmfdb}
+  \caption{Sage-Explorer on the elliptic curve ``11a2''}
+  \label{fig:sage-explorer-11a2}
 \end{figure}
 
-\TODO{A bunch of screenshots: Tableau? Petersen graph?}
+% The \href{http://www.lmfdb.org/}{LFMDB} database displays a
+% comprehensive view of L-functions and Modular Forms in a web browser,
+% yet misses manipulation possibilities on the objects.
 
-\subsection{Overview}
+% In LMFDB, many methods results are calculated at page opening, while
+% with Sage Explorer, the calculation is run only on demand, except for
+% some widely used \emph{properties}.
 
-Sage-explorer comprises:
+%\TODO{A bunch of screenshots: Tableau? Petersen graph?}
 
+Most objects appearing on the page are clickable to start exploring
+them, with history management. The displayed properties are selected
+according to the semantic attached to the object. For example, if the
+object is a finite set, its cardinality will be displayed. This is
+currently configured by a text file in \emph{YAML} syntax a short
+extract of which follows.
+
+\ 
+\begin{verbatim}
+
+  cardinality:
+    in: EnumeratedSets.Finite
+
+  characteristic:
+    in: Fields
+
+  genus:
+    isinstance: sage.schemes.elliptic_curves.ell_generic.EllipticCurve_generic
+
+  multiplication_table:
+    in: Semigroups.Finite
+    when: cardinality < 21
+\end{verbatim}
+
+Finally, calling \texttt{explore()} without arguments brings up an
+index page from which the user can explore Sage's catalogs of graphs,
+groups, algebras, crystals, etc.
+
+
+% The object graphical representations try to be as ``natural'' as
+% possible for the user. So we use plotting when relevant. For
+% combinatorial objects, we call the \emph{sage-combinat-widgets}
+% package. As soon as integration is made with the \emph{sage-combinat-widgets},
+% the graphical representation will mirror the object changes in real
+% time, too.
+
+% The widget choice is also specified in the configuration. Yet we
+% intend to make it available directly within Sage source code, thanks
+% to \emph{Python annotations}.
+
+% Sage object methods are listed in the menus to facilite
+% discovering, alphabetically ordered. As method lists can be very long,
+% we have split them according to the class where they appear in Sage source
+% code and we intend to find more than one categorization way.
+
+% When a method is selected, its documentation and signature are made
+% available. The user can then fill out the argument and run the method
+% to get a result.
+
+
+% \subsection{Configuration and semantics}
+% \label{semantics}
+
+% Three configuration files specify:
+
+% \begin{itemize}
+% \item Graphical display widgets associated to Sage objects
+%   \item Properties associated to Sage objects, i.e. which object methods are
+%     to be considered as object properties.
+% \item The objects lists (or \emph{catalogs}) for the Explorer Index
+% \end{itemize}
+
+% To specify these, especially the first two, a set of logical rules
+% have been defined, are implemented in YAML syntax and parsed by the
+% Sage-explorer code.
+
+% In the future, we expect to get all this semantic information, or part of it,
+% written directly in Sage source code.
+
+% This could take the form of \emph{private attributes} or \emph{annotations}, like:
+
+% \begin{itemize}
+% \item a \emph{\_widget\_} attribute specified in Sage categories source files
+% \item specific annotations, using \emph{@} Python syntax for annotations
+%   \end{itemize}
+
+% Where will still remain, for the user, the possibility of overloading
+% the widget class - \emph{\_widget\_} being only the default) and
+% specify which of the \emph{properties} she wants to get rendered in effect.
+
+% Hence, there will be a contiuum between semantic written in Sage
+% source code and configuration files, taking into account semantic
+% information, logical rules specifying how to read this semantics, and
+% parametrization by the user, given that (for \emph{properties}:
+
+% \begin{itemize}
+% \item some semantics can be specified as object attributes: ``is this method a
+%   property?'' and
+%   \item ``is this property worth rendering by default?''  while we
+%     still have to decide
+%   \item ``is computing this property not going to slow down the display?''
+% \end{itemize}
+
+\subsection{Dissemination and future plans}
+
+The code is distributed as a Sage package
+\href{https://github.com/sagemath/sage-explorer/}{sage-explorer},
+endowed with a Binder-based online demo.
+
+At this stage, Sage-Explorer is still a prototype. It needs to be
+battle field tested for stability and usability. We will seek for
+feedback from users, in particular for styling, for growing the
+properties configuration beyond the current minimal seed, and for
+exploring how to best empower them to customize themselves this
+configuration. We will also improve the existing features, enabling
+for example searches and categorizing of operations, and exploring how
+to categorize properties as is done on LMFDB pages.
+
+Last but not least, we will investigate the interplay of Sage-Explorer
+with \WPref{dksbases}'s Math-in-the-Middle approach. Recall that this
+approach is is to exploit, combine, and enrich the semantic
+information contained in computational systems and databases, for
+interoperability purposes and beyond. One of the ongoing plans in this
+work package is to embed additional semantic information -- like
+alignments with the central Math-in-the-Middle ontology -- in \Sage
+and other computational systems, for example through code annotations.
+Albeit informal, whether a given property is “interesting” for a given
+type of objects is semantic information; as such it could be included,
+either in the central ontology or in the systems.
+
+We will explore whether the Math-in-the-Middle interoperability layer
+can be used to:
 \begin{itemize}
-  \item A block made of a title and a list of properties for the object
-  \item A graphical representation of the object
-  \item A list of object methods
-  \item A panel for documentation and computations
+\item share the configuration of interesting properties?
+\item explore other other computational systems from Sage?
+\item derive native explorers for other systems with minimal custom
+  code for each system?
 \end{itemize}
 
-We wanted to make available key information at once and, apart from
-that, let the user run the methods they like.
+% \subsection{Strategy to get feedback from users?}
 
-This is why we select only some of the methods, the results of which
-are called \emph{properties} and are configurable, as appears in this
-small (\emph{YAML} syntax) code extract:
+% \TODO{See above (ou bien on recopie dès que c'est bien fixé)}
 
-%\TODO{Example configuration source code}
-\begin{lstlisting}
-cardinality:
-  in: EnumeratedSets.Finite
+% \appendix
 
-multiplication_table:
-  in: Semigroups.Finite
-  when: cardinality < 21
-
-characteristic:
-  in: Fields
-
-polynomial:
-  in: Fields.Finite
-
-genus:
-  isinstance: sage.schemes.elliptic_curves.ell_generic.EllipticCurve_generic
-
-cremona_label: ..
-\end{lstlisting}
-
-The object graphical representations try to be as ``natural'' as
-possible for the user. So we use plotting when relevant. For
-combinatorial objects, we call the \emph{sage-combinat-widgets}
-package. As soon as integration is made with the \emph{sage-combinat-widgets},
-the graphical representation will mirror the object changes in real
-time, too.
-
-The widget choice is also specified in the configuration. Yet we
-intend to make it available directly within Sage source code, thanks
-to \emph{Python annotations}.
-
-Sage object methods are listed in the menus to facilite
-discovering, alphabetically ordered. As method lists can be very long,
-we have split them according to the class where they appear in Sage source
-code and we intend to find more than one categorization way.
-
-When a method is selected, its documentation and signature are made
-available. The user can then fill out the argument and run the method
-to get a result.
-
-Finally, links appear in many places in the explorer. Clicking on one
-of those links opens a new object in the explorer.
-
-\subsection{Configuration and semantics}
-\label{semantics}
-
-Three configuration files specify:
-
-\begin{itemize}
-\item Graphical display widgets associated to Sage objects
-  \item Properties associated to Sage objects, i.e. which object methods are
-    to be considered as object properties.
-\item The objects lists (or \emph{catalogs}) for the Explorer Index
-\end{itemize}
-
-To specify these, especially the first two, a set of logical rules
-have been defined, are implemented in YAML syntax and parsed by the
-Sage-explorer code.
-
-In the future, we expect to get all this semantic information, or part of it,
-written directly in Sage source code.
-
-This could take the form of \emph{private attributes} or \emph{annotations}, like:
-
-\begin{itemize}
-\item a \emph{\_widget\_} attribute specified in Sage categories source files
-\item specific annotations, using \emph{@} Python syntax for annotations
-  \end{itemize}
-
-Where will still remain, for the user, the possibility of overloading
-the widget class - \emph{\_widget\_} being only the default) and
-specify which of the \emph{properties} she wants to get rendered in effect.
-
-Hence, there will be a contiuum between semantic written in Sage
-source code and configuration files, taking into account semantic
-information, logical rules specifying how to read this semantics, and
-parametrization by the user, given that (for \emph{properties}:
-
-\begin{itemize}
-\item some semantics can be specified as object attributes: ``is this method a
-  property?'' and
-  \item ``is this property worth rendering by default?''  while we
-    still have to decide
-  \item ``is computing this property not going to slow down the display?''
-\end{itemize}
-
-\subsection{Upcoming work}
-
-\begin{itemize}
-\item develop interactivity for some methods in the widgets
-\item tutorial: how to build a widget
-\item enhance explorer index
-\end{itemize}
-
-\subsection{Strategy to get feedback from users?}
-
-\TODO{See above (ou bien on recopie dès que c'est bien fixé)}
-
-\appendix
-
-\TODO{The demo notebooks?}
-
-
+% \TODO{The demo notebooks?}
 
 \end{document}
 
@@ -670,4 +777,3 @@ parametrization by the user, given that (for \emph{properties}:
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
-

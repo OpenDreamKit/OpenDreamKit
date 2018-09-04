@@ -13,11 +13,13 @@ The MitM ontology consists of two parts: the \textbf{MitM Foundation} which prov
 \subsection{The MitM Foundation}\label{sec:foundation}
 
 The MitM foundation provides the type system and logic for the MitM ontology, i.e., the basic representational infrastructure used in the MitM ontology.
-It is developed in the archive  \href{https://gl.mathhub.info/MitM/Foundation}{\texttt{Foundation}} (4 files, 539k LoF (lines
+It is developed in the archive  \href{https://gl.mathhub.info/MitM/Foundation}{\texttt{Foundation}} (4 files, 539 LoF (lines
 of formalization), 103 commits).
 
+\paragraph{Types \& Expressions}
 While the logic is relatively straightforward, the standardization of the type system was very difficult because mathematics requires a rich, open-ended type system, yet concrete implementations must stay as simple as possible.
-After surveying the OpenDreamKit systems, we developed the types described in appendix~\ref{app:types}.
+After surveying the OpenDreamKit systems, we developed the types described in Appendix~\ref{app:types}.
+These types come with a set of constructors that allow to specify expressions (members of the respective type) that represent mathematical objects systematically; see Appendix~\ref{app:expr} for an exemplary list of mathematical objects that can be represented as a members of these types.
 
 In a nutshell, the MitM foundation provides base types for all arithmetical number systems and common data structures like strings/words and Boolean values.
 Complex types build on this include structural ones like (total and partial dependent) function, product, record, types, and mathematical constructions like sets, multisets, ists, vectors, and matrices.
@@ -27,108 +29,24 @@ These can also be constructed from OMDoc/MMT theories via the novel \textsf{Mod}
 Finally, the MtiM foundation supports subtyping for the arithmetical number systems ($\mathbb{N}\subseteq\mathbb{Z}\subseteq\mathbb{Q}\subseteq\mathbb{R}\subseteq\mathbb{C}$), and along the sub-model relation.
 This allows to express many mathematical identies very naturally.
 
-\subsubsection{Expressions}
-
-The MitM foundation allows the following \textbf{formulas}, i.e., expression of type $Boolean$:
-\begin{itemize}
-\item the propositional connectives: conjunction, disjunction, implication, negation, and equivalence of formulas as well as truth and falsity,
-\item typed equality: $t\doteq_T t'$ for any two terms $t,t'$ of type $T$,
-\item typed quantifiers: $\forall x:T.F(x)$ and $\exists x:T.F(x)$ for a type $T$ and a formula $F$,
-\end{itemize}
-Additionally, we allow shallow quantification over types: $\{a\}F(a)$ for a formula $F$ and a type variable $a$ is a formula but it may not --- to avoid inconsistency issues --- occur as a subformula of any of the above formula constructors.
-
-We do not give the remaining straightforward \textbf{term} constructors in detail and only remark on a few important aspects.
-Most critically, we allow types to have multiple representations that are semantically
-equivalent but practically different in meaningful ways (e.g., because converting between
-representations is expensive or imprecise). Moreover, some types have multiple constructors similar to an inductive type. In the sequel, we describe which representations are supported in those cases.
-
-\paragraph{Integers Modulo}
-The elements of $Z(m)$ are represented by $0,\ldots,m-1$.
-
-\paragraph{Real Numbers}
-A real number can be one of the following:
-\begin{compactitem}
- \item a rational number
- \item an IEEE double precision float
- \item a root $\sqrt[n]{x}$ for $n\in N$ and $x\in Z$
- \item the strings "pi" and "e"
-\end{compactitem}
-
-\paragraph{Complex Numbers}
-A complex number can be one of the following:
-\begin{compactitem}
- \item Cartesian form $x+yi$
- \item polar form $r e^{i\phi}$
- \item root of unity $\zeta_n$
-\end{compactitem}
-
-\paragraph{p-Adic Numbers}
-A $p$-adic number $x$ consists of unit $u\in N$ ($u,p$ co-prime), valuation $v\in Z$, and precision $r\in N$ (for $u<p^r$).
-
-\paragraph{Polynomials}
-For $r\in Ring$ and distinct strings $x_i$, we consider polynomials
-\[p\in Polynomial(r,[x_1,\ldots,x_n])\]
-to be of the form $p=\Sigma_{\vec{i}\in N^n} a_{\vec{i}} \vec{x}^{\vec{i}}$ where and $(x_1,\ldots,x^n)^{(i_1,\ldots,i_n)}$ abbreviates $x_1^{i_1}\cdot \ldots\cdot x_n^{i_n}$.
-
-\paragraph{Rings}
-A ring can be one of the following:
-\begin{compactitem}
- \item a field
- \item $Polynomial(r,[x_1,\ldots,x_n])$ for $r\in Ring$
-\end{compactitem}
-
-\paragraph{Fields}
-A field can be one of the following:
-\begin{compactitem}
- \item base fields $Q$, $R$, and $C$
- \item finite fields $Z(p)$ for $p\in Prime$ (same type as integers modulo $p$)
- \item polynomial field extensions $FieldExtension(F,p,a)$ of $F\in Field$ for a polynomial $p\in Polynomial(F,[x])$ (for any variable name $x$)
- \item named fields identified by a string
-\end{compactitem}
-
-We define some abbreviations for common fields:
-\begin{compactitem}
- \item $Q(p,a)=FieldExtension(Q,p,a)$
- \item $Qsqrt(n,a)=Q(x^2-n,a)$
- \item $Qzeta(n,a)=Q(y_n,a)$ where $y_n$ is the $n$-th cyclotomic polynomial
-\end{compactitem}
-
-We do not define $GF(q)$ for $q=p^n$ as an abbreviation for $FieldExtension(Z(p),g)$ for some irreducible polynomial $g\in Polynomial(Z(p))$ of degree $n$ because there is no way to choose $g$ canonically and it is necessary to know $g$ to represent the elements of $GF(q)$.
-
-\paragraph{Structure Elements}
-Every structure has an underlying type, which is used to represent its elements.
-
-The underlying types of fields are defined as follows:
-For $Q$, $R$, $C$, and $Z(p)$, the underlying type is the field itself.
-The underlying type of $FieldExtension(F,p,a)$ is $Polynomial(F,[a])$ ($a=x$ is allowed).
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \subsection{MitM Core}
 
-The \textbf{MitM core} in the
-  \href{https://gl.mathhub.info/MitM/smglom}{\texttt{smglom}}\footnote{The name
-    \texttt{smglom} was initially chosen for the ``Semantic Multilingual Glossary of
-    Mathematics'' (SMGloM; see \ref{sec:smglom} below) with which it is
-    cross-referenced. We will rethink naming once the MitM Ontology stabilizes.}  archive
-  (43 files, 2600 LoF, 370 commits). It carries the bulk of the knowledge representation in
-  the MitM Ontology. The main thrust of curation has been to get the VRE use cases
-  reported on in~\cite{ODK-D6.5}, but we also have elementary formalizations of algebra,
-  arithmetics, calculus, category theory, set collections, elliptic curves (for LMFDB),
-  functional analysis, geometry, graph theory, measure theory, set theory, and topology.
-
+The \textbf{MitM core} in the \href{https://gl.mathhub.info/MitM/smglom}{\texttt{smglom}}\footnote{The name \texttt{smglom} was initially chosen for the ``Semantic Multilingual Glossary of Mathematics'' (SMGloM; see \ref{sec:smglom} below) with which it is cross-referenced. We will rethink naming once the MitM Ontology stabilizes.}  archive (55 files, 2600 LoF, 360 commits).
+It carries the bulk of the knowledge representation in the MitM Ontology.
+The main thrust of curation has been to get the VRE use cases reported on in~\cite{ODK-D6.5}, but we also have elementary formalizations of algebra, arithmetics, calculus, category theory, set collections, elliptic curves (for LMFDB), functional analysis, geometry, graph theory, measure theory, set theory, and topology.
 
 In the sequel, we describe two exemplary parts of the MitM core ontology.
 
 \subsubsection{Computational Group Theory}
-
-\ednote{specify file name and size of the ontology}
-Our formalization of CGT follows the template of its implementation in \GAP, and requires several levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
+Our formalization of CGT (part of the core ontology, found in \texttt{algebra/computational\_groups}) follows the template of its implementation in \GAP, and requires several levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}. From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
 The left box in Figure \ref{fig:cgtontology} gives an overview.
 
 The abstract level contains the axioms and basic definitions of the theory of \emph{Groups}: generating sets, homomorphisms, group actions, stabilisers, and orbits.
 The most basic part is given in Figure~\ref{fig:mitm1}. 
 \begin{figure}[ht]\centering
-  \fbox{\includegraphics[width=8cm]{../MACIS17-interop/mitm1}}
+  \fbox{\includegraphics[width=8cm]{groups}}
   \caption{A Formalization of a Group}\label{fig:mitm1}
 \end{figure}
 
@@ -138,7 +56,7 @@ finitely presented groups, groups obtained by algebraic constructions or using
 polycyclic presentations.
 
 At the implementation level, we encode implementation details: for
-example, permutation groups are considered as finite subgroups of the group $S_{\mathbb{N}+}$, and defined \ednote{constructed?} by
+example, permutation groups are considered as finite subgroups of the group $S_{\mathbb{N}+}$, and constructed by
 providing a set of generating permutations.
 
 At the concrete level, the computation happens: while the higher levels
@@ -153,6 +71,26 @@ framework (and the OpenDreamKit technologies) by applying it to a
 field well outside of mathematics, namely for modeling and simulation
 in opto-electronics.
 
+\subsection{The ``Semantic Multilingual Glossary of Mathematics'' (SMGloM)}\label{sec:smglom}
+
+The SMGloM library is available at \url{https://gl.mathhub.info/smglom}. It contains
+ca. 815 glossary modules (OMDoc/MMT theories) with more than 1700 concepts. All
+represented in \sTeX, a semantic variant of {\LaTeX} developed by FAU and (earlier at)
+JacU. Figure~\ref{fig:conductor} shows an example. The boldface words are \emph{definienda}
+(i.e. concepts to be defined; here ``conductor'') and the blue ones are concepts already
+defined in other parts of the MitM Ontology. SMGloM definitions are multilingual -- mostly
+English and German, but also some Romanian, Turkish, Arabic, and Chinese, and are
+cross-linked on the concept level.
+
+\begin{figure}[ht]\centering
+  \fbox{\includegraphics[width=14cm]{conductor}}
+  \caption{An \sTeX Definition of the Conductor of an Elliptic
+    Curve}\label{fig:conductor}
+\end{figure}
+
+The SMGloM library was started in 2013 before the OpenDreamKit project, but only enough content has been developed to fix the data model and system functionality.
+About half of the content of the library and all of the informal-formal alignments have been developed in response to needs by OpenDreamKit case studies. 
+
 %%% Local Variables:
 %%% mode: visual-line
 %%% fill-column: 5000
@@ -160,7 +98,7 @@ in opto-electronics.
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  formalizations texttt formalization standardization subsubsection textbf newcommand subseteq textsf MueRabKoh:tat18
+%  LocalWords:  formalizations texttt formalization standardization subsubsection textbf newcommand subseteq textsf MueRabKoh:tat18 app:expr
 %  LocalWords:  compactitem ednote adic ldots,a_n ldots,a_n ldots,T_n ldots Vec monoid sq
 %  LocalWords:  FiniteHybridset subtyping emph leq_T leq_ leq_ leq_ r,x s,y leq doteq_T
 %  LocalWords:  t,t forall subformula u,p ldots,x cdot cdot Qsqrt Qzeta th smglom fbox

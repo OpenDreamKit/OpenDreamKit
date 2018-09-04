@@ -110,7 +110,7 @@ adopted by the community) or using type inference in \Sage and/or MitM.
 
 Because \Sage is based on \Python, it benefits from its native serialization support.
 For example, the dihedral group $D_4$ is serialized as a binary string, which encodes the following straight line program to be executed upon deserialization:
-\begin{lstlisting}
+\begin{lstlisting}[]
   pg_unreduce = unpickle_global('sage.structure.unique_representation', 'unreduce')
   pg_DihedralGroup = 
        unpickle_global('sage.groups.perm_gps.permgroup_named', 'DihedralGroup')
@@ -122,8 +122,8 @@ The last line applies them to construct successively the integer $4$ and $D_4$.
 
 Up to concrete syntax, this serialization is already close to the desired \Sage system dialect.
 We can therefore extend \Python's native (de)serializer to use \OMMT as an alternative serialization format (using the \Python library~\cite{py-openmath:on}).
-Here is the corresponding OpenMath syntax tree in Python and XML respectively:
-\begin{lstlisting}
+The following shows the corresponding OpenMath syntax tree in Python
+\begin{lstlisting}[basicstyle=\sf\small,label=lst:sagedihedral:om,caption={The dihedral group $D_4$ in OpenMath Syntax}]
 OMApplication(
   elem=OMSymbol(name='DihedralGroup',
                 cd='sage.groups.perm_gps.permgroup_named', cdbase='http://python.org'),
@@ -132,19 +132,20 @@ OMApplication(
                   cd='sage.rings.integer', cdbase='http://python.org'),
     arguments=[OMBytes(bytes='4')])])
 \end{lstlisting}
-\begin{lstlisting}
+ and XML respectively:
+\begin{lstlisting}[basicstyle=\sf\small,label=lst:sagedihedral:xml,caption={The dihedral group $D_4$ in XML Format}]
 <OMA xmlns="http://www.openmath.org/OpenMath">
   <OMS name="DihedralGroup"
        cd="sage.groups.perm_gps.permgroup_named" cdbase="http://python.org"/>
   <OMA>
     <OMS name="make_integer" cd="sage.rings.integer" cdbase="http://python.org"/>
-    <OMB>NA==</OMB>
+    <OMI>4</OMI>
   </OMA>
 </OMA>
 \end{lstlisting}
+This approach has the additional advantage of benefiting from future optimizations implemented in \Python's serialization, like structure sharing for identical subexpressions.
 
-This approach has the additional advantage of potentially benefiting from optimizations implemented in \Python's serialization, like structure sharing for identical subexpressions.
-  % For example, a list of integers modulo 2 will be serialized as a
+% For example, a list of integers modulo 2 will be serialized as a
   % program like:
 
   %       Z2 = IntegerModRing(2)
@@ -250,14 +251,121 @@ Building on the OpenMath toolkits for OpenMath phrasebooks~\cite{py-openmath:on}
 OpenDreamKit project, we wrapped \Singular in a thin layer of \Python code that provides \SCSCP communication.
 This work was undertaken by the sixth author as part of a summer internship in about a week without prior expert knowledge of the system. Of course, if we want to achieve a more comprehensive coverage of the \Singular dialect, we will have to either manually write a theory graph or instrument \Singular for extraction as we did for \Sage or \GAP above. 
 
-\subsection{Alignments}
+\subsection{\LMFDB}
 
-Finally we have to curate the alignments between the system dialects and the MitM ontology.
-These alignments are currently produced and curated manually using the approach, repository, and syntax described in~\cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17}.
+Since 2011, the the ``L-Functions and Modular Forms Database'' (\LMFDB)~\cite{Cremona:LMFDB16,lmfdb:on} documents the system functionality in a system of ``knowls'' (knowledge items), which contain short informal definitions of the mathematical concepts and information about their relation to others.
+The \LMFDB currently contains almost 1000 knowls covering most of the \LMFDB.
+Knowls were originally intended to make the \LMFDB user interface self-contained and self-documenting.
+Figure~\ref{fig:knowl} shows the knowl for a ``Hecke Algebra'', where another knowl for the ``weight'' of a Bianchi modular form is displayed inline (the typical mode of interaction with knowls).
+In \LMFDB, the set of knowls can be downloaded from the system API as a JSON where the text is encoded as HTML5 with {\LaTeX} and knowl references as custom markup. As the contents are informal, we generate \sTeX-encoded OMDoc/MMT theories from them, which can serve as interface theories.
+\sTeX~\cite{Kohlhase:ulsmf08,sTeX:github:on} is a variant of {\TeX/\LaTeX}, which uses special {\TeX} macros for marking up OMDoc/MMT structures and can thus be used as a surface language for the MMT system.
+As its syntax is close to the {\LaTeX} markup prevalent in Mathematics and it can also be processed by \texttt{pdflatex} to get PDF output, it is a practical surface language for flexiformal OMDoc/MMT.
+There are currently 945 knowls in \LMFDB, which about as many mathematical concepts (some knowls introduce multiple concepts, some are non-mathematical). 
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=14cm]{knowl}
+  \caption{Knolws in the \LMFDB User Interface}\label{fig:knowl}
+\end{figure}
+
+\subsection{Alignments}\label{sec:integrating:alignments}
+
+Finally we have to curate the \textbf{alignments} between the system dialects and the MitM ontology. 
+
+To make the systems interoperable and translate objects and expressions, it is crucial to inform the system which symbols in the 
+respective system API theories represent the same mathematical concepts. Then translation (as a first approximation) reduces to simply substituting symbols in an expression (see example below).\medskip
+
+However, even when $A$ and $B$ deal with the ``same mathematical objects'', these may be constructed and represented differently, e.g., symbols can differ in name,
+argument order/number, types, etc.
+A major difficulty for system interoperability is correctly handling these subtle differences.
+To formalize the details of this relation, \cite{MueGauKal:cacfms17} introduced \OMMT \textbf{alignments}.
+Technically, these are pairs of \OMMT symbol identifiers decorated by a set of key-value pairs.
+The alignments of $a$-symbols with the MitM ontology determine which $A$-objects correspond to MitM-objects.
+
+The alignment of $a$-symbols to ontology symbols must be spelled out manually.
+But this is usually straightforward and easy even for inexperienced users. For example, the following line aligns GAP's symbol \textsf{IsCyclic} (in the file \lstinline|lib/grp.gd|) with the corresponding symbol \textsf{cyclic} in the MitM ontology.
+The key-value pairs are used to signify that this alignment is part of a group of alignments called ``VRE'' and can be used for translations in both directions.
+
+\begin{lstlisting}
+gap:/lib?grp?IsCyclic  mitm:/smglom/algebra?group?cylic
+    direction="both" type="VRE"
+\end{lstlisting}
+
+Thus we can reduce the problem of interfacing $n$ systems to
+\begin{inparaenum}[\em i\rm)]
+\item curating the MitM ontology for the joint mathematical domain,
+\item generating $n$ theory graphs for the system dialects,
+\item maintaining $n$ collections of alignments with the MitM ontology.
+\end{inparaenum}\medskip
+
+For an example, consider again the dihedral group $D_4$ in \Sage (see Listings \ref{lst:sagedihedral:om} and \ref{lst:sagedihedral:xml}). We can align the relevant symbol 
+\begin{lstlisting}
+sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
+\end{lstlisting}
+with an abstract representation of dihedral groups in the MitM ontology (say, for instance \lstinline|mitm:?group?dihedralGroup|).
+The \MMT system, when translating from \Sage to e.g. \GAP, then knows to replace the sage-specific symbol \lstinline|?DihedralGroup| by its system neutral equivalent in MitM, and the complex expression \lstinline+make_integer(4)+ by the plain OpenMath integer 4.
+To translate the resulting statement in MitM to \GAP, we only need to align \lstinline+mitm:?Groups?dihedralGroup+ with the constructor for dihedral groups in \GAP, namely \lstinline+gap:/grp?basic?DihedralGroupCons+.
+Translating to \GAP is then merely a matter of substituting this symbol in the OpenMath expression (\GAP already uses OpenMath integers for remote procedure calls via \SCSCP) to reconstruct the original \Sage object in \GAP.
+
+These alignments can be represented as in \ommt: 
+\begin{lstlisting}[label=lst:dhalignments,caption=Alignments for Dihedral Groups]
+sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
+	mitm:?group?dihedralGroup 
+	direction="both" type="VRE"
+gap:/grp?basic?DihedralGroupCons							
+	mitm:?group?dihedralGroup 
+	direction="both" type="VRE"
+\end{lstlisting}\medskip
+
+They yields the stepwise translation given in Figure \ref{fig:sagetogap}
+
+\begin{figure}
+\lstset{basicstyle=\scriptsize\sf,aboveskip=-1.7ex,belowskip=-2.5ex}
+\begin{tabular}{|lp{0.72\textwidth}|}\hline
+  \Sage & \lstinline|DihedralGroup(4)| \\\hline
+  OM (\Sage) &
+\begin{lstlisting}
+<OMA cdbase="http://python.org">
+  <OMS name="DihedralGroup"cd="sage.groups.perm_gps.permgroup_named"/>
+  <OMA>
+    <OMS name="make_integer" cd="sage.rings.integer"/>
+    <OMI>4</OMI>
+  </OMA>
+</OMA>
+\end{lstlisting}\\\hline
+OM (MitM) &
+\begin{lstlisting}
+<OMA cdbase='http://mathhub.info/MitM/Core'>
+  <OMS name='dihedralGroup' cd='group'/>
+  <OMI>4</OMI>
+</OMA>
+\end{lstlisting}
+\\\hline
+  OM (\GAP) &
+\begin{lstlisting}
+<OMA cdbase='http://www.gap-system.org/grp'>
+  <OMS name='DihedralGroupCons' cd='basic'/>
+  <OMI>4</OMI>
+</OMA>
+\end{lstlisting}
+  \\\hline
+	\GAP & \lstinline|DihedralGroupCons(4)|\\\hline
+\end{tabular}
+\caption{Stepwise Translation of Dihedral Group $D_4$ from \Sage to \GAP using the alignments from Listing~\ref{lst:dhalignments}}\label{fig:sagetogap}
+\end{figure}
+
+Alignments form an independent part of the MitM interoperability infrastructure.
+Incidentally, they obey a separate development schedule: the MitM ontology is developed by the community as a whole as the understanding of a mathematical domain changes.
+The system dialects are released together with the systems according to their respective development cycle.
+The alignments bridge between them and have to mediate these cycles.
+
+These alignments are currently produced and curated using the approach, repository, and syntax described in~\cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17}.
 In the future, we will also consider automatically extracting alignments from the existing ad-hoc \Sage-to-$X$ translations.
 These are (mainly) given as \Sage code annotations that relate \Sage operations and constructors with those of system $X$.
 
-\ednote{FR: This section is very weak. It should give examples of alignments and discuss some of the difficulties and solutions.}
+Figure~\ref{fig:cgtontology} shows some example alignments between symbols in the GAP content dictionary and the MitM ontology.
+
+
+
 
 %%, but from some of the initial alignments and the \GAP API theories we will be able to infer more alignments automatically.
 %%For example, the filter \texttt{GAP:IsGroup} is aligned with
@@ -275,12 +383,10 @@ These are (mainly) given as \Sage code annotations that relate \Sage operations 
 
 %%% Local Variables:
 %%% mode: latex
-%%% mode: visual-line
-%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  DehKohKon:iop16 emph serialization sec:mitm deserializes subsubsection MueGauKal:cacfms17 MueRoYuRa:abtafs17
+%  LocalWords:  DehKohKon:iop16 emph serialization sec:mitm deserializes subsubsection MueGauKal:cacfms17 MueRoYuRa:abtafs17 defemph defemph texttt texttt texttt texttt compactenum serializes lst:sagedihedral papertype ednote subtyping Cremona:LMFDB16,lmfdb:on knowls fig:knowl knowl knowl Kohlhase:ulsmf08 pdflatex flexiformal centering includegraphics Knolws inparaenum medskip MueGauKal:cacfms17,MueRoYuRa:abtafs17
 %  LocalWords:  analyze itemize Deserialization serialized lstlisting pg_unreduce mathbb
 %  LocalWords:  unpickle_global unreduce pg_DihedralGroup serializer py-openmath:on
 %  LocalWords:  lstinline optimizations factorization serialize deserialized deserializer

@@ -1,0 +1,82 @@
+\subsection{Expressions over MitM Foundation Types}\label{app:expr}
+
+The MitM foundation allows the following \textbf{formulas}, i.e., expression of type $Boolean$:
+\begin{itemize}
+\item the propositional connectives: conjunction, disjunction, implication, negation, and equivalence of formulas as well as truth and falsity,
+\item typed equality: $t\doteq_T t'$ for any two terms $t$ and $t'$ of type $T$,
+\item typed quantifiers: $\forall x:T.F(x)$ and $\exists x:T.F(x)$ for a type $T$ and a formula $F$,
+\end{itemize}
+Additionally, we allow shallow quantification over types: $\{a\}F(a)$ for a formula $F$ and a type variable $a$ is a formula but it may not --- to avoid inconsistency issues --- occur as a sub-formula of any of the above formula constructors.
+
+We do not give the remaining straightforward \textbf{term} constructors in detail and only remark on a few important aspects.
+Most critically, we allow types to have multiple representations that are semantically
+equivalent but practically different in meaningful ways (e.g., because converting between
+representations is expensive or imprecise). Moreover, some types have multiple constructors similar to an inductive type. In the sequel, we describe which representations are supported in those cases.
+
+\paragraph{Integers Modulo}
+The elements of $Z(m)$ are represented by $0,\ldots,m-1$.
+
+\paragraph{Real Numbers}
+A real number can be one of the following:
+\begin{compactitem}
+ \item a rational number
+ \item an IEEE double precision float
+ \item a root $\sqrt[n]{x}$ for $n\in N$ and $x\in Z$
+ \item the strings "pi" and "e"
+\end{compactitem}
+
+\paragraph{Complex Numbers}
+A complex number can be one of the following:
+\begin{compactitem}
+ \item Cartesian form $x+yi$
+ \item polar form $r e^{i\phi}$
+ \item root of unity $\zeta_n$
+\end{compactitem}
+
+\paragraph{$p$-Adic Numbers}
+A $p$-adic number $x$ consists of unit $u\in N$ ($u,p$ co-prime), valuation $v\in Z$, and precision $r\in N$ (for $u<p^r$).
+
+\paragraph{Polynomials}
+For $r\in Ring$ and distinct strings $x_i$, we consider polynomials
+\[p\in Polynomial(r,[x_1,\ldots,x_n])\]
+to be of the form $p=\Sigma_{\vec{i}\in N^n} a_{\vec{i}} \vec{x}^{\vec{i}}$ where and $(x_1,\ldots,x^n)^{(i_1,\ldots,i_n)}$ abbreviates $x_1^{i_1}\cdot \ldots\cdot x_n^{i_n}$.
+
+\paragraph{Rings}
+A ring can be one of the following:
+\begin{compactitem}
+ \item a field
+ \item $Polynomial(r,[x_1,\ldots,x_n])$ for $r\in Ring$
+\end{compactitem}
+
+\paragraph{Fields}
+A field can be one of the following:
+\begin{compactitem}
+ \item base fields $Q$, $R$, and $C$
+ \item finite fields $Z(p)$ for $p\in Prime$ (same type as integers modulo $p$)
+ \item polynomial field extensions $FieldExtension(F,p,a)$ of $F\in Field$ for a polynomial $p\in Polynomial(F,[x])$ (for any variable name $x$)
+ \item named fields identified by a string
+\end{compactitem}
+
+We define some abbreviations for common fields:
+\begin{compactitem}
+ \item $Q(p,a)=FieldExtension(Q,p,a)$
+ \item $Qsqrt(n,a)=Q(x^2-n,a)$
+ \item $Qzeta(n,a)=Q(y_n,a)$ where $y_n$ is the $n$-th cyclotomic polynomial
+\end{compactitem}
+
+We do not define $GF(q)$ for $q=p^n$ as an abbreviation for $FieldExtension(Z(p),g)$ for some irreducible polynomial $g\in Polynomial(Z(p))$ of degree $n$ because there is no way to choose $g$ canonically and it is necessary to know $g$ to represent the elements of $GF(q)$.
+
+\paragraph{Structure Elements}
+Every structure has an underlying type, which is used to represent its elements.
+
+The underlying types of fields are defined as follows:
+For $Q$, $R$, $C$, and $Z(p)$, the underlying type is the field itself.
+The underlying type of $FieldExtension(F,p,a)$ is $Polynomial(F,[a])$ ($a=x$ is allowed).
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  app:expr textbf doteq_T forall ldots,m-1 compactitem p-Adic adic u,p vec
+%  LocalWords:  ldots,x_n vec vec vec ldots,x ldots,i_n cdot ldots cdot Qsqrt Qzeta th
