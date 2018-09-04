@@ -297,6 +297,11 @@ Thus we can reduce the problem of interfacing $n$ systems to
 \item maintaining $n$ collections of alignments with the MitM ontology.
 \end{inparaenum}\medskip
 
+Of course, in practice things are rarely as straight-forward, and subtle differences between implementations can require non-trivial translations. In those instances, we can simply formalize \emph{both} variants as separate symbols in the MitM ontology and move the translation process into the context of the latter, where we have \MMT \textbf{views} and other theory morphisms available.
+
+The symbols in the system APIs can thus be aligned to the MitM formalization best suited for the specific implementation, and a conversion between two different variations (once modelled as a theory morphism) is available generically and for any pair of systems that diverge in their implementation the same way.
+\medskip
+
 For an example, consider again the dihedral group $D_4$ in \Sage (see Listings \ref{lst:sagedihedral:om} and \ref{lst:sagedihedral:xml}). We can align the relevant symbol 
 \begin{lstlisting}
 sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
@@ -304,28 +309,33 @@ sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
 with an abstract representation of dihedral groups in the MitM ontology (say, for instance \lstinline|mitm:?group?dihedralGroup|).
 The \MMT system, when translating from \Sage to e.g. \GAP, then knows to replace the sage-specific symbol \lstinline|?DihedralGroup| by its system neutral equivalent in MitM, and the complex expression \lstinline+make_integer(4)+ by the plain OpenMath integer 4.
 To translate the resulting statement in MitM to \GAP, we only need to align \lstinline+mitm:?Groups?dihedralGroup+ with the constructor for dihedral groups in \GAP, namely \lstinline+gap:/grp?basic?DihedralGroupCons+.
-Translating to \GAP is then merely a matter of substituting this symbol in the OpenMath expression (\GAP already uses OpenMath integers for remote procedure calls via \SCSCP) to reconstruct the original \Sage object in \GAP.
+
+However, as mentioned in Section \ref{sec:intro} (Footnote 1), the implementations of dihedral groups in \Sage and \GAP differ with respect to their arguments -- the group labelled $D_4$ in \Sage is called $D_8$ in \GAP. So instead, we implement two different symbols in MitM, namely \lstinline|mitm:?group?dihedralGroupSmall| and \lstinline|mitm:?group?dihedralGroupLarge|, and align the \Sage symbol with the former and the \GAP symbol with the latter. Furthermore, we implement a view \lstinline|DihedralSmallToLarge: ?group->?group| in MitM, that maps $\lstinline|dihedralGroupSmall|(n)$ to $\lstinline|dihedralGroupLarge|(2n)$.
+
+
+Translating to \GAP is then merely a matter of substituting the symbols in the OpenMath expression and applying the view (\GAP already uses OpenMath integers for remote procedure calls via \SCSCP) to reconstruct the original \Sage object in \GAP. Since there is exactly one path (vie alignments, includes or views) from the \Sage-expression to the corresponding \GAP-expression, this translation can be unambiguously found automatically (see \cite{MRLR:alignments:17}).
 
 These alignments can be represented as in \ommt: 
 \begin{lstlisting}[label=lst:dhalignments,caption=Alignments for Dihedral Groups]
 sage:?sage.groups.perm_gps.permgroup_named?DihedralGroup
-	mitm:?group?dihedralGroup 
+	mitm:?group?dihedralGroupSmall 
 	direction="both" type="VRE"
 gap:/grp?basic?DihedralGroupCons							
-	mitm:?group?dihedralGroup 
+	mitm:?group?dihedralGroupLarge 
 	direction="both" type="VRE"
 \end{lstlisting}\medskip
 
-They yields the stepwise translation given in Figure \ref{fig:sagetogap}
+They yield the stepwise translation given in Figure \ref{fig:sagetogap}
 
 \begin{figure}
 \lstset{basicstyle=\scriptsize\sf,aboveskip=-1.7ex,belowskip=-2.5ex}
-\begin{tabular}{|lp{0.72\textwidth}|}\hline
+\begin{tabular}{|lp{0.6\textwidth}|}\hline
   \Sage & \lstinline|DihedralGroup(4)| \\\hline
   OM (\Sage) &
 \begin{lstlisting}
 <OMA cdbase="http://python.org">
-  <OMS name="DihedralGroup"cd="sage.groups.perm_gps.permgroup_named"/>
+  <OMS name="DihedralGroup" 
+  	cd="sage.groups.perm_gps.permgroup_named"/>
   <OMA>
     <OMS name="make_integer" cd="sage.rings.integer"/>
     <OMI>4</OMI>
@@ -335,8 +345,15 @@ They yields the stepwise translation given in Figure \ref{fig:sagetogap}
 OM (MitM) &
 \begin{lstlisting}
 <OMA cdbase='http://mathhub.info/MitM/Core'>
-  <OMS name='dihedralGroup' cd='group'/>
+  <OMS name='dihedralGroupSmall' cd='group'/>
   <OMI>4</OMI>
+</OMA>
+\end{lstlisting} \\
+OM (MitM, after applying view) &
+\begin{lstlisting}
+<OMA cdbase='http://mathhub.info/MitM/Core'>
+  <OMS name='dihedralGroupLarge' cd='group'/>
+  <OMI>8</OMI>
 </OMA>
 \end{lstlisting}
 \\\hline
@@ -344,11 +361,11 @@ OM (MitM) &
 \begin{lstlisting}
 <OMA cdbase='http://www.gap-system.org/grp'>
   <OMS name='DihedralGroupCons' cd='basic'/>
-  <OMI>4</OMI>
+  <OMI>8</OMI>
 </OMA>
 \end{lstlisting}
   \\\hline
-	\GAP & \lstinline|DihedralGroupCons(4)|\\\hline
+	\GAP & \lstinline|DihedralGroupCons(8)|\\\hline
 \end{tabular}
 \caption{Stepwise Translation of Dihedral Group $D_4$ from \Sage to \GAP using the alignments from Listing~\ref{lst:dhalignments}}\label{fig:sagetogap}
 \end{figure}
