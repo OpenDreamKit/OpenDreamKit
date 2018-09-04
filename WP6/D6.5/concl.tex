@@ -19,7 +19,8 @@ These included the notion of virtual theories and mathematical codecs that relat
 Virtual theories provide feasibly small windows to large databases.
 And codecs perform systematic syntax translations between mathematical language and general purpose database languages.
 
-\paragraph{Evaluation}
+\paragraph{Evaluation} 
+
 Our case studies show that MitM-based integration is an achievable goal.
 Critically, the MitM-based approach to interoperability of data sources and systems keeps systems and data sources ``as is''.
 Only their APIs are documented in a machine-actionable way that can be utilized for remote procedure calls, content format mediation, and service discovery.
@@ -27,7 +28,21 @@ As a consequence, interaction between systems is very flexible and requires only
 Delegation-based workflows can either be programmed directly or embedded into the interaction language of the mathematical software systems.
 Moreover, this can be done in a way that requires only minimal changes to users' existing work flows.
 
-Compared to ad-hoc translations, MitM-based interoperability is relatively expensive as objects have to be serialized into (possibly large) \OMMT objects, transferred via \SCSCP to \MMT, parsed, translated into another system dialect, serialized and transferred, and parsed again.
+In comparison to middleware systems for distributed objects computing like CORBA, or ProtoBuffers, the MitM paradigm solves the ``semantics preservation problem'' by supplying the MitM ontology as a ``specification layer'' and the \ommt framework as a joint meaning space, which is infinite in principle and only limited by the coverage of the MitM ontology. 
+Of course, MitM is very young and only backed by a minuscule developer community (the participants of \textbf{WP6} in the OpenDreamKit), so tool support, documentation and communit buy in are just starting to develop. 
+
+The MitM paradigm is much more flexible than the ad-hoc integration approach in used in \Sage, in particular, as already our two use cases show, there is no dedicated master system. In Jane's use case it is still \SageMath, in Jon's it is \GAP, and in Joanna's the master system -- which the user feels at home in -- is \LMFDB.
+
+Incidentally, we can understand the MitM paradigm as a direct extension of the OpenMath approach: MitM uses the OpenMath encoding for transporting objects and the OpenMath-based SCSCP transport protocol -- which the OpenMath society endorsed as an OpenMath standard in 2017 prompted by the OpenDreamKit project.
+The contribution of the MitM effort in \textbf{WP6} is
+\begin{compactenum}
+  \item using \ommt as much more expressive language for content dictionaries that can accomodate both formal and informal (flexiformal) representations of the background knowledge
+  \item \ommt theory morphisms that specify meaning-preserving relations between theories that allow modular flexiformalization and machine-actionable models of redundancy
+  \item the provisioning of thousands of system API theories and the MitM ontology, which constitute high-impact content dictionaries for OpenMath. 
+  \item working use cases that demonstrate the feasibility the decades-old ``OpenMath Vision'' of distributed, meaning-preserving computation in mathematics. 
+\end{compactenum}
+
+Compared to ad-hoc translations, MitM-based interoperability is relatively inefficient as objects have to be serialized into (possibly large) \OMMT objects, transferred via \SCSCP to \MMT, parsed, translated into another system dialect, serialized and transferred, and parsed again.
 On the other hand, instead of implementing and maintaining $n^2$ translations, we only have to establish and maintain $n$ collections of system APIs and their alignments to the
 MitM ontology.
 This makes the management of interoperability much more tractable:
@@ -40,7 +55,7 @@ All in all, these translate into a ``business model'' for MitM-based cooperation
 
 \paragraph{Future Work}
 The most obvious path of future work is in scaling up the approach in two orthogonal direction: write ontologies for more areas of mathematics and connect more systems and databases to the MitM ecosystem.
-Both will require tremendous future efforts but due to our initial developments the marginal costs are now quite affordable.
+Both may require substantial efforts but due to our initial developments the marginal costs can now be quite affordable, as the Singular case study shows (see Section~\ref{sec:apit:singular}). 
 In the long run, we expect that the MitM-generated qualitative boost to mathematicians' productivity will these costs.
 
 Concrete candidates for additional systems include PARI GP and the remaining databases of \lmfdb.
@@ -50,6 +65,7 @@ In~\cite{LuzKoh:fsarfo16} we have already (heuristically) formalized OEIS conten
 The network effect described above can be enhanced further by technical refinements.
 For instance, if we annotate alignments with a ``priority'' value that specifies how canonically/efficiently/powerfully a given system implements a given MitM operation, then we can let the \MMT mediator automatically choose a suitable target system for a requested computation (as opposed to our current setup where Jane specifies which systems she wants to use).
 On the other hand, for workflows where we do not need or want service-discovery, alignments can be ``compiled'' into $n^2$ transport-efficient direct translations that may even eliminate the need for serialization and parsing.
+The OSCAR project~\cite{OSCAR:on}, which aims at a high-efficiency integration of the \GAP, \Singular, Polymake, an Antic computer algebra systems using shared-memory communication and Julia as a glue language is considering this approach, and/or using the MitM ontology as a documentation facility of the joint system. 
 
 For local applications, where all involved systems and the mediator run on the same machine, we have started investigating programming language bridges that would allow direct communication between systems and the \MMT mediator.
 This would allow by-passing the overhead of serialization and parsing and network communication.
@@ -73,6 +89,6 @@ and the \SCSCP library in python.
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  sec:concl MitM-based itemize subsubsection Dehaye organization serialized
+%  LocalWords:  sec:concl MitM-based itemize subsubsection Dehaye organization serialized textbf flexiformal flexiformalization Polymake
 %  LocalWords:  math-savy emph serialization formalizations papertype lmfdb utilized ommt
 %  LocalWords:  compactenum Sloane:OEIS,oeis LuzKoh:fsarfo16 formalized MitM-aware
