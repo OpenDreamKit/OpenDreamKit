@@ -1,3 +1,4 @@
+\paragraph{Motivation}
 There is a large and vibrant ecosystem of open-source software systems for mathematics. 
 These range from calculators, which perform simple computations, via mathematical databases, which curate collections of mathematical objects, to powerful modeling tools and computer algebra systems (CAS).
 
@@ -16,26 +17,42 @@ multi-system integration.
 To add insult to injury, the knowledge bases Jane would like to use --- ranging from Wikipedia to theorem prover libraries --- are usually only accessible via the restricted API of a dedicated web information system or the low-level API to the raw database content.  
 What we would want is a ``programmatic, mathematical API'' which would give access to the knowledge-bases programmatically via their mathematical constructions and properties.
 
-This type of system integration has been tried before in middleware-based approaches like CORBA~\cite{Omg:Corba:Web}, which uses object-oriented modeling and stub generation for the exchange of business objects, REST-based Web Services~\cite{WSDL:on,Mitra:soapPrimer03} that exchange XML or JSON-based objects, or more recently Protocol Buffers~\cite{protobuffers:on}, which model structured data as JSON-like text files to name just three of many.
-These middleware approaches allow to integrate disparate systems across machine, programming language, and even operating system borders, and work well, if the respective object models are compatible, which the respective communities try to achieve by standardizing domain ontologies and schemata. This schema standardization and mediation between differing object models turns out to be the main problem involved in interoperability.
-
-In the domain of mathematics, domain model standardization is inherently difficult: The set of potential object types is essentially infinite and different but equivalent constructions are a feature systematically used to understand the objects.
+\paragraph{Related Work}
 There are essentially two approaches to tackling the problem of system interoperability and integration.
-The first -- we call it the \textbf{ad-hoc-integration} approach -- uses a programming language for translating object data structures between systems, possibly using shared memory between systems. The most prominent proponent is the \Sage system, which uses Python as the glue language and various Python-to-X bridges for Master/Slave-type integration.
-Here, the ``preservation of semantics'' property that is so important for a successful (i.e. sound and efficient) system integration is embedded in the glue code and has to be painstakingly maintained by the community over system releases. 
+Firstly, \textbf{ad-hoc-integration} uses a programming language for translating object data structures between systems, possibly using shared memory.
+The most prominent proponent is the \Sage system, which uses Python as the glue language and various Python-to-X bridges for Master/Slave-type integration.
+Here, the ``preservation of semantics'' property that is so important for a sound system integration is implicitly embedded in the glue code and has to be painstakingly maintained by the community over system releases.
+Recently, the OSCAR project~\cite{OSCAR:on} was started to achieve a similar but much deeper integration of a fixed set of four computer algebra systems using Julia as the glue language.
 
-The second approach uses a standard language for representing mathematical objects in terms of mathematical formulae. It is used in OpenMath~\cite{BusCapCar:2oms04} and  (content) MathML~\cite{CarlisleEd:MathML3:base}.
-Their underlying object models are isomorphic ~\cite{KohRab:som12}: mathematical objects are represented as application and binding expressions from symbols and variables\footnote{and a couple of basic programming-inspired data types like numbers, strings, and byte arrays.}.
-Here the simplicity in the object schema is achieved by an open-ended set of symbols, which are characterized by a name and a reference to an OpenMath ``Content Dictionary'' (CD), i.e. a structured document that defines the meaning of the symbol.
-Again, interoperability hinges on the availability and standardization of the CDs, which ensure that protocol-based distribution of expressions preserves their meaning.
-In the past, the main problem of adoption of OpenMath/cMathML has been the lack of high-impact CDs, which had to be manually encoded by the respective community.
+Secondly, \textbf{middleware-integration} uses a dedicated formal language and protocol for the standardized representation and communication of objects.
+Outside the domain of mathematics, this has been successfully applied in, e.g., CORBA~\cite{Omg:Corba:Web}, which uses object-oriented modeling and stub generation for the exchange of business objects, REST-based Web Services~\cite{WSDL:on,Mitra:soapPrimer03} that exchange XML or JSON-based objects, or more recently Protocol Buffers~\cite{protobuffers:on}, which model structured data as JSON-like text files.
+Middleware integration excels at integrating disparate systems across machine, programming language, and even operating system borders.
+It works best if the respective object models are compatible, which the respective communities try to achieve by standardizing domain ontologies and schemata.
+This schema standardization and mediation between differing object models turns out to be the main problem involved in interoperability.
 
+However, in mathematics, domain model standardization is inherently difficult:
+The set of potential object \emph{types} is dynamically extensible and thus itself part of the standardization problem
+Moreover, essentially no object type admits canonical representations for its objects so that different-but-equivalent constructions must be supported in practice.
+Middleware integration for mathematics was attempted using the OpenMath~\cite{BusCapCar:2oms04} and content MathML~\cite{CarlisleEd:MathML3:base} languages and the \SCSCP protocol \cite{SCSCP-1.3}.
+Their underlying object models are isomorphic and represent mathematical objects as syntax trees with binding starting from symbols, variables, and literals.
+Extensibility is achieved by using an open-ended set of symbols that are introduced and specified in special documents called content dictionaries (CDs).
+Due to this extensibility, any interoperability that preserves the meaning of the communicated objects hinges on the availability of standardized CDs, which have to be manually written by the respective community.
+In the past, the main problem of such math middleware approaches has been the lack of high-impact CDs that both fully specified the semantics of symbols and were supported by concrete systems in a way that respected these specifications.
 
 \paragraph{Towards a Virtual Research Environment for Mathematics}
-One goal of the OpenDreamKit project is tackling these problems systematically by building virtual research environments (VRE) on top of the existing systems.
-To build a VRE from individual systems, we need a joint user interface --- the OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active documents~\cite{KohDavGin:psewads11} --- and an interoperability layer that allows passing problems and results between the disparate systems.
-For the latter, we propose the \textbf{Math-in-the-Middle paradigm} (\textbf{MitM}~\cite{DehKohKon:iop16}): an interoperability framework based on a central, system-independent ontology of mathematical knowledge and system API theories that specify the interfaces of the various systems in the same, modular knowledge representation format.
-We use \ommt as this format together with alignments the describe the relations between the functions declared in the ontology and those realized in the various system APIs.
+A goal of the OpenDreamKit project is tackling the integration problem for mathematical systems systematically by building virtual research environments (VRE) on top of the existing systems.
+This requires a joint user interface --- the OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active documents~\cite{KohDavGin:psewads11} --- and an interoperability layer that allows passing problems and results between the disparate systems.
+For the latter, OpenDreamKit explores both ad-hoc (via Sage) and (in this deliverable) middleware integration.
+
+We have dubbed OpenDreamKit's middleware approach \textbf{Math-in-the-Middle} (\textbf{MitM}) \cite{DehKohKon:iop16}.
+It provides an interoperability framework based on a central, system-independent \textbf{ontology} of mathematical knowledge and on system \textbf{API theories} that specify the interfaces of the various systems.
+Here the system API theories of a systems $S$ are system-near in the sense that they introduce symbols that correspond exactly to the functionality implemented by $S$.
+But they are system-independent in the sense that they are separate from the source code of $S$.
+Thus, they can be seen as a formal and thus machine-actionable documentation of the interface of $S$.
+
+We use the \ommt~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} language as the representation format for both the ontology and the system API theories.
+And we use \textbf{alignments} \cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17} to describe the relations between the symbols declared in the ontology and those in the API theories.
+This allows building math middleware on top of the \mmt system~\cite{uniformal:on}.
 
 \paragraph{Contribution}
 In this \papertype we instantiate the MitM paradigm in two concrete case studies.

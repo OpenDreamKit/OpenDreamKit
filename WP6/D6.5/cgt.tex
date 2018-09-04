@@ -1,10 +1,13 @@
 Jane's use case involves groups and actions, polynomials, rings and ideals, and Gröbner bases and Joanna's in addition elliptic curves, Hecke algebras, and modular forms, all of which must be formalized in the MitM ontology.
-We will only describe the ontology fragments for computational group theory (CGT), elliptic curves, and modular forms as an example of MitM ontology content, which can be found at~\cite{mitm:groups:on} (see OpenDreamKit deliverable report \textbf{D6.8}~\cite{ODK-D6.8} for details). After discussing the MitM Foundation -- i.e. the language used for specifying domain objects and their properties we show a manual formalization of computational group theory for Jane's use case and an informal ontology fragment for the part of number theory covered by Langland's program generated from the \LMFDB system. 
+First we discuss the MitM Foundation --- i.e. the language used for specifying the ontology --- in Section~\ref{sec:onto:found}.
+Then we describe two ontology fragments as examples in Section~\ref{sec:onto:group} and~\ref{sec:onto:knowls}.
+The first is a manual formalization for computational group theory (CGT) that is needed in particular for Jane's use case.
+The latter is an informal ontology fragment for the part of number theory covered by Langland's program; it is needed for integrating and generated from the \LMFDB system (see Section~\ref{sec:databases}).
 
-\subsection{The MitM Foundation}
+\subsection{The MitM Foundation}\label{sec:onto:found}
 
-\OMMT formalizations must be relative to foundational logic, which is itself formalized in \OMMT.
-As foundation for all formalizations in MitM \cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
+\OMMT formalizations must be relative to a foundational logic, which is itself formalized in \OMMT.
+As a foundation for all formalizations in MitM \cite{mitm:foundation:on}, we use a polymorphic dependently typed $\lambda$-calculus with two universes \lstinline|type| and \lstinline|kind| (roughly analogous to sets and proper classes in set theory) and subtyping.
 It provides dependent function types \lstinline|{a:A}B(a)|, representing the type of all functions mapping an argument \lstinline|a:A| to some element of type \lstinline|B(a)|. If \lstinline|B| does not depend on the argument \lstinline|a|, we obtain the simple function type \lstinline[mathescape]|A$\to$B|.
 
 For formulas, we use a type \lstinline|prop| and a higher order logic where quantifiers range over any type.
@@ -32,13 +35,13 @@ Then \lstinline|group=Mod group_theory| is the type of all models of that theory
 Any element \lstinline|g:group| thus represents an actual group, whose operations and axioms can be accessed via record field projections (e.g. \lstinline|g.inverse| yields the inverse operation of \lstinline|g| (imported from loops via the \lstinline|include ?Loop/loop_theory|-statement).
 Since axioms are turned into record type fields as well, actually constructing a record of type \lstinline|group| corresponds to proving that the field \lstinline|universe| and the operations provided in the record do in fact form a group.
 
-\subsection{Domain Ontologies for Computational Group Theory}
+\subsection{Computational Group Theory}\label{sec:onto:group}
 
 Relative to the foundation, we can formalize the actual mathematical knowledge we are interested in.
 As a running example, we describe a formalization of computational group theory (CGT), which is inspired by the corresponding implementation in \GAP.
 It uses several different levels of abstraction -- currently \emph{abstract}, \emph{representation}, \emph{implementation}, and \emph{concrete}.
 From our experience, we expect this pattern to be applicable across computational algebra, possibly with additional levels of abstraction. 
-The left box in Figure \ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP. \ednote{FR@all: This section is incomplete - it lacks the description rings etc. This must be fixed but cannot be fixed on short notice. So I'm carefully phrasing this paragraph to work around it.}
+The left box in Figure \ref{fig:cgtontology} shows the levels and their relation to the constructors and operations of \GAP. \ednote{FR@all: This section is incomplete - it lacks the description of rings etc. This must be fixed but cannot be fixed on short notice. So I'm carefully phrasing this paragraph to work around it.}
 
 \begin{figure}[ht]\centering
   \tikzinput[width=.98\textwidth]{alignmentimg}
@@ -103,11 +106,11 @@ If a group (or a group action) has been constructed by giving generators through
 %  describes what was done in MMT to accommodate for the CGT MitM ontology}
 %\end{oldpart}
 
-\subsection{An Informal MitM Ontology for  \LMFDB}\label{sec:knowls}
+\subsection{L-Functions and Modular Forms}\label{sec:onto:knowls}
 
-Since 2011, the ``L-Functions and Modular Forms Database'' (\LMFDB)~\cite{Cremona:LMFDB16,lmfdb:on} documents the system functionality in a system of ``knowls'' (knowledge items) which contain short informal definitions of the mathematical concepts and information about their relation to others.
-The \LMFDB currently contains almost 1000 knowls covering most of the \LMFDB.
-Knowls were originally intended to make the \LMFDB user interface self-contained and self-documenting.
+Since 2011, the ``L-Functions and Modular Forms Database'' (\LMFDB)~\cite{Cremona:LMFDB16,lmfdb:on} documents the system functionality in a system of ``knowls'' (knowledge items), which contain short informal definitions of the mathematical concepts and information about their relation to others.
+They were originally designed to make the \LMFDB user interface self-contained and self-documenting.
+There are currently 945 knowls in \LMFDB, which describe about as many mathematical concepts (some knowls introduce multiple concepts, some are non-mathematical). 
 
 \begin{figure}[ht]\centering
   \includegraphics[width=14cm]{knowl}
@@ -115,13 +118,12 @@ Knowls were originally intended to make the \LMFDB user interface self-contained
 \end{figure}
 
 Figure~\ref{fig:knowl} shows the knowl for a ``Hecke Algebra'', where another knowl for the ``weight'' of a Bianchi modular form is displayed inline (the typical mode of interaction with knowls).
-In \LMFDB, the set of knowls can be downloaded from the system API as JSON where the
-text is encoded as HTML5 with {\LaTeX} formulae and knowl references as custom markup. As the
-contents are informal, we generate \sTeX-encoded \ommt theories from them, which can serve as interface theories.
-\sTeX~\cite{Kohlhase:ulsmf08,sTeX:github:on} is a variant of {\TeX/\LaTeX}, which uses special {\TeX} macros for marking up \ommt structures and can thus be used as a surface language for the MMT system.
-As its syntax is close to the {\LaTeX} markup prevalent in Mathematics and it can also be processed by \texttt{pdflatex} to get PDF output, it is a practical surface language for flexiformal \ommt.
-There are currently 945 knowls in \LMFDB, which about as many mathematical concepts (some knowls introduce multiple concepts, some are non-mathematical). 
+In \LMFDB, the set of knowls can be downloaded from the system API as JSON where the text is encoded as HTML with {\LaTeX} formulae and knowl references as custom markup.
 
+As knowls are informal but have some structure, we can represent them elegantly in \ommt using the \sTeX-encoding~\cite{Kohlhase:ulsmf08,sTeX:github:on}, a variant of {\TeX/\LaTeX} that uses special {\TeX} macros for marking up \ommt structure.
+We have implemented a converter that generates \sTeX theories from \LMFDB knowls.
+%As its syntax is close to the {\LaTeX} markup prevalent in mathematics, and it can also be processed by \texttt{pdflatex} to get PDF output.
+\ednote{@MK: give an example of a generated stex document}
 
 
 %%% Local Variables:
