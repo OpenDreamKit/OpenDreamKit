@@ -2,13 +2,13 @@
 Figure~\ref{fig:mitm} shows the basic MitM design.
 We want to make the systems $A$ to $H$ with system dialects $a$ to $h$ interoperable.
 A P2P translation regime ($n(n-1)$ translations between $n$ systems) is already intractable for the systems in the OpenDreamKit project (more than a dozen).
-Alternatively, an ``industry standard'' regime, where one system dialect is declared as the standard is infeasible because no system dialect subsumes all others -- not to mention the political problems such a standardization would induce.
+Alternatively, an ``industry standard'' regime, where one system dialect is declared as the standard is infeasible because no system dialect subsumes all others --- not to mention the political problems such a standardization would induce.
 Instead, MitM uses a central mathematical ontology that provides an independent mediating language, via which all participating systems are aligned.
 All mathematical knowledge shared between the systems and exposed to the high-level VRE user is expressed using the vocabulary of this ontology.
 Crucially, while every system dialect makes implementation-driven, system-specific design choices, the MitM ontology can remain close to the knowledge published in the mathematical literature, which already serves as an informal interoperability layer.
 
 \begin{figure}[ht]\centering
-  \tikzinput[width=4cm]{mistargraph}
+  \tikzinput[width=6cm]{mistargraph}
   \caption{MitM Paradigm}\label{fig:mitm}
 \end{figure}
 
@@ -16,56 +16,39 @@ The following sections describe the three components of the MitM paradigm in mor
 
 \subsection{The MitM Ontology}\label{sec:mitm:recap}
 
-In the center, we have the \textbf{MitM Ontology}, which is a formalization of
-the mathematical knowledge behind the systems $A$ to $H$.
-As a formalization framework, it uses the \OMMT format~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13,uniformal:on}, which was designed with this specific application in mind.
-We do not go into the details of \OMMT here -- for our purposes, it
-suffices to assume that an \OMMT theory graph formalizes a language for mathematical objects as a set of typed symbols with a (formal or informal) specification of their semantics.
+In the center, we have the \textbf{MitM Ontology}, which is a formalization of the mathematical knowledge behind the systems $A$ to $H$.
+As a formalization framework, it uses the \OMMT format, which was designed with this specific application in mind.
+We do not go into the details of \OMMT here (but see Section~\ref{sec:ommt}) -- for our purposes, it suffices to assume that an \OMMT theory graph formalizes a language for mathematical objects as a set of typed symbols with a (formal or informal) specification of their semantics.
 For example, the MitM-symbol $\mathtt{PolynomialRing}$ takes a ring $r$ of coefficients and a number $n$ of variables and returns the ring $r[X_1,\ldots,X_n]$ of polynomials.
 
-Note that the purpose of the MitM ontology is not the formal verification of mathematical
-theorems (as for most existing formalizations such as \cite{Gonthier+:mcpoot13} of group
-theory), but to act as a pivot point for integrating systems. This means that it can be
-much nearer to the informal but rigorous presentation of mathematical knowledge in the
-literature. While each system dialect makes compromises and optimizations needed for a
-particular application domain, the MitM ontology follows the existing and already
-informally standardized mathematical knowledge and can thus serve as a standard interface
-layer between systems.
+Note that the purpose of the MitM ontology is not the formal verification of mathematical theorems (as for most existing formalizations such as \cite{Gonthier+:mcpoot13} of group theory), but to act as a pivot point for integrating systems.
+This means that it can be much nearer to the informal but rigorous presentation of mathematical knowledge in the literature.
+While each system dialect makes compromises and optimizations needed for a particular application domain, the MitM ontology follows the existing and already informally standardized mathematical knowledge and can thus serve as a standard interface layer between systems.
 
 Importantly, the MitM ontology does not have to include any definitions\footnote{Of course, definitions are one possible way to specify the semantics of MitM-symbols.} or proofs -- it only has to declare the types of all relevant symbols and state (but not prove) the relevant theorems.
-This makes it possible for users like Jane to extend the MitM ontology quickly whereas
-extending formalizations usually requires extensive efforts by specialists.
+This makes it possible for users like Jane to extend the MitM ontology quickly whereas extending formalizations usually requires extensive efforts by specialists.
 
-\subsection{OMDoc/MMT as a Knowledge Representation Format}\label{sec:ommt}
-The realization of the MitM approach crucially depends on the information architecture of
-the \ommt language~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} and its implementation in the
-\mmt system~\cite{Rabe:MAGMS13,uniformal:on}.
+\subsection{\ommt as a Knowledge Representation Format}\label{sec:ommt}
 
-In \ommt knowledge is organized in \textbf{theories}, which contain information about
-mathematical concepts and objects in the form of \textbf{declarations}. Theories are
-organized into an ``object-oriented'' inheritance structure via \textbf{inclusions} and
-\textbf{structures} (for controlled multiple inheritance), which is augmented via
-truth-preserving mappings between theories called \textbf{views}, which allow to relate
-concepts of pre-existing theories and transport theorems between these. Inclusions,
-structures, and views impose a graph structure on the represented mathematical knowledge,
-called a \textbf{theory graph}. 
+The realization of the MitM approach crucially depends on the information architecture of the \ommt language~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} and its implementation in the \mmt system~\cite{Rabe:MAGMS13,uniformal:on}.
 
-We observe that even very large mathematical knowledge spaces about abstract mathematical
-domains can be represented by small, but densely connected, theory graphs, if we make all
-inherited material explicit in a process called \textbf{flattening}. The \ommt language
-provides systematic names (\mmt URIs) for all objects, properties, and relations in the
-induced knowledge space, and given the represented theory graph, the \mmt system can
-compute them on demand. 
+In \ommt knowledge is organized in \textbf{theories}, which contain information about mathematical concepts and objects in the form of \textbf{declarations}.
+Theories are organized into an ``object-oriented'' inheritance structure via \textbf{inclusions} and \textbf{structures} (for controlled multiple inheritance), which is augmented via truth-preserving mappings between theories called \textbf{views}, which allow to relate concepts of pre-existing theories and transport theorems between these.
+Inclusions, structures, and views impose a graph structure on the represented mathematical knowledge, called a \textbf{theory graph}.
+
+We observe that even very large mathematical knowledge spaces about abstract mathematical domains can be represented by small, but densely connected, theory graphs, if we make all inherited material explicit in a process called \textbf{flattening}. The \ommt language provides systematic names (\mmt URIs) for all objects, properties, and relations in the induced knowledge space, and given the represented theory graph, the \mmt system can compute them on demand.
 
 Generally, knowledge in a knowledge space given by a theory graph loaded by the \mmt system can be accessed by either giving it's \mmt URI, or by uniquely describing it via a set of conditions. 
 To achieve the latter, \mmt has a Query Language called QMT~\cite{Rabe:qlfml12}, which allows even complex conditions to be specified. 
 Currently, the \mmt system loads the theory graph into main memory at startup and interleaves incremental flattening and query evaluation operations on the \mmt data structures until the result has been produced. 
 
-In this \papertype we show that the MitM approach, its \ommt-based realization, and
-distribution via the SCSCP protocol are sufficient for distributed, federated computation
-between multiple computer algebra systems (Sage, GAP, and Singular), and that the MitM
-ontology of abstract group theory can be represented in \ommt efficiently. This setup is
-effective because
+In this \papertype we show that the MitM approach, its \ommt-based realization, and distribution via the SCSCP protocol are sufficient for
+\begin{compactitem}
+\item distributed, federated computation between multiple computer algebra systems (Sage, GAP, and Singular; see Section~\ref{sec:case}),
+\item providing programmatic, mathematics-level system interfaces for mathematical knowledge bases (LMFDB; see Section~\ref{sec:databases}),
+\end{compactitem}
+and that the MitM ontology of abstract group theory can be represented in \ommt efficiently.
+This setup is effective because
 \begin{compactitem}
 \item the knowledge spaces behind abstract and computational mathematics can be represented in theory graphs very space-efficiently: The compression factors between a knowledge space and its theory graph -- we call it the \textbf{TG factor} -- exceeds two orders of magnitude even for small domains.
 \item only small parts of the knowledge space are traversed for a given computation. 
@@ -78,9 +61,12 @@ It is unavoidable that each system induces its own language for mathematical obj
 This is the cause of much incompatibility because even subtle differences make naive integration impossible.
 Moreover, due to the difficulty of the involved mathematics and the effort of maintaining the implementations, such differences are aplenty.
 
-Fortunately, we can at least easily abstract from the user-facing surface syntax of these languages:
-scalable interoperability can anyway only be achieved by acting on the internal data structures of the systems.
+Fortunately, we can at least easily abstract from the user-facing surface syntax of these languages: scalable interoperability can anyway only be achieved by acting on the internal data structures of the systems.
 Thus, only the much simpler internal abstract syntax needs to be considered.
+In particular the OpenMath/cMathML model for objects-as-formulae is sufficient.
+As \ommt uses OpenMath at the level of domain objects and statements/declarations, it is a very good fit; but as we have seen in the discussion in the introduction, we need a set of content dictionaries that cover the domain of applicability of the respective system.
+\ommt represents content dictionaries,  as theories and dependencies and translations between content dictionaries -- a feature that OpenMath does not have -- as theory morphisms.
+We call a graph of \ommt content dictionaries that define the input lanuage of a system (the abstract syntax trees encoded as OpenMath objects whose symbols are declared in these CDs) \textbf{system API theories}. 
 
 The symbols that build the abstract syntax trees can be split into two kinds: \defemph{constructors} build primitive objects without involving computation, and \defemph{operations}
 compute objects from other objects (including predicates, which we see as operations that return booleans).
@@ -93,7 +79,7 @@ We refer to these objects as $A$-objects.
 It is conceptually straightforward to write (or even automatically generate) the theory graph $a$ and to implement a serializer and parser for $A$-objects as a part of $A$.\footnote{However, as we see below, this may still be surprisingly difficult in practice.}
 This is because no consideration of interoperability and thus no communication with the developers of other systems is needed.
 
-%For example, the theory graph for \GAP contains a symbol $\mathtt{}$.
+The MitM approach stipulates that interface theories and interface views are maintained and released together with the respective systems, whereas the core MitM ontology represents the mathematical scope of the VRE and is maintained with it. In fact in many ways, the core MitM ontology is the conceptual essence of the mathematical VRE.
 
 \paragraph{Alignments with the Ontology}
 The above reduces the interoperability problem to relating each system dialect to the MitM ontology.
@@ -103,7 +89,7 @@ We use these symbols of the MitM ontology as an intermediate representation to b
 
 \subsection{MitM-based Distributed Computation}\label{sec:mitm:comms}
 
-The final missing piece for a system interoperability layer for a VRE toolkit is a practical way of transporting objects between systems.
+The final missing piece for a system interoperability layer for a VRE toolkit is a practical way of transporting (OpenMath) objects between systems.
 This requires two steps.
 
 Firstly, if the system dialects and alignments are known, we can automatically translate $A$-objects to $B$-objects in two steps: $A$ to ontology and ontology to $B$.
@@ -131,16 +117,16 @@ various large-scale sources of mathematical knowledge.  These include
 We will use the term \textbf{mathematical knowledge bases} to refer to them collectively and restrict ourselves to those that are available digitally.
 They are very useful in mathematical research, applications, and education.  
 Commonly these systems are only accessible via a dedicated web interface that allows humans to query or browse the databases. 
-A programmatic interface, if it exists at all, is usually system specific, to use it, users need to be familiar both with the mathematical background and internal structure of the system in question.  
+A programmatic interface, if it exists at all, is usually system-specific, to use it, users need to be familiar both with the mathematical background and internal structure of the system in question.  
 No predominant standard exists, and these interfaces usually only expose the low-level raw database content.
 We claim that mathematicians and other scientists desire a ``programmatic, mathematical API'' that gives access to the knowledge-bases programmatically via their mathematical constructions and properties. 
-We focus on addressing this problem in this paper.
+We focus on addressing this problem in the OpenDreamKit project (see Section~\ref{sec:lmfdb})
 
 For our implementation we interpret mathematical knowledge bases as \ommt theory graphs -- modular, flexi-formal representations of mathematical objects, their properties, and relations. 
 This embedding gives us a common conceptual framework to handle different knowledge sources, and the modular and heterogeneous nature of \ommt theory graph can be used to reconcile differing ontological commitments of the knowledge sources with in this conceptual framework.
 
 
-But knowledge sources like the \lmfdb or the OEIS, which contain millions of mathematical objects. For such knowledge sources, the classical \mmt system is not yet suitable:
+But knowledge sources like the \lmfdb or the OEIS contain millions of mathematical objects. For such knowledge sources, the classical \mmt system is not yet suitable:
 \begin{compactitem}
 \item the knowledge space corresponding to the data base content cannot be compressed by ``general mathematical principles'' like inheritance. 
 Indeed, redundant information is already largely eliminated by the data base schema and the ``business logic'' of the information system it feeds.
@@ -157,19 +143,13 @@ We also update the knowledge management algorithms in the \mmt system so that th
 Here we provide a systematic solution for encoding/decoding between low-level representations in standard databases and high-level mathematical representations.
 
 %%% Local Variables:
-%%% mode: latex
+%%% mode: latex 
+%%% mode: visual-line
+%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
-% LocalWords: sec:mitm Jupyter jupyter-project:on KohDavGin:psewads11 BusCapCar:2oms04
-% standardization DehKohKon:iop16 textbf RabKoh:WSMSML13,uniformal:on MueGauKal:cacfms17
-% sec:apit serialize normalizer mathcal compute-the-normalizer MitM-based centering
-% mitmcomm MueRoYuRa:abtafs17 Rabe:MAGMS13,uniformal:on inparaenum Sagey lstlisting scscp
-% mmt,is_cyclic scscp lmfdb mmt,query transitivegroup lstinline gap,is_cyclic,scscp
-% lmfdb,query synthesizes mathescape Sageify mathtt ldots,X_n Gonthier LocalWords:
-% wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc emph mcpoot13 LocalWords:
-% formalizations optimizations standardized serializer oldpart behavior LocalWords:
-% itemized
+% LocalWords: sec:mitm Jupyter jupyter-project:on KohDavGin:psewads11 BusCapCar:2oms04 standardization DehKohKon:iop16 textbf RabKoh:WSMSML13,uniformal:on MueGauKal:cacfms17 sec:apit serialize normalizer mathcal compute-the-normalizer MitM-based centering mitmcomm MueRoYuRa:abtafs17 Rabe:MAGMS13,uniformal:on inparaenum Sagey lstlisting scscp mmt,is_cyclic scscp lmfdb mmt,query transitivegroup lstinline gap,is_cyclic,scscp lmfdb,query synthesizes mathescape Sageify mathtt ldots,X_n Gonthier LocalWords: wrapfigure vspace tikzinput mistargraph fig:mitm mitm_poc emph mcpoot13 LocalWords: formalizations optimizations standardized serializer oldpart behavior LocalWords: itemized compactenum
 %  LocalWords:  fig:mitm standardization centering tikzinput mistargraph textbf mathtt
 %  LocalWords:  formalization RabKoh:WSMSML13,uniformal:on ldots,X_n formalizations ommt
 %  LocalWords:  Gonthier mcpoot13 optimizations standardized sec:ommt realization defemph

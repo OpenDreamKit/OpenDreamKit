@@ -199,3 +199,7 @@ Note that in SVN any ```svn update``` will update the KWARC bibs in the external
  -->
 <!--  LocalWords:  subrepository svn:externals
  -->
+
+## License
+
+Licensed under CC0 1.0 Universal

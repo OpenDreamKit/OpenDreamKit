@@ -11,15 +11,16 @@ The evaluation and application of this approach requires several major practical
 
 In this \papertype, we have described substantial progress on each aspect.
 Due to the enormousness of the overall goal, we have focused on concrete case studies that have driven this progress.
-Concretely, we focused on group theory and a few adjacent areas of mathematics to draw integration examples from.
+Concretely, we focused on group theory and modular forms as well as a few adjacent areas of mathematics to draw integration examples from.
 Moreover, we picked four concrete systems to integrate: the computation systems \Sage, \GAP, and \Singular, and the mathematical database collection \lmfdb.
 
 Our efforts led to several foundational innovations that were needed to apply MitM in practice.
 These included the notion of virtual theories and mathematical codecs that relate large collections of mathematical objects to high-level formalizations of mathematics.
 Virtual theories provide feasibly small windows to large databases.
-And codecs perform systematic syntax translations between mathematical language and general purpose database languages.
+And codecs perform systematic syntax translations between mathematical languages and general purpose database languages.
 
-\paragraph{Evaluation}
+\paragraph{Evaluation} 
+
 Our case studies show that MitM-based integration is an achievable goal.
 Critically, the MitM-based approach to interoperability of data sources and systems keeps systems and data sources ``as is''.
 Only their APIs are documented in a machine-actionable way that can be utilized for remote procedure calls, content format mediation, and service discovery.
@@ -27,25 +28,43 @@ As a consequence, interaction between systems is very flexible and requires only
 Delegation-based workflows can either be programmed directly or embedded into the interaction language of the mathematical software systems.
 Moreover, this can be done in a way that requires only minimal changes to users' existing work flows.
 
-Compared to ad-hoc translations, MitM-based interoperability is relatively expensive as objects have to be serialized into (possibly large) \OMMT objects, transferred via \SCSCP to \MMT, parsed, translated into another system dialect, serialized and transferred, and parsed again.
+In comparison to middleware systems for distributed objects computing like CORBA, or ProtoBuffers, the MitM paradigm solves the ``semantics preservation problem'' by supplying the MitM ontology as a ``specification layer'' and the \ommt framework as a joint meaning space, which is infinite in principle and only limited by the coverage of the MitM ontology. 
+
+The MitM paradigm is more general than the ad-hoc integration approach in used in \Sage, in particular, as already our two use cases show, there is no dedicated master system --- the system that the user feels at home in.
+In Jane's use case it is still \Sage, in Jon's it is \GAP, and in Joanna's it is \LMFDB.
+
+Incidentally, we can understand the MitM paradigm as an extension of the OpenMath approach: MitM uses the OpenMath encoding for transporting objects and the OpenMath-based SCSCP transport protocol, which the OpenMath society endorsed as an OpenMath standard in 2017 prompted by the OpenDreamKit project.
+Here the innovation of the MitM effort in \textbf{WP6} is
+\begin{compactenum}
+  \item using \ommt as a much more expressive language for content dictionaries that can accommodate both formal and informal representations of the background knowledge,
+  \item using theory morphisms that specify meaning-preserving relations between theories to modularize ontologies,
+  \item the provisioning of the MitM ontology and thousands of system API theories, which constitute high-impact content dictionaries for OpenMath,
+  \item working use cases that demonstrate the feasibility the decades-old ``OpenMath Vision'' of distributed, meaning-preserving computation in mathematics.
+\end{compactenum}
+
+Compared to ad-hoc translations, MitM-based interoperability is relatively inefficient as objects have to be serialized into (possibly large) \OMMT objects, transferred via \SCSCP to \MMT, parsed, translated into another system dialect, serialized and transferred, and parsed again.
 On the other hand, instead of implementing and maintaining $n^2$ translations, we only have to establish and maintain $n$ collections of system APIs and their alignments to the
 MitM ontology.
 This makes the management of interoperability much more tractable:
 \begin{compactenum}
 \item The MitM ontology is developed and maintained as a shared resource by the community.
 We expect it to be well-maintained, since it can directly be used as a documentation of the functionality of the respective systems.
-\item All the workflows are star-shaped: instead of requiring expert knowledge in two systems -- a rare commodity even in open-source projects, and even for the system experts involved in this \papertype -- and keeping up with their changes, the MitM approach only needs expertise and change management for single systems.
+\item All the workflows are star-shaped: instead of requiring expert knowledge in two systems --- a rare commodity even in open-source projects, and even for the system experts involved in this {\papertype} --- and keeping up with their changes, the MitM approach only needs expertise and change management for single systems.
 \end{compactenum}
-All in all, these translate into a ``business model'' for MitM-based cooperation in terms of the necessary investment and achievable results, which is based on the well-known \emph{network effects}: the joining costs are in the size of the respective system, whereas the rewards -- i.e. the functionality available by delegation -- is in the size of the network.
+All in all, these translate into a ``business model'' for MitM-based cooperation in terms of the necessary investment and achievable results, which is based on the well-known \emph{network effects}: the joining costs are in the size of the respective system, whereas the rewards --- i.e. the functionality available by delegation --- is in the size of the network.
 
 \paragraph{Future Work}
+Of course, MitM is very young and only backed by a minuscule developer community (the participants of \textbf{WP6} in the OpenDreamKit), so tool support, documentation and community buy-in are just starting to develop.
 The most obvious path of future work is in scaling up the approach in two orthogonal direction: write ontologies for more areas of mathematics and connect more systems and databases to the MitM ecosystem.
-Both will require tremendous future efforts but due to our initial developments the marginal costs are now quite affordable.
+Both may require substantial efforts but due to our initial developments the marginal costs can now be quite affordable, as the Singular case study shows (see Section~\ref{sec:apit:singular}). 
 In the long run, we expect that the MitM-generated qualitative boost to mathematicians' productivity will these costs.
 
 Concrete candidates for additional systems include PARI GP and the remaining databases of \lmfdb.
 Moreover, we are working on integrating the Online Encyclopedia of Integer Sequences (OEIS~\cite{Sloane:OEIS,oeis}) --- a difficult undertaking due to the weak structure it enforces on its data.
 In~\cite{LuzKoh:fsarfo16} we have already (heuristically) formalized OEIS contents in \ommt; the next step will be to come up with appropriate codecs based on this basis and develop schema theories for OEIS.
+
+Moreover, the new OSCAR project~\cite{OSCAR:on}, which aims at a high-efficiency integration of the computer algebra systems \GAP, \Singular, Polymake, and Antic using shared-memory communication and Julia as a glue language, is closely related to OpenDreamKit.
+The most promising synergy between OpenDreamKit and OSCAR, which we have recently started exploring, is to jointly use and further develop the MitM ontology as a documentation and integration facility across all systems.
 
 The network effect described above can be enhanced further by technical refinements.
 For instance, if we annotate alignments with a ``priority'' value that specifies how canonically/efficiently/powerfully a given system implements a given MitM operation, then we can let the \MMT mediator automatically choose a suitable target system for a requested computation (as opposed to our current setup where Jane specifies which systems she wants to use).
@@ -64,8 +83,7 @@ work package WP6, in particular Alexander Konovalov on \SCSCP, Paul Dehaye on th
 export and the organization of the MitM ontology, Luca de Feo on OpenMath phrasebooks
 and the \SCSCP library in python.
 
-We acknowledge financial support from the OpenDreamKit Horizon 2020 European Research
-Infrastructures project (\#676541) and DFG project RA-18723-1 OAF.
+% We acknowledge financial support from the OpenDreamKit Horizon 2020 European Research Infrastructures project (\#676541) and DFG project RA-18723-1 OAF.
 
 %%% Local Variables:
 %%% mode: latex
@@ -74,6 +92,6 @@ Infrastructures project (\#676541) and DFG project RA-18723-1 OAF.
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  sec:concl MitM-based itemize subsubsection Dehaye organization serialized
+%  LocalWords:  sec:concl MitM-based itemize subsubsection Dehaye organization serialized textbf flexiformal flexiformalization Polymake
 %  LocalWords:  math-savy emph serialization formalizations papertype lmfdb utilized ommt
 %  LocalWords:  compactenum Sloane:OEIS,oeis LuzKoh:fsarfo16 formalized MitM-aware

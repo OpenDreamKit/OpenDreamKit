@@ -1,3 +1,4 @@
+\paragraph{Motivation}
 There is a large and vibrant ecosystem of open-source software systems for mathematics. 
 These range from calculators, which perform simple computations, via mathematical databases, which curate collections of mathematical objects, to powerful modeling tools and computer algebra systems (CAS).
 
@@ -16,13 +17,42 @@ multi-system integration.
 To add insult to injury, the knowledge bases Jane would like to use --- ranging from Wikipedia to theorem prover libraries --- are usually only accessible via the restricted API of a dedicated web information system or the low-level API to the raw database content.  
 What we would want is a ``programmatic, mathematical API'' which would give access to the knowledge-bases programmatically via their mathematical constructions and properties.
 
-\ednote{NT: one should say something about previous attempts, e.g. OpenMath, why it does not do the job, and how we mean to fix that.}
+\paragraph{Related Work}
+There are essentially two approaches to tackling the problem of system interoperability and integration.
+Firstly, \textbf{ad-hoc-integration} uses a programming language for translating object data structures between systems, possibly using shared memory.
+The most prominent proponent is the \Sage system, which uses Python as the glue language and various Python-to-X bridges for Master/Slave-type integration.
+Here, the ``preservation of semantics'' property that is so important for a sound system integration is implicitly embedded in the glue code and has to be painstakingly maintained by the community over system releases.
+Recently, the OSCAR project~\cite{OSCAR:on} was started to achieve a similar but much deeper integration of a fixed set of four computer algebra systems using Julia as the glue language.
+
+Secondly, \textbf{middleware-integration} uses a dedicated formal language and protocol for the standardized representation and communication of objects.
+Outside the domain of mathematics, this has been successfully applied in, e.g., CORBA~\cite{Omg:Corba:Web}, which uses object-oriented modeling and stub generation for the exchange of business objects, REST-based Web Services~\cite{WSDL:on,Mitra:soapPrimer03} that exchange XML or JSON-based objects, or more recently Protocol Buffers~\cite{protobuffers:on}, which model structured data as JSON-like text files.
+Middleware integration excels at integrating disparate systems across machine, programming language, and even operating system borders.
+It works best if the respective object models are compatible, which the respective communities try to achieve by standardizing domain ontologies and schemata.
+This schema standardization and mediation between differing object models turns out to be the main problem involved in interoperability.
+
+However, in mathematics, domain model standardization is inherently difficult:
+The set of potential object \emph{types} is dynamically extensible and thus itself part of the standardization problem
+Moreover, essentially no object type admits canonical representations for its objects so that different-but-equivalent constructions must be supported in practice.
+Middleware integration for mathematics was attempted using the OpenMath~\cite{BusCapCar:2oms04} and content MathML~\cite{CarlisleEd:MathML3:base} languages and the \SCSCP protocol \cite{SCSCP-1.3}.
+Their underlying object models are isomorphic and represent mathematical objects as syntax trees with binding starting from symbols, variables, and literals.
+Extensibility is achieved by using an open-ended set of symbols that are introduced and specified in special documents called content dictionaries (CDs).
+Due to this extensibility, any interoperability that preserves the meaning of the communicated objects hinges on the availability of standardized CDs, which have to be manually written by the respective community.
+In the past, the main problem of such math middleware approaches has been the lack of high-impact CDs that both fully specified the semantics of symbols and were supported by concrete systems in a way that respected these specifications.
 
 \paragraph{Towards a Virtual Research Environment for Mathematics}
-One goal of the OpenDreamKit project is tackling these problems systematically by building virtual research environments (VRE) on top of the existing systems.
-To build a VRE from individual systems, we need a joint user interface --- the OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active documents~\cite{KohDavGin:psewads11} --- and an interoperability layer that allows passing problems and results between the disparate systems.
-For the latter, it proposes the Math-in-the-Middle paradigm (MitM~\cite{DehKohKon:iop16}): an interoperability framework based on a central, system-independent ontology of mathematical knowledge and system API theories that specify the interfaces of the various systems in the same, modular knowledge representation format.
-We use \ommt as this format together with alignments the describe the relations between the functions declared in the ontology and those realized in the various system APIs.
+A goal of the OpenDreamKit project is tackling the integration problem for mathematical systems systematically by building virtual research environments (VRE) on top of the existing systems.
+This requires a joint user interface --- the OpenDreamKit project adopts Jupyter~\cite{jupyter-project:on} and active documents~\cite{KohDavGin:psewads11} --- and an interoperability layer that allows passing problems and results between the disparate systems.
+For the latter, OpenDreamKit explores both ad-hoc (via Sage) and (in this deliverable) middleware integration.
+
+We have dubbed OpenDreamKit's middleware approach \textbf{Math-in-the-Middle} (\textbf{MitM}) \cite{DehKohKon:iop16}.
+It provides an interoperability framework based on a central, system-independent \textbf{ontology} of mathematical knowledge and on system \textbf{API theories} that specify the interfaces of the various systems.
+Here the system API theories of a systems $S$ are system-near in the sense that they introduce symbols that correspond exactly to the functionality implemented by $S$.
+But they are system-independent in the sense that they are separate from the source code of $S$.
+Thus, they can be seen as a formal and thus machine-actionable documentation of the interface of $S$.
+
+We use the \ommt~\cite{Kohlhase:OMDoc1.2,RabKoh:WSMSML13} language as the representation format for both the ontology and the system API theories.
+And we use \textbf{alignments} \cite{MueGauKal:cacfms17,MueRoYuRa:abtafs17} to describe the relations between the symbols declared in the ontology and those in the API theories.
+This allows building math middleware on top of the \mmt system~\cite{uniformal:on}.
 
 \paragraph{Contribution}
 In this \papertype we instantiate the MitM paradigm in two concrete case studies.
@@ -54,15 +84,11 @@ For effective further computation with $I$, she needs a G\"obner base of $I$.
 Jane is a \Sage user and wants to receive the result in \Sage, but she wants to
 use \GAP's orbit algorithm and \Singular's Gr\"obner base algorithm, which she
 knows to be very efficient. For the sake of example, we will work with $n=4$,
-$G=D_4$ (the dihedral group\footnote{Incidentally, this group is called $D_4$ in
-\Sage but $D_8$ in \GAP due to differing conventions in different mathematical
-communities -- a small example of the obstacles to system interoperability that
-MitM tackles.}), and $p=3\cdot X_1+2\cdot X_2$, but our results apply to
+$G=D_4$ (the dihedral group), and $p=3\cdot X_1+2\cdot X_2$, but our results apply to
 arbitrary values.
+Notably, the this dihedral group is called $D_4$ in \Sage but $D_8$ in \GAP due to differing conventions in different mathematical communities --- a small example of the obstacles to system interoperability that MitM tackles.
 
-\def\Q{{\mathbb Q}}
-\def\N{{\mathcal{N}}}
-For the \LMFDB case study, Jane wants to investigate the number fields which are generated by the coefficients of Hilbert modular forms (HMFs).
+For the \LMFDB case study, Joanna (a colleague of Jane's) wants to investigate the number fields which are generated by the coefficients of Hilbert modular forms (HMFs).
 For many totally real number fields~$F$ of low degree, and for many levels~$\N$\ for each field, the LMFDB contains information about all HMFs of level~$\N$ (of parallel weight~$2$ and trivial character).
 Each of these HMFs is an eigenform for the Hecke algebra with eigenvalues generating a number field; the same number field contains the coefficients of the standard Fourier expansion of the HMF, which are expressible in terms of the eigenvalues.
 In the LMFDB, each HMF's Hecke field $K$ is stored by means of a defining polynomial which has been obtained as a by-product of the computation of the HMF itself, and is in no way canonical or minimal, making study of these fields difficult and --- even in simple cases --- obscure.
@@ -79,13 +105,15 @@ While the ontology describes the \emph{abstract} syntax of mathematical objects,
 In Section~\ref{sec:apit} and~\ref{sec:databases}, we describe the integration of the computation systems \GAP, \Sage, and \Singular and the \lmfdb databases with the MitM architecture.
 In Section~\ref{sec:case}, we present the resulting virtual research environment built on
 these systems in action.
-Section~\ref{sec:concl} concludes the paper.
+Section~\ref{sec:concl} concludes the \papertype.
 
 %%% Local Variables:
-%%% mode: latex
+%%% mode: latex 
+%%% mode: visual-line
+%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  sec:intro Sloane:oeis12,oeis mathbb Cremona:LMFDB16,lmfdb:on GAP:on \Sage:on singular:on DehKohKon:iop16 emph sec:mitm sec:cgt sec:apit sec:mitm_poc sec:concl MitM-based sec:case Jupyter jupyter-project:on KohDavGin:psewads11 ldots,X_n leq obne cdot cdot
+%  LocalWords:  sec:intro Sloane:oeis12,oeis mathbb Cremona:LMFDB16,lmfdb:on GAP:on \Sage:on singular:on DehKohKon:iop16 emph sec:mitm sec:cgt sec:apit sec:mitm_poc sec:concl MitM-based sec:case Jupyter jupyter-project:on KohDavGin:psewads11 ldots,X_n leq obne cdot cdot WSDL:on,Mitra:soapPrimer03 protobuffers:on standardizing standardization KohRab:som12 characterized textbf
 %  LocalWords:  SageMath:on ldots,X_4 subseteq obner Groebner formalizations ednote ommt
 %  LocalWords:  realized papertype oldpart lmfdb compactitem mathcal eigenform
