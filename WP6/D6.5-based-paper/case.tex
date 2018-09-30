@@ -1,0 +1,165 @@
+\begin{figure}[ht]\centering\vspace*{-1em}
+  \tikzinput{gap_singular_mitm_fig}
+  \caption{MitM Interaction in Jane's Use Case}\label{fig:mitmpoc}\vspace*{-1em}
+\end{figure}
+
+Figure~\ref{fig:mitmpoc} shows the overall architecture with an MitM server as the central mediator.
+All arrows represent the transfer of \OMMT objects via SCSCP.
+Critically, the MitM server also maintains the alignments and uses them to convert between system dialects.
+
+We have extended the \MMT system~\cite{Rabe:MAGMS13} with an SCSCP server/client so that it can receive/send objects from/to computation systems.
+For the \GAP server, we built on pre-existing \SCSCP support.
+To obtain an \SCSCP server for \Singular, which does not have native \SCSCP support, we wrapped \Singular in a Python script that includes the \lstinline|pyscscp| library~\cite{py-scscp:on}.
+In \Sage, we directly programmed the client interface to the MitM server. 
+
+The resulting system forms the nucleus of the OpenDreamKit interoperability layer. It can already delegate computations between the four participating systems as long as the exchanged objects are covered by the MitM ontology, the alignments, and the formalizations of the system dialects.
+
+\subsection{Mediator}
+
+\paragraph{Meta-Language}
+
+\ednote{Describe theory with symbols ternary MMTEval, binary Eval, nullary GAP, SageMath, etc.}
+
+\ednote{Describe semantics of MMTEval, Eval}
+
+\paragraph{Alignment-Based Transformation}
+
+\ednote{describe how expressions are transformed}
+
+\paragraph{System Design}
+
+\ednote{describe MMT SCSCP server, connections with systems, processing of meta-language objects via transformation and external evaluation}
+
+\ednote{reuse some of the text from the beginning of the section}
+
+\paragraph{Calling from Individual Systems}
+
+We have developed a Python module that allows calling the mediator from within \Sage.
+
+\ednote{describe details of syntax in Sage}
+
+\subsection{Examples}
+
+\ednote{update syntax to the one described in the previous subsection}
+
+\paragraph{Jane's Use Case} 
+Initially, Jane has already built in \Sage the ring $R=\mathbb{Z}[X_1,X_2,X_3,X_4]$, the group $G=D_4$, the action $A$ of $G$ on $R$ that permutes the variables, and the polynomial $p = 3\cdot X_1 + 2\cdot X_2$.  She now calls
+\begin{lstlisting}
+  MitM.Singular(MitM.Gap.orbit(G, A, p)).Ideal().Groebner().sage()
+\end{lstlisting}
+which results in the following steps (the numbers on the edges of the
+graph of Figure~\ref{fig:mitmpoc} indicate the order of communications when processing Jane's use case):
+\begin{compactenum}
+  \item Jane uses \Sage to call the MitM server with the command above, which includes both the computation to be performed and information about which system to use at which step.
+  \item The MitM server translates \lstinline|MitM.Gap.orbit(G, A, p)| to the \GAP system dialect and sends it to \GAP.
+  \item \GAP returns the orbit:
+    \begin{displaymath}
+      \begin{split}
+        O = [3X_1 + 2X_2, 2X_3 + 3X_4, 3X_2 + 2X_3, 3X_3 + 2X_4,\\
+        2X_2 + 3X_3, 3X_1 + 2X_4, 2X_1 + 3X_4, 2X_1 + 3X_2]\,.
+      \end{split}
+    \end{displaymath}
+  \item The MitM server translates \lstinline|MitM.Singular(O).Ideal().Groebner()| to the \Singular system dialect and sends it to \Singular.
+  \item \Singular returns the Gröbner base $B$.
+  \item The MitM server translates $B$ to the \Sage system dialect and sends it to \Sage, where the result is shown to Jane.
+    \begin{displaymath}
+      B = [X_1 - X_4, X_2 - X_4, X_3 - X_4, 5X_4]\,.
+    \end{displaymath}
+  \end{compactenum}
+
+\paragraph{Alternative Use Case}
+Suppose Jon, one of Jane's colleagues, prefers working in \GAP, and he wants to
+compute the Galois group of the rational polynomial $p = x^5 - 2$. He discovers
+the \GAP package \texttt{radiroot}, which promises this functionality, but
+unfortunately the package does not work for this polynomial and thus \GAP alone
+cannot solve Jon's problem.
+
+Jon hears from Jane that he should use \Sage, because she knows it can
+compute Galois groups. So, from \GAP, he calls
+\begin{lstlisting}
+  G := MitM("Sage", "GaloisGroup",p)
+\end{lstlisting}
+which gives him the desired
+Galois group as a \GAP permutation group. Having heard of Jane's
+experiments, he can further run her orbit and Gröbner basis
+calculation starting from this new group, without leaving his
+favorite computing environment.
+%\begin{lstinline}
+%  G := MitM("Sage", "GaloisGroup",p)|
+
+Finally, Jon, being a proficient \GAP user, also knows that he can now install a \defemph{method} in \GAP by calling 
+\begin{lstlisting}
+  InstallMethod(GaloisGroup, "for a polynomial", [IsUnivariatePolynomial], 
+                p -> MitM("Sage", "GaloisGroup", p))
+\end{lstlisting}
+that will compute the Galois group of any rational polynomial transparently for him whenever he calls \lstinline|GaloisGroup| for a rational polynomial in \GAP. 
+And thus (at the price of using multiple systems) a significant part of the 1800-line \lstinline|radiroot| package can be replaced by a few lines in GAP, taking advantage of the work of the \Sage community and participating in any future improvements of \Sage. 
+In fact, Sage itself delegates to the PARI system -- another one of the OpenDreamKit systems -- for this computation.  So in the future \GAP might directly delegate to PARI instead, bypassing the need of iterated translations.
+
+\ednote{$p =x^4-x^3-x^2+x+1$ over $\mathbb{Q}$ would have $D_8$ as galois group again...}
+
+\ednote{FR: an old vision of a use case is commented out here; parts of it may still be useful}
+%\paragraph{Additional Use Case}
+%  For example, say Jane wishes to check the hypothesis that all Abelian transitive groups
+%  are cyclic.\footnote{This example is mathematically trivial.  We have chosen it because
+%    it shows complex system interaction rather than mathematical plausibility.  A
+%    realistic, mathematically motivated example will be discussed below.}  using a
+%  MitM-based mathematical VRE.  Jane realizes that the LMFDB database contains a set of
+%  known Abelian transitive groups.  Furthermore, she realizes that the \GAP system can
+%  check if a given group is cyclic.  To check his hypothesis, she could retrieve all
+%  relevant groups from LMFDB, and then use \GAP to check if each of these is cyclic.
+%
+%As Jane is most familiar with the \Sage CAS, she expresses this operation as
+%\begin{lstlisting}
+%gap   = server(system="gap", transport="scscp", mediator="mmt")
+%lmfdb = server(system="lmfdb", transport="scscp", mediator="mmt")
+%all(gap.is_cyclic(g) for g in lmfdb.query("transitive_groups", abelian=True))
+%\end{lstlisting}
+%
+%\begin{wrapfigure}r{7.8cm}\vspace*{-2em}
+%  \tikzinput{mitmcomm}
+%  \caption{MitM-based Interoperability}\label{fig:mitmcomm}\vspace*{-1em}
+%\end{wrapfigure}
+%
+%At the \Sage level, the \lstinline|all| predicate\ednote{MK@NT: is
+%  ``all'' something that already exists in \Sage? Does it behave like
+%  this? Please make sure that the text in this paragraph makes sense?
+%  NT: Yes, ``all'' is a Python builtin with exactly that syntax and behavior.}
+% maps the first argument, interpreted as a predicate over the list in the second argument.
+%The arguments are the results of remote procedure calls via \SCSCP. 
+%The second one sends the query for transitive groups to the LMFDB \SCSCP server, via \SCSCP protocol and the second sends the query whether \lstinline|g| (from the list returned by LMFDB) is cyclic.
+%At the system level, the interaction is mediated by the \MMT system and we have the following atomic communication acts: 
+%\begin{compactenum}
+%\item \Sage sends a \SCSCP remote procedure call for 
+%  \begin{lstlisting}[mathescape]
+%    map(scscp(gap,is_cyclic,scscp(lmfdb,query("transitivegroup")))$\text{\footnotemark}$
+%\end{lstlisting}
+%  \footnotetext{We are assuming that \textsf{all} in \Sage is extended to produce the
+%    map term when it has \textsf{scscp} arguments.}  to \MMT as an OM object $Q$ in \Sage
+%  dialect\ednote{MK@NT; could you please Sageify this as well? Or do we not need that?}
+%  \ednote{NT@all: I don't think that the behavior of ``all'' can be
+%    changed; Sage will be evaluating the ``all'' call with one query
+%    to scscp/lmfdb and on scscp/gap call per group `g`. Do we have a
+%    specific reason to wish for Sage to issue a single ``map'' call to
+%    scscp? If yes, we need a different syntax. If not we just have to update
+%    this itemized description.}
+%\item \MMT interprets the inner term \lstinline|scscp(lmfdb,query("transitivegroup"))|, translates it into a LMFDB query $Q'$ in LMFDB dialect and sends it to the LMFDB \SCSCP server via \SCSCP. 
+%\item LMFDB answers the query with a list $34G$ of 34 transitive groups as OM objects in LMFDB dialect.
+%\item \MMT translates $34G$ into the \GAP dialect and synthesizes a the OM object $M$ that calls the \GAP map operation of the (\GAP equivalent of )\lstinline|is_cyclic| on $34G$. This is sent to \GAP. 
+%\item \GAP interprets $G$, and returns a list of 34 (\GAP) truth values to \MMT. 
+%\item \MMT translates them into a list of 34 \Sage truth values, which it sends back to \Sage. 
+%\item \Sage interprets this list as a \Sage list and the \lstinline|every| predicate checks that all elements are ``true'', in which case it succeeds. 
+%\end{compactenum}
+
+%%% Local Variables:
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  sec:case fig:mitmpoc IanJucKoh:sdm14,MathHub:on summarize sec:cgt pyscscp vspace lstlisting
+%  LocalWords:  twiesing:msc17 centering tikzinput gap_singular_mitm_fig lstinline emph
+%  LocalWords:  py-scscp:on oldpart mathbb cdot cdot Groebner Gröbner radiroot jist scscp
+%  LocalWords:  GaloisGroup galois formalizations compactenum texttt defemph ednote lmfdb
+%  LocalWords:  MitM-based wrapfigure mitmcomm textsf Sageify itemized synthesizes

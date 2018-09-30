@@ -4,6 +4,7 @@
 
 \usepackage{amsmath,amssymb}
 \usepackage{hyperref}
+\usepackage{paralist} % for environment compactenum
 
 \def\Z{{\mathbb Z}}
 \def\Q{{\mathbb Q}}
@@ -298,6 +299,42 @@ subring of the ring of integers of the Hecke field they generate, what
 index it has in the ring of integers, and how many individual Hecke
 eigenvalues are require to generate this ring.  All of these questions
 could be studied systematically in SageMath.
+
+\section{Realization in MitM}
+
+The MitM ontology declares the relevant operations to capture the mathematical meaning of the operations in the LMFDB:
+\begin{itemize}
+\item foundational operations: sets and maps over them
+\item mathematical operations: Hilbert modular forms, polynomials, number fields
+\end{itemize}
+
+To integrate MitM with the LMFDB, we write schema theories for the collections involved.
+In fact, only \texttt{hmfs.forms} and \texttt{hmfs.hecke} are needed.
+These are semantically a single table, but the latter was factored out due to the size of the eigenvalues.
+Therefore, we have adapted our schematheories approach to allow for seeing these two as a single table (i.e., as the join over the \texttt{label} key).
+
+To integrate MitM with SageMath, we include the (dependency closure of the) involved operations in the API theories and use alignments to connect the latter to MitM operations.
+In particular, we use alignments for polynomials and number fields.
+% SageMath syntax:
+%  NumberField(poly: Polynomial as symbolic expression, generator-name: String)
+%  PolynomialRing(R: Ring, variable: String)(coefficients: List[R])
+
+Then we can use a MitM query that
+\begin{compactenum}
+ \item Requests a set of Hilbert modular forms from the above join of
+   LMFDB tables filtered to have specified values for degree or field
+   label (selecting for certain base fields, e.g. degree $2$ or label
+   {\tt 2.2.5.1}), and/or level norm
+   (selecting for certain levels, e.g. $1$ or a range $1$--$100$) or
+   dimension (e.g., $2$, selecting for certain Hecke fields).
+ \item Converts the result to MitM.
+ \item In MitM, performs a map operation over this set to build the number fields of the Hecke polynomial of each modular form.
+ \item Converts the results to SageMath (using the alignments of polynomials and number fields).
+\end{compactenum}
+
+This query can be run from within SageMath and the result can be used for further investigations.
+Notably MitM acts not only as an intermediate representation for corresponding but non-identical data structures in LMFDB and SageMath, it also bridges gaps where the two systems do not even have corresponding data structures.
+Specifically, we obtain Hilbert modular forms as an intermediate result at the MitM level; but SageMath does not have a representation of these forms, only of their associated number fields.
 
 %% \section{Interfaces needed}
 
