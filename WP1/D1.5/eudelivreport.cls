@@ -48,6 +48,8 @@
 \newcommand\site[1]{\@nameuse{wa@institution@#1@acronym}}
 \newcommand\sitename[1]{\@nameuse{wa@institution@#1@name}}
 \newcommand\delivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname}}
+\newcommand\delivtref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname
+    deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname: \csname deliv@#1@#2@short\endcsname}}
 \newcommand\longdelivref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname deliv@#1@#2@issue\endcsname}{\csname deliv@#1@#2@label\endcsname: ``\csname deliv@#1@#2@title\endcsname''}}
 \newcommand\taskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname}}
 \newcommand\longtaskref[2]{\href{https://github.com/OpenDreamKit/OpenDreamKit/issues/\csname task@#1@#2@issue\endcsname}{\csname task@#1@#2@label\endcsname: ``\csname task@#1@#2@title\endcsname''}}
