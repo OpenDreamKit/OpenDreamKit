@@ -3,7 +3,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
 \usepackage{gnuplottex} % [noshell]: do not regenerate gnuplots
-
 \usepackage{booktabs}
 \usepackage{listings}
 \lstset{
@@ -271,7 +270,30 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \begin{frame}
   \frametitle{Outsourced computing security}
 
-  Exploratory 
+  \begin{block}{Exploratory aspect: Computation over the Cloud}
+    \begin{description}
+    \item[Outsourcing computation on the cloud:]\ 
+      \begin{itemize}
+      \item trusted lightweitht client computer
+      \item untrusted powerful cloud server
+      \end{itemize}
+      $\Rightarrow$ need for certification protocols
+    \item[Multiparty computation:] \
+      \begin{itemize}
+      \item each player contribute with a share of the Input
+      \item shares must remain private
+      \end{itemize}
+    \end{description}
+
+    \begin{block}
+      {Contribution}
+      \begin{description}
+        \item[ISSAC'17] Linear time certificates for the Rank Profile matrix
+        \item[In submission] Secure multiparty Strassen's algorithm
+      \end{description}
+    \end{block}
+  \end{block}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,9 +484,66 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \begin{frame}
   \frametitle{T5.4 Singular}
   \begin{block}
-    {D5.13: Paralel sparse polynomial multiplication}
-  \end{block}
-\end{frame}
+    {D5.13: Paralell sparse polynomial multiplication}
+    
+    \texttt{FLINT} now support fast sparse multivariate polynomials:
+    \begin{itemize}
+    \item addition, subsection, multiplication,
+    \item division, division with remainder, GCD
+    \item evaluation (and partial evaluation), composition
+    \end{itemize}
+
+\uncover<2->{  \textbf{Parallelization of the (sparse) multiplication}
+    \begin{columns}
+      \begin{column}{.38\textwidth}
+        {\footnotesize
+          %% \begin{equation*}
+          %%   (1 + x + y + 2z^2 + 3t^3 + 5u^5)^{21}*(1 + u + t + 2z^2 + 3y^3 + 5x^5)^{21}
+          %% \end{equation*}
+%          \begin{center}
+            \begin{tabular}{lcccccccc}
+               \toprule
+               threads & time (ms) & speedup\\ \midrule
+               1 & 148661 & 1.0x\\
+               2 & 76881 & 1.9x\\ 
+               3 & 54798 & 2.7x\\ 
+               4 & 42855 & 3.4x\\ 
+               5 & 37017 & 4.0x\\ 
+               6 & 30892 & 4.8x\\ 
+               7 & 28365 & 5.2x\\ 
+               8 & 28048 & 5.3x\\
+               \bottomrule
+            \end{tabular}
+ %         \end{center}
+        }
+      \end{column}
+      \begin{column}{.6\textwidth}
+        \uncover<3->{
+          \begin{itemize}
+        \item Planned improvements to the memory manager $\Rightarrow$ closer to linear scaling 
+        \item Parallel division and GCD implementations are in progress.
+        \item Integration into Factory/Singular remains to be done
+          \end{itemize}
+          }
+      \end{column}
+    \end{columns}
+    }
+   \end{block}
+
+ \end{frame}
+
+%% \begin{frame}
+%%   \frametitle{Root clustering}
+    
+%%     \begin{block}{Root clustering}
+%% \begin{itemize}
+%%  \item Remi Imbach has implemented the new parallel root clustering algorithm of Sagraloff-Yap
+%%  \item Remi will return to Kaiserslautern (from New York visiting Chee Yap) to integrate the new code in Singular
+%%  \item All deliverables for Kaiserslautern are on track
+%%  \end{itemize}
+
+%%  \end{block}
+%%  \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Workpackage management}
@@ -478,12 +557,6 @@ She automatically benefits from the HPC features of the underlying specialized l
 
 
 \begin{verbatim}
-pernet@hpac:~/sage$ ./sage 
-┌────────────────────────────────────────────────────────────────────┐
-│ SageMath version 8.3, Release Date: 2018-08-03                     │
-│ Type "notebook()" for the browser-based notebook interface.        │
-│ Type "help()" for help.                                            │
-└────────────────────────────────────────────────────────────────────┘
 sage: a=random_matrix(GF(11),8000,8000)
 sage: time b=a*a
 CPU times: user 1min 23s, sys: 1min 14s, total: 2min 37s
@@ -498,13 +571,15 @@ Wall time: 7.14 s
 \frametitle{Addressing recommendations of review 1}
     \textbf{Recommendation 10:} \textit{Regarding WP5, make contacts with HPC community in order to ascertain current state-of-the-art. The work in this WP needs to be nearer the leading edge.}
 
-    \begin{itemize}
-    \item<2-> Leading edge achievements in linear algebra
+    \begin{description}
+    \item<2-> [Leading edge achievements in linear algebra] \
+      {\small
       \begin{itemize}
-      \item symmetric factorization outperforms best LAPACK implementation
+      \item symmetric factorization outperforms LAPACK implementation
       \item new non-hierarchical generator for quasiseparable matrices
       \item large scale parallelization of rational linear solver
       \end{itemize}
+      }
     \begin{columns}
       \begin{column} {.3\textwidth}
         \begin{center}
@@ -522,14 +597,16 @@ Wall time: 7.14 s
         \end{center}
       \end{column}
     \end{columns}
-    \item<3-> Contacts made:
+    \item<3-> [Contacts made:]\ 
+      {\small
       \begin{itemize}
       \item interraction with the \texttt{BLIS} group (vectorization and
         implementation of Strassen's algorithm)
       \item on-going collaboration with T. Mary (\texttt{Mumps}) and
         S. Chandrasekaran (UCSB) on quasiseparable matrix algorithmic
       \end{itemize}
-\end{itemize}
+      }
+\end{description}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
