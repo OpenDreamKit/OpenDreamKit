@@ -479,7 +479,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
     \end{itemize}
   \end{block}
 
-  
+  A typical speedup obtained for binary sequences 
   \begin{center}\begin{tabular}{c|cccc}
     \# processors & 1 & 2 & 4 & 8\\
     Time (s) & 250 & 161 & 103 & 87
@@ -509,25 +509,34 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 
 \end{frame}
 
-\begin{frame}{Exploration: Python, Cython, Pythran and SIMD code (D5.8)}
+\begin{frame}[fragile]{Exploration: Python, Cython, Pythran and Cilk (D5.8)}
 
 \begin{center}
-PLOT TO COME
-%%  \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",10" linewidth 2}]
-%%  set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
-%%  set title 'Counting descents in permutations'
-%%  set ylabel 'log time' offset 1,0
-%%  set xlabel 'n' offset 0,0.1
-%%  set xtics rotate by 30 offset -2,-0.75
-%%  set y2tics autofreq 
-%%  set autoscale y2fixmin
-%%  set autoscale y2fixmax  
-%%  set size 0.8,0.75
-%%  set key bottom right Left reverse
-%%  plot [8:13] [1:500] "data_perms.txt" using 1:4 
-%%  "data_perms.txt" using 1:3 title "Cython list" with lines lw 3 lc 2, \
-%%  "data_perms.txt" using 1:4 title "Cython array" with lines ls 3
-%%  \end{gnuplot}
+  \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",8" linewidth 2}]
+  set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
+  set title 'Counting descents in permutations'
+  set logscale y
+  set ylabel 'log time'
+  set format y '%L'
+  set xlabel 'n' offset 0,0.1
+  set size 0.9,0.6
+  set key bottom right
+  plot [9:13] \
+  "data_perms.txt" using 1:2 title "Python" with lines lc 1, \
+  "data_perms.txt" using 1:3 title "Cython list" with lines lc 2, \
+  "data_perms.txt" using 1:4 title "Cython array" with lines lc 3, \
+  "data_perms.txt" using 1:5 title "Pythran" with lines lc 4, \
+  "data_perms.txt" using 1:6 title "Cilk 1 core" with lines lc 5, \
+  "data_perms.txt" using 1:7 title "Cilk 8 cores" with lines lc 6
+  \end{gnuplot}
+\begin{block}{Outcome}
+\begin{itemize}
+\item Python is slow
+\item Cython is efficient and easy to integrate in SageMath
+\item Pythran is promising but delicate to integrate in SageMath
+\item Cilk is very promising, but fragile
+\end{itemize}
+\end{block}
 \end{center}
 
 \end{frame}
