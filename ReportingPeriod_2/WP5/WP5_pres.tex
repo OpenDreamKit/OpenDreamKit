@@ -416,6 +416,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
     \end{enumerate}
   \item Algorithmic innovations and experimentations:
     \begin{enumerate}
+    
     \item map-reduce with \emph{work-stealing} strategy
     \item SIMD instructions for small combinatorial objects
     \item Python/Cython/Pythran
@@ -431,43 +432,92 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \end{frame}
 
 
-\begin{frame}
-  \frametitle{Example 1: integer vectors and polytopes}
+\begin{frame}{Examples}
+  \begin{block}{Example 1: integer vectors and polytopes}
+  Many combinatorial objects can be encoded by integer vectors
+  with constraints (permutations, integer partitions, etc).
+  These constraints are often linear and the set $S$ of combinatorial
+  objects is parametrized by integral points in a polytope.
+  \end{block}
+
+  \begin{block}{Example 2: numerical semigroup}
+  Numerical semigroup are certain subsets of non-negative integers.
+  Many questions about numerical semigroups are still open.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Integer vectors and polytopes}
+
+  \begin{block}{Polytopes: a convenient framework}
+   \begin{itemize}
+   \item Efficient algorithms (Double description / Barvinok)
+   \item Sage Days 84: \url{https://wiki.sagemath.org/days84}
+   \end{itemize}
+  \end{block}
 
 \end{frame}
 
+\begin{frame}{Job-stealing map-reduce}
 
-\begin{frame}
-  \frametitle{Example 2: numerical semigroup}
+  \begin{block}{A Python implementation}
+    \begin{itemize}
+    \item Work stealing algorithm (Leiserson-Blumofe / Cilk)
+    \item Easy to use, easy to call from SageMath
+    \item Already, a dozen  use cases
+    \item Scale well with the number of CPU cores
+    \item Reasonably efficient (knowing that this is Python code).
+    \end{itemize}
+  \end{block}
+
+  \begin{center}\begin{tabular}{c|cccc}
+    \# processors & 1 & 2 & 4 & 8\\
+    Time (s) & 250 & 161 & 103 & 87
+  \end{tabular}\end{center}
+ 
 \end{frame}
 
-\begin{frame}
-  \frametitle{Job-stealing map-reduce}
-\end{frame}
+\begin{frame}{SIMD instructions for small combinatorial objects}
 
-\begin{frame}
-  \frametitle{SIMD instructions for small combinatorial objects}
+  \begin{block}{HPCombi: an experimental C++ library}
+  \begin{itemize}
+  \item innovative SIMD code for combinatorics
+  \item fine grained parallelization using Intel Cilk technology
+  \item already in us for mathematical projects (numerical semigroups)
+  \end{itemize}
+  \end{block}
+
+  \begin{center}\begin{tabular}{l|c}
+  Operation & Speedup \\\hline
+  Sum of a vector of bytes & $3.81$\\
+  Sorting a vector of bytes& $21.3$\\
+  Inverting a permutation& $1.97$\\
+  Number of cycles of a permutation& $41.5$\\
+  Number of inversions of a permutation& $9.39$\\
+  Cycle type of a permutation& $8.94$\\
+  \end{tabular}\end{center}
+
 \end{frame}
 
 \begin{frame}
   \frametitle{Python, Cython, Pythran and SIMD code}
 
 \begin{center}
-%  \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",10" linewidth 2}]
-%  set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
-%  set title 'Counting descents in permutations'
-%  set ylabel 'log time' offset 1,0
-%  set xlabel 'n' offset 0,0.1
-%  set xtics rotate by 30 offset -2,-0.75
-%  set y2tics autofreq 
-%  set autoscale y2fixmin
-%  set autoscale y2fixmax  
-%  set size 0.8,0.75
-%  set key bottom right Left reverse
-%  plot [8:13] [1:500] "data_perms.txt" using 1:4 
-%  "data_perms.txt" using 1:3 title "Cython list" with lines lw 3 lc 2, \
-%  "data_perms.txt" using 1:4 title "Cython array" with lines ls 3
-%  \end{gnuplot}
+PLOT TO COME
+%%  \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",10" linewidth 2}]
+%%  set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
+%%  set title 'Counting descents in permutations'
+%%  set ylabel 'log time' offset 1,0
+%%  set xlabel 'n' offset 0,0.1
+%%  set xtics rotate by 30 offset -2,-0.75
+%%  set y2tics autofreq 
+%%  set autoscale y2fixmin
+%%  set autoscale y2fixmax  
+%%  set size 0.8,0.75
+%%  set key bottom right Left reverse
+%%  plot [8:13] [1:500] "data_perms.txt" using 1:4 
+%%  "data_perms.txt" using 1:3 title "Cython list" with lines lw 3 lc 2, \
+%%  "data_perms.txt" using 1:4 title "Cython array" with lines ls 3
+%%  \end{gnuplot}
 \end{center}
 
 \end{frame}
@@ -476,11 +526,13 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \begin{frame}{Software releases and integration}
     \begin{block} {Libraries releases and integration}
       \begin{description}
-        \item[\texttt{SageMath}:] \hfill{\uncover<2->{\alert{5 tickets}}}
-        \item[\texttt{HPCombi}:] C++ library for small combinatorial objects
+        \item[\texttt{SageMath}:] improvement of native code and libraries
+	interfaces \hfill{\uncover<2->{\alert{5 tickets}}}
+       \item[\texttt{HPCombi}:] C++ library for small combinatorial objects
 	using SIMD instructions and fine grained parallelization (Cilk)
+	\hfill{\uncover<2->{\alert{experimental}}}
 	\item[\texttt{e-antic}]: C/C++ library for (arbitrary precision) embedded
-	number field computations
+	number field computations \hfill{\uncover<2->{\alert{planned release}}}
 	\item[\texttt{pplpy}:] Python library interface to PPL library on Polytope
 	\hfill{\uncover<2->{\alert{6 releases}}}
       \end{description}
@@ -489,7 +541,8 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
     \begin{block}<3-> {Featuring}
       \begin{itemize}
       \item SIMD instructions for combinatorial enumeration
-      \item Fast code inside SageMath
+      \item Generic map-reduce in SageMath
+      \item Faster and more parallel code inside SageMath
       \end{itemize}
     \end{block}
 
