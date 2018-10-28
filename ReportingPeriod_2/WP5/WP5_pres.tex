@@ -10,7 +10,11 @@
   basicstyle=\scriptsize,
 }
 \usetheme{ODK}
-
+\usefonttheme[onlymath]{serif}
+\usepackage{xspace}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}\xspace}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}\xspace}}
+\newcommand{\F}{\ensuremath{\mathbb{F}\xspace}}
 \AtBeginSection[]
 {
   \begin{frame}<beamer>
@@ -21,11 +25,11 @@
 
 \title[Workpackage 5]{Workpackage 5:\\ High Performance Mathematical Computing}
 
-\author[2nd projet review]{Clément Pernet}
+%\author[2nd projet review]{}
 
 \date{Luxembourg, October 30, 2018}
 
-\institute[ODK Project review]{Second OpenDreamKit Project review}
+\institute[ODK 2nd project review]{Second OpenDreamKit Project review}
 
 \begin{document}
 \maketitle
@@ -36,22 +40,49 @@
 \begin{frame}
   \frametitle{High performance mathematical computing}
 
-  \begin{block}{Computer algebra}
-    Typical computation domains:
-    \begin{itemize}
-    \item $\mathbb{Z}, \mathbb{Q}$: $\leadsto$ multiprecision integers
-    \item $\mathbb{Z}/p\mathbb{Z}, \mathbb{F}_q$: $\leadsto$ machine ints or
-      floating point, multiprecision
-    \item $K[X], K^{m\times n}$, $K[X]^{m\times n}$ for $K=\mathbb{Z},\mathbb{Q},\mathbb{Z}/p\mathbb{Z}$
-    \end{itemize}
-  \end{block}
+  \begin{block}{Mathematical computing}
 
-  \begin{block} {High performance computing}
-    \begin{itemize}
-    \item Decades of development for numerical computations
-    \item Still at an early development stage for computer algebra
-    \item Specificites: cannot blindly benefit from numerical HPC experience
-    \end{itemize}
+    %% \begin{columns}
+    %%   \begin{column}{.5\textwidth}
+        Computing with a large variety of objects
+        \begin{itemize}
+        \item $\Z, \Q, \Z/p\Z, \F_q$,
+        \item Polynomials over $\Z, \Q, \Z/p\Z, \F_q$,
+        \item Matrices over $\Z, \Q, \Z/p\Z, \F_q$,
+        \item Matrices of polynomails over $\Z, \Q, \Z/p\Z, \F_q$,
+        \item Graphs
+        \end{itemize}
+    %%   \end{column}
+    %%   \begin{column}{.45\textwidth}
+    %%   \end{column}
+    %% \end{columns}
+        for applications where all digits matter.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{High Performance Mathematical Computing}
+  \begin{block} {Need for High performance}
+    Applications where size matters:
+    \begin{description}
+    \item[Algebraic cryptanalysis:] security = computational difficulty
+      \begin{itemize}
+      \item key size determined by the largest solvable problem
+      \end{itemize}
+    \item[Experimental maths:] testing conjectures
+      \begin{itemize}
+      \item larger instances give higher confidence
+      \end{itemize}
+
+    \item[Formal proofs:]
+    \end{description}
+    
+    
+    %% \begin{itemize}
+    %% \item Decades of development for numerical computations
+    %% \item Still at an early development stage for computer algebra
+    %% \item Specificites: cannot blindly benefit from numerical HPC experience
+    %% \end{itemize}
   \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,12 +143,44 @@
   \begin{block}
     {Goal:}
     \begin{itemize}
+    \item Offer High Performance Computing to VRE's users
+    \item Expose them through the software stack
     \item Improve/Develop parallel computing features of dedicated software
       kernels
-    \item Expose them through the software stack
-    \item Offer High Performance Computing to VRE's users
     \end{itemize}
   \end{block}
+
+  \begin{block}
+      {Milestone M8: Seamless use of parallel computing architecture in the VRE (proof of concept)}
+
+{\footnotesize  \textit{Astrid wants to run compute intensive routines involving both dense linear algebra and combinatorics. She has access through a JupyterHub-based VRE to a high end multi-core machine which includes a vanilla SAGE installation.
+She automatically benefits from the HPC features of the underlying specialized
+libraries (LinBox, ...). This is a proof of concept of the overall framework to
+integrate the HPC advances of specialized libraries into a general purpose
+VRE. It will prepare the final integration of a broader set of such parallel
+features for the end of the project}
+  }
+
+  \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Milestone M8: Seamless use of parallel computing architecture in the VRE (proof of concept)}
+
+{\footnotesize  \textit{Astrid wants to run compute intensive routines involving both dense linear algebra and combinatorics. She has access through a JupyterHub-based VRE to a high end multi-core machine which includes a vanilla SAGE installation.
+She automatically benefits from the HPC features of the underlying specialized libraries (LinBox, ...). This is a proof of concept of the overall framework to integrate the HPC advances of specialized libraries into a general purpose VRE. It will prepare the final integration of a broader set of such parallel features for the end of the project}
+
+
+\begin{verbatim}
+sage: a=random_matrix(GF(11),8000,8000)
+sage: time b=a*a
+CPU times: user 1min 23s, sys: 1min 14s, total: 2min 37s
+Wall time: 7.14 s
+\end{verbatim}
+}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
@@ -806,22 +869,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \section{Workpackage management}
 
 \subsection{Milestone M8}
-\begin{frame}[fragile]
-  \frametitle{Milestone M8: Seamless use of parallel computing architecture in the VRE (proof of concept)}
 
-{\footnotesize  \textit{Astrid wants to run compute intensive routines involving both dense linear algebra and combinatorics. She has access through a JupyterHub-based VRE to a high end multi-core machine which includes a vanilla SAGE installation.
-She automatically benefits from the HPC features of the underlying specialized libraries (LinBox, ...). This is a proof of concept of the overall framework to integrate the HPC advances of specialized libraries into a general purpose VRE. It will prepare the final integration of a broader set of such parallel features for the end of the project}
-
-
-\begin{verbatim}
-sage: a=random_matrix(GF(11),8000,8000)
-sage: time b=a*a
-CPU times: user 1min 23s, sys: 1min 14s, total: 2min 37s
-Wall time: 7.14 s
-\end{verbatim}
-}
-
-\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Strenghtening interactions with numerical HPC}
 \begin{frame}
