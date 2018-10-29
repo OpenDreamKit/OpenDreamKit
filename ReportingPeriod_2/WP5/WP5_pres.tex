@@ -494,13 +494,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \begin{frame}
   \frametitle{Task 5.6: HPC infrastructure for Combinatorics}
 
-  \begin{center}
-    {\bf \large
-      Perform a Map/Reduce on huge recursive datasets.
-    }
-  \end{center}
-
-  \begin{block}{Large range of intensive applications in combinatorics}
+  \begin{block}{General situation}
     Given a set $S$ of combinatorial objects we want to
     \begin{itemize}
     \item test conjectures: \textit{e.g.} find an element of $S$ satisfying a certain
@@ -545,43 +539,55 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % TODO: mettre des images ici
-\begin{frame}{Examples}
-  \begin{block}{Example 1: integer vectors and polytopes}
-  \begin{itemize}
-  \item (some) combinatorial objects can be encoded by integer vectors,
-  \item (some) constraints are linear,
-  \item for these: $S$ is parametrized as integral points in polytopes.
-  \end{itemize}
-  \end{block}
+\begin{frame}{Concrete examples}
+  \begin{example}
+  Some combinatorial objects can be encoded as integer vectors in polytopes.
+  \begin{center}\includegraphics[scale=0.2]{Pictures/polytope.png}\end{center}
+  \end{example}
 
-  \begin{block}{Example 2: numerical semigroup}
-  \begin{itemize}
-  \item Numerical semigroup are certain subsets of non-negative integers.
-  \item Many mathematical questions are still open.
-  \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}{Integer vectors and polytopes}
-
-  \begin{block}{Polytopes: a convenient framework}
    \begin{itemize}
-   \item Efficient algorithms (Double description / Barvinok)
-   \item Useful for many combinatorial problems
+   \item Efficient algorithms available (Double description, Barvinok)
+   \item High performance libraries implementing them \texttt{PPL}, \texttt{Normaliz}
+   \item Useful for many combinatorial applications
    \end{itemize}
-  \end{block}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  \begin{block}{Development}
+\begin{frame}{More code around polytopes}
+  \begin{block}{ODK outcomes}
   \begin{itemize}
-  \item Sage Days 84: \url{https://wiki.sagemath.org/days84}
-  \item New libraries: \texttt{pplpy}, \texttt{e-antic}
-  \item SageMath interfaces: \texttt{LattE}, \texttt{Polymake}
+  \item \texttt{pplpy} library: Python interface to the high performance
+  Parma Polyhedra Library (rational polytopes)
+  \item \texttt{e-antic} library: C/C++ library for computations over embedded
+  number fields. Building block for multithread polytope computations in Normaliz
+  over number fields.
   \end{itemize}
   \end{block}
 
+  workshop: \textit{Sage Days 84} (\url{https://wiki.sagemath.org/days84})
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{frame}{Concrete examples}
+  \begin{example}
+  Numerical semigroup are certain subsets of non-negative integers.
+  \begin{center}%
+  \includegraphics{Pictures/semigroups.pdf}%
+  \end{center}%
+  \end{example}
+
+  \begin{itemize}
+  \item Many mathematical open mathematical questions.
+  \item Highly unbalanced tree.
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \begin{frame}{Work stealing map-reduce}
 
@@ -600,6 +606,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{tabular}\end{center}
  
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Low-level parallelization for small combinatorial objects}
 
@@ -622,9 +629,9 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{tabular}\end{center}
 
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}[fragile]{Exploration: Python, Cython, Pythran and Cilk (D5.8)}
-
 \begin{center}
   \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",8" linewidth 2}]
   set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
@@ -643,17 +650,19 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   "data_perms.txt" using 1:6 title "Cilk 1 core" with lines lc 5, \
   "data_perms.txt" using 1:7 title "Cilk 8 cores" with lines lc 6
   \end{gnuplot}
-\begin{block}{Outcome}
+
 \begin{itemize}
 \item Python is slow
 \item Cython is efficient and easy to integrate in SageMath
 \item Pythran is promising but delicate to integrate in SageMath
 \item Cilk is very promising, but fragile
 \end{itemize}
-\end{block}
+  \textit{Interfacing (math) software with low level libraries}
+  \url{https://opendreamkit.org/2018/03/19/cernay-2018/}
 \end{center}
 
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \begin{frame}{Software releases and integration}
@@ -680,6 +689,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
     \end{block}
 
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% \subsection{Task 5.7: Pythran}
