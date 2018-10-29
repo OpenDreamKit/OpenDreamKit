@@ -288,6 +288,8 @@ features for the end of the project}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: should this be the same title as the one above
+% "Addressing recommendations of review 1"
 \begin{frame}
   \frametitle{Strengthening interactions with numerical HPC community}
   \begin{block}  {Existing connection}
@@ -545,6 +547,13 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \begin{frame}
   \frametitle{Task 5.6: HPC infrastructure for Combinatorics}
 
+  \begin{displayquote}
+  \small Parallel algebraic computations exhibit high degrees of irregularity, at
+  multiple levels and make no use of floating-point operations. This combination 
+  means that symbolic computations are not suited to conventional HPC paradigms.
+  \\ \hfill{-- P. Maier, D. Livesey, H.-W. Loidl, P. Trinder}
+  \end{displayquote}
+
   \begin{block}{General situation}
     Given a set $S$ of combinatorial objects we want to
     \begin{itemize}
@@ -555,7 +564,6 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{block}
 
   \begin{block}{Specificities of combinatorics}
-  Typically
     \begin{itemize}
     \item \textbf{huge}: $S$ does not fit in memory
     \item \textbf{embarassingly parallel}: $S = S_1 \cup \ldots \cup S_k$
@@ -567,14 +575,10 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \begin{frame}
   \frametitle{D5.11: Refactor and optimise the existing combinatorics Sage code using the new developed Pythran and Cython features.}
 
+  Algorithmic innovations and software integration through examples:
   \begin{enumerate}
-  \item Algorithmic innovations and software integration through examples
-  \begin{enumerate}
-  \item Polytopes
-  \item Numerical semigroups
-  \end{enumerate}
-%  \item Technology exploration
-  \item Software/Library releases and SageMath integration
+  \item Example 1: polytopes
+  \item Example 2: numerical semigroups
   \end{enumerate}
 
 \end{frame}
@@ -582,7 +586,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % TODO: mettre des images ici
-\begin{frame}{Concrete mathematical problem 1: polytopes}
+\begin{frame}{Example 1: polytopes (description)}
   \begin{example}
   Some combinatorial objects can be encoded as integer vectors in polytopes.
   \begin{center}\includegraphics[scale=0.2]{Pictures/polytope.png}\end{center}
@@ -596,22 +600,26 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{High performance polytope code}
+\begin{frame}{Example 1: polytopes (ODK work)}
   \begin{block}{ODK outcomes}
   \begin{description}
   \item[\texttt{pplpy} library:] Python interface to the high performance
   Parma Polyhedra Library (rational polytopes)
+  \hfill{\uncover<2->{\alert{6 releases}}}
   \item[\texttt{e-antic} library:] C/C++ library for computations over embedded
   number fields. Building block for multithread polytope computations in Normaliz
   over number fields.
+  \hfill{\uncover<2->{\alert{release planned}}}
   \item[Workshop:] Sage Days 84
+  \item[\texttt{SageMath}:] improvement of native code and libraries
+  interfaces \hfill{\uncover<2->{\alert{5 tickets}}}
   \end{description}
   \end{block}
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Concrete mathematical problem 2: semigroups}
+\begin{frame}{Example 2: semigroups (description)}
   \begin{example}
   Numerical semigroup are certain subsets of non-negative integers.
   \begin{center}%
@@ -625,9 +633,9 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Work stealing map-reduce}
+\begin{frame}{Example 2: semigroups (ODK work)}
 
-  \begin{block}{A Python implementation}
+  \begin{block}{A SageMath implementation of work-stealing map-reduce}
     \begin{itemize}
     \item Work stealing algorithm (Leiserson-Blumofe)
     \item Easy to use, easy to call from SageMath with many use cases
@@ -641,10 +649,12 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 %    Time (s) & 250 & 161 & 103 & 87
      Speedup      & $\times 1$ & $\times 1.55$ & $\times 2.43$ & $\times 2.87$
   \end{tabular}\end{center}
+
+ \hfill{\uncover<2->{\alert{integrated in SageMath}}}
  
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Low-level parallelization}
+\begin{frame}{Example 2: semigroups (ODK work)}
 
   \begin{block}{HPCombi: an experimental C++ library}
   \begin{itemize}
@@ -664,30 +674,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   Cycle type of a permutation& $\times 8.94$\\
   \end{tabular}\end{center}
 
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Software releases and integration}
-    \begin{block} {Libraries releases and integration}
-      \begin{description}
-        \item[\texttt{SageMath}:] improvement of native code and libraries
-	interfaces \hfill{\uncover<2->{\alert{5 tickets}}}
-       \item[\texttt{HPCombi}:] C++ library for small combinatorial objects
-	using SIMD instructions and fine grained parallelization (Cilk)
-	\hfill{\uncover<2->{\alert{experimental}}}
-	\item[\texttt{e-antic}]: C/C++ library for (arbitrary precision) embedded
-	number field computations \hfill{\uncover<2->{\alert{planned release}}}
-	\item[\texttt{pplpy}:] Python library interface to PPL library on Polytope
-	\hfill{\uncover<2->{\alert{6 releases}}}
-      \end{description}
-    \end{block}
-
-    \begin{block}<3-> {Featuring}
-      \begin{itemize}
-      \item SIMD instructions for combinatorial enumeration
-      \item Generic map-reduce in SageMath
-      \item Faster and more parallel code inside SageMath
-      \end{itemize}
-    \end{block}
+  \hfill{\uncover<2->{\alert{Open-source library}}}
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -939,7 +926,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \frametitle{BackSlides}
 
   \begin{center}
-    \HUGE Backup Slides
+    \Huge Backup Slides
   \end{center}
 \end{frame}
 \begin{frame}
