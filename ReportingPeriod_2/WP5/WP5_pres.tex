@@ -56,7 +56,7 @@
           {\color{blue} $ \begin{smatrix}
             3 x^{2} + 3 & 2 x^{2} + 3 \\4 x^{2} + 1 & x^{2} + 4 x + 4
           \end{smatrix}$}
-        \item Tree algebra \hfill
+        \item Tree algebras \hfill
       \includegraphics[width=.7\textwidth]{Pictures/operade}
         \end{itemize}
     %%   \end{column}
@@ -80,13 +80,8 @@
       \end{itemize}
     \item<2->[Algebraic cryptanalysis:] security = computational difficulty
       \begin{itemize}
-      \item key size determined by the largest solvable problem
-        \begin{columns}
-          \begin{column}
-            {.1\textwidth}
-          \end{column}
-          \begin{column}
-            {.85\textwidth}
+      \item key size determined by the largest solvable problem \\
+       \begin{minipage}{0.8\textwidth}
         \begin{example}
         {\small Breaking RSA by integer factorization: $n=pq$}.   Last record:
         \begin{itemize}
@@ -94,9 +89,7 @@
         \item linear algebra in dimension $192\,796\,550$ over $\mathbb{F}_2$ (105Gb)
         \item About 2000 CPU years
         \end{itemize}
-      \end{example}
-          \end{column}
-        \end{columns}
+      \end{example}\end{minipage}
       \end{itemize}
     \item<3->[3D data analysis, shape recognition:] \
       \begin{itemize}
@@ -320,6 +313,7 @@ features for the end of the project}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Exact linear algebra algorithms and implementations (D5.12).}
 
+% TODO: too much text here! the second block is going out of the slide!
 \begin{frame}
   \frametitle{Task 5.3: LinBox, High performance exact linear algebra}
   \begin{displayquote}
@@ -327,8 +321,8 @@ features for the end of the project}
     \hfill{-- W. Stein}
   \end{displayquote}
 
-\uncover<2->{  \begin{center}
-  \textbf{Linear algebra: a key building block for HPC}
+\uncover<2->{  \begin{center}%
+  \textbf{Linear algebra: a key building block for HPC}%
   \end{center}
   }
   \begin{block}<2-> {Similarities with numerical HPC}
@@ -557,21 +551,22 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \\ \hfill{-- P. Maier, D. Livesey, H.-W. Loidl, P. Trinder}
   \end{displayquote}
 
+  \uncover<2->{
   \begin{block}{General situation}
     Given a set $S$ of combinatorial objects we want to
     \begin{itemize}
     \item find (or pick at random) an element of $S$
     \item list (or count) the elements of $S$
     \end{itemize}
-  \end{block}
+  \end{block}}
 
-  \begin{block}{Specificities of combinatorics}
+  \uncover<3->{\begin{block}{Specificities of combinatorics}
     \begin{itemize}
     \item \textbf{huge}: $S$ does not fit in memory
     \item \textbf{embarassingly parallel}: $S = S_1 \cup \ldots \cup S_k$
     \item \textbf{unbalanced}: $S_i$ sizes are highly unbalanced
     \end{itemize}
-  \end{block}
+  \end{block}}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
@@ -586,32 +581,29 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% TODO: mettre des images ici
 \begin{frame}{Example 1: polytopes (description)}
   \begin{example}
   Some combinatorial objects can be encoded as integer vectors in polytopes.
   \begin{center}\includegraphics[scale=0.2]{Pictures/polytope.png}\end{center}
   \end{example}
 
+   \uncover<2->{
    \begin{itemize}
    \item Efficient algorithms available (\emph{e.g.} Double Description, Barvinok)
    \item High performance libraries (\emph{e.g.} \texttt{PPL}, \texttt{Normaliz}, \texttt{Polymake})
    \item Useful for many combinatorial problems
-   \end{itemize}
+   \end{itemize}}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{frame}{Example 1: polytopes (ODK work)}
   \begin{block}{ODK outcomes}
   \begin{description}
   \item[\texttt{pplpy} library:] Python interface to the high performance
-  Parma Polyhedra Library (rational polytopes)
+  \texttt{PPL} (rational polytopes)
   \hfill{\uncover<2->{\alert{6 releases}}}
-  \item[\texttt{e-antic} library:] C/C++ library for computations over embedded
-  number fields. Building block for multithread polytope computations in Normaliz
-  over number fields.
-  \hfill{\uncover<2->{\alert{release planned}}}
+  \item[\texttt{e-antic} library:] C/C++ library for exact computation over
+  number fields. Building block for \texttt{Normaliz}.
+  \hfill{\uncover<2->{\alert{release soon}}}
   \item[Workshop:] Sage Days 84
   \item[\texttt{SageMath}:] improvement of native code and libraries
   interfaces \hfill{\uncover<2->{\alert{10 tickets}}}
@@ -629,10 +621,10 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{center}%
   \end{example}
 
-  \begin{itemize}
-  \item Many mathematical open mathematical questions
+  \uncover<2->{\begin{itemize}
+  \item Many mathematical questions still open
   \item Highly unbalanced tree
-  \end{itemize}
+  \end{itemize}}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Example 2: semigroups (ODK work)}
@@ -641,18 +633,18 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
     \begin{itemize}
     \item Work stealing algorithm (Leiserson-Blumofe)
     \item Easy to use, easy to call from SageMath with many use cases
-    \item Scale well with the number of CPU cores and reasonably efficient (given that it is Python code).
+    \item Scale well with the number of cores and reasonably efficient
     \end{itemize}
   \end{block}
 
-  A typical speedup (parallelization of binary sequences)
+  \uncover<2->{A typical speedup (binary sequences)
   \begin{center}\begin{tabular}{c|cccc}
     \# processors & 1 & 2 & 4 & 8\\
 %    Time (s) & 250 & 161 & 103 & 87
      Speedup      & $\times 1$ & $\times 1.55$ & $\times 2.43$ & $\times 2.87$
-  \end{tabular}\end{center}
+  \end{tabular}\end{center}}
 
- \hfill{\uncover<2->{\alert{integrated in SageMath}}}
+ \hfill{\uncover<3->{\alert{integrated in SageMath}}}
  
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -666,7 +658,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{itemize}
   \end{block}
 
-  \begin{center}\begin{tabular}{l|c}
+  \uncover<2->{\begin{center}\begin{tabular}{l|c}
   Operation & Speedup \\\hline
   Sum of a vector of bytes & $\times 3.81$\\
   Sorting a vector of bytes& $\times 21.3$\\
@@ -674,9 +666,9 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   Number of cycles of a permutation& $\times 41.5$\\
   Number of inversions of a permutation& $\times 9.39$\\
   Cycle type of a permutation& $\times 8.94$\\
-  \end{tabular}\end{center}
+  \end{tabular}\end{center}}
 
-  \hfill{\uncover<2->{\alert{Open-source library}}}
+  \hfill{\uncover<3->{\alert{Open-source library}}}
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
