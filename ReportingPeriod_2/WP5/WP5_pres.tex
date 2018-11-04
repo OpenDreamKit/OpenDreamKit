@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
+\usepackage{csquotes}
 \usepackage{gnuplottex} % [noshell]: do not regenerate gnuplots
 \usepackage{booktabs}
 \usepackage{listings}
@@ -10,7 +11,12 @@
   basicstyle=\scriptsize,
 }
 \usetheme{ODK}
-
+\usefonttheme[onlymath]{serif}
+\usepackage{xspace, color, svgcolor}
+\newenvironment{smatrix}{\left[\begin{smallmatrix}}{\end{smallmatrix}\right]}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}\xspace}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}\xspace}}
+\newcommand{\F}{\ensuremath{\mathbb{F}\xspace}}
 \AtBeginSection[]
 {
   \begin{frame}<beamer>
@@ -19,13 +25,13 @@
   \end{frame}
 }
 
-\title[Workpackage 5]{Workpackage 5:\\ High Performance Mathematical Computing}
+\title[WP 5]{Workpackage 5:\\ High Performance Mathematical Computing}
 
-\author[2nd projet review]{Clément Pernet}
+\author[V. Delecroix, A Konovalov, C. Pernet]{Vincent Delecroix, \\ Alexander Konovalov,\\ Clément Pernet, }
 
-\date{Luxembourg, October 30, 2018}
+\date[Luxembourg, 2018-10-30]{Luxembourg, October 30, 2018}
 
-\institute[ODK Project review]{Second OpenDreamKit Project review}
+\institute[ODK 2nd project review]{Second OpenDreamKit Project review}
 
 \begin{document}
 \maketitle
@@ -36,23 +42,69 @@
 \begin{frame}
   \frametitle{High performance mathematical computing}
 
-  \begin{block}{Computer algebra}
-    Typical computation domains:
-    \begin{itemize}
-    \item $\mathbb{Z}, \mathbb{Q}$: $\leadsto$ multiprecision integers
-    \item $\mathbb{Z}/p\mathbb{Z}, \mathbb{F}_q$: $\leadsto$ machine ints or
-      floating point, multiprecision
-    \item $K[X], K^{m\times n}$, $K[X]^{m\times n}$ for $K=\mathbb{Z},\mathbb{Q},\mathbb{Z}/p\mathbb{Z}$
-    \end{itemize}
-  \end{block}
+  \begin{block}{Mathematical computing}
 
-  \begin{block} {High performance computing}
-    \begin{itemize}
-    \item Decades of development for numerical computations
-    \item Still at an early development stage for computer algebra
-    \item Specificites: cannot blindly benefit from numerical HPC experience
-    \end{itemize}
+    %% \begin{columns}
+    %%   \begin{column}{.5\textwidth}
+    Computing with a large variety of objects
+        \begin{itemize}[<+->]
+        \item $\Z, \Q, \Z/p\Z, \F_q$, \hfill {\color{blue} $17541718814389012164632$}
+        \item Polynomials over $\Z, \Q, \Z/p\Z, \F_q$, \hfill {\color{blue} $\frac{2}{5} x^{3} + x^{2} - \frac{1}{19} x + 2$}
+        \item Matrices over $\Z, \Q, \Z/p\Z, \F_q$, \hfill
+           {\color{blue} $\begin{smatrix} 27&3&-1\\ 9&0& 2 \end{smatrix} $}
+        \item Matrices of polynomials over $\Z, \Q, \Z/p\Z, \F_q$, \hfill
+          {\color{blue} $ \begin{smatrix}
+            3 x^{2} + 3 & 2 x^{2} + 3 \\4 x^{2} + 1 & x^{2} + 4 x + 4
+          \end{smatrix}$}
+        \item Tree algebras \hfill
+      \includegraphics[width=.7\textwidth]{Pictures/operade}
+        \end{itemize}
+    %%   \end{column}
+    %%   \begin{column}{.45\textwidth}
+    %%   \end{column}
+    %% \end{columns}
+
+        for applications where all digits matter.
+
   \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{High performance mathematical computing}
+%  \begin{block}
+  \textbf{Need for High performance:} applications where size is crucial:
+    \begin{description}
+    \item[Experimental maths:] testing conjectures
+      \begin{itemize}
+      \item larger instances give higher confidence
+      \end{itemize}
+    \item<2->[Algebraic cryptanalysis:] security = computational difficulty
+      \begin{itemize}
+      \item key size determined by the largest solvable problem \\
+       \begin{minipage}{0.8\textwidth}
+        \begin{example}
+        {\small Breaking RSA by integer factorization: $n=pq$}.   Last record:
+        \begin{itemize}
+        \item $n$ of 768 bits
+        \item linear algebra in dimension $192\,796\,550$ over $\mathbb{F}_2$ (105Gb)
+        \item About 2000 CPU years
+        \end{itemize}
+      \end{example}\end{minipage}
+      \end{itemize}
+    \item<3->[3D data analysis, shape recognition:] \
+      \begin{itemize}
+      \item via persistent homology
+      \item large sparse matrices over $\F_2$, \Z
+      \end{itemize}
+    \end{description}
+    
+    
+    %% \begin{itemize}
+    %% \item Decades of development for numerical computations
+    %% \item Still at an early development stage for computer algebra
+    %% \item Specificites: cannot blindly benefit from numerical HPC experience
+    %% \end{itemize}
+% \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
@@ -77,15 +129,20 @@
     \end{itemize}
     $\leadsto$ compilation,  automated optimisation
   \end{block}
+    \vspace{.5mm}
   }
-  }
+}
+
+
   \begin{center}
+
     \only<1>{\includegraphics[width=0.8\textwidth]{software_stack_3}}
 
     \only<2>{\includegraphics[width=0.8\textwidth]{software_stack_2}}
     
     \only<3>{\includegraphics[width=0.8\textwidth]{software_stack}}
-\end{center}
+
+  \end{center}
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,18 +165,40 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-  \frametitle{Introduction}
+  \frametitle{High performance mathematical computing}
   \begin{block}
     {Goal:}
     \begin{itemize}
-    \item Improve/Develop parallel computing features of dedicated software
-      kernels
+    \item Improve/Develop parallelization of software components
     \item Expose them through the software stack
     \item Offer High Performance Computing to VRE's users
     \end{itemize}
   \end{block}
+
+  \begin{block}
+      {Milestone M8: Seamless use of parallel computing architecture in the VRE (proof of concept)}
+
+{\footnotesize  \textit{Astrid wants to run compute intensive routines involving both dense linear algebra and combinatorics. She has access through a JupyterHub-based VRE to a high end multi-core machine which includes a vanilla SAGE installation.
+She automatically benefits from the HPC features of the underlying specialized
+libraries (LinBox, ...). This is a proof of concept of the overall framework to
+integrate the HPC advances of specialized libraries into a general purpose
+VRE. It will prepare the final integration of a broader set of such parallel
+features for the end of the project}
+  }
+
+  \end{block}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% \begin{frame}[fragile]
+%%   \frametitle{Milestone M8: Seamless use of parallel computing architecture in the VRE (proof of concept)}
+
+%%   \begin{center}
+%%     Live demo
+%%   \end{center}
+%% \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
   {Outline}
@@ -127,24 +206,135 @@
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Deliverables under review for the period}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{D5.12: Exact linear algebra algorithms and implementations.}
+\section{Workpackage management}
+\begin{frame}
+  \frametitle{Outcome of WorkPackage 5}
 
+  \begin{tabular}{lccc}
+    \toprule
+    Component & Review 1 & Review 2 & Final review\\
+    \midrule
+    T5.1 Pari/GP & & & {\color{green} D5.16} \\
+    T5.2 GAP     & & & {\color{green} D5.15} \\
+    T5.3 LinBox  & & \alert{D5.12} & {\color{green} D5.14} \\
+    T5.4 Singular& D5.6, D5.7 & & {\color{green} D5.13} \\
+    T5.5 MPIR    & D5.5, D5.7& & \\
+    T5.6 Combinatorics  & D5.1& \alert{D5.11} & \\
+    T5.7 Pythran        & D5.2 & \alert{D5.11} & \\
+    T5.8 SunGrid Engine & D5.3 & & \\
+    \bottomrule
+    
+  \end{tabular}
+
+  \vspace{1em}
+  
+  Overall
+  \begin{itemize}
+  \item 20+ software releases
+  \item 7 research papers
+  \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Addressing recommendations of review 1}
+    \textbf{Recommendation 10:} \textit{Regarding WP5, \textbf{make contacts} with HPC community in order to ascertain current state-of-the-art. The work in this WP needs to be \textbf{nearer the leading edge}.}
+
+    \begin{description}
+    \item<2-> [Leading edge achievements in linear algebra] \
+      {\small
+      \begin{itemize}
+      \item symmetric factorization outperforms LAPACK implementation
+      \item new non-hierarchical generator for quasiseparable matrices
+      \item large scale parallelization of rational linear solver
+      \end{itemize}
+      }
+    \begin{columns}
+      \begin{column} {.3\textwidth}
+        \begin{center}
+          \includegraphics[width=.6\textwidth]{ARrec11}
+      \end{center}
+      \end{column}
+      \begin{column} {.3\textwidth}
+        \begin{center}
+          \includegraphics[width=.6\textwidth]{Bruhat}
+        \end{center}
+      \end{column}
+      \begin{column} {.3\textwidth}
+        \begin{center}
+          \includegraphics[width=.9\textwidth]{nodes_histogram}
+        \end{center}
+      \end{column}
+    \end{columns}
+    %% \item<3-> [Interactions and  contacts made:]\ 
+    %%   {\small
+    %%   \begin{itemize}
+    %%   \item interaction with the \texttt{BLIS} group (vectorization and
+    %%     implementation of Strassen's algorithm)
+    %%   \item on-going collaboration with T. Mary (\texttt{Mumps}) and
+    %%     S. Chandrasekaran (UCSB) on quasiseparable matrix algorithmic
+    %%   \end{itemize}
+    %%   }
+\end{description}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: should this be the same title as the one above
+% "Addressing recommendations of review 1"
+\begin{frame}
+  \frametitle{Strengthening interactions with numerical HPC community}
+  \begin{block}  {Existing connection}
+    \begin{description}
+    \item[Dense linear algebra] numerical BLAS used for exact FFLAS for 17 years
+    \item[Pointwise interactions:] J. Dongarra, L. Grigori, J-Y. L'Excellent,  etc
+    \item[Publications to main HPC venues:]
+      SIAM-PPSC, EuroPar, PMAA, ParCo
+    \item[Animation:] involved in the French CNRS \textit{Calcul}  working group (Sci. Comp.)
+    \end{description}
+  \end{block}
+  \begin{block}<2->  {Recently established}
+    \begin{itemize}
+    \item With the \texttt{BLIS} group:
+      \begin{itemize}
+      \item Reporting bugs (SIMD vectorization)
+      \item Sharing experience in implementing Strassen's algorithm
+      \end{itemize}
+    \item On-going collaboration with T. Mary (\texttt{Mumps}) and
+        S. Chandrasekaran (UCSB) on quasiseparable matrix algorithmic
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Exact linear algebra}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Exact linear algebra algorithms and implementations (D5.12).}
+
+% TODO: too much text here! the second block is going out of the slide!
 \begin{frame}
   \frametitle{Task 5.3: LinBox, High performance exact linear algebra}
+  \begin{displayquote}
+    Mathematics is the art of reducing any problem to linear algebra\\
+    \hfill{-- W. Stein}
+  \end{displayquote}
 
-  \begin{block} {Linear algebra: a HPC building block}
-    Similarly as in numercial HPC:
+\uncover<2->{  \begin{center}%
+  \textbf{Linear algebra: a key building block for HPC}%
+  \end{center}
+  }
+  \begin{block}<2-> {Similarities with numerical HPC}
     \begin{itemize}
     \item central elementary problem to which others reduce to
     \item (rather) simple algorithmic
     \item high compute/memory intensity
     \end{itemize}
   \end{block}
-    \begin{block}{Specificities}
+    \begin{block}<3->{Specificities}
       \begin{itemize}
-      \item Multiprecision arithemtic $\Rightarrow$ lifting from finite  precision ($\mathbb{F}_p$)
+      \item Multiprecision arithmetic $\Rightarrow$ lifting from finite  precision ($\mathbb{F}_p$)
       \item Rank deficiency $\Rightarrow$ unbalanced dynamic blocking
       \item Early adopter of subcubic matrix arithemtic $\Rightarrow$ recursion
       \end{itemize}
@@ -173,25 +363,26 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
   \frametitle{Rank deficient dense Gaussian elimination}
-  \begin{block}
-    {[JSC'17] Fast computation of the rank profile matrix and the generalized
-      bruhat decomposition.}
-{    \small
-  \begin{itemize}
-    \item Connecting Rank Profile Matrix and row and column echelon forms
-    \item $O\tilde\ (r^\omega + mn)$ probabilistic time
-    \item generalization over arbitrary rings
-    \end{itemize}
-}
-  \end{block}
+%%   \begin{block}
+%%     {[JSC'17] Fast computation of the rank profile matrix and the generalized
+%%       Bruhat decomposition.}
+%% {    \small
+%%   \begin{itemize}
+%%     \item Connecting Rank Profile Matrix and row and column echelon forms
+%%     \item $O\tilde\ (r^\omega + mn)$ probabilistic time
+%%     \item generalization over arbitrary rings
+%%     \end{itemize}
+%% }
+%%   \end{block}
 
-  \begin{block}<2->{[ISSAC'18] Symmetric triangular factorization}
+  \begin{block}{[ISSAC'18] Symmetric triangular factorization}
     \begin{columns}
       \begin{column} {.65\textwidth}
         \begin{itemize}
         \item First unconditional recursive algorithm
         \item Pivoting revealing the Rank Profile Matrix
         \item $O(n^2r^{\omega-2}) $ ($=1/3n^3$ with $\omega=3, r=n$)
+        \item Also hot topic in numerical linear algebra \\ (LAPACK Working notes 294, Dec'17)
         \end{itemize}
       \end{column}
       \begin{column} {.25\textwidth}
@@ -211,11 +402,11 @@
   \begin{center}
 \begin{tabular}{rrrrr}
 \toprule
-& \multicolumn{2}{c}{LAPACK}&\multicolumn{2}{c}{FFPACK}\\
-$n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
+& \multicolumn{1}{c}{LAPACK (numerical)}&\multicolumn{1}{c}{FFPACK (exact)}\\
+$n$ &  dsytrf (LDLT) & fsytrf (LDLT)\\
 \midrule
-5000 &  2.01s & 1.60s  & 3.90s& \alert{1.59s} \\
-10000 &  14.95s & 11.98s  & 24.12s& \alert{10.90s} \\
+5000 & 1.60s  & \alert{1.59s} \\
+10000 & 11.98s &  \alert{10.90s} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -237,10 +428,8 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   set autoscale y2fixmax  
   set size 0.8,0.75
   set key bottom right Left reverse
-  plot [1:10000] [1:45] \
-  "data_gflops.txt" using 1:2 title "LAPACK dgetrf" with lines lw 4 lc 1, \ 
+  plot [1:10000] [1:35] \
   "data_gflops.txt" using 1:3 title "LAPACK dsytrf" with lines lw 4 lc 2, \
-  "data_gflops.txt" using 1:6 title "FFPACK fgetrf" with lines lw 4 lc 4, \
   "data_gflops.txt" using 1:7 title "FFPACK fsytrf" with lines ls 3
 \end{gnuplot}
 \end{center}
@@ -256,12 +445,12 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \begin{block}
     {[ISSAC'16, JSC'18] New compact representation and algorithms}
   \begin{columns}
-    \begin{column}{.65\textwidth}
+    \begin{column}{.75\textwidth}
     \begin{itemize}
-    \item Connection with rank profile matrix
-    \item Matches the best space complexities: $O(ns)$
-    \item Reduction to matrix multiplication: $O(ns^{\omega-1})$ for products
-    \item Flat representation (non hierarchical)
+    %\item Connection with rank profile matrix
+    \item Matches the best space complexities%: $O(ns)$
+    \item Reduction to matrix multiplication%: $O(ns^{\omega-1})$ for products
+    \item \textbf{Breakthrough:} flat representation (non hierarchical)
     \end{itemize}
     \uncover<2->{
       \begin{description}
@@ -273,7 +462,7 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
       \end{description}
       }
     \end{column}
-    \begin{column}{.3\textwidth}
+    \begin{column}{.2\textwidth}
       \includegraphics[width=\textwidth]{Bruhat}
     \end{column}
   \end{columns}
@@ -282,34 +471,6 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
 \end{frame}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-  \frametitle{Outsourced computing security}
-
-  \begin{block}{Exploratory aspect: Computation over the Cloud}
-    \begin{description}
-    \item[Outsourcing computation on the cloud:]\ 
-      \begin{itemize}
-      \item trusted lightweitht client computer
-      \item untrusted powerful cloud server
-      \end{itemize}
-      $\Rightarrow$ need for certification protocols
-    \item[Multiparty computation:] \
-      \begin{itemize}
-      \item each player contribute with a share of the Input
-      \item shares must remain private
-      \end{itemize}
-    \end{description}
-\end{block}
-  \begin{block}<2->
-      {Contribution}
-      \begin{description}
-        \item[ISSAC'17:] Linear time certificates for LU, Det., Rank Profile  matrix, etc
-        \item[In submission:] Secure multiparty Strassen's algorithm
-      \end{description}
-  \end{block}
-
-\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Software releases and integration}
@@ -333,119 +494,159 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
     \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Distributed computing}
+\begin{frame}
+  \frametitle{Distributed computing  (on-going work)}
+
+  \begin{block} {D5.14: Distributed exact linear system solving}
+{
+    \only<1,2>{
+      \begin{itemize}
+        \item 2 full time engineers
+        \item Communication and serialization layer done
+        \item Prototype MPI parallelization of Chinese remainder based solver.
+      \end{itemize}
+    }
+    \only<3->{
+      \begin{description}
+      \item[Roadmap:] \
+        \begin{itemize}
+        \item Major refactorization of LinBox solver code under way
+        \item Hybrid combination of CRT+Dixon and parallelization.
+        \item Hyrbid OpenMP-MPI implementation
+        \end{itemize}   
+      \end{description}
+        \vspace{-1.4em}
+    }
+    \begin{columns}
+      \begin{column} {.5\textwidth}
+        \begin{center}
+          \uncover<2->{\includegraphics[width=\textwidth]{nodes_histogram}}
+      \end{center}
+      \end{column}
+      \begin{column} {.45\textwidth}
+        \begin{center}
+          \uncover<2->{\includegraphics[width=\textwidth]{nodes_SPEEDUP}}
+        \end{center}
+      \end{column}
+    \end{columns}
+}
+  \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Combinatorics}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{D5.11: Refactor and optimize Sage's Combinatorics}
+\subsection{Refactor and optimize Sage's Combinatorics (D5.11)}
 \begin{frame}
   \frametitle{Task 5.6: HPC infrastructure for Combinatorics}
 
-  \begin{center}
-    {\bf \large
-      Perform a Map/Reduce on huge recursive datasets.
-    }
-  \end{center}
+  \begin{displayquote}
+  \small Parallel algebraic computations exhibit high degrees of irregularity, at
+  multiple levels and make no use of floating-point operations. This combination 
+  means that symbolic computations are not suited to conventional HPC paradigms.
+  \\ \hfill{-- P. Maier, D. Livesey, H.-W. Loidl, P. Trinder}
+  \end{displayquote}
 
-  \begin{block}{Large range of intensive applications in combinatorics}
+  \uncover<2->{
+  \begin{block}{General situation}
     Given a set $S$ of combinatorial objects we want to
     \begin{itemize}
-    \item test conjectures: \textit{e.g.} find an element of $S$ satisfying a certain
-      property
-    \item count or list the elements of $S$ having this property
+    \item find (or pick at random) an element of $S$
+    \item list (or count) the elements of $S$
     \end{itemize}
-  \end{block}
+  \end{block}}
 
-  \begin{block}{Specificities of combinatorics}
-  Typically
+  \uncover<3->{\begin{block}{Specificities of combinatorics}
     \begin{itemize}
     \item \textbf{huge}: $S$ does not fit in memory
     \item \textbf{embarassingly parallel}: $S = S_1 \cup \ldots \cup S_k$
     \item \textbf{unbalanced}: $S_i$ sizes are highly unbalanced
     \end{itemize}
-  \end{block}
+  \end{block}}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
   \frametitle{D5.11: Refactor and optimise the existing combinatorics Sage code using the new developed Pythran and Cython features.}
 
+  Algorithmic innovations and software integration through examples:
   \begin{enumerate}
-  \item Problem examples
-    \begin{enumerate}
-    \item integer vectors and polytopes
-    \item numerical semigroups
-    \end{enumerate}
-  \item Algorithmic innovations, software integration and experimentations
-    \begin{enumerate}
-    \item polytopes
-    \item map-reduce with work-stealing strategy
-    \item low-level parallelization for small combinatorial objects
-    \item Python/Cython/Pythran
-    \end{enumerate}
-  \item Software releases and integration:
-    \begin{enumerate}
-    \item \texttt{SageMath} integration
-    \item C/C++ libraries: \texttt{HPCombi}, \texttt{e-antic}
-    \item Python library: \texttt{pplpy}
-    \end{enumerate}
+  \item Example 1: polytopes
+  \item Example 2: numerical semigroups
   \end{enumerate}
 
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example 1: polytopes (description)}
+  \begin{example}
+  Some combinatorial objects can be encoded as integer vectors in polytopes.
+  \begin{center}\includegraphics[scale=0.2]{Pictures/polytope.png}\end{center}
+  \end{example}
 
-% TODO: mettre des images ici
-\begin{frame}{Examples}
-  \begin{block}{Example 1: integer vectors and polytopes}
-  \begin{itemize}
-  \item (some) combinatorial objects can be encoding by integer vectors,
-  \item (some) constraints are linear,
-  \item for these: $S$ is parametrized as integral points in polytopes.
-  \end{itemize}
-  \end{block}
-
-  \begin{block}{Example 2: numerical semigroup}
-  \begin{itemize}
-  \item Numerical semigroup are certain subsets of non-negative integers.
-  \item Many mathematical questions are still open.
-  \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}{Integer vectors and polytopes}
-
-  \begin{block}{Polytopes: a convenient framework}
+   \uncover<2->{
    \begin{itemize}
-   \item Efficient algorithms (Double description / Barvinok)
-   \item Sage Days 84: \url{https://wiki.sagemath.org/days84}
-   \end{itemize}
-  \end{block}
-
-  \begin{block}{Development}
-  \begin{itemize}
-  \item New libraries: \texttt{pplpy}, \texttt{e-antic}
-  \item SageMath interfaces: \texttt{LattE}, \texttt{Polymake}
-  \end{itemize}
+   \item Efficient algorithms available (\emph{e.g.} Double Description, Barvinok)
+   \item High performance libraries (\emph{e.g.} \texttt{PPL}, \texttt{Normaliz}, \texttt{Polymake})
+   \item Useful for many combinatorial problems
+   \end{itemize}}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example 1: polytopes (ODK work)}
+  \begin{block}{ODK outcomes}
+  \begin{description}
+  \item[\texttt{pplpy} library:] Python interface to the high performance
+  \texttt{PPL} (rational polytopes)
+  \hfill{\uncover<2->{\alert{6 releases}}}
+  \item[\texttt{e-antic} library:] C/C++ library for exact computation over
+  number fields. Building block for \texttt{Normaliz}.
+  \hfill{\uncover<2->{\alert{release soon}}}
+  \item[Workshop:] Sage Days 84
+  \item[\texttt{SageMath}:] improvement of native code and libraries
+  interfaces \hfill{\uncover<2->{\alert{10 tickets}}}
+  \end{description}
   \end{block}
 
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Work stealing map-reduce}
+\begin{frame}{Example 2: semigroups (description)}
+  \begin{example}
+  Numerical semigroup are certain subsets of non-negative integers.
+  \begin{center}%
+  \includegraphics{Pictures/semigroups.pdf}%
+  \end{center}%
+  \end{example}
 
-  \begin{block}{A Python implementation}
+  \uncover<2->{\begin{itemize}
+  \item Many mathematical questions still open
+  \item Highly unbalanced tree
+  \end{itemize}}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example 2: semigroups (ODK work)}
+
+  \begin{block}{A SageMath implementation of work-stealing map-reduce}
     \begin{itemize}
     \item Work stealing algorithm (Leiserson-Blumofe)
     \item Easy to use, easy to call from SageMath with many use cases
-    \item Scale well with the number of CPU cores
-    \item Reasonably efficient (knowing that this is Python code).
+    \item Scale well with the number of cores and reasonably efficient
     \end{itemize}
   \end{block}
 
-  
+  \uncover<2->{A typical speedup (binary sequences)
   \begin{center}\begin{tabular}{c|cccc}
     \# processors & 1 & 2 & 4 & 8\\
-    Time (s) & 250 & 161 & 103 & 87
-  \end{tabular}\end{center}
+%    Time (s) & 250 & 161 & 103 & 87
+     Speedup      & $\times 1$ & $\times 1.55$ & $\times 2.43$ & $\times 2.87$
+  \end{tabular}\end{center}}
+
+ \hfill{\uncover<3->{\alert{integrated in SageMath}}}
  
 \end{frame}
-
-\begin{frame}{Low-level parallelization for small combinatorial objects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example 2: semigroups (ODK work)}
 
   \begin{block}{HPCombi: an experimental C++ library}
   \begin{itemize}
@@ -455,66 +656,20 @@ $n$ & dgetrf (LU)  & dsytrf (LDLT) & fgetrf (LU)& fsytrf (LDLT)\\
   \end{itemize}
   \end{block}
 
-  \begin{center}\begin{tabular}{l|c}
+  \uncover<2->{\begin{center}\begin{tabular}{l|c}
   Operation & Speedup \\\hline
-  Sum of a vector of bytes & $3.81$\\
-  Sorting a vector of bytes& $21.3$\\
-  Inverting a permutation& $1.97$\\
-  Number of cycles of a permutation& $41.5$\\
-  Number of inversions of a permutation& $9.39$\\
-  Cycle type of a permutation& $8.94$\\
-  \end{tabular}\end{center}
+  Sum of a vector of bytes & $\times 3.81$\\
+  Sorting a vector of bytes& $\times 21.3$\\
+  Inverting a permutation& $\times 1.97$\\
+  Number of cycles of a permutation& $\times 41.5$\\
+  Number of inversions of a permutation& $\times 9.39$\\
+  Cycle type of a permutation& $\times 8.94$\\
+  \end{tabular}\end{center}}
+
+  \hfill{\uncover<3->{\alert{Open-source library}}}
 
 \end{frame}
-
-\begin{frame}{Exploration: Python, Cython, Pythran and SIMD code (D5.8)}
-
-\begin{center}
-PLOT TO COME
-%%  \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",10" linewidth 2}]
-%%  set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
-%%  set title 'Counting descents in permutations'
-%%  set ylabel 'log time' offset 1,0
-%%  set xlabel 'n' offset 0,0.1
-%%  set xtics rotate by 30 offset -2,-0.75
-%%  set y2tics autofreq 
-%%  set autoscale y2fixmin
-%%  set autoscale y2fixmax  
-%%  set size 0.8,0.75
-%%  set key bottom right Left reverse
-%%  plot [8:13] [1:500] "data_perms.txt" using 1:4 
-%%  "data_perms.txt" using 1:3 title "Cython list" with lines lw 3 lc 2, \
-%%  "data_perms.txt" using 1:4 title "Cython array" with lines ls 3
-%%  \end{gnuplot}
-\end{center}
-
-\end{frame}
-
-
-\begin{frame}{Software releases and integration}
-    \begin{block} {Libraries releases and integration}
-      \begin{description}
-        \item[\texttt{SageMath}:] improvement of native code and libraries
-	interfaces \hfill{\uncover<2->{\alert{5 tickets}}}
-       \item[\texttt{HPCombi}:] C++ library for small combinatorial objects
-	using SIMD instructions and fine grained parallelization (Cilk)
-	\hfill{\uncover<2->{\alert{experimental}}}
-	\item[\texttt{e-antic}]: C/C++ library for (arbitrary precision) embedded
-	number field computations \hfill{\uncover<2->{\alert{planned release}}}
-	\item[\texttt{pplpy}:] Python library interface to PPL library on Polytope
-	\hfill{\uncover<2->{\alert{6 releases}}}
-      \end{description}
-    \end{block}
-
-    \begin{block}<3-> {Featuring}
-      \begin{itemize}
-      \item SIMD instructions for combinatorial enumeration
-      \item Generic map-reduce in SageMath
-      \item Faster and more parallel code inside SageMath
-      \end{itemize}
-    \end{block}
-
-\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% \subsection{Task 5.7: Pythran}
@@ -600,7 +755,7 @@ PLOT TO COME
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Progress report on other deliverables}
+\section{Progress report on other tasks}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{T5.1: Pari}
 \begin{frame}
@@ -608,7 +763,7 @@ PLOT TO COME
   \begin{block} {D5.16: Pari Suite release, fully supporting parallelization}
     \begin{itemize}
     \item D5.10 (merged in D5.16):\\ Generic parallelization engine is now mature
-      (released since nov.2016). Support POSIX-threads and MPI.
+      (released since Nov 2016). Support POSIX-threads and MPI.
     \item Current work: applying it throughout the library
       \begin{itemize}
       \item Chinese remaindering
@@ -617,7 +772,6 @@ PLOT TO COME
       \item Resultants
       \item APRCL primality testing
       \end{itemize}
-      
       
     \end{itemize}
   \end{block}
@@ -629,96 +783,120 @@ PLOT TO COME
   \frametitle{T5.2: GAP}
   \begin{block} {D5.15: Final report of GAP development}
     \begin{itemize}
-    \item 8 releases were cut integrating contributions of D3.11 and D5.15
+    \item 8 releases were produced integrating contributions of D3.11 and D5.15
     \item Towards an integration of HPC-GAP: main release GAP-4.9
       \begin{itemize}
       \item Build system refactoring
       \item Ability to compile in HPC-GAP compatibility mode
+      \end{itemize}
+    \item Work in progress:
+      \begin{itemize}
+      \item  Multithreaded linear algebra: at the level of the \texttt{Meataxe} library
+      \item Introspection functionalities: on-the-fly optimisation decision
       \end{itemize}
     \end{itemize}
   \end{block}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{T5.3: LinBox}
-\begin{frame}
-  \frametitle{T5.3 LinBox}
+%% \subsection{T5.3: LinBox}
+%% \begin{frame}
+%%   \frametitle{T5.3 LinBox}
 
-  \begin{block} {D5.14: Distributed exact linear system solving}
-{
-    \only<1,2>{
-      \begin{itemize}
-        \item 2 full time engineers
-        \item Comm. and serialization layer done
-        \item Prototype MPI parallelization of Chinese remainder based solver.
-      \end{itemize}
-    }
-    \only<3->{
-      \begin{description}
-      \item[Roadmap:] \
-        \begin{itemize}
-        \item Major refactorization of LinBox solver code under way
-        \item Parallelization of Dixon-lifting solver
-        \item Hybrid combination of CRT+Dixon.
-        \item Hyrbid OpenMP-MPI implementation
-        \end{itemize}   
-      \end{description}
-        \vspace{-1.4em}
-    }
-    \begin{columns}
-      \begin{column} {.5\textwidth}
-        \begin{center}
-          \uncover<2->{\includegraphics[width=\textwidth]{nodes_histogram}}
-      \end{center}
-      \end{column}
-      \begin{column} {.45\textwidth}
-        \begin{center}
-          \uncover<2->{\includegraphics[width=\textwidth]{nodes_SPEEDUP}}
-        \end{center}
-      \end{column}
-    \end{columns}
-}
-  \end{block}
-\end{frame}
+%%   \begin{block} {D5.14: Distributed exact linear system solving}
+%% {
+%%     \only<1,2>{
+%%       \begin{itemize}
+%%         \item 2 full time engineers
+%%         \item Communication and serialization layer done
+%%         \item Prototype MPI parallelization of Chinese remainder based solver.
+%%       \end{itemize}
+%%     }
+%%     \only<3->{
+%%       \begin{description}
+%%       \item[Roadmap:] \
+%%         \begin{itemize}
+%%         \item Major refactorization of LinBox solver code under way
+%%         \item Parallelization of Dixon-lifting solver
+%%         \item Hybrid combination of CRT+Dixon.
+%%         \item Hyrbid OpenMP-MPI implementation
+%%         \end{itemize}   
+%%       \end{description}
+%%         \vspace{-1.4em}
+%%     }
+%%     \begin{columns}
+%%       \begin{column} {.5\textwidth}
+%%         \begin{center}
+%%           \uncover<2->{\includegraphics[width=\textwidth]{nodes_histogram}}
+%%       \end{center}
+%%       \end{column}
+%%       \begin{column} {.45\textwidth}
+%%         \begin{center}
+%%           \uncover<2->{\includegraphics[width=\textwidth]{nodes_SPEEDUP}}
+%%         \end{center}
+%%       \end{column}
+%%     \end{columns}
+%% }
+%%   \end{block}
+%% \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{T5.4: Singular}
 \begin{frame}
   \frametitle{T5.4 Singular}
   \begin{block}
-    {D5.13: Paralell sparse polynomial multiplication}
+    {D5.13: Parallel sparse polynomial multiplication}
     
-    \texttt{FLINT} now support fast sparse multivariate polynomials:
+    \texttt{FLINT} now supports fast sparse multivariate polynomials:
     \begin{itemize}
     \item addition, subtraction, multiplication,
     \item division, division with remainder, GCD
-    \item evaluation (and partial evaluation), composition
+    \item evaluation, partial evaluation, composition
     \end{itemize}
 
 \uncover<2->{  \textbf{Parallelization of the (sparse) multiplication}
     \begin{columns}
-      \begin{column}{.38\textwidth}
+      \begin{column}{.4\textwidth}
         {\footnotesize
           %% \begin{equation*}
           %%   (1 + x + y + 2z^2 + 3t^3 + 5u^5)^{21}*(1 + u + t + 2z^2 + 3y^3 + 5x^5)^{21}
           %% \end{equation*}
 %          \begin{center}
-            \begin{tabular}{lcccccccc}
-               \toprule
-               threads & time (ms) & speedup\\ \midrule
-               1 & 148661 & 1.0x\\
-               2 & 76881 & 1.9x\\ 
-               3 & 54798 & 2.7x\\ 
-               4 & 42855 & 3.4x\\ 
-               5 & 37017 & 4.0x\\ 
-               6 & 30892 & 4.8x\\ 
-               7 & 28365 & 5.2x\\ 
-               8 & 28048 & 5.3x\\
-               \bottomrule
-            \end{tabular}
- %         \end{center}
+ %        \begin{center}
+          \vspace{2mm}
+          
+          \begin{tabular}{lrr}
+    \toprule
+    \# & $\mathbb{Z}$ &  $\mathbb{Z}_{2^{64}-1}$  \\
+    \midrule
+   1 & 34145(1.0x) & 30349(1.0x) \\
+   2 & 14856(2.3x) & 12641(2.4x) \\ 
+   3 & 10844(3.1x) & 8294(3.6x)\\ 
+   4 & 7205(4.7x) & 6274(4.8x) \\ 
+   5 & 7621(4.4x) & 5315(5.7x) \\ 
+   6 & 6156(5.5x) & 4152(7.3x) \\ 
+   7 & 5679(6.0x) & 3739(8.1x) \\ 
+   8 & 4458(7.6x) & 3047(9.9x) \\
+   \bottomrule
+  \end{tabular}
+  %       \end{center}
+         %% \begin{tabular}{lcccccccc}
+ %%               \toprule
+ %%               threads & time (ms) & speedup\\ \midrule
+ %%               1 & 148661 & x1.0\\
+ %%               2 & 76881 & x1.9\\ 
+ %%               3 & 54798 & x2.7\\ 
+ %%               4 & 42855 & x3.4\\ 
+ %%               5 & 37017 & x4.0\\ 
+ %%               6 & 30892 & x4.8\\ 
+ %%               7 & 28365 & x5.2\\ 
+ %%               8 & 28048 & x5.3\\
+ %%               \bottomrule
+ %%            \end{tabular}
+ %% %       
+%      \end{center}
         }
       \end{column}
-      \begin{column}{.6\textwidth}
+      \begin{column}{.58\textwidth}
         \uncover<3->{
           \begin{itemize}
         \item Planned improvements to the memory manager $\Rightarrow$ closer to linear scaling 
@@ -746,68 +924,125 @@ PLOT TO COME
 %%  \end{block}
 %%  \end{frame}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Workpackage management}
+\begin{frame}
+  \frametitle{Conclusion}
 
-\subsection{Milestone M8}
-\begin{frame}[fragile]
-  \frametitle{Milestone M8: Seamless use of parallel computing architecture in the VRE (proof of concept)}
-
-{\footnotesize  \textit{Astrid wants to run compute intensive routines involving both dense linear algebra and combinatorics. She has access through a JupyterHub-based VRE to a high end multi-core machine which includes a vanilla SAGE installation.
-She automatically benefits from the HPC features of the underlying specialized libraries (LinBox, ...). This is a proof of concept of the overall framework to integrate the HPC advances of specialized libraries into a general purpose VRE. It will prepare the final integration of a broader set of such parallel features for the end of the project}
-
-
-\begin{verbatim}
-sage: a=random_matrix(GF(11),8000,8000)
-sage: time b=a*a
-CPU times: user 1min 23s, sys: 1min 14s, total: 2min 37s
-Wall time: 7.14 s
-\end{verbatim}
+  \textbf{Outcome of WorkPackage 5}
+  \begin{center}
+{\small
+    \begin{tabular}{lccc}
+    \toprule
+        & Review 1 & Review 2 & Final review\\
+    \midrule
+    T5.1 Pari/GP & & & {\color{darkgreen} D5.16} \\
+    T5.2 GAP     & & & {\color{darkgreen} D5.15} \\
+    T5.3 LinBox  & & \alert{D5.12} & {\color{darkgreen} D5.14} \\
+    T5.4 Singular& D5.6, D5.7 & & {\color{darkgreen} D5.13} \\
+    T5.5 MPIR    & D5.5, D5.7& & \\
+    T5.6 Combinatorics  & D5.1& \alert{D5.11} & \\
+    T5.7 Pythran        & D5.2 & \alert{D5.11} & \\
+    T5.8 SunGrid Engine & D5.3 & & \\
+    \bottomrule
+    
+  \end{tabular}
 }
+  \end{center}
+  
+  Overall
+  \begin{itemize}
+  \item 20+ software relases
+  \item 7 research papers
+  \end{itemize}
+\end{frame}
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Lessons learnt}
+
+  \begin{description}
+    \item[From dedicated to general purpose HPC components:]\
+      \begin{itemize}
+      \item  Early instances of HPC computer algebra: dedicated to some target
+        application (breaking RSA, etc)
+      \item Building a general purpose HPC component:
+        \begin{itemize}
+        \item challenging
+        \item longer term sustainability
+        \end{itemize}
+      \end{itemize}
+    \item[Risk of technology dependency]\
+      \begin{itemize}
+      \item Cilk: from success to shut-down
+      \item Interchangeability and modularity
+      \end{itemize}
+      \end{description}
+  \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}
+  \frametitle{Extra Slides}
+
+  \begin{center}
+    \Large Extra Slides
+  \end{center}
+\end{frame}
+\begin{frame}
+  \frametitle{Outsourced computing security (D5.12)}
+
+  \begin{block}{Exploratory aspect: Computation over the Cloud}
+    \begin{description}
+    \item[Outsourcing computation on the cloud:]\ 
+      \begin{itemize}
+      \item trusted lightweight client computer
+      \item untrusted powerful cloud server
+      \end{itemize}
+      $\Rightarrow$ need for certification protocols
+    \item[Multiparty computation:] \
+      \begin{itemize}
+      \item each player contribute with a share of the input
+      \item shares must remain private
+      \end{itemize}
+    \end{description}
+\end{block}
+  \begin{block}<2->
+      {Contribution}
+      \begin{description}
+        \item[ISSAC'17:] Linear time certificates for LU, Det., Rank Profile  matrix, etc
+        \item[In submission:] Secure multiparty Strassen's algorithm
+      \end{description}
+  \end{block}
 
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Addressing remarks from previous review}
-\begin{frame}
-\frametitle{Addressing recommendations of review 1}
-    \textbf{Recommendation 10:} \textit{Regarding WP5, make contacts with HPC community in order to ascertain current state-of-the-art. The work in this WP needs to be nearer the leading edge.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Exploration: Python, Cython, Pythran and Cilk (D5.8)}
+  \textit{workshop: Interfacing (math) software with low level libraries}
+\begin{center}
+  \begin{gnuplot}[terminal=cairolatex,terminaloptions={font ",10" linewidth 2}]
+  set style line 3 pt 3 pi 50 lw 4 lt rgb "blue"
+  set title 'Counting descents in permutations'
+  set logscale y
+  set ylabel 'log time'
+  set format y '%L'
+  set xlabel 'n'
+  set size 0.9,0.6
+  set key bottom right
+  plot [9:13] \
+  "data_perms.txt" using 1:2 title "python" with lines lc 1, \
+  "data_perms.txt" using 1:4 title "cython/pythran" with lines lc 3, \
+  "data_perms.txt" using 1:6 title "cilk 1 core" with lines lc 5, \
+  "data_perms.txt" using 1:7 title "cilk 8 cores" with lines lc 6
+  \end{gnuplot}
 
-    \begin{description}
-    \item<2-> [Leading edge achievements in linear algebra] \
-      {\small
-      \begin{itemize}
-      \item symmetric factorization outperforms LAPACK implementation
-      \item new non-hierarchical generator for quasiseparable matrices
-      \item large scale parallelization of rational linear solver
-      \end{itemize}
-      }
-    \begin{columns}
-      \begin{column} {.3\textwidth}
-        \begin{center}
-          \includegraphics[width=.6\textwidth]{ARrec11}
-      \end{center}
-      \end{column}
-      \begin{column} {.3\textwidth}
-        \begin{center}
-          \includegraphics[width=.6\textwidth]{Bruhat}
-        \end{center}
-      \end{column}
-      \begin{column} {.3\textwidth}
-        \begin{center}
-          \includegraphics[width=.9\textwidth]{nodes_histogram}
-        \end{center}
-      \end{column}
-    \end{columns}
-    \item<3-> [Contacts made:]\ 
-      {\small
-      \begin{itemize}
-      \item interraction with the \texttt{BLIS} group (vectorization and
-        implementation of Strassen's algorithm)
-      \item on-going collaboration with T. Mary (\texttt{Mumps}) and
-        S. Chandrasekaran (UCSB) on quasiseparable matrix algorithmic
-      \end{itemize}
-      }
-\end{description}
+\begin{itemize}
+\item Python (interpreted language) slow.
+\item Cython/Pythran (Python to C compilers) efficient.
+\item Cilk (SIMD and multithread parallelism) very promising.
+\end{itemize}
+\end{center}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
