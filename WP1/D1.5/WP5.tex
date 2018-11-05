@@ -1,8 +1,7 @@
-  \subsubsection{WorkPackage 5: High Performance Mathematical Computing}
+\subsubsection{WorkPackage 5: High Performance Mathematical Computing}
   \label{hpc}
 %Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
 
-  \TODO{Update for Reporting Period 2}
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
   \paragraph{Overview}
@@ -21,8 +20,8 @@
   \item A full-featured parallelisation engine, supporting POSIX threads and
   MPI, for PARI in production release of the software
   \item Release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
-    \item A new super-optimizer for vectorized assembly code and its
-    exploitation to improve the performances of the MPIR code.
+  %    \item A new super-optimizer for vectorized assembly code and its
+  %  exploitation to improve the performances of the MPIR code.
   \item A new symmetric matrix factorization algorithm over finite fields, and
   its high-performance implementation in the \texttt{fflas-ffpack} library.
   \item Major redesign the the polynomial arithmetic used in Singular delivering
@@ -30,7 +29,7 @@
 \end{compactitem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\paragraph{Milestones}
+\subparagraph{Milestones}
 
 \subparagraph{\longmilestoneref{hpc-prototype}}
 
@@ -46,7 +45,18 @@
     It will prepare the final integration of a broader set of such
     parallel features for the end of the project.”}
 
-\TODO{Argue that we have reached that milestone}
+With Deliverable~\delivref{hpc}{LinBox-algo}, we developped, released and integrated in the
+\Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
+When installing the latest \Sage release on a multithreaded multicore server, it
+only takes one configure option to let fflas-ffpack use a multi-threaded BLAS
+and therefore expose its parallel speed-up to the end-user of Sage. This feature
+is compliant with the use of a higher level of parallelism, through process
+workstealing queues that \textit{Astrid} may be using in her combinatorics code, as those
+exposed in \delivref{hpc}{sage-HPCcombi}. Now that this first proof of concept has been
+successfully achieved, we are working in exposing the more advanced parallel
+routines of fflas-ffpack into \Sage, following~\delivref{hpc}{LinBox-DSL}. It
+should in particular make Gaussian elimination and related routines enjoy a
+better scaling with respect to available CPU cores.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \paragraph{Tasks}
@@ -60,7 +70,7 @@ The generic engine for Deliverable~\delivref{hpc}{pari-hpc1} was written and
 finalized in 2015 and 2016 and is in production since PARI-2.9 (released
 11/2016), it supports sequential evaluation (no parallelism), POSIX threads and
 MPI within the same code base.
-Development work since then is targetted at using the engine wherever it makes
+Development work since then is targeted at using the engine wherever it makes
 sense in the code base. The current situation (PARI-2.11, released 07/2018)
 includes:
 \begin{itemize}
@@ -84,13 +94,14 @@ Compared to the pre-existing sequential code, the parallel version adds about 15
 C on average (conveniently encapsulated in a separate "worker" object). As usual
 in "embarassingly parallel" code, the measured speedup is essentially linear in
 the number of available cores. The resulting GP binary has been successfully
-crashtested by a panel of users during the 2017 PARI/GP Atelier in Lyon:
+crash-tested by a panel of users during the 2017 PARI/GP Atelier in Lyon:
 basically, substituting the \texttt{Configure} instruction by \texttt{Configure --mt=pthreads}
 before compilation transparently yields the expected speedups for the target
 functions on participants dual-core laptops. 
 
 
 \subparagraph{\longtaskref{hpc}{hpc-gap}}
+\label{hpc@hpc-gap}
 
 No deliverable is due for the evaluation period but steady progress was made on
 Deliverable~\longdelivref{hpc}{GAP-HPC-report}. Over this period, eight releases were cut
@@ -102,11 +113,11 @@ enables multithreaded calculations. Now that HPC-GAP has reached
 maturity, it's critical for its widespread use and long term
 maintainability to merge it back into \GAP's master branch.
 The first step towards this long-standing goal, which is at the core of
-Task~\taskref{hpc}{hpc-gap}, is the major release of \GAP 4.9, published in 2018 and allowing compilation in HPC-GAP
+Task~\localtaskref{hpc}{hpc-gap}, is the major release of \GAP 4.9, published in 2018 and allowing compilation in HPC-GAP
 compatibility mode. It comes together with the new manual book called ``HPC-GAP Reference Manual'',
 which is also available online at \url{https://www.gap-system.org/Manuals/doc/hpc/chap0.html}.
 HPC-GAP integration required a major
-refactorisation of \GAP's build system
+refactorization of \GAP's build system
 mainly developed by our external collaborator Max Horn (Giessen) into \GAP's master
 branch during the Sage-GAP-Days-85 we organized in March 2017. 
 An overview of the most important changes introduced in GAP 4.9.1,
@@ -115,6 +126,7 @@ can be found in the \GAP manual: \url{https://www.gap-system.org/Manuals/doc/cha
 Many \GAP packages also have been updated to work in \GAP 4.9 and make use of its new features.
 
 \subparagraph{\longtaskref{hpc}{hpc-linbox}}
+  \label{hpc@hpc-linbox}
 
 The deliverable~\longdelivref{hpc}{LinBox-algo} due for this reporting period is
 delivered on time. The contribution, as detailed in the report is twofold:
@@ -122,7 +134,7 @@ delivered on time. The contribution, as detailed in the report is twofold:
 \item Several algorithmic innovations have been produced: a new matrix invariant
   for rank profiles~\cite{DumPerSul:fcrpmgbd16}, a new symmetric matrix
   factorization algorithm and its high performance implementation has been
-  proposed~\cite{DuPe18}; new representation and algorithms for quasiseparable
+  proposed~\cite{DuPe18}; new representation and algorithms for quasi-separable
   matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on 
   interactive certificates for the security of large scale distributed
   computations on unsafe
@@ -133,7 +145,7 @@ delivered on time. The contribution, as detailed in the report is twofold:
   robustness, maintainability and introducing new computational features, such
   as the new symmetric factorization algorithm or a parallel triangular matrix
   inversion implementation. Not only have these library been closely integrated
-  within \Sage, but the interface has been fully rethoughts thanks to a broader
+  within \Sage, but the interface has been fully rethought thanks to a broader
   support of C++ in Cython.
 \end{compactitem}
 
@@ -146,8 +158,9 @@ Deliverable~\longdelivref{hpc}{LinBox-distributed} is making good progress
   has now become the bottleneck in this computation.
   
   \subparagraph{\longtaskref{hpc}{hpc-singular}}
+  \label{hpc@hpc-singular}
 
-  The only deliverable under consideration for this reporting perido
+  The only deliverable under consideration for this reporting period
   is~\longdelivref{hpc}{singular-polyarith}
 
 Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular are not. Since the last update much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}. We also now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex. Suggestions by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau have been invaluable.
@@ -164,11 +177,13 @@ at \url{https://github.com/rimbach/Ccluster}.
 
 
   \subparagraph{\longtaskref{hpc}{hpc-mpir}}
+  \label{hpc@hpc-mpir}
 
   All deliverables for this task have been delivered at the previous
   reporting period.
   
   \subparagraph{\longtaskref{hpc}{hpc-combi}}
+  \label{hpc@hpc-combi}
 
   The goal of this task is to use combinatorics as a source of challenges to
   experiment on various HPC techniques. Recall that from the first reporting
@@ -209,11 +224,33 @@ at \url{https://github.com/rimbach/Ccluster}.
 
 
   \subparagraph{\longtaskref{hpc}{pythran}}
+  \label{hpc@hpc-pythran}
+
+  The goal of this task is to make Pythran easily integratable in large-scale
+  project, taking into account native dependencies, compilation time, memory
+  footprint, speed and size of compiled binaries as well as multi-platform
+  support. Integration with \software{cython} is a possible mean to achieve
+  this goal.
+
+  Two projects have been selected for this task: \software{scipy} and
+  \software{scikit-image}. These projects are relevant for \software{pythran}
+  because they have many small to medium kernels that can benefit from
+  compilation. Even though \software{pythran} has not been selected as a scipy
+  backend, the exchanges with the community have led to a great deal of
+  improvements of which all \software{Pythran} users take advantage.  The
+  \software{scikit-image} community is still examining the possibility of using
+  \software{pythran} as an acceleration mean.
+
+  Integration of  \software{pythran} as a \software{cython} backend for
+  \software{numpy} has improved in various aspects: better error detection,
+  more supported expression patterns and improved performance for the compiled
+  expressions.
 
 Deliverable~\longdelivref{hpc}{sage-HPCcombi} is shared with
-Task~\longtaskref{hpc}{hpc-combi}, the status of which we reported on above.
+Task~\longlocaltaskref{hpc}{hpc-combi}, the status of which we reported on above.
 
   \subparagraph{\longtaskref{hpc}{hpc-jupyter}}
+  \label{hpc@hpc-jupyter}
   
 %% It is common for academic High Performance Computing (HPC) clusters to make
 %% use of schedulers based on Sun Grid Engine with Son of Grid Engine as one of
@@ -224,3 +261,13 @@ Task~\longtaskref{hpc}{hpc-combi}, the status of which we reported on above.
 
   All deliverables for this task have been delivered at the previous
   reporting period.
+
+%  LocalWords:  subsubsection hpc compactitem super-optimizer vectorized factorization
+%  LocalWords:  texttt fflas-ffpack longmilestoneref emph JupyterHub-based specialized
+%  LocalWords:  longtaskref longdelivref delivref finalized mathbb embarassingly taskref
+%  LocalWords:  scienceproject refactorization organized LinBox-algo DumPerSul:fcrpmgbd16
+%  LocalWords:  Pernet:cqm16,PerSto:tsegqm17 DumKalTho:lticmpdsm16,DumLucPer:cftearp17
+%  LocalWords:  Cython Hongguang singular-polyarith sdmp parallelization deglex degrevlex
+%  LocalWords:  Monagan Micka parallelized parallelize Imbach hpc-mpir sage-paral-tree
+%  LocalWords:  Cilk libsemigroup optimized pythran integratable scipy scikit-image numpy
+%  LocalWords:  sage-HPCcombi hpc-jupyter
