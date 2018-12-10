@@ -247,8 +247,8 @@ they provide high level data structures and instructions as well as automatic
 memory management. This is one of the reasons for the choice for \Python as the
 base language for \Sage. However, these higher level languages tend to suffer
 by comparison to low-level languages in performance, especially when large
-iterations have to be performed. In this situation, it is \textcolor{red}{\sout{preferable to be able
-to delve into} necessary to investigate} the details of memory allocation and CPU instructions.
+iterations have to be performed. In this situation, it is necessary to
+investigate the details of memory allocation and CPU instructions. 
 
 A first ingredient of optimization that provides a bridge between interpreted
 and compiled language is provided by \Cython, a Python
@@ -256,15 +256,17 @@ to C/C++ compiler. \Cython plays an important role in this deliverable in two
 different ways. First, by replacing Python code with Cython code, which generally results
 immediately in faster code. Second, by developing interfaces to C/C++ libraries.
 
-When considering a low-level language such as C\textcolor{red}{/C++}, an initial level of
-parallelization that becomes available to us is access to CPU vectorized
-instructions. That is to say single instructions that perform the same operation on multiple
-numerical values simultaneously (SIMD). These instructions are also of critical importance for performant
-linear algebra algorithms as implemented in the \Linbox library. The relevance of these instructions in the
-context of combinatorics is discussed in Section~\ref{subsec:combi:SIMD}.
+The use of a low-level language such as C/C++, provides the programmer with a
+first level of in-core
+parallelization: the CPU vectorized
+instructions, i.e. single instructions operating on vectors of multiple
+data (SIMD). These instructions are also of critical importance for efficient
+linear algebra algorithms as implemented in the \Linbox library. The relevance
+of these instructions in the context of combinatorics is discussed in
+Section~\ref{subsec:combi:SIMD}. 
 
-The second level of parallelization concerns multi-core computations. This can
-be conveniently dealt with by language extensions such as Open MP, Threading
+The second level of parallelization concerns multi-core computations. This is
+conveniently dealt with by language extensions such as Open MP, Threading 
 Building Block (TBB) or \Cilk. At this level one important ingredient in
 optimization is the careful usage of shared memory.  Before getting into
 technical details, we recall in subsection~\ref{subsec:map-reduce:Sage} the
@@ -280,18 +282,17 @@ deliverable.
 \subsection{Map-reduce and its implementation in \Sage}
 \label{subsec:map-reduce:Sage}
 
-The goal \textcolor{red}{of this section,} is to present an example of a typical end-user feature we would like
+The aim of this section, is to present an example of a typical end-user feature we would like
 to be able to provide as an actual HPC component. This is a solution for
 type~(\ref{enum-tree}) problems in our classification.
 
 Map-reduce is a general programming model that is shared by
 parallelized solutions to many problems and is relevant to our situation. In this section we
 present a small framework implemented in Sage~\cite{sage} which enables
-performant map/reduce-like computations on
+efficient map/reduce-like computations on
 large recursively defined sets. Map-reduce is a classical programming model
 for distributed computations where one maps a function on a large data set --
-\textcolor{red}{\sout{inputting each element of the data set to the same function}
-applying the same function to each element of the data set} -- then
+applying the same function to each element of the data set -- then
 uses a ``reduce'' function to summarize all the ``map'' results. It has a
 large range of intensive applications in combinatorics:
 \begin{itemize}
@@ -335,12 +336,11 @@ sage: sage: S.map_reduce(
 ....:   reduce_init = 0 )
 32768
 \end{verbatim}
-This framework uses a multi-process implementation of a \emph{\textcolor{red}{\sout{work-stealing} job stealing}}
+This framework uses a multi-process implementation of a work-stealing
 algorithm~\cite{BlumofeL99, BlumofeL99} meaning that if work is divided
 unevenly between processes, when one process becomes idle it can ``steal'' new
-work to do from another process's work queue. \textcolor{red}{\sout{It scales relatively well, as
-shown below in a typical computation:} On the above example of binary
-sequences it scales as follows} 
+work to do from another process's work queue. On the above example of binary
+sequences it scales as follows
 \[\begin{tabular}{ccccc}
 \# processors & 1 & 2 & 4 & 8 \\
 Time (s) & 250 & 161  & 103  & 87 \\
@@ -351,13 +351,13 @@ Time (s) & 250 & 161  & 103  & 87 \\
  & \textcolor{red}{2.87}
 \end{tabular}
 \]
-\textcolor{red}{As can be seen on this sample the scaling is far from
+As can be seen on this sample the scaling is far from
 being linear with the number of cores. This is explained by the increase
 of job stealing coming with parallelization. A challenge will be to reduce
-this overhead and achieve linear scaling.}
+this overhead and achieve linear scaling.
 
 Though it doesn't really qualify as HPC, principally due to the use of Python.
-\textcolor{red}{Tough} it allowed us to efficiently parallelize dozens of experiments ranging from
+Tough it allowed us to efficiently parallelize dozens of experiments ranging from
 Coxeter group and representation theory of monoids, to the combinatorial study
 of the C3 linearization algorithm used to compute the method resolution order
 (MRO) in scripting languages such as \Python and Perl~\cite{C3-controled}.
