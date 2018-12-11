@@ -334,20 +334,28 @@ algorithm~\cite{BlumofeL99, BlumofeL99} meaning that if the work is divided
 unevenly between processes, then when one process becomes idle it can ``steal''
 work from another process's work queue. In the above example of binary
 sequences it scales as follows
-\[\begin{tabular}{ccccc}
-\# processors & 1 & 2 & 4 & 8 \\
-Time (s) & 250 & 161  & 103  & 87 \\
-\textcolor{red}{Speedup}
- & \textcolor{red}{1}
- & \textcolor{red}{1.55}
- & \textcolor{red}{2.42}
- & \textcolor{red}{2.87}
+\[\begin{tabular}{ccccccccccccccc}
+\# processors & 1 & 2  & 3 & 4 & 6 & 8 & 12 & 16 & 24\\
+Time (s)      & 132.0 & 66.0 & 47.2 & 36.5 & 26.2 & 21.5 & 15.1 & 12.9 & 9.6
+    \\
+Speedup & 1.0 & 2.0 & 2.8 & 3.6 & 5.0 & 6.1 & 8.7 & 10.2 & 13.8 \\
 \end{tabular}
 \]
-As can be seen on this sample the scaling is far from
-being linear with the number of cores. This is explained by the increase
-of job stealing coming with parallelization. A challenge will be to reduce
-this overhead and achieve linear scaling.
+As can be seen on this sample the scaling is not linear with the number of
+cores. The problem here is that the size of the computation in each node is
+very small (prepending a integer to a list). As a consequence Python's
+overhead is non negligible. Here is a more realistic example where each node
+takes typically $1$~ms:
+\[\begin{tabular}{ccccccccccccccc}
+\# processors & 1 & 2  & 3 & 4 & 6 & 8 & 12 & 16 & 24\\
+Time (s)      & 237.0 & 124.0 & 83.0 & 65.0 & 46.2 & 35.2 & 23.5 & 18.4 & 12.8
+    \\
+Speedup & 1.0 & 1.9 & 2.9 & 3.6 & 5.1 & 6.7 & 10.1 & 12.9 & 18.5
+\end{tabular}
+\]
+This is still not linear but better. The remaining overhead is explained
+by the increase of job stealing coming with parallelization. A challenge will
+be to reduce this overhead and achieve linear scaling.
 
 Though it doesn't really qualify as HPC, principally due to the use of Python.
 Tough it allowed us to efficiently parallelize dozens of experiments ranging from
