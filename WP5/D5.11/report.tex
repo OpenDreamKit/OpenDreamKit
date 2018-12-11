@@ -94,11 +94,11 @@ at most once)
 cyclic permutations).
 \end{itemize}
 One algorithmic problem combinatorics is trying to solve is to provide
-efficient enumeration of integer vectors subject to these kind of
+efficient enumeration of integer vectors subject to these kinds of
 constraints.
 
 For example, permutations of $\{1, \ldots, n\}$ are encoded by integer vectors
-on $\{1, \ldots, n\}$ for which each entry appear exactly once. In a sample
+on $\{1, \ldots, n\}$ for which each entry appears exactly once. In a sample
 \Sage session the list can be obtained as follows:
 \begin{verbatim}
 sage: P = Permutations(3)
@@ -121,7 +121,7 @@ sage: LyndonWords(2,4).list()
 Sometimes, one just wants to count the number of objects in some set and possibly
 avoid generating the complete list. In \Sage, access to this
 counting is often implemented by a {\tt cardinality()} method, the
-implementation of which can be often be different from the implementation for
+implementation of which can often be different from the implementation for
 enumerating the objects themselves:
 \begin{verbatim}
 sage: Permutations(30).cardinality()
@@ -180,7 +180,7 @@ large tree with $10^{15}$ nodes. Of course, when exploring such a tree,
 different branches can be explored in parallel. However, if the tree is
 unbalanced, we need a mechanism to rebalance the computation. It appears that
 the tree of numerical semigroups is extremely unbalanced and is therefore a good
-prototypical challenge for such a computation. For example, } the number of nodes at depth 30 and 45
+prototypical challenge for such a computation. For example, the number of nodes at depth 30 and 45
 are $5\,646\,773$ and $8\,888\,486\,816$ respectively. If we sort the nodes
 at depth $30$ decreasingly by their number of descendants at depth $45$, then
 \begin{itemize}
@@ -226,7 +226,7 @@ problematic.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{An overview of techniques and technology}
+\section{An overview of techniques and technologies}
 
 Before going deeper into the details of this deliverable it is important to
 draw a general picture of the algorithmic techniques and the hardware and
@@ -330,9 +330,9 @@ sage: sage: S.map_reduce(
 32768
 \end{verbatim}
 This framework uses a multi-process implementation of a work-stealing
-algorithm~\cite{BlumofeL99, BlumofeL99} meaning that if work is divided
-unevenly between processes, when one process becomes idle it can ``steal'' new
-work to do from another process's work queue. On the above example of binary
+algorithm~\cite{BlumofeL99, BlumofeL99} meaning that if the work is divided
+unevenly between processes, then when one process becomes idle it can ``steal''
+work from another process's work queue. In the above example of binary
 sequences it scales as follows
 \[\begin{tabular}{ccccc}
 \# processors & 1 & 2 & 4 & 8 \\
@@ -395,7 +395,7 @@ automating this task.\bigskip
 As a part of the OpenDreamKit deliverable, we started to develop a new
 library called \texttt{HPCombi}\footnote{\url{https://github.com/hivert/HPCombi}}. The
 goal is to use SSE and AVX instruction sets for very fast manipulation of
-combinatorial objects of small sizes.  It is still in an experimental stage and
+combinatorial objects of small sizes. It is still in an experimental stage and
 currently deals only with permutations, transformations and partial
 transformations. We also have experimental code for partitions and boolean
 matrices.
@@ -412,7 +412,7 @@ Finally, we want to stress out that this is actually a research
 problem. Indeed, except for sorting a vector where we used a classical sorting
 network algorithm, all the operations in the previous table of operations
 require the design of a new algorithms as nearly no combinatorial algorithms
-where conceived of with vector instructions in mind. For example, for the
+where conceived with vector instructions in mind. For example, for the
 simple task of inverting a permutation, we designed 4 different new
 algorithms:
 \begin{itemize}
@@ -454,7 +454,7 @@ stages:
 \item store them in a hash table to remove duplicates.
 \end{enumerate}
 It should be noted that the first stage doesn't require any arithmetic, but
-amount to shuffling around large chunks of data in memory. This is a very atypical usage of a
+amount to shuffling large chunks of data in memory. This is a very atypical usage of a
 GPU which is tailored to do arithmetic on larger vectors of floating point numbers, and it was very difficult
 to predict the behavior. One expected cause of this inconsistency is the communication time
 between the CPU and the GPU.
@@ -485,13 +485,13 @@ must be hosted inside the GPU's internal memory. This has two very important dra
 \item Since GPU programming is not a widespread skill, it forces us to write
   seemingly black-box, monolithic algorithms.
 \end{itemize}
-This second point doesn't fit well within the research-driven use case
-typical of the OpenDreamKit project; that is, it is difficult to understand
+This second point doesn't fit well within the research-driven use cases
+in the framework of the OpenDreamKit project; that is, it is difficult to understand
 or modify by a typical researcher. % Note: I added an additional clause here, clarifying what I think you meant.
-We think this technology is not directly applyable for algebraic combinatorics
-in general but  is only  interesting
-for very specific computations where we are ready to pay the price of developing a large
-specific and poorly reusable code.
+We think that this technology is not directly applicable in algebraic combinatorics
+in general. Though, it remains interesting
+for very specific computations where we are ready to pay the price of writing
+specific and poorly reusable programs.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -548,25 +548,24 @@ specific and poorly reusable code.
 
 The computation of numerical semigroup is a good challenge for large tree
 explorations (case (\ref{enum-tree}) in our
-classification). This kind of problem is classical and can they can be solved by
-various technologies. The idea here is that different branches of the
+classification). Different branches of the
 tree can be explored in parallel by different CPU cores. The
-delicate part is to ensure that all cores can be provided with tasks,
-i.e. always having a new branch to explore.
+delicate part is to ensure that all cores are working,
+i.e. always have a new branch to explore.
 
-What makes combinatorics particularly difficult is the size of the
+What makes this problem particularly difficult is the size of the
 trees (typically up to $10^{15}$ in our experiments) and the granularity of the
 computation (typically only $10-50$ns is spent on each tree node). This is
 extremely demanding on the load balancing algorithms and their implementations.
 
-The clear algorithmic solution is to use work stealing algorithms as described
-described in \cite{10.1109/SFCS.1994.365680, BlumofeL99}. We have developped a 
-Python implementation with a map-reduce fronted
-in Deliverable~\delivref{hpc}{sage-paral-tree}~\cite{map-reduce}. However, it
+The clear algorithmic solution is to use work stealing algorithms as
+described in~\cite{10.1109/SFCS.1994.365680, BlumofeL99}. Let us recall
+that a prototypical Python implementation with a map-reduce fronted
+is in Deliverable~\delivref{hpc}{sage-paral-tree}~\cite{map-reduce}. However, it
 was clear from the beginning that this 
 implementation was a tool to help rapid prototyping in day-to-day research,
-but it wasn't meant for a high performance computing use case. So we experimented
-with a few lower-level technologies. We present them here together with their
+but it wasn't meant for a high performance computing use case. Hence, we had
+to experiment with a few lower-level technologies. We present them here together with their
 behavior in our prototypical examples:
 \begin{itemize}
 \item The \CilkP~\cite{CilkIntel} technology is particularly well suited for
