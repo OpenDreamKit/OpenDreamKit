@@ -18,13 +18,165 @@ of the KPIs and added more metrics. We report here on the current state of our K
 Qualitative metrics: success stories, reported as blog posts.
 
 TODO: review our existing blogs
+
 story of cocalc adoption for teaching in UK after ODK's Kickoff
+
 stories of Mike (Michael Croucher)
+Along with the Software Sustainability Institute, the UK Research Software Engineering Association and the EU-funded OpenDreamKit project I actively campaign to improve the career prospects of the talented but often overlooked people who underpin a huge amount of computational research….individuals we have recently been referring to as Research Software Engineers.
+https://github.com/mikecroucher/MLPM_talk
+
 getting Katja involved in OpenDreamKit (Katja, Michael, Samuel)
 "Software tools for mathematics" workshops (Katja, Samuel)
-Reproducible GAP experiments on Binder (AlexK) to write about https://github.com/alex-konovalov/gap-teaching
-AlexK used GAP Jupyter interface in teaching at PGTC 2018 and "Software tools for mathematics" workshop
-Wanted: blog post about Jupyter in GAP and other CAS https://www.gapdays.de/gap-jupyter-days2018/
+http://stm.famnit.upr.si/
+http://matmor.unam.mx/software-tools-math/
+The workshop had two self-contained parts, both aimed at students and researchers who wanted to improve the computing skills they need for their studies and research.
+
+Reproducible GAP experiments on Binder (AlexK)
+Here https://github.com/alex-konovalov/gap-teaching, you can find a collection of GAP Jupyter notebooks. It uses the Docker container with the latest public release of GAP, which is maintained in a separate repository at https://github.com/gap-system/gap-docker, in order to allow to run these notebooks on Binder (https://mybinder.org/).
+AlexK used GAP Jupyter interface in teaching at PGTC 2018 and "Software tools for mathematics" workshop.
+
+Blog post about Jupyter in GAP and other CAS https://www.gapdays.de/gap-jupyter-days2018/
+Workshop June 4th - June 8th 2018 University of St Andrews:Many new technologies for interactive documents, such as the GAP native Jupyter Kernel, MyBinder, ThebeLab have been developed recently. The aim of this workshop was to bring together people who are developing or using these technologies, and people who want to use them. While combining the use of GAP and Jupyter was the main focus of this workshop, people developing Jupyter or using Jupyter to access other software were welcomed to attend. The topics include (but are not limited to):
+
+### ThebeLab
+
+- [x] Prepared and delivered a demo; now included in ThebeLab's [examples](https://github.com/minrk/thebelab/tree/master/examples) directory (Nicolas)
+- [GAP demo](https://sebasguts.github.io/thebelab_test_gap/chap42)
+- [SageMath demo](http://sage-package.readthedocs.io/en/latest/sage_package/sphinx-demo.html) ([about](http://sage-package.readthedocs.io/en/latest/sage_package/thebe.html))
+- [x] Improved ThebeLab's documentation (Nicolas, Frank) 
+- [x] Finalized [Sage's ticket](https://trac.sagemath.org/ticket/24593) enabling live documentation with ThebeLab (Nicolas)
+  Sage package for ThebeLab, fetch ThebeLab locally if needed
+
+### Around Binder
+
+- [Main deployment](http://mybinder.org/)
+- [Alternative deployment on EGI's cloud](https://binderhub-jupyter.fedcloud-tf.fedcloud.eu/)
+
+- [x] Fix the alternative deployement and upgrade its docker (reported by Nicolas; done by Eñol Fernandez)
+
+### Docker image for GAP
+
+- [x] Update the official GAP Docker to 4.9.1 (Sebastian, Alex)
+- [x] Update the GAP Docker Master
+         * (this builds nightly, but we will have to update it following the docker base image update)
+- [x] Testing GAP Docker containers after Sebastian's updates and cleaning up old issues in their repositories (Alex)
+- [ ] Use GAP Docker Master to create a Binder-ready image (Alex, Steve, Sebastian)
+    - [x] Add Jupyter to it
+    - [ ] Add francy to it (Sebastian)
+    - [x] Provide fixed tags
+    - [x] Provide a boiler-plate repo that shows how to use gap-docker-master on binder [gap-system/gap-docker-binder](https://github.com/gap-system/gap-docker-binder) [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/gap-system/gap-docker-binder/master)
+    - [x] Provide a Readme
+
+- [x] Update gap-docker-base, gap-docker, and gap-docker-master to gap-4.9.1 (Sebastian)
+- [x] Included Jupyter Kernel and Jupyter(lab) in gap-docker-master (Sebastian)
+
+### Docker image for SageMath
+
+- [ ] Report [regression when using the new Docker image for SageMath on binder](https://trac.sagemath.org/ticket/24655#comment:225) (Nicolas)
+
+### Refactoring of GAP's REPL (and I/O more generally)
+This is needed, or at least would be helpful to make a number of the other projects easier and/or more robust.
+[Some notes](https://hackmd.io/3v48t_SmSpmOjhiSd8HOAw)
+
+### Jupyter kernel for GAP (Markus, Pedro, ...)
+
+- [x] Multiple Bugfixes on Jupyter Kernel (Markus)
+- [x] Added visjs demo to JupyterKernel repo (Pedro). It as examples to work with graphs either by nodes and edges, or using dot language.
+- [x] Created [FrancyMonoids package](https://gap-packages.github.io/FrancyMonoids) (Manuel, Andrés and Pedro)
+- [x] Working on francy async branch errors (Manuel and Pedro) 
+- [x] Added dot functions to the [NumericalSgps package](https://gap-packages.github.io/numericalsgps) to be used either with `JupyterSplashDot` or with the provided function `DotSplash` (Pedro, Andrés) 
+- [ ] Make syntax errors and warnings show in red (Markus)
+- [ ] Most recent protocol (Markus)
+- [x] Checked that we support latest version of Jupyter protocol (5.3 at the time of writing); We do not implement all features, but we handle the stuff we do support in a 5.3-compliant way.
+- [ ] Fix to GAP's Help to make Jupyter help display work again
+- [ ]  Constructors and some documentation for JupyterRenderables
+- [x] Fix indenting in the syntax highlighting: [gap-packages/JupyterKernel/pull/46](https://github.com/gap-packages/JupyterKernel/pull/46)
+- [ ] Consider viz.js as an alternative to command line `graphviz`: see [`DotSplash`](https://github.com/pedritomelenas/dot-numericalsgps/blob/08edd05783440f7618da57096c622efc9dd4a33d/dot.gi#L23) in dot-numericalsgps repo (Pedro, Manuel) or provide a way to choose engine in `JupyterSplashDot`
+- [ ] Look at [inorder.js](https://github.com/minrk/ipython_extensions/blob/master/nbextensions/inorder.js) and see if we can use it to adress Frank's wishes (Sebastian)
+
+
+- [ ]  Deposit JupyterKernel and Dependencies (uuid, crypting) with GAP for 4.9.2
+    - [x] allow uuid and crypting in package archives for stable-4.9 branch (Alex)
+
+- [ ] Access the local GAP HTML manual from the notebook?
+    In SageMath, a link to the documentation directory has been added in the kernel installation directory:
+    ```
+    ls -l /opt/sage-git2/local/share/jupyter/kernels/sagemath
+    doc -> /opt/sage-git2/local/share/doc/sage/html/en
+    kernel.json
+    ...
+    ```
+    This makes them accessible in the server under `/kernelspecs/sagemath/doc/`.`
+    Upon initializing the kernel, links to the documentation [are inserted(https://github.com/sagemath/sage/blob/854f9764d14236110b8d7f7b35a7d52017e044f8/src/sage/repl/ipython_kernel/kernel.py#L104) to the Jupyter Help menu]. It should be possible to make it accessible upon introspection with `?` from the notebook itself, and so on.
+
+
+### libgap (Markus, Max, Sebastian, Steve Nicolas, ...)
+Goal: push further the integration of GAP's own libgap implementation, and experiment with it from Sage, Julia, ...
+See:
+- [Markus plan](https://hackmd.io/mRAwlBttRqWf8owwHTBgfQ#)
+- the [notes from a recent workshop](https://annuel2.framapad.org/p/opendreamkit-cernay-2019-projects) (section GAP as a library)
+
+- [x] extracted and analyzed the [GAP symbols used by Sage](https://hackmd.io/emNi76svSWCh1fBeLKqPdA#) (Max + Nicolas)
+
+- [ ] try the latest libgap in Sage (Nicolas)
+      get the master branch from GAP, make libgap, make some experiments with Sage
+
+### libsemigroups
+
+
+- [x] Wrote and [published on binder](https://mybinder.org/v2/gh/james-d-mitchell/libsemigroups/binder?filepath=index.ipynb) a sample notebook illustrating the interactive use of libsemigroups with cling (Nicolas)
+- [x] Lots of improvements to libsemigroups (James, ...)
+
+#### Python/Sage bindings(James + Nicolas)
+
+In the Cernay meeting we started exploring the use of cppyy to obtain bindings for libsemigroups. The technology looks very promissing but still on the bleeding edge: it tends to segfault due to bugs in cppyy.
+Bugs analyzed, reduced, and reported upstream:
+- [x] [#24, explicit constructors](https://bitbucket.org/wlav/cppyy/issues/24) fixed (James)
+- [x] [#28, virtual destructor, array refcounting](https://bitbucket.org/wlav/cppyy/issues/28) fixed (Nicolas)
+- [x] [#30, private numbers](https://bitbucket.org/wlav/cppyy/issues/30) fixed (Nicolas)
+
+With the fixes, a non trivial part of libsemigroups works now smoothly:
+- [ ] Basic elements: transformations, ...
+- [ ] Semigroups of elements preexisting types
+- [ ] Semigroups of Python objects
+
+### Notebook collection website for ODK and GAP (Sebastian, Nicolas, ...)
+  Example: [OSCARExamples](https://sebasguts.github.io/OSCARDemo/)
+
+### [FSR package](https://github.com/nzidaric/gap-fsr) (Nusa, Alex)
+- [x] Set up Travis CI and CodeCov integration (Alex)
+- [ ] Make a website using [GitHubPagesForGAP](https://github.com/gap-system/GitHubPagesForGAP)
+- [ ] Make a release using [ReleaseTools](https://github.com/gap-system/ReleaseTools)
+- [ ] Make a beta-release
+
+
+### Experimenting with Azure (Alex)
+- [ ] Try to use GAP in Azure Notebooks (Alex)
+- [ ] Try https://docs.microsoft.com/en-us/azure/container-instances/container-instances-quickstart-portal
+
+### Convert GAPDoc manuals into Jupyter notebooks (Frank, ...)
+
+* How to turn the GAPDoc Books into collection of Notebooks?
+
+### Update GAP Homebrew installer for GAP 4.9.1 (Alex)
+
+## For the GAP developers meeting specifically
+### Discuss GAP release/development cycle 
+- [ ] Should we try and concentrate major disruptive developments and/or minor but wideranging changes (whitespace etc.) in particular parts of the time between major releases? (Steve)
+
+- one result of the discussion was that we want to set a release schedule for GAP 4.10. Here is a suggestion:
+  - 2018-11-01 release of GAP 4.10.1 (first user release)
+  - 2018-10-01 release of GAP 4.10.0
+  - 2018-09-17 prepare changelog (during GAP days)
+  - 2018-09-01 branching of stable-4.10
+
+### OpenDreamKit & Funding
+
+- [x] [Brainstorm discussion on ODK D6.9: persistent memoization library](/1M5clex-TYWCuxxgi05k5A) (Alex, Markus, Nicolas, Steve)
+- [x] [MitM brainstorm](https://hackmd.io/13i3MB8IQse2uY2lcYuHOw#) (Markus, Nicolas)
+- [ ] Brainstorms about future funding opportunities (Nicolas, Pedro, Markus, Max, Alex, ...)
+
+
 
 \subsubsection{KPIs for Aim 2 / adoption of \ODK's technologies}
 
@@ -40,11 +192,47 @@ Qualitative metrics:
 and generally speaking adoption of \ODK's components.
 \item added metrics:
 
+OpenDreamKit bet on Jupyter notebooks: It has paid off!
+Millions of notebooks online (over 3M on GitHub alone)
+June 2018, Jupyter awarded prestigious 2017 ACM Software System Award
+Previous winners include: UNIX, TCP/IP, the Web, TeX, Java, GCC, LLVM
+
+Background: Jupyter notebooks
+Document with code, prose, maths, visualization
+It also has support for rich, interactive UI components:
+Web-based interactive computing environment
+Language-agnostic protocol for computation
+Extensible VRE built around Jupyter
+Notebook Interfaces
+Key areas:
+Improve working in notebooks
+Improve working with notebooks
+
+ A group of mathematical researchers with access to common 
+computational resources, such as a shared lab computer or cloud servers, 
+shall be able to deploy a prototype VRE with JupyterHub, integrating 
+OpenDreamKit components. The Jupyter kernels for mathematical software 
+developed as part of OpenDreamKit make computational mathematical 
+components accessible in a Jupyter environment, enabling a Jupyter-based 
+deployment of the relevant tools for the researchers.
+
   the goal of this issue is to track collaborations with various institutions and projects
   to deploy instances of JupyterHub and CoCalc (formerly SageMathCloud), and collect estimates of
   the difficulties involved in such deployments in various use cases to:
   - help plan future deployments
   - seek what could be done to ease deployment
+  
+Quantitative metrics:
+\begin{description}
+\item List of known \ODK based VRE deployments, as tracked on
+  \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/174}
+\item Number of installs of \ODK's components via platform-specific
+  distribution channels: Debian popcon, Arch statistics, installer
+  downloads, \dots
+%\item[WP3] Decrease in set-up time for dissemination workshops based
+%  on \ODK components. This is hard to measure objectively, better to
+%  gather user stories.
+\end{description}
 
   ## Running:
   - [x] Local CoCalc instance at Universität Zürich.
@@ -94,17 +282,7 @@ and generally speaking adoption of \ODK's components.
       This is superseded by [binder](http://mybinder.org); see above.
 \end{itemize}
 
-Quantitative metrics:
-\begin{description}
-\item List of known \ODK based VRE deployments, as tracked on
-  \url{https://github.com/OpenDreamKit/OpenDreamKit/issues/174}
-\item Number of installs of \ODK's components via platform-specific
-  distribution channels: Debian popcon, Arch statistics, installer
-  downloads, \dots
-%\item[WP3] Decrease in set-up time for dissemination workshops based
-%  on \ODK components. This is hard to measure objectively, better to
-%  gather user stories.
-\end{description}
+
 
 GAP packages code coverage: 69% (4.9) → 75% (4.10).
 Freshness of GAP packages: 50% released in the last year.
@@ -128,6 +306,23 @@ Docker Hub: 4K-10K pulls of ODK images.
 Qualitative metrics: Success stories
 \begin{itemize}
 \item Mike Croucher's talk ``Is your research software correct''
+Best practice and tools for correct and reproducible research]
+  We refer here to the excellent talk
+  \href{https://mikecroucher.github.io/MLPM_talk/}{``Is your research
+    software correct''} by Mike Croucher which highlights crucial best
+  practice whenever software is used in research, including open code
+  and data sharing, automation, use of high level languages, software
+  training, version control, pair programming, literate computing, or
+  testing. A lot of the work in ODK relates to disseminating this set of
+  best practice (\longWPref{dissem}), and enabling it through
+  appropriate technology (\longWPref{UI}).  Just to cite a few
+  examples, \longdelivref{UI}{jupyter-collab}, and
+  \longdelivref{UI}{jupyter-test} enable respectively version control
+  and testing in the \Jupyter literate computing technology, while
+  Mike's talk is and will be delivered in several of ODK's many
+  training events (see \longdelivref{dissem}{workshops-1} for the list
+of training events in year 1).
+
 \item Some research paper that showcases a range of best practices
   supported by ODK work (paper written collaboratively on e.g. github,
   software distributed as e.g. SageMath package, live demo and
@@ -135,35 +330,93 @@ Qualitative metrics: Success stories
 \item ...
 \end{itemize}
 
-OpenDreamKit bet on Jupyter notebooks: It has paid off!
-Millions of notebooks online (over 3M on GitHub alone)
-June 2018, Jupyter awarded prestigious 2017 ACM Software System Award
-Previous winners include: UNIX, TCP/IP, the Web, TeX, Java, GCC, LLVM
+logbooks 
+https://github.com/OpenDreamKit/OpenDreamKit.github.io/blob/651460262b39df9b01f468c2e7561b42e83b5382/_posts/2017-11-02-use-case-publishing-reproducible-notebooks.md
 
-Background: Jupyter notebooks
-Document with code, prose, maths, visualization
-It also has support for rich, interactive UI components:
-Web-based interactive computing environment
-Language-agnostic protocol for computation
-Extensible VRE built around Jupyter
-Notebook Interfaces
-Key areas:
-Improve working in notebooks
-Improve working with notebooks
+
+
+\begin{event}{Sage Days at Icerm}{SDIcerm}{ICERM Providence (United States), Jul. 23 -- 27, 2018}{PS}{78}{2}{https://icerm.brown.edu/topical_workshops/tw18-1-sage/}
+
+\textbf{Main goals.} These Sage Days were focused on Combinatorics and Representation Theory. They were planned one week after the annual gathering of the algebraic combinatorics community at FPSAC 2018 (Hanover, New Hampshire).
+
+\textbf{\ODK implication.} The event was not organized nor funded by \ODK. Nevertheless, it featured two talks by \ODK members (Nicolas Thiéry and Viviane Pons) and \ODK paid the travel expenses of some of the French participants.
+
+\textbf{Event summary.} The event featured many presentations focusing on the link between \Sage development and research. It also allowed for some free coding time and discussions. Nicolas Thiéry and Viviane Pons both gave research presentations including some \Sage demo. It was an occasion to promote the \Sage docker and Jupyter live slides which is one of the use cases presented on \ODK website.
+
+\textbf{Demographic.} Over 18 planed presentations, 9 were given by women.
+
+\textbf{Results and impact.} This event was a good occasion for \ODK to connect the recent developments to the actual community and research. Beside \Sage development, many participants discovered docker during the event and showed lots of interest.
+
+\end{event}
+
+\begin{event}{2018 Leeds: Introduction to reproducible workflows in Python}{leeds_repro_python}{University of Leeds, June 14th 2018}{LEEDS}{20}{1}{http://arc.leeds.ac.uk/training/spc-1-introduction-to-reproducible-workflows-in-python/}
+This is an introductory course to reproducible analysis workflows in Python. It is aimed at people with some experience in Python for data analysis or computational research (e.g. people already developing scripts or using Jupyter notebooks). By the end of the course the attendees will have learnt about best practices for reproducible scientific code development and should be able to implement these techniques to their day to day workflows.
+Materials at \url{https://github.com/trallard/ReproduciblePython}
+\textbf{Results and impact.} Around 20 researchers received training.
+
+begin{event}{JupyterHub and Binder coding sprint}{JupyterHub}{Université Paris Sud, March 7-8}{PS,SR,LL}{8}{4}{https://pad.unistra.fr/p/jupyterhub-dev}
+
+  \textbf{Main goals.} This event was organized as a satellite of a
+  Jupyter dissemination conference at École Polytechnique. It brought
+  together developers of the Virtual Environments JupyterHub and
+  BinderHub and DevOps working on deployments in Orsay and at EGI for
+  a coding sprint. The goal was to improve those deployments, as a use
+  case from which to learn and share procedures and best practices.
+
+  \textbf{ODK implication.} Organization and funding of ODK participants; $\approx$ 1k\euro.
+
+  \textbf{Results and impact.} Turnkey deployment instructions already
+  existed for deploying JupyterHub and BinderHub on top of cloud
+  infrastructure provided by e.g. Google Cloud, or Microsoft Azure.
+  This workshop was a major step for the first deployment of a
+  JupyterHub and BinderHub instance on top of an OpenStack cloud
+  infrastructure. This is important as OpenStack is widely adopted in
+  academia-run cloud infrastructures, yet raises some unique
+  challenges due to its high customizability. Many notes were taken
+  and shared. In addition a blog post summarized a brainstorm on the
+  upcoming convergence between JupyterHub and BindherHub, toward
+  providing versatile JupyterHub deployments that lets its user
+  define, run, and share virtual environments equipped with an
+  arbitrary software stack.
+
+  \url{https://opendreamkit.org/2018/03/15/jupyterhub-binder-convergence/}
+\end{event}
+
+\begin{event}{Second CoDiMa Training School in Computational Discrete Mathematics}{codima2016}{ICMS, Edinburgh, Oct. 17 -- 21, 2017}{SA,USH,UW,PS}{38}{6}{https://www.codima.ac.uk/school2016/}
+
+\textbf{Main goals.} This training school was organised for PhD students and researchers from
+UK institutions interested in using computational techniques in the area of discrete mathematics.
+The aim was to give an introduction into open source mathematical software packages in this area,
+at the same time equipping attendees with modern skills that they need for using and developing
+research software, and promoting best open science practices.
+
+https://github.com/OpenDreamKit/OpenDreamKit/blob/0789ae1e5a074fafad3e2f9c54f387a6ee3a2613/WP2/D2.11/events/2016-10-CoDiMa-training.tex
+
 
 Quantitative metrics:
 \begin{itemize}
 \item Number of PyPI hosted packages for \Sage, and similarly for
   other components.
+  https://github.com/OpenDreamKit/OpenDreamKit/blob/88ee2544e31e661c4eac7f39fa7333f24b62ab2a/WP3/D3.3/report.tex
+  
 \item Number of additional systems made interoperable with the
   Math-in-the-Middle architecture, on top of the three for the Month
   36 prototype
-  % Michael: I am expecting about 2 (OEIS and Findstat) any more than that would be a success.
+  % Michael: I am expecting about 2 (OEIS and Findstat) any more than that would be a success.conv: {dissem: PU, due: '24', issue: '138', label: D6.4, lead: ZH, nature: DEC,
+page: '54', short: 'Conversion of existing and new Databases (  LMFDB, OEIS,   FindStat) to unified interoperable System', status: canceled, title: 'Conversion of existing and new Databases (  LMFDB, OEIS,   FindStat ) to unified interoperable System'}
+
+
 
 \item Some metrics on the scale of the Math-in-the-Middle architecture; e.g. number of API CDs generated and number of
 alignments (very technical).
 \item More metrics required.
 \end{itemize}
+
+https://github.com/OpenDreamKit/OpenDreamKit.github.io/blob/333b21524f753dd49e441b4b1157ded68999eeff/meetings/2018-02-01-SteeringCommitteeMeeting/ProgressReports/Zurich.md
+
+
+
+
 
 KPIs and Deliverables for WP6
 MitM-connected Systems: four (GAP, Sage, LMFDB, Singular)(See D6.5)
@@ -346,3 +599,33 @@ beginning of \ODK, as part of our dissemination reports
 
 
 https://github.com/OpenDreamKit/OpenDreamKit.github.io/blob/master/meetings/2018-10-28-Luxembourg/ProjectReview/WP2.md
+
+
+
+
+\begin{event}{Bioinformatics Awareness Days}{SHF_BAD}{University of Sheffield, November 2017 }{USH}{30}{2}{https://bitsandchips.me/BAD_days/}
+
+\textbf{Main goals.} The ecosystem of tools supported by the OpenDreamKit project are suitable for a wide range of scientific disciplines. The development of this workshop, in collaboration with a bioinformatics practitioner, was an experiment in how to apply \ODK supported technologies to the field of Bioinformatics.
+
+\textbf{\ODK implication.} Workshop materials were developed by Tania Allard in collaboration with Statistician and Bioinformatics researcher, Dr Luisa Cutillo.  The materials were released online at \url{https://github.com/trallard/BAD_days}. The workshop was delivered by Dr Cutillo with support from Tania Allard.
+
+\textbf{Event summary.} A group of researchers based within the Sheffield Institute for Translational Neuroscience (SITRAN, \url{http://sitran.org/}) were taught about Bioinformatics workflows using Jupyter notebooks with computation provided by the free Micosost Azure Notebook service.
+
+\textbf{Results and impact.} The event demonstrated that \ODK supported technologies could be applied to the field of Bioinformatics and led to a new collaboration between Dr Cutillo and \ODK member Mike Croucher.
+
+Following the success of this workshop, Dr Cutillo independently taught an introductory workshop on statistics using Jupyter notebooks on Azure at Parthenope University of Naples (Materials at \url{https://github.com/luisacutillo78/RbasicStats})
+
+Dr Cutillo has since moved to University of Leeds where she will be teaching statistics to 200+ undergraduates. She plans to use \ODK developed technologies in collaboration with the Research Software Engineering group at Leeds.
+
+The event required the development of a website that was linked to the Jupyter notebooks (\url{https://bitsandchips.me/BAD_days/}). The website caught the attention of Eleni Vasilaki, Head of Machine Learning at University of Sheffield who wanted to do something similar for her course on Adaptive Intelligence. We supported her in this endeavour and the result is at (\url{http://bitsandchips.me/COM3240_Adaptive_Intelligence/}).
+
+In order to better support this, \ODK member Tania Allard, developed a Jekyll template for use by academics and researchers using Jupyter notebooks for course materials and dissemination. Such a template allows the creation of Jupyter notebooks based websites using Jekyll, which is the default static website framework supported by GitHub. It also allows for easy display of notebooks connected to cloud computing resources such as Microsoft Azure Notebooks (D2.17, T2.6).
+
+This led to the development of a Python package: nbjekyll (\url{https://github.com/trallard/nbjekyll}) that complements the Jekyll template. This package converts Jupyter notebooks into .md files that can be readily usable by Jekyll (this uses nbformat for the conversion). It also uses \ODK-developed nbval to perform notebook validation and add custom headers indicating the last update date, version and test status of the notebook.
+
+As well as being used internally at Sheffield, The nbjekyll package received some attention on twitter \url{https://twitter.com/jdblischak/status/1009800776305332224} and \url{https://twitter.com/walkingrandomly/status/1009414151716909057} receiving a total of 42 retweets and 80 'likes'
+
+\end{event}
+
+https://github.com/OpenDreamKit/OpenDreamKit/blob/88ee2544e31e661c4eac7f39fa7333f24b62ab2a/WP4/D4.8/report.tex
+
