@@ -2,8 +2,8 @@ For Jane's use case from the deliverable we need the following symbols/objects
 1) polynomial ring over Z in 4 variables
 2) concrete polynomials using integer coefficients
 3) group D_4 (which is a subset of S_4)
-4) the action induced by a group G <= S_n and a list of n variables [*]
-5) orbit(R,A,p) (which is a subset of R) of a polynomial p in a polynomial ring R where A is an action on the variables of R
+4) the action A(G) induced by a group G <= S_n and a list of n variables [*]
+5) orbit(R,A(G),p) (which is a subset of R) of a polynomial p in a polynomial ring R where A is an action on the variables of R
 6) generated ideal of a subset of a ring
 7) Groebner base of an ideal
 
@@ -15,3 +15,14 @@ Sage: (1), (2)
 Also in all 3 systems, we need alignments for finite sets (e.g., via lists) so that we can represent orbits and Groebner bases as sets of polynomials.
 
 [*] This could be defined anonymously. But it's easier not to convert lambdas. So we should assume systems have names for these.
+
+
+MitM:
+
+R = PolyRing(Z,"x1","x2","x3","x4")
+p = Polynomial(R, some_coefficients)              # TODO: specify MitM schema of coefficients
+O = Gap(Orbit(D_8, R, p, OnIndeterminates))       # TODO: what constructor does GAP use for set/list/generated-ideal of some polynomials
+                                                  # Question: Is this already an ideal, or do we need a special constructor I(R,set-of-polys) for that?
+												  #           Technically, an ideal needs to know its ring
+                                                  # Question: Should it be OnIndeterminate(D_8)
+G = Singular(Groebner(O))                         # Note: Singular treats this as Ideal(set-of-polys) mapsto Ideal(set-of-polys)
