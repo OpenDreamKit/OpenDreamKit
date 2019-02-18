@@ -35,8 +35,8 @@ ssh-add src/travis/keys/deploy_key
 echo "Done. "
 
 echo "Configuring Git ..."
-git config --global user.email "tkw1536@users.noreply.github.com"
-git config --global user.name "Tom Wiesing (via Travis)"
+git config --global user.email "${COMMIT_AUTHOR_EMAIL}"
+git config --global user.name "KWARC Bot"
 echo "Done. "
 
 echo "Cleaning previous builds ..."
