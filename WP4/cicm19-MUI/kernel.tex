@@ -75,6 +75,8 @@ That way, the core kernel functionality can be reused easily in other frontends 
 
 \subsection{Implementation}\label{sec:kernel:impl}
 
+\ednote{FR: this can be shortened if needed}
+
 \paragraph{Overview}
 Generally, Jupyter emphasizes protocols that specify the communication between frontend (i.e., usually Jupyter notebooks) and backend (i.e., kernels implemented in various programming languages).
 This requires a certain duplication of implementation and, critically, maintenance, e.g., when implementing xeus, xwidgets and similar libraries for C++.
@@ -103,6 +105,32 @@ That means that some Scala-specific constructs are not readily exposed to Python
 For example, both Python and Scala allow magic methods for treating any object as a function, but the JVM does not; moreover, the magic method is called \texttt{\_\_call\_\_} in Python and \texttt{apply} in Scala.
 Similarly, Scala collections like lists are not automatically seen as their counterparts in Python.
 Therefore, we wrote a Python module (which is distributed with MMT\footnote{This is currently at \url{https://github.com/UniFormal/MMT/blob/devel/src/python-mmt/example/mmt.py} but may be moved in the future.}) that performs the bureaucracy of matching up advanced Python and Scala features.
+
+\subsection{Converting between Jupyter Notebooks and MMT Documents}
+
+\ednote{FR: I've added this section}
+
+To integrate Jupyter notebooks and MMT documents, we make use of two fortunate design properties:
+
+Firstly, the storage format for Jupyter notebook, while not human-readable, is easy to reverse-engineer.
+Thus, we were able to implement an API for Jupyter notebooks that allows us to extract the MMT content of a notebook or to generate a notebook prefilled with some MMT content.
+
+Secondly, MMT abstracts from the file formats used to define content --- it maintains a cross-format knowledge space that accepts content in any format that can be converted into OMDoc.
+Special cases include files written in MMT's native surface syntax, sTeX, or any of the existing importers for proof assistant libraries.
+We used the above converter Notebook-OMDoc converter to inject Jupyter Notebooks into this shared knowledge space.
+
+Critically, all formats in this cross-format knowledge space can interact with each other.
+MMT's native surface already retrieves all its dependencies from the OMDoc files anyway --- it does not even notice which format they were originally written in.
+
+Thus, we can support the following workflows:
+\begin{compactenum}
+ \item MMT content is written in any format and available as OMDoc.
+ \item A new interactive Notebook is written, using some of that content.
+ \item The Notebook is stored as a file and MMT extracts the relevant content as OMDoc.
+ \item Any other MMT document (including other Notebooks) can now use this content.
+\end{compactenum}
+
+\ednote{@TW,KA: add examples for this workflow; this overlaps with later examples, so some later examples may be pulled forward}
 
 
 \subsection{Graphical User Interfaces via Jupyter Widgets}\label{sec:kernel:widgets}
