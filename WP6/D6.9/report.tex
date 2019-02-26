@@ -80,15 +80,18 @@ progress, in the form of GAP's \texttt{Memoisation} package, which aims to have
 the same features as \pypersist{}, and to be as compatible as possible with it.
 
 In this report, we will present a review of some existing tools for memoisation
-(Chapter \ref{sec:existing}), describe the new Python library \pypersist{}
-(Chapter \ref{sec:pypersist}), and give an overview of the future direction of
-this project (Chapter \ref{sec:future}).
+(Section \ref{sec:existing}), describe the new Python library \pypersist{}
+(Section \ref{sec:pypersist}), and give an overview of the future direction of
+this project (Section \ref{sec:future}).
 
 \section{Existing tools}
 \label{sec:existing}
 
 In this section we will consider some tools that already exist for memoisation,
-with a focus on Python and Sage tools that can be compared to \pypersist{}.
+with a focus on Python and Sage tools.  Some of the tools we discuss are only
+intended for a subset of the complete memoisation process, while others are more
+full-featured but lack some important desirable features.  A comparison of these
+tools is shown in Table \ref{tab:comparison-of-tools}.
 
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
@@ -120,6 +123,56 @@ with a focus on Python and Sage tools that can be compared to \pypersist{}.
   \caption{Comparison of memoisation tools}
   \label{tab:comparison-of-tools}
 \end{table}
+
+First, we should consider the existing persistence tools built into GAP and
+Sage.  GAP functions can be installed as methods for an object's
+\emph{operations} and \emph{attributes}, and if they are, their results are
+stored for the duration of the current GAP session.  However, these results are
+never saved to disk unless the session itself is stored, and the option is only
+available for methods of an object.
+
+There exists in Sage a simple function decorator, \texttt{func\_persist}, which
+can be applied to a function to save its output to disk.  This is a working
+memoisation tool, and even this functionality has great practical use, but the
+tool has very little configurability: the only option that can be given is to
+specify the directory in which results are stored.  Sage also contains two more
+configurable tools for memoising functions and methods, respectively named
+\texttt{cached\_function} and \texttt{cached\_method}.  These allow a function
+or method to be memoised with a custom key-generating function, meaning that
+arguments can be pre-processed in an intelligent way, perhaps to sort arguments,
+or discard arguments that do not affect the return value of a function.
+
+These three decorators are useful, but limited.  Not only do they lack certain
+options such as database caching and custom output pickling, but they rely on
+other parts of the Sage system, and therefore cannot be used more broadly in
+generic Python programs.  Python memoisation tools exist outside Sage that can
+in principle be applied to Sage.
+
+Many memoisation tools are available on PyPI, each with a slightly different
+philosophy and set of features.  Table \ref{tab:comparison-of-tools} summarises
+four examples of these, indicating each one's features and status:
+\texttt{persist} and \texttt{redis-simple-cache} have not been updated in
+several years, while \texttt{PyMemoize} lacks even the custom key function
+provided by the Sage tools.
+
+Perhaps the most promising of the existing tools is \texttt{dogpile.cache}, an
+API for caching function outputs to a variety of backends; this is a
+well-established, full-featured system, but it lacks certain features such as
+custom result pickling -- particularly useful to mathematicians who may want to
+store output using OpenMath, or in some human-readable form for sharing.
+
+There would be an argument for modifying and improving \texttt{dogpile.cache} to
+add these features, rather than creating a new tool.  However, given the wide
+scope of the \texttt{dogpile} project, which is largely focused on thread
+management, it was decided to proceed with a new tool that could be adapted more
+easily to suit the specific requirements of the project, such as bespoke support
+for Sage-specific objects, and compatibility with the GAP memoisation package
+which would be developed in parallel.
+
+To fulfill these requirements, the \pypersist{} package was created.  It runs in
+Python version 2 and 3, and it contains all the features mentioned in Table
+\ref{tab:comparison-of-tools}.  More information about \pypersist{} is given in
+Section \ref{sec:pypersist}.
 
 \section{pypersist}
 \label{sec:pypersist}
