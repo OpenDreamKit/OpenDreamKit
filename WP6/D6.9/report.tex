@@ -124,6 +124,7 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
   \label{tab:comparison-of-tools}
 \end{table}
 
+\subsection{GAP}
 First, we should consider the existing persistence tools built into GAP and
 Sage.  GAP functions can be installed as methods for an object's
 \emph{operations} and \emph{attributes}, and if they are, their results are
@@ -131,6 +132,7 @@ stored for the duration of the current GAP session.  However, these results are
 never saved to disk unless the session itself is stored, and the option is only
 available for methods of an object.
 
+\subsection{Sage}
 There exists in Sage a simple function decorator, \texttt{func\_persist}, which
 can be applied to a function to save its output to disk.  This is a working
 memoisation tool, and even this functionality has great practical use, but the
@@ -148,6 +150,7 @@ other parts of the Sage system, and therefore cannot be used more broadly in
 generic Python programs.  Python memoisation tools exist outside Sage that can
 in principle be applied to Sage.
 
+\subsection{Python}
 Many memoisation tools are available on PyPI, each with a slightly different
 philosophy and set of features.  Table \ref{tab:comparison-of-tools} summarises
 four examples of these, indicating each one's features and status:
@@ -388,9 +391,70 @@ project's readme, and therefore also on the first page of its manual.
 \section{Future direction}
 \label{sec:future}
 
-% future features in pypersist
-% integrate into Sage, replacing other things?
-% GAP version that works with it.  Mention current prototype.
+Although \pypersist{} now has many features and is well-tested, it is still in
+development.  It is hoped that as more developers begin to use it, they will
+provide feedback that will inform the development further, whether by revealing
+bugs, or by requesting new features.  There are already several features that
+are planned, and work will continue on this project as time goes on.  In this
+section we describe some aims for the future direction of Task 6.9, in
+\pypersist{} and beyond.
+
+\subsection{Features}
+
+\paragraph{CouchDB}
+Support currently exists in \pypersist{} for a MongoDB database backend.  This
+works well, but there are certain features offered by the CouchDB system that
+might also be useful.  CouchDB emphasises ease of setup, and allows information
+to be added and retrieved from the database via HTTP, with a human-readable
+web-based front-end that would allow human-readable results to be shared
+instantly on computation via a website.  It is likely that implementing this
+would require little deviation from the existing code for MongoDB.
+
+\paragraph{Better metadata}
+\pypersist{} has the capacity to store metadata, which may be useful for storing
+information about where and when a result was originally computed.  However, no
+metadata is stored by default, and metadata is not validated in any way when a
+result is loaded from the cache.  Some decision should be made on what metadata
+should always be stored, and functionality should be added that allows this
+metadata to be used where relevant, for example by allowing a cache to be
+filtered by date or user.
+
+\paragraph{Verbosity}
+Results in \pypersist{} are stored and retrieved silently, and users are not
+made aware of its existence in any way except when errors are raised (for
+example due to a hash collision or HTTP error).  It may be useful at times to
+display messages to the screen showing the progress of memoisation, so that
+interested users have a record of exactly what is being written and read at what
+time and in what location.  Different levels of verbosity showing different
+levels of information may be useful.
+
+\paragraph{GAP version}
+Though Deliverable 6.9 only requires a ``shared persistent memoisation library
+for Python/Sage'', Task 6.9 also discusses a GAP version of this library.  GAP
+would benefit from all the features included in \pypersist{}, and a GAP version
+of this library would also be able to interface with the same cache as the
+Python version in certain circumstances, allowing results to be shared across
+different computer algebra systems as well as across different sessions.  A
+prototype of this already exists in the form of GAP's \texttt{Memoisation}
+package, which was developed in parallel with \pypersist{}.  However, this
+prototype is not yet stable or full-featured, and should be developed into a
+tool comparable to the Python version.
+
+\paragraph{Sage integration}
+As shown in Table \ref{tab:comparison-of-tools}, there exist three different
+tools already in Sage for memoising data.  Now that \pypersist{} has overtaken
+them in terms of features, it is possible that it could replace those tools
+entirely.  With careful integration and testing to ensure that there were no
+regressions, \pypersist{} could be imported and used instead of those tools,
+possibly with the addition of some Sage-specific options that would allow it to
+be used as effectively as possible.  However, \pypersist{} should remain a
+generic Python package that can be used outside as well as inside Sage.
+
+\subsection{Reporting}
+It is planned that \pypersist{} version 1.0 will be released by the end of the
+OpenDreamKit project.  The work done in preparation for that release, including
+the features mentioned above, may be summarised in a later report that would act
+as an addendum to this document.
 
 \end{document}
 
