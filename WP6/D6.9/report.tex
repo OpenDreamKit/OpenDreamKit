@@ -177,14 +177,112 @@ Section \ref{sec:pypersist}.
 \section{pypersist}
 \label{sec:pypersist}
 
-% all its features
-% documentation
-% pypi distribution
-% python 2 and 3
-% good practice checklist:
+\pypersist{} is a package for Python 2 and 3, created specifically to address
+the requirements of this deliverable.  It has all the features considered in
+Table \ref{tab:comparison-of-tools}, having been designed with these features in
+mind.
 
-\paragraph{Software engineering}
-Use of
+\subsection{Features}
+\label{sec:features}
+
+We now summarise some of the features of \pypersist{}.  The detailed workings of
+the package are outside the scope of this report, but full documentation is
+available at \url{https://pypersist.readthedocs.io}, and an extensive annotated
+demonstration of the package's features is given in an interactive notebook
+hosted on Binder at
+\url{https://mybinder.org/v2/gh/mtorpey/pypersist/master?filepath=binder/demo.ipynb}.
+
+\paragraph{Decorator}
+In order to use all the features of the package, the \texttt{persist} decorator
+is the only thing that needs to be imported.  After this, a function can be
+memoised by simply adding \texttt{@persist} above it.  This minimal setup
+produces memoisation with safe defaults, and allows users to exploit the package
+with no additional knowledge of its features.  However, using
+\texttt{@persist(...)} allows further customisation via arguments.
+
+\paragraph{Configurable cache location}
+By default, results are saved to the \texttt{persist/<funcname>} subdirectory of
+the current working directory.  However, by providing a string as the
+\texttt{cache} argument of \texttt{persist}, this location can be changed.
+
+\paragraph{Configurable function name}
+In order to avoid confusion between two different functions with the same name,
+a \texttt{funcname} argument can be supplied to \texttt{@persist}, which should
+be a string that uniquely identifies the function.  This string could include a
+version number, author name, or anything else required to ensure uniqueness.
+
+\paragraph{MongoDB cache}
+Support is provided for caching results in a MongoDB database, via the REST
+interface provided by Python's \texttt{Eve} package.  If a \texttt{cache}
+argument is provided which starts with \texttt{mongodb://}, then it is
+interpreted as the address of a MongoDB server which can send and receive
+results for the function, and that server will be used instead of saving results
+locally.  Such a server can be set up using the \texttt{mongodb\_server/run.py}
+script distributed with \pypersist{}.
+
+\paragraph{Custom key function}
+Each entry in a function's cache is stored using a unique key based on the
+arguments supplied to the function; two sets of arguments should have the same
+key only if they produce the same output.  By default, we use a tuple of the
+arguments, with their names, sorted alphabetically, and with any default
+arguments removed.  This allows for equivalent calls such as \texttt{foo(x=3,
+  y=5)} and \texttt{foo(y=5, x=3)} to be treated equally.  However, the
+decorator takes an optional \texttt{key} argument, which should be a function
+that takes a list of arguments and produces a key based on them.  A developer
+could thus choose to ignore arguments that control, for example, verbosity, or
+other options that do not affect the function's return value.
+
+\paragraph{Custom hashing}
+When a result is stored in the cache, it is stored using a hash of its key.
+This allows a record to be looked up quickly, and perhaps removes the necessity
+of storing the keys at all.  By default, a key is hashed using its SHA-256
+encoding, which makes it extremely unlikely that a hash collision will ever be
+encountered.  However, a custom hash function can be specified using a
+\texttt{hash} argument to the decorator, and in this case it will be used to
+produce a hash instead of the default method.  If an injective hash function is
+chosen, then its inverse can be specified using the \texttt{unhash} argument;
+this allows hashes to be double-checked, and a list of previously-encountered
+keys to be produced.
+
+\paragraph{Storing keys}
+By default, a key is not stored after it has been hashed, and correctness is
+assumed due to the vanishingly small probability of an SHA-256 hash collision.
+However, for complete correctness, the decorator takes an argument
+\texttt{storekey} which, if set to true, stores keys along with results, and
+checks them when looking up results, raising an error if a hash collision is
+detected.  This also allows a user to iterate over the stored keys of a cache,
+as mentioned below.
+
+\paragraph{Custom pickling}
+In order to store an object in a cache, it needs to be preserved on disk or in a
+database.  For this purpose, we require sometimes complex objects to be
+\textit{pickled} and \textit{unpickled} -- that is, converted to a string for
+storing, and converted back when retrieved later.  The default methods use
+Python's \texttt{pickle} module and a base 64 encoding to produce strings that
+can be written without invisible or difficult-to-display characters.  However,
+like much of \texttt{pypersist}'s functionality, custom \texttt{pickle} and
+\texttt{unpickle} functions can be specified that do this a different way.  This
+can allow results to be stored in a human-readable way which can then be used
+outside Python, or even to be stored using a format such as OpenMath for use in
+a completely different computer system.
+
+\paragraph{Manual cache interaction}
+It may be necessary at some time to modify a memoisation cache manually --
+perhaps to remove an inaccurate result, or to add a result that was found before
+the cache was created.  This can be done directly in Python -- a memoised
+function \texttt{foo} has an attribute \texttt{foo.cache} which can be used much
+like a dictionary, reading, setting and deleting entries as desired.
+Furthermore, if \texttt{storekey} is set to true, or if an \texttt{unhash}
+method is provided, \texttt{foo.cache} is an iterable object with attributes
+\texttt{keys}, \texttt{values} and \texttt{items} that can be used in loops.
+
+\subsection{Software engineering}
+\texttt{pypersist} was written using modern open-source software technologies
+and practices, with an emphasis on clarity of understanding and ease of use.
+The report on OpenDreamKit D1.5 contains, in Section 4.3.2.1, a checklist of
+software engineering best practices.  The package fulfills all the requirements
+in that list, as summarised in Table \ref{tab:pypersist-se-check}.
+
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
   \begin{tabular}{|p{5.1cm}|c|p{9.5cm}|}\hline
@@ -195,11 +293,24 @@ Use of
     Automatic building of releases & \checkmark & PyPI release script \\ \hline
   \end{tabular}
   \vspace{0pt}
-  \caption{Software engineering checklist for \pypersist{}}
+  \caption{Software engineering good practice checklist for \pypersist{}}
   \label{tab:pypersist-se-check}
 \end{table}
 
-\paragraph{Dissemination}
+The project was developed from the beginning using Git, and the full history is
+available in the repository.  A test suite using \textit{pytest} is included in
+the repository, and is run by Travis every time a commit or pull request is
+added on Github.  The comprehensiveness of this suite is measured by
+\textit{codecov}, and covers 98\% of the code in the package, with the only
+untested lines being those that handle difficult-to-produce HTTP errors.  The
+package is built for PyPI using Python's well-established \texttt{setuptools}
+module, and several such releases have already been made.
+
+\subsection{Dissemination}
+The report on OpenDreamKit D1.5 also contains, in Section 4.3.2.2, a checklist
+of best practices for dissemination.  The package also fulfills all of these
+requirements, as summarised in Table \ref{tab:pypersist-diss-check}.
+
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
   \begin{tabular}{|p{5.1cm}|c|p{9.5cm}|}\hline
@@ -219,18 +330,60 @@ Use of
     Engaging users & \checkmark & \\ \hline
   \end{tabular}
   \vspace{0pt}
-  \caption{Dissemination checklist for \pypersist{}}
+  \caption{Dissemination good practice checklist for \pypersist{}}
   \label{tab:pypersist-diss-check}
 \end{table}
 
-\paragraph{Pathways to impact}
-\begin{itemize}
-\item[{$\square$}] Does the software address the needs of the users?
-\item[{$\square$}] Workshops to gather feedback
-\end{itemize}
+Development of \pypersist{} was open from the start, available publicly on
+Github, including its full commit history.  The issue tracker on its Github page
+has been used to track upcoming new features, as well as bugs and other
+problems.  All documentation, tools, and setup are included directly in the Git
+repository, so that everything is kept in one place and can be tracked as a
+single unit.
 
-% things not fulfilled from checklist
-% deviations from original specification: why we don't use other technologies
+The package's documentation is mostly generated directly from the docstrings in
+its source files.  This means that code is documented where it is written,
+making the code easier to understand and avoiding the need to duplicate
+documentation with extra comments.  Numpy-style docstrings are used throughout
+-- this widely used standard was chosen for its minimal syntax, which allows the
+strings to be easily read and understood in plaintext without any processing or
+compilation.  A readme is included, written in Markdown, with a simple
+two-sentence introduction, guide to installation, and small number of examples
+showing how to get started.  Autodoc and Sphinx are used to convert the
+docstrings and the readme, with very little additional documentation required,
+into a legible manual, which is hosted on \textit{ReadTheDocs} and linked from
+the readme itself.  This manual is updated automatically on each push to the
+repository.  In this way, the documentation is accessible, clear, and
+maintainable.
+
+The minimal examples in the readme are supplemented by a Jupyter notebook which
+is also included with the project.  This notebook imports \pypersist{} and
+demonstrates every feature available, with annotations explaining each example.
+The notebook can be loaded locally by anyone with a Jupyter installation, but
+for better accessibility it is also hosted on Binder, with its address linked at
+the bottom of the readme, as well as in a badge at the top.  This demo loads the
+most recent version of \pypersist{}, and therefore also acts as an additional
+test suite, since it requires the package to be in a working state in order to
+demonstrate its features.  The outputs of the executable cells are not saved
+into the notebook -- instead it is left to readers to execute the cells
+themselves, producing an interactivity which may encourage the reader to
+experiment, and may lead to a better understanding of how the package works.
+This notebook was demonstrated at the \emph{Free Computational Mathematics}
+conference held in CIRM, Luminy, France, in February 2019, prompting a
+discussion and feedback from users.
+
+In order for \pypersist{} to be used, it must be easy to install.  The package
+is hosted on PyPI at \url{https://pypi.org/project/pypersist}, making
+installation as simple as typing \texttt{pip install pypersist} for any user
+connected to the internet.  This installation method is explained in the
+project's readme, and therefore also on the first page of its manual.
+
+% 3rd checklist: perhaps doesn't add anything to include?
+% \subsection{Pathways to impact}
+% \begin{itemize}
+% \item[{$\square$}] Does the software address the needs of the users?
+% \item[{$\square$}] Workshops to gather feedback
+% \end{itemize}
 
 \section{Future direction}
 \label{sec:future}
