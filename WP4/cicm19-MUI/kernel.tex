@@ -163,7 +163,7 @@ This code uses Py4J to expose the widget-management functionality of the top lay
 This is done via a class of callback functions $C$ that are passed along when the former calls the latter.
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=12cm]{../D4.11/ArchitectureDiagram}
+  \includegraphics[width=12cm]{figures/ArchitectureDiagram}
   \caption{
     Architecture diagram.
     Steps that simply forward data from one layer to the next are not shown explicitly. 
@@ -187,25 +187,32 @@ Thus, a user interaction triggers an MMT callback in the Python top layer, which
 Our design makes it very easy to build and deploy simple GUI applications for MMT --- we still have the full power of Jupyter widgets at our fingertips.
 
 \paragraph*{Example: In-Document Computation}
-\ednote{TW: Need to still update this}
-We present a simple example of a GUI application for in-document computation.
-It is triggered by the special command \texttt{active computation} and builds a GUI consisting of a few standard Jupyter widgets: a label, a button (labeled \textit{compute}), three text input fields, and one button widget.
-A concrete example can be seen in Figure~\ref{fig:ac}.
-This shows a notebook in which our application is returned as the response to cell \texttt{In[1]}.
 
+We present a simple example of a GUI application for in-document computation.
+It can be seen in Figure~\ref{fig:ac}.
+This shows a notebook in which our widget is active. 
+
+This notebook first defines a new theory (in \texttt{In[1]}), called AdditionExample.
+This theory makes use of the MMT implementation of real number arithmetics.  
+
+The widget is then triggered in \texttt{In[2]} by the special command \texttt{active computation}. 
+The active computation widget takes two parameters, a list of variables (here $a$ and $b$) and a term (here $a + b$). 
+It then builds a GUI consisting of a few standard Jupyter widgets: a few labels, a few input fields, and a button (labeled \textit{simplify}). 
+
+In particular, it builds one input field for each variable, allowing the user to enter terms for each of the variables. 
+In this case, the user has already entered some terms, $1.2$ for $a$ and $2.3$ for $b$. 
+Upon clicking the \texttt{Simplify} button these terms are then sent to the MMT backend, which in turn substitutes them into the original term $a + b$. 
+The result (in this case $1.2 + 2.3$) is then simplified by the MMT kernel, resulting in the final result of $3.5$\footnote{In MMT computation is modelled using term simplification. }\ednote{We refer the interested reader to CITATION for a more detailed description} . 
+
+The implementation of this widget makes use of several callbacks between the Python and Scala side. 
+In particular, the callback that occurs when the user clicks the \texttt{Simplify} button, is defined within Scala code, but triggered from python code. 
+Similarly updating the result value within the widget is triggered from Scala code, but implemented in Python. 
+No additional work is needed to implement the synchronization between the Python top layer and the HTML frontend as this is a standard feature of Jupyter widgets.
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=15cm]{../D4.11/activecomp}
+  \includegraphics[width=15cm]{screenshots/activecomp}
   \caption{Active Computation in Jupyter Notebooks via Jupyter/MMT Widgets}\label{fig:ac}
 \end{figure}
-\ednote{TW: New screenshot}
-
-\ednote{TW: Generalize}
-The three text input fields contain values linked by an equation, in this case $E=mc^2$.
-The user can edit these fields and press the button to compute the other values.
-In that case, a the button carries the callback $D$, which results in a call to our application on the Scala side.
-It uses MMT to perform the computation and then calls the $C$ callbacks to update the values in the widgets.
-No additional work is needed to implement the synchronization between the Python top layer and the HTML frontend as this is a standard feature of Jupyter widgets.
 
 %%% Local Variables:
 %%% mode: latex
