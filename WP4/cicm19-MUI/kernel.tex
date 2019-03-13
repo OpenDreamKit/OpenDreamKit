@@ -1,13 +1,13 @@
 \ednote{TW@MK: Is this the right place for a Jupyter intro; or should this be moved to the introduction?}
-Jupyter works similar in a REPL-like fashion, we give a brief introduction here for a more detailed description we refer the interested reader to \ednote{Citation}. 
-Notebooks consist of a set of so-called cells. 
-Each cell either contains either rich text, or code that can be evaluated. 
+Jupyter works in a REPL-like fashion, we give a brief introduction here for a more detailed description we refer the interested reader to \ednote{Citation}. 
+Notebooks consist of a set of cells; each of which contains either rich text or code that can be evaluated. 
 The Jupyter user interface is implemented using TypeScript in the browser, the backend is implemented in Python and delegates the programming-language specific features to so-called kernels via a networking protocol. 
-Each kernel works exactly like a REPL, that is they receive the user input in the code cells and produce output that should be presented to the user. 
-Additionally, kernels can implement custom interactions using widgets, custom user interface components that communicate directly with the kernel.  
+Each kernel works exactly like a REPL, that is to say they receive the user input of the code cells and produce output that should be presented to the user. 
+Additionally, kernels can implement custom interactions using widgets, consisting of re-usable user interface components that communicate directly with the kernel.  
 Kernels for a specific programming language are typically implemented in that programming language, to ease implementation and make use of existing tool support. 
 
-We designed and implemented a Jupyter kernel for MMT.
+We designed and implemented a Jupyter kernel for MMT. 
+The source code is available at \url{https://github.com/UniFormal/mmt_jupyter_kernel}. 
 We describe its interface in Section~\ref{sec:kernel:syntax}, the implementation in Section~\ref{sec:kernel:impl} and our conversion between MMT datastructures and notebook in Section~\ref{sec:kernel:mapping}.
 In Section~\ref{sec:kernel:widgets}, we describe and discuss our implementation of widgets within our kernel. 
 
@@ -86,7 +86,6 @@ The kernel returns the following kinds of return messages:
 \item \textbf{New-element messages} return the declaration that was added by a write-command.
 \item \textbf{Existing-element messages} return the declaration that was retrieved by a \texttt{get} command.
 \end{itemize}
-\ednote{TW: This should be implemeneted in this form in the source code; this currently isn't the case but will be a cleanup post-paper-dealine. }
 Like read-commands, the set of output messages is extensible.
 
 The new-element and existing-element messages initially return the declaration in MMT's abstract syntax.
@@ -94,8 +93,6 @@ And a post-processing layer specific to Jupyter renders them in HTML+presentatio
 That way, the core kernel functionality can be reused easily in other frontends than Jupyter.
 
 \subsection{Implementation}\label{sec:kernel:impl}
-
-\paragraph{Overview}
 
 Generally, Jupyter emphasizes protocols that specify the communication between frontend and backend. 
 Recall that the frontend is a Jupyter notebook and the backend consists of kernels specific to and implemented in various programming languages.
@@ -134,7 +131,7 @@ This is distribued along with the Jupyter Kernel.
 Recall that we were to closely model each notebook as an MMT document. 
 To integrate Jupyter notebooks and MMT documents, we make use of two fortunate design properties:
 
-Firstly, the storage format for Jupyter notebooks is well-documented \ednote{TW: cite \url{https://nbformat.readthedocs.io/en/latest/}}. 
+Firstly, the storage format \cite{nbformat:on} for Jupyter notebooks is well-documented. 
 This allowed us to implement an API for Jupyter notebooks that allows us to extract the MMT content of a notebook or to generate a notebook prefilled with some MMT content.
 
 Secondly, MMT abstracts from the file formats used to define content --- it maintains a cross-format knowledge space that accepts content in any format that can be converted into OMDoc.
