@@ -62,15 +62,17 @@ The semantics of MMT is carefully designed in such a way that \emph{i}) any loca
 This is critical to make our implementation feasible: the MMT kernel maintains the current document as well as the URI of the current scope; any write-command affects the current scope, possibly closing it or creating new subscopes.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
 
+\begin{wrapfigure}{l}{7.5cm}
+  \vspace{-20pt}
+  \begin{minipage}[c]{4cm}\includegraphics[width=4cm]{screenshots/nesting}\end{minipage}
+  \begin{minipage}[c]{3cm}\includegraphics[width=3cm]{../D4.11/test_theory}\end{minipage}
+  \caption{Content Commands for Building Theory Graphs}\label{fig:test_theory}
+  \vspace{-20pt}
+\end{wrapfigure}
+
 For example, the sequence of commands on the left of Figure~\ref{fig:test_theory} builds two nested theories, where the inner one refers to the type \texttt{a} declared in the outer one.
 The right-hand side of Figure~\ref{fig:test_theory} shows the equivalent MMT surface syntax on the right.
 Semantically, there is no difference between entering the left-hand side interactively via our new kernel or processing the write commands on the right with the standard MMT parser.
-\begin{figure}[ht]\centering
-\begin{minipage}[c]{9cm}\includegraphics[width=9cm]{../D4.11/test_theory_jupyter}\end{minipage}
-\begin{minipage}[c]{3cm}\includegraphics[width=3cm]{../D4.11/test_theory}\end{minipage}
-\caption{Content Commands for Building Theory Graphs}\label{fig:test_theory}
-\end{figure}
-\ednote{TW: Update jupyter screenshot with outputs}
 
 An additional special write-command is \texttt{eval T}.
 It interprets \texttt{T} in the current scope, infers its type \texttt{A}, computes its value \texttt{V}, and then adds the declaration \texttt{resI:A=V} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
@@ -177,6 +179,12 @@ Our design makes it very easy to build and deploy simple GUI applications for MM
 
 \paragraph*{Example: In-Document Computation}
 
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-20pt}
+  \includegraphics[width=0.5\textwidth]{screenshots/activecomp}
+  \caption{Active Computation in Jupyter Notebooks via Jupyter/MMT Widgets}\label{fig:ac}
+  \vspace{-20pt}
+\end{wrapfigure}
 We present a simple example of a GUI application for in-document computation.
 It can be seen in Figure~\ref{fig:ac}.
 This shows a notebook in which our widget is active. 
@@ -197,11 +205,6 @@ The implementation of this widget makes use of several callbacks between the Pyt
 In particular, the callback that occurs when the user clicks the \texttt{Simplify} button, is defined within Scala code, but triggered from python code. 
 Similarly updating the result value within the widget is triggered from Scala code, but implemented in Python. 
 No additional work is needed to implement the synchronization between the Python top layer and the HTML frontend as this is a standard feature of Jupyter widgets.
-
-\begin{figure}[ht]\centering
-  \includegraphics[width=15cm]{screenshots/activecomp}
-  \caption{Active Computation in Jupyter Notebooks via Jupyter/MMT Widgets}\label{fig:ac}
-\end{figure}
 
 %%% Local Variables:
 %%% mode: latex
