@@ -8,7 +8,7 @@ Kernels for a specific programming language are typically implemented in that pr
 
 We designed and implemented a Jupyter kernel for MMT. 
 The source code is available at \url{https://github.com/UniFormal/mmt_jupyter_kernel}. 
-We describe its interface in Section~\ref{sec:kernel:syntax}, the implementation in Section~\ref{sec:kernel:impl} and our conversion between MMT data structures and notebook in Section~\ref{sec:kernel:mapping}.
+We describe its interface in Section~\ref{sec:kernel:syntax}, the implementation in Section~\ref{sec:kernel:impl} and our conversion between MMT datastructures and notebook in Section~\ref{sec:kernel:mapping}.
 In Section~\ref{sec:kernel:widgets}, we describe and discuss our implementation of widgets within our kernel. 
 
 \subsection{Interface}\label{sec:kernel:syntax}
@@ -62,9 +62,9 @@ The semantics of MMT is carefully designed in such a way that \emph{i}) any loca
 This is critical to make our implementation feasible: the MMT kernel maintains the current document as well as the URI of the current scope; any write-command affects the current scope, possibly closing it or creating new subscopes.
 This ensures that all nested declarations are parsed and interpreted in the right scope.
 
-\begin{wrapfigure}{l}{8cm}
+\begin{wrapfigure}{l}{7.5cm}
   \vspace{-20pt}
-  \begin{minipage}[c]{4.5cm}\includegraphics[width=4.5cm]{screenshots/nesting}\end{minipage}\quad
+  \begin{minipage}[c]{4cm}\includegraphics[width=4cm]{screenshots/nesting}\end{minipage}
   \begin{minipage}[c]{3cm}\includegraphics[width=3cm]{../D4.11/test_theory}\end{minipage}
   \caption{Content Commands for Building Theory Graphs}\label{fig:test_theory}
   \vspace{-20pt}
@@ -109,17 +109,17 @@ The top layer (depicted on the left of Figure~\ref{fig:architecture-diagram}) is
 The bottom layer is a Scala class adding a general-purpose REPL to MMT that handles all the logic of MMT documents.
 This can be reused easily in other frontends.
 User commands are entered in the front-end and sent to the top layer, which forwards all requests to the bottom layer and all responses from the bottom layer to the client.
-The communication between top and bottom layer is handled by a middle layer which bridges between Python and MMT, formats results in HTML, and adds interactive functionality via widgets.
+The communication between top and bottom layer is handled by a middle layer whch bridges between Python and MMT, formats results in HTML, and adds interactive functionality via widgets.
 
 
 This bridging of programming languages is a generally difficult problem. 
 We chose to make use of the Py4J library~\cite{Py4J:on}, a Python-JVM bridge that allows seamless interaction between Python and any JVM-based language (such as Scala).
 Thus, our Python kernel can call MMT code directly.
 Valuable Py4j features include callbacks from MMT to Python, shared memory (by treating pointers to JVM objects as Python values), and synchronized garbage collection.
-That allows our kernel to directly and easily benefit from future improvements to the MMT backend, without needing to duplicate these improvements in kernel-specific code. 
+That allows our kernel to direclty and easily benefit from future improvements to the MMT backend, without needing to duplicate these improvements in kernel-specific code. 
 
 As Py4J works at the Java/JVM level, we provide a Python module that performs the bureaucracy of matching up advanced Python and Scala features.
-This is distributed along with the Jupyter Kernel. 
+This is distribued along with the Jupyter Kernel. 
 
 \subsection{Converting between Jupyter Notebooks and MMT Documents}\label{sec:kernel:mapping}
 
@@ -127,7 +127,7 @@ Recall that we were to closely model each notebook as an MMT document.
 To integrate Jupyter notebooks and MMT documents, we make use of two fortunate design properties:
 
 Firstly, the Jupyter notebook format is well-documented~\cite{nbformat:on}. 
-We implemented an \textbf{OMDoc/NB} API in MMT that can extract the MMT content of a notebook and generate a notebook pre-filled with some MMT content.
+We implemented an \textbf{OMDoc/NB} API in MMT that can extract the MMT content of a notebook and generate a notebook prefilled with some MMT content.
 
 Secondly, MMT abstracts from the file formats for MMT documents -- e.g. MMT's native surface syntax, \sTeX, or prover libraries -- and  maintains a cross-format document space  of any document that can be converted into OMDoc.
 The OMDoc/NB API to adds Jupyter notebooks into this.
@@ -175,36 +175,43 @@ While conceptually straightforward, this leads to an unusually deep nesting of c
 When creating a widget, the Scala-based GUI application may pass Scala callbacks whose implementation makes use of the callbacks provided by the top layer.
 Thus, a user interaction triggers an MMT callback in the Python top layer, which is executed on the Scala side via Py4J, which in turn may call the Python callbacks exposed via Py4J.
 
-Our design makes it very easy to build and deploy simple GUI applications for MMT --- we still have the full power of Jupyter widgets at our fingertips.
-
 \paragraph*{Example: In-Document Computation}
 
-\begin{wrapfigure}{r}{0.6\textwidth}
-  \vspace{-20pt}
-  \includegraphics[width=0.6\textwidth]{screenshots/activecomp}
-  \caption{Active Computation in Jupyter Notebooks via Jupyter/MMT Widgets}\label{fig:ac}
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-10pt}
+  \includegraphics[width=0.5\textwidth]{screenshots/activecomp}
+  \caption{An Active Computation widget in a Notebook via Jupyter/MMT Widgets}\label{fig:ac}
   \vspace{-20pt}
 \end{wrapfigure}
-We present a simple example of a GUI application for in-document computation.
+We present an example of a GUI application inside of a notebook. 
 It can be seen in Figure~\ref{fig:ac}.
-This shows a notebook in which our widget is active. 
+We will later use this widget for active in-document computation. 
 
 This notebook first defines a new theory (in \texttt{In[1]}), called AdditionExample.
 This theory makes use of the MMT implementation of real number arithmetics.  
 
-The widget is then triggered in \texttt{In[2]} by the special command \texttt{active computation}. 
-The active computation widget takes two parameters, a list of variables (here $a$ and $b$) and a term (here $a + b$). 
-It then builds a GUI consisting of a few standard Jupyter widgets: a few labels, a few input fields, and a button (labeled \textit{simplify}). 
+Our widget is then triggered in \texttt{In[2]} by the special command \texttt{active computation}. 
+It takes two parameters, a list of variables (here $a$ and $b$) and a term (here $a + b$). 
 
-In particular, it builds one input field for each variable, allowing the user to enter terms for each of the variables. 
-In this case, the user has already entered some terms, $1.2$ for $a$ and $2.3$ for $b$. 
-Upon clicking the \texttt{Simplify} button these terms are then sent to the MMT backend, which in turn substitutes them into the original term $a + b$. 
-The result (in this case $1.2 + 2.3$) is then simplified by the MMT kernel, resulting in the final result of $3.5$\footnote{In MMT computation is modelled using term simplification. }\ednote{We refer the interested reader to CITATION for a more detailed description} . 
+These parameters are sent to the middle layer of our MMT kernel (see again Figure~\ref{fig:architecture-diagram}). 
+This Scala code then parses the parameters (using the bottom layer), and instructs the middle layer to create a label and a text field for each variable. 
+Furthermore, it also instructs the python code to create a button labeled \texttt{Simplify} and registers a callback inside the Scala code to be executed when the button is pressed. 
+The labels, input fields and the button being used here are standard Jupyter widgets. 
 
-The implementation of this widget makes use of several callbacks between the Python and Scala side. 
-In particular, the callback that occurs when the user clicks the \texttt{Simplify} button, is defined within Scala code, but triggered from python code. 
-Similarly updating the result value within the widget is triggered from Scala code, but implemented in Python. 
-No additional work is needed to implement the synchronization between the Python top layer and the HTML frontend as this is a standard feature of Jupyter widgets.
+In our case the user has already entered some terms, $1.2$ for $a$ and $2.3$ for $b$, and already clicked the \texttt{Simplify} button. 
+This triggered the previously registered callback in the middle layer. 
+The function first used the bottom layer to parse the terms inside the input fields. 
+It then substituted the results into the original term $a + b$. 
+The result of this substiution (in this case $1.2 + 2.3$) was then simplified (again using bottom layer code). 
+This resulted in the final output of $3.5$. 
+
+The important take-away here is not the difficulty of the computation\footnote{
+  In our current implementation we compute using MMT. 
+  MMT models computation using term simplfication. 
+  However in principle it is possible to use any kind of computation engine here. 
+  We want to integrate the active computation widget with our work on the Math-In-The-Middle CITATION paradigm which would be ideally suited for further applications. 
+}\ednote{CITATION}; it is the seamless integration between the frontend, top, middle and bottom layer code. 
+This example demonstrates that our design makes it very easy to build and deploy simple GUI applications for MMT --- we still have the full power of Jupyter widgets at our fingertips. 
 
 %%% Local Variables:
 %%% mode: latex
@@ -213,4 +220,4 @@ No additional work is needed to implement the synchronization between the Python
 %%% TeX-master: "paper"
 %%% End:
 
-%  LocalWords:  Jupyter newpart textbf ednote centering texttt includegraphics synchronized customizable inparaenum Realizing subsubsection serialized emph emph emphasizes xeus xwidgets textit activecomp synchronization nbformat:on compactenum
+%  LocalWords:  Jupyter newpart textbf ednote centering texttt includegraphics synchronized customizable inparaenum Realizing subsubsection serialized emph emph emphasizes xeus xwidgets textit activecomp synchronization
