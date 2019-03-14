@@ -38,7 +38,8 @@
 \dfg@applicants@private@lines\hline
 \end{tabular}}
 \renewenvironment{prop@proposal}
-{\ifsubmit\setcounter{page}{1}\else
+{\ifgeneral
+\ifsubmit\setcounter{page}{1}\else
 \thispagestyle{empty}%
 \begin{center}
 {\LARGE \prop@gen@instrument}\\[.2cm]
@@ -47,7 +48,7 @@
 {\large\today}\\[1em]
 \WAauthorblock[aff]\prop@gen@PIs\\[2cm]
 \end{center}
-\ifgeneral\setcounter{section}{-1}
+\setcounter{section}{-1}
 \edef\keep@tocdepth{\value{tocdepth}}
 \setcounter{tocdepth}{2}\tableofcontents
 \setcounter{tocdepth}{\keep@tocdepth}
@@ -59,7 +60,7 @@
 \dfg@area@field
 \ifdeutsch\subsection{Voraussichtliche Gesamtdauer}\else
 \subsection{Anticipated total duration \deu{(Voraussichtliche Gesamtdauer)}}
-\fi
+\fi% ifdeutsch
 \@ifundefined{prop@gen@totalduration}{????}{\prop@gen@totalduration};
 \ifdeutsch
 \@ifundefined{prop@gen@since}{Erstantrag}{Fortsetungsantrag, das Project l\"auft seit
@@ -67,16 +68,16 @@
 \else
 \@ifundefined{prop@gen@since}{initial proposal}{continuation proposal, the project started
   \prop@gen@since.}
-\fi
+\fi%ifdeutsch
 \ifdeutsch\subsection{Antragszeitraum}\else
 \subsection{Application period \deu{(Antragszeitraum)}}\fi
 \prop@gen@months\quad Months starting \prop@gen@start
 \@ifundefined{prop@gen@fundsuntil}{}
 { (\ifdeutsch Mittel reichen bis\else funds last until\fi\ \prop@gen@fundsuntil)}
 \ifdeutsch\else\selectlanguage{USenglish}\fi
-\newpage\fi%ifgeneral
+\newpage
 \setcounter{page}{0}%
-\fi}% ifsubmit
+\fi\fi}% ifsubmit ifgeneral
 {}
 \ifdeutsch
 \def\prop@warnpubs@message{Viele der Publikationen der Antragsteller sind verf\"ugbar unter folgenden URLs:}

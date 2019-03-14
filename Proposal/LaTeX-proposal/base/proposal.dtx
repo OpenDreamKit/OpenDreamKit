@@ -326,6 +326,8 @@
 % \item In multi-site proposals the \DescribeMacro{lead} |lead| key specifies the work
 %   package or work area lead, the value of this feature should be the short name of the
 %   respective partner.
+% \item In multi-site proposals the number of sites can be written as
+%   |\pdatacount{all}{site}|.
 % \item For work packages with many prospers the \DescribeMacro{swsites}|swsites| key
 %   can be given (no value needed) to turn the site names sideways to conserve
 %   (horizontal) space. 
@@ -370,7 +372,7 @@
 % run time of the work phase and the optional |!|\meta{force} specifies the work force,
 % i.e. the intensity of work as a number between 0 and 1. If no force is given, the
 % default is 1. The main reason for specifying this metadata for tasks is to generate a
-% Gantt chart (see Section~\ref{sec:user:gantt}).
+% Gantt chart (see Section~\ref{sec:user:gantt}). 
 %
 % \subsection{Milestones and Deliverables}\label{sec:user:deliverables}
 % 
@@ -677,9 +679,9 @@
 \RequirePackage[scaled=.90]{helvet}
 \RequirePackage{textcomp}
 \if@numericcites
-\RequirePackage[style=numeric,hyperref=auto,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\RequirePackage[style=numeric,hyperref=auto,defernumbers=true,giveninits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
 \else
-\RequirePackage[style=alphabetic,hyperref=auto,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\RequirePackage[style=alphabetic,hyperref=auto,defernumbers=true,giveninits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
 \fi
 \RequirePackage{csquotes}
 \RequirePackage{mdframed}
@@ -701,10 +703,10 @@
 %
 %    \begin{macrocode}
 \ifsubmit
-\RequirePackage[hide]{ed}
+\RequirePackage[hide,marginnote]{ed}
 \if@svninfo\RequirePackage[final,today]{svninfo}\fi
 \else
-\RequirePackage[show]{ed}
+\RequirePackage[show,marginnote]{ed}
 \if@svninfo\RequirePackage[eso-foot,today]{svninfo}\fi
 \if@gitinfo\RequirePackage[mark]{gitinfo2}\fi
 \fi
@@ -910,9 +912,9 @@
 % 
 % \begin{environment}{proposal}
 %   The |proposal| environment reads the metadata keys defined above, and if there were no
-%   |site| keys, then it defines keys |RM| and |RAM| (unless the |noRAM| package option
-%   was given) for the |workpackage| environment. Also it reads the project data file and
-%   opens up the project data file |\pdata@out|, which it also closes at the end. 
+%   |site| keys, then it defines keys |RM| and |RAM| (if the |RAM| package option was
+%   given) for the |workpackage| environment. Also it reads the project data file and
+%   opens up the project data file |\pdata@out|, which it also closes at the end.
 % 
 %   The environment calls an internal version of the environment |prop@proposal| that can
 %   be customized by the specializing classes.
@@ -929,7 +931,8 @@
 \newcounter{@PIs}
 \@ifundefined{prop@gen@PIs}{}{\@for\@I:=\prop@gen@PIs\do{\stepcounter{@PIs}}}
 \newcounter{@sites}
-\@ifundefined{prop@gen@sites}{}{\@for\@I:=\prop@gen@sites\do{\stepcounter{@sites}}}
+\@ifundefined{prop@gen@sites}{}{\@for\@I:=\prop@gen@sites\do{\stepcounter{@sites}}
+\pdata@def{all}{site}{count}{\the@site}}
 \setcounter{page}{0}
 \begin{prop@proposal}}
 %    \end{macrocode}
@@ -937,7 +940,7 @@
 % references. 
 %    \begin{macrocode}
 {\end{prop@proposal}
-\pdata@def{prop}{page}{last}{\thepage}\ofpagefalse
+\pdata@def{prop}{page}{last}{\thepage}\ofpagefalse%
 \pdata@close}
 %</sty>
 %    \end{macrocode}
@@ -1317,9 +1320,10 @@
 \else
 \@ifundefined{@wps}{}{\pdata@def{all}{wp}{ids}\@wps}
 \fi
-\ifdelivs\@ifundefined{mile@stones}{}
-{\@for\@I:=\mile@stones\do{%
-\pdata@def{mile}\@I{delivs}{\@ifundefined{\@I delivs}{}{\csname\@I delivs\endcsname}}}}\fi
+\ifdelivs\edef\mile@stones{\pdataref@safe{all}{mile}{ids}}
+\@for\@I:=\mile@stones\do{%
+  \message{milestone: \@I, delivs: \csname\@I delivs\endcsname}
+  \pdata@def{mile}\@I{delivs}{\@ifundefined{\@I delivs}{}{\csname\@I delivs\endcsname}}}\fi
 \ifwork@areas\pdata@def{all}{wa}{count}{\thewa}\fi
 \pdata@def{all}{wp}{count}{\theallwp}
 \ifdelivs
@@ -1346,7 +1350,7 @@
 \ifwork@areas
 \newcommand\task@label[3]{\task@@label{#1.#2.#3}}
 \else
-\newcommand\task@label[2]{\task@@label{T#1.#2}}
+\newcommand\task@label[2]{\task@@label{#1.#2}}
 \fi
 %    \end{macrocode}
 % We define the keys for the task macro
@@ -1361,6 +1365,7 @@
 \define@key{task}{issue}{\def\task@issue{#1}}
 \define@key{task}{status}{\def\task@status{#1}}
 \def\@@status@canceled{canceled}
+\newif\if@taskshowwps\@taskshowwpsfalse
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}\def\task@title{}
 \setkeys{task}{#1}}
@@ -1377,7 +1382,7 @@
 %   The |task| environment. We first set up config stuff 
 %    \begin{macrocode}
 \newcounter{alltasks}
-\def\task@post@title@space{ }
+\if@taskshowwps\else\def\task@post@title@space{}\fi
 \newcommand\task@legend@partners{Sites: }
 \newcommand\task@legend@PM{PM}
 %    \end{macrocode}
@@ -1397,6 +1402,7 @@
 %    \end{macrocode}
 % now we decode and show the work phases on the task, if they have been specified.
 %    \begin{macrocode}
+\if@taskshowwps
 \def\@initial{0-0}%
 \ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
@@ -1404,14 +1410,15 @@
 \@@sep\show@wphase\wphase@start\wphase@end\wphase@force%
 \let\@@sep=\sep@wphases}%
 \fi% initial
+\fi% \if@taskshowwps
 %    \end{macrocode}
 % in non-|submit| mode we give the specified PM for cross-checking
 %    \begin{macrocode}
-\ifsubmit\else\ifx\task@PM\@empty\else\task@PM~\task@legend@PM;\fi\fi%
+\ifsubmit\else\ifx\task@PM\@empty\else; \task@PM~\task@legend@PM\fi\fi%
 %    \end{macrocode}
 % and we list the partners who contribute if they are specified. 
 %    \begin{macrocode}
-\if@sites%
+\if@sites;%
 \ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)%
 \@for\@I:=\task@partners\do{, \site\@I}\\\fi%
 %    \end{macrocode}
@@ -1421,7 +1428,7 @@
 \xdef\@@involvement{}\xdef\@@inv{}%
 \xdef\@@sep{, }\def\m@sep{}% do not show the sep the first time around
 \edef\@@sites{\prop@gen@sites}%
-{\let\site\relax% to to render it inert here
+{\let\site\relax% to render it insert here
 \@for\@site:=\@@sites\do{%
 \edef\@@RM{\pdataref@safe{\wp@id @\task@id}\@site{RM}}%
 \ifx\@@RM\@empty\else\xdef\@@inv{showit}%
@@ -1560,8 +1567,6 @@
 % \end{macro}
 % 
 % \begin{macro}{\*deliv*ref}
-%   This macro is generally useful to put a comment at the end of the line, possibly
-%   making a new one if there is not enough space.
 %    \begin{macrocode}
 \newcommand\delivref[2]{\pdataRef{deliv}{#1@#2}{label}}
 \newcommand\localdelivref[1]{\delivref{\wp@id}{#1}}
@@ -1657,7 +1662,7 @@
  \expandafter\ifx\csname\@I delivs\endcsname\relax% Check that the miles@delivs is empty
   {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id @\deliv@id}}% if so, skip the separator
    \else\expandafter\xdef\csname\@I delivs\endcsname%if not add it
-      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}%
+   {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}%
 }% end gray color
 }
 %    \end{macrocode}
@@ -1679,13 +1684,11 @@
 % 
 % \begin{macro}{\milestone@label}
 %    \begin{macrocode}
-\newcommand\milestone@label[1]{M{#1}}
+\newcommand\milestone@label[1]{\textbf{M{#1}}}
 %    \end{macrocode}
 % \end{macro}
 % 
 % \begin{macro}{\mileref}
-%   This macro is generally useful to put a comment at the end of the line, possibly
-%   making a new one if there is not enough space.
 %    \begin{macrocode}
 \newcommand\mileref[1]{\pdataRef{mile}{#1}{label}}
 \newcommand\miletref[1]{\mileref{#1}: \pdataRefFB{mile}{#1}{short}{title}}
@@ -2093,10 +2096,12 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \fi}
 \local@count0\relax%
 \@for\@site:=\prop@gen@sites\do{\global\advance\local@count by \pdataref@num\@@wp\@site{RM}}%
+\pdata@def{\@site}{RM}{count}{\the\local@count}
 \xdef\@@wp@line{\@@wp@line &\textbf{\the\local@count}}
 \if@RAM
 \global\local@count0\relax%
 \@for\@site:=\prop@gen@sites\do{\global\advance\local@count by \pdataref@num\@@wp\@site{RAM}}%
+\pdata@def{\@site}{RAM}{count}{\the\local@count}
 \xdef\@@wp@line{\@@wp@line &\textbf{\the\local@count}}
 \fi% if@RAM
 \else% if@sites
@@ -2567,13 +2572,13 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 %    \begin{macrocode}
 \defbibheading{empty}{}
 %    \end{macrocode}
-% We define an internal macro that prints a publication list of a given {bib\TeX} entry
-% type and title for convenience. It also adds a |notype=| to the token register
-% |\prop@rl| to deal with the unclassified entries from the list. 
+% We define an internal macro |\prop@ppl| that prints a publication list of a given
+% {bib\TeX} entry type and title for convenience. It also adds a |notype=| to the token
+% register |\prop@rl| to deal with the unclassified entries from the list.
 %    \begin{macrocode}
 \newif\if@allpapers\@allpaperstrue
 \newcommand\prop@ppl[3][]{\@allpapersfalse\message{ppl processing: #2}%
-\printbibliography[heading=subbibliography,type=#2,title=#3#1]%
+\printbibliography[category=featured,heading=subbibliography,type=#2,title=#3#1]%
 \@ifundefined{prop@rl}{\xdef\prop@rl{#2}}{\xdef\prop@rl{\prop@rl, #2}}}
 %    \end{macrocode}
 % The following code does not work yet, it would have been nice to be able to just add a
@@ -2779,11 +2784,15 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 % LocalWords:  wpfigstyle colspan keyvals gantttaskchart baselinestretch NeedsTeXFormat
 % LocalWords:  mileref mileref miletref backref firstinits wissenschaftlicher usebibmacro
 %  LocalWords:  wissenschaftliche startend@wphases addtocategory localdelivref trivlist
-%  LocalWords:  numericcites LaTeX-proposal:git numeric,hyperref auto,defernumbers
+%  LocalWords:  numericcites LaTeX-proposal:git numeric,hyperref auto,defernumbers 5,step
 %  LocalWords:  9,maxcitenames alphabetic,hyperref bigcentering rightskip parindent
-%  LocalWords:  parfillskip endbigcenter endtrivlist 2,title
+%  LocalWords:  parfillskip endbigcenter endtrivlist 2,title customized if@longtasklabels
 
 % Local Variables:
 % mode: doctex
 % TeX-master: t
 % End:
+%  LocalWords:  9,maxcitenames multilinguality 2pt,color 2,title 5,step true,giveninits
+%  LocalWords:  9,maxcitenames hide,marginnote show,marginnote if@taskshowwps 2pt,color
+%  LocalWords:  2,title 5,step 9,maxcitenames 2pt,color 2,title 5,step 9,maxcitenames
+%  LocalWords:  2pt,color 2,title

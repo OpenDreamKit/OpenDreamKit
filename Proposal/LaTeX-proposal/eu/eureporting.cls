@@ -10,14 +10,16 @@
 \ProvidesPackage{eureporting}[2016/12/15 v1.5 EU Project Reporting]
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{reporting}}
 \ProcessOptions
-\LoadClass[report,noRAM]{reporting}
+\LoadClass[report]{reporting}
 \RequirePackage{longtable}
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
+\RequirePackage{datetime}
 \RequirePackage{chngcntr}
 \counterwithin{figure}{subsection}
 \counterwithin{table}{subsection}
+\setcounter{secnumdepth}{4}
 \define@key{prop@gen}{reportperiod}{\def\prop@gen@reportperiod{#1}}
 \define@key{prop@gen}{key}{\@dmp{key=#1}%
 \@ifundefined{prop@gen@keys}{\xdef\prop@gen@keys{#1}}{\xdef\prop@gen@keys{\prop@gen@keys,#1}}}

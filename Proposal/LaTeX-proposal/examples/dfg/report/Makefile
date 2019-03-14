@@ -6,7 +6,7 @@
 ###########################################################################
 # possibly customize the following variables to your setting
 REPORT = finalreport.tex# 	# the report
-BIB = ../lib/dummy.bib#	        # bibTeX databases
-PROP.dir = ../../..#
+PROP.dir = ../../..#            # The LaTeX-proposal class directory
+BIB = ../lib/dummy.bib# # bibTeX databases
 ###########################################################################
 include $(PROP.dir)/lib/Makefile.dfgproposal 

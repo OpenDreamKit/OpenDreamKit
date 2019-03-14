@@ -56,8 +56,8 @@ $(TARGET.pdf): %.pdf: %.tex $(SRC) $(BIBS) $(PROPCLS)
 	@if (test -e $(patsubst %.tex, %.idx,  $<));\
 	    then makeindex $(patsubst %.tex, %.idx,  $<); fi
 # bbl is up to date $(MAKE) -$(MAKEFLAGS) $(BBL)
-	@if (grep "(re)run BibTeX" $(patsubst %.tex, %.log,  $<)> /dev/null);\
-	    then $(MAKE) -B $(BBL); fi
+	@if (grep "(re)run" $(patsubst %.tex, %.log,  $<)> /dev/null);\
+	    then biber $(basename $<); fi
 	$(PDFLATEX)  $< || $(RM) $@
 	@if (grep Rerun $(patsubst %.tex, %.log,  $<) > /dev/null);\
 	   then $(PDFLATEX)  $<  || $(RM) $@; fi
