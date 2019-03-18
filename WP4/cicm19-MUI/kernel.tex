@@ -7,7 +7,7 @@ Kernels for a specific programming language are typically implemented in that pr
 
 We designed and implemented a Jupyter kernel for MMT. 
 The source code is available at \cite{mmt_jupyter:on}. 
-We describe its interface in Section~\ref{sec:kernel:syntax}, the implementation in Section~\ref{sec:kernel:impl} and our conversion between MMT datastructures and notebook in Section~\ref{sec:kernel:mapping}.
+We describe its interface in Section~\ref{sec:kernel:syntax}, the implementation in Section~\ref{sec:kernel:impl} and our conversion between MMT data structures and notebook in Section~\ref{sec:kernel:mapping}.
 In Section~\ref{sec:kernel:widgets}, we describe and discuss our implementation of widgets within our kernel. 
 
 \subsection{Interface}\label{sec:kernel:syntax}
@@ -109,17 +109,17 @@ The top layer (depicted on the left of Figure~\ref{fig:architecture-diagram}) is
 The bottom layer is a Scala class adding a general-purpose REPL to MMT that handles all the logic of MMT documents.
 This can be reused easily in other frontends.
 User commands are entered in the front-end and sent to the top layer, which forwards all requests to the bottom layer and all responses from the bottom layer to the client.
-The communication between top and bottom layer is handled by a middle layer whch bridges between Python and MMT, formats results in HTML, and adds interactive functionality via widgets.
+The communication between top and bottom layer is handled by a middle layer which bridges between Python and MMT, formats results in HTML, and adds interactive functionality via widgets.
 
 
 This bridging of programming languages is a generally difficult problem. 
 We chose to make use of the Py4J library~\cite{Py4J:on}, a Python-JVM bridge that allows seamless interaction between Python and any JVM-based language (such as Scala).
 Thus, our Python kernel can call MMT code directly.
 Valuable Py4j features include callbacks from MMT to Python, shared memory (by treating pointers to JVM objects as Python values), and synchronized garbage collection.
-That allows our kernel to direclty and easily benefit from future improvements to the MMT backend, without needing to duplicate these improvements in kernel-specific code. 
+That allows our kernel to directly and easily benefit from future improvements to the MMT backend, without needing to duplicate these improvements in kernel-specific code. 
 
 As Py4J works at the Java/JVM level, we provide a Python module that performs the bureaucracy of matching up advanced Python and Scala features.
-This is distribued along with the Jupyter Kernel. 
+This is distributed along with the Jupyter Kernel. 
 
 \subsection{Converting between Jupyter Notebooks and MMT Documents}\label{sec:kernel:mapping}
 
@@ -127,7 +127,7 @@ Recall that we were to closely model each notebook as an MMT document.
 To integrate Jupyter notebooks and MMT documents, we make use of two fortunate design properties:
 
 Firstly, the Jupyter notebook format is well-documented~\cite{nbformat:on}. 
-We implemented an \textbf{OMDoc/NB} API in MMT that can extract the MMT content of a notebook and generate a notebook prefilled with some MMT content.
+We implemented an \textbf{OMDoc/NB} API in MMT that can extract the MMT content of a notebook and generate a notebook pre-filled with some MMT content.
 
 Secondly, MMT abstracts from the file formats for MMT documents -- e.g. MMT's native surface syntax, \sTeX, or prover libraries -- and  maintains a cross-format document space  of any document that can be converted into OMDoc.
 The OMDoc/NB API to adds Jupyter notebooks into this.
@@ -200,7 +200,7 @@ In our case the user has already entered some terms, $1.2$ for $a$ and $2.3$ for
 This triggered the previously registered callback in the middle layer. 
 The function first used the bottom layer to parse the terms inside the input fields. 
 It then substituted the results into the original term $a + b$. 
-The result of this substiution (in this case $1.2 + 2.3$) was then simplified (again using bottom layer code). 
+The result of this substitution (in this case $1.2 + 2.3$) was then simplified (again using bottom layer code). 
 This resulted in the final output of $3.5$. 
 
 The important take-away here is not the difficulty of the computation\footnote{
@@ -217,4 +217,4 @@ This example demonstrates that our design makes it very easy to build and deploy
 %%% TeX-master: "paper"
 %%% End:
 
-%  LocalWords:  Jupyter newpart textbf ednote centering texttt includegraphics synchronized customizable inparaenum Realizing subsubsection serialized emph emph emphasizes xeus xwidgets textit activecomp synchronization
+%  LocalWords:  Jupyter newpart textbf ednote centering texttt includegraphics synchronized customizable inparaenum Realizing subsubsection serialized emph emph emphasizes xeus xwidgets textit activecomp synchronization wrapfigure vspace textwidth

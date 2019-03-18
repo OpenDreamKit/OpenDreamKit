@@ -1,45 +1,28 @@
-\ednote{TW@MK: Can you update the introduction}
-\ednote{FR: from my email: I think this story is best:
-- MMT provides a cross-document-format math knowledge space based on OMDoc.
-- MathHub is a web frontend for showing static math documents.
-- Jupyter is a web frontend for showing/editing dynamic, ephemeral math documents
-- We integrate the two kinds of web frontends
-The key steps to realize this are:
-- MMT kernel for Jupyter
-- conversion between notebooks and OMDoc (integrates Jupyter with MMT knowledge space)
-- Jupyter server for editing notebooks
-- MathHub system shows notebooks either standalone or as subdocuments of other static documents
-}
-
-\ednote{TW: Define or reference MMT; state at least that it is implemented in scala}
-
 Mathematical software systems need to support two kinds of user interface paradigms.
 Firstly, mathematical \emph{documents} have been very successful for presenting mathematical knowledge.
 While there have been efforts to make them modular and interactive, they predominantly remain in the mode of archiving and transporting knowledge in Mathematics.
 Secondly, \emph{notebook} interfaces focus on REPL (Read/Eval/Print Loop) interaction leading to documents consisting of a sequence of computational cells within which the mathematical discourse is interspersed in the form of rich comments.
-\footnote {A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle but has not been supported consistently at the system level.}
+A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle but has not been supported consistently at the system level.
 
-We present a integration of Jupyter Notebooks into the MathHub document hosting platform.
-In addition to versioned persistent storage, MathHub offers an interface for reading, writing, and interacting with mathematical documents.
-Jupyter offers a uniform interface to the computation facilities of the OpenDreamKit\ednote{TW: define Jupyter} VRE toolkit in the form of a read-eval-print loop (REPL).
+\paragraph{Contribution} We present a integration of Jupyter Notebooks into the MathHub platform for hosting semantic, active documents.
+Mathhub offers versioned persistent storage for semantically enhanced mathematical documents and knowledge representations.
+These are unified into the OMDoc/MMT format and loaded into a cross-document-format mathematical knowledge space managed by the MMT system (written in Scala).  
+MathHub is a web frontend for showing OMDoc/MMT content as (largely static) mathematical documents.
+Jupyter offers a uniform interface to various computation facilities in the form of a read-eval-print loop (REPL), which can be seen as dynamic, ephemeral documents.
+The system consists of a general, feature-rich browser-based REPL interface that communicates to a system-specific backend, called a Jupyter kernel that supplies the computational capabilities.
+Such a kernel either connects the native system REPL via a generic python kernel or uses language-specific network libraries. 
 
 Generally, the integration of MathHub and Jupyter consists of two challenges:
-\begin{inparaenum}[\em a\rm )]
-\item the integration of the document paradigms and user interfaces and
+\begin{compactenum}[\em i\rm )]
+\item the integration of the document paradigms and user interfaces 
+and
 \item the integration of the knowledge management and computation services.
-\end{inparaenum}
+\end{compactenum}
 The latter requires defining the semantics of the mathematical knowledge maintained in the user interfaces, and both Jupyter and MathHub are parametric in this semantics.
 In Jupyter, a separate kernel must be provided for each concrete language, in particular there are separate kernels for all computation systems used in OpenDreamKit.
-In MathHub, the determination of the semantics is delegated to the MMT system.
+In MathHub, the determination of the semantics is delegated to the MMT system. This paper describes progress in both integration challenges.
 
-% The first step is setting up a Jupyter server, which currently runs on \url{http://juypter.mathhub.info}. \ednote{KA: maybe show picture of it?}
-% For this server, we have developed a custom kernel, that forwards the input entered into the Jupyter notebook to the MMT backend.
-% This then processes said input and sends the response back to the Jupyter frontend via the kernel.
-% We will cover the implementation of the Jupyter kernel and the MMT-backend, later in this report.
-
-This paper describes progress in both integration challenges.
-
-In Section~\ref{sec:mmt-jp}, for the integration of services, we present an MMT kernel\ednote{TW: Briefly define Jupyter kernel architecture} for Jupyter.
+\paragraph{Overview} In Section~\ref{sec:mmt-jp}, for the integration of services, we present an MMT kernel for Jupyter.
 This not only makes the MMT functionality available at the Jupyter level, but also deeply integrates Jupyter widgets with the MMT Scala level.
 Widgets are a key Jupyter feature that reaches far beyond the standard REPL interaction.
 For instance, the Jupyter community has developed a large array of widgets for interactive 2D and 3D visualization of data in the form of charts, maps, tables, etc.
@@ -53,7 +36,7 @@ Section~\ref{sec:concl} concludes the report.
 \paragraph{Acknowledgements}
 We acknowledge financial support from the OpenDreamKit Horizon 2020 European Research Infrastructures project (\#676541).
 The authors gratefully acknowledge the support of the Jupyter team and in particular the advice of Benjamin Ragan-Kelly.
-The MoSIS\ednote{TW: Remove this if we remove it from the paper due to space} system was developed in collaboration with Theresa Pollinger~\cite{PolKohKoe:kacse18}. 
+The MoSIS system was developed in collaboration with Theresa Pollinger~\cite{PolKohKoe:kacse18}.
 %%% Local Variables:
 %%% mode: latex
 %%% mode: visual-line
@@ -61,4 +44,4 @@ The MoSIS\ednote{TW: Remove this if we remove it from the paper due to space} sy
 %%% TeX-master: "paper"
 %%% End:
 
-%  LocalWords:  emph Jupyter inparaenum ednote sec:mmt-jp visualization sec:nb-mh sec:mitm-nb sec:concl PolKohKoe:kacse18
+%  LocalWords:  emph Jupyter inparaenum ednote sec:mmt-jp visualization sec:nb-mh sec:mitm-nb sec:concl PolKohKoe:kacse18 Mathhub compactenum
