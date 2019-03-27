@@ -95,28 +95,30 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
 
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}\cline{2-11}
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|}\cline{2-13}
     \multicolumn{1}{c|}{ }
-    & \rotatebox{270}{Updated in last year~~}
+    & \rotatebox{270}{Updated in last year}
     & \rotatebox{270}{Python versions}
     & \rotatebox{270}{Function decorator}
-    & \rotatebox{270}{In-session caching}
+    & \rotatebox{270}{Memory caching}
     & \rotatebox{270}{Disk caching}
     & \rotatebox{270}{Database caching}
     & \rotatebox{270}{Custom keys}
     & \rotatebox{270}{Custom pickling}
     & \rotatebox{270}{Metadata}
     & \rotatebox{270}{Sage support}
+    & \rotatebox{270}{Cython functions}
+    & \rotatebox{270}{Implemented in Cython~~}
     \\ \hline
-    GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  &  &  &  & \\ \hline
-    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  & \checkmark \\ \hline
-    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  & \checkmark \\ \hline
-    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  & \checkmark \\ \hline
-    \texttt{persist} &  & $2/3$ &  & \checkmark & \checkmark &  &  &  &  & \\ \hline
-    \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  &  &  &  & \\ \hline
-    \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  & \\ \hline
-    \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  & \\ \hline
-    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+    GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  &  &  &  &  &  &  \\ \hline
+    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  & \checkmark &  &  \\ \hline
+    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark &  &  & \checkmark & \checkmark & \checkmark \\ \hline
+    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark &  &  & \checkmark & \checkmark & \checkmark \\ \hline
+    \texttt{persist} &  & $2/3$ &  & \checkmark & \checkmark &  &  &  &  &  &  &  \\ \hline
+    \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  &  \\ \hline
+    \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  \\ \hline
+    \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  \\ \hline
+    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  \\
     \hline
   \end{tabular}
   \vspace{7pt}
@@ -143,6 +145,12 @@ configurable tools for memoising functions and methods, respectively named
 or method to be memoised with a custom key-generating function, meaning that
 arguments can be pre-processed in an intelligent way, perhaps to sort arguments,
 or discard arguments that do not affect the return value of a function.
+They are also implemented in Cython, meaning that they are likely to perform
+faster than \texttt{func\_persist}, and have support for functions written in
+Cython.
+However, they only support memory caching -- that is, they only store results in
+memory while the current program is running, and do not save results to disk for
+use in a later session.
 
 These three decorators are useful, but limited.  Not only do they lack certain
 options such as database caching and custom output pickling, but they rely on
@@ -174,8 +182,8 @@ which would be developed in parallel.
 
 To fulfill these requirements, the \pypersist{} package was created.  It runs in
 Python version 2 and 3, and it contains all the features mentioned in Table
-\ref{tab:comparison-of-tools}.  More information about \pypersist{} is given in
-Section \ref{sec:pypersist}.
+\ref{tab:comparison-of-tools}, except those features related to Cython.  More
+information about \pypersist{} is given in Section \ref{sec:pypersist}.
 
 \section{pypersist}
 \label{sec:pypersist}
