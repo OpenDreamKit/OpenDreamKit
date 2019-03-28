@@ -95,28 +95,30 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
 
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}\cline{2-11}
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|}\cline{2-13}
     \multicolumn{1}{c|}{ }
-    & \rotatebox{270}{Updated in last year~~}
+    & \rotatebox{270}{Updated in last year}
     & \rotatebox{270}{Python versions}
     & \rotatebox{270}{Function decorator}
-    & \rotatebox{270}{In-session caching}
+    & \rotatebox{270}{Memory caching}
     & \rotatebox{270}{Disk caching}
     & \rotatebox{270}{Database caching}
     & \rotatebox{270}{Custom keys}
     & \rotatebox{270}{Custom pickling}
     & \rotatebox{270}{Metadata}
     & \rotatebox{270}{Sage support}
+    & \rotatebox{270}{Cython functions}
+    & \rotatebox{270}{Implemented in Cython~~}
     \\ \hline
-    GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  &  &  &  & \\ \hline
-    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  & \checkmark \\ \hline
-    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  & \checkmark \\ \hline
-    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  & \checkmark \\ \hline
-    \texttt{persist} &  & $2/3$ &  & \checkmark & \checkmark &  &  &  &  & \\ \hline
-    \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  &  &  &  & \\ \hline
-    \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  & \\ \hline
-    \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  & \\ \hline
-    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+    GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  &  &  &  &  &  &  \\ \hline
+    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  & \checkmark &  &  \\ \hline
+    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark &  &  & \checkmark & \checkmark & \checkmark \\ \hline
+    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark &  &  & \checkmark & \checkmark & \checkmark \\ \hline
+    \texttt{persist} &  & $2/3$ &  & \checkmark & \checkmark &  &  &  &  &  &  &  \\ \hline
+    \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  &  \\ \hline
+    \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  \\ \hline
+    \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  \\ \hline
+    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  \\
     \hline
   \end{tabular}
   \vspace{7pt}
@@ -143,6 +145,12 @@ configurable tools for memoising functions and methods, respectively named
 or method to be memoised with a custom key-generating function, meaning that
 arguments can be pre-processed in an intelligent way, perhaps to sort arguments,
 or discard arguments that do not affect the return value of a function.
+They are also implemented in Cython, meaning that they are likely to perform
+faster than \texttt{func\_persist}, and have support for functions written in
+Cython.
+However, they only support memory caching -- that is, they only store results in
+memory while the current program is running, and do not save results to disk for
+use in a later session.
 
 These three decorators are useful, but limited.  Not only do they lack certain
 options such as database caching and custom output pickling, but they rely on
@@ -174,8 +182,8 @@ which would be developed in parallel.
 
 To fulfill these requirements, the \pypersist{} package was created.  It runs in
 Python version 2 and 3, and it contains all the features mentioned in Table
-\ref{tab:comparison-of-tools}.  More information about \pypersist{} is given in
-Section \ref{sec:pypersist}.
+\ref{tab:comparison-of-tools}, except those features related to Cython.  More
+information about \pypersist{} is given in Section \ref{sec:pypersist}.
 
 \section{pypersist}
 \label{sec:pypersist}
@@ -409,16 +417,30 @@ might also be useful.  CouchDB emphasises ease of setup, and allows information
 to be added and retrieved from the database via HTTP, with a human-readable
 web-based front-end that would allow human-readable results to be shared
 instantly on computation via a website.  It is likely that implementing this
-would require little deviation from the existing code for MongoDB.
+would require little deviation from the existing code for MongoDB, and could
+result in big improvements in ease of use, ease of setup, and interoperability.
 
 \paragraph{Better metadata}
 \pypersist{} has the capacity to store metadata, which may be useful for storing
-information about where and when a result was originally computed.  However, no
+information about a given computation.  However, no
 metadata is stored by default, and metadata is not validated in any way when a
 result is loaded from the cache.  Some decision should be made on what metadata
 should always be stored, and functionality should be added that allows this
 metadata to be used where relevant, for example by allowing a cache to be
 filtered by date or user.
+Some useful fields could be where and when a result was originally computed,
+comments from the user or the author of the function, and information about the
+system that produced the result.
+
+\paragraph{Provenance tracking}
+One use of metadata would be to record where a given result came from, allowing
+researchers to evaluate the trust they are willing to place in it.  A limited
+form of this can be achieved by sharing results using a version control system
+such as Git, in which the timestamp and author of a commit give some useful
+information.  But a more full-featured provenance-tracking system could be added
+in the future, recording the exact time and place that a computation was
+performed, as well as the user that called it, and version numbers for both
+\pypersist{} and the function being memoised.
 
 \paragraph{Verbosity}
 Results in \pypersist{} are stored and retrieved silently, and users are not
