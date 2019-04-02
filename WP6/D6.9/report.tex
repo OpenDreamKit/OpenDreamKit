@@ -118,22 +118,22 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
     & \rotatebox{270}{Disk caching}
     & \rotatebox{270}{Database caching}
     & \rotatebox{270}{Method support}
+    & \rotatebox{270}{Compiled function support}
     & \rotatebox{270}{Custom keys}
     & \rotatebox{270}{Custom pickling}
     & \rotatebox{270}{Metadata}
     & \rotatebox{270}{Sage support}
-    & \rotatebox{270}{Cython functions}
-    & \rotatebox{270}{Implemented in Cython~~}
+    & \rotatebox{270}{Compiled~~}
     \\ \hline
     GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  & \checkmark &  &  &  &  &  &  \\ \hline
-    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  &  & \checkmark &  &  \\ \hline
-    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark &  &  &  & \checkmark &  &  & \checkmark & \checkmark & \checkmark \\ \hline
-    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark & \checkmark &  &  & \checkmark & \checkmark & \checkmark \\ \hline
+    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  &  & & \checkmark  &  \\ \hline
+    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark &  &  &  & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
+    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
     \texttt{persist} &  & $2/3$ &  & \checkmark & \checkmark &  &  &  &  &  &  &  &  \\ \hline
     \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  &  &  &  &  \\ \hline
     \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  \\ \hline
-    \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  \\ \hline
-    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  \\
+    \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark  &  &  &  &  \\ \hline
+    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark &  \\
     \hline
   \end{tabular}
   \vspace{7pt}
@@ -160,8 +160,9 @@ configurable tools for memoising functions and methods, respectively named
 or method to be memoised with a custom key-generating function, meaning that
 arguments can be pre-processed in an intelligent way, perhaps to sort arguments,
 or discard arguments that do not affect the return value of a function.
-They are also implemented in Cython, meaning that they are likely to perform
-faster than \texttt{func\_persist}, and have support for functions written in
+They are also implemented in Cython, meaning that they are compiled
+rather than interpreted, and perform
+faster than \texttt{func\_persist}. They also support compiled functions written in
 Cython.
 However, they only support memory caching -- that is, they only store results in
 memory while the current program is running, and do not save results to disk for
@@ -489,8 +490,11 @@ tool comparable to the Python version.
 \paragraph{Sage integration}
 As shown in Table \ref{tab:comparison-of-tools}, there exist three different
 tools already in Sage for memoising data.  Now that \pypersist{} has overtaken
-them in terms of features, it is possible that it could replace those tools
-entirely.  With careful integration and testing to ensure that there were no
+\texttt{func_persist} in terms of features, it is possible that it could replace this tool
+entirely; with some additional work (support for compiled functions,
+optimization), it could replace \texttt{cached_function} and
+\texttt{cached_method} as well.
+With careful integration and testing to ensure that there were no
 regressions, \pypersist{} could be imported and used instead of those tools,
 possibly with the addition of some Sage-specific options that would allow it to
 be used as effectively as possible.  However, \pypersist{} should remain a
