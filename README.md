@@ -281,14 +281,14 @@ status report, ...) needs to be on the issue.
 - Create an issue to discuss the organization of the workshop (choosing the date, ...)
 - Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
 - Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
-- Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
+- Build the agenda thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
 - Send the agenda and an invitation to the event to all participants
-- Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
-  to host the web page and public documents about each meeting
+- Announce the workshop on ODK's blog; see e.g. https://opendreamkit.org/2018/06/20/Hamburg-DisseminationWorkshop-SteeringMeeting/
+- Use the repository [https://github.com/OpenDreamKit/OpenDreamKit.github.io/tree/master/meetings](https://github.com/OpenDreamKit/OpenDreamKit.github.io/tree/master/meetings) to host the web page and public documents about each meeting
 - Run regular oral status reports
 - Prepare a written report
 - Set up a survey at the end of each workshop to know how the next ones can be improved
-- Refer the workshop on the website (http://opendreamkit.org/follow/  -> reports) and create a link the reference to your workshop minutes
+- Refer the workshop on the website (http://opendreamkit.org/follow/  -> reports) and create a link to your workshop minutes
 
 For ODK, but also for all of those that are watching with hope over
 our shoulders, it's important to write useful reports on our work
@@ -296,7 +296,7 @@ during the workshops. To be productive, we should write those reports
 collaboratively and on the fly.
 
 Suggested approach: initialize the report with the list of projects,
-and put it on a collaborative pad (e.g. framapad). Then, during each
+and put it on a collaborative pad (e.g. hackmd). Then, during each
 status report, display the report on the screen, and ask everybody to
 take lives notes both on the plan and what's done, directly in a
 synthetic project-by-project form. The goal is to have a couple
