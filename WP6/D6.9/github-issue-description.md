@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #143 on 2019-03-28 {.notoc}
+# Deliverable description, as taken from Github issue #143 on 2019-04-02 {.notoc}
 
 - **WP6:** [Data/Knowledge/Software-Bases](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP6)
 - **Lead Institution:** University of St Andrews
@@ -6,9 +6,9 @@
 - **Nature:** Other
 - **Task:**  T6.9 (#131)
 - **Proposal:** [p. 54](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **[Upcoming Report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP6/D6.9/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP6/D6.9/))
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP6/D6.9/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP6/D6.9/))
 
-**Persistent memoisation** is the computational process of storing a program's outputs and retrieving them later, instead of re-running programs that are guaranteed to return the same answer.  This approach may be useful in a wide range of fields, but it is particularly relevant to mathematics because of the type of problems mathematicians wish to solve: those with a small input and a small output, but which may still take a long time to complete.
+**Persistent memoisation** is the computational process of storing a program's outputs and retrieving them later, instead of re-running programs that are guaranteed to return the same answer. This approach may be useful in a wide range of fields but is particularly relevant to mathematicians: indeed, it's common for them to face compute intensive exact problems with small inputs and small outputs.
 
 Results can be stored for future calls to a function in the present program session, in later sessions, or even for other users in different parts of the world.  Beside the advantages of recalling old results instead of repeating work, a human-readable cache could also be used by researchers to create a reproducible record of computed results that can be used outside the context of the memoisation system itself.
 
