@@ -1,5 +1,6 @@
 Jupyter notebooks consist of a sequence of cells; each of which contains either rich text or code that can be evaluated. 
-The Jupyter user interface is implemented using TypeScript in the browser, the backend is implemented in Python and delegates the programming-language specific features to so-called kernels via a networking protocol. 
+The Jupyter user interface is implemented using TypeScript in the browser.
+The backend is implemented in Python and delegates the programming-language specific features to so-called kernels via a networking protocol. 
 Each kernel works exactly like a REPL, that is to say they receive the user input of the code cells and produce output to be presented to the user. 
 Additionally, kernels can implement custom interactions using widgets, consisting of re-usable user interface components that communicate directly with the kernel.  
 Kernels for a specific programming language are typically implemented in that programming language, to ease implementation and make use of existing tool support.
@@ -12,7 +13,7 @@ In Section~\ref{sec:kernel:widgets}, we describe and discuss our implementation 
 
 \subsection{Interface}\label{sec:kernel:syntax}
 
-MMT differs from typical computational engines in Jupyter in that it does not only (and not even primarily) perform computation but also handles symbolic expressions with uninterpreted function symbols, whose semantics is described by logical axioms.
+MMT differs from typical computational engines in Jupyter in that it does not only (and not even primarily) perform computation but also handles symbolic expressions with uninterpreted function symbols whose semantics is described by logical axioms.
 Another important difference is how MMT handles context and background knowledge.
 Kernels for (mathematics-oriented or general purpose) programming languages, as typical in Jupyter, build and maintain a dynamic context of declarations with imperative assignment and stack-oriented shadowing and rely on a fixed --- often object-oriented --- background library of computational functionality.
 MMT, on the other hand, uses graphs of inter-connected theories to represent a multitude of possible contexts and background libraries to move knowledge between contexts.
@@ -68,6 +69,7 @@ This ensures that all nested declarations are parsed and interpreted in the righ
   \caption{Content Commands for Building Theory Graphs}\label{fig:test_theory}
   \vspace{-20pt}
 \end{wrapfigure}
+\ednote{RV2: Merge this one-sentence paragraph with the previous one}
 For example, the sequence of commands on the left of Figure~\ref{fig:test_theory} builds two nested theories, where the inner one refers to the type \texttt{a} declared in the outer one.
 The right-hand side of Figure~\ref{fig:test_theory} shows the equivalent MMT surface syntax on the right.
 Semantically, there is no difference between entering the left-hand side interactively via our new kernel or processing the write commands on the right with the standard MMT parser.
@@ -90,7 +92,7 @@ Like read-commands, the set of output messages is extensible.
 
 The new-element and existing-element messages initially return the declaration in MMT's abstract syntax.
 And a post-processing layer specific to Jupyter renders them in HTML5+MathML (presentation).
-That way, the core kernel functionality can be reused easily in other frontends than Jupyter.
+That way, the core kernel functionality can be reused easily in frontends other than Jupyter.
 
 \subsection{Implementation}\label{sec:kernel:impl}
 
@@ -100,14 +102,14 @@ Generally, Jupyter emphasizes protocols that specify the communication between f
 
 Executing the user commands requires a strong integration with the MMT system, which is implemented in Scala.
 Even though a Jupyter Scala kernel exists, we implement the MMT kernel on top of the Jupyter Python kernel infrastructure which is by far the best developed one. 
-So we implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant logic is handled in Scala.
+We implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant logic is handled in Scala.
 
 Our implementation consists of three layers.
 The top layer (depicted on the left of Figure~\ref{fig:architecture-diagram}) is a Python module that implements the abstract class for Jupyter kernels.
 The bottom layer is a Scala class adding a general-purpose REPL to MMT that handles all the logic of MMT documents.
-This can be reused easily in other frontends, e.g. the IntelliJ IDE plugin for MMT.
+This can be reused easily in other frontends e.g., the IntelliJ IDE plugin for MMT.
 User commands are entered in the front-end and sent to the top layer, which forwards all requests to the bottom layer and all responses from the bottom layer to the client.
-The communication between top and bottom layer is handled by a middle layer which bridges between Python and MMT, formats results in HTML5, and adds interactive functionality via widgets.
+The communication between the top and bottom layer is handled by a middle layer which bridges between Python and MMT, formats results in HTML5, and adds interactive functionality via widgets.
 
 
 This bridging of programming languages is a generally difficult problem. 
