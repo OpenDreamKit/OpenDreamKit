@@ -12,16 +12,39 @@ We describe the requirements of an MMT REPL in Section~\ref{sec:kernel:reqs}, it
 In Section~\ref{sec:kernel:widgets}, we describe and discuss our implementation of widgets within our kernel. 
 
 \subsection{A REPL for MMT}\label{sec:kernel:reqs}
-\ednote{RV3: The MMT kernel is a welcome addition to the Jupyter ecosystem. One interesting distinction is that MMT performs manipulation of symbolic expressions as well as computation. Perhaps it would be useful early on in the paper to illustrate how this is distinct from typical engines in Jupyter, and especially to show the new things it enables. It might also be useful to say a little more about MMT's goals (even if this won't be new to quite a few of the CICM audience, I still think it might help make the paper's motivation and contributions clearer)}
+
+\input{figures/group.tex}
+
 MMT differs from typical computational engines in Jupyter in that it does not only (and not even primarily) perform computation but also handles symbolic expressions with uninterpreted function symbols whose semantics is described by logical axioms.
 Another important difference is how MMT handles context and background knowledge.
 Kernels for (mathematics-oriented or general purpose) programming languages, as typical in Jupyter, build and maintain a dynamic context of declarations with imperative assignment and stack-oriented shadowing and rely on a fixed --- often object-oriented --- background library of computational functionality.
 MMT, on the other hand, uses graphs of inter-connected theories to represent a multitude of possible contexts and background libraries to move knowledge between contexts.
 To adequately handle these subtleties, we systematically specified a new interface for Jupyter-style interactions with MMT.
 
-\ednote{Complete Example of a Group + Typical MMT Queries}
+\begin{newpart}{Example}
+\paragraph{Example}
 
-\section{Interface and Sessions}\label{sec:kernel:syntax}
+MMT uses theory graphs to model mathematical knowledge. 
+A very simple graph, resulting in the model of a ring, can be found in Figure~\ref{fig:ringraph}. 
+A theory graph consists of theories (each usually modelling a single concept) and relations between them. 
+One such relation is the extension of a theory, called a structure. 
+
+We start with a monoid theory on the bottom right. 
+It consists of a set of elements \textit{U}, an operation \textit{op} and a unit \textit{unit}.
+We then continue on the top right, by extenting the monoid into a commutative group (or \textit{cgp} for short). 
+Afterwards we add the axiom of \textit{inv}ertability and the axiom of \textit{comm}utativity of the operation. 
+
+Next we model a ring, using both of the previous theories.
+We first use a monoid for the \textit{mul}tiplication operation, then a commutative group for the \textit{add}ition operation. 
+Finalyy we only need to add the \textit{dist}ributivity axiom. 
+
+Note that the theory graph never explicitly states all axioms required for a ring or a commutative group. 
+Instead, it only uses structures to refer to the underlying concepts. 
+One of the common uses for MMT is to flatten a theory graph into its' explicit form. 
+This process if refered to as flattening. 
+\end{newpart}
+
+\subsection{Interface and Sessions}\label{sec:kernel:syntax}
 On top of the notebook abstraction, Jupyter interactions are managed in \textbf{sessions}: every browser page opening a notebook creates a new session.
 
 MMT already has an abstraction that can closely model a notebook, called a document. 
