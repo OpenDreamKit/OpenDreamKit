@@ -57,7 +57,9 @@ install: final
 
 bbl:	$(BBL)
 $(BBL): %.bbl: %.aux
-	bibtex -min-crossrefs=100 -terse $<
+	biber $*
+
+#bibtex -min-crossrefs=100 -terse $<
 
 $(TSIMP.pdf): %.pdf: %.tex $(PROPCLS) $(PDATA)
 	$(PDFLATEX) $< || $(RM) $@
