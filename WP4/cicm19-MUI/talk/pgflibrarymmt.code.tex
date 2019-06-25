@@ -1,0 +1,171 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A TIKZ library for MMT Theory Graphs
+% copyright 2014 Michael Kohlhase; Released under the LPPL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% this library provides some standardized node and arrow styles for formatting MMT graph
+% diagrams in tikz. The advantage is that we can classify the arrows and nodes
+% symbolically and with the styles in this library achieve a uniform look that helps
+% readability. 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% 1. Theories
+% a generic theory
+\def\outerthysep{.3mm}
+\def\innerthysep{.5mm}
+\tikzstyle{thy}=[draw,outer sep=\outerthysep,rounded corners,inner sep=\innerthysep]
+% a primitive theory
+\tikzstyle{primthy}=[thy,double]
+% a theory graph 
+\tikzstyle{thygraph}=[draw,outer sep=1mm,rounded corners,dashed]
+
+%%% 2. Arrows 
+%%% 2.1. Arrowtips (only internal)
+\usetikzlibrary{arrows}
+\newcommand{\@mmtarrowtip}{angle 45}
+\newcommand{\@mmtreversearrowtip}{angle 45 reversed}
+\newcommand{\@mmtarrowtipepi}{triangle 45}
+\newcommand{\@mmtarrowtipmonoright}{right hook}
+\newcommand{\@mmtarrowtipmonoleft}{left hook}
+\newcommand{\@mmtarrowtippartial}{right to}
+\newcommand{\@mmtarrowtippartialleft}{left to}
+\newcommand{\@mmtreversearrowtippartial}{right to reversed}
+\newcommand{\@mmtreversearrowtippartialleft}{left to reversed}
+
+%%% 2.2 the arrow sstyles in graphs
+\usetikzlibrary{decorations,decorations.pathmorphing,decorations.markings}
+% any morphism 
+\tikzstyle{morph}=[-\@mmtarrowtip,thick] 
+\tikzstyle{mapsto}=[|-\@mmtarrowtip] %| any morphism 
+% structures
+\tikzstyle{struct}=[-\@mmtarrowtip,thick]
+% inclusions: regular, partial, and left variants
+\tikzstyle{include}=[\@mmtarrowtipmonoright-\@mmtarrowtip,thick]
+\tikzstyle{revinclude}=[\@mmtarrowtip-\@mmtarrowtipmonoright,thick]
+\tikzstyle{pinclude}=[\@mmtarrowtipmonoright-\@mmtarrowtippartial,thick]
+\tikzstyle{includeleft}=[\@mmtarrowtipmonoleft-\@mmtarrowtip,thick]
+\tikzstyle{pincludeleft}=[\@mmtarrowtipmonoleft-\@mmtarrowtippartialleft,thick]
+% views: regular, mono, partial, and left variants
+\tikzstyle{preview}=[decorate,
+                                decoration={coil,aspect=0,amplitude=1pt,
+                                                    segment length=6pt,
+                                                    pre=lineto,pre length=3pt,
+                                                    post=lineto,post length=5pt},
+                                thick]
+\tikzstyle{view}=[preview,-\@mmtarrowtip]
+\tikzstyle{mview}=[preview,\@mmtarrowtipmonoright-\@mmtarrowtip]
+\tikzstyle{pview}=[preview,-\@mmtarrowtippartial]
+\tikzstyle{pmview}=[preview,\@mmtarrowtipmonoright-\@mmtarrowtippartial]
+\tikzstyle{viewleft}=[preview,-\@mmtarrowtip]
+\tikzstyle{mviewleft}=[preview,\@mmtarrowtipmonoleft-\@mmtarrowtip]
+\tikzstyle{pviewleft}=[preview,-\@mmtarrowtippartialleft]
+\tikzstyle{pmviewleft}=[preview,\@mmtarrowtipmonoleft-\@mmtarrowtippartialleft]
+\tikzstyle{adoption}=[preview,thin,double,-\@mmtarrowtip]
+% biviews: regular, partial, and left variants
+\tikzstyle{biview}=[preview,\@mmtarrowtip-\@mmtarrowtip]
+\tikzstyle{pbiview}=[preview,\@mmtreversearrowtippartial-\@mmtarrowtippartial]
+\tikzstyle{pbiviewleft}=[preview,\@mmtreversearrowtippartialleft-\@mmtarrowtippartialleft]
+% defining views (experimental)
+\tikzstyle{defview}=[preview,densely dotted,-\@mmtarrowtip]
+% meta-theory inclusion
+\tikzstyle{meta}=[dotted,-\@mmtarrowtip,thick]
+% conservative extensions (abbreviation)
+\tikzstyle{conservative}=[hooks-\@mmtarrowtip,double] 
+% conservative development
+\tikzstyle{conservdev}=[hooks-\@mmtarrowtip,dashed,double] 
+
+% antimorphisms as striktthroughs
+\tikzset{anti/.style={
+    decoration={markings, mark=between positions 0.2 and 0.8 step 4mm with {
+        \draw [thick,-] ++ (-3pt,-3pt) -- (3pt,3pt);}},
+    postaction={decorate}}}
+
+% parallel markup
+\tikzstyle{parallel}=[\@mmtarrowtip-\@mmtarrowtip,dashed]
+
+%%%% 3. Realms 
+\tikzstyle{prerealm}=[draw=blue!40,rectangle,rounded corners,inner sep=10pt,inner ysep=20pt]
+\tikzstyle{realm}=[prerealm,fill=gray!4]
+\tikzstyle{pillar}=[prerealm,fill=gray!10]
+
+%%% 4. convenience macros
+%%% 4.1 the \mmtthy macro takes three arguments, name, decl, axioms and makes a 
+% table-like structure
+\newcommand\mmtthy[3]{\def\@second{#2}\def\@third{#3}%
+\begin{array}{l}\textsf{#1}%
+\ifx\@second\@empty\else\\\hline #2\fi%
+\ifx\@third\@empty\else\\\hline #3\fi%
+\end{array}}
+%%% 4.2 the \mmtar takes two arguments, some tikz options, and an arrow style. \nmmtar
+% is a variant that also has a name on top.
+\newcommand\mmtar[2][]{\raisebox{.5ex}{\tikz[#1]{\draw[#2] (0,0) -- (.6,0);}}}
+\newcommand\nmmtar[3][]{\raisebox{.4ex}{\tikz[#1]{\draw[#2] (0,0) --
+      node[above]{\ensuremath{\scriptstyle #3}} (.8,0);}}}
+%%%% 3.3 Pushout symbols
+%%  (after http://tex.stackexchange.com/questions/1144/pushouts-and-pullbacks)
+%% \nepushout[<pos>]{<basenode>}{<targetnode>} positions a pushout symbol 
+%% (available separately as \pushoutsymb) <pos> of the way between <basenode>
+%%  and <targetnode>. 
+\usetikzlibrary{calc}
+\newcommand\@pushout[4][]{\def\@test{#1}%
+\ifx\@test\@empty\def\@@num{.5}\else\def\@@num{#1}\fi%
+\begin{scope}[shift=($(#2)!\@@num!(#3)$)]\@nameuse{@#4pushoutsymb}\end{scope}} 
+\newcommand\@nepushoutsymb{\draw +(-.2,0) -- +(0,0)  -- +(0,-.2);\fill +(-.1,-.1) circle (.03);}
+\newcommand\nepushoutsymb{\tikz{\@nepushoutsymb}}
+\newcommand\nepushout[3][]{\@pushout[#1]{#2}{#3}{ne}}
+
+\newcommand\@sepushoutsymb{\draw +(-.2,0) -- +(0,0)  -- +(0,.2);\fill +(-.1,.1) circle (.03);}
+\newcommand\sepushoutsymb{\tikz{\@sepushoutsymb}}
+\newcommand\sepushout[3][]{\@pushout[#1]{#2}{#3}{se}}
+
+\newcommand\@nwpushoutsymb{\draw +(.2,0) -- +(0,0)  -- +(0,-.2);\fill +(.1,-.1) circle (.03);}
+\newcommand\nwpushoutsymb{\tikz{\@nwpushoutsymb}}
+\newcommand\nwpushout[3][]{\@pushout[#1]{#2}{#3}{nw}}
+
+\newcommand\@swpushoutsymb{\draw +(.2,0) -- +(0,0)  -- +(0,.2);\fill +(.1,.1) circle (.03);}
+\newcommand\swpushoutsymb{\tikz{\@swpushoutsymb}}
+\newcommand\swpushout[3][]{\@pushout[#1]{#2}{#3}{sw}}
+
+\newcommand\@npushoutsymb{\draw +(-.1,-.1) -- +(0,0)  -- +(.1,-.1);\fill +(0,-.1) circle (.03);}
+\newcommand\npushoutsymb{\tikz{\@npushoutsymb}}
+\newcommand\npushout[3][]{\@pushout[#1]{#2}{#3}{n}}
+
+\newcommand\@spushoutsymb{\draw +(-.1,.1) -- +(0,0)  -- +(.1,.1);\fill +(0,.1) circle (.03);}
+\newcommand\spushoutsymb{\tikz{\@spushoutsymb}}
+\newcommand\spushout[3][]{\@pushout[#1]{#2}{#3}{s}}
+
+\newcommand\@wpushoutsymb{\draw +(-.1,-.1) -- +(0,0)  -- +(-.1,.1);\fill +(-.1,0) circle (.03);}
+\newcommand\wpushoutsymb{\tikz{\@wpushoutsymb}}
+\newcommand\wpushout[3][]{\@pushout[#1]{#2}{#3}{w}}
+
+\newcommand\@epushoutsymb{\draw +(.1,.1) -- +(0,0)  -- +(.1,-.1);\fill +(.1,0) circle (.03);}
+\newcommand\epushoutsymb{\tikz{\@epushoutsymb}}
+\newcommand\epushout[3][]{\@pushout[#1]{#2}{#3}{e}}
+
+%%%%%% testing them: 
+% \begin{tikzpicture}[scale=1.5]
+%   \node (a) at (0,0) {a};
+%   \node (b) at (1,0) {b};
+%   \node (c) at (1,1) {c};
+%   \node (d) at (0,1) {d};
+%   \nepushout[.8]{a}c;
+%   \nwpushout[.8]{b}d;
+%   \sepushout[.8]{d}b;
+%   \swpushout[.8]{c}a;
+%   \draw (a) -- (b) -- (c) -- (d) -- (a);
+%   \node (aa) at (4,0) {a};
+%   \node (bb) at (3.5,.5) {b};
+%   \node (cc) at (4,1) {c};
+%   \node (dd) at (4.5,.5) {d};
+%   \draw (aa) -- (bb) -- (cc) -- (dd) -- (aa);
+%   \npushout[.8]{aa}{cc};
+%   \spushout[.8]{cc}{aa};
+%   \wpushout[.8]{bb}{dd};
+%   \epushout[.8]{dd}{bb};
+% \end{tikzpicture}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "test"
+%%% End:

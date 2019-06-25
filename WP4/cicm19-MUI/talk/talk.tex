@@ -34,9 +34,12 @@
 
 
 %Packages
+\usepackage{xcolor}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{mmt}
 
 %META-INFORMATION
 \title[Semantic Documents and Dynamic Notebooks]{Integrating Semantic Mathematical Documents and Dynamic Notebooks}
@@ -127,6 +130,11 @@
                     \item flexiformal = anything in-between, e.g. informal document with well-annotated formulae in between
                 \end{itemize}
             \end{itemize}
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}[fragile]{MMT}
+        \begin{itemize}
             \item \textbf{MMT} = Meta-Meta-Tool
             \begin{itemize}
                 \item framework for knowledge representation, implemented in Scala
@@ -134,7 +142,14 @@
                 \item avoids a specific representational paradigm and is language-independent
                 \item makes use of OMDOC, can thus handle formal, informal and flexi-formal documents
             \end{itemize}
+            \item Knowledge is modeled using theory graphs
+            \begin{itemize}
+                \item theory = collection of declarations 
+                \item declaration = represents a \textbf{symbol}, \textbf{statement} or \textbf{property}
+                \item theory graphs = theories and relations between them, e.g. truth-preserving mappings or extensions
+            \end{itemize}
         \end{itemize}
+        \input{graph.tex}
     \end{frame}
 
     \begin{frame}{MathHub}
@@ -194,22 +209,128 @@ gram?
         \end{enumerate}
     \end{frame}
 
-
     \section{A REPL for MMT}
 
-    \begin{frame}{Architecture of Jupyter Kernels}
+    \begin{frame}{Architecture of Jupyter and Kernels}
+        \begin{itemize}
+            \item Frontend: Implemented using \textbf{TypeScript} in the browser
+            \item Backend: Implemented using \textbf{Python}
+            \begin{itemize}
+                \item programming-language features delegated to \textbf{language-specific} kernels
+            \end{itemize}
+            \item Kernels communicate with the backend using a dedicated protocol
+            \begin{itemize}
+                \item provide a REPL-style interface
+                \item also support widgets \textit{(more on this later)}
+                \item can in principle be implemented in any language
+                \item usually written in the language they offer support for
+            \end{itemize}
+            \item We want to build a Jupyter kernel + REPL for MMT
+        \end{itemize}
     \end{frame}
 
-    \begin{frame}{MMT and Theory Graphs}
+    \begin{frame}{A Jupyter Kernel for MMT}
+        \begin{itemize}
+            \item Opening a notebook = starting a \textbf{new session}
+            \begin{itemize}
+                \item each session contains a set of commands
+                \item similar to an MMT document = set of declarations
+                \item declaration = \textbf{symbol} and optional \textbf{definition} and \textbf{type}
+            \end{itemize}
+            \item principle: create a new MMT document for each session
+            \begin{itemize}
+                \item each input generates a new declaration within the current document
+                \item definition is the input of the user
+            \end{itemize}
+            \item Recall: MMT is language and semantics independent
+            \begin{itemize}
+                \item definitions may contained \textbf{unevaluated} symbols
+                \item they may not be simplified
+            \end{itemize}
+            \item MMT also supports nesting of documents
+            \item $\Rightarrow$ it is not sufficient to provide only commands to write declarations
+        \end{itemize}
     \end{frame}
 
-    \begin{frame}{MMT Kernel Architecture 1: Overview}
+     \begin{frame}{Messages in the Jupyter Kernel}
+        \begin{itemize}
+            \item Opening a notebook = starting a \textbf{new session}
+            \begin{itemize}
+                \item each session contains a set of commands
+                \item similar to an MMT document = set of declarations
+                \item declaration = \textbf{symbol} and optional \textbf{definition} and \textbf{type}
+            \end{itemize}
+            \item principle: create a new MMT document for each session
+            \begin{itemize}
+                \item each input generates a new declaration within the current document
+                \item definition is the input of the user
+            \end{itemize}
+            \item Recall: MMT is language and semantics independent
+            \begin{itemize}
+                \item definitions may contained \textbf{unevaluated} symbols
+                \item they may not be simplified
+            \end{itemize}
+            \item MMT also supports nesting of documents
+            \item $\Rightarrow$ it is not sufficient to provide only commands to write declarations
+        \end{itemize}
     \end{frame}
 
-    \begin{frame}{MMT Kernel Architecture 2: Messages}
+    \begin{frame}{Commmands in the MMT Kernel}
+        \begin{itemize}
+            \item Global Management commands
+            \begin{itemize}
+                \item manage sessions, e.g. display, create and delete all sessions
+                \item should not be exposed to the average user
+            \end{itemize}
+            \item Local management commands
+            \begin{itemize}
+                \item start, quit, restart the current session
+                \item change the context of the current session
+                \item usually issued automatically by the kernel
+            \end{itemize}
+           \item Content Commands
+            \begin{itemize}
+                \item Write-Commands: Add new content to the MMT backend
+                \item Read-Commands: Retrieve existing content or transform it (e.g. simplification)
+                \item Interactive-Commands: Used for widgets \textit{(later)}
+            \end{itemize}
+            \item Recall: MMT is language and semantics independent
+            \begin{itemize}
+                \item definitions may contained \textbf{unevaluated} symbols
+                \item they may not be simplified
+            \end{itemize}
+        \end{itemize}
     \end{frame}
 
-    \begin{frame}{An example: Writing MMT content using Jupyter}
+    \begin{frame}{A sample notebook}
+         \begin{columns}
+        \column{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.4]{images/notebooknested}
+        \column{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.8]{images/theorynested}
+        \end{columns}
+    \end{frame}
+
+
+    \begin{frame}{MMT Kernel Architecture}
+        \begin{columns}
+        \column{0.5\textwidth}
+            \begin{itemize}
+                \item Implementation consists of three layers
+                \begin{enumerate}
+                    \item Top Layer: Jupyter Kernel written in Python
+                    \item Middle Layer: MMT Kernel written in Scala
+                    \item Bottom Layer: MMT REPL written in Scala
+                \end{enumerate}
+                \item The Top Layer communicates with the frontend via Jupyter
+                \item The Top and Middle layer communicate via a Python-JVM bridge called \textbf{Py4J}
+            \end{itemize}
+            \column{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.2]{images/eval}
+        \end{columns}
     \end{frame}
 
     \section{Widgets for Active Documents}
@@ -218,7 +339,7 @@ gram?
         \begin{itemize}
             \item widgets = \textbf{GUI component} that allows Jupyter kernels to provide graphical interfaces
             \begin{itemize}
-                \item e.g. slider, input field, ouput field, ...
+                \item e.g. button, slider, input field, output field, labels, ...
                 \item go \textbf{beyond} the REPL paradigm
             \end{itemize}
 
@@ -240,7 +361,7 @@ gram?
         \end{itemize}
     \end{frame}
 
-    \begin{frame}{MMT Kernel Architecture 3: Widgets}
+    \begin{frame}{MMT Kernel Widget Architecture}
         \centering
         \includegraphics[scale=.35]{images/widgets}
     \end{frame}
