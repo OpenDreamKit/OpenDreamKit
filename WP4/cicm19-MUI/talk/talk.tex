@@ -56,7 +56,7 @@
         \begin{columns}
         \column{0.7\textwidth}
             \begin{itemize}
-                \item \textbf{Documents} guide the user through a particular topic
+                \item \textbf{Document} = `a written, drawn, presented, or memorialized representation of thought' (Wikipedia)
                 \begin{itemize}
                     \item Papers
                     \item Talks
@@ -146,6 +146,9 @@
             \begin{itemize}
                 \item theory = collection of declarations 
                 \item declaration = represents a \textbf{symbol}, \textbf{statement} or \textbf{property}
+                \begin{itemize}
+                    \item theories are \textbf{Documents}
+                \end{itemize}
                 \item theory graphs = theories and relations between them, e.g. truth-preserving mappings or extensions
             \end{itemize}
         \end{itemize}
@@ -154,7 +157,7 @@
 
     \begin{frame}{MathHub}
         \begin{columns}
-        \column{0.4\textwidth}
+        \column{0.5\textwidth}
             \begin{itemize}
                 \item \textbf{MathHub} \url{https://mathhub.info/}
                 \begin{itemize}
@@ -162,18 +165,17 @@
                     \item uses MMT as a backend and OMDoc as a representational format
                 \end{itemize}
             \end{itemize}
-        \column{0.6\textwidth}
-            \includegraphics[scale=0.2]{images/mathhub}
+        \column{0.5\textwidth}
+            \includegraphics[scale=0.15]{images/mathhub}
         \end{columns}
     \end{frame}
 
     \begin{frame}{Goals and Challenges}
         \begin{itemize}
-            \item \textbf{Idea:} Combine interactive notebooks and static, semantically-annotated documents to get interactivity with little programming
+            \item \textbf{Idea:} Combine notebooks and documents to get interactivity with little programming
             \begin{itemize}
                 \item How can we combine the notebook and document paradigms?
-                \item How can we support flexible interactions without forcing authors to pro-
-gram?
+                \item How can we support flexible interactions without forcing authors to program?
             \end{itemize}
 
             \item Our solution
@@ -184,11 +186,6 @@ gram?
                 \item Expand this Kernel to support Widgets \textit{(more on what exactly those are later)}
                 \item Make the result accessible directly from within documents
             \end{itemize}
-
-            \item This talk: Key design choices + overview of the implementation + some examples
-            \begin{itemize}
-                \item \textit{Read the paper for more details}
-            \end{itemize}
         \end{itemize}
     \end{frame}
 
@@ -197,7 +194,7 @@ gram?
         \begin{itemize}
             \item This talk: Key design choices + overview of the implementation + some examples
             \begin{itemize}
-                \item \textit{Read the paper for more details}
+                \item \textit{Detailed write-up can be found in the paper!}
             \end{itemize}
         \end{itemize}
 
@@ -212,12 +209,19 @@ gram?
     \section{A REPL for MMT}
 
     \begin{frame}{Architecture of Jupyter and Kernels}
-        \begin{itemize}
-            \item Frontend: Implemented using \textbf{TypeScript} in the browser
-            \item Backend: Implemented using \textbf{Python}
+        \begin{columns}
+        \column{0.6\textwidth}
             \begin{itemize}
-                \item programming-language features delegated to \textbf{language-specific} kernels
+                \item Frontend: Implemented using \textbf{TypeScript} in the browser
+                \item Backend: Implemented using \textbf{Python}
+                \begin{itemize}
+                    \item programming-language features delegated to \textbf{language-specific} kernels
+                \end{itemize}
             \end{itemize}
+        \column{0.4\textwidth}
+            \includegraphics[scale=0.25]{images/jupyterarch}
+        \end{columns}
+        \begin{itemize}
             \item Kernels communicate with the backend using a dedicated protocol
             \begin{itemize}
                 \item provide a REPL-style interface
@@ -230,29 +234,6 @@ gram?
     \end{frame}
 
     \begin{frame}{A Jupyter Kernel for MMT}
-        \begin{itemize}
-            \item Opening a notebook = starting a \textbf{new session}
-            \begin{itemize}
-                \item each session contains a set of commands
-                \item similar to an MMT document = set of declarations
-                \item declaration = \textbf{symbol} and optional \textbf{definition} and \textbf{type}
-            \end{itemize}
-            \item principle: create a new MMT document for each session
-            \begin{itemize}
-                \item each input generates a new declaration within the current document
-                \item definition is the input of the user
-            \end{itemize}
-            \item Recall: MMT is language and semantics independent
-            \begin{itemize}
-                \item definitions may contained \textbf{unevaluated} symbols
-                \item they may not be simplified
-            \end{itemize}
-            \item MMT also supports nesting of documents
-            \item $\Rightarrow$ it is not sufficient to provide only commands to write declarations
-        \end{itemize}
-    \end{frame}
-
-     \begin{frame}{Messages in the Jupyter Kernel}
         \begin{itemize}
             \item Opening a notebook = starting a \textbf{new session}
             \begin{itemize}
@@ -297,7 +278,7 @@ gram?
             \item Recall: MMT is language and semantics independent
             \begin{itemize}
                 \item definitions may contained \textbf{unevaluated} symbols
-                \item they may not be simplified
+                \item unlike other kernels, input may not be immediatly evaluated
             \end{itemize}
         \end{itemize}
     \end{frame}
