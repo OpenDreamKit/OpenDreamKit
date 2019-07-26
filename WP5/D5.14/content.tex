@@ -68,10 +68,30 @@ We recall here the principle of the Chinese Remainder based rational solver.
   \State \Return $\vect{x}/d$
 \end{algorithmic}
 \end{algorithm}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{The $p$-adic lifting approach}
 
-\cite{ChSt05}
+\begin{algorithm}
+  \caption{$p$-adic lifting based rational solver}
+  \begin{algorithmic}[1]
+    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
+    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+    \State Pick a  primes $p$. Let $k$ such that $p^k \geq 2ND$
+    \State $\mat{B}\leftarrow A^{-1} \mod p$
+    \State $\vet{r}\leftarrow \vect{b}$
+    \For{$i\leftarrow 0\dots k$}
+    \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
+    \State $\vet{r} \leftarrow  \frac{\vect{r} - \mat{A}\vect{x_i}}{p}$
+    \EndFor
+    \State $\vect{y} \leftarrow \sum_{i=0}^{k-1} \vect{c}^{(i)} p^i$
+    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
+  \State \Return $\vect{x}/d$
+\end{algorithmic}
+\end{algorithm}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \section{High performance parallelization}
@@ -89,6 +109,8 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{A multicore $p$-adic lifting}
+
+Adapted from and improving on \cite{ChSt05}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{GPU enabled libraries}
