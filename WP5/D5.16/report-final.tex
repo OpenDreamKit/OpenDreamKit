@@ -147,6 +147,10 @@ export specific global variables, including user-defined functions, in
 parallel threads. To avoid difficulties, the exported value is read-only in
 the thread as frozen at the time of the \texttt{export} statement.
 
+To simplify experiments reporting, we also changed the \texttt{gp} timer to
+print both CPU time and elapsed real time (wall-clock time) when the MT
+engine is enabled.
+
 A new GP function \texttt{parploth} for parallel hi-res plots of
 slow-to-evaluate functions was also contributed by Lo\"ic Greni\'e.
 
@@ -328,44 +332,94 @@ sessions (see Chapter~2 in the user documentation in Annex).
 
 \section{Examples}
 
-\begin{verbatim} % single
-? parapply(factor, [2^i - 1 | i <- [1..201]]);
-time = 4,933 ms.
-
-\\ random degree 1000 polynomials with 1000-bit coefficients
-? a = random(2^1000 * 'X^1000); \
-  b = random(2^1000 * 'X^1000); \
-  c = random(2^1000 * 'X^1000); P = a*b; Q = a*c;
-? gcd(P, Q)
-
-\\ random dim 500 square matrix with 1000-bit coefficients
-? M = matrix(500,500, i,j, random(2^1000)); matdet(M);
-? gcd(P, Q)
-\end{verbatim}
-
+In this example, we compute the first $10^7$ Fourier coefficients of the
+$L$-function attached to the elliptic curve $E: y^2 = x^3 + ix + (i+1)$
+defined over $\mathbb{Q}(i)$, where $i = \sqrt{-1}$. We run \texttt{gp}
+configured to use POSIX threads on an idle Linux machine with 8 physical
+cores (32 logical cores through HyperThreading):
 \begin{verbatim}
+? E = ellinit([i,i+1], nfinit(i^2+1));
+? default(nbthreads,1) \\ cancel MT engine: sequential version
+? ellan(E, 10^7);
+  time = 27,801 ms.
+? default(nbthreads, 8) \\ use 1 thread / physical core
+? ellan(E, 10^7);
+cpu time = 34,568 ms, real time = 4,556 ms.
 ? default(nbthreads, 16)
-? parapply(factor, [2^i - 1 | i <- [1..201]]);
-cpu time = 6,773 ms, real time = 1,561 ms.
-? default(nbthreads, 2)
-? parapply(factor, [2^i - 1 | i <- [1..201]]);
-cpu time = 5,112 ms, real time = 2,607 ms.
+cpu time = 48,284 ms, real time = 3,346 ms.
+? default(nbthreads, 32) \\ 1 thread / logical core
+cpu time = 51,336 ms, real time = 2,042 ms.
 \end{verbatim}
+There is some overhead in using the MT engine. With 1 thread per physical
+core (\texttt{nbthreads} is 8), note that $34,568/4,556 \approx 7.6$ close to
+the number of threads, but the perceived speedup is lower: $27,801/4,556
+\approx 6.1$. With $16$ threads, the factor goes up to $27,801/ 3,346 \approx
+8.3$ and with $32$ we get $27,801/ 2,042 \approx 13.6$.
+We now write the commands above in a file \texttt{E.gp}:
+\begin{verbatim}
+E = ellinit([i,i+1], nfinit(i^2+1));
+ellan(E, 10^7);
+\end{verbatim}
+We run the same computation non-interactively with a \texttt{gp} configured
+to use MPI; note that the argument to \texttt{mpirun -np} is the number of
+process slots, which is one more than the number of available secondary
+threads since one slot is used by the master thread:
+\begin{verbatim}
+# time mpirun -np 9 gp -q < E.gp
+42.97s user 0.45s system 861% cpu 5.040 total
+# time mpirun -np 17 gp -q < E.gp
+60.28s user 6.86s system 1527% cpu 4.394 total
+# time mpirun -np 33 gp -q < E.gp
+73.73s user 14.36s system 2776% cpu 3.173 total
+\end{verbatim}
+(\texttt{gp -q} runs the interpreter in \emph{quiet} mode, suppressing header
+and good-bye messages.) The overhead is more important than with POSIX
+threads but we are no longer limited by the number of logical cores on a
+single machine.
+
+We go back to POSIX threads and finish by an example from deliverable D4.10
+(PARI Python bindings, \texttt{cypari2}) which shows how easy it is for
+external applications (here IPython) to leverage the GP parallel interface:
 
 \begin{verbatim}
 In [1]: from cypari2 import Pari; pari = Pari()
-
 In [2]: pari.default("nbthreads", 2)
-
 In [3]: L = [2**i - 1 for i in range(1, 201)]
-
 In [4]: %time res = pari.parapply("factor", L)
 CPU times: user 6.76 s, sys: 170 ms, total: 6.93 s
 Wall time: 3.6 s
 \end{verbatim}
 
-\appendix
+This factors a few Mersenne numbers using 2 threads, without paying attention
+to sizing tasks or load balancing (some factorizations in the list are
+instantaneous, some much slower). Nevertheless, we gain roughly a factor 2.
 
+Here is the equivalent GP code run in \texttt{gp} on the same machine
+as above, configured to use POSIX threads
+\begin{verbatim}
+? apply(factor, [2^i - 1 | i <- [1..201]]); \\ sequential version
+time = 5,064 ms.
+? parapply(factor, [2^i - 1 | i <- [1..201]]); \\ 32 threads
+cpu time = 6,532 ms, real time = 1,508 ms.
+? default(nbthreads,8)
+? parapply(factor, [2^i - 1 | i <- [1..201]]);
+cpu time = 6,164 ms, real time = 1,900 ms.
+? default(nbthreads,2)
+? parapply(factor, [2^i - 1 | i <- [1..201]]);
+cpu time = 4,945 ms, real time = 2,490 ms.
+\end{verbatim}
+The reason we get diminishing returns as the number of threads increases
+(we get a modest factor 3 speedup with 32 threads) is because load balancing
+is far from optimal. To check this, we can submit identical tasks and get
+roughly the expected speedup ($\approx 30$):
+\begin{verbatim}
+? parapply(factor, vector(201,i, 2^201-1)); \\ 201 identical instances
+cpu time = 1min, 24,612 ms, real time = 2,831 ms.
+\end{verbatim}
+\bigskip
+\bigskip
+
+\appendix
 \section{Snapshot of the documentation at the time of delivery}
 
 \includepdf[pages=-]{ODK-parallel.pdf}
