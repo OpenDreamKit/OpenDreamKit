@@ -18,8 +18,10 @@ The \Pari library is a state-of-the-art library for number theory,
 developed at Bordeaux University. It is an important component of the \Sage
 computational system: \Sage uses it for example to implement number fields
 and elliptic curves. \Pari itself is a C library but it comes with a
-command-line interface called GP, and a GP-to-C compiler called GP2C.
-Together, these form the software package \PariGP.
+command-line interface called \texttt{gp} which can be programmed in the GP
+scripting language, and a GP-to-C compiler called GP2C. Together, these form
+the software package \PariGP. This deliverable is about allowing,
+simplifying, or spreading the use of parallel computation in the system.
 
 In experimental number theory, many large computations are embarassingly
 parallel: no communication is needed between parallel tasks and there is
@@ -71,9 +73,10 @@ maintaining three or more variants of each algorithm (single core machine,
 multicore single machine, cluster) is not manageable.
 
 This deliverable, a merger of subtask D5.10 and demonstrator D5.16 in the
-submitted proposal, was about implementing a generic parallel engine in the
-\PariGP system, using it inside the system (expecting speed gains) and
-exporting it for library users. Then releasing a \PariGP suite making those
+submitted proposal, implements a generic parallel engine in the
+\PariGP system, uses it inside the system (expecting speed gains) and
+exports it for library users. The released \PariGP suite (PARI-2.12 at
+\url{http://pari.math.u-bordeaux.fr/download.html}) makes those
 improvements and new features available for the community, in particular
 \Sage users and all softwares using the \Pari library.
 
@@ -103,9 +106,17 @@ in two scenarii
 \section{Work accomplished}
 \subsection{Initial state at the start of the project}
 Since PARI-2.7 (released 03/2014), it was already possible to build a
-thread-safe PARI library, to use a handful of parallel GP control structures
-(to enforce the Explicit scenario in the previous section) and to use the
-standard POSIX threads interface in separate autonomous C programs.
+thread-safe PARI library and to use the standard POSIX threads interface in
+separate autonomous C programs. The GP language also contained a handful of
+parallel control structures, mirroring sequential equivalents, which
+allowed the Explicit scenario in the previous section: for instance, the
+sequential \texttt{for} loop has a parallel \texttt{parfor} equivalent.
+
+Two main difficulties with parallel computing in GP prevent an automatic
+switch to the Implicit paradigm: first, using the parallel machinery 
+involves overhead and it is hard to decide automatically whether
+an arbitrary \texttt{for} loop will benefit or suffer; and second, 
+global variables (more generally, side effects) cause the usual difficulties.
 
 \subsection{The generic MT engine}
 The MT engine was written and finalized in 2015 and 2016 and is in
@@ -124,47 +135,62 @@ post-processing is not negligible, the gain is less important.
 User documentation for the engine is included in an annex at the end of the
 present document.
 
-\subsection{Using the MT engine throughout the PARI library}
+\subsection{Update of the GP interface}
+
+The pitfalls of parallel GP programming have been listed and documented
+(see Chapter 2 of the user documentation in Annex). A major problem was the
+use of global GP variables, in particular user-defined global functions
+in parallel sections of the code. How to do this was obscure and hard to
+explain to beginners. This led to the introduction of GP functions
+\texttt{export} and \texttt{exportall} (in PARI-2.12) which allow to cleanly 
+export specific global variables, including user-defined functions, in
+parallel threads. To avoid difficulties, the exported value is read-only in
+the thread as frozen at the time of the \texttt{export} statement.
+
+A new GP function \texttt{parploth} for parallel hi-res plots of
+slow-to-evaluate functions was also contributed by Lo\"ic Greni\'e.
+
+\subsection{Use of the MT engine throughout the PARI library}
 Development work since PARI-2.9 has been targetted at using the MT engine
 wherever it made sense in the \Pari code base, after a preliminary assessment
-in early 2017: we strived to implement them by order of decreasing impact
-inside the \Pari library and by increasing complexity of existing sequential
-code. In particular, basic routines with multiple applications were attempted
-first, before the higher level ones. In the current public release
-(PARI-2.12, released 06/2019), the following functions are covered by the
-engine:
+in early 2017: we strived to parallelize functions by order of decreasing
+impact inside the \Pari library and by increasing complexity of existing
+sequential code. In particular, basic routines with multiple applications
+were attempted first, before the higher level ones. In the current public
+release (PARI-2.12, released 06/2019), the following functions are covered by
+the engine:
 
 \begin{itemize}
 \item simultaneous Chinese remaindering (CRT) problems for a fixed set of
   moduli; a fast (quasi-linear time) sequential CRT routine was actually
   written as the engine was developped (previous CRT implementation was
-  quadratic instead of linear). This a building block used to recognize
-  matrices or polynomials with huge rational coefficients, used in standard
+  quadratic instead of linear). This is a building block used to recognize
+  matrices or polynomials with huge rational coefficients, in standard
   modular algorithms, e.g., polynomial gcd, characteristic polynomial,
   inverses of algebraic number; inverse or determinant of matrix.
 
-\item fast linear algebra over the rationals and cyclotomic fields; this 
-  uses intensively a new implementation of fast CUP decomposition (in time
-  $O(\text{dim}^{\log_2 7})$) over finite fields developped by Peter Bruin
-  (2018) and turned into a general linear algebra package by Bill Allombert;
-  this is a critical building block for the Modular Forms and Modular symbols
-  packages.
+\item fast linear algebra over the rationals and cyclotomic fields; this uses
+  intensively a new implementation of fast CUP decomposition over finite
+  fields developped by Peter Bruin (2018) and turned into a general linear
+  algebra package by Bill Allombert; this is a critical component of
+  the ``Modular Forms'' and ``Modular symbols'' packages.
 
 \item polynomial resultant in $\mathbb{Z}[X] \times \mathbb{Z}[X,Y]$
   via Chinese remainders and Lagrange interpolation; this operation is a
   building block for algebraic number theory computations over number
-  fields (compositum, relative extension, norm, characteristic polynomial).
+  fields (compositum, field extension, characteristic polynomial and norm
+  of algebraic numbers).
 
-\item computation of classical modular polynomials for about 20 invariants
+\item classical modular polynomials for about 20 invariants
   (elliptic $j$, Weber $f,f_1,f_2$ functions, small eta quotients, \dots);
     this is a building block for complex multiplication and many algorithms
-    exploiting isogenies between elliptic curves (SEA point-counting
-    algorithm, ECPP primality test, supersingularity test).
+    exploiting isogenies between elliptic curves (SEA and Satoh point-counting
+    algorithms for elliptic curves, supersingularity test, ECPP primality test).
 
 \item discrete logarithm over finite fields (prime fields and
-  $\mathbb{F}_{p^e}$ for word\item sized prime p);
+  $\mathbb{F}_{p^e}$ for word sized prime $p$);
 
-\item APRCL primality proof;
+\item Adleman-Pomerance-Rumely-Cohen-Lenstra (APRCL) primality proof;
 
 \item Fourier coefficients of $L$-functions (Hasse-Weil function for
   elliptic curves over number fields, symetric powers of elliptic cuves or
@@ -188,16 +214,16 @@ well understood; 2) the code contains natural splitting or synchronization
 points.
 
 Condition 1) was not always satisfied and we took the opportunity to simplify
-and rewrite existing code in order to improve the code quality before adding
-parallel instructions. Condition 2) was usually satisfied; one exception was
-modular computations in a dynamic setting, where we want to stop as soon as
-the result can be ``recognized'' and we do not know in advance how many
-modular threads will be needed. In that case, the behaviour very much depends
-on the size of the result, which can be bounded in advance, but possibly
-pessimistically. We handled that case with a naive doubling strategy: we
-double the number of modular threads until the result is obtained; this way
-we spend at most double the time which would be needed, had we known the
-result size in advance.
+and rewrite previous implementations in order to improve the code quality
+before adding parallel instructions. Condition 2) was usually satisfied; one
+exception was modular computations in a dynamic setting, where we want to
+stop as soon as the result can be ``recognized'' and we do not know in
+advance how many modular threads will be needed. In that case, the behaviour
+very much depends on the size of the result, which can be bounded in advance,
+but possibly pessimistically. We handled that case with a naive doubling
+strategy: we double the number of modular threads until the result is
+obtained; this way we spend at most double the time which would be needed,
+had we known the result size in advance.
 
 \subsection{Impact and Related work}
 
@@ -210,7 +236,7 @@ by Karim Belabas and Bernadette Perrin-Riou, released in two stages: PARI-2.9
 (2016) and PARI 2.11 (2018)): modular symbols are a standard way to work with
 spaces of classical modular forms $M_k(\Gamma_0(N))$ using
 $\mathbb{Q}$-linear algebra. The linear algebra improvements allowed to write
-routines such as the \kbd{ellweilcurve} GP function, which computes the
+routines such as the \texttt{ellweilcurve} GP function, which computes the
 strong Weil curve in an isogeny class of rational elliptic curves starting
 from the modular eigensymbol having the same eigenvalues of the newform
 attached to the isogeny class (by the modularity theorem of Wiles at al.) In
@@ -224,21 +250,21 @@ Allombert, Karim Belabas and Henri Cohen, released in PARI-2.11): to handle
 classical spaces of modular forms $M_k(\Gamma_0(N), \chi)$, this package
 requires working with large matrices (of dimension $\Omega(kN)$) over the
 cyclotomic field $\mathbb{Q}(\chi)$. In fact, the extension of linear algebra
-from the rationals to cyclotomic fields was motivated by this single (major)
+from the rationals to cyclotomic fields was motivated by this single critical
 application.
 
 The fast computation of modular polynomials allowed Jared Asuncion to
-implement the ECPP primality proof in full generality, without relying on the
-presence of precomputed tables, which would have limited the size of the
-primes the implementation could handle. For the same reason, the Satoh point
-counting algorithm for elliptic curves over large non-prime finite fields
-could be implemented in full generality by Bill Allombert. Both algorithms
-are now part of the \PariGP system.
+implement the ECPP primality proof in full generality (PARI-2.11), without
+relying on the presence of precomputed tables, which would have limited the
+size of the primes the implementation could handle. For the same reason, the
+Satoh point counting algorithm for elliptic curves over large non-prime
+finite fields could be implemented in full generality by Bill Allombert
+(PARI-2.9).
 
 The parallel computation of Fourier coefficients is used
 in the ``$L$-functions'' package, which computes values of motivic
 $L$-functions $L_f(s) = \sum_{n>0} a(n,f) n^{-s}$ at complex points $s\in
-\CM$, where $f$ is some ``motive'' of geometric origin, for instance a
+\mathbb{C}$, where $f$ is some ``motive'' of geometric origin, for instance a
 modular form or a curve defined over some number field. For given $f$, this
 requires computing all Fourier coefficients $a(n,f)$, $n \leq B$, for
 some large bound $B$ depending moderately on $s$ (which allows for
@@ -261,19 +287,20 @@ this was a daunting task since the existing implementation was both efficient
 and complicated, full of side effects (modifying global state, writing
 to/reading from files); so this particular application was attempted last.
 The rewrite was completed at the beginning of August 2019 in the public
-\kbd{master} git branch, the parallel variant will be written in Autumn 2019.
-This is work in progress.
+PARI git repository (\url{http://pari.math.u-bordeaux.fr/cgi-bin/gitweb.cgi}),
+the parallel variant will be written in Autumn 2019. This is work in
+progress.
 
 The existing class group and units implementation is an equally difficult
 case with a code base developped over 25 years by many people. After our 2017
 assessment, we decided against modifying it during the course of the
 OpenDreamKit projet: in most applications we inventoried, a single class
-group computation (made ten time faster, say, by internal parallel
+group computation (made twice faster, say, by internal parallel
 computations) would not make a major difference. Naive external
 parallelization appeared sufficient, where we handle $N$ similar class group 
 and unit computations in parallel instead of parallelizing each single
 instance to try and make it $N$ times faster. This application may be
-considered later but is not a high-priority task.
+considered again in the future but is not a high-priority task.
 
 \subsection{Dissemination}
 
@@ -294,11 +321,12 @@ at the following OpenDreamKit conferences:
   1h20 tutorial by Bill Allombert.
 \end{itemize}
 The various Ateliers were also the most important way we got feedback from
-users about the proposed interfaces and features.
-
+users about the proposed interfaces and features. In particular, the GP
+interface was updated when we became aware that it introduced many pitfalls
+that sequential GP programmers had trouble with during the tutorial
+sessions (see Chapter~2 in the user documentation in Annex).
 
 \section{Examples}
-TODO
 
 \begin{verbatim} % single
 ? parapply(factor, [2^i - 1 | i <- [1..201]]);
@@ -310,8 +338,8 @@ time = 4,933 ms.
   c = random(2^1000 * 'X^1000); P = a*b; Q = a*c;
 ? gcd(P, Q)
 
-\\ random dim 300 square matrix with 100-bit coefficients
-? M = matrix(300,300, i,j, random(2^100)); M^(-1);
+\\ random dim 500 square matrix with 1000-bit coefficients
+? M = matrix(500,500, i,j, random(2^1000)); matdet(M);
 ? gcd(P, Q)
 \end{verbatim}
 
