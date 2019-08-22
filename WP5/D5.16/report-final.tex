@@ -283,7 +283,18 @@ for different primes $p$ are independent and are now made in parallel for all
 complicated $L$-functions. The attached generic speedup applies to all
 $L$-function related code.
 
+
 \subsection{Work in progress}
+
+In order to compute values $L_f(s)$ of $L$-functions, the PARI algorithm 
+requires their Fourier coefficients as described above and to approximate
+inverse Mellin transforms of $\Gamma$-products (so-called Meijer
+$G$-functions), this part can also be parallelized and this required a major
+rewrite of the corresponding sequential code, which used complex data
+structures and far too much memory. This work was finished in August 2019 and
+is publicly available in the PARI git repository
+(\url{http://pari.math.u-bordeaux.fr/cgi-bin/gitweb.cgi}), but not yet
+in a released version.
 
 We have rewritten \Pari's Multiple Polynomial Quadratic Sieve (MPQS) integer
 factorization sequential implementation so as to allow its parallelization:
@@ -291,9 +302,8 @@ this was a daunting task since the existing implementation was both efficient
 and complicated, full of side effects (modifying global state, writing
 to/reading from files); so this particular application was attempted last.
 The rewrite was completed at the beginning of August 2019 in the public
-PARI git repository (\url{http://pari.math.u-bordeaux.fr/cgi-bin/gitweb.cgi}),
-the parallel variant will be written in Autumn 2019. This is work in
-progress.
+PARI git repository, the parallel variant will be written in Autumn 2019.
+This is work in progress.
 
 The existing class group and units implementation is an equally difficult
 case with a code base developped over 25 years by many people. After our 2017
@@ -332,6 +342,8 @@ sessions (see Chapter~2 in the user documentation in Annex).
 
 \section{Examples}
 
+\subsection{POSIX threads}
+
 In this example, we compute the first $10^7$ Fourier coefficients of the
 $L$-function attached to the elliptic curve $E: y^2 = x^3 + ix + (i+1)$
 defined over $\mathbb{Q}(i)$, where $i = \sqrt{-1}$. We run \texttt{gp}
@@ -355,7 +367,47 @@ core (\texttt{nbthreads} is 8), note that $34,568/4,556 \approx 7.6$ close to
 the number of threads, but the perceived speedup is lower: $27,801/4,556
 \approx 6.1$. With $16$ threads, the factor goes up to $27,801/ 3,346 \approx
 8.3$ and with $32$ we get $27,801/ 2,042 \approx 13.6$.
-We now write the commands above in a file \texttt{E.gp}:
+
+With the above coefficients we can for instance compute values of the attached
+complex $L$-function, which is expected to satisfy the Riemann Hypothesis: all
+solutions $L(s) = 0$ are either trivial (here all negative even integers)
+or on the \emph{critical line} $\Re(s) = 1$. We use 32 threads and
+start by precomputations allowing fast evaluation on the segment
+$[1, 1 + 101i]$ of the critical line:
+\begin{verbatim}
+? L = lfuninit(E, [101]);
+cpu time = 53,048 ms, real time = 2,673 ms.
+
+? lfun(L,1) \\ instantaneous; L does not vanish at 1
+%9 = 2.2853086390096702203612249191313551703
+
+? #lfunzeros(L, [0,100]) \\ 308 zeros in the interval [1, 1+100i]
+cpu time = 1,624 ms, real time = 1,630 ms.
+%10 = 308
+
+? #lfunzeros(L, [90,100]) \\ ... and 37 in [1+90i, 1+100i]
+cpu time = 236 ms, real time = 238 ms.
+%11 = 37
+
+? export(L); parploth(t = 90,100, lfunhardy(L,t))
+cpu time = 613 ms, real time = 51 ms.
+\end{verbatim}
+$$\includegraphics[scale=0.5]{L.pdf}$$
+The Hardy function plotted above is a real-valued function $H(t)$ of the real
+variable $t$ such that $L(1+it) = 0 \Leftrightarrow H(t) = 0$. Assuming
+the Riemann hypothesis, the zeros are simple and $H$ must change sign
+at each zero of $L(1+it)$, which is in fact the basis of the
+\texttt{lfunzeros} algorithm. We can actually count the 37 zeros in the
+graph, but two zeros at the right end of the interval are doubtful. Zooming
+in shows that the graph indeed crosses the real axis twice:
+\begin{verbatim}
+? parploth(t = 98,100, lfunhardy(L,t))
+\end{verbatim}
+$$\includegraphics[scale=0.5,angle=-90]{L2.pdf}$$
+
+\subsection{MPI}
+
+We now write part of the commands above in a file \texttt{E.gp}:
 \begin{verbatim}
 E = ellinit([i,i+1], nfinit(i^2+1));
 ellan(E, 10^7);
@@ -376,6 +428,8 @@ threads since one slot is used by the master thread:
 and good-bye messages.) The overhead is more important than with POSIX
 threads but we are no longer limited by the number of logical cores on a
 single machine.
+
+\subsection{External applications}
 
 We go back to POSIX threads and finish by an example from deliverable D4.10
 (PARI Python bindings, \texttt{cypari2}) which shows how easy it is for
