@@ -1,5 +1,7 @@
 \documentclass{deliverablereport}
 \usepackage{pdfpages}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.5}
 
 \deliverable{hpc}{pari-hpc2}
 \deliverydate{2019-08-31}
@@ -242,7 +244,7 @@ spaces of classical modular forms $M_k(\Gamma_0(N))$ using
 $\mathbb{Q}$-linear algebra. The linear algebra improvements allowed to write
 routines such as the \texttt{ellweilcurve} GP function, which computes the
 strong Weil curve in an isogeny class of rational elliptic curves starting
-from the modular eigensymbol having the same eigenvalues of the newform
+from the modular eigensymbol having the same eigenvalues as the newform
 attached to the isogeny class (by the modularity theorem of Wiles at al.) In
 the range of the Cremona tables that we wanted to check (conductor $N \leq
 500,000$), this requires computing kernels of rational matrices of dimension
@@ -253,9 +255,9 @@ new ``Modular Forms'' package (developped between 2016 and 2018 by Bill
 Allombert, Karim Belabas and Henri Cohen, released in PARI-2.11): to handle
 classical spaces of modular forms $M_k(\Gamma_0(N), \chi)$, this package
 requires working with large matrices (of dimension $\Omega(kN)$) over the
-cyclotomic field $\mathbb{Q}(\chi)$. In fact, the extension of linear algebra
-from the rationals to cyclotomic fields was motivated by this single critical
-application.
+cyclotomic field $\mathbb{Q}(\chi)$. In fact, the extension of fast linear
+algebra from the rationals to cyclotomic fields was motivated by this single
+critical application.
 
 The fast computation of modular polynomials allowed Jared Asuncion to
 implement the ECPP primality proof in full generality (PARI-2.11), without
@@ -367,6 +369,19 @@ core (\texttt{nbthreads} is 8), note that $34,568/4,556 \approx 7.6$ close to
 the number of threads, but the perceived speedup is lower: $27,801/4,556
 \approx 6.1$. With $16$ threads, the factor goes up to $27,801/ 3,346 \approx
 8.3$ and with $32$ we get $27,801/ 2,042 \approx 13.6$.
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+title=Real time speedup wrt. sequential run,
+xlabel={number of threads},
+ylabel={speedup},
+xmin=1, xmax=32
+]
+\addplot table {threads.dat};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 With the above coefficients we can for instance compute values of the attached
 complex $L$-function, which is expected to satisfy the Riemann Hypothesis: all
