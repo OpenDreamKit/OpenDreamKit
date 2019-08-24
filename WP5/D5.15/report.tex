@@ -15,7 +15,9 @@
 % Original list of sections and subsections created from
 % https://github.com/OpenDreamKit/OpenDreamKit/issues/113
 
-\section{Developments in the core GAP system}
+TODO: Write some preamble. Describe the structure of this report.
+
+\section{Developments in the core GAP system}\label{core-gap}
 
 This Section highlights some most important and relevant to
 OpenDreamKit changes in the new GAP releases published during the
@@ -27,7 +29,7 @@ website at \url{https://www.gap-system.org/Manuals/doc/changes/chap0.html}.
 This work includes contributions from our external collaborators, whose
 authorship could be seen from the version control history.
 
-\subsection{GAP 4.8 (February 2016)}
+\subsection{GAP 4.8 (February 2016)}\label{gap-4.8}
 
 GAP 4.8 was the first major release of GAP published
 after the start of the OpenDreamKit project.
@@ -66,7 +68,7 @@ GAP system were accompanied by the {\sf Profiling} package by Christopher Jeffer
 GAP 4.8 had seven public releases between February 2016 and August 2017, and
 was replaced by GAP 4.9.
 
-\subsection{GAP 4.9 (May 2018)}
+\subsection{GAP 4.9 (May 2018)}\label{gap-4.9}
 
 GAP 4.9 continued restructuring and modernising of the core GAP system.
 For example, we removed our old home-grown big integer code, and instead always 
@@ -116,7 +118,7 @@ displaying compiled functions.
 GAP 4.9 had three public releases between May and September 2019, and
 was replaced by GAP 4.10.
 
-\subsection{GAP 4.10 (November 2018)}
+\subsection{GAP 4.10 (November 2018)}\label{gap-4.10}
 
 The release of GAP 4.9 with the new build system allowed to continue
 further restructuring of the core GAP system and finalise a number of
@@ -247,7 +249,7 @@ IsomorphismGroups(G,PcGroupCode(CodePcGroup(G),Size(G)))<>fail;
 %  [WP2/D2.1/report.tex](WP2/D2.1/report.tex).
 
 
-\subsection{libGAP: allowing 3rd party code to link GAP as a library}
+\subsection{libGAP: allowing 3rd party code to link GAP as a library}\label{libgap}
 
 GAP 4.10.0 (November 2018) was also the first official GAP release
 which provided an experimental way to allow 3rd party code to 
@@ -267,7 +269,7 @@ tested GAP interface instead, starting from SageMath 8.6 (January 2019).
 % SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
 
 
-\section{High-performance computing with GAP}
+\section{High-performance computing with GAP}\label{hpc}
 
 \subsection{HPC-GAP: multithreaded programming in GAP}\label{hpc-gap}
 
@@ -287,7 +289,7 @@ with HPC-GAP, which comes together with the new manual book called
 % What about making https://www.gap-system.org/Manuals/doc/hpc/manual.pdf 
 % an electronic appendix to the deliverable?
 
-\section{meataxe64: high-performance linear algebra over finite fields}
+\section{meataxe64: high-performance linear algebra over finite fields}\label{meataxe64}
 
 WHO: Steve
 
@@ -295,25 +297,120 @@ This will describe the GAP interface to meataxe64: \url{https://meataxe64.wordpr
 
 % TODO: make a release at https://github.com/gap-packages/meataxe64/ and publish it at https://gap-packages.github.io/meataxe64/ 
 
-\section{Packages}
+\section{Regression testing, Package management and Release management}\label{gap-infra}
 
-TODO: Introduction - brief background details on what GAP packages are.
+In this section we will describe mostly the technical aspects of
+ensuring that all developments are becoming available to users.
+The social aspects such as community building, user training
+and technical support will be described in Section~\ref{gap-support}.
 
-\subsection{Package ecosystem}
+\subsection{Regression testing}\label{testing}
 
-WHO: Alex
+What are regression tests.
+How GAP tests are organised.
+How do we test GAP.
+What are GAP packages (need to explain here, since we refer to them later).
+What could possibly go wrong? Our changes
+break packages, packages break the core
+system, packages are incompatible or break one another.
 
-This will describe the growth of the community, the improvements in tests, frequency
-of package updates, tools that appeared and helped to package authors. The narrative
-will be based recent on GAP posters and talk in May in Manchester, with visualisations
-used there.
+What are the limitations of Jenkins.
+How useful is to run tests on Travis.
+Code coverage and connection to CodeCov.
+Making it open leads to gamification.
+Some plots or screenshots of GAP code coverage growth.
+Related improvements in GAP tests making them
+easy to run on a directory, making their output 
+more informative, etc.
 
-\subsection{GAP package manager}
+Describe here docker containers for development 
+versions of GAP (since they are needed to test
+packages).
+
+\section{GAP Packages}\label{packages}
+
+Which tools we provide to support packages.
+
+PackageMaker: (by Max Horn) https://github.com/gap-system/PackageMaker 
+
+Example package: https://github.com/gap-packages/example 
+
+ReleaseTools (by Max Horn): https://github.com/gap-system/ReleaseTools 
+
+GitHubPagesForGAP (by Max Horn): https://github.com/gap-system/GitHubPagesForGAP 
+
+Docker containers: https://hub.docker.com/r/gapsystem/ 
+
+Standard setup for Travis CI and CodeCov (by Max Horn et al.)
+
+Add screenshots from Travis and CodeCov for packages
+
+As a result of this, and activities to promote this described in Section~\ref{gap-support},
+we observed the growth of the community, the improvements in tests, frequency
+of package updates, tools that appeared and helped to package authors. 
+
+Figure~\ref{fig:gap-package-releases} shows how package releases became more frequent.
+Now the oldest package is released in 2012, and the majority is 2018--2019. 
+This means that packages are updated to make use of the recent GAP developments,
+they are responsive to reports about detected problems; hosting packages on GitHub
+facilitates that; we can help by submitting PRs and publish releases for authors,
+who prefer to overlook mathematical functionality and general development of the
+package but do not want to dive into technicalities of release wrapping.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-package-releases}
+    \caption{Number of GAP packages and their release year}
+    \label{fig:gap-package-releases}
+\end{figure}
+
+Figure~\ref{fig:gap-package-releases} shows that not only
+package releases became more frequent, but also their quality
+improved. We are able to tests more packages, and tests pass
+for more packages. At the same time, community grows - it
+shows the number of package authors.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-package-tests}
+    \caption{Number of GAP packages, their authors, and packages with tests.}
+    \label{fig:gap-package-tests}
+\end{figure}
+
+\subsection{GAP package manager}\label{pkg-manager}
 
 WHO: Michael
 
 Describe \url{https://gap-packages.github.io/PackageManager/}
 
+\subsection{Packaging GAP distribution}\label{distro}
+
+WHO: Alex
+
+When we decide that there is a time for the next release
+(minor or major; update releases were in the past but then abolished).
+What are the standards for passing tests. 
+
+How release wrapping is automated.
+Which GAP distributions we provide officially.
+
+Figure~\ref{fig:gap-package-releases} shows how package releases became more frequent.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-releases}
+    \caption{Number of major and minor GAP releases per year since GAP 4.4 release.}
+    \label{fig:gap-releases}
+\end{figure}
+
+Main distributions
+Regression testing
+Windows distribution and installer migrated from Windows 7 to Windows 10
+Alternative distributions: Docker, Homebrew, 
+Opportunity to try GAP online with Jupyter notebook running on Binder.
+Improved testing
+Code coverage, various sets of automated Travis builds
+This is based on Docker containers for various branches.
 
 \section{Jupyter interface to GAP}
 
@@ -337,27 +434,7 @@ allows to try GAP in Jupyter online. Provide details
 and consider including an appendix with an example 
 demonstrating the setup.
 
-\section{GAP distributions}
-
-WHO: Alex
-
-Main distributions
-
-Regression testing
-
-Windows distribution and installer migrated from Windows 7 to Windows 10
-
-Alternative distributions: Docker, Homebrew, 
-
-Opportunity to try GAP online with Jupyter notebook running on Binder.
-
-Improved testing
-
-Code coverage, various sets of automated Travis builds
-
-This is based on Docker containers for various branches.
-
-\section{Community building, Training and Dissemination}
+\section{Community building, Technical support, User Training and Dissemination}\label{gap-support}
 
 WHO: Alex
 
@@ -385,7 +462,9 @@ persistent memoisation
 
 databases
 
+% TODO: Bibliography. Ensure that we are following software citation recommendations properly!
 \end{document}
+
 
 %%% Local Variables:
 %%% mode: latex
