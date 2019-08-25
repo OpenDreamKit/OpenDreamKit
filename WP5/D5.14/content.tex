@@ -12,20 +12,23 @@ denominator. Applying the standard direct methods designed for solving approxima
 rational numbers would lead to a blowup in the bitsize of the coefficients, and result in overwelming computation
 overheads, with time complexities often not even polynomial.
 
+\TODO{clarify from the onset that the following paragraph is about
+  literature, not work done here (right?)}
+
 In a series of algorithmic innovations, summarized in Table~\ref{tab:complexities}, the time complexity for solving exactly a linear system over the rationals has
 been reduced to $\SO{n^3}$ or $\SO{n^\omega}$ which is asymptotically as fast as the complexity for solving
 approximately using floating point numbers.
 
 First, the use of rational reconstruction makes it possible to recover the rational solution from the solution of the same
-system projected intoa large enough finite field.
-This approach avoids the  swell in the bitsize of the intermediate computations and compute with the arithemtic precision of the output for a total cost of $\GO{n^5}$.
+system projected into a large enough finite field.
+This approach avoids the  swell in the bitsize of the intermediate computations and compute with the arithmetic precision of the output for a total cost of $\GO{n^5}$.
 Then, using  multi-modular representation and the Chinese Remainder Theorem, reduces this cost  to $\SO{n^4}$.
 This cost, corresponding to the arithmetic complexity of Gaussian elimination multiplied by the bitsize of the output,
-is a sub-optimal. By better balancing the computation load between numerous arithmetic operation on small bitsize and
+is sub-optimal. By better balancing the computation load between numerous arithmetic operation on small bitsize and
 few operations on large bitsize, one can hope to further reduce this complexity. This is achieved by $p$-adic lifting
 techniques~\cite{Dix82}, reaching a $\SO{n^3}$ time complexity. Improving the complexity for this problem is still a
-very active topic: it was then improved by~\cite{Sto05} to $\SO{n^\omega}$ using a randomization, and the same
-complexity can now been reached deterministically since this year~\cite{BLS19}.
+very active topic: \cite{Sto05} reduced it to $\SO{n^\omega}$ using randomization, and the same
+complexity can now be reached deterministically since this year~\cite{BLS19}.
 
 
 
@@ -79,7 +82,7 @@ We recall here the principle of the Chinese Remainder based rational solver.
     \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
     \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
     \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
-    \State Pick a  primes $p$. Let $k$ such that $p^k \geq 2ND$
+    \State Pick a prime $p$. Let $k$ such that $p^k \geq 2ND$
     \State $\mat{B}\leftarrow A^{-1} \mod p$
     \State $\vect{r}\leftarrow \vect{b}$
     \For{$i\leftarrow 0\dots k$}
@@ -101,6 +104,11 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{MPI based Chinese remainder algorithm}
+
+\TODO{Pretty convincing figure about scaling factors! Maybe add a line
+  representing what a perfect parallelisation would achieve for
+  comparison? How comes that the size of the matrix barely matters?}
+
 \begin{figure}[htb]
 \begin{center}
   \includegraphics[width=.7\textwidth]{nodes_histogram}
@@ -119,6 +127,7 @@ Adapted from and improving on \cite{ChSt05}.
 \bibliographystyle{plainnat}
 \bibliography{D5.14}
 
-%% LaTeX-Master: report.tex
-%% mode: latex
-
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "report"
+%%% End:
