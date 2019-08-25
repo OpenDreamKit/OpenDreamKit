@@ -1,0 +1,48 @@
+We present a unified infrastructure to support Deep FAIR for relational mathematical data.
+It builds on our MathHub system, a portal for narrative and symbolic mathematical data.
+MathDataHub is a part of the MathHub portal and provides storage and hosting with integrated support for Deep FAIR.
+In the future, this will also allow for the development of mathematical query languages (i.e., queries that abstract from the encoding) and mathematical validation (e.g., type-checking relative to the mathematical types, not the database types).
+
+To that end, we developed a mathematical data description language MDDL in~\cite{BerKohRab:tumdi19} (Math Data Description Language) that uses symbolic data to specify the semantics of relational data.
+MDDL schemas combine the low-level schemas of relational database with high-level descriptions (which critically use symbolic mathematical data) of the mathematical types of the data in the tables.
+
+\begin{figure}[ht]
+  \includegraphics[width=.48\textwidth]{data_joe-schema}
+  \caption{Schema theory for Joe's dataset}\label{fig:joe-schema}
+\end{figure}
+
+To fortify our intuition let us assume that Joe has collected a set of integer matrices together with their trace
+and the Boolean property whether they are orthogonal.
+Figure~\ref{fig:joe-schema} shows a MDDL theory that describes his database schema.
+For example, the mathematical type of the field $\mathsf{mat}$ is integer $2\times2$ matrices;
+the $\mathsf{codec}$ annotation specifies how this mathematical type is be encoded as a low-level database type (in this case: arrays of integers).
+Concretely, the codec is $\mathsf{MatrixAsArray}$ codec operator applied to the identity codec for integers.
+These codec annotations capture the representation theorem that allows representing the mathematical objects as ground data that can be stored in databases. 
+%The tag \textsf{opaque} specifies that matrices cannot be used for filtering in the user interface. 
+
+The information is sufficient to generate a database schema -- here one table with columns $\mathsf{mat}$, $\mathsf{trace}$, and $\mathsf{orthogonal}$ -- as well as a database browser-like website frontend (see Figure~\ref{fig:joe}).
+The generation of APIs for computational software such as computer algebra systems is also possible and currently under development. 
+
+\begin{figure}[ht]
+  \includegraphics{data_joe.png}
+  \caption{Website for Joe's dataset}\label{fig:joe}
+\end{figure}
+
+Crucially,  the codec-based setup transparently connects the mathematical level of specification with the database level -- a critical prerequisite for the deep FAIR properties postulated above.
+Moreover, in Figure~\ref{fig:joe-schema}, the mathematical background knowledge is imported from a theory $\mathsf{IntegerMatrix}$ in the Math In The Middle ontology (MitM)~\cite{MitM:on}, which supplies the full mathematical specification and thus the basis for \emph{Interoperability} and \emph{Reusability}; see~\cite{BerKohRab:tumdi19,WieKohRab:vtuimkb17,KohMuePfe:kbimss17} for details.
+The overhead of having to specify the semantics of the mathematical data is offset by the fact that we can reuse central resources like the MitM ontology and codec collection. 
+Thus, MitM and MDDL form the nucleus of a common vocabulary for typical mathematical relational datasets. 
+%These can and should eventually be linked to representation standards in other domains. 
+%For mathematical datasets, the math-specific aspects attacked by our work are the dominant factor.
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "main"
+%%% End:
+
+%  LocalWords:  flexiformal BerKohRab:tumdi19 includegraphics textwidth textbf textsf textsf textsf ednote BerKohRab:tumdi19,WieKohRab:vtuimkb17,KohMuePfe:kbimss17 externalize
