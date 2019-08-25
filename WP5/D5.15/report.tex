@@ -300,22 +300,37 @@ enhancements.
 %  [WP5/D5.1/report.tex](WP5/D5.1/report.tex) or
 %  [WP2/D2.1/report.tex](WP2/D2.1/report.tex).
 
+\TODO{Can we assemble some statistics to show the general progress of
+  work on \GAP performance and robustness over the project -- number
+  of tests, maybe run the 4.8 or 4.7 testinstall in 4.7 and 4.11 and
+  compare performance?}
 
 
 \subsection{lib\GAP: allowing 3rd party code to link \GAP as a library}\label{libgap}
 
-As mentioned, \GAP 4.10.0 (November 2018) was the first official \GAP release
-to provide an API for 3rd party code to 
-link \GAP as a library. It was based on the lib\GAP code developed
-within \Sage, 
-but is intended to be more flexible and general-purpose.
+The initial connection between \Sage and \GAP was developed around
+2006, and relied on running a full \GAP process with which \Sage
+communicated through pipes, creating \GAP input as text and parsing
+the text output by \GAP. This enabled an initial connection, but
+introduced considerable overhead coverting objects to and from text
+representations and passing them between processes.
+
+A better solution is to provide a C API enabling \GAP to be integrated
+into the \Sage process, and allowing a \GAP session to be started,
+objects created, functions called and results retrieved via C function
+calls. This is, however, not a mode of operation for which \GAP was
+ever designed, and implementing it in a robust and flexible way
+required considerable adaptations to the system, for instance to make
+sure it never tried to access the terminal. Based on an iniital
+version developed within the \Sage team, a fully general-purpose and
+flexible version was released in  \GAP 4.10.0 (November 2018).
 
 Subsequent releases have improved and will continue to improve the
 robustness of lib\GAP, and to extend its API with new functionality (See Chapter 2 
 ``Changes between \GAP 4.9 and \GAP 4.10'' of the 
 ``\GAP - Changes from Earlier Versions'' manual for the detailed
 descriptions). This has allowed \Sage to drop its custom 
-modifications for \GAP and use the official, documented and regularly 
+modifications to \GAP and use an official, documented and regularly 
 tested \GAP interface instead, starting from SageMath 8.6 (January
 2019).
 
@@ -330,21 +345,47 @@ tested \GAP interface instead, starting from SageMath 8.6 (January
 \subsection{HPC-\GAP: multithreaded programming in \GAP}\label{hpc-gap}
 
 \GAP 4.9.1 (May 2018) for the first time included experimental code to 
-support safe multithreaded programming in \GAP, dubbed HPC-\GAP. This
-has been in development for some time, and the HPC-\GAP and \GAP
+support safe multithreaded programming in \GAP, dubbed \HPCGAP. This
+has been in development for some time, and the \HPCGAP and \GAP
 codebases had diverged. In this release we unified the codebases,
 making thread support a compile-time option instead of completely
-different programme. This was an essential step to suppoder further development of 
+different programme. This was an essential step to support further development of 
 HPC-\GAP, and ensure that new developments in \GAP could be quickly
 incorporated.
-It also provided users an opportunity to star to experiment 
-with HPC-\GAP, which comes together with a new ``HPC-\GAP Reference Manual''.
+It also provided users an opportunity to start to experiment 
+with \HPCGAP, for which documentation is also provided.
 
-\TODO{Explain what HPCGAP does for you, try and construct an example
-  where it looks good. Decision to refactor to remove ward (still in
-  progress). Something about challenges of huge legacy
-  codebase. Maybe mention alkternative parallelisation options with
-  \software{SCSCP} and \texttt{IO fork}}
+\HPCGAP supports two models of parallel programming in \GAP, which can
+be combined: threads and tasks. Threads operate as in most languages,
+teh basic primitive is to start execution of a \GAP function in a new
+thread, while the calling thread returns immediately. Threads can
+interact through global data or by returning results when they exit. Tasks are
+similar, but they are submitted to a shared job queue and executed by
+one of a fixed-size pool of worker threads. Typically the calling
+process will start a number of threads and then wait for somne or all
+of them to complete.  Supporting this requires considerable work on
+the \GAP interpreter, but is otherwise straightforward.
+
+The challenge
+however is that the \GAP library makes very extensive use of shared
+global data, which is frequently updated as new knowledge is
+obtained. Ensuring that access and updates to this data from different
+threads and tasks does not cause corruption or inconsistency was the
+main challenge. The approach taken was to limit access, in most cases,
+to data ``owned'' by the accessing thread; read-only data and
+``public'' data stored in thread-safe data structures. This is
+implemented by access checks in the kernel with the aim of ensuring
+that most unsafe data access should result in error messages, rather
+than inconsistent results. Experiments with this system have been
+reported in a number of papers.
+
+The main remaining challenge is to adapt the enormous legacy codebase
+represented by \GAP's library and key packages to use these mechanisms
+effectively, and to keep the underlying mechanisms working as the core
+\GAP codebase evolves. Fusing the codebases, as was done in \GAP 4.10
+was a critical step in this work, meaning, for instance, that all
+changes to \GAP are tested in \HPCGAP automatically.
+
 
 % Release announcement: https://www.gap-system.org/Manuals/doc/changes/chap3.html#X7F52B77B7DBACC17
 
@@ -401,7 +442,7 @@ a set of tests to check (preferably in some automated way)
 that new changes do not break the functionality that used to 
 work previously. If a change breaks the test, that is called 
 a \emph{regression}. In \GAP, regressions may occur, for example,
-when a change caused an incorrect result, or a crash, or an error
+when a change causes an incorrect result, or a crash, or an error
 message; in addition, there may be \emph{performance regressions}
 and \emph{memory regressions}.
 
@@ -409,10 +450,15 @@ GAP regression testing uses \emph{integration tests} - these are
 the tests when different parts of the \GAP functionality are 
 exercised in the same \GAP session (opposite to \emph{unit tests}
 which exercise each logical unit of the code separately, but do
-not necessarily test interactions between them). The \GAP test
-suite consists of a number of test files in the {\tt tst} directory,
+not necessarily test interactions between them).\comment{Is this true?
+  -- all tests are with an integrated system, but increasingly, each
+  test covers narrow functionality}
+The \GAP test
+suite consists of a number \comment{what number?} of test files in the
+{\tt tst} directory, \comment{can we also give some measure of total size} 
 as well as of the tests that check the correctness of manual examples
-and some further code in the {\tt benchmarks} directory.
+\comment{again, numbers?}.
+% and some further code in the {\tt benchmarks} directory. 
 
 GAP is also redistributed with a number of extensions, called \GAP packages
 (145 in the latest release \GAP 4.10.2). These packages may, for example,
@@ -420,22 +466,37 @@ extend mathematical functionality of the system by implementing new algorithms;
 provide collections of mathematical data; or provide enhanced tools for 
 package developers. Packages can be published independently of the core \GAP
 system and have a separate authorship. Package authors are recommended to 
-use the similar approach to testing and provide their own regression tests.
-For packages redistributed with \GAP we run the package update system, which
-checks for their new versions, retrieves them, and then uses them in a
+use a similar approach to testing and to provide their own regression tests.
+For packages redistributed with \GAP, our automatic package update system
+checks regularly for new versions on the authors web pages, retrieves them, and then uses them in a
 number of checks to ensure that new package releases are compatible with
 each other and do not break the functionality of the core \GAP system. The
 same process also helps us to check that changes in the core \GAP system
 do not break the functionality of the packages redistributed with \GAP
-(provided those packages have standard tests that allow us to do that
-automatically).
+%% (provided those packages have standard tests that allow us to do that
+%% automatically)
+. This system has dramatically simplified the process of making a \GAP
+release or update, for which we want a mutually compatible set of
+package versions, also compatible with the new core system. This used
+to require extensive negotiation with package authors, and sometimes
+took months, even though the number of packages was much smaller. Now
+developers have continuous visibility of the functionality and
+compatibility of released and upcoming versions of packages and of the
+core system, and releases are much faster.
 
-GAP~4 used regression tests since its inception, however, in former
-times they were mostly run by developers manually, and a part of the
+\comment{Tenses in the next para are confused. This is all past, I
+  think, and is also maybe a bit too much about stuff that happened
+  before the project, before we get to anything new. Can we start by
+  saying what new developments we are claiming, and then go back and
+  explain what didn't work before?}
+  \comment{Also maybe a subheading of some kind here}
+\GAP has used regression tests in one or another form since the
+release of version 3 in the 1980s. For much of this time, they were
+run by developers manually, and a part of the
 release preparation was sending an email to the \GAP developers mailing
 list asking for help with running a set of tests on developers' 
-computers. Since 2009, \GAP team in St Andrews started to use Jenkins
-(\url{https://jenkins.io/}) automation server to regularly run the 
+computers. Since 2009, the \GAP team in St Andrews started to use the Jenkins
+(\url{https://jenkins.io/}) automation syetem to regularly run the 
 GAP testsuite, and eventually established a set of nightly and weekly
 running Jenkins jobs to run tests for the current \GAP development
 version; check for package updates; prepare and test release candidates,
@@ -449,13 +510,20 @@ the \GAP development in general is that while \GAP is an open source
 software, it does not follow an open development model and does not
 have a public source code repository. 
 
+
 %See https://blogs.cs.st-andrews.ac.uk/alexk/2016/03/07/gap-on-github-one-year-on/
-Of course, \GAP is not new to the version control, and the former
+Of course, \GAP is not new  version control, and the former
 CVS repository for \GAP 4 has revisions from 1996. In summer 2012 it
 had been converted to Mercurial (thanks to Max Horn) after the release 
 of \GAP 4.5, and then in February 2015 the Mercurial repository had 
 been converted to Git (thanks to Chris Jefferson) and placed on GitHub
 at \url{https://github.com/gap-system/gap}.
+
+\comment{So the move to GitHub was just before the start of the
+  project. So I guess our claim in this report is that we have
+  consolidated \GAP development around GitHub and its tool ecosystem
+  (maybe mention that we can break out onto GitLab if GitHub goes
+  phut). I'd start with that.}
 
 What are the limitations of Jenkins.
 How useful is to run tests on Travis.
@@ -468,7 +536,7 @@ more informative, etc.
 
 Describe here docker containers for development 
 versions of \GAP (since they are needed to test
-packages).
+packages). \comment{The Docker stuff might deserve to be its own section}
 
 \section{\GAP Packages}\label{packages}
 
