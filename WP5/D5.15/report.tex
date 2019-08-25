@@ -277,7 +277,9 @@ Additional relevant features are continued improvements to debugging and
 profiling facilities \TODO{maybe some examples} extensions to the
 \texttt{libGAP} API to allow programs using the system in this way
 more convenient access to \GAP objects; and a range of performance
-enhancements. 
+enhancements.
+
+\TODO{is there more?}
 
 % What about making pages for relevant releases in
 % https://www.gap-system.org/Manuals/doc/changes/manual.pdf 
@@ -302,36 +304,47 @@ enhancements.
 
 \subsection{lib\GAP: allowing 3rd party code to link \GAP as a library}\label{libgap}
 
-\GAP 4.10.0 (November 2018) was also the first official \GAP release
-which provided an experimental way to allow 3rd party code to 
-link \GAP as a library. It was based on the lib\GAP code by SageMath, 
-but different: while we aim to provide the same functionality, 
-we do not rename any symbols, and we do not provide the same API. 
+As mentioned, \GAP 4.10.0 (November 2018) was the first official \GAP release
+to provide an API for 3rd party code to 
+link \GAP as a library. It was based on the lib\GAP code developed
+within \SageMath, 
+but is intended to be more flexible and general-purpose.
 
-Since then, we improved the robustness of our lib\GAP implementation
-in \GAP 4.10.1 (February 2019) and \GAP 4.10.2 (June 2019) releases,
-and extended its API with new functionality (See Chapter 2 
+Subsequent releases have improved and will continue to improve the
+robustness of lib\GAP, and to extend its API with new functionality (See Chapter 2 
 ``Changes between \GAP 4.9 and \GAP 4.10'' of the 
 ``\GAP - Changes from Earlier Versions'' manual for the detailed
-descriptions). This allowed SageMath to drop its custom 
+descriptions). This has allowed \SageMath to drop its custom 
 modifications for \GAP and use the official, documented and regularly 
-tested \GAP interface instead, starting from SageMath 8.6 (January 2019).
+tested \GAP interface instead, starting from SageMath 8.6 (January
+2019).
+
 % See SageTrac ticket 22626 made that happen; it was merged in 
 % SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
 
+\subsection{Reflection}\label{syntaxtree}
+\TODO{write this}
 
 \section{High-performance computing with \GAP}\label{hpc}
 
 \subsection{HPC-\GAP: multithreaded programming in \GAP}\label{hpc-gap}
 
 \GAP 4.9.1 (May 2018) for the first time included experimental code to 
-support multithreaded programming in \GAP, dubbed HPC-\GAP. The HPC-\GAP 
-codebases diverged from the original \GAP code during its development. 
-Unifying the codebases and incorporating the HPC-\GAP code back into the 
-mainstream \GAP version considerably simplified further development of 
-HPC-\GAP. It also provided users an opportunity to star to experiment 
-with HPC-\GAP, which comes together with the new manual book called 
-``HPC-\GAP Reference Manual'' located in the `doc/hpc` directory.
+support safe multithreaded programming in \GAP, dubbed HPC-\GAP. This
+has been in development for some time, and the HPC-\GAP and \GAP
+codebases had diverged. In this release we unified the codebases,
+making thread support a compile-time option instead of completely
+different programme. This was an essential step to suppoder further development of 
+HPC-\GAP, and ensure that new developments in \GAP could be quickly
+incorporated.
+It also provided users an opportunity to star to experiment 
+with HPC-\GAP, which comes together with a new ``HPC-\GAP Reference Manual''.
+
+\TODO{Explain what HPCGAP does for you, try and construct an example
+  where it looks good. Decision to refactor to remove ward (still in
+  progress). Something about challenges of huge legacy
+  codebase. Maybe mention alkternative parallelisation options with
+  SCSCP and IO_fork}
 
 % Release announcement: https://www.gap-system.org/Manuals/doc/changes/chap3.html#X7F52B77B7DBACC17
 
@@ -342,11 +355,37 @@ with HPC-\GAP, which comes together with the new manual book called
 
 \section{meataxe64: high-performance linear algebra over finite fields}\label{meataxe64}
 
-WHO: Steve
+A key kernel for many applications of \GAP is linear algebra over
+a wide range of finite fields. This is used directly in working with
+matrix groups and in computational representation theory, but also
+arises indirectly in areas such as graph theory, finite solvable
+groups and number theory. The \GAP kernel includes memory-efficient
+representations of matrices over these fields, and implementations
+based on the C-meataxe (the name ``meataxe'' is derived from the
+abbreviation ``mtx'' for ``matrix'' and the fact that a key operation
+in computational representation theory is to ``chop'' a module into
+its irreducible components) from the late 1980s.
 
-This will describe the \GAP interface to meataxe64: \url{https://meataxe64.wordpress.com/}.
+Working with external collaborators (primarily Richard Parker),
+we have contributed to the design and development (and continue to extend) of a new C and
+assembler library, called ``meataxe64'' which takes
+advantage of new algorithmic ideas, and of powerful features of new
+CPUs to deliver a quantum leap in performance. We have implemented a
+\GAP interface to it (the ``meataxe64 \GAP package'') currently in
+beta-test, and are in the
+process of revising higher levels of the software stack to make best
+use of it.
 
-% TODO: make a release at https://github.com/gap-packages/meataxe64/ and publish it at https://gap-packages.github.io/meataxe64/ 
+% TODO get some timings once I have a power supply.
+% last time I tried, Monster-sized (196882 over GF(2)) multiply took
+% 8 minutes on my laptop using 12 threads and 3 minutes on Ladybank
+% using 64!) Should do Gaussian and try and get some timings
+% comparable to GAP kernel timings.
+
+% TODO: make a release at https://github.com/gap-packages/meataxe64/
+% and publish it at https://gap-packages.github.io/meataxe64/
+%  What does this need done? -- SL
+
 
 \section{Regression testing, Package management and Release management}\label{gap-infra}
 
