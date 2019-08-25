@@ -74,8 +74,19 @@ in fairly straightforward manner, as the communication protocol is HTTPS.
 
 In the following, we detail the work on the interactive textbooks on
 computational science and engineering (Sec.~\ref{sec:computational-science-and-engineering})
-and problems in physics with Sage \todo[inline]{Marcin/Viviane/Nicolas, please
-udpate as required.}
+and problems in physics with Sage
+
+\todo[inline]{Marcin/Viviane/Nicolas, please update as required.}
+
+\TODO{Refer to previous deliverable: D2.9: Demonstrator: interactive
+  books on Linear Algebra and Nonlinear Processes in Biology}
+
+\TODO{Factor as much as possible between the presentation of the two
+  textbooks. Ideally, there would be four sections: 1. description of
+  book1 (audience, content, adoption), 2. description of book2 (same),
+  3. discussion on the pedagogical value of interactive textbooks, 4.
+  discussion on authoring interactive textbooks: technologies,
+  approaches, best practices, ...}
 
 \section{Interactive text book on Computational Science and Engineering}
 \label{sec:computational-science-and-engineering}
@@ -83,8 +94,8 @@ udpate as required.}
 The application of mathematics in science and engineering is the topic
 of the textbook "Introduction to Python Computational Science and
 Engineering".
-
-The target audience are scientists outside computer science. It is
+%
+The target audience is scientists outside computer science. It is
 thus important to teach some programming basics before using those to
 conduct computational and data science tasks.
 
@@ -94,16 +105,13 @@ The work is based on a textbook that was available as a PDF file (and
 generated from a \LaTeX{} file). In this deliverable, we have reviewed
 the textbook and updated it from Python 2 to Python 3, added various
 sections and a chapter on Pandas, but most importantly translated the
-\LaTeX{} sources into Jupyter notebooks. Furthermore, we demonstrate
-and use tools such as \texttt{bookbook} and \texttt{nbconvert} package
-to enable the automatic translation of the Jupyter notebook chapters
-into a single PDF or a set of HTML pages, and which have been
-supported through OpenDreamKit.
+\LaTeX{} sources into Jupyter notebooks. Furthermore, we used and
+evaluated tools such as \texttt{bookbook} and \texttt{nbconvert} to
+automatically convert the textbook in alternative formats.
 
-The new PDF is created from the Jupyter notebooks (using \LaTeX{} as
-an intermediate translation) and then by compiling the auto-generated
-\LaTeX{} sources to create a high quality PDF file. A \LaTeX{} file
-with custom style settings can be given as a template to
+The new PDF is created from the Jupyter notebooks by auto-generating
+\LaTeX{} sources compiling them to create a high quality PDF file. A \LaTeX{} file
+with custom style settings can be given as a template to the
 \texttt{bookbook} package. The different chapters (each being one
 notebook) are merged automatically, and get a joint table of contents.
 
@@ -121,6 +129,8 @@ added bonus, and offers a way of reading the document that is more
 appropriate for commonly used devices such as laptops, tablets, and
 smart phones.
 
+\TODO{Is thebelab enabled on the HTML version?}
+
 \subsection{Availability}
 
 The complete book is open source and available from\newline
@@ -136,7 +146,7 @@ The additional value comes from the Jupyter Notebook based
 nature of the chapters:
 
 \begin{enumerate}
-\item Students can download the notebooks, and inspect all
+\item Students can download the notebooks and inspect all the
   computational steps that have created the results shown in the
   textbook. Assuming they have the relevant software installed,
   they can execute them on their own machine, modify,
@@ -148,29 +158,35 @@ nature of the chapters:
   all steps are contained in the notebooks. This reduces the barrier
   towards learning.
 
-\item Using the cloud hosted Binder environment, learners can open the
-  book in an \emph{interactive Virtual Research Environment (VRE)}
-  that has been created on demand just for them. While providing all
-  the advantages outlined above, in this setup \emph{no software
-    installation is required}.
+\item
+  \TODO{There is some redundancy with the MyBinder section below.
+    Maybe the details can be merged in the MyBinder section, with just
+    a reference here (for details, see Section ...).}
+
+  Using the cloud hosted \texttt{Binder} service
+  (\url{http://mybinder.org}), learners can open the book in an
+  temporary \emph{Virtual Research Environment (VRE)} that has been
+  created on demand just for them. While providing all the advantages
+  outlined above, in this setup \emph{no software installation is
+    required}.
 
   In more detail:
 
-  For the particular example textbook, ``only'' the commonly used
-  Anaconda Python distribution is sufficient on the learners laptop as
-  a software dependency (because only the standard scientific Python stack
-  are required dependencies such as numpy, scipy, matplotlib, pandas,
-  and the Jupyter notebook itself).
+  The textbook can come with a specification of the software it
+  requires (for example through a Python \texttt{requirements.txt}
+  file). For the textbook at hand that specification is
+  straightforward: indeed it requires no software beyond the standard
+  scientific Python stack (numpy, scipy, matplotlib, pandas, Jupyter,
+  ...) which is included in the default Anaconda Python distribution.
 
-  This required installation of the software environment can be
-  avoided using the Binder project. As the
-  \texttt{MyBinder.org} instance can create a cloud-based Jupyter
-  notebook with a software specification (for example through a Python
-  \texttt{requirements.txt} file) on demand, every student can start
-  their own notebook server on MyBinder, browse chapters, and execute
-  chapter notebooks as they like to achieve better understanding. As
-  all of this happens in the browser, there is no software
-  installation required.
+  The textbooks and specification can be referenced by a URL. When a
+  student accesses this URL with his browser, the \texttt{Binder}
+  constructs on demand a Docker image including a copy of the
+  notebooks and the required software, and provisions a temporary
+  Docker container (lightweight virtual machine) running a Jupyter
+  notebook server. The student can browse through the textbook, and
+  execute chapter notebooks as they like to achieve better
+  understanding.
 \end{enumerate}
 
 \subsection{Good practice in software engineering for
@@ -188,7 +204,7 @@ quality and maintainability of the open source textbook:
   notebook to check that reported outputs are produced by the
   displayed inputs.
 
-  This uses the NBVAL tool -- developed as part of OpenDreamKit -- to
+  This uses the \nbval tool -- developed as part of OpenDreamKit -- to
   re-execute the chapters, and to compare the computed output with the
   output that is stored with the notebook.
 
@@ -196,11 +212,11 @@ quality and maintainability of the open source textbook:
   output is not generated from the computational input, and thus the
   chapter is outdated (or simply wrong). For conventional
   (non-interactive) textbooks, such gradually becoming outdated is
-  hard to recognise, and typically reviewed with the next edition a
+  hard to recognise, and typically updated with the next edition a
   few years later.
 
   In the context of this textbook, there are two common sources for
-  deviations reported by NBVAL:
+  deviations reported by \nbval:
   \begin{enumerate}
   \item Changes in the chapter have had (unexpected) side effects
     later in the chapter, combined with a failure to re-execute the
@@ -209,7 +225,7 @@ quality and maintainability of the open source textbook:
   \item Changes in libraries we depend on: for example, the change to
     Matplotlib version 3 has introduced new behaviour of Matplotlib,
     which resulted in different outputs.
-    \end{enumerate}
+  \end{enumerate}
 
 \item These automatic tests are executed whenever changes are
   committed to the repository, or when a branch is requested to be
@@ -218,10 +234,9 @@ quality and maintainability of the open source textbook:
   https://travis-ci.org/fangohr/introduction-to-python-for-computational-science-and-engineering}
 
   This makes it feasible to consider community contributions to the
-  text book: at least the internal consistency of input and output for
+  textbook: at least the internal consistency of input and output for
   any contribution is checked automatically, even before the author
-  team needs to consider if this change/addition should be merged
-  (i.e. integrated).
+  team starts reviewing the proposed changes or additions.
 
 \item We use (Docker) containers on the Travis CI testing system to
   host the software environment within which the notebooks are
@@ -232,7 +247,7 @@ quality and maintainability of the open source textbook:
   Using containers here has the following advantages:
   \begin{enumerate}
   \item Through the \texttt{Dockerfile} (and the \texttt{.travis.yml}
-    file), the building of the container is fully defined: Users who
+    file), the building of the container is fully defined: users who
     want to also convert the notebooks to HTML or PDF, or re-recreate
     what is done on the continuous integration system, can either
     create the same container, or follow the installation on a virtual
@@ -253,6 +268,7 @@ quality and maintainability of the open source textbook:
 \end{itemize}
 
 \subsection{Integration into MyBinder}
+
 The ``Inroduction to Python for Computational Science and Engineering'' is
 available through MyBinder service: on the webpage of the
 book\footnote{https://github.com/fangohr/introduction-to-python-for-computational-science-and-engineering/blob/master/Readme.md},
@@ -311,17 +327,17 @@ meterologists, chemists etc.
 
 We have also heard from individual students that participate in other
 courses at universities or courses from Coursera and who have enjoyed
-the textbook as a freely available complement; providing static and
+the textbook as a freely available complement, providing static and
 interactive learning material.
 
 A translation into Portuguese is available, including the interactive
 version on Binder.\footnote{https://github.com/gcpeixoto/lecture-ipynb/blob/master/README.md}
 \pagebreak
-\section{Problems with Sage}
+\section{Problems in Physics with Sage}
 \todo[inline]{To be added}.
 \pagebreak
 \appendix
-\section{Appendix 1: Table of contents interactive book}\label{sec:appendix-1}
+\section{Appendix 1: Table of contents of the interactive book}\label{sec:appendix-1}
 
 On the following 5 pages, we show the table of contents of the
 interactive book \emph{Introduction to Python for Computational
