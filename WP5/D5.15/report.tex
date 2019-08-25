@@ -496,7 +496,7 @@ run by developers manually, and a part of the
 release preparation was sending an email to the \GAP developers mailing
 list asking for help with running a set of tests on developers' 
 computers. Since 2009, the \GAP team in St Andrews started to use the Jenkins
-(\url{https://jenkins.io/}) automation syetem to regularly run the 
+(\url{https://jenkins.io/}) automation sysetem to regularly run the 
 GAP testsuite, and eventually established a set of nightly and weekly
 running Jenkins jobs to run tests for the current \GAP development
 version; check for package updates; prepare and test release candidates,
@@ -524,19 +524,104 @@ at \url{https://github.com/gap-system/gap}.
   consolidated \GAP development around GitHub and its tool ecosystem
   (maybe mention that we can break out onto GitLab if GitHub goes
   phut). I'd start with that.}
+  
+Hosting GAP repository on GitHub and eventual establishing of a number
+of other repositories under the gap-system and gap-packages 
+organisations (\url{https://github.com/gap-system} and 
+\url{https://github.com/gap-packages}), and encouraging package authors 
+to follow the same practices (see \url{https://gap-packages.github.io/})
+to find some further packages that are having public source code 
+repositories elsewhere) allowed us to bring our regression testing
+up to the next level.
 
-What are the limitations of Jenkins.
-How useful is to run tests on Travis.
-Code coverage and connection to CodeCov.
-Making it open leads to gamification.
-Some plots or screenshots of \GAP code coverage growth.
-Related improvements in \GAP tests making them
-easy to run on a directory, making their output 
-more informative, etc.
+We made use of \href{https://travis-ci.org/}{Travis CI} and
+\ref{https://www.appveyor.com/}{AppVeyor} which are 
+free (for open source projects) continuous integration platforms 
+that can be used to build and test software projects hosted at GitHub.
+\emph{Continuous Integration}, usually abbreviated as {\bf CI} is the process
+automated building and testing for every performed or suggested changes to 
+the source code repository. Using Travis and AppVeyor, one can test changes proposed
+in a pull request \emph{before} they are merged into the main repository.
+At the moment, we use Travis CI for tests on Linux and macOS, and 
+AppVeyor for tests on Windows.
 
-Describe here docker containers for development 
-versions of \GAP (since they are needed to test
-packages). \comment{The Docker stuff might deserve to be its own section}
+In addition to that, we started to use \href{https://codecov.io/}{Codecov}
+platform to collect \emph{code coverage} reports for GAP to ensure that our
+regression tests exercise GAP codebase at an acceptable level, and then
+the changes which are submitted via pull request are actually being tested
+by Travis CI. Making this results easily obtainable and publicly available
+had a great effect on the community. Adding new tests to improve code coverage
+is a useful task for new contributors to familiarise themselves with the
+project setup. Making coverage reports available for each pull requests
+stimulated their authors to ensure that their contributions have a good
+quality and their suggested changes are actually being tested.
+
+A crucial role in these developments was played by the enhanced
+profiling facilities and the {\sf Profiling} package by Christopher
+Jefferson (St Andrews), described in Subsection~\label{gap-4.8}. 
+GAP~4.8 also introduced the {\tt TestDirectory} function to find
+(recursively) all {\tt .tst} files from a given directory or a list of 
+directories and run them using {\tt Test}. Having ability to test
+changes more efficiently also allowed us to further improve all 
+tools involved in testing, making their output more informative,
+and allowing test integration into various automated workflows
+by a better detection of the test outcomes.
+
+Figure~\ref{fig:gap-core-tests} displays a part of the dashboard
+available at \url{https://github.com/gap-system/gap-distribution/}.
+The ``status'' buttons lead to the test reports on Travis CI, and
+the ``code coverage'' buttons lead to the code coverage reports on
+Codecov. The coverage is shown for the latest revision in the
+corresponding branch (release branches {\tt stable-4.9} and {\tt stable-4.10},
+and the master branch which is the prototype of the coming GAP~4.11 release).
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=5cm]{images/gap-core-tests}
+    \caption{Dashboard with core GAP system and package integration tests}
+    \label{fig:gap-core-tests}
+\end{figure}
+
+The top part of Figure~\ref{fig:gap-core-tests} shows core system GAP tests,
+which are run for every change made to the repository. The bottom part shows
+tests which are run once in 24 hours using a Docker container which is built
+using a snapshot of the GAP development version on the moment of its creation
+and a selection of GAP packages (including their updates, not yet redistributed
+with GAP). Clicking on the ``status'' button will lead to the overview displayed
+on Figure~\ref{fig:gap-docker-master-testsuite}, from where one could inspect
+test logs for each of the configurations and see the diagnostics in case of a
+test failure.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-docker-master-testsuite}
+    \caption{GAP package integration tests on Travis CI}
+    \label{fig:gap-docker-master-testsuite}
+\end{figure}
+
+The Docker container for the test displayed on Figure~\ref{fig:gap-docker-master-testsuite}
+is one of a set of containers that we maintain for various purposes, from offering 
+them as alternative distributions (see Subsection~\ref{distro}) or components for shareable
+reproducible experiments (see Section~\ref{demos}), to ways to speed up regression tests running
+container-based tests on Travis CI. These containers are publicly available on Docker Hub
+(see Figure~\ref{fig:gap-docker}).
+\comment{The Docker stuff might deserve to be its own section}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=12cm]{images/gap-docker}
+    \caption{Selected GAP Docker containers on Docker Hub}
+    \label{fig:gap-docker}
+\end{figure}
+
+At the same time, we continue to use Jenkins installation in St Andrews 
+for daily and weekly tests, running package updates system, wrapping and
+testing release candidates and other tasks. It is also very valuable since 
+it does not impose time limits on output inactivity and the overall duration
+of the job; second, it allows us to log in into the test workspace for
+debugging; third, with the specific GAP setup for Windows we build it on a
+machine with a Cygwin installation, and then install it on a clean Windows
+machine to test there. 
 
 \section{\GAP Packages}\label{packages}
 
@@ -661,7 +746,7 @@ High-level interoperability
 
 Persistent memoisation
 
-\section{A collection of demonstrators}
+\section{A collection of demonstrators}\label{demos}
 
 For example:
 
