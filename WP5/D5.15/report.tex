@@ -698,11 +698,93 @@ for GAPDoc. By now, this package became very flexible and reliable, and
 has been picked up by a number \comment{how many} of GAP packages for building 
 some parts or their whole manuals.
 
-Docker containers: https://hub.docker.com/r/gapsystem/ 
-and docker builds for packages (working,staging,devel).
+The Docker containers for the latest \GAP public release and for the
+development branches of the \GAP repository on GitHub, described in
+Section~\ref{gap-infra}, enabled us to make results of regression
+tests for \GAP packages easily available to their authors. First,
+using a prebuilt docker image does not require to compile GAP and 
+packages for each separate test configuration. Therefore, we may
+have a separate test configuration for each package. Second, we 
+can make test results available to package authors on the Travis CI
+website, and ease navigation due to one configuration per package,
+so the authors can navigate to the package of their interest.
+Finally, we put packages with passing and failing tests into different
+Travis jobs, and use that to monitor their status and check that
+changes in GAP do not break package tests. 
 
-Add screenshots from Travis and CodeCov for packages
+Figure~\ref{fig:gap-docker-pkg-tests} shows a fragment of the dashboard
+from \url{https://github.com/gap-system/gap-distribution} which 
+indicates tests status. In this situation, it happened that a fresh
+change in the master branch broke tests in one of the packages;
+\comment{In fact, in this particular case changes in \GAP were made that 
+an empty list no longer qualifies as legal input to {\tt IsDiagonalMat},
+but that was used in the {\sf Cryst} package}
+the author was immediately notified and reacted with a quick fix.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-docker-pkg-tests}
+    \caption{Dashboard for Travis tests of \GAP packages (GitHub view)}
+    \label{fig:gap-docker-pkg-tests}
+\end{figure}
+
+The setup for such tests is organised in the gap-infra GitHub organisation
+(\url{https://github.com/gap-infra}. Figure~\ref{fig:gap-infra-travis} shows a 
+screenshot of a dashboard which indicates tests status.
+\comment{All these screenshots may be superfluous - I made them to show
+what could be included, we can remove some or cut parts of them out later}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-infra-travis}
+    \caption{Dashboard for Travis tests of \GAP packages (Travis CI view)}
+    \label{fig:gap-infra-travis}
+\end{figure}
+
+One of the extensions of the package testing framework, greatly 
+facilitated by packages migrating to GitHub, was adding tests not
+only for the latest official releases of GAP packages, but also
+for their \emph{development} versions.
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-stable-4.10-devel
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-master-devel
+In this case, the onus to check tests outcomes is on package authors,
+and they are able to see how the changes that they have made to
+a package but not released yet work in different settings (stable/master,
+with default/without/with all packages).
+
+Figure~\ref{fig:gap-packages-travis} shows a screenshot of a 
+report on the activity in the gap-packages organisation 
+for the last month (for the current version of 
+this report, check \url{https://travis-ci.org/gap-packages?tab=insights}).
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-packages-travis}
+    \caption{Activity of Travis tests in gap-packages GitHub organisation}
+    \label{fig:gap-packages-travis}
+\end{figure}
+
+Finally, Figure~\ref{fig:gap-packages-codecov} show the code coverage
+leaderboard. We aim at ensuring that code coverage for packages is 
+not worse than for the core GAP system, but packages presented there 
+put a lot of efforts in ensuring that their coverage is close to 100\%. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-packages-codecov}
+    \caption{Codecov leaderboard for in gap-packages GitHub organisation}
+    \label{fig:gap-packages-codecov}
+\end{figure}
+
+Presently, only 4 packages redistributed with GAP do not have a public 
+source code repository. To compare, in October 2018 there were 23 such 
+packages. In some cases, that involved non-trivial efforts to establish 
+contacts with authors who left academia, getting their permission and 
+establishing package license, populating a new repository with releases 
+history using archives of past releases, and adopting the packages to
+be collectively maintained by the GAP Group. This helps to preserve the
+code, reproduce past experiments, eventually find those who may be interested
+to take it over.
 
 Figure~\ref{fig:gap-package-releases} shows how package releases became more frequent.
 Now the oldest package is released in 2012, and the majority is 2018--2019. 
