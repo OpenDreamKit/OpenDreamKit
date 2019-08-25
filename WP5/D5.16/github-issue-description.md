@@ -8,28 +8,6 @@
 - **Proposal:** [p. 51](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
 - **[Report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.16/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.16/))
 
-Devise a generic parallelisation engine for PARI and use it to prototype
-selected functions (integer factorisation, discrete logarithm, modular
-polynomials).
+**The Pari library** is a state-of-the-art library for number theory and an important component of the Sage computational system. Together with the `gp` command line interface and the `gp2c` compiler, it forms the Pari/GP package. This deliverable implements a generic parallel engine in the Pari/GP system, uses it inside the system to implement fast parallel variants of existing sequential code and exports it for library users. The released Pari/GP suite (PARI-2.12) makes those improvements and new features available for the community, in particular Sage users and all softwares using the Pari library.
 
-PARI suite release (libpari , GP and GP2C) that fully support
-parallelisation allowing individual implementations to scale gracefully
-between single core / multicore / massively parallel machines
-
-**The Pari library** is a state-of-the-art library for number theory and an
-important component of the Sage computational system. Together with the `gp`
-command line interface and the `gp2c` compiler, it forms the Pari/GP package.
-This deliverable implements a generic parallel engine in the Pari/GP system,
-uses it inside the system to implement fast parallel variants of existing
-sequential code and exports it for library users. The released Pari/GP suite
-(PARI-2.12) makes those improvements and new features available for the
-community, in particular Sage users and all softwares using the Pari library.
-
-The MultiThread engine transparently supports: 1) sequential computation, 2)
-POSIX threads (for a single multicore machine) and 3) Message Passing Interface
-(MPI, for clusters). It is used throughout the library to improve a large
-number of high-level mathematical algorithms, including fast linear algebra over
-the rationals or cyclotomic fields, fast Chinese remainders, resultants,
-primality proofs, discrete logarithms, modular polymomials and isogeny-based
-algorithms, motivic L-functions... Those implementations scale
-transparently between single core, multicore and massively parallel machines.
+The MultiThread engine transparently supports: 1) sequential computation, 2) POSIX threads (for a single multicore machine) and 3) Message Passing Interface (MPI, for clusters). It is used throughout the library to improve a large number of high-level mathematical algorithms, including fast linear algebra over the rationals or cyclotomic fields, fast Chinese remainders, resultants, primality proofs, discrete logarithms, modular polymomials and isogeny-based algorithms, motivic L-functions... Those implementations scale transparently between single core, multicore and massively parallel machines.
