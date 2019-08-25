@@ -491,6 +491,7 @@ core system, and releases are much faster.
   before the project, before we get to anything new. Can we start by
   saying what new developments we are claiming, and then go back and
   explain what didn't work before?}
+  
   \comment{Also maybe a subheading of some kind here}
 \GAP has used regression tests in one or another form since the
 release of version 3 in the 1980s. For much of this time, they were
@@ -588,8 +589,8 @@ The top part of Figure~\ref{fig:gap-core-tests} shows core system GAP tests,
 which are run for every change made to the repository. The bottom part shows
 tests which are run once in 24 hours using a Docker container which is built
 using a snapshot of the GAP development version on the moment of its creation
-and a selection of GAP packages (including their updates, not yet redistributed
-with GAP). Clicking on the ``status'' button will lead to the overview displayed
+and a selection of \GAP packages (including their updates, not yet redistributed
+with \GAP). Clicking on the ``status'' button will lead to the overview displayed
 on Figure~\ref{fig:gap-docker-master-testsuite}, from where one could inspect
 test logs for each of the configurations and see the diagnostics in case of a
 test failure.
@@ -612,7 +613,7 @@ container-based tests on Travis CI. These containers are publicly available on D
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=12cm]{images/gap-docker}
-    \caption{Selected GAP Docker containers on Docker Hub}
+    \caption{Selected \GAP Docker containers on Docker Hub}
     \label{fig:gap-docker}
 \end{figure}
 
@@ -621,31 +622,169 @@ for daily and weekly tests, running package updates system, wrapping and
 testing release candidates and other tasks. It is also very valuable since 
 it does not impose time limits on output inactivity and the overall duration
 of the job; second, it allows us to log in into the test workspace for
-debugging; third, with the specific GAP setup for Windows we build it on a
+debugging; third, with the specific \GAP setup for Windows we build it on a
 machine with a Cygwin installation, and then install it on a clean Windows
 machine to test there. 
 
 \section{\GAP Packages}\label{packages}
 
-Which tools we provide to support packages.
+Developments, described in the previous section, together with community
+supporting activities described in Section~\ref{gap-support}, had substantial
+impact on on the health of the package ecosystem. In the duration of the OpenDreamKit
+project, we have observed the growth of the number of \GAP packages and package 
+authors, improvements in the quality of package testing, more frequent
+package updates, and a wide range of tools to help package authors progressed
+to a mature state and gained popularity.
 
-PackageMaker: (by Max Horn) https://github.com/gap-system/PackageMaker 
+First we will introduce these tools, and then we will discuss an impact which
+they, together with encouraging package authors to use the open development
+model, had on the package authors community.
 
-Example package: https://github.com/gap-packages/example 
+Our collaborator Max Horn (University of Siegen) developed {\sf ReleaseTools}
+(\url{https://github.com/gap-system/ReleaseTools/})
+-- a set of scripts to help package authors with the process of making new 
+releases. This tool automates all steps of publishing a release for a \GAP package
+hosted on GitHub. Without such a tool, making a release involves a lot of steps
+and it is quite easy to overlook some of them if one only makes a release from 
+time to time; the correction may require even more work. Using {\sf ReleaseTools},
+a release may be published in a several minutes with a single call of the release
+script, and package authors do not have an obstacle preventing them from publishing
+releases more often.
 
-ReleaseTools (by Max Horn): https://github.com/gap-system/ReleaseTools 
+{\sf ReleaseTools} works in conjunction with {\sf GitHubPagesForGAP}
+(\url{https://github.com/gap-system/GitHubPagesForGAP}). Using the
+latter, one can quickly set up a website for a \GAP package which has
+a GitHub repository. This website will be hosted on GitHub pages,
+and will be updated each time when the author uses {\sf ReleaseTools}
+to publish a new release. All information on the package
+website will be automatically updated from the metadata provided by
+the package. This greatly simplifies the procedure and helps to keep 
+the package website up-to-date.
 
-GitHubPagesFor\GAP (by Max Horn): https://github.com/gap-system/GitHubPagesFor\GAP 
+The \GAP package {\sf Example} by Werner Nickel, Greg Gamble and
+Alexander Konovalov (\url{https://github.com/gap-packages/example}
+is an example of a \GAP package which may be used as a template for 
+a new package. During the reported period, it has been regularly updated
+to keep up with the updates of the packages infrastructure. It
+switched to using {\tt TestDirectory} to demonstrate how to use 
+multiple test files in a GAP package, and migrated
+to GitHub, using {\sf ReleaseTools/GitHubPagesForGAP}
+for new releases. The guidance for package authors, formerly offered
+as an appendix to the {\sf Example} package manual, was moved to the GAP
+Reference manual in \GAP~4.9 release. Finally, the {\sf Example} package
+demonstrates how to set up Travis CI and CodeCov. Package authors
+may copy its configuration files and adapt them with minimal changes.
 
-Docker containers: https://hub.docker.com/r/gapsystem/ 
+As an alternative, to create a new package
+\GAP users may use another tool called {\sf PackageMaker},
+also by Max Horn (\url{https://github.com/gap-system/PackageMaker}). This is
+a \GAP package (not redistributed with \GAP, so one should install it
+separately), which provides a ``PackageWizard'' - a tool which asks questions
+about the intended package, and then creates a new directory populated with 
+all the files needed for the start.
 
-Standard setup for Travis CI and CodeCov (by Max Horn et al.)
+\GAP packages should provide documentation. It is possible to use several
+formats, one of them is obsolete, originating from the deprecated 
+manual format used by GAP in the past, but still in use by 32 packages.
+% https://github.com/gap-system/gap-distribution/issues/49
+A newer one is an XML-based format which is used for the main \GAP manuals
+and requires {\sf GAPDoc package} to build the documentation. Writing XML
+code by hand is very tedious and error-prone, and in 2012 Sebastian Gutsche 
+and Max Horn (presently both at the University of Siegen) started an 
+{\sf AutoDoc} package (\url{https://gap-packages.github.io/AutoDoc/}).
+This package allows to create documentation from source code comments
+without writing XML files, and then automatically generates XML input
+for GAPDoc. By now, this package became very flexible and reliable, and
+has been picked up by a number \comment{how many} of GAP packages for building 
+some parts or their whole manuals.
 
-Add screenshots from Travis and CodeCov for packages
+The Docker containers for the latest \GAP public release and for the
+development branches of the \GAP repository on GitHub, described in
+Section~\ref{gap-infra}, enabled us to make results of regression
+tests for \GAP packages easily available to their authors. First,
+using a prebuilt docker image does not require to compile GAP and 
+packages for each separate test configuration. Therefore, we may
+have a separate test configuration for each package. Second, we 
+can make test results available to package authors on the Travis CI
+website, and ease navigation due to one configuration per package,
+so the authors can navigate to the package of their interest.
+Finally, we put packages with passing and failing tests into different
+Travis jobs, and use that to monitor their status and check that
+changes in GAP do not break package tests. 
 
-As a result of this, and activities to promote this described in Section~\ref{gap-support},
-we observed the growth of the community, the improvements in tests, frequency
-of package updates, tools that appeared and helped to package authors. 
+Figure~\ref{fig:gap-docker-pkg-tests} shows a fragment of the dashboard
+from \url{https://github.com/gap-system/gap-distribution} which 
+indicates tests status. In this situation, it happened that a fresh
+change in the master branch broke tests in one of the packages;
+\comment{In fact, in this particular case changes in \GAP were made that 
+an empty list no longer qualifies as legal input to {\tt IsDiagonalMat},
+but that was used in the {\sf Cryst} package}
+the author was immediately notified and reacted with a quick fix.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-docker-pkg-tests}
+    \caption{Dashboard for Travis tests of \GAP packages (GitHub view)}
+    \label{fig:gap-docker-pkg-tests}
+\end{figure}
+
+The setup for such tests is organised in the gap-infra GitHub organisation
+(\url{https://github.com/gap-infra}. Figure~\ref{fig:gap-infra-travis} shows a 
+screenshot of a dashboard which indicates tests status.
+\comment{All these screenshots may be superfluous - I made them to show
+what could be included, we can remove some or cut parts of them out later}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-infra-travis}
+    \caption{Dashboard for Travis tests of \GAP packages (Travis CI view)}
+    \label{fig:gap-infra-travis}
+\end{figure}
+
+One of the extensions of the package testing framework, greatly 
+facilitated by packages migrating to GitHub, was adding tests not
+only for the latest official releases of GAP packages, but also
+for their \emph{development} versions.
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-stable-4.10-devel
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-master-devel
+In this case, the onus to check tests outcomes is on package authors,
+and they are able to see how the changes that they have made to
+a package but not released yet work in different settings (stable/master,
+with default/without/with all packages).
+
+Figure~\ref{fig:gap-packages-travis} shows a screenshot of a 
+report on the activity in the gap-packages organisation 
+for the last month (for the current version of 
+this report, check \url{https://travis-ci.org/gap-packages?tab=insights}).
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-packages-travis}
+    \caption{Activity of Travis tests in gap-packages GitHub organisation}
+    \label{fig:gap-packages-travis}
+\end{figure}
+
+Finally, Figure~\ref{fig:gap-packages-codecov} show the code coverage
+leaderboard. We aim at ensuring that code coverage for packages is 
+not worse than for the core GAP system, but packages presented there 
+put a lot of efforts in ensuring that their coverage is close to 100\%. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-packages-codecov}
+    \caption{Codecov leaderboard for in gap-packages GitHub organisation}
+    \label{fig:gap-packages-codecov}
+\end{figure}
+
+Presently, only 4 packages redistributed with GAP do not have a public 
+source code repository. To compare, in October 2018 there were 23 such 
+packages. In some cases, that involved non-trivial efforts to establish 
+contacts with authors who left academia, getting their permission and 
+establishing package license, populating a new repository with releases 
+history using archives of past releases, and adopting the packages to
+be collectively maintained by the GAP Group. This helps to preserve the
+code, reproduce past experiments, eventually find those who may be interested
+to take it over.
 
 Figure~\ref{fig:gap-package-releases} shows how package releases became more frequent.
 Now the oldest package is released in 2012, and the majority is 2018--2019. 
