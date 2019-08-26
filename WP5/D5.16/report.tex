@@ -467,28 +467,6 @@ This factors a few Mersenne numbers using 2 threads, without paying attention
 to sizing tasks or load balancing (some factorizations in the list are
 instantaneous, some much slower). Nevertheless, we gain roughly a factor 2.
 
-Here is the equivalent GP code run in \texttt{gp} on the same machine
-as above, configured to use POSIX threads
-\begin{verbatim}
-? apply(factor, [2^i - 1 | i <- [1..201]]); \\ sequential version
-time = 5,064 ms.
-? parapply(factor, [2^i - 1 | i <- [1..201]]); \\ 32 threads
-cpu time = 6,532 ms, real time = 1,508 ms.
-? default(nbthreads,8)
-? parapply(factor, [2^i - 1 | i <- [1..201]]);
-cpu time = 6,164 ms, real time = 1,900 ms.
-? default(nbthreads,2)
-? parapply(factor, [2^i - 1 | i <- [1..201]]);
-cpu time = 4,945 ms, real time = 2,490 ms.
-\end{verbatim}
-The reason we get diminishing returns as the number of threads increases
-(we get a modest factor 3 speedup with 32 threads) is because load balancing
-is far from optimal. To check this, we can submit identical tasks and get
-roughly the expected speedup ($\approx 30$):
-\begin{verbatim}
-? parapply(factor, vector(201,i, 2^201-1)); \\ 201 identical instances
-cpu time = 1min, 24,612 ms, real time = 2,831 ms.
-\end{verbatim}
 \bigskip
 \bigskip
 
