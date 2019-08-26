@@ -363,7 +363,7 @@ run-time for the code fragment below dropped from 130
 seconds to 22.
 
 
-{\small
+{\Small
 \begin{verbatim}
 G:=PcGroupCode( 
   741231213963541373679312045151639276850536621925972119311,
@@ -396,17 +396,63 @@ publicly  available on GitHub to developers or anyone else interested.
 
 One important and relevant feature of this release will be the ``syntaxtree'' reflection
 API for \GAP, allowing \GAP programs to access and modify the internals of \GAP
-functions, opening up a range of possibilities for optmisation, automatic
+functions, opening up a range of possibilities for optimisation, automatic
 parallelisation, and more effective compilation into C. This is
 discussed in more detail in section \ref{syntaxtree} below. 
 
 Additional relevant features are continued improvements to debugging and
-profiling facilities \TODO{maybe some examples} extensions to the
-\texttt{libGAP} API to allow programs using the system in this way
-more convenient access to \GAP objects; and a range of performance
-enhancements.
+profiling facilities (for example,
+%#2772 
+adding support for profiling interpreted code
+and 
+%#3420
+making profiling reports more informative by 
+giving more library methods human-readable names;
+%#2900 
+allowing to abort \verb|Test| by pressing ctrl-C;
+%#1633 
+allowing local variables in test files via
+\verb|#@local <list of variables>|,
+and conditional execution of tests via \verb|#@if|, \verb|#@else|, \verb|#@endif|.
 
-\TODO{is there more?}
+The \texttt{libGAP} API has been extended
+to allow programs using the system in this way
+more convenient access to \GAP objects such as
+%#2998, #2999, #3007 
+characters, floats, integers
+%#3554
+and matrices; 
+%#3516
+the performance of Julia GC integration also improved,
+%#3335 
+and the memory usage on Windows when running external programs was reduced.
+
+Further performance enhancements included, among others,
+%#3579 
+speeding up writing to global variables;
+%#3566 
+optimising operations involving identity permutations;
+%#3231 
+speeding up \verb|IsConjugate| for \verb|IsNaturalSymmetricGroup|,
+%#2924 
+improving performance of \verb|NormalizerViaRadical|,
+%#3031 
+and of \verb|ConjugacyClasses| for solvable groups. For example, the time
+of the following calculation reduces from 110 seconds to 53 seconds:
+
+{\Small
+\begin{verbatim}
+G:=WreathProduct(CyclicGroup(IsPermGroup,12),DihedralGroup(IsPermGroup,12));
+ConjugacyGlasses(G);
+\end{verbatim}
+}
+\noindent
+
+
+\comment{%#3370 
+Pragmas are now available
+(this is useful for syntaxtrees)
+}
 
 % What about making pages for relevant releases in
 % https://www.gap-system.org/Manuals/doc/changes/manual.pdf 
@@ -450,15 +496,14 @@ As an example of the increased robustness of the system, the table
 below shows the development of our test suite over this period.
 
 \begin{center}
-\begin{tabular}{| l | c | c |} 
+\begin{tabular}{| l | l | c | c |} 
 \hline
-GAP release & number of test files & number of lines \\
-\hline
-GAP 4.7.8 (November 2015) & 69 & 21981 \\
-\hline GAP 4.8.10 (January 2018) & 91 & 28586 \\
-\hline GAP 4.9.3 (September 2018) & 564 & 41456 \\
-\hline GAP 4.10.2 (June 2019) & 648 & 53362 \\
-\hline GAP 4.11 (expected November 2019) & 707 & 61280 \\
+GAP release & Release date & Number of test files & Number of lines \\
+\hline GAP 4.7.8  & November 2015           & 69 & 21981 \\
+\hline GAP 4.8.10 & January 2018            & 91 & 28586 \\
+\hline GAP 4.9.3  & September 2018          & 564 & 41456 \\
+\hline GAP 4.10.2 & June 2019               & 648 & 53362 \\
+\hline GAP 4.11   & expected November 2019  & 707 & 61280 \\
 \hline
 \end{tabular}
 \end{center}
@@ -548,6 +593,7 @@ access checks in the kernel with the aim of ensuring that most unsafe
 data access should result in error messages, rather than inconsistent
 results. Experiments with this system have been reported in a number
 of papers for instance \cite{something}.
+\TODO{e.g. something from \url{https://scholar.google.co.uk/scholar?oi=bibs&hl=en&cites=17020645280914341716&as_sdt=5}}
 
 The main remaining challenge is to adapt the enormous legacy codebase
 represented by \GAP's library and key packages to use these mechanisms
