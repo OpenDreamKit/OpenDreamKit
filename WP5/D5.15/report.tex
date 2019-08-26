@@ -14,13 +14,16 @@
 % This will be the abstract, fetched from the github description
 \githubissuedescription
 
+\newpage
+\tableofcontents
+
 % write the report here
 
 % Original list of sections and subsections created from
 % https://github.com/OpenDreamKit/OpenDreamKit/issues/113
 
 \TODO{Write some preamble. Describe the structure of this report.}
-\TODO{Have we got better macros for including code than simpole LaTeX verbatim?}
+\TODO{Have we got better macros for including code than simple LaTeX verbatim? AK: tried some but so far did not like the font there}
 
 \section{Developments in the core\GAP system}\label{core-gap}
 
@@ -36,10 +39,13 @@ redistributed with \GAP and also available on the \GAP website at
 included as an appendix to this report. This
 work includes contributions from our external collaborators, whose
 authorship can be seen from the version control history.
-\TODO{Remember to add Changes manual as an appendix}
+\TODO{Remember to add Changes (and HPC-GAP) manuals as an appendix}
 
 \comment{I wonder if we should use ODK month numbers as well as, or
-  instead of, actual dates. Similarly USTAN instead of ``St Andrews''}
+  instead of, actual dates. Similarly USTAN instead of ``St Andrews''?
+  AK: for the Commission, yes; for the reader that will be less clear
+  and then perhaps should be explained in the preamble.}
+
 \subsection{\GAP 4.8 (February 2016)}\label{gap-4.8}
 
 \GAP 4.8 was the first major release of \GAP published
@@ -56,7 +62,7 @@ code. Related developments also made it easier to track time spent on
 individual lines of C code in the \GAP kernel. A further related
 feature makes it very easy to measure ``test coverage'' -- the
 proportion of the system that has actually been executed by a given
-set of tests. The {\sf Profiling} package by Christopher Jefferson (St
+set of tests. The {\sf Profiling} package \cite{profiling} by Christopher Jefferson (St
 Andrews) provided excellent tools for transforming these profiles into
 various human-readable forms. These features supported later work on
 enhancing both the performance and the reliability of \GAP, through
@@ -72,12 +78,13 @@ users to write more efficient and readable code:
 function expressions like
 \verb|function( a, b, c, x... ) ... end;|
 which requires at least three arguments \verb|a|, \verb|b| and
-\verb|c| and assigns
+\verb|c| and assigns the first three to \verb|a|, \verb|b| and \verb|c|
+and then a list containing any remaining ones to \verb|x|.
 \item more flexible list indexing, allowing users to install methods
   for multiple indexing (\verb|m[i,j]| instead of \verb|m[i][j]| for
   arrays) and more varied indices (such as \verb|l[-1]| to access a
   doubly-infinite virtual list \verb|l|). As well as being more
-  flexible, this uq a step towards supporting more efficient array
+  flexible, this is a step towards supporting more efficient array
   implementations in which ``row objects'' (like \verb|m[i]| in
   \verb|m[i][j]|) might not exist.
 \end{itemize}
@@ -127,8 +134,8 @@ Further enhancements to the profiling system based on experience with
 usability by allowing more efficient and/or readable code:
 \begin{itemize}
   \item a concise syntax for short
-    functions with any number of arguments such as
-    \verb|{a,b} -> a+b| replacing \verb|function(a,b) return a+b; end|. 
+    functions with any number of arguments, allowing, for example, to write
+    \verb|{a,b} -> a+b| instead of \verb|function(a,b) return a+b; end|. 
 \item more flexibility in \GAP expression syntax, allowing list and
   record access and function calling to be applied to any expression,
   where previously there were annoying technical restrictions. For
@@ -219,36 +226,42 @@ p & q    & n          & k        & ms, before & ms, after \\
 %gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
 %692
 
-Also, \verb|InverseMatMod| with integer modulus has been improved:% #2426
+Also, \verb|InverseMatMod| with integer modulus has been improved.% #2426
+The following table shows the runtime needed to call
+\verb|x:=InverseMatMod(m,q);| a hundred times for a random unimodular $100 \times 100$
+matrix \verb|m|:
 
-\TODO{convert into a table}
+\begin{center}
+\begin{tabular}{| c | c | c |} 
+\hline
+q     & ms, before    & ms, after \\
+\hline
+2     & 277           & 273 \\
+251   & 1564          & 1249 \\
+65537 & out of memory & 1226 \\
+\hline
+\end{tabular}
+\end{center}
 
-{\small
-\begin{verbatim}
-gap> m2:=RandomUnimodularMat(100);;
-gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
-277
-gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
-1564
-gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
-Error, reached the pre-set memory limit
-\end{verbatim}
-}
-
-After:
-
-{\small
-\begin{verbatim}
-gap> m2:=RandomUnimodularMat(100);;
-gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
-273
-gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
-1249
-gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
-1226
-\end{verbatim}
-
-}
+%Before:
+%
+%gap> m2:=RandomUnimodularMat(100);;
+%gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
+%277
+%gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
+%1564
+%gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
+%Error, reached the pre-set memory limit
+%
+%After:
+%
+%gap> m2:=RandomUnimodularMat(100);;
+%gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
+%273
+%gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
+%1249
+%gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
+%1226
 
 The same improved profiling tools allowed us to identify other
 ``hidden'' bottlenecks in \GAP code. For instance \GAP has a
@@ -287,7 +300,11 @@ IsomorphismGroups(G,PcGroupCode(CodePcGroup(G),Size(G)))<>fail;
 \TODO{Can we claim that the smaller number of minor releases (and the
   dropping of the .0 beta for each major release) are due to the
   better testing tools? If so, is this the place, or can we refer
-  forward where we talk about those tools above}
+  forward where we talk about those tools above? 
+  AK: we can say something - perhaps not about the smaller number
+  (if compare 2012-2015 vs 2016-2019, it's in the same range), 
+  but of less changes in minor releases, and of dropping the beta too; 
+  I think better to refer forward, see the section about distributions}
 
 \subsection{\GAP 4.11 (anticipated in November 2019)}\label{gap-4.11}
 
@@ -507,6 +524,8 @@ of two random dense square matrices  of the given dimension over
 $GF(q)$ in memory. In these tables the throughput is calculated as
 the cube of the dimension divided by the elapsed (``wall-clock'')
 time. 
+
+\TODO{Maybe put tables in Appendix}
 
 
 \begin{center}
@@ -781,7 +800,7 @@ run by developers manually, and a part of the
 release preparation was sending an email to the \GAP developers mailing
 list asking for help with running a set of tests on developers' 
 computers. Since 2009, the \GAP team in St Andrews started to use the Jenkins
-(\url{https://jenkins.io/}) automation sysetem to regularly run the 
+(\url{https://jenkins.io/}) automation system to regularly run the 
 GAP testsuite, and eventually established a set of nightly and weekly
 running Jenkins jobs to run tests for the current \GAP development
 version; check for package updates; prepare and test release candidates,
@@ -820,7 +839,7 @@ repositories elsewhere) allowed us to bring our regression testing
 up to the next level.
 
 We made use of \href{https://travis-ci.org/}{Travis CI} and
-\ref{https://www.appveyor.com/}{AppVeyor} which are 
+\href{https://www.appveyor.com/}{AppVeyor} which are 
 free (for open source projects) continuous integration platforms 
 that can be used to build and test software projects hosted at GitHub.
 \emph{Continuous Integration}, usually abbreviated as {\bf CI} is the process
@@ -952,7 +971,7 @@ the package. This greatly simplifies the procedure and helps to keep
 the package website up-to-date.
 
 The \GAP package {\sf Example} by Werner Nickel, Greg Gamble and
-Alexander Konovalov (\url{https://github.com/gap-packages/example}
+Alexander Konovalov \cite{example}
 is an example of a \GAP package which may be used as a template for 
 a new package. During the reported period, it has been regularly updated
 to keep up with the updates of the packages infrastructure. It
@@ -981,7 +1000,7 @@ A newer one is an XML-based format which is used for the main \GAP manuals
 and requires {\sf GAPDoc package} to build the documentation. Writing XML
 code by hand is very tedious and error-prone, and in 2012 Sebastian Gutsche 
 and Max Horn (presently both at the University of Siegen) started an 
-{\sf AutoDoc} package (\url{https://gap-packages.github.io/AutoDoc/}).
+{\sf AutoDoc} package \cite{autodoc}.
 This package allows to create documentation from source code comments
 without writing XML files, and then automatically generates XML input
 for GAPDoc. By now, this package became very flexible and reliable, and
@@ -1114,6 +1133,13 @@ get new contributors to existing packages. As Figure~\ref{fig:gap-package-tests}
 shows, the number of packages authors increased from 158 in
 November 4.7.9 to 196 in June 2019. 
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-package-tests}
+    \caption{Number of \GAP packages, their authors, and packages with tests.}
+    \label{fig:gap-package-tests}
+\end{figure}
+
 Over the same time, not only package releases became more frequent, but also their quality
 improved. If in November 52\% of packages did not provide a standard 
 test at all, presently 78\% of packages do have a standard test 
@@ -1121,7 +1147,8 @@ test at all, presently 78\% of packages do have a standard test
 so their authors are responsible for regular testing them 
 with GAP releases and development versions.
 Some of them use their own setup for continuous integration
-(like e.g. the {\sf homalg} project, using \href{https://circleci.com/}{CircleCI}).
+(like e.g. the \href{https://homalg-project.github.io/}{\sf homalg} project,
+which uses \href{https://circleci.com/}{CircleCI}).
 
 At the moment of writing, in the stable-4.10 branch,
 standard tests pass for 102 packages
@@ -1131,13 +1158,6 @@ and fail for 12.
 (it may be worth to note what "fail" means - not serious bugs
 but different output, or incompatibility with some other package
 not loaded by default).
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\textwidth]{images/gap-package-tests}
-    \caption{Number of \GAP packages, their authors, and packages with tests.}
-    \label{fig:gap-package-tests}
-\end{figure}
 
 \subsection{\GAP package manager}\label{pkg-manager}
 
@@ -1206,6 +1226,23 @@ and major \GAP releases per year, starting from the release of
     \caption{Number of major and minor \GAP releases per year since \GAP 4.4 release.}
     \label{fig:gap-releases}
 \end{figure}
+
+\TODO{Say something about this: as noted in GAP 4.10 description, 
+better testing tools and increased thoroughness of package testing 
+allowed us to concentrate on the changes in the master branch
+(which is a prototype for the next major release), and limit 
+the changes in the current release branch to bugfixes and selected 
+non-disruptive changes backported from the master branch.
+(Indeed, less situations when package authors reported to us after 
+the release that we broke their package - this can be now detected 
+earlier). One could try to look at the descriptions and number of 
+changes in the release overview to see that. Also, if formerly we provided
+a beta release and were giving to package authors a 2-months window to
+test and update their packages, then the need in doing this disappeared
+with the improvements of the testing, and for the first time in GAP 4.10.0
+we did not provide a beta release but published GAP 4.10.0 straightforwardly.
+This went well - GAP 4.10.1 was published in due course in February 2019,
+without any rush.}
 
 Release wrapping and automated testing is performed in St Andrews
 using the Jenkins automation system. \GAP distribution is tested
