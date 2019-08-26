@@ -5,6 +5,8 @@
 \duedate{31/08/2019 (M48)}
 \author{Author names}
 
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{report.bib}
 \renewcommand{\comment}[1]{\TODO{Comment: #1}}
 \begin{document}
 \TODO{Author names}
@@ -33,6 +35,7 @@ redistributed with \GAP and also available on the \GAP website at
 included as an appendix to this report. This
 work includes contributions from our external collaborators, whose
 authorship can be seen from the version control history.
+\TODO{Remember to add Changes manual as an appendix}
 
 \subsection{\GAP 4.8 (February 2016)}\label{gap-4.8}
 
@@ -92,7 +95,7 @@ portability of \GAP on which our users depend.
 
 Also for portability reasons, this release incorporated a  completely
 reimplemented build system for \GAP, using more modern tools and
-complying with modern expectatiuons. This resolved many issues with the old
+complying with modern expectations. This resolved many issues with the old
 system, and made it easier to maintain and extend. Technical details
 of the new build system are described in {\tt README.buildsys.md} from
 the \GAP source code. 
@@ -121,9 +124,8 @@ efficient and/or readable code,
 \begin{itemize}
   \item a concise syntax for short
 functions with any number of arguments such as \verb|{a,b} -> a+b| replacing \verb|function(a,b) return a+b; end|. 
-
-\item use of function literals in expressions such \verb|y := f().x;| 
-replacing \verb|y := f();; y := y.x;|).
+\item use of function literals in expressions such \verb|y := f().x;|
+replacing previously required two-step calculation \verb|y := f();; y := y.x;|.
 \end{itemize}
 
 \GAP 4.9 had three public releases between May and September 2019, and
@@ -150,8 +152,9 @@ the GASMAN system which was developed for \GAP 4 in the 1990s.
 These garbage collectors are thread-safe (important for \HPCGAP) the
 links to Julia are
 motivated by a desire to allow tight integration with \GAP and Julia 
-in the future, led by  the DFG-funded OSCAR project.
-% TODO: proper reference to OSCAR
+in the future, led by the \href{https://oscar.computeralgebra.de/}{OSCAR}
+project, developed within the DFG-funded grant SFB-TRR 195
+``Symbolic Tools in Mathematics and their Application''.
 
 The work on improving debugging and profiling in \GAP was
 continued. Profiling now covers memory usage as well as CPU time, and
@@ -167,35 +170,40 @@ Speed ups were achieved for many integer arithmetic functions such as
 \verb|RootInt|, \verb|SmallestRootInt|, \verb|IsPrimePowerInt|
 and the computation of modular inverses of integers.
 
-For example (this could be converted into a table):
+For example, the table below gives the timing in milliseconds required
+for the folowing loop: \verb|for i in [1..k] do x:= 1/p^q mod n; od|
 
-{\small
-\begin{verbatim}
-gap> q:=1/3^60;;n:=2^59;; for i in [1..2000000] do x:= q mod n; od; time;
-2364
-gap> q:=1/3^60;;n:=2^60;; for i in [1..2000000] do x:= q mod n; od; time;
-2821
-gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
-19358
-\end{verbatim}
-}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c | c |} 
+\hline
+p & q    & n          & k        & ms, before & ms, after \\
+3 & 60   & $2^{59}$   & 2000000  & 2364       & 1219 \\
+3 & 60   & $2^{60}$   & 2000000  & 2821       & 1292 \\
+2 & 6000 & $3^{6000}$ & 6000     & 19358      & 692  \\
+\hline
+\end{tabular}
+\end{center}
 
-After:
-
-{\small
-\begin{verbatim}
-gap> q:=1/3^60;;n:=2^59;; for i in [1..2000000] do x:= q mod n; od; time;
-1219
-gap> q:=1/3^60;;n:=2^60;; for i in [1..2000000] do x:= q mod n; od; time;
-1292
-gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
-692
-\end{verbatim}
-}
+%Before
+%gap> q:=1/3^60;;n:=2^59;; for i in [1..2000000] do x:= q mod n; od; time;
+%2364
+%gap> q:=1/3^60;;n:=2^60;; for i in [1..2000000] do x:= q mod n; od; time;
+%2821
+%gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
+%19358
+%
+%After:
+%
+%gap> q:=1/3^60;;n:=2^59;; for i in [1..2000000] do x:= q mod n; od; time;
+%1219
+%gap> q:=1/3^60;;n:=2^60;; for i in [1..2000000] do x:= q mod n; od; time;
+%1292
+%gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
+%692
 
 Also, \verb|InverseMatMod| with integer modulus has been improved:% #2426
 
-TODO: convert into a table
+\TODO{convert into a table}
 
 {\small
 \begin{verbatim}
@@ -258,11 +266,13 @@ IsomorphismGroups(G,PcGroupCode(CodePcGroup(G),Size(G)))<>fail;
 }
 
 
-\subsection{\GAP 4.11 (anticipated ???? 2019)}\label{gap-4.11}
+\subsection{\GAP 4.11 (anticipated in November 2019)}\label{gap-4.11}
 
 % Since they are released on GitHub, I see no reason not to also
 % highlight changes which are merged and definitely coming out in
 % 4.11, if they are relevant SL
+
+% Release notes are collected at https://github.com/gap-system/gap/wiki/GAP-4.11-release-notes
 
 At the time of preparation of this report the next major release \GAP
 4.11 is approaching completion. Almost all of the features to be
@@ -307,6 +317,25 @@ enhancements.
   of tests, maybe run the 4.8 or 4.7 testinstall in 4.7 and 4.11 and
   compare performance?}
 
+\comment{tests from 4.7.9 take 3237s in GAP 4.7.9;
+4.10.2: total 3039s (150s GC) and 328GB allocated;
+GAP master: total 2913s (140s GC) and 293GB allocated}
+
+% find . -name '*.tst' | wc -l
+% find . -name '*.tst' | xargs wc -l
+\begin{center}
+\begin{tabular}{| l | c | c |} 
+\hline
+GAP release & number of test files & number of lines \\
+\hline
+GAP 4.7.8 (November 2015) & 69 & 21981 \\
+\hline GAP 4.8.10 (January 2018) & 91 & 28586 \\
+\hline GAP 4.9.3 (September 2018) & 564 & 41456 \\
+\hline GAP 4.10.2 (June 2019) & 648 & 53362 \\
+\hline GAP 4.11 (expected November 2019) & 707 & 61280 \\
+\hline
+\end{tabular}
+\end{center}
 
 \subsection{lib\GAP: allowing 3rd party code to link \GAP as a library}\label{libgap}
 
@@ -456,7 +485,7 @@ not necessarily test interactions between them).\comment{Is this true?
   -- all tests are with an integrated system, but increasingly, each
   test covers narrow functionality}
 The \GAP test
-suite for the core system consists of a total of 706 test files at the time of writing
+suite for the core system consists of a total of 707 test files at the time of writing
 totalling over $60\,000$ lines,
 as well as of the tests that check the correctness of over
 over $14,000$ lines of 1810 manual examples.
@@ -481,7 +510,7 @@ over $14,000$ lines of 1810 manual examples.
 In addition many packages have large test suites.
 % and some further code in the {\tt benchmarks} directory. 
 
-GAP is also redistributed with a number of extensions, called \GAP packages
+\GAP is also redistributed with a number of extensions, called \GAP packages
 (145 in the latest release \GAP 4.10.2). These packages may, for example,
 extend mathematical functionality of the system by implementing new algorithms;
 provide collections of mathematical data; or provide enhanced tools for 
@@ -510,8 +539,7 @@ core system, and releases are much faster.
   before the project, before we get to anything new. Can we start by
   saying what new developments we are claiming, and then go back and
   explain what didn't work before?}
-  
-  \comment{Also maybe a subheading of some kind here}
+\comment{Also maybe a subheading of some kind here}
 \GAP has used regression tests in one or another form since the
 release of version 3 in the 1980s. For much of this time, they were
 run by developers manually, and a part of the
@@ -534,7 +562,7 @@ have a public source code repository.
 
 
 %See https://blogs.cs.st-andrews.ac.uk/alexk/2016/03/07/gap-on-github-one-year-on/
-Of course, \GAP is not new  version control, and the former
+Of course, \GAP is not new to version control, and the former
 CVS repository for \GAP 4 has revisions from 1996. In summer 2012 it
 had been converted to Mercurial (thanks to Max Horn) after the release 
 of \GAP 4.5, and then in February 2015 the Mercurial repository had 
@@ -575,8 +603,11 @@ by Travis CI. Making these results easily obtainable and publicly available
 had a great effect on the community. Adding new tests to improve code coverage
 is a useful task for new contributors to familiarise themselves with the
 project setup. Making coverage reports available for each pull requests
-stimulated their authors to ensure that their contributions have a good
-quality and their suggested changes are actually being tested. \TODO{Can we back this claim up with numbers}
+facilitates checking code coverage during code review and
+encourages their authors to ensure that their contributions have a good
+quality and their suggested changes are actually being tested. \TODO{Can we back this claim up with numbers? One can explore code coverage for merged pull requests at
+\url{https://codecov.io/gh/gap-system/gap/pulls}, we could add a
+screenshot to illustrate it. Reliable numbers are harder by a number of reasons.}
 
 A crucial role in these developments was played by the enhanced
 profiling facilities discussed 
@@ -843,6 +874,8 @@ test at all, presently 78\% of packages do have a standard test
 % https://github.com/gap-packages/gap-packages.github.io/issues/9
 so their authors are responsible for regular testing them 
 with GAP releases and development versions.
+Some of them use their own setup for continuous integration
+(like e.g. the {\sf homalg} project, using \href{https://circleci.com/}{CircleCI}).
 
 At the moment of writing, in the stable-4.10 branch,
 standard tests pass for 102 packages
@@ -864,20 +897,62 @@ not loaded by default).
 
 WHO: Michael
 
-Describe \url{https://gap-packages.github.io/PackageManager/}
+For many years, the installation of packages in GAP has been an entirely manual
+process.  If a user requires a package that is not currently installed on their
+system, they are required to visit the GAP website, or the website of the
+required package, download an archive or repository and extract it into their
+package directory.  In many cases, they must also compile the package before
+use, in a process that is not consistent between packages.  Worst of all, any
+dependencies must also be installed one-by-one, including all these steps for
+each one.
+
+This awkward installation procedure is mitigated by the inclusion of a large
+number of packages with the main release archive (145 packages were included
+with \GAP 4.10.2).  This solution masks the problem for the majority of users,
+who do not require any more specialised packages.  However, it also results in a
+1.6 GB standard installation, of which the packages make up 1.4 GB.  Many of
+these packages will never be loaded by a given user.
+
+The possibility of a more sophisticated package management system for \GAP
+package manager has been discussed for some time, and resulted in the creation
+of {\textsf PackageManager} in September 2018, by Michael Torpey.  Development
+started after a discussion at GAP Days Fall 2018
+(\url{https://www.gapdays.de/gapdays2018-fall/}) and an initial release was made
+before the end of that meeting.  New features have been added in various further
+releases across the past year.
+
+Describe \url{https://gap-packages.github.io/PackageManager/}:
+\begin{itemize}
+\item It's a package - install+load packages without leaving cosy environment
+\item Sources
+\item pip vs apt
+\item Dependencies Compile Build doc
+\item User pkg dir
+\item Tests and doc
+\end{itemize}
 
 \subsection{Packaging \GAP distribution}\label{distro}
 
 WHO: Alex
 
-When we decide that there is a time for the next release
-(minor or major; update releases were in the past but then abolished).
-What are the standards for passing tests. 
+\comment{See the Release checklist at \url{https://github.com/gap-system/gap-distribution/blob/master/DistributionUpdate/RELEASE_CHECKLIST.md}
+Some text below pasted from there, needs shortening}
 
-How release wrapping is automated.
-Which \GAP distributions we provide officially.
+We aim at making a minor release every several months and a major 
+release once or twice per year. 
 
-Figure~\ref{fig:gap-package-releases} shows how package releases became more frequent.
+Actual schedule may be corrected - critical bug fixes may need 
+an urgent minor release, and substantial changes may require 
+more time for a major release.
+
+Usually, if a previous minor release has been made a couple of 
+months ago, and there is a substantial amount (say, 15 or more) 
+of updated packages and/or changes in the core \GAP system, 
+there may be a time for a release.
+
+Figure~\ref{fig:gap-package-releases} shows the number of minor
+and major \GAP releases per year, starting from the release of
+\GAP~4.4 in 2004.
 
 \begin{figure}[!ht]
     \centering
@@ -886,14 +961,37 @@ Figure~\ref{fig:gap-package-releases} shows how package releases became more fre
     \label{fig:gap-releases}
 \end{figure}
 
-Main distributions
-Regression testing
-Windows distribution and installer migrated from Windows 7 to Windows 10
-Alternative distributions: Docker, Homebrew, 
-Opportunity to try \GAP online with Jupyter notebook running on Binder.
-Improved testing
-Code coverage, various sets of automated Travis builds
-This is based on Docker containers for various branches.
+Release wrapping and automated testing is performed in St Andrews
+using the Jenkins automation system. \GAP distribution is tested
+in various combinations of operating systems (Linux, macOS, Windows)
+and build modes (32-bit and 64-bit), and with different sets of
+loaded packages. Automated regular testing of the codebase ensures
+that we can release as often as deemed necessary. Modern version
+control system helps us to have release branches and a master branch
+where we accumulate things for the next major release, and then
+create the next release branch for things to stabilise and let package
+authors to test it and if need be adapt their packages.
+
+\GAP distribution is provided in several archive formats for Linux and macOS,
+and in zip archives and as an executable installer for Windows.
+We also provide several auxiliary archives which keep the core system
+and packages separately - these are used by providers of alternative
+distributions, systems which use \GAP (such as SageMath and OSCAR)
+and for testing.
+
+\GAP alternative distributions include the Docker container for the 
+latest public \GAP release (\url{https://hub.docker.com/r/gapsystem/gap-docker/},
+and a so called ``tap'' for the Homebrew package manager for macOS
+(\url{https://github.com/gap-system/homebrew-gap}). 
+
+It is also possible to try \GAP online in a Jupyter notebook running 
+on Binder, following instructions from the README file in the repository
+located at \url{https://github.com/gap-system/try-gap-in-jupyter}.
+
+One could also use \GAP via a free or paid account
+on \href{https://cocalc.com/}{CoCalc} (formerly SageMathCloud).
+The user should be aware that the combination of \GAP packages 
+available there may differ from the one from the official \GAP distribution.
 
 \section{Jupyter interface to \GAP}
 
@@ -945,7 +1043,127 @@ persistent memoisation
 
 databases
 
-% TODO: Bibliography. Ensure that we are following software citation recommendations properly!
+\newpage
+\appendix
+
+\section{Sharing reproducible computational experiments}
+
+This appendix presents an example of organising GAP code 
+and data to give others an opportunity to inspect them and rerun
+the computation on a freely available called \href{https://mybinder.org/}{Binder}.
+
+It demonstrates integration of a number of concepts mentioned
+in the report: GAP regression testing; setup for continuous
+integration and code coverage reports; Docker containers with
+the GAP distribution; and GAP Jupyter interface.
+
+For this demonstrator, we collaborated with the authors of \cite{black-box} 
+who worked on the code for this paper in the GitHub repository located 
+at \url{https://github.com/sukru-yalcinkaya/unipoly} in the file 
+called {\tt unipoly.g}.
+
+This code does not justify the creation of a new GAP package, 
+but it can reuse packages setup for Travis CI and Codecov by 
+creating a {\tt tst} directory with the test files and adapting
+{\tt .travis.yml} and {\tt .codecov.yml} configuration files
+from the \GAP package {\sf Example}. Importantly, it also
+allows to check that the code works in GAP 4.9, GAP 4.10 and 
+the master branch of the GAP repository, which is a prototype for
+GAP 4.11.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-repo}
+    \caption{unipoly project repository}
+    \label{fig:unipoly-repo}
+\end{figure}
+
+The next step is to produce a Jupyter notebook which combines input,
+output, and textual narrative in one document. The notebook contains
+the {\tt Read(unipoly.g);} command to read the code first. This is
+a good practice for organising reproducible experiments: keeping the
+code in a single location in a {\tt .g} file allows its reuse and
+automated testing, and avoids code duplication. 
+
+When the authors prepared and committed the Jupyter notebook describing
+their calculation, they are ready to share it on
+\href{https://mybinder.org/}{Binder}. First they need to add 
+to their repository a {\tt Dockefile} with the following content:
+
+{\tiny
+\begin{verbatim}
+FROM gapsystem/gap-docker
+
+MAINTAINER Alexander Konovalov <alexander.konovalov@st-andrews.ac.uk>
+
+COPY --chown=1000:1000 . $HOME/unipoly
+
+RUN sudo pip3 install ipywidgets RISE
+
+RUN jupyter-nbextension install rise --user --py
+
+RUN jupyter-nbextension enable rise --user --py
+
+USER gap
+
+WORKDIR $HOME/unipoly
+\end{verbatim}
+}
+
+This file builds a Docker container based on the container {\tt gapsystem/gap-docker}
+with the latest GAP release, which we provide as an alternative GAP distribution
+(see Subsection~\ref{distro}). Additional commands specify how to copy the code into
+the new container, and install additional extensions for Jupyter-based slideshows.
+
+After that one should follow \href{https://mybinder.org/}{Binder} instructions to
+set up a new Binder project. A completed setup will allow to click on the ``launch binder''
+button in the README file on GitHub (as seen on Figure~\ref{fig:unipoly-repo}
+to start a Jupyter notebook server in the cloud,
+either using a prebuilt image of the project or by building a new one in case of any
+changes in the GitHub repository. When the server will be started, it will display
+a file browser as shown on Figure~\ref{fig:unipoly-files}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-files}
+    \caption{File browser running on Binder}
+    \label{fig:unipoly-files}
+\end{figure}
+
+Clicking on {\tt unipoly.ipynb}, the user will open the Jupyter notebook
+and will be able to rerun it as shown on Figure~\ref{fig:unipoly-notebook}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-notebook}
+    \caption{Jupyter notebook running on Binder}
+    \label{fig:unipoly-notebook}
+\end{figure}
+
+One could also switch to the slideshow mode (the notebook would require
+some configuration to explain which cells should be displayed on the
+same slide and which not), and run an interactive presentation, as
+as shown on Figure~\ref{fig:unipoly-slide}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-slide}
+    \caption{Slideshow with interactive computation running on Binder}
+    \label{fig:unipoly-slide}
+\end{figure}
+
+Thus, connecting the project repository to Binder allows other users
+(e.g. readers or referees of the paper) to rerun computations on Binder
+without spending efforts on installing all necessary components
+(may be hard for them as non experts, may not always be possible;
+something may not work on Windows, etc.
+
+\TODO{what are the limitations of Binder and suggested workarounds}
+
+\newpage
+\TODO{Ensure that we are following software citation recommendations properly!}
+\printbibliography
+
 \end{document}
 
 
