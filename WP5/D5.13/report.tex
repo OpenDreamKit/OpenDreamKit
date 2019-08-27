@@ -1,9 +1,12 @@
 \documentclass{deliverablereport}
 
 \deliverable{hpc}{singular-polyarith}
-\deliverydate{XX/YY/201Z}
+\deliverydate{31/08/2019}
 \duedate{31/08/2019 (M48)}
-\author{Author names}
+\author{Daniel Schultz}
+
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{report.bib}
 
 \begin{document}
 \maketitle
@@ -11,6 +14,245 @@
 \githubissuedescription
 
 % write the report here
+
+\section{Introduction}
+\textsc{Singular} \cite{DGPS} represents of polynomials as a linked list of terms in the sparse distributed format. For example, the polynomial $4 x^2 + 5 x y^2 z^3 + 6 y z^2$ with variables $x$, $y$, and $z$ might be stored as
+\begin{center}
+\begin{tabular}{ccc}
+ & coefficient & exponents on ($x$,$y$,$z$)\\
+term 1 & $4$ & $(2,0,0)$\\
+term 2 & $5$ & $(1,2,3)$\\
+term 3 & $6$ & $(0,1,2)$
+\end{tabular},
+\end{center}
+where each term is essentially a coefficient together with an exponent tuple. This format is optimized for Gr\"obner basis calculations in algebraic geometry. However, because the terms themselves are stored in a link list, the \textsc{Singular} format is unsuitable for the arithmetic operations of multiplication, division, and greatest common divisor (GCD). For this reason \textsc{Singular} currently relies on the library \textsc{Factory} \cite{Factory} for these arithmetic operations. Since the recursive representation in \textsc{Factory} is also not particularly well suited to parallelization, we have implemented for this deliverable \textsc{Singular}'s original sparse distributed format in the library \textsc{Flint} \cite{Hart2010} using arrays for the storage of terms. The usage of arrays means that the user has random access to the terms of their polynomials, and this is also crucial for parallel arithmetic operations.
+
+The inclusion of \textsc{Flint} multivariable polynomial arithmetic has improved the single core performance of \textsc{Singular} on our set of benchmark problems by one to several orders of magnitude. \textsc{Singular} is one of the software components of \Sage used for multivariate arithmetic, so the users of \Sage will benefit seemlessly when the \textsc{Singular} version is updated. Since the \textsc{Flint} library itself is useful outside of \textsc{Singular}, we present the timings for the basic arithmetic operation in \textsc{Flint} as well as the timing of the operation in the new version of \textsc{Singular}, which includes all conversion and cleanup costs associated with \textsc{Singular}. As \textsc{Singular}'s main usage is as a Gr\"obner basis engine, it does not make sense to try to rewrite the polynomial format used natively by \text{Singular}. Instead, the conversion cost should be viewed simply as the time need to convert polynomials to formats optimized for different purposes.
+
+\section{Details of the systems}
+Besides the three monomial orders \emph{lexicographic}, \emph{graded lexicographic} and \emph{graded reverse lexicographic} used commonly in \textsc{Singular}, \textsc{Flint} supports polynomials with exponents of unlimited size. Since \textsc{Singular} has a fixed and limited size on the exponents this second feature is somewhat moot for \textsc{Singular} users. About two years into this project we had to redesign the fundamentals of the multivariate polynomials in \textsc{Flint} to acheive the desired flexibility and performance. By the end of the next two years more than $100,000$ aditional lines of code dedicated to multivariate arithmetic had been added. This includes many redesigns as bottlenecks were discovered and implementations were redone.
+
+We run our benchmarks marks on the server {\tt nenepapa}, which has two sixteen core Intel Xeon E5-2697A v4 processors at $2.6$ GHz and $700$GB of memory. We show the timing of the basic operation in \textsc{FLINT} in the column labeled ``flint'', and the timing of the new version of \textsc{Singular} is in the column ``sing''. At the time of running these benchmarks, {\tt nenepapa} was also running two instances of long outstanding calculations. This seemed to only slightly negatively affect the timings on $32$ threads. 
+
+The largest characteristic $p$ supported by \textsc{Singular} for arithmetic over finite fields is $p = 2^{29}-3$, and this is the prime we use to test arithmetic over $\mathbb{Z}/p \mathbb{Z}$. Both \textsc{Flint} and \textsc{Singular} use the \textsc{GMP} library for elements of $\mathbb{Z}$ with a special representation for integers less than $2^{62}$ ($2^{61}$ for \textsc{Singular}) in absolute value; small integers and elements of $\mathbb{Z}/p \mathbb{Z}$ both take one word of memory while large integers are managed by \textsc{GMP}. All times are reported in seconds.
+
+Since these benchmarks deal with polynomials whose sizes are comparable to the total running time of the calculation, it is necessary to parallelize the conversion between \textsc{Flint} and \textsc{Singular}. This is a rather disappointing task as one direction is limited by the scaling of {\tt malloc} and the other direction is limited by \textsc{Singular}'s inherently serial data structure; the time to simply traverse \textsc{Singular}'s link list can be comparable to the time to do the threaded calculation in \textsc{Flint}. We encountered several performance quirks of {\tt malloc} on {\tt nenepapa}, which is running Gentoo Linux. The most noticable of these was that, when constructing polynomials in \textsc{Singular}, the throughput of the {\tt malloc} provided by the system only starts to scale past $3$ or $4$ threads. Other implementations of malloc such as {\tt tcmalloc} did not have this quirk, but had overall higher times on $16$ threads. Therefore, we simply run all of our benchmarks with the system's default {\tt malloc}. In order to use our parallel conversion routines, the default allocator {\tt omalloc} of \textsc{Singular} must be disabled with the configuration option {\tt --disable-omalloc} as {\tt omalloc} is a special purpose allocator that is not thread safe. Since this slows down the rest of \textsc{Singular} by about a factor of two, it may not be advantagous to disable {\tt omalloc} in practice. Nevertheless, we have disabled this to test the efficacy of the parallel conversion routines. 
+
+We defined the efficiency on $n$ threads as
+\begin{equation*}
+\text{efficiency} = \frac{\text{ \textsc{Flint} time on $1$ thread}}{n \cdot \text{\textsc{Flint} time on $n$ threads}}\text{.}
+\end{equation*}
+In order to obtain reasonable efficiencies, it is necessary to limit the turbo mode of the processor (see Section \ref{section_code}) and to pin threads to cores as {\tt nenepapa} is unable to consistently schedule threads on the same core.
+
+\section{Sparse Multiplication}
+\label{section_sparse_mul}
+Parallel multiplication has been investigated previously in \cite{Monagan:2009:PSP:1576702.1576739} and \cite{Gastineau:2013:HSM:2689622.2689630}. The more effective strategy for sparse polynomials is in the latter and seems to be the approach of directly calculating independent pieces of the answer. This makes the algorithm essentially lock-free, while the approach of \cite{Monagan:2009:PSP:1576702.1576739} requires a lock on its parallel merge. To test the effectiveness of this strategy, we time the multiplication $\cdot$ in
+\begin{equation*}
+(1+x+y+2z^2+3t^3+5u^5)^m \cdot (1+u+t+2z^2+3y^3+5x^5)^n
+\end{equation*}
+for $m=n=16$, where the product is already quite large with $28$ million terms. As shown in \cite{Monagan:2009:PSP:1576702.1576739}, it is difficult to obtain a good speed up on this example. The reason for this is that the inputs each have only $20$ thousand terms, so the majority of the time is spent writing down the answer, where only $14$ additions are done per term on average. Table \ref{table_sparse_mul1} shows the timings with $16$ threads. The poor scaling of the \textsc{Singular} times over $\mathbb{Z}$ can be explained easily: Besides testing the multiplication in \textsc{Flint}, this benchmark tests the creation of large polynomials in \textsc{Singular}, which is a task bounded by the scaling of {\tt malloc}. In addition to having larger cleanup costs, the benchmark over $\mathbb{Z}$ puts three times as much pressure on {\tt malloc} as it does over $\mathbb{Z}/p\mathbb{Z}$.
+\begin{table}
+\begin{tabular}{l | r | r | r | r | }
+ & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
+\#th   & flint & sing & flint & sing\\ \hline
+$1$   & $10.54$ & $22.44$ &$9.12$ & $11.72$\\ \hline
+$2$   & $5.55$  & $13.69$ &$4.84$ & $6.67$\\ \hline
+$3$   & $3.80$  & $11.07$ &$3.29$ & $6.34$\\ \hline
+$4$   & $2.95$  & $10.11$ &$2.50$ & $4.70$\\ \hline
+$6$   & $2.09$  & $7.75$ &$1.68$  & $3.41$\\ \hline
+$8$   & $1.60$  & $6.99$ &$1.26$  & $2.74$\\ \hline
+$10$  & $1.30$  & $6.50$ &$1.03$  & $2.23$\\ \hline
+$12$  & $1.09$  & $5.95$ &$0.86$  & $2.04$\\ \hline
+$14$  & $0.96$  & $5.73$ &$0.74$  & $1.66$\\ \hline
+$16$  & $0.86$  & $5.19$ &$0.66$  & $1.50$\\ \hline
+\end{tabular}
+\caption{Sparse multiplication for $(m, n) = (16, 16)$.}
+\label{table_sparse_mul1}
+\end{table}
+The multiplication over $\mathbb{Z}/p \mathbb{Z}$ is overall faster and scales better. The efficiency on $16$ threads is $0.86$ versus an efficiency of $0.76$ over $\mathbb{Z}$. This is to be expected as the memory management of elements of $\mathbb{Z}$ via \textsc{GMP} adds overhead. As we increase the size of the problem we can observe better scaling as shown in Table \ref{table_sparse_mul2}. Now the efficiency on $16$ threads is $0.90$ ($0.90$ for $\mathbb{Z}/p \mathbb{Z}$), and the efficiency on $32$ threads is $0.76$ ($0.82$ for $\mathbb{Z}/p \mathbb{Z}$).
+\begin{table}
+\begin{tabular}{l | r | r | r | r | }
+& \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
+\#th   & flint & sing & flint & sing\\ \hline
+$1$   & $120.0$ & $162.2$ &$53.88$ & $64.22$\\ \hline
+$2$   & $60.0$ & $124.8$ &$28.13$ & $34.68$\\ \hline
+$3$   & $41.0$ & $85.6$ &$18.74$ & $29.69$\\ \hline
+$4$   & $31.4$ & $67.3$ &$14.31$ & $23.87$\\ \hline
+$6$   & $21.1$ & $44.4$ &$9.48$ & $15.97$\\ \hline
+$8$   & $16.1$ & $34.3$ &$7.26$ & $12.72$\\ \hline
+$10$  & $13.0$ & $29.7$ &$5.96$ & $11.40$\\ \hline
+$12$  & $10.9$ & $27.1$ &$4.99$ & $9.91$\\ \hline
+$14$  & $9.4$ &  $25.2$  &$4.22$ & $9.00$\\ \hline
+$16$  & $8.3$ &  $23.6$  &$3.76$ & $8.14$\\ \hline
+$20$  & $6.7$ &  $21.5$  &$3.13$ & $7.16$\\ \hline
+$24$  & $5.6$ &  $19.6$  &$2.65$ & $6.37$\\ \hline
+$28$  & $4.9$ &  $18.8$  &$2.27$ & $5.62$\\ \hline
+$32$  & $4.9$ &  $17.9$  &$2.04$ & $5.12$\\ \hline
+\end{tabular}
+\caption{Sparse multiplication for $(m, n) = (20, 20)$.}
+\label{table_sparse_mul2}
+\end{table}
+
+\section{Dense Multiplication}
+\label{section_dense_mul}
+When the input polynomials have a density past a certain threashold, it is possible to do better than algorithms based on heaps. For this reason we implemented an approach based on arrays and parallelized it. The approach is suited well to the multiplication in, for example,
+\begin{equation*}
+(1+x+y+z+t)^m \cdot (1+x+y+z+t)^n\text{,}
+\end{equation*}
+As the inputs to the multiplication in this case each have $46$ thousand terms, and the product only has $635$ thousand terms, the amount of work per output term is much higher than in Section \ref{section_sparse_mul}. Table \ref{table_dense_mul} shows that the efficiency on $16$ threads is $0.93$ in both cases. However, as this approach breaks up the input problem into a limited number of pieces, and only some of these pieces are large, this approach is effective at low thread counts but does not scale past $16$ threads. 
+
+\begin{table}
+\begin{tabular}{l | r | r | r | r | }
+& \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
+\#th   & flint & sing & flint & sing\\ \hline
+$1$   & $5.08$ & $5.39$ &$3.64$ & $3.71$\\ \hline
+$2$   & $2.56$ & $2.80$ &$1.83$ & $1.90$\\ \hline
+$3$   & $1.71$ & $1.90$ &$1.22$ & $1.28$\\ \hline
+$4$   & $1.29$ & $1.45$ &$0.92$ & $0.98$\\ \hline
+$6$   & $0.86$ & $1.00$ &$0.62$ & $0.66$\\ \hline
+$8$   & $0.67$ & $0.77$ &$0.46$ & $0.50$\\ \hline
+$10$  & $0.52$ & $0.63$ &$0.37$ & $0.40$\\ \hline
+$12$  & $0.46$ & $0.55$ &$0.31$ & $0.34$\\ \hline
+$14$  & $0.40$ & $0.50$ &$0.28$ & $0.30$\\ \hline
+$16$  & $0.34$ & $0.43$ &$0.24$ & $0.26$\\ \hline
+\end{tabular}
+\caption{Dense multiplication for $(m, n) = (30, 30)$.}
+\label{table_dense_mul}
+\end{table}
+
+\section{Sparse Division}
+For this benchmark we simply divide the product in Section \ref{section_sparse_mul} by the divisor $(1+u+t+2z^2+3y^3+5x^5)^n$.
+It is important to note that we are in fact computing two things: (1) whether the dividend is divisible by the divisor and (2) the quotient if it is. As with sparse multiplication, the approach of Gastineau and Laskar \cite{Gastineau:2015:PSM:2790282.2790285} scales better than the approach of Monagan and Pearce \cite{Monagan:2010:PSP:1837210.1837227}. Division is more difficult to parallelize than multiplication because the algorithm is highly sequential: Most terms in the quotient depend on previous terms in the quotient for their calculation. For this reason, the algorithm requires locks on the generated quotient, and only one thread can be generating quotient terms at a time. We acheive an efficiency of $0.71$ on $16$ threads ($0.78$ for $\mathbb{Z}/p\mathbb{Z}$) as shown in Table \ref{table_sparse_div}.
+Since one of the inputs to the algorithm is large, this tests not only the division in \textsc{Flint} but also the conversion from \textsc{Singular} to \textsc{Flint}. In order to obtain reasonable timings with \textsc{Singular} over $\mathbb{Z}$, it was necessary to force \textsc{Flint} to borrow \textsc{Singular}'s integers. With this optimization the overhead over $\mathbb{Z}$ is much less than the cooresponding overhead in Table \ref{table_sparse_mul1}. However, conversion overhead does not scale well for the following reason: The time to merely traverse Singular's linked list representation of the dividend is about $0.7$ seconds in this benchmark. This operation is necessary to find the polynomial's length, is an inherently serial operation, and consumes all of the conversion overhead over $\mathbb{Z}/p\mathbb{Z}$ on $16$ threads.
+
+\begin{table}
+\begin{tabular}{l | r | r | r | r | }
+ & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
+\#th   & flint & sing & flint & sing\\ \hline
+$1$   & $9.96$ & $13.29$ &$9.60$ & $11.44$\\ \hline
+$2$   & $5.22$ & $7.48$ &$4.74$ & $5.82$\\ \hline
+$3$   & $3.64$ & $5.75$  &$3.31$ & $4.15$\\ \hline
+$4$   & $2.68$ & $4.66$  &$2.54$ & $3.17$\\ \hline
+$6$   & $1.92$ & $3.50$  &$1.68$ & $2.80$\\ \hline
+$8$   & $1.55$ & $2.93$  &$1.34$ & $2.06$\\ \hline
+$10$  & $1.26$ & $2.76$  &$1.17$ & $1.82$\\ \hline
+$12$  & $1.14$ & $2.54$  &$1.03$ & $1.57$\\ \hline
+$14$  & $0.92$ & $2.30$  &$0.90$ & $1.44$\\ \hline
+$16$  & $0.88$ & $2.01$  &$0.78$ & $1.30$\\ \hline
+\end{tabular}
+\caption{Sparse division for $(m, n) = (16, 16)$.}
+\label{table_sparse_div}
+\end{table}
+
+\section{Sparse GCD}
+For this benchmark we calculate $\operatorname{gcd}(a^{m_1}b^{n_1}, a^{m_2}b^{n_2})$\text{,}
+where $a=1+x+y^5+z^4+t^{40}+u^{50}$ and $b=1+x^9+y^2+z^{11}+t^7+u^{27}$. This algorithm requires at least a dozen steps to be completed in serial, and we achieve an efficiency of $0.72$ on $16$ threads ($0.66$ for $\mathbb{Z}/p\mathbb{Z}$) by parallelizing the majority of these steps as shown in Table \ref{table_sparse_gcd}. The overhead from converting between the \textsc{Singular} format is negligible here. The algorithm over $\mathbb{Z}/p\mathbb{Z}$ suffers because, while the input problem can be split up into several pieces of work, the recombination of the results from each thread is an extra step not present in the serial algorithm. Furthermore, this recombination becomes less efficient with greater numbers of smaller pieces.
+\begin{table}
+\begin{tabular}{l | r | r | }
+ & $\mathbb{Z}$ & $\mathbb{Z}/p \mathbb{Z}$ \\ \hline
+\#th   & flint & flint\\ \hline
+$1$   & $23.24$ & $117.8$ \\ \hline
+$2$   & $12.26$ & $59.8$ \\ \hline
+$3$   & $8.24$  & $42.5$ \\ \hline
+$4$   & $6.26$  & $32.2$ \\ \hline
+$6$   & $4.41$  & $24.2$ \\ \hline
+$8$   & $3.42$  & $17.6$ \\ \hline
+$10$  & $2.87$  & $15.6$ \\ \hline
+$12$  & $2.50$  & $13.4$ \\ \hline
+$14$  & $2.23$  & $11.3$ \\ \hline
+$16$  & $2.03$  & $11.2$ \\ \hline
+\end{tabular}
+\caption{Sparse GCD for $(m_1, n_1) = (8, 5)$, $(m_2, n_2) = (3, 9)$.}
+\label{table_sparse_gcd}
+\end{table}
+
+
+\section{Comparisons with other systems}
+
+\subsection{Trip}
+\textsc{Trip} \cite{Gastineau:2011:TCA:1940475.1940518} is a system dedicated to computations in celestial mechanics and offers parallel polynomial multiplication over $\mathbb{Z}$ in a variety of polynomial formats. We chose the format that seemed to give the best timings on {\tt nenepapa}. \textsc{Flint} does not require such a choice by the user as the polynomials are presented in a single format to the user and converted internally to the appropriate format. The version of \textsc{Trip} used here (1.6.42, which was current at the time of writing) suffers from poor scalability, and we have been informed by one of it's authors that this is due to its use of the system {\tt malloc}. We unfortunately did not have the chance to test the patched version in time. Therefore, of interest here are actually the single core timings, where \textsc{Trip} is competitive with \textsc{Flint} on the large $(20, 20)$ sparse multiplication. If \textsc{Trip} does scale near perfectly (and we believe it indeed would), it would be equal to \textsc{Flint} on $16$ threads and slighly beating \textsc{Flint} on $32$ threads.
+\begin{table}
+\begin{tabular}{l | r | r | r | }
+& {dense} & \multicolumn{2}{|c|}{sparse} \\ \hline
+\#th  & $(30, 30)$ & $(16, 16)$ & $(20, 20)$\\ \hline
+$1$   & $24.40$ & $21.90$ & $130.00$\\ \hline
+$2$   & $12.30$ & $11.50$ & $67.2$\\ \hline
+$3$   & $8.30$ & $8.02$  & $45.7$\\ \hline
+$4$   & $6.21$ & $6.02$ & $33.4$\\ \hline
+$6$   & $4.24$ & $3.96$ & $22.9$\\ \hline
+$8$   & $3.17$ & $3.29$ & $17.3$\\ \hline
+$10$  & $2.87$ & $2.68$ & $15.5$\\ \hline
+$12$  & $2.47$ & $2.30$ & $12.9$\\ \hline
+$14$  & $2.01$ & $2.07$  & $11.0$\\ \hline
+$16$  & $1.78$ & $1.96$  & $10.1$\\ \hline
+$20$  &  &   & $9.4$\\ \hline
+$24$  &  &   & $9.0$\\ \hline
+$28$  &  &   & $8.9$\\ \hline
+$32$  &  &   & $8.6$\\ \hline
+\end{tabular}
+\caption{Multiplication over $\mathbb{Z}$ in Trip.}
+\label{table_trip}
+\end{table}
+
+\subsection{Maple}
+The parallel multiplication of Monagan and Pearce \cite{Monagan:2009:PSP:1576702.1576739} is accessible through \textsc{Maple}. With the exception of the benchmark in Section \ref{section_dense_mul}, unpredictable garbage collection dominated the timings, which did not scale with the number of cores. We did not pin threads nor did we try to control the turbo setting for this machine as it did not belong to us, and only $12$ threads were reliably available. Table \ref{table_maple} shows a perfect efficiency on $12$ threads for \textsc{Maple}, but it is not the fastest algorithm for these polynomials as evinced by the super-linear speed up on low thread counts.
+
+\begin{table}
+\begin{tabular}{l | r | r | r | r | }
+ & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
+\#th   & flint & maple & flint & maple\\ \hline
+$1$   & $5.78$ & $30.87$  &$4.57$ & $30.97$\\ \hline
+$2$   & $2.94$ & $15.12$  &$2.33$ & $15.00$\\ \hline
+$3$   & $2.04$ & $9.60$   &$1.59$ & $9.42$\\ \hline
+$4$   & $1.58$ & $6.93$   &$1.23$ & $6.97$\\ \hline
+$6$   & $1.10$ & $4.95$   &$0.89$ & $4.62$\\ \hline
+$8$   & $0.88$ & $3.58$   &$0.66$ & $3.55$\\ \hline
+$10$  & $0.72$ & $2.97$   &$0.58$ & $2.93$\\ \hline
+$12$  & $0.62$ & $2.52$   &$0.50$ & $2.47$\\ \hline
+\end{tabular}
+\caption{Dense multiplication for $(m, n) = (30, 30)$.}
+\label{table_maple}
+\end{table}
+
+
+\section{Code}
+\label{section_code}
+
+We limit the cpu turbo with
+\begin{verbatim}
+likwid-setFrequencies -g performance
+\end{verbatim}
+
+All of our \textsc{Flint} code is available in the {\tt trunk} branch at \url{http://github.com/wbhart/flint2}. The timings for, say, the dense benchmark over $\mathbb{Z}$ can be generated in the profile directory of \textsc{Flint} via the following commands.
+\begin{verbatim}
+make profile MOD=fmpz_mpoly
+./build/fmpz_mpoly/profile/p-mul 16 dense 30 30
+\end{verbatim}
+
+The {\tt spielwiese} branch of \textsc{Singular} at \url{http://github.com/Singular/Sources} incorporates our improvements to arithmetic. It is important to configure \textsc{Singular} with the option {\tt --disable-omalloc} to enable the parallel conversion routines. We have added the system command {\tt --flint-threads} to set the number of threads \textsc{Flint} uses from within \textsc{Singular}, as demonstrated in the following \textsc{Singular} code.
+\begin{verbatim}
+ring r = 0, (x,y,z,t), dp;
+poly a = (1+x+y+z+t)^30;
+poly b = (1+x+y+z+t)^30;
+poly p;
+system("--ticks-per-sec",1000);
+for (i = 1; i <= 16; i++) {
+    system("--flint-threads", i);
+    p = 0; time1 = rtimer; p = a*b; time2 = rtimer;
+    "th(" + string(i) + "): " + string(time2 - time1) + "ms";
+}
+\end{verbatim}
+
+\section{Dissemination}
+
+The project has been the subject of an extensive blog \url{http://wbhart.blogspot.com/}. A Jupyter notebook demonstating our code runing is available ????.
+
+\section{Conclusion and Future work}
+We have successfully sped up multivariate polynomial arithmetic in \textsc{Singular} over the coefficient fields $\mathbb{Q}$ and $\mathbb{Z}/p \mathbb{Z}$ while providing additional speed through the use of thread level parallelism. This was accomplished through a new set of multivariate modules in the library \textsc{Flint}, which can easily be integrated into other systems as well. Multivariate arithmetic is not an embarrassingly parallel problem, and the fastest single core algorithms require complicated data structures with unpredictable memory usage. Our benchmarks indicate that we have not compromised single core performance and have good scaling up to $8$ threads with multiplication scaling well to $16$ threads or even $32$ threads on large problems. Since \textsc{Singular} is available for use through a Jupyter notebook interface, our improvements are available to users of this virtual research environment supported by the \ODK project.
+
+Although outside of the scope of this deliverable, we have started to implement \textsc{Singular}'s multivariate factorization in \textsc{Flint}. This work is far from complete, but initial results are promising. We have also implemented a rational function coefficient domain for \textsc{Singular}, which will use \textsc{Flint} polynomials directly in \textsc{Singular} without incuring any conversion costs.
+
+\printbibliography
 
 \end{document}
 
