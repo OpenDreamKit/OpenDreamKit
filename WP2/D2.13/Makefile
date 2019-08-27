@@ -4,6 +4,8 @@ report.pdf: report.tex
 # can use this to force update of table of contents
 force:
 	pdflatex report.tex
+	bibtex report
+	pdflatex report.tex
 	pdflatex report.tex
 clean:
 	rm -f *~
