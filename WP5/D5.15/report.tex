@@ -84,6 +84,8 @@ computer science and other disciplines, and has been cited in
 \href{https://www.gap-system.org/Doc/Bib/bib.html}{almost 3000
   research papers}. It is also widely used in teaching.
 
+\TODO{more than 3000 citations by now: 2992 on web + 99 waiting for update}
+
 Thus far, \GAP has
 normally been used via a single-threaded text-based ``read-eval-print-loop'' UI, with the
 same \GAP language serving both for the interface and for the
@@ -186,7 +188,8 @@ whose authorship can be seen from the version control history.
   AK: for the Commission, yes; for the reader that will be less clear
   and then perhaps should be explained in the preamble. SL I suggest
   explaining them in a footnote the first time we use them -- that
-  USTAN is St Andrews, and when month 0 was.}
+  USTAN is St Andrews, and when month 0 was. AK: I will do this in
+  some calm moment, to avoid introducing too many merge conflicts}
 
 \subsection{\GAP 4.8 (February 2016)}\label{gap-4.8}
 
@@ -286,7 +289,20 @@ system. \TODO{SL: I more or less just made this up, but I think it's
   true. Can we find any examples? AK: semigroups, with libsemigroups
   as a library, is a good example, in which James collaborated with
   ODK partners in France; another example may be curlInterface, which 
-  then became very useful to Michael's PackageManager.}
+  then became very useful to Michael's PackageManager. See below.}
+For example, the {\sf curlInterface} package \cite{curlInterface}
+by Christopher Jefferson and Michael Torpey allows a user to interact 
+with http and https servers on the internet, using the {\sf curl} library, 
+and has been crucial for implementing the {\sf PackageManager} package
+\cite{PackageManager}, described in Subsection~\ref{pkg-manager}.
+Another example is the {\sf Semigroups} package \cite{Semigroups} 
+by James Mitchell (USTAN), initially started as a pure GAP
+package not requiring compilation, but later reorganised into a
+separate C++ library libsemigroups \TODO{properly 
+cite \url{https://libsemigroups.github.io/libsemigroups/}}, which can be
+accessed both from GAP and from Python via Python bindings
+(\url{https://github.com/libsemigroups/libsemigroups-python-bindings})
+developed in collaboration with UPSud. 
 
 This release also incorporated many smaller performance improvements. For example,
 \GAP now supports named constants, whose value cannot change 
@@ -395,25 +411,25 @@ p & q    & n          & k        & ms, before & ms, after \\
 %gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
 %692
 
-\TODO{Maybe drop this next one, a bit technical? AK: maybe (mention only last
-line maybe - enables calculation not easily doable in default memory settings before?}
-
-Also, \verb|InverseMatMod| with integer modulus has been improved.% #2426
-The following table shows the runtime needed to call
-\verb|x:=InverseMatMod(m,q);| a hundred times for a random unimodular $100 \times 100$
-matrix \verb|m|:
-
-\begin{center}
-\begin{tabular}{| c | c | c |} 
-\hline
-q     & ms, before    & ms, after \\
-\hline
-2     & 277           & 273 \\
-251   & 1564          & 1249 \\
-65537 & out of memory & 1226 \\
-\hline
-\end{tabular}
-\end{center}
+%\TODO{Maybe drop this next one, a bit technical? AK: maybe (mention only last
+%line maybe - enables calculation not easily doable in default memory settings before?}
+%
+%Also, \verb|InverseMatMod| with integer modulus has been improved.% #2426
+%The following table shows the runtime needed to call
+%\verb|x:=InverseMatMod(m,q);| a hundred times for a random unimodular $100 \times 100$
+%matrix \verb|m|:
+%
+%\begin{center}
+%\begin{tabular}{| c | c | c |} 
+%\hline
+%q     & ms, before    & ms, after \\
+%\hline
+%2     & 277           & 273 \\
+%251   & 1564          & 1249 \\
+%65537 & out of memory & 1226 \\
+%\hline
+%\end{tabular}
+%\end{center}
 
 %Before:
 %
@@ -660,6 +676,8 @@ different programme. This was an essential step to support further development o
 \HPCGAP, and ensure that new developments in \GAP could be quickly
 incorporated. It also provided general \GAP users an opportunity to start to experiment 
 with \HPCGAP, for which documentation is also provided.
+
+\TODO{Remember to provide a copy of the HPC-GAP manual as an appendix}
 
 \HPCGAP supports two models of parallel programming in \GAP, which can
 be combined: threads and tasks. Threads operate as in most languages.
@@ -1014,16 +1032,10 @@ over $14,000$ lines of 1810 manual examples.
 %% 
 % and some further code in the {\tt benchmarks} directory. 
 
-\GAP is also redistributed with a number of extensions, called \GAP packages
-(145 in the latest release \GAP 4.10.2). These packages may, for example,
-extend mathematical functionality of the system by implementing new algorithms;
-provide collections of mathematical data; or provide enhanced tools for 
-package developers. Packages can be published independently of the core \GAP
-system and have a separate authorship. Package authors are recommended to 
+\GAP package authors are recommended to 
 use a similar approach to testing and to provide their own regression
 tests. Many do, adding, in total over a quarter of a million lines of
-further tests.\comment{this is now said in the introduction}
-
+further tests.
 
 For packages redistributed with \GAP, our automatic package update system
 checks regularly for new versions on the authors web pages, retrieves them, and then uses them in a
@@ -1295,6 +1307,7 @@ change in the master branch broke tests in one of the packages;
 an empty list no longer qualifies as legal input to {\tt IsDiagonalMat},
 but that was used in the {\sf Cryst} package}
 the author was immediately notified and reacted with a quick fix.
+\comment{I also have a version of screenshots with the required tests passing}
 
 \begin{figure}[!ht]
     \centering
@@ -1417,8 +1430,6 @@ not loaded by default).
 
 \subsection{\GAP package manager}\label{pkg-manager}
 
-WHO: Michael
-
 For many years, the installation of packages in \GAP has been an entirely manual
 process.  If a user requires a package that is not currently installed on their
 system, they are required to visit the \GAP website, or the website of the
@@ -1448,11 +1459,11 @@ added in various further releases across the past year.
 {\sf PackageManager} is a \GAP package itself, which is operated from inside a
 \GAP session.  This approach to package management was chosen over an external
 manager, since it allows users to install and remove packages without ever
-leaving the environment of the \GAP prompt.  The first advantage of this is that
+leaving the \GAP prompt.  The first advantage of this is that
 users have a comfortable environment, without needing to learn how to use
 external tools; and the second is that, in most cases, packages can be installed
-and loaded without restarting the session as in Figure \ref{fig:pkgman-sample},
-meaning that users' workflow is interrupted as little as possible, and they do
+and loaded without restarting the session, as shown in Figure \ref{fig:pkgman-sample}.
+This means that users' workflow is interrupted as little as possible, and they do
 not need to save and reload their work.
 
 \begin{figure}[!ht]
@@ -1481,14 +1492,14 @@ true
 
 The main functions provided by {\sf PackageManager} are \texttt{InstallPackage},
 \texttt{UpdatePackage}, and \texttt{RemovePackage}.  The first,
-\texttt{InstallPackage}, takes a string which can be any of several different
+\texttt{InstallPackage}, takes a string which can be in any of several different
 forms: the URL of an archive, repository, or package info file, or simply the
 name of a package.  In the case of a URL, the appropriate file is retrieved
 using an internet connection, and used to install the package; if a package name
 is given, it is looked up in a pre-defined list of package URLs and installed
 from there.  In most cases, the latest released version of a package is
 installed; a user can specify an older version by giving an explicit archive
-URL, or a development version by specifying a branch along with the url of a
+URL, or a development version by specifying a branch in a
 version control repository.  % currentPackageInfoURLList
 
 The ability to install a package given only its name is useful, but requires
@@ -1505,17 +1516,18 @@ more liberal {\sf pip} package manager for the Python language.
 In the end, the latter approach was taken for the following reaons:
 \begin{itemize}
 \item approved package versions for a given release are likely to be included
-  with the \GAP installation anyway, and so it is unlikely that users would need
+  with the \GAP installation anyway, and it is unlikely that users would need
   to reinstall these;
-\item it requires no additional infrastructure, since a
+\item the latter approach requires no additional infrastructure, since a
   \texttt{currentPackageInfoURLList} is already maintained for testing purposes;
-\item it encourages active use, and therefore testing, of recent releases.
+\item this approach encourages active use, and therefore testing, of recent releases.
 \end{itemize}
 This decentralised approach has therefore been adopted for the moment, though
 future development could move easily towards a different approach.
 
 Over the course of {\sf PackageManager}'s development, it has accumulated
-various features that automate as much of package installation as possible:
+various features that automate as much of the installation process as possible.
+During installation, the following operations are carried out automatically:
 \begin{itemize}
 \item any kernel module is configured and compiled, if present;
 \item package documentation is built from source if necessary;
@@ -1528,14 +1540,22 @@ friction encountered by a user who tries to get a new package working.  It is
 now a deposited package in \GAP, and is therefore distributed in the main
 archive with each release.
 
-\TODO{Mention that it uses ~/.gap ?  Or is that too technical?}
+\TODO{Mention that it uses ~/.gap/pkg ?  Or is that too technical?}
 
-\begin{itemize}
-  \item The package manager is now on CoCalc (as part of GAP 4.10.2) which enables each user to install the packages they
-    need, rather than forcing CoCalc operators to manage these
-    installations separately. Example of positive two way interaction
-    with CoCalc.
-\end{itemize}
+Aside from making the on-demand installation of individual packages easier, {\sf
+  PackageManager} has implications for the future of how \GAP is distributed.
+There are currently no plans to abandon the established approach of distributing
+deposited packages with the \GAP archive by default, but the presence of {\sf
+  PackageManager} would also make it possible to distribute an archive of
+minimal size, containing only the four required packages and {\sf
+  PackageManager} itself, installing others as needed.  Furthermore, it
+can be used by other systems that interact with \GAP in order to manage
+installations more easily.  The \cocalc system now contains {\sf PackageManager}
+as part of its \GAP 4.10.2 installation, enabling each user to install any
+packages they need without \cocalc operators being forced to manage these
+installations separately.  This is an example of positive two-way interaction
+with \cocalc, and sets as a good precedent for interaction with other
+systems.
 
 \subsection{Packaging \GAP distribution}\label{distro}
 
