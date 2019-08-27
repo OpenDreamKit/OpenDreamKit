@@ -21,9 +21,41 @@
 \newpage
 
 \section{Introduction}
-[Explain here how this activity fits into ODK \TODO{Hans}]
+The primary focus of the \ODK project is to improve
+e-infrastructure for research in mathematics and providing a Jupyter
+project based virtual research environment. However, sigificant parts
+of these investments are of applicability to a much wider range of
+activities outside mathematics research.
+
+With this deliverable we want to demonstrate the power of the
+(improved) Jupyter based virtual research environment with application
+in the computational magnetism research domain, as a representative of
+the growing field of computational science and engineering.
 
 \section{Introduction Computational Micromagnetics}
+\subsection{Computational Magnetism}
+
+Magnetism underpins modern life through a number of technologies,
+including magnetic data storage (disk and tape, used widely in the
+service sector, Google, Netflix, Amazon, etc), magnetic sensors (for
+example to monitor steering wheel positions or rotational velocity of
+tires), magnetic resonance imaging in the medical sector, and
+permanent magnets in electric cars.
+
+Research in this field is increasingly enabled and underpinned by
+computational approaches: often the appropriate equations (here time
+dependent partial integro-differential equations) are known but
+analytically impossible to solve. By discretising space and time (for
+example using finite differences or finite elements), problems can be
+computed for a particular set of initial conditions and boundary
+conditions.
+
+In the following, we focus on magnetism at the nanoscale -
+this is technically knows as micromagnetism - which is technologically
+relevant for data storage, sensors, and potential new storage and
+computing paradigms.
+
+\subsection{Object Oriented MicroMagnetic Framework (OOMMF)}
 
 The Object Oriented MicroMagnetic Framework (OOMMF) is a micromagnetic
 simulation tool, for which development started during the 1990s at the
@@ -32,18 +64,23 @@ and Don Porter. It is probably the most widely used and most trusted
 simulation tool in the micromagnetic scientific community, and still
 maintained and further developed. It was
 written in C++ and wrapped with Tcl, which is the language that must
-be used to configure simulations by the user. The computational
-workflow that had to be done by the user in order to simulate a
+be used to configure simulations by the user.
+
+\subsection{Typical conventional workflow}
+
+The computational workflow that had to be done by the user in order to simulate a
 particular micromagnetic problem was as follows:
 
 \begin{enumerate}
 \item A configuration script (\texttt{.mif}) file is written in Tcl,
   so that all characteristics of the micromagnetic system are
-  specified (geometry, Hamiltonian, dynamics equation, etc.).
+  specified (geometry, Hamiltonian, dynamics equation, initial
+  configuration of magnetisation field, boundary conditions, etc.).
 \item OOMMF is run by providing a configuration \texttt{.mif} file via
-  Terminal/Command Prompt. After the OOMMF run is complete, the vector
-  fields are saved as \texttt{.omf} files and scalar data is saved in
-  an \texttt{.odt} file.
+  Terminal/Command Prompt. After the OOMMF run is complete, the
+  spatially resolved vector fields are saved as \texttt{.omf} files
+  for many time steps and scalar data is saved in an \texttt{.odt}
+  file.
 \item If another run with different parameters is necessary steps 1
   and 2 are repeated.
 \item Resulting files are opened and analysed by the user either using
@@ -52,7 +89,7 @@ particular micromagnetic problem was as follows:
   sequences of analysis steps.
 \end{enumerate}
 
-With the develompent here, we adress several issues that are related
+We want to address several issues that are related
 to this particular type of workflow (which is found widely in
 computational science):
 \begin{itemize}
@@ -72,30 +109,45 @@ execute computational commands repeatedly while changing parameters in
 input files, then search for output files, and extract the new results
 for the new parameter, etc.
 
-The main goal of deliverable D2.13 in the \ODK project was
+\subsection{Workflow with Jupyter notebook embedded computational
+  research environment}
+
+The main goal of this deliverable D2.13 was
 to develop a Micromagnetic Virtual Research Environment (VRE) which
 would address this problem. More precisely, the goal was to develop a
 Python interface to OOMMF and integrate it into Jupyter
-notebook. Jupyter notebooks can contain: (i) simulation and data
-analysis code, (ii) code output, such as numerical and visualised
-data, and (iii) human-readable text. This way, all the necessary
+notebook.
+
+Benefits of this approach include:
+\begin{itemize}
+\item One document describes the whole study: Jupyter notebooks can
+  contain (i) simulation and data analysis code, (ii) code output,
+  such as numerical and visualised data, and (iii) human-readable
+  text.
+\item Improved reproducibility: all the necessary
 information required to make the study reproducible are contained in a
 single document which can be later shared, modified, and
-re-executed. Another advantage is that, because micromagnetic
-simulations are exposed to Python, all the benefits of Python language
-can be employed. For example, running different simulations with
+re-executed.
+\item Embedding the domain specific language (here scripting of
+  computational micromagnetics) into Python provides a general purpose
+  computing environment without having to invest new configuration
+  file syntax and parses: For example, running different simulations with
 different parameters can be achieved by simple looping over the
 parameter space, which does not require the assistance from the user
 in terms of modifying and running individual \texttt{.mif}
-configuration files. Another benefit is the use of Python's scientific
+configuration files.
+\item The use of the Python language allows use of Python's scientific
 stack for data analysis and visualisation, such as numpy, scipy,
 matplotlib, and pandas. This way, it is not
 necessary for the user to ``reinvent the wheel'' by writing scripts
 for opening \texttt{.odt} and \texttt{.omf} files as well as for
-performing basic data analysis and visualisation operations. Finally,
-by integrating micromagnetic simulations in Jupyter notebook, this
+performing basic data analysis and visualisation operations.
+\item By integrating micromagnetic simulations in the Jupyter notebook, this
 makes simulations readily available to be run in the cloud via
-Binder. The Micromagnetic VRE serves as a demonstrator of the fact
+Binder.
+\end{itemize}
+
+The Micromagnetic VRE serves as a demonstrator of the fact
 that the open source software developed as a part of the \ODK project
 is not only for mathematics, but also has impact on other fields of
 science. In addition to the development of the Python interface to
