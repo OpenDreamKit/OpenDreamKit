@@ -7,7 +7,7 @@ DELIVERABLES_RP3=WP1/D1.7 WP2/D2.13 WP2/D2.14 WP2/D2.15 WP2/D2.16 WP2/D2.17 WP3/
 DELIVERABLES=$(DELIVERABLES_RP1) $(DELIVERABLES_RP2) $(DELIVERABLES_RP3)
 REPORTS_RP1=$(DELIVERABLES_RP1:%=%/report.pdf) ReportingPeriod1/TechnicalReport/report-final.pdf
 REPORTS_RP2=$(DELIVERABLES_RP2:%=%/report.pdf) ReportingPeriod2/TechnicalReport/report-final.pdf
-REPORTS_RP3=$(DELIVERABLES_RP3:%=%/report.pdf)
+REPORTS_RP3=$(DELIVERABLES_RP3:%=%/report.pdf) ReportingPeriod3/TechnicalReport/report-final.pdf
 REPORTS=$(REPORTS_RP1) $(REPORTS_RP2) $(REPORTS_RP3)
 
 GITHUBISSUEDESCRIPTIONS= $(DELIVERABLES:%=%/github-issue-description.md)
