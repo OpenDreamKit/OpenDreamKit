@@ -5,6 +5,8 @@
 \duedate{31/08/2019 (M48)}
 \author{Author names}
 
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{report.bib}
 \renewcommand{\comment}[1]{\TODO{Comment: #1}}
 \begin{document}
 \TODO{Author names}
@@ -12,67 +14,201 @@
 % This will be the abstract, fetched from the github description
 \githubissuedescription
 
+\newpage
+\tableofcontents
+
 % write the report here
 
 % Original list of sections and subsections created from
 % https://github.com/OpenDreamKit/OpenDreamKit/issues/113
 
-\TODO{Write some preamble. Describe the structure of this report.}
+\TODO{The material we actually expect them to read -- ie not tables
+  and appendices should probably not exceed 15 pages, so we may need
+  to be a bit more selective, or find ways to say things more
+  concisely. At the very least we need to steer them clearly to the
+  important messages, with the detail there for them to dig into if
+  they want to.}
 
-\section{Developments in the core\GAP system}\label{core-gap}
+\TODO{Have we got better macros for including code than simple LaTeX
+  verbatim? AK: tried some but so far did not like the font there}
 
-This Section highlights some of the most important and relevant
-changes to the core \GAP system incorporated in the new \GAP releases
-published during the project. Other important developments are
+\TODO{If time permits -- I'll try and talk to some of the others
+  tomorrow, but we can also look at the other reports -- it would be
+  nice to link some of our experiences/decisions/activities to similar
+  developments in other systems (or even contrast them to different
+  ones), pushing tyhe message of coming togethert in \ODK}
+
+\section{Introduction}
+\TODO{get HPC in earlier and mention that other deliverables that \GAP
+  is involved in are extremely focused, which is another reason why
+  this one includes the broad stuff}
+This report describes the work undertaken in connection with Task~5.2,
+which covers developments within the \GAP system to meet the general
+objective of workpackage 5 (High Performance Mathematical
+Computing), to ``improve the performance of the computational
+components of OpenDreamKit'' on  a wide range of architectures,
+relevant to current and prospective users. We have worked on
+supporting use of a range of High Performance Computing environments,
+prioritising those most accessible to our users, namely multicore
+systems, clusters and cloud computing. We have also made
+fundamental performance improvements that benefit all \GAP users.
+
+In a system such as \GAP, which is actively developed by a widely
+distributed team, only a few of whom are part of the \ODK project, any
+developments which are to be useful to users of \GAP (whether as a component of
+\ODK or not) need to be maintainable, and
+integrate well with the general flow of \GAP development, which itself
+has to be nurtured and supported. Because of this, it is neither
+possible nor desirable to clearly delineate every development which
+is part of Task~5.2 from every one which is not. On the other hand,
+the impetus and resources from the \ODK project have meant that \ODK
+goals have pervaded a great deal of \GAP's evolution over the last
+four years.
+
+In the light of this, this report will necessarily take the form of  a broad
+survey of all the major developments in \GAP and its package ecosystem
+over the period, but we will concentrate on, and highlight, links between
+these developments and \ODK goals. Work which is specifically part of
+other work packages is reported in appropriate deliverables, but these
+are mainly quite focused, leaving a broad range of material for this report.
+
+\subsection{Context and Background}
+
+Recall that \GAP (``Groups, Algorithms, Programming'') is a software system for
+computational discrete mathematics, with its origins in finite group
+theory. The system has been developed continually since 1986, with the
+first public release in 1988. Throughout its life it has been made
+available free of charge for use, extension and non-commercial
+redistribution. It is widely used by researchers in mathematics,
+computer science and other disciplines, and has been cited in
+\href{https://www.gap-system.org/Doc/Bib/bib.html}{almost 3000
+  research papers}. It is also widely used in teaching.
+
+Thus far, \GAP has
+normally been used via a single-threaded text-based ``read-eval-print-loop'' UI, with the
+same \GAP language serving both for the interface and for the
+implementation of much of the system. A research user 
+may use the system purely interactively, as a ``desk calculator'', but
+typically will extend the system with a small or large collection of
+\GAP functions and complete their research calculations by interacting
+with those. One of the goals of \GAP related work in \ODK is to offer
+a range of flexible alternatives to this in line with current
+practices in other areas, and more suited for modern high-performance
+computers.
+
+A key feature of \GAP today is the rapdily growing ecosystem of
+contributed extensions called ``packages'' (145 are redistrubuted with
+\GAP 4.10.2). These packages may: extend mathematical functionality of
+the system by implementing new algorithms; provide mathematical
+datasets, together with search and access functions or provide
+enhanced tools for users and/or developers. Packages can be published
+independently of the core \GAP system and each has a separate
+authorship. For the last decade or more, the majority of the
+development work in the \GAP ecosystem has been in packages.
+Another area of \GAP development under \ODK is to ensure
+that the package system (including the infrastructure used to gather,
+test and release packages) scales as the number of packages grows.
+
+
+Prior to the start of \ODK, a number of initiatives had developed
+alternative models for the use of \GAP. \SageMath (\Sage hereafter)
+has used \GAP for much of its group theoretic functionality since
+2006. One benefit of that was that it allowed the use of \GAP
+functionality through \Sage's notebook UI.In the Framework ? project
+``SCIEnce: Symbolic Computation Infrastructure for Europe'' we
+developed a poweful and flexible remote procedure call interface to
+\GAP using the \href{??}{OpenMath} data representation format, called
+SCSCP (Symbolic Computation Software Composability Protocol) one of
+whose roles was to support coarse-grained distributed computation. In
+a UK-funded software development project \HPCGAP, we began the
+development of an intrinsically multi-threaded version of \GAP. As
+well as new software, these projects gave us insight into the parallel
+and high-performance computing needs of our user community, leading
+us, for instance, to remain more focused on multicore servers and
+\textit{ad hoc} clusters (such as a mathematical research group or
+department might provide) than on ``supercomputers''. Even on these
+systems, interactive use rather than ``batch'' computation remains the
+norm, and we aim to support that, and enhance it through Jupyter
+notebooksm rather than force users to a model that does not suit them.
+
+\TODO{Role of \GAP in \ODK, motivations for work on performance,
+  robustness, composability, refactoring to support future development
+  and maintenance, support for the growing package ecosystem}
+
+
+\TODO{Structure of this report}
+
+
+\section{Developments in the core \GAP system}\label{core-gap}
+
+This Section highlights some of the most important
+changes to the core \GAP system released
+during the project which contribute to \ODK goals. Other important developments are
 included in \GAP packages and described in later sections.  More
 detailed descriptions of each major and minor \GAP release, with links
 to the corresponding source code changes on GitHub, are contained in
-the ``GAP - Changes from Earlier Versions'' document, which is
-redistributed with \GAP and also available on the \GAP website at
+the ``GAP - Changes from Earlier Versions'' document. This document is
+redistributed with \GAP and is also available on the \GAP website at
 \url{https://www.gap-system.org/Manuals/doc/changes/chap0.html} and
-included as an appendix to this report. This
-work includes contributions from our external collaborators, whose
-authorship can be seen from the version control history.
-\TODO{Remember to add Changes manual as an appendix}
+included as an appendix to this3 report.
+
+This work includes many contributions from collaborators outside \ODK,
+whose authorship can be seen from the version control history.
+\TODO{Remember to add Changes (and HPC-GAP) manuals as an appendix}
+
+\comment{I wonder if we should use ODK month numbers as well as, or
+  instead of, actual dates. Similarly USTAN instead of ``St Andrews''?
+  AK: for the Commission, yes; for the reader that will be less clear
+  and then perhaps should be explained in the preamble. SL I suggest
+  explaining them in a footnote the first time we use them -- that
+  USTAN is St Andrews, and when month 0 was.}
 
 \subsection{\GAP 4.8 (February 2016)}\label{gap-4.8}
 
+\TODO{We should be consistent in terminology -- do we release versions
+  or publish releases?}
+
 \GAP 4.8 was the first major release of \GAP published
-after the start of the OpenDreamKit project.
-As a preparation for the future developments to support multithreading, 
-some language extensions from the HPC-\GAP project were backported to the 
-\GAP library to help to unify the codebase of both \GAP 4 and HPC-\GAP. 
+after the start of the \ODK project. 
+As a preparation for the planned integration of \HPCGAP branch
+(supporting \GAP language level threading) into
+the core system some language extension  were backported to core
+\GAP at this stage. \TODO{very briefly say what they were}
 
-In addition, it also provided support for much enhanced
-profiling. Previously \GAP\ allowed tracking of the CPU spent
-executing each function, but the new features in
-the core system reduced the granularity of this to individual lines of
-\GAP code. Related developments also made it easier to track time
-spent on individual lines of C code in the \GAP kernel. A related
-feature makes it easy to measure ``test coverage'' -- the proportion
-of the system that has actually been executed by a given set of
-tests. The {\sf Profiling} package by
-Christopher Jefferson (St Andrews) provided excellent tools for transforming these profiles
-into various human-readable forms. These features 
-supported later  work on enhancing both the performance and the
-reliability of \GAP, through easier identification of hot-spots and
-easier measurement of test quality.
+In addition, this release also provided support for much enhanced
+profiling, essential to all our performance engineering work.
+Previously \GAP\ allowed tracking of the CPU time spent
+executing each function, but the new features in this release
+reduced this granularity to individual lines of \GAP
+code. Related developments also made it easier to track time spent on
+individual lines of C code in the \GAP kernel. A further related
+feature makes it very easy to measure ``test coverage'' -- the
+proportion of the system that has actually been executed by a given
+set of tests. The {\sf Profiling} package \cite{profiling} by Christopher Jefferson (St
+Andrews) provided excellent tools for transforming these profiles into
+various human-readable forms. These features supported later work on
+enhancing both the performance and the reliability of \GAP, through
+easier identification of hot-spots and easier measurement of test
+quality.
 
-This release also included some language extensions which would allow users to write
-more efficient and readable code:
+This release also included some language extensions which would allow
+users to write more efficient and readable code:
+
 \begin{itemize}
   \item support for \emph{partially
   variadic functions} similar to those allowed in Python, allowing
 function expressions like
 \verb|function( a, b, c, x... ) ... end;|
 which requires at least three arguments \verb|a|, \verb|b| and
-\verb|c| and assigns
+\verb|c| and assigns the first three to \verb|a|, \verb|b| and \verb|c|
+and then a list containing any remaining ones to \verb|x|.
 \item more flexible list indexing, allowing users to install methods
-  for multiple indexing   (\verb|m[i,j]| instead of \verb|m[i][j]| for arrays) and more varied
-  indexes (such as \verb|l[-1]| for a doubly-infinite virtual list. As
-  well as being more flexible, this was a step towards supporting more
-  efficient array implementations  in which ``row objects'' (like
-  \verb|m[i]| in \verb|m[i][j]|) might not exist.
+  for multiple indexing (\verb|m[i,j]| instead of \verb|m[i][j]| for
+  arrays) and more varied indices (such as \verb|l[-1]| to access a
+  doubly-infinite virtual list \verb|l|). As well as being more
+  flexible, this is a step towards supporting more efficient array
+  implementations in which ``row objects'' (like \verb|m[i]| in
+  \verb|m[i][j]|) might not exist.
 \end{itemize}
 
 \GAP 4.8 had seven public releases between February 2016 and August 2017, and
@@ -81,49 +217,68 @@ was replaced by \GAP 4.9.
 \subsection{\GAP 4.9 (May 2018)}\label{gap-4.9}
 
 \GAP 4.9 continued the restructuring and modernising of the core \GAP
-system. Aiming at the greater reliability, flexibility and performance
-which would needed for \GAP to take full advantage of the \ODK ecosystem.
+system, aiming at the greater reliability, flexibility and performance
+which would be needed for \GAP users to gain the full advantage of the \ODK ecosystem.
 For example, we removed our old home-grown large integer arithmetic
-implementation, and instead always 
-use the state of the art external library \href{???}{GMP}. This
-continues our cautious move to take more advantage of existing free
-software libraries in the core system. We do this cautiously, based on
-our experience,  so that we can maintain the reliability and
+implementation, and committed fully to the state of the art external
+library \href{???}{GMP}. This
+move continues our cautious programme of exploiting existing free
+software in our core system. Our caution here is based on
+experience. Moving too quickly in this area in the past has created
+problems with the reliability and
 portability of \GAP on which our users depend.
 
-Also for portability reasons, this release incorporated a  completely
+This release incorporated a completely
 reimplemented build system for \GAP, using more modern tools and
-complying with modern expectations. This resolved many issues with the old
-system, and made it easier to maintain and extend. Technical details
-of the new build system are described in {\tt README.buildsys.md} from
-the \GAP source code. 
-
-This also enabled us to merge the experimental code to support safe multithreaded programming in \GAP, 
-dubbed HPC-\GAP, into the mainstream \GAP system as a compile-time option (for details, see
+complying with modern expectations. This resolved many issues with the
+old system, and made it easier to maintain and extend. For example it
+makes it much easier to maintain multiple configurations of \GAP on a
+single system from a single copy of the source. Technical
+details of the new build system are described in {\tt
+  README.buildsys.md} from the \GAP source code. Crucially the new build system
+was the final prerequisite for the planned  merge of the \HPCGAP codebase  into the
+mainstream \GAP system as a compile-time option (for details, see
 Subsection~\ref{hpc-gap}).
+
+An additional benefit of the new build system is that it makes it much
+easier to robustly include C or C++ extensions to the \GAP kernel in
+contributed packages, including interfaces to many free C and C++
+libraries. By making it easy to accelerate bottleneck steps, this
+greatly enhanced the overall performance of many packahges, while a
+encouraging integration of existing libraries in packages complements
+our cautious approach mentioned above to including them in the core
+system. \TODO{SL: I more or less just made this up, but I think it's
+  true. Can we find any examples?}
 
 This release also incorporated many smaller performance improvements. For example,
 \GAP now supports named constants, whose value cannot change 
 at runtime. While maintaining readability through naming, uses of
 these constants can be optimised as a function is parsed, so that they
-are as fast as using explicit values. Another notable improvement was
-to the widely used  sorting functions which have been improved using
-recently published algorithms and made more maintainable by
+are at least as fast as using explicit values. Another notable improvement was
+to the widely used  sorting functions which now use the best
+recently published algorithms and were also made more maintainable by
 restructuring the implementation.
 
-Debugging  tools were improved: in many cases \GAP now outputs the
-source filename  and location from which relevant code was originally
-read as well as simply printing the lines of code or names of functions.
-
-Further enhancements to the profiling system based on experience with
-\GAP 4.8 were also included, as were additional changes improving \GAP
-usability by allowing more
-efficient and/or readable code,
+Debugging  and profiling tools were also improved based on experience with
+\GAP 4.8. Further changes improved \GAP
+usability by allowing more efficient and/or readable code, in line
+with other modern programming languages:
 \begin{itemize}
   \item a concise syntax for short
-functions with any number of arguments such as \verb|{a,b} -> a+b| replacing \verb|function(a,b) return a+b; end|. 
-\item use of function literals in expressions such \verb|y := f().x;|
-replacing previously required two-step calculation \verb|y := f();; y := y.x;|.
+    functions with any number of arguments, so that, for example,
+    \verb|{a,b} -> a+b| abbreviates \verb|function(a,b) return a+b; end|. 
+\item more flexibility in \GAP expression syntax,
+  where previously there were annoying technical restrictions. For
+  example, an entry of the sum of two vectors can now be accessed as
+  \verb|x := (v+w)[i]| instead of \verb|u := v+w; x := u[i]|.
+  
+%%   use of function literals in expressions such \verb|y := f().x;|
+%% replacing previously required two-step calculation
+%% \verb|y := f();; y := y.x;|.
+%% This -- and the release
+%%   announcement -- are actually wrong! This syntax always worked, the
+%%   example in the PR is \verb|(f()).x| which is different}
+
 \end{itemize}
 
 \GAP 4.9 had three public releases between May and September 2019, and
@@ -131,45 +286,46 @@ was replaced by \GAP 4.10.
 
 \subsection{\GAP 4.10 (November 2018)}\label{gap-4.10}
 
-The release of \GAP 4.9 with the new build system allowed a
-further restructuring of the core \GAP system to continue, and allowed
-us to finalise a number of other ongoing changes, 
- resulting in the 
-next major release just a few months later. \GAP 4.10 is current version
-of \GAP, with the latest release being \GAP 4.10.2, published in June
-2019 and \GAP 4.11 expected in September 2019.
+The release of \GAP 4.9 with the new build system allowed the
+restructuring of the core \GAP system to continue, and allowed us to
+finalise a number of other ongoing changes, leading to \GAP 4.10
+after a shorter than usual interval. \GAP 4.10 is current
+version of \GAP, with the latest release being \GAP 4.10.2, published
+in June 2019 and \GAP 4.11 expected in November 2019.
 
-The most important new feature in \GAP 4.10 was \texttt{libGAP} an
+The most important new feature in \GAP 4.10 was the first pubolci
+release of \texttt{libGAP}: an
 option to compile \GAP as a C library instead of a stand-alone
-executable. This is discussed more in section \ref{libgap} below.
+executable. This is very important for many uses of \GAP in \ODK and
+is discussed further in section \ref{libgap} below.
 
 \GAP 4.10 also provides experimental support for using alternative
 memory management systems, notably the \href{??}{Julia} garbage
-collector and the \href{???}{Boehm garbage collector} in place of
-the GASMAN system which was developed for \GAP 4 in the 1990s.
-These garbage collectors are thread-safe (important for \HPCGAP) the
-links to Julia are
-motivated by a desire to allow tight integration with \GAP and Julia 
-in the future, led by the \href{https://oscar.computeralgebra.de/}{OSCAR}
-project, developed within the DFG-funded grant SFB-TRR 195
-``Symbolic Tools in Mathematics and their Application''.
+collector and the \href{???}{Boehm garbage collector}, in place of the
+GASMAN system which was developed for \GAP 4 in the 1990s.  These
+garbage collectors are thread-safe (important for \HPCGAP) and the
+option to use the Julia garbage collector will allow tight integration
+of \GAP with Julia programs and other systems via Julia. Use of Julia
+in this way is an initiative led by the
+\href{https://oscar.computeralgebra.de/}{OSCAR} project, developed
+within the DFG-funded grant SFB-TRR 195 ``Symbolic Tools in
+Mathematics and their Application'' and is seen as complentary to \ODK.
 
-The work on improving debugging and profiling in \GAP was
-continued. Profiling now covers memory usage as well as CPU time, and
-additional checking options (internal and using external tools such as
+The work on improving debugging and profiling in \GAP has
+continued. Profiling now reports memory usage as well as CPU time, and
+additional checking options (both internal and by using external tools such as
 \href{???}{valgrind}) help to detect misuse of memory in the kernel.
 
-Using the improved debugging and profiling facilities we were able to detect many
-performance bottlenecks and confirm that new code was both correct and
-genuinely improved performance.
-For example, the method selection code was rewritten from \GAP to C;
-Speed ups were achieved for many integer arithmetic functions such as
-\verb|GcdInt|, \verb|LcmInt|, \verb|PValuation|, 
-\verb|RootInt|, \verb|SmallestRootInt|, \verb|IsPrimePowerInt|
-and the computation of modular inverses of integers.
+Using the improved debugging and profiling facilities we were able to
+detect many performance bottlenecks and confirm that new code
+genuinely improved performance, as well as detecting many bugs much
+earlier in the development process. To alleviate performance
+bottlenecks in key applications, we rewrote much of the method
+selection (dispatch) code \GAP to C and gained large speedups by
+reengineering many integer arithmetic functions.
 
-For example, the table below gives the timing in milliseconds required
-for the folowing loop: \verb|for i in [1..k] do x:= 1/p^q mod n; od|
+For example, the table below gives the CPU time in milliseconds required
+to run \verb|for i in [1..k] do x:= 1/p^q mod n; od|
 
 \begin{center}
 \begin{tabular}{| c | c | c | c | c | c |} 
@@ -199,62 +355,71 @@ p & q    & n          & k        & ms, before & ms, after \\
 %gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
 %692
 
-Also, \verb|InverseMatMod| with integer modulus has been improved:% #2426
+\TODO{Maybe drop this next one, a bit technical?}
 
-\TODO{convert into a table}
+Also, \verb|InverseMatMod| with integer modulus has been improved.% #2426
+The following table shows the runtime needed to call
+\verb|x:=InverseMatMod(m,q);| a hundred times for a random unimodular $100 \times 100$
+matrix \verb|m|:
 
-{\small
-\begin{verbatim}
-gap> m2:=RandomUnimodularMat(100);;
-gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
-277
-gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
-1564
-gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
-Error, reached the pre-set memory limit
-\end{verbatim}
-}
+\begin{center}
+\begin{tabular}{| c | c | c |} 
+\hline
+q     & ms, before    & ms, after \\
+\hline
+2     & 277           & 273 \\
+251   & 1564          & 1249 \\
+65537 & out of memory & 1226 \\
+\hline
+\end{tabular}
+\end{center}
 
-After:
+%Before:
+%
+%gap> m2:=RandomUnimodularMat(100);;
+%gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
+%277
+%gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
+%1564
+%gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
+%Error, reached the pre-set memory limit
+%
+%After:
+%
+%gap> m2:=RandomUnimodularMat(100);;
+%gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
+%273
+%gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
+%1249
+%gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
+%1226
 
-{\small
-\begin{verbatim}
-gap> m2:=RandomUnimodularMat(100);;
-gap> for i in [1..100] do x:=InverseMatMod(m2,2); od; time;
-273
-gap> for i in [1..100] do x:=InverseMatMod(m2,251); od; time;
-1249
-gap> for i in [1..100] do x:=InverseMatMod(m2,65537); od; time;
-1226
-\end{verbatim}
-
-}
-
-The same improved profiling tools allowed us to identify other
+The same improved profiling tools identified other
 ``hidden'' bottlenecks in \GAP code. For instance \GAP has a
 sophisticated system of inference that can trigger 
 so-called ``immediate methods'': quick attempts to deduce additional
 consequnces from information that becomes known about an object.
 In general, these are very effective, and the deduced information can
 lead the system to chose better methods for subsequent
-calculations. As an example arises when a group learns its order, we
-can check if that order is finite and odd, and if so, thanks to the celebrated
-Feit-Thomson theorem, conclude that the group is solvable. Once that
+calculations. For instance, when a group learns its order, if that
+order is finite and odd, then by the celebrated
+Feit-Thomson theorem the group must be solvable. Once that
 is known, much more efficient methods can be applied for many
 subsequent calculations.
 
-While this is a very powerful feature in most situations, there can be
-rare examples where a large number of short-lived objects are created,
+While this is a very powerful feature in most situations, in some
+calculations, a large number of short-lived objects are created,
 and the immediate methods use a great deal of time deducing knowledge
+about each of them
 that will never be used. The profiling developments made this 
 easily visible for the first time, and some small adjustments to the
 immediate methods produced up to a six-fold speed up in fundamental
-operations such as computing isomorphism groups. For instance the
-run-time for the code fragment below on a test system dropped from 130
+operations such as computing isomorphism groups. For instance, the
+run-time for the code fragment below dropped from 130
 seconds to 22.
 
 
-{\small
+{\Small
 \begin{verbatim}
 G:=PcGroupCode( 
   741231213963541373679312045151639276850536621925972119311,
@@ -263,6 +428,14 @@ IsomorphismGroups(G,PcGroupCode(CodePcGroup(G),Size(G)))<>fail;
 \end{verbatim}
 }
 
+\TODO{Can we claim that the smaller number of minor releases (and the
+  dropping of the .0 beta for each major release) are due to the
+  better testing tools? If so, is this the place, or can we refer
+  forward where we talk about those tools above? 
+  AK: we can say something - perhaps not about the smaller number
+  (if compare 2012-2015 vs 2016-2019, it's in the same range), 
+  but of less changes in minor releases, and of dropping the beta too; 
+  I think better to refer forward, see the section about distributions}
 
 \subsection{\GAP 4.11 (anticipated in November 2019)}\label{gap-4.11}
 
@@ -272,24 +445,70 @@ IsomorphismGroups(G,PcGroupCode(CodePcGroup(G),Size(G)))<>fail;
 
 % Release notes are collected at https://github.com/gap-system/gap/wiki/GAP-4.11-release-notes
 
-At the time of preparation of this report the next major release \GAP
-4.11 is approaching completion. Almost all of the features to be
+At the time of preparation of this report, the next major release,  \GAP
+4.11, is approaching completion. Almost all of the features to be
 included in it (including all the ones highlighted here) are already
 publicly  available on GitHub to developers or anyone else interested.
 
-This will feature the first release of the ``syntaxtree'' reflection
-API for \GAP, allowing \GAP to access and modify the internals of \GAP
-functions, opening up a range of possibilities for optmisation, automatic
+One important and relevant feature of this release will be the ``syntaxtree'' reflection
+API for \GAP, allowing \GAP programs to access and modify the internals of \GAP
+functions, opening up a range of possibilities for optimisation, automatic
 parallelisation, and more effective compilation into C. This is
 discussed in more detail in section \ref{syntaxtree} below. 
 
 Additional relevant features are continued improvements to debugging and
-profiling facilities \TODO{maybe some examples} extensions to the
-\texttt{libGAP} API to allow programs using the system in this way
-more convenient access to \GAP objects; and a range of performance
-enhancements.
+profiling facilities (for example,
+%#2772 
+adding support for profiling interpreted code
+and 
+%#3420
+making profiling reports more informative by 
+giving more library methods human-readable names;
+%#2900 
+allowing to abort \verb|Test| by pressing ctrl-C;
+%#1633 
+allowing local variables in test files via
+\verb|#@local <list of variables>|,
+and conditional execution of tests via \verb|#@if|, \verb|#@else|, \verb|#@endif|.
 
-\TODO{is there more?}
+The \texttt{libGAP} API has been extended
+to allow programs using the system in this way
+more convenient access to \GAP objects such as
+%#2998, #2999, #3007 
+characters, floats, integers
+%#3554
+and matrices; 
+%#3516
+the performance of Julia GC integration also improved,
+%#3335 
+and the memory usage on Windows when running external programs was reduced.
+
+Further performance enhancements included, among others,
+%#3579 
+speeding up writing to global variables;
+%#3566 
+optimising operations involving identity permutations;
+%#3231 
+speeding up \verb|IsConjugate| for \verb|IsNaturalSymmetricGroup|,
+%#2924 
+improving performance of \verb|NormalizerViaRadical|,
+%#3031 
+and of \verb|ConjugacyClasses| for solvable groups. For example, the time
+of the following calculation reduces from 110 seconds to 53 seconds:
+
+{\Small
+\begin{verbatim}
+G:=WreathProduct(CyclicGroup(IsPermGroup,12),DihedralGroup(IsPermGroup,12));
+ConjugacyGlasses(G);
+\end{verbatim}
+}
+\noindent
+
+
+\comment{%#3370 
+Pragmas are now available
+(this is useful for syntaxtrees)
+}
 
 % What about making pages for relevant releases in
 % https://www.gap-system.org/Manuals/doc/changes/manual.pdf 
@@ -315,28 +534,65 @@ enhancements.
   of tests, maybe run the 4.8 or 4.7 testinstall in 4.7 and 4.11 and
   compare performance?}
 
+%% \comment{tests from 4.7.9 take 3237s in GAP 4.7.9;
+%% 4.10.2: total 3039s (150s GC) and 328GB allocated;
+%% GAP master: total 2913s (140s GC) and 293GB allocated}
 
-\subsection{lib\GAP: allowing 3rd party code to link \GAP as a library}\label{libgap}
+As one example of the general effectiveness of our performance
+improvements, the full test suite of \GAP 4.7.9 (current at the
+start of the project) which takes 3237 seconds to run on \GAP 4.7.9 on
+current hardware, runs unchanged in just over 2900 seconds with a
+pre-release version of \GAP 4.11. Many of the most widley used and
+important areas of \GAP functionality have seen bigger changes.  
+
+% find . -name '*.tst' | wc -l
+% find . -name '*.tst' | xargs wc -l
+
+As an example of the increased robustness of the system, the table
+below shows the development of our test suite over this period.
+
+\begin{center}
+\begin{tabular}{| l | l | c | c |} 
+\hline
+GAP release & Release date & Number of test files & Number of lines \\
+\hline GAP 4.7.8  & November 2015           & 69 & 21981 \\
+\hline GAP 4.8.10 & January 2018            & 91 & 28586 \\
+\hline GAP 4.9.3  & September 2018          & 564 & 41456 \\
+\hline GAP 4.10.2 & June 2019               & 648 & 53362 \\
+\hline GAP 4.11   & expected November 2019  & 707 & 61280 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{libGAP: allowing 3rd party code to link \GAP as a library}\label{libgap}
 
 The initial connection between \Sage and \GAP was developed around
 2006, and relied on running a full \GAP process with which \Sage
-communicated through pipes, creating \GAP input as text and parsing
-the text output by \GAP. This enabled an initial connection, but
-introduced considerable overhead coverting objects to and from text
-representations and passing them between processes.
+communicated through UNIX pipes, creating \GAP input as text and then parsing
+the text which was output from \GAP. This enabled an initial connection, but
+introduced considerable overhead converting objects to and from text
+representations and passing them between processes, and considerable
+unreliability, since \Sage was essentially using \GAP through an
+interface designed for humans, rather than programs.
 
 A better solution is to provide a C API enabling \GAP to be integrated
 into the \Sage process, and allowing a \GAP session to be started,
 objects created, functions called and results retrieved via C function
 calls. This is, however, not a mode of operation for which \GAP was
 ever designed, and implementing it in a robust and flexible way
-required considerable adaptations to the system, for instance to make
-sure it never tried to access the terminal. Based on an iniital
-version developed within the \Sage team, a fully general-purpose and
-flexible version was released in  \GAP 4.10.0 (November 2018).
+required considerable adaptations to the system, essentially
+disentangling the computational engine from the UI, while retaining,
+for example, the ability to dynamically load C code from \GAP
+packahges into the process that was using libGAP. Another complication
+is the need to make sure that the \GAP memory manager does not delete
+objects which the calling process will want in the future.
+
+Based on an iniital version developed within the \Sage team, a fully
+general-purpose and flexible version was released in \GAP 4.10.0
+(November 2018).
 
 Subsequent releases have improved and will continue to improve the
-robustness of lib\GAP, and to extend its API with new functionality (See Chapter 2 
+robustness of libGAP, and to extend its API with new functionality (See Chapter 2 
 ``Changes between \GAP 4.9 and \GAP 4.10'' of the 
 ``\GAP - Changes from Earlier Versions'' manual for the detailed
 descriptions). This has allowed \Sage to drop its custom 
@@ -348,46 +604,52 @@ tested \GAP interface instead, starting from SageMath 8.6 (January
 % SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
 
 \subsection{Reflection}\label{syntaxtree}
-\TODO{write this}
+\TODO{SL: write this}
 
 \section{High-performance computing with \GAP}\label{hpc}
 
-\subsection{HPC-\GAP: multithreaded programming in \GAP}\label{hpc-gap}
+\subsection{\HPCGAP: multithreaded programming in \GAP}\label{hpc-gap}
 
 \GAP 4.9.1 (May 2018) for the first time included experimental code to 
 support safe multithreaded programming in \GAP, dubbed \HPCGAP. This
-has been in development for some time, and the \HPCGAP and \GAP
-codebases had diverged. In this release we unified the codebases,
-making thread support a compile-time option instead of completely
+had been in development for some time as a fork of \GAP and the \HPCGAP and \GAP
+codebases had diverged. In this release we reunified them,
+making thread support a compile-time option instead of requiring a completely
 different programme. This was an essential step to support further development of 
-HPC-\GAP, and ensure that new developments in \GAP could be quickly
-incorporated.
-It also provided users an opportunity to start to experiment 
+\HPCGAP, and ensure that new developments in \GAP could be quickly
+incorporated. It also provided general \GAP users an opportunity to start to experiment 
 with \HPCGAP, for which documentation is also provided.
 
 \HPCGAP supports two models of parallel programming in \GAP, which can
-be combined: threads and tasks. Threads operate as in most languages,
-teh basic primitive is to start execution of a \GAP function in a new
+be combined: threads and tasks. Threads operate as in most languages.
+The basic primitive is to start execution of a \GAP function in a new
 thread, while the calling thread returns immediately. Threads can
-interact through global data or by returning results when they exit. Tasks are
+interact through global data or by returning results when they exit. A
+range of mechanisms and data structures are provided for threads to
+interact safely. Tasks are
 similar, but they are submitted to a shared job queue and executed by
 one of a fixed-size pool of worker threads. Typically the calling
-process will start a number of threads and then wait for somne or all
-of them to complete.  Supporting this requires considerable work on
-the \GAP interpreter, but is otherwise straightforward.
+process will start a number of tasks and then wait for some or all
+of them to complete.  Supporting these models efficiently required considerable work on
+the \GAP interpreter, but was otherwise straightforward.
 
-The challenge
-however is that the \GAP library makes very extensive use of shared
-global data, which is frequently updated as new knowledge is
-obtained. Ensuring that access and updates to this data from different
-threads and tasks does not cause corruption or inconsistency was the
-main challenge. The approach taken was to limit access, in most cases,
-to data ``owned'' by the accessing thread; read-only data and
-``public'' data stored in thread-safe data structures. This is
-implemented by access checks in the kernel with the aim of ensuring
-that most unsafe data access should result in error messages, rather
-than inconsistent results. Experiments with this system have been
-reported in a number of papers.
+One of the main challenges in \HPCGAP, however, is that the \GAP
+library makes very extensive use of shared global data, which is
+frequently updated as new knowledge is obtained. Removing this sharing
+of knowledge would make the overall system much less effective, as
+well as requiring millions of lines of code to be rewritten, but
+ensuring that access and updates to this data from different threads
+and tasks did not cause corruption or inconsistency was difficult.
+
+The approach taken was to limit access, in most cases, to
+data ``owned'' by the accessing thread, read-only data and ``public''
+data stored in thread-safe data structures which were used for the
+global ``knowledge pool''. This is implemented by
+access checks in the kernel with the aim of ensuring that most unsafe
+data access should result in error messages, rather than inconsistent
+results. Experiments with this system have been reported in a number
+of papers for instance \cite{something}.
+\TODO{e.g. something from \url{https://scholar.google.co.uk/scholar?oi=bibs&hl=en&cites=17020645280914341716&as_sdt=5}}
 
 The main remaining challenge is to adapt the enormous legacy codebase
 represented by \GAP's library and key packages to use these mechanisms
@@ -396,81 +658,302 @@ effectively, and to keep the underlying mechanisms working as the core
 was a critical step in this work, meaning, for instance, that all
 changes to \GAP are tested in \HPCGAP automatically.
 
+The effectiveness of the underlying task mechanism is illustrated in
+the graph below, which shows the speedups (wall-clock time on $n$
+cores versus CPU time on one core) achieved in running 1000 test tasks
+(each taking about 300ms) with various numbers of worker threads on a 64
+core AMD ``bulldozer'' system. These cores share L2 cache and decode
+hardware in pairs, limiting performance with larger numbers of
+threads.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/hpcgap-speedups}
+    \label{fig:hpcgap-speedups}
+\end{figure}
+
 
 % Release announcement: https://www.gap-system.org/Manuals/doc/changes/chap3.html#X7F52B77B7DBACC17
 
-% HPC-\GAP manual: https://www.gap-system.org/Manuals/doc/hpc/chap0.html
+% \HPCGAP manual: https://www.gap-system.org/Manuals/doc/hpc/chap0.html
 
 % What about making https://www.gap-system.org/Manuals/doc/hpc/manual.pdf 
 % an electronic appendix to the deliverable?
 
-\section{meataxe64: high-performance linear algebra over finite fields}\label{meataxe64}
+\subsection{meataxe64: high-performance linear algebra over finite fields}\label{meataxe64}
 
-A key kernel for many applications of \GAP is linear algebra over
-a wide range of finite fields. This is used directly in working with
+A key kernel for many applications of \GAP is linear algebra for
+mainly dense matrices over
+a range of finite fields, especially small ones. This is used directly in working with
 matrix groups and in computational representation theory, but also
 arises indirectly in areas such as graph theory, finite solvable
-groups and number theory. The \GAP kernel includes memory-efficient
+groups and number theory. \TODO{maybe explain a bit how lionear
+  algebra over small finite fields is different from floating point or
+  exact} The \GAP kernel includes memory-efficient
 representations of matrices over these fields, and implementations
 based on the C-meataxe (the name ``meataxe'' is derived from the
 abbreviation ``mtx'' for ``matrix'' and the fact that a key operation
 in computational representation theory is to ``chop'' a module into
-its irreducible components) from the late 1980s.
+its irreducible components).
 
-Working with external collaborators (primarily Richard Parker),
-we have contributed to the design and development (and continue to extend) of a new C and
+Working with external collaborators (primarily R.A.~Parker),
+we have supported (and continue to contributeto ) the design and development 
+of a new C and
 assembler library, called ``meataxe64'' which takes
-advantage of new algorithmic ideas, and of powerful features of new
-CPUs to deliver a quantum leap in performance. We have implemented a
-\GAP interface to it (the ``meataxe64 \GAP package'') currently in
-beta-test, and are in the
-process of revising higher levels of the software stack to make best
+advantage of new algorithmic ideas, and of powerful features of modern
+CPUs, to deliver a quantum leap in performance. We have implemented a
+\GAP interface to it (the ``meataxe64 \GAP package'' \cite{meataxe64}) currently in
+beta-test, and are in the process of revising higher levels of the software stack to make best
 use of it.
 
-% TODO get some timings once I have a power supply.
-% last time I tried, Monster-sized (196882 over GF(2)) multiply took
-% 8 minutes on my laptop using 12 threads and 3 minutes on Ladybank
-% using 64!) Should do Gaussian and try and get some timings
-% comparable to GAP kernel timings.
+The meataxe64 C library is multi-threaded and can make very efficient
+use of multiple cores for large enough matrices, whether used from
+\HPCGAP or regular \GAP.
+
+Tables \ref{fig:matmult:gap}, \ref{fig:matmult:mtx64},
+\ref{fig:matmult:par} indicate the performance gains and
+speedups obtained by meataxe64 compared to our existing code.  The
+data is based on run-times for multiplication two random dense
+square matrices of the given dimension with entries from $GF(q)$. In
+these tables the throughput is calculated as the cube of the dimension
+divided by the elapsed (``wall-clock'') time, ignoring algorithmic
+techniques that may reduce the action number of field operations
+needed. The unit (Gfop/s) is billions of field operations per second.
+
+\begin{small}
+\begin{center}  
+  \begin{longtable}{|c|c|c|c|c|}
+\caption[]{Performance of existing \GAP code}\label{fig:matmult:gap}\\
+    \hline
+    $q$&Dim.&cpu (s)&wall (s) &throughput (Gfop/s)\\
+    \hline
+    \endhead
+    \hline
+    \endfoot
+2&800&0.004&0.003&149.6\\
+2&1600&0.016&0.016&255.8\\
+2&4000&0.159&0.159&401.7\\
+2&8000&1.581&1.582&323.6\\
+2&16000&14.241&14.280&286.8\\
+2&40000&193.251&193.524&330.7\\
+3&500&0.053&0.052&2.4\\
+3&1000&0.364&0.364&2.8\\
+3&2500&5.268&5.268&3.0\\
+3&5000&41.529&41.533&3.0\\
+3&10000&327.798&328.121&3.0\\
+3&25000&5020.887&5025.466&3.1\\
+4&400&0.017&0.017&3.8\\
+4&800&0.112&0.112&4.6\\
+4&2000&1.542&1.542&5.2\\
+4&4000&12.107&12.108&5.3\\
+4&8000&99.259&99.361&5.2\\
+4&20000&1513.64&1515.528&5.3\\
+5&300&0.021&0.021&1.3\\
+5&600&0.147&0.148&1.5\\
+5&1500&2.166&2.166&1.6\\
+5&3000&17.106&17.108&1.6\\
+5&6000&136.714&136.840&1.6\\
+5&15000&2088.063&2089.934&1.6\\
+7&200&0.009&0.009&0.9\\
+7&400&0.063&0.062&1.0\\
+7&1000&0.906&0.906&1.1\\
+7&2000&7.32&7.321&1.1\\
+7&4000&56.659&56.710&1.1\\
+7&10000&875.08&875.901&1.1\\
+16&200&0.007&0.007&1.2\\
+16&400&0.044&0.044&1.4\\
+16&1000&0.644&0.643&1.6\\
+16&2000&4.978&4.978&1.6\\
+16&4000&39.757&39.798&1.6\\
+16&10000&628.858&629.651&1.6\\
+17&100&0.003&0.003&0.4\\
+17&200&0.018&0.018&0.4\\
+17&500&0.273&0.273&0.5\\
+17&1000&2.153&2.154&0.5\\
+17&2000&17.119&17.131&0.5\\
+17&5000&268.032&268.267&0.5\\
+64&100&0.002&0.002&0.5\\
+64&200&0.012&0.013&0.6\\
+64&500&0.186&0.186&0.7\\
+64&1000&1.448&1.448&0.7\\
+64&2000&11.548&11.558&0.7\\
+64&5000&294.897&297.453&0.4\\
+81&100&0.003&0.003&0.4\\
+81&200&0.019&0.019&0.4\\
+81&500&0.284&0.284&0.4\\
+81&1000&2.215&2.215&0.5\\
+81&2000&21.285&21.353&0.4\\
+81&5000&276.045&276.503&0.5\\
+101&100&0.003&0.003&0.3\\
+101&200&0.021&0.020&0.4\\
+101&500&0.295&0.295&0.4\\
+101&1000&2.287&2.287&0.4\\
+101&2000&18.212&18.233&0.4\\
+101&5000&321.134&322.902&0.4\\
+  \end{longtable}
+\end{center}
+
+\begin{center}
+  \begin{longtable}{|c|c|c|c|c|}
+    \caption[]{Performance of Meataxe64 on one core}\label{fig:matmult:mtx64}\\
+    \hline
+    $q$&Dim.&cpu (s)&wall (s) &throughput (Gfop/s)\\
+    \hline
+    \endhead
+    \hline
+    \endfoot
+2&8000&0.478&0.490&1045.1\\
+2&16000&3.476&3.541&1156.7\\
+2&40000&47.125&47.713&1341.4\\
+2&80000&327.569&331.744&1543.4\\
+2&160000&3460.336&3522.279&1162.9\\
+3&5000&0.566&0.578&216.3\\
+3&10000&4.125&4.152&240.9\\
+3&25000&56.788&56.971&274.3\\
+3&50000&399.282&400.549&312.1\\
+3&100000&2774.011&2798.002&357.4\\
+4&4000&0.205&0.216&295.8\\
+4&8000&1.475&1.480&346.0\\
+4&20000&19.889&20.070&398.6\\
+4&40000&140.18&141.497&452.3\\
+4&80000&980.936&985.148&519.7\\
+5&3000&0.585&0.588&45.9\\
+5&6000&4.102&4.107&52.6\\
+5&15000&53.351&53.394&63.2\\
+5&30000&362.048&362.369&74.5\\
+5&60000&2585.863&2589.959&83.4\\
+7&2000&0.217&0.221&36.2\\
+7&4000&1.541&1.545&41.4\\
+7&10000&20.652&20.675&48.4\\
+7&20000&145.626&145.854&54.8\\
+7&40000&1014.896&1016.415&63.0\\
+16&2000&0.085&0.089&89.7\\
+16&4000&0.603&0.623&102.7\\
+16&10000&8.538&8.625&115.9\\
+16&20000&60.979&61.521&130.0\\
+16&40000&426.445&430.764&148.6\\
+17&1000&0.074&0.074&13.5\\
+17&2000&0.51&0.510&15.7\\
+17&5000&7.259&7.265&17.2\\
+17&10000&50.043&50.081&20.0\\
+17&20000&352.604&353.215&22.6\\
+64&1000&0.034&0.038&26.0\\
+64&2000&0.201&0.206&38.7\\
+64&5000&2.57&2.604&48.0\\
+64&10000&17.858&18.125&55.2\\
+64&20000&125.306&127.344&62.8\\
+81&1000&0.095&0.099&10.1\\
+81&2000&0.492&0.497&16.1\\
+81&5000&5.519&5.560&22.5\\
+81&10000&39.363&39.592&25.3\\
+81&20000&274.394&276.197&29.0\\
+101&1000&0.107&0.108&9.3\\
+101&2000&0.75&0.751&10.7\\
+101&5000&10.374&10.385&12.0\\
+101&10000&72.007&72.056&13.9\\
+101&20000&507.043&507.795&15.8\\
+  \end{longtable}
+\end{center}
+  
+\begin{center}
+  \begin{longtable}{|c|c|c|c|c|}
+    \caption[]{Performance of Meataxe64 on 64 cores}\label{fig:matmult:par}\\
+    \hline
+    $q$&Dim.&cpu (s)&wall (s) &throughput (Gfop/s)\\
+    \hline
+    \endhead
+    \hline
+    \endfoot
+2&80000&904.369&21.638&23662.2\\
+2&160000&4638.836&151.735&26994.4\\
+2&320000&33340.649&1040.551&31491.0\\
+3&50000&1004.631&21.017&5947.6\\
+3&100000&5443.318&196.317&5093.8\\
+3&200000&39283.76&1201.458&6658.6\\
+4&40000&355.516&10.157&6300.9\\
+4&80000&2548.595&51.267&9987.0\\
+4&160000&13560.306&538.945&7600.0\\
+5&30000&974.333&18.874&1430.6\\
+5&60000&6273.661&142.248&1518.5\\
+5&120000&38362.156&1171.026&1475.6\\
+7&20000&437.489&8.740&915.3\\
+7&40000&3035.705&53.539&1195.4\\
+7&80000&15050.673&465.735&1099.3\\
+16&20000&89.048&7.138&1120.8\\
+16&40000&1044.91&22.805&2806.4\\
+16&80000&6212.503&202.530&2528.0\\
+17&10000&141.266&2.999&333.4\\
+17&20000&1001.397&17.793&449.6\\
+17&40000&7038.438&123.414&518.6\\
+64&10000&58.099&1.807&553.5\\
+64&20000&342.525&8.892&899.6\\
+64&40000&2310.548&45.095&1419.2\\
+81&10000&120.235&2.640&378.7\\
+81&20000&734.844&13.992&571.8\\
+81&40000&4913.959&88.109&726.4\\
+101&10000&216.491&4.269&234.3\\
+101&20000&1508.308&26.374&303.3\\
+101&40000&10572.959&182.572&350.5\\
+  \end{longtable}
+\end{center}
+\end{small}
+
+
+
+% TODO this may be too much information!
+% I have analagous data for Gaussian elimination. Is it useful?
+% I have not so far found a useful way to incorporate this data into
+% graphs. The range of performance is too great.
 
 % TODO: make a release at https://github.com/gap-packages/meataxe64/
 % and publish it at https://gap-packages.github.io/meataxe64/
 %  What does this need done? -- SL
-
+% Release is published last week. Added to the bibliography. -- AK
+% Thanks. I'd like to add a release announcement somewhere.
 
 \section{Regression testing, Package management and Release management}\label{gap-infra}
 
-In this section we will describe mostly the technical aspects of
-ensuring that all developments are becoming available to users.
-The social aspects such as community building, user training
+As well as developments in the core system and in packages, we have
+dedicated considerable effort to improving our infrastructure and processes. 
+In this section we concentrate on developments in the technical processes
+which support our developers (especially package developers),
+connect them to our user community, and aim to 
+ensure the robustness and quality of the integrated system.
+Social aspects including community building, user training
 and technical support will be described in Section~\ref{gap-support}.
+
+\TODO{Think about the structure of this section -- at the moment it's
+  not clear where it is going or what point is being made. Are we
+  describing the overall situation, or developments made during \ODK}
 
 \subsection{Regression testing}\label{testing}
 
-\emph{Regression testing} is a software engineering technique which uses
-a set of tests to check (preferably in some automated way)
-that new changes do not break the functionality that used to 
-work previously. If a change breaks the test, that is called 
-a \emph{regression}. In \GAP, regressions may occur, for example,
-when a change causes an incorrect result, or a crash, or an error
+\emph{Regression testing} is a software engineering technique which
+checks (preferably in some automated way)
+that new changes do not break functionality that 
+worked previously. If a change breaks a test, that is 
+a \emph{regression}. In \GAP, regressions may occur
+when a change causes an incorrect result, or a crash, or an unwanted error
 message; in addition, there may be \emph{performance regressions}
-and \emph{memory regressions}.
+and \emph{memory regressions} where a test becomes slower, or uses
+much more memory after a change.
 
-GAP regression testing uses \emph{integration tests} - these are
-the tests when different parts of the \GAP functionality are 
-exercised in the same \GAP session (opposite to \emph{unit tests}
-which exercise each logical unit of the code separately, but do
-not necessarily test interactions between them).\comment{Is this true?
-  -- all tests are with an integrated system, but increasingly, each
-  test covers narrow functionality}
+%% GAP regression testing uses \emph{integration tests} - these are
+%% the tests when different parts of the \GAP functionality are 
+%% exercised in the same \GAP session (opposite to \emph{unit tests}
+%% which exercise each logical unit of the code separately, but do
+%% not necessarily test interactions between them).\comment{Is this true?
+%%   -- all tests are with an integrated system, but increasingly, each
+%%   test covers narrow functionality}
+%%  SL -- note sure this adds anything.
 The \GAP test
-suite for the core system consists of a total of 706 test files at the time of writing
+suite for the core system consists of a total of 707 test files at the time of writing
 totalling over $60\,000$ lines,
 as well as of the tests that check the correctness of over
 over $14,000$ lines of 1810 manual examples.
-\comment{1336 mansections containing examples;
-1641 (ref) + 169 (tut) = 1810 examples;
-13262 (ref) + 940 (tut) = 14202 lines}. 
+%% \comment{1336 mansections containing examples;
+%% 1641 (ref) + 169 (tut) = 1810 examples;
+%% 13262 (ref) + 940 (tut) = 14202 lines}. 
 %% in doc/ref
 %Read("makedocreldata.g");
 %exsref := ExtractExamples(GAPInfo.ManualDataRef.pathtodoc,
@@ -486,25 +969,29 @@ over $14,000$ lines of 1810 manual examples.
 %exsref := Filtered( exsref, ch -> Length( ch ) > 0 );;
 %Sum(List(exsref,Length));
 %Sum(List(exsref, ch -> Sum(List( ch, ex -> Length(Filtered(SplitString(ex[1],"\n"), x -> x<>""))))));
-In addition many packages have large test suites.
+%%
+%% 
 % and some further code in the {\tt benchmarks} directory. 
 
-GAP is also redistributed with a number of extensions, called \GAP packages
+\GAP is also redistributed with a number of extensions, called \GAP packages
 (145 in the latest release \GAP 4.10.2). These packages may, for example,
 extend mathematical functionality of the system by implementing new algorithms;
 provide collections of mathematical data; or provide enhanced tools for 
 package developers. Packages can be published independently of the core \GAP
 system and have a separate authorship. Package authors are recommended to 
-use a similar approach to testing and to provide their own regression tests.
+use a similar approach to testing and to provide their own regression
+tests. Many do, adding, in total over a quarter of a million lines of
+further tests.
+
 For packages redistributed with \GAP, our automatic package update system
 checks regularly for new versions on the authors web pages, retrieves them, and then uses them in a
 number of checks to ensure that new package releases are compatible with
 each other and do not break the functionality of the core \GAP system. The
 same process also helps us to check that changes in the core \GAP system
-do not break the functionality of the packages redistributed with \GAP
+do not break the functionality of the packages redistributed with \GAP.
 %% (provided those packages have standard tests that allow us to do that
 %% automatically)
-. This system has dramatically simplified the process of making a \GAP
+This system has dramatically simplified the process of making a \GAP
 release or update, for which we want a mutually compatible set of
 package versions, also compatible with the new core system. This used
 to require extensive negotiation with package authors, and sometimes
@@ -518,15 +1005,14 @@ core system, and releases are much faster.
   before the project, before we get to anything new. Can we start by
   saying what new developments we are claiming, and then go back and
   explain what didn't work before?}
-  
-  \comment{Also maybe a subheading of some kind here}
+\comment{Also maybe a subheading of some kind here}
 \GAP has used regression tests in one or another form since the
 release of version 3 in the 1980s. For much of this time, they were
 run by developers manually, and a part of the
 release preparation was sending an email to the \GAP developers mailing
 list asking for help with running a set of tests on developers' 
 computers. Since 2009, the \GAP team in St Andrews started to use the Jenkins
-(\url{https://jenkins.io/}) automation sysetem to regularly run the 
+(\url{https://jenkins.io/}) automation system to regularly run the 
 GAP testsuite, and eventually established a set of nightly and weekly
 running Jenkins jobs to run tests for the current \GAP development
 version; check for package updates; prepare and test release candidates,
@@ -542,7 +1028,7 @@ have a public source code repository.
 
 
 %See https://blogs.cs.st-andrews.ac.uk/alexk/2016/03/07/gap-on-github-one-year-on/
-Of course, \GAP is not new  version control, and the former
+Of course, \GAP is not new to version control, and the former
 CVS repository for \GAP 4 has revisions from 1996. In summer 2012 it
 had been converted to Mercurial (thanks to Max Horn) after the release 
 of \GAP 4.5, and then in February 2015 the Mercurial repository had 
@@ -565,7 +1051,7 @@ repositories elsewhere) allowed us to bring our regression testing
 up to the next level.
 
 We made use of \href{https://travis-ci.org/}{Travis CI} and
-\ref{https://www.appveyor.com/}{AppVeyor} which are 
+\href{https://www.appveyor.com/}{AppVeyor} which are 
 free (for open source projects) continuous integration platforms 
 that can be used to build and test software projects hosted at GitHub.
 \emph{Continuous Integration}, usually abbreviated as {\bf CI} is the process
@@ -583,8 +1069,12 @@ by Travis CI. Making these results easily obtainable and publicly available
 had a great effect on the community. Adding new tests to improve code coverage
 is a useful task for new contributors to familiarise themselves with the
 project setup. Making coverage reports available for each pull requests
-stimulated their authors to ensure that their contributions have a good
-quality and their suggested changes are actually being tested. \TODO{Can we back this claim up with numbers}
+facilitates checking code coverage during code review and
+encourages their authors to ensure that their contributions have a good
+quality and their suggested changes are actually being tested. 
+\TODO{Can we back this claim up with numbers? AK: One can explore code coverage for merged pull requests at
+\url{https://codecov.io/gh/gap-system/gap/pulls}, we could add a
+screenshot to illustrate it. Reliable numbers are harder by a number of reasons.}
 
 A crucial role in these developments was played by the enhanced
 profiling facilities discussed 
@@ -600,6 +1090,8 @@ by a better detection of the test outcomes. % the logic seems backwards here. Be
 % state of the testing framework as it was, we were able to "test the testing"
 % itself, and improve it - for example, by adding progress indicators,
 % report time spent on GC and memory used, etc.
+
+\TODO{We need to get to this point much sooner}
 
 Figure~\ref{fig:gap-core-tests} displays a part of the dashboard
 available at \url{https://github.com/gap-system/gap-distribution/}.
@@ -693,7 +1185,7 @@ the package. This greatly simplifies the procedure and helps to keep
 the package website up-to-date.
 
 The \GAP package {\sf Example} by Werner Nickel, Greg Gamble and
-Alexander Konovalov (\url{https://github.com/gap-packages/example}
+Alexander Konovalov \cite{example}
 is an example of a \GAP package which may be used as a template for 
 a new package. During the reported period, it has been regularly updated
 to keep up with the updates of the packages infrastructure. It
@@ -722,12 +1214,22 @@ A newer one is an XML-based format which is used for the main \GAP manuals
 and requires {\sf GAPDoc package} to build the documentation. Writing XML
 code by hand is very tedious and error-prone, and in 2012 Sebastian Gutsche 
 and Max Horn (presently both at the University of Siegen) started an 
-{\sf AutoDoc} package (\url{https://gap-packages.github.io/AutoDoc/}).
+{\sf AutoDoc} package \cite{autodoc}.
 This package allows to create documentation from source code comments
 without writing XML files, and then automatically generates XML input
 for GAPDoc. By now, this package became very flexible and reliable, and
-has been picked up by a number \comment{how many} of GAP packages for building 
+has been already picked up by 89 GAP packages for building 
 some parts or their whole manuals.
+% the number 89 was determined by 
+%
+% grep 'AutoDoc(' */makedoc.g | wc -l
+%
+% a note "parts or their whole manuals" is essential - 
+% it is possible to build a GAPDoc manual using AutoDoc
+% and automatically generate title page, updating the
+% metadata from those in PackageInfo.g, avoiding the need
+% to duplicate details in two places. The rest of the
+% manuals for such packages may still remain in XML.
 
 The Docker containers for the latest \GAP public release and for the
 development branches of the \GAP repository on GitHub, described in
@@ -845,6 +1347,13 @@ get new contributors to existing packages. As Figure~\ref{fig:gap-package-tests}
 shows, the number of packages authors increased from 158 in
 November 4.7.9 to 196 in June 2019. 
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-package-tests}
+    \caption{Number of \GAP packages, their authors, and packages with tests.}
+    \label{fig:gap-package-tests}
+\end{figure}
+
 Over the same time, not only package releases became more frequent, but also their quality
 improved. If in November 52\% of packages did not provide a standard 
 test at all, presently 78\% of packages do have a standard test 
@@ -852,7 +1361,8 @@ test at all, presently 78\% of packages do have a standard test
 so their authors are responsible for regular testing them 
 with GAP releases and development versions.
 Some of them use their own setup for continuous integration
-(like e.g. the {\sf homalg} project, using \href{https://circleci.com/}{CircleCI}).
+(like e.g. the \href{https://homalg-project.github.io/}{\sf homalg} project,
+which uses \href{https://circleci.com/}{CircleCI}).
 
 At the moment of writing, in the stable-4.10 branch,
 standard tests pass for 102 packages
@@ -863,18 +1373,49 @@ and fail for 12.
 but different output, or incompatibility with some other package
 not loaded by default).
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\textwidth]{images/gap-package-tests}
-    \caption{Number of \GAP packages, their authors, and packages with tests.}
-    \label{fig:gap-package-tests}
-\end{figure}
-
 \subsection{\GAP package manager}\label{pkg-manager}
 
 WHO: Michael
 
-Describe \url{https://gap-packages.github.io/PackageManager/}
+For many years, the installation of packages in GAP has been an entirely manual
+process.  If a user requires a package that is not currently installed on their
+system, they are required to visit the GAP website, or the website of the
+required package, download an archive or repository and extract it into their
+package directory.  In many cases, they must also compile the package before
+use, in a process that is not consistent between packages.  Worst of all, any
+dependencies must also be installed one-by-one, including all these steps for
+each one.
+
+This awkward installation procedure is mitigated by the inclusion of a large
+number of packages with the main release archive (145 packages were included
+with \GAP 4.10.2).  This solution masks the problem for the majority of users,
+who do not require any more specialised packages.  However, it also results in a
+1.6 GB standard installation, of which the packages make up 1.4 GB.  Many of
+these packages will never be loaded by a given user. \TODO{Adding
+  packages as a user to a central installation. Installing development
+  versions of packages}
+
+The possibility of a more sophisticated package management system for \GAP
+package manager has been discussed for some time, and resulted in the creation
+of {\textsf PackageManager} in September 2018, by Michael Torpey.  Development
+started after a discussion at GAP Days Fall 2018
+(\url{https://www.gapdays.de/gapdays2018-fall/}) and an initial release was made
+before the end of that meeting.  New features have been added in various further
+releases across the past year. 
+
+Describe \url{https://gap-packages.github.io/PackageManager/}:
+\begin{itemize}
+\item It's a package - install+load packages without leaving cosy environment
+\item Sources
+\item pip vs apt
+\item Dependencies Compile Build doc
+\item User pkg dir
+\item Tests and doc
+  \item The package manager is now on CoCalc (as part of GAP 4.10.2) which enables each user to install the packages they
+    need, rather than forcing CoCalc operators to manage these
+    installations separately. Example of positive two way interaction
+    with CoCalc.
+\end{itemize}
 
 \subsection{Packaging \GAP distribution}\label{distro}
 
@@ -905,6 +1446,23 @@ and major \GAP releases per year, starting from the release of
     \caption{Number of major and minor \GAP releases per year since \GAP 4.4 release.}
     \label{fig:gap-releases}
 \end{figure}
+
+\TODO{Say something about this: as noted in GAP 4.10 description, 
+better testing tools and increased thoroughness of package testing 
+allowed us to concentrate on the changes in the master branch
+(which is a prototype for the next major release), and limit 
+the changes in the current release branch to bugfixes and selected 
+non-disruptive changes backported from the master branch.
+(Indeed, less situations when package authors reported to us after 
+the release that we broke their package - this can be now detected 
+earlier). One could try to look at the descriptions and number of 
+changes in the release overview to see that. Also, if formerly we provided
+a beta release and were giving to package authors a 2-months window to
+test and update their packages, then the need in doing this disappeared
+with the improvements of the testing, and for the first time in GAP 4.10.0
+we did not provide a beta release but published GAP 4.10.0 straightforwardly.
+This went well - GAP 4.10.1 was published in due course in February 2019,
+without any rush.}
 
 Release wrapping and automated testing is performed in St Andrews
 using the Jenkins automation system. \GAP distribution is tested
@@ -988,7 +1546,127 @@ persistent memoisation
 
 databases
 
-% TODO: Bibliography. Ensure that we are following software citation recommendations properly!
+\newpage
+\appendix
+
+\section{Sharing reproducible computational experiments}
+
+This appendix presents an example of organising GAP code 
+and data to give others an opportunity to inspect them and rerun
+the computation on a freely available called \href{https://mybinder.org/}{Binder}.
+
+It demonstrates integration of a number of concepts mentioned
+in the report: GAP regression testing; setup for continuous
+integration and code coverage reports; Docker containers with
+the GAP distribution; and GAP Jupyter interface.
+
+For this demonstrator, we collaborated with the authors of \cite{black-box} 
+who worked on the code for this paper in the GitHub repository located 
+at \url{https://github.com/sukru-yalcinkaya/unipoly} in the file 
+called {\tt unipoly.g}.
+
+This code does not justify the creation of a new GAP package, 
+but it can reuse packages setup for Travis CI and Codecov by 
+creating a {\tt tst} directory with the test files and adapting
+{\tt .travis.yml} and {\tt .codecov.yml} configuration files
+from the \GAP package {\sf Example}. Importantly, it also
+allows to check that the code works in GAP 4.9, GAP 4.10 and 
+the master branch of the GAP repository, which is a prototype for
+GAP 4.11.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-repo}
+    \caption{unipoly project repository}
+    \label{fig:unipoly-repo}
+\end{figure}
+
+The next step is to produce a Jupyter notebook which combines input,
+output, and textual narrative in one document. The notebook contains
+the {\tt Read(unipoly.g);} command to read the code first. This is
+a good practice for organising reproducible experiments: keeping the
+code in a single location in a {\tt .g} file allows its reuse and
+automated testing, and avoids code duplication. 
+
+When the authors prepared and committed the Jupyter notebook describing
+their calculation, they are ready to share it on
+\href{https://mybinder.org/}{Binder}. First they need to add 
+to their repository a {\tt Dockefile} with the following content:
+
+{\tiny
+\begin{verbatim}
+FROM gapsystem/gap-docker
+
+MAINTAINER Alexander Konovalov <alexander.konovalov@st-andrews.ac.uk>
+
+COPY --chown=1000:1000 . $HOME/unipoly
+
+RUN sudo pip3 install ipywidgets RISE
+
+RUN jupyter-nbextension install rise --user --py
+
+RUN jupyter-nbextension enable rise --user --py
+
+USER gap
+
+WORKDIR $HOME/unipoly
+\end{verbatim}
+}
+
+This file builds a Docker container based on the container {\tt gapsystem/gap-docker}
+with the latest GAP release, which we provide as an alternative GAP distribution
+(see Subsection~\ref{distro}). Additional commands specify how to copy the code into
+the new container, and install additional extensions for Jupyter-based slideshows.
+
+After that one should follow \href{https://mybinder.org/}{Binder} instructions to
+set up a new Binder project. A completed setup will allow to click on the ``launch binder''
+button in the README file on GitHub (as seen on Figure~\ref{fig:unipoly-repo}
+to start a Jupyter notebook server in the cloud,
+either using a prebuilt image of the project or by building a new one in case of any
+changes in the GitHub repository. When the server will be started, it will display
+a file browser as shown on Figure~\ref{fig:unipoly-files}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-files}
+    \caption{File browser running on Binder}
+    \label{fig:unipoly-files}
+\end{figure}
+
+Clicking on {\tt unipoly.ipynb}, the user will open the Jupyter notebook
+and will be able to rerun it as shown on Figure~\ref{fig:unipoly-notebook}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-notebook}
+    \caption{Jupyter notebook running on Binder}
+    \label{fig:unipoly-notebook}
+\end{figure}
+
+One could also switch to the slideshow mode (the notebook would require
+some configuration to explain which cells should be displayed on the
+same slide and which not), and run an interactive presentation, as
+as shown on Figure~\ref{fig:unipoly-slide}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-slide}
+    \caption{Slideshow with interactive computation running on Binder}
+    \label{fig:unipoly-slide}
+\end{figure}
+
+Thus, connecting the project repository to Binder allows other users
+(e.g. readers or referees of the paper) to rerun computations on Binder
+without spending efforts on installing all necessary components
+(may be hard for them as non experts, may not always be possible;
+something may not work on Windows, etc.
+
+\TODO{what are the limitations of Binder and suggested workarounds}
+
+\newpage
+\TODO{Ensure that we are following software citation recommendations properly!}
+\printbibliography
+
 \end{document}
 
 

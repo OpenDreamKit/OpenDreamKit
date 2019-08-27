@@ -12,8 +12,9 @@ denominator. Applying the standard direct methods designed for solving approxima
 rational numbers would lead to a blowup in the bitsize of the coefficients, and result in overwelming computation
 overheads, with time complexities often not even polynomial.
 
-\TODO{clarify from the onset that the following paragraph is about
-  literature, not work done here (right?)}
+\subsection{State of the art}
+%% \TODO{clarify from the onset that the following paragraph is about
+%%   literature, not work done here (right?)}
 
 In a series of algorithmic innovations, summarized in Table~\ref{tab:complexities}, the time complexity for solving exactly a linear system over the rationals has
 been reduced to $\SO{n^3}$ or $\SO{n^\omega}$ which is asymptotically as fast as the complexity for solving
@@ -53,8 +54,12 @@ explore both approaches which will be described in the following subsections.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{The Chinese remainder approach}
 
-We recall here the principle of the Chinese Remainder based rational solver.
-\begin{algorithm}
+We recall here the principle of the Chinese Remainder based rational solver:
+the linear system over the integers is reduced modulo a series of prime numbers. Each of these systems can then be solved
+independently, therefore exposing a large degree of parallelism. The rational solution can then be recovered in two
+phases by a Chinese remainder reconstruction followed by a vector rational reconstruction.
+
+\begin{algorithm}[htb]
   \caption{Chinese Remainder based rational solver}
   \begin{algorithmic}[1]
     \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
@@ -66,24 +71,64 @@ We recall here the principle of the Chinese Remainder based rational solver.
     \State $\vect{b}^{(i)} \leftarrow \vect{b}\mod p_i$
     \State $\vect{x}^{(i)} \leftarrow (\mat{A}^{(i)})^{-1} \vect{b}^{(i)} \mod p_i$
     \EndFor
-  \State $y \leftarrow \texttt{ChineseRemainder}(\vect{y}^{(1)},p_1,\dots, \vect{y}^{(\ell)},p_\ell)$
+  \State $\vect{y} \leftarrow \texttt{ChineseRemainder}(\vect{y}^{(1)},p_1,\dots, \vect{y}^{(\ell)},p_\ell)$
   \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
   \State \Return $\vect{x}/d$
 \end{algorithmic}
 \end{algorithm}
 
+In sequential versions of this algorithm, the Chinese remainder and rational reconstruction can be performed on the fly
+after each iteration, in order to detect stabilization and allow to terminate the loop earlier than what the possibily
+pessimistic bound on the solution requires. In parallel, this would generate depency between the parallel tasks and we
+thus chose to disable this feature.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{The $p$-adic lifting approach}
 
-\begin{algorithm}
+The $p$-adic lifting approach, developped in~\cite{Dix82} is based on a Newton iteration to compute iteratively the
+digits in the $p$-adic expansion of the solution vector. This algorithm manages to reduce the cost of Chinese Remaindering
+by balancing two types of operations: expensive linear algebra (matrix inverse or LU decomposition) is
+perfomed only once over in small precision (a finite field) while the high precision part of the computation is
+contained in a sequence of less expensive linear algebra operations (matrix-vector products).
+\begin{algorithm}[htb]
   \caption{$p$-adic lifting based rational solver}
   \begin{algorithmic}[1]
     \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
     \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
     \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
     \State Pick a prime $p$. Let $k$ such that $p^k \geq 2ND$
-    \State $\mat{B}\leftarrow A^{-1} \mod p$
+    \State $\mat{B}\leftarrow \mat{A}^{-1} \mod p$
+    \State $\vect{r}\leftarrow \vect{b}$
+    \For{$i\leftarrow 0\dots k$}
+    \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
+    \State $\vect{r} \leftarrow  \frac{\vect{r} - \mat{A}\vect{x_i}}{p}$
+    \EndFor
+    \State $\vect{y} \leftarrow \sum_{i=0}^{k-1} \vect{c}^{(i)} p^i$
+    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
+  \State \Return $\vect{x}/d$
+\end{algorithmic}
+\end{algorithm}
+
+However, the strongly iterative structure of this algorithm makes it both harder to parallelize and less cache
+efficient.
+In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
+$p$-adic lifting and Chinese remainder techniques.
+We further improved this variant to deliver a parallel $p$-adic lifting solver. \TODO{explain the improvements}
+
+\begin{algorithm}[htb]
+  \caption{$p$-adic lifting based rational solver}
+  \begin{algorithmic}[1]
+    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
+    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+    \State Pick $\ell$ primes $p_1,\dots, p_\ell$
+    \State Pick a prime $p$. Let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
+    \For{$i\leftarrow 1 \dots \ell$ in parallel}
+      \State $B_i \leftarrow  A^{-1} \mod p_i$
+    \EndFor
+
+    \State ...
     \State $\vect{r}\leftarrow \vect{b}$
     \For{$i\leftarrow 0\dots k$}
     \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
@@ -104,6 +149,12 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{MPI based Chinese remainder algorithm}
+
+\begin{itemize}
+\item  Full MPI vs Hybrid MPI-OMP (memory savings).
+\item Asymptotically fast vector Chinese remainder $\Rightarrow$ not a bottleneck anymore
+\end{itemize}
+
 
 \TODO{Pretty convincing figure about scaling factors! Maybe add a line
   representing what a perfect parallelisation would achieve for
