@@ -1,6 +1,10 @@
 report.pdf: report.tex
 	pdflatex report.tex
 
+# can use this to force update of table of contents
+force:
+	pdflatex report.tex
+	pdflatex report.tex
 clean:
 	rm -f *~
 	rm -f *.aux
