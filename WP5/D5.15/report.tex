@@ -1419,13 +1419,13 @@ not loaded by default).
 
 WHO: Michael
 
-For many years, the installation of packages in GAP has been an entirely manual
+For many years, the installation of packages in \GAP has been an entirely manual
 process.  If a user requires a package that is not currently installed on their
-system, they are required to visit the GAP website, or the website of the
+system, they are required to visit the \GAP website, or the website of the
 required package, download an archive or repository and extract it into their
 package directory.  In many cases, they must also compile the package before
 use, in a process that is not consistent between packages.  Worst of all, any
-dependencies must also be installed one-by-one, including all these steps for
+dependencies must also be installed individually, including all these steps for
 each one.
 
 This awkward installation procedure is mitigated by the inclusion of a large
@@ -1437,22 +1437,100 @@ these packages will never be loaded by a given user. \TODO{Adding
   packages as a user to a central installation. Installing development
   versions of packages}
 
-The possibility of a more sophisticated package management system for \GAP
-package manager has been discussed for some time, and resulted in the creation
-of {\textsf PackageManager} in September 2018, by Michael Torpey.  Development
-started after a discussion at GAP Days Fall 2018
-(\url{https://www.gapdays.de/gapdays2018-fall/}) and an initial release was made
-before the end of that meeting.  New features have been added in various further
-releases across the past year. 
+The possibility of a more sophisticated package management system for \GAP has
+been discussed for some time, and was realised with the creation of {\sf
+  PackageManager} (\url{https://gap-packages.github.io/PackageManager/}) in
+September 2018, by Michael Torpey.  Development started after a discussion at
+\GAP Days Fall 2018 (\url{https://www.gapdays.de/gapdays2018-fall/}) and an
+initial release was made before the end of that meeting.  New features have been
+added in various further releases across the past year.
 
-Describe \url{https://gap-packages.github.io/PackageManager/}:
+{\sf PackageManager} is a \GAP package itself, which is operated from inside a
+\GAP session.  This approach to package management was chosen over an external
+manager, since it allows users to install and remove packages without ever
+leaving the environment of the \GAP prompt.  The first advantage of this is that
+users have a comfortable environment, without needing to learn how to use
+external tools; and the second is that, in most cases, packages can be installed
+and loaded without restarting the session as in Figure \ref{fig:pkgman-sample},
+meaning that users' workflow is interrupted as little as possible, and they do
+not need to save and reload their work.
+
+\begin{figure}[!ht]
+    \centering
+    {\tiny
+\begin{verbatim}
+gap> InstallPackage("digraphs");
+#I  Getting PackageInfo URLs...
+#I  Retrieving PackageInfo.g from https://gap-packages.github.io/Digraphs/PackageInfo.g ...
+#I  Downloading archive from URL https://github.com/gap-packages/Digraphs/releases/download\
+/v0.15.4/digraphs-0.15.4.tar.gz ...
+#I  Saved archive to /tmp/tmcLM2FI/digraphs-0.15.4.tar.gz
+#I  Extracting to /home/user/.gap/pkg/digraphs-0.15.4 ...
+#I  Checking dependencies for Digraphs...
+#I    io >=4.5.1: true
+#I    orb >=4.8.2: true
+#I  Running compilation script on /home/user/.gap/pkg/digraphs-0.15.4 ...
+true
+gap> LoadPackage("digraphs", false);
+true
+\end{verbatim}
+    }
+    \caption{Installing a package using {\sf PackageManager}.}
+    \label{fig:pkgman-sample}
+\end{figure}
+
+The main functions provided by {\sf PackageManager} are \texttt{InstallPackage},
+\texttt{UpdatePackage}, and \texttt{RemovePackage}.  The first,
+\texttt{InstallPackage}, takes a string which can be any of several different
+forms: the URL of an archive, repository, or package info file, or simply the
+name of a package.  In the case of a URL, the appropriate file is retrieved
+using an internet connection, and used to install the package; if a package name
+is given, it is looked up in a pre-defined list of package URLs and installed
+from there.  In most cases, the latest released version of a package is
+installed; a user can specify an older version by giving an explicit archive
+URL, or a development version by specifying a branch along with the url of a
+version control repository.  % currentPackageInfoURLList
+
+The ability to install a package given only its name is useful, but requires
+some important design decisions: how do we decide which packages to support, and
+which versions do we install by default?  One option would be to have a
+centralised repository (as is common for the {\sf APT} package manager) which
+contains a carefully checked set of package versions that are known to work with
+the installed version of \GAP and with each other; this has the advantage of
+stability and control, but may make it harder to get the latest software
+versions.  The other option is to store links to appropriate locations on the
+package websites, allowing the most recently released version to be installed
+without explicit approval from the \GAP authors; this approach is closer to the
+more liberal {\sf pip} package manager for the Python language.
+In the end, the latter approach was taken for the following reaons:
 \begin{itemize}
-\item It's a package - install+load packages without leaving cosy environment
-\item Sources
-\item pip vs apt
-\item Dependencies Compile Build doc
-\item User pkg dir
-\item Tests and doc
+\item approved package versions for a given release are likely to be included
+  with the \GAP installation anyway, and so it is unlikely that users would need
+  to reinstall these;
+\item it requires no additional infrastructure, since a
+  \texttt{currentPackageInfoURLList} is already maintained for testing purposes;
+\item it encourages active use, and therefore testing, of recent releases.
+\end{itemize}
+This decentralised approach has therefore been adopted for the moment, though
+future development could move easily towards a different approach.
+
+Over the course of {\sf PackageManager}'s development, it has accumulated
+various features that automate as much of package installation as possible:
+\begin{itemize}
+\item any kernel module is configured and compiled, if present;
+\item package documentation is built from source if necessary;
+\item prerequisites are installed using \texttt{prerequisites.sh} if present;
+\item all missing package dependencies are installed, or recompiled if broken;
+\item basic checks are performed to verify that installation was successful.
+\end{itemize}
+This has resulted in a reasonably smooth installation process, with very little
+friction encountered by a user who tries to get a new package working.  It is
+now a deposited package in \GAP, and is therefore distributed in the main
+archive with each release.
+
+\TODO{Mention that it uses ~/.gap ?  Or is that too technical?}
+
+\begin{itemize}
   \item The package manager is now on CoCalc (as part of GAP 4.10.2) which enables each user to install the packages they
     need, rather than forcing CoCalc operators to manage these
     installations separately. Example of positive two way interaction

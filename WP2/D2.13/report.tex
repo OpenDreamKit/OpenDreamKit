@@ -28,7 +28,7 @@ of these investments are of applicability to a much wider range of
 activities outside mathematics research.
 
 With this deliverable we want to demonstrate the power of the
-(improved) Jupyter based virtual research environment with application
+(improved) Jupyter-based virtual research environment with application
 in the computational magnetism research domain, as a representative of
 the growing field of computational science and engineering.
 
@@ -57,14 +57,14 @@ computing paradigms.
 
 \subsection{Object Oriented MicroMagnetic Framework (OOMMF)}
 
-The Object Oriented MicroMagnetic Framework (OOMMF) is a micromagnetic
-simulation tool, for which development started during the 1990s at the
-National Institute of Science and Technology (NIST) by Michael Donahue
-and Don Porter. It is probably the most widely used and most trusted
-simulation tool in the micromagnetic scientific community, and still
-maintained and further developed. It was
-written in C++ and wrapped with Tcl, which is the language that must
-be used to configure simulations by the user.
+The Object Oriented MicroMagnetic Framework (OOMMF)~\cite{Donahue1999}
+is a micromagnetic simulation tool, for which development started
+during the 1990s at the National Institute of Science and Technology
+(NIST) by Michael Donahue and Don Porter. It is probably the most
+widely used and most trusted simulation tool in the micromagnetic
+scientific community, and still maintained and further developed. It
+was written in C++ and wrapped with Tcl, which is the language that
+must be used to configure simulations by the user.
 
 \subsection{Typical conventional workflow}
 
@@ -211,44 +211,47 @@ The resulting package is called Ubermag and it is separated into
 several different sub-packages:
 
 \begin{itemize}
-\item \texttt{discretisedfield} - reading, writing, analysis, and
-visualisation of scalar and vector fields. This package provides all
-the necessary functionality for reading resulting OOMMF vector and
-scalar field files and their analysis, such as sampling, iterating,
-computing averages and norms, and visualisation. For visualisation, we
-use two different approaches: (i) 2D visualisation of spacial slices
-of using \texttt{matplotlib} and (ii) 3D visualisation of both scalar
-and vector fields using \texttt{k3d}, which was developed as a part of
-\ODK. The main benefit of this package is that all fields, after being
-created or read from files, are represented via \texttt{numpy} arrays,
-which enables exposing micromagnetic fields obtained from OOMMF to the
-Python scientific stack.
-\item \texttt{ubermagtable} - reading and analysis of scalar table
-data. The main purpose of this package is to enable easy reading and
-analysis of OOMMF \texttt{.odt} files. This is achieved by converting
-the contents of an \texttt{.odt} file, created by OOMMF, to a
-\texttt{pandas} DataFrame object. Similar to exposing scalar and
-vector field data to Python's scientific stack in
-\texttt{discretisedfield}, in \texttt{ubermagtable}, this is achieved
-via \texttt{pandas} DataFrame, which enables easy analysis and
-visualisation of the table data, by exploting the already existing
-infrastructure.
-\item \texttt{ubermagutil} - typesystem used across all Ubermag
+\item \texttt{discretisedfield}~\cite{discretisedfield} - reading,
+  writing, analysis, and visualisation of scalar and vector
+  fields. This package provides all the necessary functionality for
+  reading resulting OOMMF vector and scalar field files and their
+  analysis, such as sampling, iterating, computing averages and norms,
+  and visualisation. For visualisation, we use two different
+  approaches: (i) 2D visualisation of spacial slices of using
+  \texttt{matplotlib} and (ii) 3D visualisation of both scalar and
+  vector fields using \texttt{k3d}, which was developed as a part of
+  \ODK. The main benefit of this package is that all fields, after
+  being created or read from files, are represented via \texttt{numpy}
+  arrays, which enables exposing micromagnetic fields obtained from
+  OOMMF to the Python scientific stack.
+\item \texttt{ubermagtable}~\cite{ubermagtable} - reading and analysis
+  of scalar table data. The main purpose of this package is to enable
+  easy reading and analysis of OOMMF \texttt{.odt} files. This is
+  achieved by converting the contents of an \texttt{.odt} file,
+  created by OOMMF, to a \texttt{pandas} DataFrame object. Similar to
+  exposing scalar and vector field data to Python's scientific stack
+  in \texttt{discretisedfield}, in \texttt{ubermagtable}, this is
+  achieved via \texttt{pandas} DataFrame, which enables easy analysis
+  and visualisation of the table data, by exploting the already
+  existing infrastructure.
+\item \texttt{ubermagutil}~\cite{ubermagutil} - typesystem used across all Ubermag
 packages. This package contains the implementation of different Python
 descriptors used for imposing a typesystem for individual attributes
 in different classes.
-\item \texttt{micromagneticmodel} - a domain specific language (DSL)
-for defining a micromagnetic simulation. Details about this package
-are explained in Sec.~\ref{sec:micromagneticmodel}.
-\item \texttt{oommfc} - OOMMF calculator. After the micromagnetic
-simulation is defined using \texttt{micromagneticmodel},
-\texttt{oommfc} translates the model into OOMMF simulation and runs
-it. Finally, all resulting simulation files are read by employing
-\texttt{discretisedfield} and \texttt{ubermagtable}. Details about
-this package are explained in Sec.~\ref{sec:oommfc}.
-\item \texttt{micromagneticdata} - data analysis convenience
-tools. This package contains code for the analysis of simulation
-results integrated in Jupyter notebook.
+\item \texttt{micromagneticmodel}~\cite{micromagneticmodel} - a domain
+  specific language (DSL) for defining a micromagnetic
+  simulation. Details about this package are explained in
+  Sec.~\ref{sec:micromagneticmodel}.
+\item \texttt{oommfc}~\cite{oommfc} - OOMMF calculator. After the
+  micromagnetic simulation is defined using
+  \texttt{micromagneticmodel}, \texttt{oommfc} translates the model
+  into OOMMF simulation and runs it. Finally, all resulting simulation
+  files are read by employing \texttt{discretisedfield} and
+  \texttt{ubermagtable}. Details about this package are explained in
+  Sec.~\ref{sec:oommfc}.
+\item \texttt{micromagneticdata}~\cite{micromagneticdata} - data
+  analysis convenience tools. This package contains code for the
+  analysis of simulation results integrated in Jupyter notebook.
 \end{itemize}
 
 We decided to split the entire functionality of Ubermag into separate
@@ -433,20 +436,21 @@ Python interface to OOMMF and integrate it into Jupyter
 notebook. After we developed a domain specific language in
 \texttt{micromagneticmodel}, we decided to demonstrate its
 universality for other micromagnetic packages. Therefore, we chose to
-build another micromagnetic calculator for the mumax3 simulation
-tool. mumax3 is another finite-difference package that is attracting
-increasing attention: its main advantage is that it runs on GPU and it
-is usually much faster than OOMMF. Accordingly, mumax3 is a simulation
-tool of choice when the simulation speed is an important factor. In
-order to implement another micromagnetic calculator, based on mumax3,
-we organised a workshop at European XFEL and invited 5 participants. 3
-participants were from the research group at the University of
-Southampton, where the OpenDreamKit project was previously hosted
-before moving to European XFEL. Another 2 participants are the
-developers of mumax3 from the University of Ghent, Belgium. After a
-4-day workshop we managed to implement all the necessary functionality
-to run micromagnetic standard problems using Ubermag and using mumax3
-as the computational backend.
+build another micromagnetic calculator for the
+mumax3~\cite{Vansteenkiste2014} simulation tool. mumax3 is another
+finite-difference package that is attracting increasing attention: its
+main advantage is that it runs on GPU and it is usually much faster
+than OOMMF. Accordingly, mumax3 is a simulation tool of choice when
+the simulation speed is an important factor. In order to implement
+another micromagnetic calculator, based on mumax3, we organised a
+workshop at European XFEL and invited 5 participants. 3 participants
+were from the research group at the University of Southampton, where
+the OpenDreamKit project was previously hosted before moving to
+European XFEL. Another 2 participants are the developers of mumax3
+from the University of Ghent, Belgium. After a 4-day workshop we
+managed to implement all the necessary functionality to run
+micromagnetic standard problems using Ubermag and using mumax3 as the
+computational backend.
 
 \subsection{JOOMMF changes name to become Ubermag}
 
@@ -760,10 +764,7 @@ project\footnote{Photon And Neutron Open Science Cloud, EC research
   http://panosc.eu}, which we expect to also feature in (parts of) the
 European Open Science Cloud user interface and capabilities.
 
-
 \newpage\printbibliography
-
-
 
 \end{document}
 
