@@ -37,33 +37,60 @@ Conceptually, an instance of MathWebSearch consists of four components:
 \subsection{Enabling Formula Search Deployments}
 
 To use MathWebSearch inside OpenDreamKit, we need to be able to flexibly use it as a new component. 
-To achieve this, we implemented deployment infrastructure on top of the core MathWebSearch daemon. 
-In particular, to enable easy usage we made all components available as Docker Containers \ednote{Cite docker and refer to the appropriate WPs}. 
-These components are
+To achieve this, we developed deployment infrastructure in the form of several components on top of the core MathWebSearch daemon. 
+Each component typically exists as a single Docker Container\ednote{Reference other ODK Docker stuff here}. 
+The components are composed using a Docker Compose file. The structure of our infrastructure can be seen in Figure~\ref{fig:mwsdeployment}. 
 
-\ednote{Link all of these to GitHub repositories}
-\begin{enumerate}
-    \item the core \textbf{MathWebSearch Daemon} itself \ednote{github.com/MathWebSearch/mws}
-    \item \textbf{mwsapi}, a thin API layer making it much easier for the frontend
-\end{enumerate}
+\begin{figure}[ht]
+  \includegraphics[width=0.8\textwidth]{mws_layout.pdf}
+  \caption{Structure of a typical MathWebSearch Deployment}\label{fig:mwsdeployment}
+\end{figure}
 
-The inter
+We describe the components of our infrastructure. 
 
-- we created a stack of tools on top of MWS to enable easier deployment
-- for this process we made
+\paragraph{The MathWebSearch Daemon}
+The central component is the \textit{MathWebSearch daemon}, which can be found in the bottom left. 
+As previously, it uses an \textit{Index} and exposes an XML-based API for queries. 
+The only change we made to the core daemon is that it now exists inside a Docker Container. 
 
-- deployment of MWS previously required a lot of effort
-- for this task: built infrastructure for managing large harvests and building interfaces
-    - auto-updating of index
-    - deployment setup => being able to spin up new instances more easily
-    - api wrapper (more flexible frontends)
-    - flexible way of dropping in harvesters
+\paragraph{The Harvesters and The Indexer}
+In order to generate an index from a set of documents, as before, we need two components. 
+First we extract a set of ContentMathML formulae using a corpus-specific \textit{Harvester} (bottom right). 
+The generated \textit{Harvest} is then sent to the \textit{Indexer} (bottom center), which generates or updates the \textit{Index}. 
+
+Additionally, we introduced a scheduler component called \textit{MWS cron}. 
+This periodically sends updated harvests to the \textit{indexer}, which then in turn updates the index. 
+This process ensures that the Index remains up-to-date. 
+
+\paragraph{Frontend, mwsapi and the query syntax parser}
+
+In order to process end user queries, we introduced several additional components.
+
+The most important component of these is the \textit{frontend}, which runs inside the users' browser. 
+It allows users to enter a formula search query, and view the results. 
+The frontend contains corpus-specific branding and text, and is otherwise not corpus-specific. 
+In particular the querying code which interacts with the backend components, does not require specialization. 
+\ednote{Screenshot here?}
+
+While the MathWebSearch daemon only understands formulae in Content MathML, users often enter them using different representations, such as \LaTeX. 
+For this purpose, the frontend allows entering queries in human-writable, corpus-specific syntax. 
+In order to transform the user query into a system-understood query, we make use of a new component called the \textit{Query Syntax Parser}. 
+For {\LaTeX} syntax this is achieved using {\LaTeX}ML along with a custom MathWebSearch extension, but this component is fully interchangable if the user desires other syntaxes. 
+
+The frontend does not directly send MathML queries to the \textit{Daemon}.
+Instead, it sends them to a thin API layer on top called \textit{mwsapi}. 
+This layer forwards the queries to the daemon and, upon receiving a response, performs some post-processing. 
+This process includes transforming substiutions returned by MathWebSearch into a format that can be directly presented to the user by the frontend. 
+
+As the frontend, the mwsapi server and the Query Syntax Presenter are all exposed to the end-user under the same url, a proxy delegating requests accordingly was also neccessary. 
+This is using an nginx \ednote{cite} server. 
 
 \subsection{Building a Notebook Search}
 
 \ednote{
+- describe how this new setup allowed us to flexibly create new frontends
 - describe sage notebooks
-- describe how we implemented the hharvester
+- describe how we implemented the harvester
 - describe the dedidcated frontend
 - describe the simplicity of this implementation wrt the previous parts
 }
