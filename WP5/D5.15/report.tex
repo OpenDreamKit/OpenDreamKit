@@ -705,8 +705,162 @@ tested \GAP interface instead, starting from SageMath 8.6 (January
 % See SageTrac ticket 22626 made that happen; it was merged in 
 % SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
 
-\subsection{Reflection}\label{syntaxtree}
-\TODO{SL: write this}
+\subsection{Linguistic Reflection}\label{syntaxtree}
+The \GAP programming language, in which much of the system is written
+is interpreted and dynamically-typed (somewhat like the better-known
+Python). It has a unique ``method selection'' system
+(\cite{BreuerLinton98}) in which the type of objects reflects
+mathematical information learned about them at runtime, which method
+selection depends on the types of all arguments.
+
+A compiler for the language (converting \GAP code
+into C extensions to the \GAP kernel) has been available for many
+years as part of \GAP, but gives surprisingly little speedup on most code, and has not
+seen widespread adoption. The main reason for this is that objects
+types must still be checked, and method selection decisions made, at
+run-time, even in compiled code.
+
+\Sage, implemented initially in Python, faced many of the same
+problems, and addressed them by adopting, and promoting
+development of, the \href{http://cython.org}{Cython} project which
+extends the Python language with C-like types and constructions to
+allow more effective compilation.
+
+In WP5 the \GAP team have sought a natural and usable way to deliver
+similar benefits for the \GAP language (bearing in mind the relative
+sizes of the \GAP and Python user and developer communities). After
+some experiments and a great deal of discussion across the community,
+we have settled on ``Linguistic reflection'', combined with code
+annotations (pragmas) as an approach that offered a good return of
+performance and other benefits for the effort invested.
+
+The key infrastructural tools for both of these have now been added to
+the \GAP language and interpreter. The new \verb|SyntaxTree| function
+``unpacks'' the workspace representation of a \GAP function,
+converting into a data structure which can be easily manipulated by
+\GAP, and converted back into a new executable \GAP function when
+needed. Code annotations, in the form of pragmas are retained through
+this process, so that the programmer can use them to guide in
+programme transformation, and different software transformers can use
+them to communicate. All of this functionality is publicly available
+now in the development version of \GAP on GitHub and will be included
+in \GAP 4.11 (expected November 2019).
+
+Future versions will build on this for optimisation, OpenMP-style
+semi-automatic parallelisation and (our original motivating
+application) to produce specialised versions of functions which reduce
+the amount of run-time method selection required, allowing them to be
+executed more quickly and compiled to C more effectively.
+
+As a small example, consider the following code fragment:
+\begin{verbatim}
+foo := function(n, x, y)
+    local z,i;
+    z := 0;
+    for i in [1..n] do
+        #% x and y always integers
+        z := z+Gcd(x,y);
+    od;
+    return z;
+end;
+\end{verbatim}
+The \verb|#%| here denotes a pragma.
+
+This can be unpacked:
+\begin{Small}
+\begin{verbatim}
+gap> t:= SyntaxTree(foo)!.tree;
+rec( name := "foo", nams := [ "n", "x", "y", "z", "i" ], narg := 3, 
+  nloc := 2, 
+  stats := 
+    rec( 
+      statements := 
+        [ 
+          rec( lvar := 4, rhs := rec( type := "EXPR_INT", value := 0 ), 
+              type := "STAT_ASS_LVAR" ), 
+          rec( 
+              body := 
+                [ 
+                  rec( type := "STAT_PRAGMA", 
+                      value := "% x and y always integers" ), 
+                  rec( lvar := 4, 
+                      rhs := 
+                        rec( 
+                          left := 
+                            rec( lvar := 4, type := "EXPR_REF_LVAR" ), 
+                          right := 
+                            rec( 
+                              args := 
+                                [ 
+                                  rec( lvar := 2, 
+                                      type := "EXPR_REF_LVAR" ), 
+                                  rec( lvar := 3, 
+                                      type := "EXPR_REF_LVAR" ) ], 
+                              funcref := 
+                                rec( gvar := "Gcd", 
+                                  type := "EXPR_REF_GVAR" ), 
+                              type := "EXPR_FUNCCALL_2ARGS" ), 
+                          type := "EXPR_SUM" ), 
+                      type := "STAT_ASS_LVAR" ) ], 
+              collection := 
+                rec( first := rec( type := "EXPR_INT", value := 1 ), 
+                  last := rec( lvar := 1, type := "EXPR_REF_LVAR" ), 
+                  type := "EXPR_RANGE" ), type := "STAT_FOR_RANGE2", 
+              variable := rec( lvar := 5, type := "EXPR_REF_LVAR" ) ), 
+          rec( obj := rec( lvar := 4, type := "EXPR_REF_LVAR" ), 
+              type := "STAT_RETURN_OBJ" ) ], type := "STAT_SEQ_STAT3" )
+    , type := "EXPR_FUNC", variadic := false )
+\end{verbatim}
+\end{Small}
+
+All of the necessary information is here for a simple \GAP program to
+locate the pragma and using the information in it, replace the general
+function \verb|Gcd| by the specialised \verb|GcdInt| statically.
+Doing this by hand for the moment, we get:
+\begin{verbatim}
+gap> u := StructuralCopy(t);;
+gap> u.stats.statements[2].body[1].value := "% Gcd specialised to GcdInt";;
+gap> u.stats.statements[2].body[2].rhs.right.funcref.gvar := "GcdInt";;
+gap> bar := SYNTAX_TREE_CODE(u);;
+\end{verbatim}
+
+automatically producing a new function which prints as
+
+\begin{verbatim}
+gap> Print(bar);
+function ( n, x, y )
+    local z, i;
+    z := 0;
+    for i in [ 1 .. n ] do
+        #% Gcd specialised to GcdInt
+        z := z + GcdInt( x, y );
+    od;
+    return z;
+end
+\end{verbatim}
+
+which executes approximately five times faster than \verb|foo|:
+\begin{verbatim}
+gap> foo(10^7, 102334155, 165580141);; time
+2245
+gap> bar(10^7, 102334155, 165580141);; time;
+424
+\end{verbatim}
+
+\textbf{Note:} It is important to understand that this is \emph{not} a
+source code level transformation. Automated transformation tools built
+on this foundation do
+not need to parse or emit \GAP syntax, and all questions of scope,
+including bindings in closures, are already resolved. A small planned
+extension will add profiling information to the syntaxtree when available.
+
+Other applications for this technology include automated
+parallelisation (in combination with \HPCGAP) and traditional code optimisations.
+
+While we would have prefered to have had more time to exploit these
+facilities within the project, it was important to achieve consensus
+around a solution that fit the needs of \GAP and its community and
+will provide a basis for developments for years to come.
 
 \section{High-performance computing with \GAP}\label{hpc}
 
@@ -736,6 +890,8 @@ one of a fixed-size pool of worker threads. Typically the calling
 process will start a number of tasks and then wait for some or all
 of them to complete.  Supporting these models efficiently required considerable work on
 the \GAP interpreter, but was otherwise straightforward.
+
+\TODO{Very brief overview of the full set of features provided in \HPCGAP}
 
 One of the main challenges in \HPCGAP, however, is that the \GAP
 library makes very extensive use of shared global data, which is
@@ -829,7 +985,8 @@ needed. The unit (Gfop/s) is billions of field operations per second.
   \begin{longtable}{|c|c|c|c|c|}
 \caption[]{Performance of existing \GAP code}\label{fig:matmult:gap}\\
     \hline
-    $q$&Dim.&cpu (s)&wall (s) &throughput (Gfop/s)\\
+    $q$&Dim.&cpu (s)&wall (s) &throughput\\
+    &&&& (Gfop/s)\\
     \hline
     \endhead
     \hline
@@ -901,7 +1058,8 @@ needed. The unit (Gfop/s) is billions of field operations per second.
   \begin{longtable}{|c|c|c|c|c|}
     \caption[]{Performance of Meataxe64 on one core}\label{fig:matmult:mtx64}\\
     \hline
-    $q$&Dim.&cpu (s)&wall (s) &throughput (Gfop/s)\\
+    $q$&Dim.&cpu (s)&wall (s) &throughput\\
+    &&&&(Gfop/s)\\
     \hline
     \endhead
     \hline
@@ -963,7 +1121,8 @@ needed. The unit (Gfop/s) is billions of field operations per second.
   \begin{longtable}{|c|c|c|c|c|}
     \caption[]{Performance of Meataxe64 on 64 cores}\label{fig:matmult:par}\\
     \hline
-    $q$&Dim.&cpu (s)&wall (s) &throughput (Gfop/s)\\
+    $q$&Dim.&cpu (s)&wall (s) &throughput\\
+    &&&&(Gfop/s)\\
     \hline
     \endhead
     \hline
@@ -1412,7 +1571,7 @@ November 4.7.9 to 196 in June 2019.
     \centering
     \includegraphics[width=\textwidth]{images/gap-package-tests}
     \caption{Number of \GAP packages, their authors, and packages with tests.}
-    \label{fig:gap-package-tests}
+<    \label{fig:gap-package-tests}
 \end{figure}
 
 Over the same time, not only package releases became more frequent, but also their quality
