@@ -96,7 +96,7 @@ This task was addressed in the first reporting period.
 
 \subparagraph{\longtaskref{dksbases}{data-foundationCAS}}
 \label{dksbases@data-foundationCAS}
-This task was addressed in the first reporting period.
+This task was addressed in the first reporting period. 
 %In the course of the deliberations in the \WPref{dksbases} workshops we saw a shift from the development of computational foundations and verification towards API/Interface function specifications to enable semantic system interoperability via the Math-in-the-Middle (MitM) Ontology.
 %Consequently, emphasis has changed to the generation of system API theories for \GAP, \Sage, \Singular, and \LMFDB, which act as OpenMath content dictionaries.
 %The computational foundations exist but are rather more simple than originally anticipated.
@@ -111,18 +111,7 @@ This task was addressed in the first reporting period.
 
 \subparagraph{\longtaskref{dksbases}{research-categories}}
 \label{dksbases@data-research-categories}
-
-\begin{oldpart}{this is the text from TR 2, update by FAU needed}
-The MitM architecture developed in \WPref{dksbases} has given important impulses to make the code infrastructure of \Sage and \GAP more declarative (knowledge-based).
-In \Sage, the category infrastructure was validated (it seems to be the right level of abstraction to generate API theories) and extended; we explore ways to enrich it with additional semantic
-trough the use of annotations, to maximize the chance of
-them being accepted and adopted by the Sage community.
-
-In \GAP, the facilities for ``constructors'' was reformed, extended by an infrastructure for documentation and static typing/type analysis, and the code base refactored for over 2000 constructors.
-Similarly, the online documentation subsystem for \GAP has been regularized and synchronized with the constructor level.
-Already at this early stage of the task the new ``knowledge-based perspective'' has revealed a plethora of errors and inefficiencies and has contributed to the code quality in both systems.
-\end{oldpart}
-\medskip
+This task was addressed in the second reporting period. In this period, the infrastructure has matured and been extended with a data component \dmh.
 
 \subparagraph{\longtaskref{dksbases}{data-OEIS}}
 \label{dksbases@data-OEIS}
@@ -148,13 +137,10 @@ This task was addressed in the second reporting period.
 
 \subparagraph{\longtaskref{dksbases}{data-LMFDB}}
 \label{dksbases@data-LMFDB}
-
-\begin{oldpart}{this is the text from TR 2, update by FAU needed}
-Work on this task has started. Given the concept of virtual theories developed in \localtaskref{dksbases}{data-triform} the task is to build a database connector that converts the MongoDB tables in LMFDB into ``mathematical objects''.
-We have identified the problems -- e.g. that objects are reduced to ad-hoc database records: for instance elliptic curves are represented as a quadruple of integers, where the last is represented as a string of digits as the range of MongoDB integers is too small.
-We have developed an architecture of language-specific Codecs which mitigate these problems in a knowledge-centered way (Codecs are OMDoc/MMT objects) that interpret database records as OMDoc/MMT objects and can thus be used populate virtual theories.
-The next step is to extend the existing MMT query language by a query compiler into the underlying data store system; concretely to MongoDB underlying LMFDB for \localtaskref{dksbases}{data-LMFDB}.
-\end{oldpart}
+Work on this task has already started in the second report period. There we had used the concept of virtual theories developed in \localtaskref{dksbases}{data-triform} to MitM-integrate (parts of) the LMFDB and make it interoperable as a VRE component.
+During this it became apparent that to achieve a meaningful interoperability (I), we have to deeply model the mathematical objects in math-aware representations (above).
+This prompted us to refocus on an integration into the \pn VRE toolkit at the dataset level, not at the level of systems like OEIS, FindStat, or LMFDB.
+Indeed, LMFDB is itself a collection of over 80 datasets.\ednote{MK: write more about the \dmh}
 \medskip
 
 \subparagraph{\longtaskref{dksbases}{data-memo}}
@@ -166,18 +152,23 @@ We report on this task in detail in \delivref{dksbases}{persistent-memoization}.
 \medskip
 
 \subparagraph{\longtaskref{dksbases}{mws}}
-\begin{oldpart}{this is the text from TR 2, update by FAU needed}
-Work on the first work phase has proceeded as planned and has culminated in \longdelivref{dksbases}{mws}.
-The second work phase on this task presupposes the Math-in-the-Middle ontology (as we call it now.)
-Where we already have that, e.g. for the OEIS (see \localtaskref{dksbases}{data-OEIS}) we already have a running search engine.
-The main problem here is to devise intuitive query interfaces and integrate them into the \pn VRE framework.
-\end{oldpart}
+This task runs over the whole length of the \pn project. The third reporting period with its refined model of the semantic level of mathematical VRE components has given us a new view on the \taskref{dksbases}{mws} as well.
 
-We report on this task in detail in \delivref{dksbases}{nbad-search}.
+Generally, search is one of the FAIR principles of research data (F) and adapting it to mathematical data/knowledge/software has been one of the central topics in \WPref{dksbases} (and \WPref{UI}). In the grant proposal we had concentrated on formula- and full-text search, but our deeper understanding of the categories of mathematical data (see ~\cite{ODK-D6.10}) developed during the \pn project showed that for mathematical semantic search we need to take the kind of data into account better.
+\begin{compactitem}
+\item For \textbf{symbolic data} (see Figure~\ref{fig:tetrapod}), formula search as reported on in \cite{ODK-D6.1} is sufficient as long as theory/context aspect (a form of \textbf{organization}) is included. For this, we have pioneered an export of the knowledge base of the Isabelle system (and others) into RDF triples so that they can be searched via SPARQL queries. See our description of the new \taskref{dksbases}{isabelle} below for details.
+\item In \textbf{narrative data}, we need to add full-text search capabilities; this has been addressed in the first reporting period -- see \cite{ODK-D6.1} again.
+\item For \textbf{tabulated data}, we need a mathematical query language in which users can express information needs at the mathematical level, and which can be compiled into e.g. SQL queries at the database level.
+  This has been pioneered in the second reporting period, but has greatly matured, integrated into the new \dmh system, and extended by an user interface generation system in the third reporting period.
+\item For \textbf{computational data}, i.e. mathematical software,  there are two options: we can search source code, or we can search the mathematical artefacts in the programs.
+  As source code search is already provided by repository hosting systems like GitHub or GitLab we have concentrated on the latter.
+  Concretely, we harvest mathematical formulae from Jupyter notebooks, index them in the MathWebSearch engine, and provide a specialized user interface.
+  The main technical development has been to make the MathWebSearch engine -- which had been mostly experimental -- more deployable and manageable so that it can be used as a VRE component and that such an integration into the \pn VRE toolkit can be executed without developing instance-specific code. 
+\end{compactitem}
+We have reported on all the aspects of this task in detail in \cite{ODK-D6.10}.
 \medskip
 
 \subparagraph{\longtaskref{dksbases}{isabelle}}
-\begin{newpart}{FR: adapted from the deliverable}
 For many decades, the development of a universal database of all mathematical knowledge, as envisioned, e.g., in the QED manifesto \cite{qed}, has been a major driving force of computer mathematics.
 Today a variety of such libraries are available.
 These are most prominently developed in proof assistants such as Coq \cite{coq} or Isabelle \cite{isabelle} and are treasure troves of detailed mathematical knowledge.
@@ -188,7 +179,6 @@ Concretely, we have built an exporter from the Isabelle Theorem prover library (
 This exporter is now part of the latest releases of both Isabelle and MMT, and the exported data is available online.
 
 We report on this task in detail in \delivref{dksbases}{nbad-search}.
-\end{newpart}
 
 
 %%% Local Variables:
@@ -198,4 +188,4 @@ We report on this task in detail in \delivref{dksbases}{nbad-search}.
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  subsubsection dksbases ystok WPref compactitem emph DehKohKon:iop16 textbf taskref longdelivref lfmverif triformal formalized biformal HorRoz:ossp09 medskip longmilestoneref dksbases-interop1 dksbases-interop2 characterized WieKohRab:vtuimkb17 psfoundation delivref KohMuePfe:kbimss17 regularized synchronized ldots interpunctuation compactenum mws KohMuePfe:kbimss17,WieKohRab:vtuimkb17 CreLow:mdcmds18 jupyter-import Jupyter MitM-based Jupyter Cernay Cernay tetrapodal organization CarFarKohRab:bmobb19 losslessly dmh BerKohRab:tumdi19,ODK-D6.10 MitM-integrate oldpart dksbases@data-findstat ednote nbad-search newpart
+%  LocalWords:  subsubsection dksbases ystok WPref compactitem emph DehKohKon:iop16 textbf taskref longdelivref lfmverif triformal formalized biformal HorRoz:ossp09 medskip longmilestoneref dksbases-interop1 dksbases-interop2 characterized WieKohRab:vtuimkb17 psfoundation delivref KohMuePfe:kbimss17 regularized synchronized ldots interpunctuation compactenum mws KohMuePfe:kbimss17,WieKohRab:vtuimkb17 CreLow:mdcmds18 jupyter-import Jupyter MitM-based Jupyter Cernay Cernay tetrapodal organization CarFarKohRab:bmobb19 losslessly dmh BerKohRab:tumdi19,ODK-D6.10 MitM-integrate oldpart dksbases@data-findstat ednote nbad-search newpart specialized
