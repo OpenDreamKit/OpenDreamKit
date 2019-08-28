@@ -1033,7 +1033,7 @@ and technical support will be described in D2.15 (check that)}
 \subsection{Regression testing}\label{testing}
 
 \emph{Regression testing} is a software engineering technique which
-checks (preferably in some automated way)
+checks (preferably in an automated way)
 that new changes do not break functionality that 
 worked previously. If a change breaks a test, that is 
 a \emph{regression}. In \GAP, regressions may occur
@@ -1042,14 +1042,66 @@ message; in addition, there may be \emph{performance regressions}
 and \emph{memory regressions} where a test becomes slower, or uses
 much more memory after a change.
 
-%% GAP regression testing uses \emph{integration tests} - these are
-%% the tests when different parts of the \GAP functionality are 
-%% exercised in the same \GAP session (opposite to \emph{unit tests}
-%% which exercise each logical unit of the code separately, but do
-%% not necessarily test interactions between them).\comment{Is this true?
-%%   -- all tests are with an integrated system, but increasingly, each
-%%   test covers narrow functionality}
-%%  SL -- note sure this adds anything.
+Regression testing has been embedded into all the \GAP developments
+from the very beginning of the project, being based on the existing
+practices used by the \GAP project in one or another form since 1980s,
+and automated in the first half of the current decade by 
+using the \href{https://jenkins.io/}{\sf Jenkins} system installation
+at USTAN to regularly run \GAP testsuite for the \GAP development 
+version and release candidates.
+{\sf Jenkins} can keep and archive of test logs, and notify
+developers when tests fail; however, the biggest limitation of our setup are that
+it is not public and can be accessed only within St Andrews. 
+\GAP developers came to an understanding 
+that one of the limiting factors (not only for the testing, but for
+the \GAP development in general) was that while \GAP is an open source 
+software, it does not follow an open development model and does not
+have a public source code repository, and just before the start of
+the project established a public source code repository for \GAP
+on GitHub at \url{https://github.com/gap-system/gap}. 
+
+In the duration of the OpenDreamKit project we, together with other
+contributors to the \GAP project, consolidated \GAP development 
+around GitHub and its tool ecosystem.
+Hosting GAP repository on GitHub and eventual establishing of a number
+of other repositories under the gap-system and gap-packages 
+organisations (\url{https://github.com/gap-system} and 
+\url{https://github.com/gap-packages}), and encouraging package authors 
+to follow the same practices (see \url{https://gap-packages.github.io/})
+to find some further packages that are having public source code 
+repositories elsewhere) allowed us to bring our regression testing
+up to the next level.
+
+\TODO{maybe mention that we can break out onto GitLab if GitHub
+changes in some unacceptable way} 
+
+We made use of \href{https://travis-ci.org/}{Travis CI} and
+\href{https://www.appveyor.com/}{AppVeyor} which are 
+free (for open source projects) continuous integration platforms 
+that can be used to build and test software projects hosted at GitHub.
+\emph{Continuous Integration}, usually abbreviated as {\bf CI} is the process
+automated building and testing for every performed or suggested changes to 
+the source code repository. Using Travis and AppVeyor, one can test changes proposed
+in a pull request \emph{before} they are merged into the main repository.
+At the moment, we use Travis CI for tests on Linux and macOS, and 
+AppVeyor for tests on Windows.
+
+In addition to that, we started to use \href{https://codecov.io/}{Codecov}
+platform to collect \emph{code coverage} reports for GAP to ensure that our
+regression tests exercise GAP codebase at an acceptable level, and then
+the changes which are submitted via pull request are actually being tested
+by Travis CI. Making these results easily obtainable and publicly available
+had a great effect on the community. Adding new tests to improve code coverage
+is a useful task for new contributors to familiarise themselves with the
+project setup. Making coverage reports available for each pull requests
+facilitates checking code coverage during code review and
+encourages their authors to ensure that their contributions have a good
+quality and their suggested changes are actually being tested. 
+\TODO{Can we back this claim up with numbers? AK: One can explore code coverage for merged pull requests at
+\url{https://codecov.io/gh/gap-system/gap/pulls}, we could add a
+screenshot to illustrate it. Reliable numbers are harder by a number of reasons.}
+
+\TODO{Perhaps move the table with the number of lines in tests here?}
 The \GAP test
 suite for the core system consists of a total of 707 test files at the time of writing
 totalling over $60\,000$ lines,
@@ -1082,99 +1134,6 @@ use a similar approach to testing and to provide their own regression
 tests. Many do, adding, in total over a quarter of a million lines of
 further tests.
 
-For packages redistributed with \GAP, our automatic package update system
-checks regularly for new versions on the authors web pages, retrieves them, and then uses them in a
-number of checks to ensure that new package releases are compatible with
-each other and do not break the functionality of the core \GAP system. The
-same process also helps us to check that changes in the core \GAP system
-do not break the functionality of the packages redistributed with \GAP.
-%% (provided those packages have standard tests that allow us to do that
-%% automatically)
-This system has dramatically simplified the process of making a \GAP
-release or update, for which we want a mutually compatible set of
-package versions, also compatible with the new core system. This used
-to require extensive negotiation with package authors, and sometimes
-took months, even though the number of packages was much smaller. Now
-developers have continuous visibility of the functionality and
-compatibility of released and upcoming versions of packages and of the
-core system, and releases are much faster.
-
-\comment{Tenses in the next para are confused. This is all past, I
-  think, and is also maybe a bit too much about stuff that happened
-  before the project, before we get to anything new. Can we start by
-  saying what new developments we are claiming, and then go back and
-  explain what didn't work before?}
-\comment{Also maybe a subheading of some kind here}
-\GAP has used regression tests in one or another form since the
-release of version 3 in the 1980s. For much of this time, they were
-run by developers manually, and a part of the
-release preparation was sending an email to the \GAP developers mailing
-list asking for help with running a set of tests on developers' 
-computers. Since 2009, the \GAP team in St Andrews started to use the Jenkins
-(\url{https://jenkins.io/}) automation system to regularly run the 
-GAP testsuite, and eventually established a set of nightly and weekly
-running Jenkins jobs to run tests for the current \GAP development
-version; check for package updates; prepare and test release candidates,
-and other tasks. The system can keep and archive of test logs, and notify
-developers when tests fail; however, the biggest limitations are that
-it is not public and can be accessed only within St Andrews, and that 
-it runs tests for changes that are \emph{already} in the development
-version of \GAP, instead of checking them in advance. We understood
-that one of the limiting factors (not only for the testing, but for
-the \GAP development in general is that while \GAP is an open source 
-software, it does not follow an open development model and does not
-have a public source code repository. 
-
-
-%See https://blogs.cs.st-andrews.ac.uk/alexk/2016/03/07/gap-on-github-one-year-on/
-Of course, \GAP is not new to version control, and the former
-CVS repository for \GAP 4 has revisions from 1996. In summer 2012 it
-had been converted to Mercurial (thanks to Max Horn) after the release 
-of \GAP 4.5, and then in February 2015 the Mercurial repository had 
-been converted to Git (thanks to Chris Jefferson) and placed on GitHub
-at \url{https://github.com/gap-system/gap}.
-
-\comment{So the move to GitHub was just before the start of the
-  project. So I guess our claim in this report is that we have
-  consolidated \GAP development around GitHub and its tool ecosystem
-  (maybe mention that we can break out onto GitLab if GitHub goes
-  phut). I'd start with that.}
-  
-Hosting GAP repository on GitHub and eventual establishing of a number
-of other repositories under the gap-system and gap-packages 
-organisations (\url{https://github.com/gap-system} and 
-\url{https://github.com/gap-packages}), and encouraging package authors 
-to follow the same practices (see \url{https://gap-packages.github.io/})
-to find some further packages that are having public source code 
-repositories elsewhere) allowed us to bring our regression testing
-up to the next level.
-
-We made use of \href{https://travis-ci.org/}{Travis CI} and
-\href{https://www.appveyor.com/}{AppVeyor} which are 
-free (for open source projects) continuous integration platforms 
-that can be used to build and test software projects hosted at GitHub.
-\emph{Continuous Integration}, usually abbreviated as {\bf CI} is the process
-automated building and testing for every performed or suggested changes to 
-the source code repository. Using Travis and AppVeyor, one can test changes proposed
-in a pull request \emph{before} they are merged into the main repository.
-At the moment, we use Travis CI for tests on Linux and macOS, and 
-AppVeyor for tests on Windows.
-
-In addition to that, we started to use \href{https://codecov.io/}{Codecov}
-platform to collect \emph{code coverage} reports for GAP to ensure that our
-regression tests exercise GAP codebase at an acceptable level, and then
-the changes which are submitted via pull request are actually being tested
-by Travis CI. Making these results easily obtainable and publicly available
-had a great effect on the community. Adding new tests to improve code coverage
-is a useful task for new contributors to familiarise themselves with the
-project setup. Making coverage reports available for each pull requests
-facilitates checking code coverage during code review and
-encourages their authors to ensure that their contributions have a good
-quality and their suggested changes are actually being tested. 
-\TODO{Can we back this claim up with numbers? AK: One can explore code coverage for merged pull requests at
-\url{https://codecov.io/gh/gap-system/gap/pulls}, we could add a
-screenshot to illustrate it. Reliable numbers are harder by a number of reasons.}
-
 A crucial role in these developments was played by the enhanced
 profiling facilities discussed 
 in Subsection~\ref{gap-4.8}. 
@@ -1190,7 +1149,8 @@ by a better detection of the test outcomes. % the logic seems backwards here. Be
 % itself, and improve it - for example, by adding progress indicators,
 % report time spent on GC and memory used, etc.
 
-\TODO{We need to get to this point much sooner}
+\TODO{We need to get to this point much sooner. AK: reduced the 
+above test by half a page so far}
 
 Figure~\ref{fig:gap-core-tests} displays a part of the dashboard
 available at \url{https://github.com/gap-system/gap-distribution/}.
@@ -1231,6 +1191,7 @@ reproducible experiments (see Section~\ref{demos}), to ways to speed up regressi
 container-based tests on Travis CI. These containers are publicly available on Docker Hub
 (see Figure~\ref{fig:gap-docker}).
 \comment{The Docker stuff might deserve to be its own section}
+\TODO{Refer to deliverable where Docker was previously reported}
 
 \begin{figure}[!ht]
     \centering
@@ -1472,6 +1433,25 @@ and fail for 12.
 (it may be worth to note what "fail" means - not serious bugs
 but different output, or incompatibility with some other package
 not loaded by default).
+
+\TODO{find a place for this, copied from previos section}
+For packages redistributed with \GAP, our automatic package update system
+checks regularly for new versions on the authors web pages, retrieves them, and then uses them in a
+number of checks to ensure that new package releases are compatible with
+each other and do not break the functionality of the core \GAP system. The
+same process also helps us to check that changes in the core \GAP system
+do not break the functionality of the packages redistributed with \GAP.
+%% (provided those packages have standard tests that allow us to do that
+%% automatically)
+This system has dramatically simplified the process of making a \GAP
+release or update, for which we want a mutually compatible set of
+package versions, also compatible with the new core system. This used
+to require extensive negotiation with package authors, and sometimes
+took months, even though the number of packages was much smaller. Now
+developers have continuous visibility of the functionality and
+compatibility of released and upcoming versions of packages and of the
+core system, and releases are much faster.
+
 
 \subsection{\GAP package manager}\label{pkg-manager}
 
