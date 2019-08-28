@@ -7,4 +7,4 @@ set key top left
 
 set terminal pdf enhanced color
 set output "fgemm_GPUvsCPU.pdf"
-plot "fgemm_gpu.data"  using 8:4 title 'FFLAS with CUBLAS (GPU)' with lines lw 1, "" using 8:4 title 'FFLAS with OpenBLAS (CPU)' with lines lw 1,
+plot "fgemm_gpu.data"  using 8:4 title 'FFLAS with CUBLAS (GPU)' with linespoints lw 1, "fgemm_cpu.data" using 8:4 title 'FFLAS with OpenBLAS (CPU)' with linespoints lw 1,
