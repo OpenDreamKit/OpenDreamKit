@@ -25,18 +25,18 @@ term 2 & $5$ & $(1,2,3)$\\
 term 3 & $6$ & $(0,1,2)$
 \end{tabular},
 \end{center}
-where each term is essentially a coefficient together with an exponent tuple. This format is optimized for Gr\"obner basis calculations in algebraic geometry. However, because the terms themselves are stored in a link list, the \textsc{Singular} format is unsuitable for the arithmetic operations of multiplication, division, and greatest common divisor (GCD). For this reason \textsc{Singular} currently relies on the library \textsc{Factory} \cite{Factory} for these arithmetic operations. Since the recursive representation in \textsc{Factory} is also not particularly well suited to parallelization, we have implemented for this deliverable \textsc{Singular}'s original sparse distributed format in the library \textsc{Flint} \cite{Hart2010} using arrays for the storage of terms. The usage of arrays means that the user has random access to the terms of their polynomials, and this is also crucial for parallel arithmetic operations.
+where each term is essentially a coefficient together with an exponent tuple. This format is optimized for Gr\"obner basis calculations in algebraic geometry. However, because the terms themselves are stored in a link list, the \textsc{Singular} format is unsuitable for the arithmetic operations of multiplication, division, and greatest common divisor (GCD). For this reason \textsc{Singular} currently relies on the library \textsc{Factory} \cite{Factory} for these arithmetic operations. \textsc{Factory} is a self-contained {\tt c++} library for polynomial arithmetic that has been developed as part of \textsc{Singular}. Since the recursive representation in \textsc{Factory} is also not particularly well suited to parallelization, we have implemented for this deliverable \textsc{Singular}'s original sparse distributed format in the library \textsc{Flint} \cite{Hart2010}. \textsc{Flint} is a {\tt c} library implementing basic arithmetic operations over a variety of coefficient domains and is already in direct use by \Sage for rational matrices and univariate polynomials. The implementation in \textsc{Flint} using arrays, which means that the user has random access to the terms of their polynomials, and this is crucial for our parallel arithmetic operations.
 
-The inclusion of \textsc{Flint} multivariable polynomial arithmetic has improved the single core performance of \textsc{Singular} on our set of benchmark problems by one to several orders of magnitude. \textsc{Singular} is one of the software components of \Sage used for multivariate arithmetic, so the users of \Sage will benefit seemlessly when the \textsc{Singular} version is updated. Since the \textsc{Flint} library itself is useful outside of \textsc{Singular}, we present the timings for the basic arithmetic operation in \textsc{Flint} as well as the timing of the operation in the new version of \textsc{Singular}, which includes all conversion and cleanup costs associated with \textsc{Singular}. As \textsc{Singular}'s main usage is as a Gr\"obner basis engine, it does not make sense to try to rewrite the polynomial format used natively by \text{Singular}. Instead, the conversion cost should be viewed simply as the time need to convert polynomials to formats optimized for different purposes.
+The inclusion of \textsc{Flint} multivariate polynomial arithmetic has improved the single core performance of \textsc{Singular} on our set of benchmark problems by one to several orders of magnitude. \textsc{Singular} is one of the software components of \Sage used for multivariate arithmetic, so the users of \Sage will benefit seamlessly when the \textsc{Singular} version is updated. Since the \textsc{Flint} library itself is useful outside of \textsc{Singular}, we present the timings for the basic arithmetic operation in \textsc{Flint} as well as the timing of the operation in the new version of \textsc{Singular}, which includes all conversion and clean-up costs associated with \textsc{Singular}. As \textsc{Singular}'s main usage is as a Gr\"obner basis engine, it does not make sense to try to rewrite the polynomial format used natively by \text{Singular}. Instead, the conversion cost should be viewed simply as the time need to convert polynomials to formats optimized for different purposes.
 
 \section{Details of the systems}
-Besides the three monomial orders \emph{lexicographic}, \emph{graded lexicographic} and \emph{graded reverse lexicographic} used commonly in \textsc{Singular}, \textsc{Flint} supports polynomials with exponents of unlimited size. Since \textsc{Singular} has a fixed and limited size on the exponents this second feature is somewhat moot for \textsc{Singular} users. About two years into this project we had to redesign the fundamentals of the multivariate polynomials in \textsc{Flint} to acheive the desired flexibility and performance. By the end of the next two years more than $100,000$ aditional lines of code dedicated to multivariate arithmetic had been added. This includes many redesigns as bottlenecks were discovered and implementations were redone.
+Besides the three monomial orders \emph{lexicographic}, \emph{graded lexicographic} and \emph{graded reverse lexicographic} used commonly in \textsc{Singular}, \textsc{Flint} supports polynomials with exponents of unlimited size. Since \textsc{Singular} has a fixed and limited size on the exponents this second feature is somewhat moot for \textsc{Singular} users. About two years into this project we had to redesign the fundamentals of the multivariate polynomials in \textsc{Flint} to achieve the desired flexibility and performance. By the end of the next two years more than $100,000$ additional lines of code dedicated to multivariate arithmetic had been added. This includes many redesigns as bottlenecks were discovered and implementations were redone.
 
-We run our benchmarks marks on the server {\tt nenepapa}, which has two sixteen core Intel Xeon E5-2697A v4 processors at $2.6$ GHz and $700$GB of memory. We show the timing of the basic operation in \textsc{FLINT} in the column labeled ``flint'', and the timing of the new version of \textsc{Singular} is in the column ``sing''. At the time of running these benchmarks, {\tt nenepapa} was also running two instances of long outstanding calculations. This seemed to only slightly negatively affect the timings on $32$ threads. 
+We run our benchmarks marks on the server {\tt nenepapa}, which has two sixteen core Intel Xeon E5-2697A v4 processors at $2.6$ GHz and $700$GB of memory. We show the timing of the basic operation in \textsc{FLINT} in the column labelled ``flint'', and the timing of the new version of \textsc{Singular} is in the column ``sing''. At the time of running these benchmarks, {\tt nenepapa} was also running two instances of long outstanding calculations. This seemed to only slightly negatively affect the timings on $32$ threads. 
 
 The largest characteristic $p$ supported by \textsc{Singular} for arithmetic over finite fields is $p = 2^{29}-3$, and this is the prime we use to test arithmetic over $\mathbb{Z}/p \mathbb{Z}$. Both \textsc{Flint} and \textsc{Singular} use the \textsc{GMP} library for elements of $\mathbb{Z}$ with a special representation for integers less than $2^{62}$ ($2^{61}$ for \textsc{Singular}) in absolute value; small integers and elements of $\mathbb{Z}/p \mathbb{Z}$ both take one word of memory while large integers are managed by \textsc{GMP}. All times are reported in seconds.
 
-Since these benchmarks deal with polynomials whose sizes are comparable to the total running time of the calculation, it is necessary to parallelize the conversion between \textsc{Flint} and \textsc{Singular}. This is a rather disappointing task as one direction is limited by the scaling of {\tt malloc} and the other direction is limited by \textsc{Singular}'s inherently serial data structure; the time to simply traverse \textsc{Singular}'s link list can be comparable to the time to do the threaded calculation in \textsc{Flint}. We encountered several performance quirks of {\tt malloc} on {\tt nenepapa}, which is running Gentoo Linux. The most noticable of these was that, when constructing polynomials in \textsc{Singular}, the throughput of the {\tt malloc} provided by the system only starts to scale past $3$ or $4$ threads. Other implementations of malloc such as {\tt tcmalloc} did not have this quirk, but had overall higher times on $16$ threads. Therefore, we simply run all of our benchmarks with the system's default {\tt malloc}. In order to use our parallel conversion routines, the default allocator {\tt omalloc} of \textsc{Singular} must be disabled with the configuration option {\tt --disable-omalloc} as {\tt omalloc} is a special purpose allocator that is not thread safe. Since this slows down the rest of \textsc{Singular} by about a factor of two, it may not be advantagous to disable {\tt omalloc} in practice. Nevertheless, we have disabled this to test the efficacy of the parallel conversion routines. 
+Since these benchmarks deal with polynomials whose sizes are comparable to the total running time of the calculation, it is necessary to parallelize the conversion between \textsc{Flint} and \textsc{Singular}. This is a rather disappointing task as one direction is limited by the scaling of {\tt malloc} and the other direction is limited by \textsc{Singular}'s inherently serial data structure; the time to simply traverse \textsc{Singular}'s link list can be comparable to the time to do the threaded calculation in \textsc{Flint}. We encountered several performance quirks of {\tt malloc} on {\tt nenepapa}, which is running Gentoo Linux. The most noticeable of these was that, when constructing polynomials in \textsc{Singular}, the throughput of the {\tt malloc} provided by the system only starts to scale past $3$ or $4$ threads. Other implementations of {\tt malloc} such as {\tt tcmalloc} did not have this quirk, but had overall higher times on $16$ threads. Therefore, we simply run all of our benchmarks with the system's default {\tt malloc}. In order to use parallel conversion routines, the default allocator {\tt omalloc} of \textsc{Singular} must be disabled with the configuration option {\tt --disable-omalloc} as {\tt omalloc} is a special-purpose allocator that is not thread safe. Since this slows down the rest of \textsc{Singular} by about a factor of two, it may not be advantageous to disable {\tt omalloc} in practice. Nevertheless, we have disabled this to test the efficacy of the parallel conversion routines. 
 
 We defined the efficiency on $n$ threads as
 \begin{equation*}
@@ -50,7 +50,7 @@ Parallel multiplication has been investigated previously in \cite{Monagan:2009:P
 \begin{equation*}
 (1+x+y+2z^2+3t^3+5u^5)^m \cdot (1+u+t+2z^2+3y^3+5x^5)^n
 \end{equation*}
-for $m=n=16$, where the product is already quite large with $28$ million terms. As shown in \cite{Monagan:2009:PSP:1576702.1576739}, it is difficult to obtain a good speed up on this example. The reason for this is that the inputs each have only $20$ thousand terms, so the majority of the time is spent writing down the answer, where only $14$ additions are done per term on average. Table \ref{table_sparse_mul1} shows the timings with $16$ threads. The poor scaling of the \textsc{Singular} times over $\mathbb{Z}$ can be explained easily: Besides testing the multiplication in \textsc{Flint}, this benchmark tests the creation of large polynomials in \textsc{Singular}, which is a task bounded by the scaling of {\tt malloc}. In addition to having larger cleanup costs, the benchmark over $\mathbb{Z}$ puts three times as much pressure on {\tt malloc} as it does over $\mathbb{Z}/p\mathbb{Z}$.
+for $m=n=16$, where the product is already quite large with $28$ million terms. As shown in \cite{Monagan:2009:PSP:1576702.1576739}, it is difficult to obtain a good speed up on this example. The reason for this is that the inputs each have only $20$ thousand terms, so the majority of the time is spent writing down the answer, where only $14$ additions are done per term on average. Table \ref{table_sparse_mul1} shows the timings with $16$ threads. The poor scaling of the \textsc{Singular} times over $\mathbb{Z}$ can be explained easily: Besides testing the multiplication in \textsc{Flint}, this benchmark tests the creation of large polynomials in \textsc{Singular}, which is a task bounded by the scaling of {\tt malloc}. In addition to having larger clean-up costs, the benchmark over $\mathbb{Z}$ puts three times as much pressure on {\tt malloc} as it does over $\mathbb{Z}/p\mathbb{Z}$.
 \begin{table}
 \begin{tabular}{l | r | r | r | r | }
  & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
@@ -95,7 +95,7 @@ $32$  & $4.9$ &  $17.9$  &$2.04$ & $5.12$\\ \hline
 
 \section{Dense Multiplication}
 \label{section_dense_mul}
-When the input polynomials have a density past a certain threashold, it is possible to do better than algorithms based on heaps. For this reason we implemented an approach based on arrays and parallelized it. The approach is suited well to the multiplication in, for example,
+When the input polynomials have a density past a certain threshold, it is possible to do better than algorithms based on heaps. For this reason we implemented an approach based on arrays and parallelized it. The approach is suited well to the multiplication in, for example,
 \begin{equation*}
 (1+x+y+z+t)^m \cdot (1+x+y+z+t)^n\text{,}
 \end{equation*}
@@ -122,8 +122,8 @@ $16$  & $0.34$ & $0.43$ &$0.24$ & $0.26$\\ \hline
 
 \section{Sparse Division}
 For this benchmark we simply divide the product in Section \ref{section_sparse_mul} by the divisor $(1+u+t+2z^2+3y^3+5x^5)^n$.
-It is important to note that we are in fact computing two things: (1) whether the dividend is divisible by the divisor and (2) the quotient if it is. As with sparse multiplication, the approach of Gastineau and Laskar \cite{Gastineau:2015:PSM:2790282.2790285} scales better than the approach of Monagan and Pearce \cite{Monagan:2010:PSP:1837210.1837227}. Division is more difficult to parallelize than multiplication because the algorithm is highly sequential: Most terms in the quotient depend on previous terms in the quotient for their calculation. For this reason, the algorithm requires locks on the generated quotient, and only one thread can be generating quotient terms at a time. We acheive an efficiency of $0.71$ on $16$ threads ($0.78$ for $\mathbb{Z}/p\mathbb{Z}$) as shown in Table \ref{table_sparse_div}.
-Since one of the inputs to the algorithm is large, this tests not only the division in \textsc{Flint} but also the conversion from \textsc{Singular} to \textsc{Flint}. In order to obtain reasonable timings with \textsc{Singular} over $\mathbb{Z}$, it was necessary to force \textsc{Flint} to borrow \textsc{Singular}'s integers. With this optimization the overhead over $\mathbb{Z}$ is much less than the cooresponding overhead in Table \ref{table_sparse_mul1}. However, conversion overhead does not scale well for the following reason: The time to merely traverse Singular's linked list representation of the dividend is about $0.7$ seconds in this benchmark. This operation is necessary to find the polynomial's length, is an inherently serial operation, and consumes all of the conversion overhead over $\mathbb{Z}/p\mathbb{Z}$ on $16$ threads.
+It is important to note that we are in fact computing two things: (1) whether the dividend is divisible by the divisor and (2) the quotient if it is. As with sparse multiplication, the approach of Gastineau and Laskar \cite{Gastineau:2015:PSM:2790282.2790285} scales better than the approach of Monagan and Pearce \cite{Monagan:2010:PSP:1837210.1837227}. Division is more difficult to parallelize than multiplication because the algorithm is highly sequential: Most terms in the quotient depend on previous terms in the quotient for their calculation. For this reason, the algorithm requires locks on the generated quotient, and only one thread can be generating quotient terms at a time. We achieve an efficiency of $0.71$ on $16$ threads ($0.78$ for $\mathbb{Z}/p\mathbb{Z}$) as shown in Table \ref{table_sparse_div}.
+Since one of the inputs to the algorithm is large, this tests not only the division in \textsc{Flint} but also the conversion from \textsc{Singular} to \textsc{Flint}. In order to obtain reasonable timings with \textsc{Singular} over $\mathbb{Z}$, it was necessary to force \textsc{Flint} to borrow \textsc{Singular}'s integers. With this optimization the overhead over $\mathbb{Z}$ is much less than the corresponding overhead in Table \ref{table_sparse_mul1}. However, conversion overhead does not scale well for the following reason: The time to merely traverse \textsc{Singular}'s linked list representation of the dividend is about $0.7$ seconds in this benchmark. This operation is necessary to find the polynomial's length, is an inherently serial operation, and consumes all of the conversion overhead over $\mathbb{Z}/p\mathbb{Z}$ on $16$ threads.
 
 \begin{table}
 \begin{tabular}{l | r | r | r | r | }
@@ -166,31 +166,38 @@ $16$  & $2.03$  & $11.2$ \\ \hline
 \label{table_sparse_gcd}
 \end{table}
 
+\section{Dissemination}
+
+The project has been the subject of an extensive blog \url{http://wbhart.blogspot.com/}. A Jupyter notebook demonstrating our code running is available at \url{https://github.com/tthsqe12/SingularParallelArithmetic}.
 
 \section{Comparisons with other systems}
+\subsection{Giac}
+Giac \cite{Giac} is a computer algebra kernel used in many well-known symbolic systems and calculators. Since we were unable to properly install \textsc{Giac} on our Gentoo server at the time of writing, we will provide updates from the author on the aforementioned blog.
 
 \subsection{Trip}
-\textsc{Trip} \cite{Gastineau:2011:TCA:1940475.1940518} is a system dedicated to computations in celestial mechanics and offers parallel polynomial multiplication over $\mathbb{Z}$ in a variety of polynomial formats. We chose the format that seemed to give the best timings on {\tt nenepapa}. \textsc{Flint} does not require such a choice by the user as the polynomials are presented in a single format to the user and converted internally to the appropriate format. The version of \textsc{Trip} used here (1.6.42, which was current at the time of writing) suffers from poor scalability, and we have been informed by one of it's authors that this is due to its use of the system {\tt malloc}. We unfortunately did not have the chance to test the patched version in time. Therefore, of interest here are actually the single core timings, where \textsc{Trip} is competitive with \textsc{Flint} on the large $(20, 20)$ sparse multiplication. If \textsc{Trip} does scale near perfectly (and we believe it indeed would), it would be equal to \textsc{Flint} on $16$ threads and slighly beating \textsc{Flint} on $32$ threads.
+\textsc{Trip} \cite{Gastineau:2011:TCA:1940475.1940518} is a system dedicated to computations in celestial mechanics and offers parallel polynomial multiplication over $\mathbb{Z}$ in a variety of polynomial formats. We chose the format that seemed to give the best timings on {\tt nenepapa}. The current version 1.6.42 of \textsc{Trip} suffered from poor scalability. One of the authors pointed out that this is due to usage of the system {\tt malloc} and provided us with a patched version of \textsc{Trip} using {\tt jemalloc} and instructions to test it over $\mathbb{Z}/p\mathbb{Z}$ . It is interesting to note that \textsc{Trip} reaches an efficiency of $0.82$ on our largest benchmark for \emph{both} $\mathbb{Z}$ and $\mathbb{Z}/p\mathbb{Z}$, suggesting that it handles integers with slightly better scaling than \textsc{Flint}.
 \begin{table}
-\begin{tabular}{l | r | r | r | }
-& {dense} & \multicolumn{2}{|c|}{sparse} \\ \hline
-\#th  & $(30, 30)$ & $(16, 16)$ & $(20, 20)$\\ \hline
-$1$   & $24.40$ & $21.90$ & $130.00$\\ \hline
-$2$   & $12.30$ & $11.50$ & $67.2$\\ \hline
-$3$   & $8.30$ & $8.02$  & $45.7$\\ \hline
-$4$   & $6.21$ & $6.02$ & $33.4$\\ \hline
-$6$   & $4.24$ & $3.96$ & $22.9$\\ \hline
-$8$   & $3.17$ & $3.29$ & $17.3$\\ \hline
-$10$  & $2.87$ & $2.68$ & $15.5$\\ \hline
-$12$  & $2.47$ & $2.30$ & $12.9$\\ \hline
-$14$  & $2.01$ & $2.07$  & $11.0$\\ \hline
-$16$  & $1.78$ & $1.96$  & $10.1$\\ \hline
-$20$  &  &   & $9.4$\\ \hline
-$24$  &  &   & $9.0$\\ \hline
-$28$  &  &   & $8.9$\\ \hline
-$32$  &  &   & $8.6$\\ \hline
+\begin{tabular}{l | r | r | r | r | r | r | r | r | r |}
+ & \multicolumn{3}{|c|}{\textsc{Trip}} & \multicolumn{6}{|c|}{\textsc{Trip} patched} \\ \hline
+ & {dense} & \multicolumn{2}{|c|}{sparse} & \multicolumn{2}{|c|}{dense} & \multicolumn{4}{|c|}{sparse} \\ \hline
+\#th  & $(30, 30)$ & $(16, 16)$ & $(20, 20)$ & \multicolumn{2}{|c|}{$(30, 30)$} & \multicolumn{2}{|c|}{$(16, 16)$} & \multicolumn{2}{|c|}{$(20, 20)$}\\ \hline
+ & $\mathbb{Z}$ & $\mathbb{Z}$ & $\mathbb{Z}$ & $\mathbb{Z}$ & $\mathbb{Z}/p\mathbb{Z}$ & $\mathbb{Z}$ & $\mathbb{Z}/p\mathbb{Z}$ & $\mathbb{Z}$ & $\mathbb{Z}/p\mathbb{Z}$ \\ \hline
+$1$   & $24.40$ & $21.90$ & $130.00$ &  $25.61$ & $30.55$ & $24.01$ & $27.94$ & $140.10$ & $175.10$\\ \hline
+$2$   & $12.30$ & $11.50$ & $67.2$   &  $12.78$ & $15.31$ & $11.92$ & $14.01$ & $69.86$ & $87.47$\\ \hline
+$3$   & $8.30$ & $8.02$  & $45.7$    &  $8.55$ & $10.21$ & $8.06$ & $9.38$ & $46.74$ & $59.11$\\ \hline
+$4$   & $6.21$ & $6.02$ & $33.4$     &  $6.44$ & $7.65$ & $6.13$ & $7.18$ & $35.24$ & $48.51$\\ \hline
+$6$   & $4.24$ & $3.96$ & $22.9$     &  $4.38$ & $5.21$ & $4.19$ & $5.14$ & $25.02$ & $31.78$\\ \hline
+$8$   & $3.17$ & $3.29$ & $17.3$     &  $3.36$ & $3.97$ & $3.19$ & $3.80$ & $18.70$ & $23.31$\\ \hline
+$10$  & $2.87$ & $2.68$ & $15.5$     &  $2.81$ & $3.17$ & $2.60$ & $3.02$ & $15.06$ & $18.97$\\ \hline
+$12$  & $2.47$ & $2.30$ & $12.9$     &  $2.34$ & $2.86$ & $2.19$ & $2.60$ & $12.62$ & $15.60$\\ \hline
+$14$  & $2.01$ & $2.07$  & $11.0$    &  $1.98$ & $2.50$ & $1.99$ & $2.25$ & $10.80$ & $13.55$\\ \hline
+$16$  & $1.78$ & $1.96$  & $10.1$    &  $1.79$ & $2.08$ & $1.96$ & $2.00$ & $9.72$ & $11.67$\\ \hline
+$20$  &  &   & $9.4$                 &  $1.53$ & $1.80$ & $1.42$ & $1.70$ & $7.98$ & $9.72$\\ \hline
+$24$  &  &   & $9.0$                 &  $1.36$ & $1.52$ & $1.30$ & $1.44$ & $6.72$ & $8.50$\\ \hline
+$28$  &  &   & $8.9$                 &  $1.12$ & $1.35$ & $1.17$ & $1.29$ & $6.01$ & $7.35$\\ \hline
+$32$  &  &   & $8.6$                 &  $1.016$ & $1.075$ & $1.10$ & $1.21$ & $5.36$ & $6.79$\\ \hline
 \end{tabular}
-\caption{Multiplication over $\mathbb{Z}$ in Trip.}
+\caption{Multiplication over $\mathbb{Z}$ and $\mathbb{Z}/p \mathbb{Z}$ in Trip.}
 \label{table_trip}
 \end{table}
 
@@ -243,14 +250,11 @@ for (i = 1; i <= 16; i++) {
 }
 \end{verbatim}
 
-\section{Dissemination}
-
-The project has been the subject of an extensive blog \url{http://wbhart.blogspot.com/}. A Jupyter notebook demonstating our code runing is available ????.
 
 \section{Conclusion and Future work}
 We have successfully sped up multivariate polynomial arithmetic in \textsc{Singular} over the coefficient fields $\mathbb{Q}$ and $\mathbb{Z}/p \mathbb{Z}$ while providing additional speed through the use of thread level parallelism. This was accomplished through a new set of multivariate modules in the library \textsc{Flint}, which can easily be integrated into other systems as well. Multivariate arithmetic is not an embarrassingly parallel problem, and the fastest single core algorithms require complicated data structures with unpredictable memory usage. Our benchmarks indicate that we have not compromised single core performance and have good scaling up to $8$ threads with multiplication scaling well to $16$ threads or even $32$ threads on large problems. Since \textsc{Singular} is available for use through a Jupyter notebook interface, our improvements are available to users of this virtual research environment supported by the \ODK project.
 
-Although outside of the scope of this deliverable, we have started to implement \textsc{Singular}'s multivariate factorization in \textsc{Flint}. This work is far from complete, but initial results are promising. We have also implemented a rational function coefficient domain for \textsc{Singular}, which will use \textsc{Flint} polynomials directly in \textsc{Singular} without incuring any conversion costs.
+Although outside of the scope of this deliverable, we have started to implement \textsc{Singular}'s multivariate factorization in \textsc{Flint}. We have also implemented a rational function coefficient domain for \textsc{Singular}, which will use \textsc{Flint} polynomials directly in \textsc{Singular} without incurring any conversion costs.
 
 \printbibliography
 
