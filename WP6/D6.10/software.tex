@@ -1,38 +1,48 @@
+\def\MWS{\textsf{MathWebSearch}\xspace}
+
 \ednote{TW:  Write a general notebook introduction, cite D4.2, D4.3}
 
 \subsection{Formula Search Engine}
 
-\ednote{TW: 
-    TW: Recycle some existing text from somewhere, spin: MathWebSearch was an experimental tool that required a lot of work to setup per application
-}
+\ednote{TW: Change the spin of this entire section as "demos were held together with a lot of effort and duct tape}
 
-MathWebSearch \ednote{TW: cite} is a search engine enabling semantic formula search. 
-For example, given a query like $a^2 + b^2 = c^2$\ednote{TW: Make formulae red} it will find documents containing $3^2 + 4^2 = 5^2$ or $x^2 + y^2 = z^2$.
-It was originally developed by \ednote{TW:  TODO}. 
+\begin{newpart}{from D6.1}
 
-The MathWebSearch daemon takes in a set of Content MathML\ednote{TW: cite original}-encoded formulae.
-It then builds an index using a technique called Substitution Tree Indexing
-Having generated and loaded this index into memory, it is then capable of answering queries.
-The queries are also ContentMathML with a custom extension for marking query variables.
-The answer to a query consists of the set of matching formulae and the appropriate variable substitutions. 
-Additionally meta-information, such as the URLs of the documents that the formulae come from, is returned. 
-For details, we refer the interested reader to \ednote{TW: cite}.  
+MWS is a web application that provides low-latency answers to full-text queries which consist of keywords and formulae.
+\MWS front-ends convert formula schemata (with query variables) into content MathML expressions, which the \MWS formula indexer answers by unification and combines the results with keyword results from a text search engine.
+The modular architecture and standardized formats in principle make \MWS applicable to a wide range of querying tasks:
+web-based formula search engines or editing support services. 
+Unification queries over content MathML expressions form the basis of an expressive query language with well-defined semantics.
 
-However, the daemon itself is not sufficient to fully use MathWebSearch. 
-Conceptually, an instance of MathWebSearch consists of four components:
-\ednote{TW: Do we want to have a picture here?}
-\begin{itemize}
-    \item A program called a \textbf{Harvester} which is given a provided with a corpus of documents and extracts the set of formulae contained in it;
-    \item the \textbf{MathWebSearch daemon} itself, which based on the harvested formulae, generates and maintains an index as described above;
-    \item an \textbf{query input parser}\ednote{TW: Name?} which converts user input into a query the daemon can understand
-    \item a \textbf{frontend} which sends user input to the query parser and daemon, and presents the query result to the user.  
-\end{itemize}
+We do not give an overview of the pre-existing \MWS architecture here; instead we describe our re-worked design in Section~\ref{sec:software:deployment} below. 
+We furthermore refer the interested reader to a more detailed description of the pre-existing system in \ednote{TW: Cite D6.1}. 
 
-\ednote{TW: 
-    TW:    - ArXiV search - Zentralblatt search
-}
+The \MWS system has been used to supply search instances on various corpora of mathematical documents, we describe three here, others can be seen on \url{http://search.mathweb.org}. 
 
-\subsection{Enabling Formula Search Deployments}
+\subsubsection{arXiv search}
+
+Begun on August 14, 1991, created by Paul Ginsparg, the ``Cornell e-Print arXiv''
+(\url{http://arXiv.org}) is a repository of scientific papers and electronic preprints in
+fields of mathematics, computer science, physics, astronomy, biology and statistics or
+finance written in {\TeX/\LaTeX} for an optimized transfer over the internet and an easily
+rendered client-side. In present the project is hosted by Cornell University and includes
+over a million articles and increases with around 8000 per month.
+
+The KWARC group have converted by arXiv corpus into HTML5~\cite{StaKoh:tlcspx10} and
+harvested it for \MWS. The instance at \url{http://arxivsearch.mathweb.org}
+indexes over 105\,000 math-heavy papers. This subcorpus has also been used for the NTCIR
+Math Information Retrieval
+Challenges~\cite{AizKohOun:nmpto13,AizKohOunSch:nmto14,AizKohOunSch:nmto16}.
+
+\subsubsection{zbMATH search}
+
+Zentralblatt Math (zbMath) is a mathematical information service that curates a database of reviews and classifications (MSC, see~\cite{MSC2010}) for all articles in mathematics since the middle of the 19th century. The database currently contains 3.8 million reviews and grows at a rate of ca 120\,000 reviews per year.
+The zbMATH portal at \url{https://zbmath.org/} offers a faceted search engine for reviews based on bibliographic metadata, MSC classification, and \emph{formulae}.
+The latter is driven by \MWS. 
+
+\end{newpart}
+
+\subsection{Enabling Formula Search Deployments}\label{sec:software:deployment}
 
 To use MathWebSearch inside OpenDreamKit, we need to be able to flexibly use it as a new component. 
 To achieve this, we developed deployment infrastructure in the form of several components on top of the core MathWebSearch daemon. 
