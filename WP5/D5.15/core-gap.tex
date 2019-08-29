@@ -9,7 +9,7 @@ to the corresponding source code changes on GitHub, are contained in
 the ``GAP - Changes from Earlier Versions'' document. This document is
 redistributed with \GAP and is also available on the \GAP web site at
 \url{https://www.gap-system.org/Manuals/doc/changes/chap0.html} and
-included as an Appendix~\ref{changes-manual} to this report.
+included as an Appendix~\ref{sec:changes-manual} to this report.
 \TODO{clarify whether included in full or only pages for the recent releases}
 
 This work includes many contributions from collaborators outside \ODK,
@@ -21,8 +21,8 @@ whose authorship can be seen from the version control history.
   AK: for the Commission, yes; for the reader that will be less clear
   and then perhaps should be explained in the preamble. SL I suggest
   explaining them in a footnote the first time we use them -- that
-  USTAN is St Andrews, and when month 0 was. AK: I will do this in
-  some calm moment, to avoid introducing too many merge conflicts}
+  USTAN is St Andrews, and when month 0 was. AK: Dome. Footnote below
+  and USTAN introduced on the front page}
 \subsection{libGAP: allowing 3rd party code to link \GAP efficiently as a library}\label{libgap}
 
 The initial connection between \Sage and \GAP was developed around
@@ -111,6 +111,7 @@ the amount of run-time method selection required, allowing them to be
 executed more quickly and compiled to C more effectively.
 
 As a small example, consider the following code fragment:
+\begin{Small}
 \begin{verbatim}
 foo := function(n, x, y)
     local z,i;
@@ -122,6 +123,7 @@ foo := function(n, x, y)
     return z;
 end;
 \end{verbatim}
+\end{Small}
 The \verb|#%| here denotes a pragma.
 
 This can be unpacked:
@@ -175,15 +177,18 @@ All of the necessary information is here for a simple \GAP program to
 locate the pragma and using the information in it, replace the general
 function \verb|Gcd| by the specialized \verb|GcdInt| statically.
 Doing this by hand for the moment, we get:
+\begin{Small}
 \begin{verbatim}
 gap> u := StructuralCopy(t);;
 gap> u.stats.statements[2].body[1].value := "% Gcd specialised to GcdInt";;
 gap> u.stats.statements[2].body[2].rhs.right.funcref.gvar := "GcdInt";;
 gap> bar := SYNTAX_TREE_CODE(u);;
 \end{verbatim}
+\end{Small}
 
 automatically producing a new function which prints as
 
+\begin{Small}
 \begin{verbatim}
 gap> Print(bar);
 function ( n, x, y )
@@ -196,14 +201,17 @@ function ( n, x, y )
     return z;
 end
 \end{verbatim}
+\end{Small}
 
 which executes approximately five times faster than \verb|foo|:
+\begin{Small}
 \begin{verbatim}
 gap> foo(10^7, 102334155, 165580141);; time
 2245
 gap> bar(10^7, 102334155, 165580141);; time;
 424
 \end{verbatim}
+\end{Small}
 
 \textbf{Note:} It is important to understand that this is \emph{not} a
 source code level transformation. Automated transformation tools built
@@ -222,11 +230,13 @@ will provide a basis for developments for years to come.
 
 \subsection{Developments in \GAP 4.8 (Month 8)}\label{gap-4.8}
 
-\TODO{We should be consistent in terminology -- we publish releases
+\TODO{We should be consistent in terminology -- we {\bf publish releases}
   rathert than releasing versions.}
 
 \GAP 4.8 was the first major release of \GAP published
-after the start of the \ODK project. 
+after the start\footnote{In the report we
+refer to months of the project, i.e. Month 1 is September 2015 and Month 48 - August 2019.}
+of the \ODK project. 
 As a preparation for the planned integration of \HPCGAP branch
 (supporting \GAP language level threading ) into
 the core system some language extensions were backported to core
@@ -313,20 +323,30 @@ encouraging integration of existing C libraries in packages complements
 our cautious approach mentioned above to including them in the core
 system.
 
-\TODO{Sort out this para. I've moved semigroups to the front because
-  it's an example that's actually doign cutting edge mathematics, but
-  the text needs cleanup. Mention that semigroups is parallel in the C
-  library. Is it used in \Sage via the Python bindings?}
-For example the {\sf Semigroups} package \cite{Semigroups} 
-by James Mitchell (USTAN), initially started as a pure GAP
-package not requiring compilation, but later reorganized into a
-separate C++ library libsemigroups \TODO{properly 
-cite \url{https://libsemigroups.github.io/libsemigroups/}}, which can be
-accessed both from GAP and from Python via Python bindings
-(\url{https://github.com/libsemigroups/libsemigroups-python-bindings})
-developed in collaboration with UPSud. 
+\TODO{MT: I did some work on the following paragraph - does it look okay?  I
+  believe \Sage does \textbf{not} currently use the Python bindings, by the
+  way.}
 
-For example, the {\sf curlInterface} package \cite{curlInterface}
+One such example is the {\sf Semigroups} package \cite{Semigroups} by James D.
+Mitchell (USTAN).  This started as a pure GAP package not requiring compilation,
+but a number of key algorithms from it were later converted into C and C++ in
+order to achieve the high performance necessary for its use in mathematical
+research.  Rather than keeping these algorithms in a simple \GAP kernel
+extension, they were made into a separate C++ library called {\sf libsemigroups}
+\cite{libsemigroups}, which does not rely on \GAP or any of its packages.  This
+library is a required component of the {\sf Semigroups} package, and provides
+high-performance code to compute such objects as presentations, Cayley graphs
+and rewriting systems for finite semigroups, as well as information about
+semigroup congruences.  Many parts of the library support multi-threading,
+meaning that users with multi-core computers can take advantage of parallelism
+even when not running \HPCGAP.  Furthermore, the library can be accessed from
+Python or \Sage via a special set of Python bindings
+(\url{https://github.com/libsemigroups/libsemigroups-python-bindings}) without
+any need for \GAP to be loaded.  The development of these bindings, other work
+on {\sf libsemigroups}, and the mathematical research that came from it, are
+good examples of \ODK collaboration between USTAN and UPSud.
+
+Another example is the {\sf curlInterface} package \cite{curlInterface}
 by Christopher Jefferson and Michael Torpey, which first appeared
 in \GAP 4.9.3 distribution, allows a user to interact 
 with http and https servers on the internet, using the {\sf curl} library, 
@@ -438,12 +458,13 @@ re-engineering many integer arithmetic functions.
 \TODO{fix long line below}
 
 For example, the table below gives the CPU time in milliseconds required
-to run \verb|for i in [1..k] do x:= 1/p^q mod n; od|
+to run the following calculation: \, \verb|for i in [1..k] do x:= 1/p^q mod n; od|
 
 \begin{center}
 \begin{tabular}{| c | c | c | c | c | c |} 
 \hline
 p & q    & n          & k        & ms, before & ms, after \\
+\hline
 3 & 60   & $2^{59}$   & 2000000  & 2364       & 1219 \\
 3 & 60   & $2^{60}$   & 2000000  & 2821       & 1292 \\
 2 & 6000 & $3^{6000}$ & 6000     & 19358      & 692  \\
