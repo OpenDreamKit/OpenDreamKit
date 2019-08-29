@@ -211,7 +211,7 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 
 \begin{figure}[htb]
 \begin{center}
-  \includegraphics[width=.7\textwidth]{nodes_histogram}
+  \includegraphics[width=.8\textwidth]{nodes_histogram}
 \end{center}
 \caption{MPI-Chinese Remainder based rational solver.}\label{fig:mpi_histo}
 \end{figure}
@@ -220,23 +220,100 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 
 Adapted from and improving on \cite{ChSt05}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
-\subsection{GPU enabled libraries}
-
-Graphic Processing Unit (GPU) have become a commonly used component in modern high performance computing.
-They offer a very large number of cores 
-
-In order to let a user be able to harness the power of a graphic accelerator
 
 \begin{figure}[htb]
 \begin{center}
-  \includegraphics[width=.7\textwidth]{Pictures/fgemm_GPUvsCPU}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-primesCount}
 \end{center}
-\caption{Comparing the computation speed of FFLAS-FFPACK matrix product over the finite field $\text{GF}(1048573)$ between a GPU and a
-  single-threaded CPU.}\label{fig:fgemm_gpu}
+\caption{Sequential RNS Dixon.}\label{fig:rnsdixon_seqprimescount}
 \end{figure}
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-bitsize}
+\end{center}
+\caption{Sequential RNS Dixon.}\label{fig:rnsdixon_seqprimescount}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-threads}
+\end{center}
+\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b}
+\end{center}
+\caption{Balance between initialization and lifting phases. In each cluster, left column correspond to a sequential run,
+and right column to a run with 16 cores}\label{fig:rnsdixon_parallel}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.9\textwidth]{Pictures/RNSDixon/parallel-threads}
+\end{center}
+\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\subsection{GPU enabled libraries}
+
+Graphic Processing Unit (GPU) have become a widespread component in modern high performance computing plateforms. They
+offer a very high computing throughput for a contained power consumption but only for applications well suited for their
+constraints:
+\begin{itemize}
+\item the GPU has its own onboard memory and thus data transfer from and to the main memory are expensive and may
+  quickly become a bottleneck
+\item the type of computation must be very regular (same code kernel applied to multiple sets of data) with as few
+  branching and control instructions as possible.
+\end{itemize}
+
+Matrix multiplication is among these applications which can easily benefit from the power of GPUs. Other computations
+such as Gaussian elimination, require branching, data permutations, divisions and other operations much less suited for
+GPUs and therefore require communications back and forth between the main memory and the GPU memory.
+
+Nvidia provides a set of BLAS routines, for dense linear algebra of floating point numbers, supporting their GPUs in the
+library CUBLAS.
+
+The \texttt{fflas-ffpack} library aims at providing a similar set of routines over a finite field by relying exploiting a
+numerical BLAS under the hood. In this first attempt at supporting GPU's for finite field linear algebra, we therefore
+focused on interfacing CUBLAS in the \texttt{fflas-ffpack} library so that matrix multiplication over a finite field
+could benefit from CUBLAS' routines.
+
+The user of the library only need to specify at configure time a path where a CUDA library is installed:
+\begin{verbatim}
+$> ./configure --with-cuda=/applis/dahu/cuda/cuda-10.0/lib64
+\end{verbatim}
+
+He can then transparently run his code and benefit from the speedup of the BLAS library. Figure~\ref{fig:fgemm_gpu}
+shows the computation speed achieved on an NVIDIA Tesla V100 GPU, compared to the existing multi-core parallel
+implementation and the sequential implementation.
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.9\textwidth]{Pictures/fgemm_GPUvsCPU}
+\end{center}
+\caption{Comparing the computation speed of FFLAS-FFPACK matrix product over the finite field $\text{GF}(131071)$
+  between one GPU, 32 CPU cores and a single CPU core.}\label{fig:fgemm_gpu}
+\end{figure}
+The speed-up of one GPU with respect to the sequential implementation is up to a factor 39.5 and up to 2.46 with respect
+to a parallel execution on 32 cores.
+
+Note that the efficiency of the GPU runs is slowly increasing and therefore perform slower than the multicore
+implementation on smaller dimensions. This is due to the communication  time spent in transfering the data to and from
+the GPU. This overhead is quadratic in the matrix dimension and thus becomes negligeable compared to as the dimension
+increases.
+
+This is the reason why other routines relying on many matrix multiplication, such as Gaussian elimination, matrix
+inverse, etc, cannot blindly benefit from the efficiency of this matrix multiplication routine. Further work will
+consist in implementing dedicated finite field Gaussian elimination routines on the GPU, and/or exploring the various
+techniques to schedule the memory transfer so that they overlap with computation.
+
 \bibliographystyle{plainnat}
 \bibliography{D5.14}
+
 
 %%% Local Variables:
 %%% mode: latex
