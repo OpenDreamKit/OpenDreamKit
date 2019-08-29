@@ -114,18 +114,24 @@ However, the strongly iterative structure of this algorithm makes it both harder
 efficient.
 In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
 $p$-adic lifting and Chinese remainder techniques. 
-We further improved this variant in several ways to deliver a parallel
-$p$-adic lifting solver. Algorithm~\ref{alg:ParMultiModSolve} reflects
+This led to a multi-modular (or RNS, residue number system) $p$-adic
+lifting.
+We further improve this variant in several ways to deliver a parallel
+RNS $p$-adic lifting solver. Algorithm~\ref{alg:ParMultiModSolve} reflects
 these improvements with the two following salient features:
 \begin{enumerate}
-\item We gather the costly updates, that were performed via
-  matrix-vector arbitrary precision multiplications over the integers
-  with an RNS basis,
-  in order to perform instead a parallel matrix-matrix multiplication;
-  this can be seen in lines~\ref{} of Algorithm~\ref{alg:ParMultiModSolve}
-\item We restrict the RNS basis to primes individually larger than the
-  multi-modular ones in order to speed up the RNS/integer conversions 
-  and use the parallel RNS improvement of~\cite{DGLS18}.
+\item The costly updates in the main loop of \cite{ChSt05} were
+  performed via matrix-vector arbitrary precision multiplications over
+  the integers with a second RNS basis.
+  We instead gather those updates in order to perform instead a
+  matrix-matrix multiplication. 
+  This can be seen in line~\ref{lin:ZGEMM} of
+  Algorithm~\ref{alg:ParMultiModSolve}.
+\item We mix this algorithm with the parallel RNS improvement
+  of~\cite{DGLS18} and restrict the second RNS basis to primes
+  individually larger than the 
+  multi-modular high-level ones in order to speed up the RNS/integer
+  conversions. 
 \end{enumerate}
 
 %\begin{algorithm}[htb]
@@ -165,26 +171,29 @@ these improvements with the two following salient features:
     \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
     \For{$i\leftarrow 1 \dots \ell$ in parallel}
       \State $B_i \leftarrow  A^{-1} \mod p_i$
-      \State $\vect{r}^{(i,0)}\leftarrow \vect{b} \mod p_i$
+      \State $\vect{r}^{(i)}\leftarrow \vect{b} \mod p_i$
       \State $\vect{y}^{(i)} \leftarrow 0$
     \EndFor
-    \State Pick primes $q_1,\dots, q_\tau$ all $>\max_i\{p_i\}$, such
-    that $\prod_{i=1}^\tau q_i \geq n||A||_\infty$
+    \State Pick primes $q_1,\dots, q_\tau$, all $>\max_i\{p_i\}$, such
+    that $\prod_{s=1}^\tau q_s \geq n||A||_\infty$
     \For{$j\leftarrow 0\dots k-1$}
     \For{$i\leftarrow 1\dots\ell$ in parallel}
-    \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r}^{(i,j)} \mod p_i$
-    \State $\vect{y}^{(i)} \leftarrow \vect{y}^{(i)} + \vect{c}^{(i,j)} p_i^j$
-    \State $(\vect{\phi}^{(i,j)},\vect{\rho}^{(i,j)}) \leftarrow
-    \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{\phi}^{(i,j)} + \vect{\rho}^{(i,j)}$}
-%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+    \State $\vect{c}^{(i)}  \leftarrow \mat{B_i} \vect{r}^{(i)} \mod p_i$
+    \State $\vect{y}^{(i)} \leftarrow \vect{y}^{(i)} + \vect{c}^{(i)} p_i^j$
+    \State $(\vect{\phi}^{(i)},\vect{\rho}^{(i)}) \leftarrow
+    \texttt{divmod}(\vect{r}^{(i)},p_i)$\Comment{$\vect{r}^{(i)} = p_i \vect{\phi}^{(i)} + \vect{\rho}^{(i)}$}
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
     \EndFor
+\newline{\Comment{Now compute simultaneously all the updates $\frac{\vect{r}^{(i)} -
+      \mat{A}\vect{c}^{(i)}}{p_i}$  in parallel:}}
     \State Gather 
-    $\mat{R}^{(j)}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1,j)}&\ldots&\vect{\rho}^{(\ell,j)}\end{array}\right]$ 
-    and $\mat{C}^{(j)}\leftarrow\left[\begin{array}{ccc}\vect{c}^{(1,j)}&\ldots&\vect{c}^{(\ell,j)}\end{array}\right]$
-    \State
-    $\mat{V}^{(j)}\leftarrow\mat{R}^{(j)}-\mat{A}\cdot\mat{C}^{(j)}$\hfill{\Comment{Parallel RNS with $q_1,\dots, q_\tau$}}
+    $\mat{R}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1)}&\ldots&\vect{\rho}^{(\ell)}\end{array}\right]$ 
+    and $\mat{C}\leftarrow\left[\begin{array}{ccc}\vect{c}^{(1)}&\ldots&\vect{c}^{(\ell)}\end{array}\right]$
+    \State\label{lin:ZGEMM}
+    $\mat{V}\leftarrow\mat{R}-\mat{A}\cdot\mat{C}$\Comment{Parallel RNS with $q_1,\dots, q_\tau$}
     \For{$i\leftarrow 1\dots\ell$ in parallel}
-    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{V_{*,i}}^{(j)}}{p_i}$
+    \State $\vect{r}^{(i)}
+    \leftarrow\vect{\phi}^{(i)}+\frac{\vect{V_{*,i}}}{p_i}$\Comment{Multiply by $(p_i^{-1}{\mod{q_s}})$ in RNS, then reconvert to $\mathbb{Z}^n$}
     \EndFor
     \EndFor
     \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
