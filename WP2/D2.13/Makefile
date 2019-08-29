@@ -1,5 +1,8 @@
 report.pdf: report.tex
 	pdflatex report.tex
+	bibtex report.aux
+	pdflatex report.tex
+	pdflatex report.tex
 
 # can use this to force update of table of contents
 force:

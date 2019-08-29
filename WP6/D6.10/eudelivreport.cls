@@ -18,6 +18,7 @@
 \RequirePackage{paralist}
 \RequirePackage{array}
 \RequirePackage{listings}
+\lstset{columns=fullflexible,basicstyle=\sf}
 \RequirePackage{pdata}
 \RequirePackage{import}
 \RequirePackage{hyperref}
