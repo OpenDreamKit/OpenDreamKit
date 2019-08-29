@@ -2,7 +2,9 @@ IMAGE_NAMES=gap-core-tests gap-docker gap-package-tests gap-releases unipoly-not
 
 IMAGES=$(IMAGE_NAMES %=images/%.png)
 
-report.pdf: report.tex report.bib $(IMAGES) deliverablereport.cls eudelivreport.cls
+report.pdf: report.tex report.bib $(IMAGES) deliverablereport.cls \
+	eudelivreport.cls core-gap.tex intro.tex gap-infra.tex \
+	github-issue-description.tex packages.tex package-tools.tex repro-gap.tex
 	pdflatex report
 	bibtex report
 	pdflatex report
