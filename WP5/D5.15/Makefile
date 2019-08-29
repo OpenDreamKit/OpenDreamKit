@@ -4,7 +4,8 @@ IMAGES=$(IMAGE_NAMES %=images/%.png)
 
 report.pdf: report.tex report.bib $(IMAGES) deliverablereport.cls \
 	eudelivreport.cls core-gap.tex intro.tex gap-infra.tex \
-	github-issue-description.tex packages.tex package-tools.tex repro-gap.tex
+	github-issue-description.tex packages.tex package-tools.tex \
+	repro-gap.tex hpc.tex
 	pdflatex report
 	bibtex report
 	pdflatex report
