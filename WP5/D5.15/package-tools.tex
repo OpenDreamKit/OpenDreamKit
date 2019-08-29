@@ -278,48 +278,54 @@ Number of packages & 14 & 45 & 61 & 92 & 124 \\
 
 \subsubsection{Background}
 
-For many years, the installation of packages in \GAP has been an entirely manual
-process.  If a user requires a package that is not currently installed on their
-system, they are required to visit the \GAP website, or the website of the
-required package, download an archive or repository and extract it into their
-package directory.  In many cases, they must also compile the package before
-use, in a process that is not consistent between packages.  Worst of all, any
-dependencies must also be installed individually, including all these steps for
-each one.
+For many years, the installation of packages in \GAP has been an
+entirely manual process.  If a user requires a package that is not
+currently installed on their system, they are required to visit the
+\GAP website, or the website of the required package, download an
+archive or repository and extract it into their package directory.  In
+many cases, they must also compile C code or external programs
+within the package before use, in a process that is not consistent
+between packages.  Worst of all, any packages on which their chosen
+package depends must also be installed individually, including all
+these steps for each one.
 
-This awkward installation procedure is mitigated by the inclusion of a large
-number of packages with the main release archive (145 packages were included
-with \GAP 4.10.2).  This solution masks the problem for the majority of users,
-who do not require any more specialized packages.  However, it also results in a
-1.6 GB standard installation, of which the packages make up 1.4 GB.  
-\TODO{maybe add how many lines of GAP code and C code are there}
-While some packages are used by almost every \GAP user because they
-enhance the performance of core \GAP features, 
-only a subset of the others will be needed by any specific end
-user. This may be explicit (when they load a package relevant to their
-research interests) or implicit (to satisfy package dependencies).
-\TODO{Adding packages as a user to a central installation. Installing development
-  versions of packages}
+This awkward installation procedure is mitigated by the inclusion of a
+large number of packages with the main release archive, which solution
+masks the problem for the majority of users, who do not require any
+more specialized packages.  However, it also results in a 1.6 GB
+standard installation, of which the packages make up 1.4 GB, and while
+the files are installed, C code often does not get compiled. While
+some packages are used by almost every \GAP user because they enhance
+the performance of core \GAP features, only a subset of the others
+will be needed by any specific end user. This need may be explicit (when
+they load a package relevant to their research interests) or implicit
+(to satisfy package dependencies). It would be desirable to avoid all
+users having copies of all packages by default.
 
-The possibility of a more sophisticated package management system for \GAP has
-been discussed for some time, and was realized with the creation of {\sf
-  PackageManager} \cite{PackageManager} in
-Month 37, by Michael Torpey.  Development started after a discussion at
-\GAP Days Fall 2018 (\url{https://www.gapdays.de/gapdays2018-fall/}) and an
-initial release was made before the end of that meeting.  New features have been
-added in various further releases across the past year.
+Additional problems can arise when the \GAP installation is controlled
+by central administration and a user needs an extra package installed or a
+package compiled, or when a user wishes to update to a new package
+version ahead of it being included in a new \GAP distribution.
 
-\TODO{Give some kind of justification for why this is being reported
-  in WP5}
+
+In the light of these issues, the possibility of a more sophisticated
+package management system for \GAP has been discussed for some time,
+and was realized with the creation of {\sf PackageManager}
+\cite{PackageManager} in Month 37, by Michael Torpey.  Development
+started after a discussion at \GAP Days Fall 2018
+(\url{https://www.gapdays.de/gapdays2018-fall/}) and an initial
+release was made before the end of that meeting.  New features have
+been added in various further releases across the past year.
 
 \subsubsection{Design}
 
-{\sf PackageManager} is a \GAP package itself, which is operated from inside a
-\GAP session.  This approach to package management was chosen over an external
-manager, since it allows users to install and remove packages without ever
-leaving the \GAP prompt.  The first advantage of this is that
-users have a comfortable environment, without needing to learn how to use
-external tools; and the second is that, in most cases, packages can be installed
+{\sf PackageManager} is a \GAP package itself, and is utilised in the
+standard way, by loading it into a \GAP session and executing \GAP
+functions. This approach to package management was chosen over an external
+manager since it allows users to install and remove packages without ever
+leaving the \GAP prompt, while making no, or minimal assumptions about
+the underlying system setup. This gives
+users a comfortable and familiar environment. In most cases, packages can be installed
 and loaded without restarting the session, as shown in Figure \ref{fig:pkgman-sample-b}.
 This means that users' workflow is interrupted as little as possible, and they do
 not need to save and reload their work.
@@ -350,13 +356,12 @@ true
 
 The main functions provided by {\sf PackageManager} are \texttt{InstallPackage},
 \texttt{UpdatePackage}, and \texttt{RemovePackage}.  The first,
-\texttt{InstallPackage}, takes a string which can be in any of several different
-forms: the URL of an archive, repository, or package info file, or simply the
+\texttt{InstallPackage}, can take as argument the URL of an archive, repository, or package info file, or simply the
 name of a package.  In the case of a URL, the appropriate file is retrieved
 using an internet connection, and used to install the package; if a package name
 is given, it is looked up in a pre-defined list of package URLs and installed
 from there.  In most cases, the latest released version of a package is
-installed; a user can specify an older version by giving an explicit archive
+installed, but a user can specify an older version by giving an explicit archive
 URL, or a development version by specifying a branch in a
 version control repository.  % currentPackageInfoURLList
 
@@ -391,19 +396,23 @@ During installation, the following operations are carried out automatically:
 \begin{itemize}
 \item any kernel module is configured and compiled, if present;
 \item package documentation is built from source if necessary;
-\item prerequisites are installed using \texttt{prerequisites.sh} if present;
+\item external software prerequisites are installed using a package
+  specific shell script \texttt{prerequisites.sh} if present;
 \item all missing package dependencies are installed, or recompiled if broken;
 \item basic checks are performed to verify that installation was successful.
 \end{itemize}
+
+The new packages are installed in a user-specific directory separate
+from the \GAP installation, so that multiple users on a shared system
+can have distinct package configurations. The packages will also
+remain present if the main \GAP installation is moved or replaced.
+
 This has resulted in a reasonably smooth installation process, with very little
-friction encountered by a user who tries to get a new package working.  It is
+friction encountered by a user who tries to get a new package working.
+The package manager is
 now a deposited package in \GAP, and is therefore distributed in the main
 archive with each release.
 
-\TODO{Mention that it uses ~/.gap/pkg ?  Or is that too technical? AK: in some
-non-technical words explain that the location will be visible from multiple
-GAP installations, and packages will remain even if the main GAP installation
-is deleted (e.g. during upgrade)}
 
 \subsubsection{Best practice}
 
@@ -454,13 +463,14 @@ Tables \ref{tab:pkgman-se-check} and \ref{tab:pkgman-diss-check}.
 
 Aside from making the on-demand installation of individual packages easier, {\sf
   PackageManager} has implications for the future of how \GAP is distributed.
-There are currently no plans to abandon the established approach of distributing
-deposited packages with the \GAP archive by default, but the presence of {\sf
-  PackageManager} would also make it possible to distribute an archive of
-minimal size, containing only the four required packages and {\sf
-  PackageManager} itself, installing others as needed.  Furthermore, it
-can be used by other systems that interact with \GAP in order to manage
-installations more easily.  The \cocalc system now contains {\sf PackageManager}
+There are no currentplans to stop distributing
+deposited packages with the \GAP archive by default, but the
+possibility of distribut a much smaller archive, containing only a few
+fundamental packages and {\sf
+  PackageManager} itself and then installing others as needed is now
+opened up.  Furthermore, the package manager
+can be used by other systems that interact with \GAP to manage
+their \GAP installations more easily.  The \cocalc system now contains {\sf PackageManager}
 as part of its \GAP 4.10.2 installation, enabling each user to install any
 packages they need without \cocalc operators being forced to manage these
 installations separately.  This is an example of positive two-way interaction
