@@ -22,18 +22,29 @@
 \newpage
 
 \section{Introduction}
-The primary focus of the \ODK project is to improve
-e-infrastructure for research in mathematics and to provide a Jupyter
-project based virtual research environment. However, sigificant parts
-of these investments are of applicability to a much wider range of
-activities outside mathematics research.
+The primary focus of the \ODK project is to improve e-infrastructure
+for research in mathematics and to provide a Jupyter project based
+virtual research environment. However, significant parts of these
+investments are of applicability to a much wider range of activities
+outside mathematics research.
 
 With this deliverable we want to demonstrate the power of the
 (improved) Jupyter-based virtual research environment with application
 in the computational magnetism research domain, as a representative of
 the growing field of computational science and engineering.
 
-\section{Introduction Computational Micromagnetics}
+In this deliverable report, we start by introducing the concept of
+micromagnetics and the simulation tool OOMMF. After that, we present
+the conventional computational workflow with OOMMF and identify its
+disadvantages. Subsequently, the benefits of building a Python
+interface to OOMMF and embedding simulations into Jupyter notebook are
+stated. The rest of the report deals with the implementation details,
+such as subpackages, code hosting, testing, continuous integration,
+packaging, and documentation. Finally, we complete the report by
+reporting the dissemination activities we conducted as well as the
+evaluation data we collected.
+
+\section{Introduction to Computational Micromagnetics}
 \subsection{Computational Magnetism}
 
 Magnetism underpins modern life through a number of technologies,
@@ -56,6 +67,8 @@ this is technically known as micromagnetism - which is technologically
 relevant for data storage, sensors, and potential new storage and
 computing paradigms.
 
+
+
 \subsection{Object Oriented MicroMagnetic Framework (OOMMF)}
 
 The Object Oriented MicroMagnetic Framework (OOMMF)~\cite{Donahue1999}
@@ -67,24 +80,24 @@ scientific community, and still maintained and further developed. It
 was written in C++ and wrapped with Tcl, which is the language that
 must be used to configure simulations by the user.
 
-\subsection{Typical workflow}
+\subsection{Original computational workflow}
 
 The computational workflow that had to be done by the user in order to simulate a
 particular micromagnetic problem was as follows:
 
 \begin{enumerate}
-\item A configuration script (\texttt{.mif}) file is written in Tcl,
-  so that all characteristics of the micromagnetic system are
+\item A configuration script (\texttt{.mif}) file was written in Tcl,
+  so that all characteristics of the micromagnetic system were
   specified (geometry, Hamiltonian, dynamics equation, initial
   configuration of magnetisation field, boundary conditions, etc.).
-\item OOMMF is run by providing a configuration \texttt{.mif} file via
-  Terminal/Command Prompt. After the OOMMF run is complete, the
-  spatially resolved vector fields are saved as \texttt{.omf} files
-  for many time steps and scalar data is saved in an \texttt{.odt}
+\item OOMMF was run by providing a configuration \texttt{.mif} file via
+  Terminal/Command Prompt. After the OOMMF run was complete, the
+  spatially resolved vector fields were saved as \texttt{.omf} files
+  for many time steps and scalar data was saved in an \texttt{.odt}
   file.
-\item If another run with different parameters is necessary steps 1
+\item If another run with different parameters was necessary steps 1
   and 2 are repeated.
-\item Resulting files are opened and analysed by the user either using
+\item Resulting files were opened and analysed by the user either using
   OOMMF and its GUI-driven tools or command line driven tools or
   different data analysis tools; typically by manually carrying out
   sequences of analysis steps.
@@ -110,10 +123,9 @@ execute computational commands repeatedly while changing parameters in
 input files, then search for output files, and extract the new results
 for the new parameter, etc.
 
-\subsection{Workflow with Jupyter notebook embedded computational
-  research environment}
+\subsection{Workflow with Jupyter embedded research environment}
 
-The main goal of this deliverable D2.13 was
+The main goal of this deliverable was
 to develop a Micromagnetic Virtual Research Environment (VRE) which
 would address this problem. More precisely, the goal was to develop a
 Python interface to OOMMF and integrate it into Jupyter
@@ -234,7 +246,7 @@ several different sub-packages:
   exposing scalar and vector field data to Python's scientific stack
   in \texttt{discretisedfield}, in \texttt{ubermagtable}, this is
   achieved via \texttt{pandas} DataFrame, which enables easy analysis
-  and visualisation of the table data, by exploting the already
+  and visualisation of the table data, by exploiting the already
   existing infrastructure.
 \item \texttt{ubermagutil}~\cite{ubermagutil} - typesystem used across all Ubermag
 packages. This package contains the implementation of different Python
@@ -422,7 +434,7 @@ complete. This can be counteracted by bringing mass storage media with
 the required files available. Nevertheless, the amount of
 configuration and fiddling with laptops with unusual behaviour (such
 as: existing anaconda installation, lack of admin rights, outdated
-hardware, lack of RAM, lack of diskspace, ...) that was required to
+hardware, lack of RAM, lack of disk space, ...) that was required to
 enable all participants to actively take part in examples using their
 own laptop, exceeded our resources.
 
@@ -482,7 +494,7 @@ participants could solve. The workshops we organised are:
 \item DPG March Meeting, 19 March 2017, Dresden, Germany
 
   This meeting is the main annual conference organised by the German
-  Physics Society. We were invited to contribute to the mini-simposium
+  Physics Society. We were invited to contribute to the mini-symposium
   of the conference with the main topic micromagnetics. We had about
   50 attendees and we introduced the basics of micromagnetic
   simulations as well as the basics of running Ubermag. Unfortunately,
@@ -766,7 +778,9 @@ A technical difficulty we encountered is that some packages
 the classic Jupyter Notebook and the next generation JupyterLab. This
 is maybe not unexpected given the high rate of change in these
 community driven projects but affects robustness of tools based on
-these infrastructures.
+these infrastructures. However, we expect these difficulties to
+improve as those packages mature and the transition from Jupyter to
+JupyterLab is complete.
 
 For completeness, we'd like to mention that during this work, we have
 become aware of a related initiative\cite{ase-paper} that provides an
