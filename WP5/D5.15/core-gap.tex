@@ -23,8 +23,204 @@ whose authorship can be seen from the version control history.
   explaining them in a footnote the first time we use them -- that
   USTAN is St Andrews, and when month 0 was. AK: I will do this in
   some calm moment, to avoid introducing too many merge conflicts}
+\subsection{libGAP: allowing 3rd party code to link \GAP efficiently as a library}\label{libgap}
 
-\subsection{\GAP 4.8 (Month 6)}\label{gap-4.8}
+The initial connection between \Sage and \GAP was developed around
+2006, and relied on running a full \GAP process with which \Sage
+communicated through UNIX pipes, creating \GAP input as text and then parsing
+the text which was output from \GAP. This enabled an initial connection, but
+introduced considerable overhead converting objects to and from text
+representations and passing them between processes, and considerable
+unreliability, since \Sage was essentially using \GAP through an
+interface designed for humans, rather than programs.
+
+A better solution is to provide a C API enabling \GAP to be integrated
+into the \Sage process, and allowing a \GAP session to be started,
+objects created, functions called and results retrieved via C function
+calls. This is, however, not a mode of operation for which \GAP was
+ever designed, and implementing it in a robust and flexible way
+required considerable adaptations to the system, essentially
+disentangling the computational engine from the user interface, while retaining,
+for example, the ability to dynamically load C code from \GAP
+packages into the process that was using libGAP. Another complication
+is the need to make sure that the \GAP memory manager does not delete
+objects which the calling process will want in the future.
+
+Based on an initial version developed within the \Sage team, a fully
+general-purpose and flexible version was released in \GAP 4.10.0
+(November 2018).
+
+Subsequent releases have improved and will continue to improve the
+robustness of libGAP, and to extend its API with new functionality (See Chapter 2 
+``Changes between \GAP 4.9 and \GAP 4.10'' of the 
+``\GAP - Changes from Earlier Versions'' manual for the detailed
+descriptions). This has allowed \Sage to drop its custom 
+modifications to \GAP and use an official, documented and regularly 
+tested \GAP interface instead, starting from SageMath 8.6 (January
+2019).
+
+% See SageTrac ticket 22626 made that happen; it was merged in 
+% SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
+
+\subsection{Linguistic Reflection -- Supporting Transformation and
+  Optimisation of \GAP functions at runtime}\label{syntaxtree}
+The \GAP programming language, in which much of the system is written
+is interpreted and dynamically-typed (somewhat like the better-known
+Python). It has a unique ``method selection'' system
+(\cite{BreuerLinton98}) in which the type of objects reflects
+mathematical information learned about them at runtime, which method
+selection depends on the types of all arguments.
+
+A compiler for the language (converting \GAP code
+into C extensions to the \GAP kernel) has been available for many
+years as part of \GAP, but gives surprisingly little speedup on most code, and has not
+seen widespread adoption. The main reason for this is that objects
+types must still be checked, and method selection decisions made, at
+run-time, even in compiled code.
+
+\Sage, implemented initially in Python, faced many of the same
+problems, and addressed them by adopting, and promoting
+development of, the \href{http://cython.org}{Cython} project which
+extends the Python language with C-like types and constructions to
+allow more effective compilation.
+
+In WP5 the \GAP team have sought a natural and usable way to deliver
+similar benefits for the \GAP language (bearing in mind the relative
+sizes of the \GAP and Python user and developer communities). After
+some experiments and a great deal of discussion across the community,
+we have settled on ``Linguistic reflection'', combined with code
+annotations (pragmas) as an approach that offered a good return of
+performance and other benefits for the effort invested.
+
+The key infrastructural tools for both of these have now been added to
+the \GAP language and interpreter. The new \verb|SyntaxTree| function
+``unpacks'' the workspace representation of a \GAP function,
+converting into a data structure which can be easily manipulated by
+\GAP, and converted back into a new executable \GAP function when
+needed. Code annotations, in the form of pragmas are retained through
+this process, so that the programmer can use them to guide in
+programme transformation, and different software transformers can use
+them to communicate. All of this functionality is publicly available
+now in the development version of \GAP on GitHub and will be included
+in \GAP 4.11 (expected November 2019).
+
+Future versions will build on this for optimisation, OpenMP-style
+semi-automatic parallelisation and (our original motivating
+application) to produce specialized versions of functions which reduce
+the amount of run-time method selection required, allowing them to be
+executed more quickly and compiled to C more effectively.
+
+As a small example, consider the following code fragment:
+\begin{verbatim}
+foo := function(n, x, y)
+    local z,i;
+    z := 0;
+    for i in [1..n] do
+        #% x and y always integers
+        z := z+Gcd(x,y);
+    od;
+    return z;
+end;
+\end{verbatim}
+The \verb|#%| here denotes a pragma.
+
+This can be unpacked:
+\begin{Small}
+\begin{verbatim}
+gap> t:= SyntaxTree(foo)!.tree;
+rec( name := "foo", nams := [ "n", "x", "y", "z", "i" ], narg := 3, 
+  nloc := 2, 
+  stats := 
+    rec( 
+      statements := 
+        [ 
+          rec( lvar := 4, rhs := rec( type := "EXPR_INT", value := 0 ), 
+              type := "STAT_ASS_LVAR" ), 
+          rec( 
+              body := 
+                [ 
+                  rec( type := "STAT_PRAGMA", 
+                      value := "% x and y always integers" ), 
+                  rec( lvar := 4, 
+                      rhs := 
+                        rec( 
+                          left := 
+                            rec( lvar := 4, type := "EXPR_REF_LVAR" ), 
+                          right := 
+                            rec( 
+                              args := 
+                                [ 
+                                  rec( lvar := 2, 
+                                      type := "EXPR_REF_LVAR" ), 
+                                  rec( lvar := 3, 
+                                      type := "EXPR_REF_LVAR" ) ], 
+                              funcref := 
+                                rec( gvar := "Gcd", 
+                                  type := "EXPR_REF_GVAR" ), 
+                              type := "EXPR_FUNCCALL_2ARGS" ), 
+                          type := "EXPR_SUM" ), 
+                      type := "STAT_ASS_LVAR" ) ], 
+              collection := 
+                rec( first := rec( type := "EXPR_INT", value := 1 ), 
+                  last := rec( lvar := 1, type := "EXPR_REF_LVAR" ), 
+                  type := "EXPR_RANGE" ), type := "STAT_FOR_RANGE2", 
+              variable := rec( lvar := 5, type := "EXPR_REF_LVAR" ) ), 
+          rec( obj := rec( lvar := 4, type := "EXPR_REF_LVAR" ), 
+              type := "STAT_RETURN_OBJ" ) ], type := "STAT_SEQ_STAT3" )
+    , type := "EXPR_FUNC", variadic := false )
+\end{verbatim}
+\end{Small}
+
+All of the necessary information is here for a simple \GAP program to
+locate the pragma and using the information in it, replace the general
+function \verb|Gcd| by the specialized \verb|GcdInt| statically.
+Doing this by hand for the moment, we get:
+\begin{verbatim}
+gap> u := StructuralCopy(t);;
+gap> u.stats.statements[2].body[1].value := "% Gcd specialised to GcdInt";;
+gap> u.stats.statements[2].body[2].rhs.right.funcref.gvar := "GcdInt";;
+gap> bar := SYNTAX_TREE_CODE(u);;
+\end{verbatim}
+
+automatically producing a new function which prints as
+
+\begin{verbatim}
+gap> Print(bar);
+function ( n, x, y )
+    local z, i;
+    z := 0;
+    for i in [ 1 .. n ] do
+        #% Gcd specialised to GcdInt
+        z := z + GcdInt( x, y );
+    od;
+    return z;
+end
+\end{verbatim}
+
+which executes approximately five times faster than \verb|foo|:
+\begin{verbatim}
+gap> foo(10^7, 102334155, 165580141);; time
+2245
+gap> bar(10^7, 102334155, 165580141);; time;
+424
+\end{verbatim}
+
+\textbf{Note:} It is important to understand that this is \emph{not} a
+source code level transformation. Automated transformation tools built
+on this foundation do
+not need to parse or emit \GAP syntax, and all questions of scope,
+including bindings in closures, are already resolved. A small planned
+extension will add profiling information to the syntaxtree when available.
+
+Other applications for this technology include automated
+parallelisation (in combination with \HPCGAP) and traditional code optimizations.
+
+While we would have preferred to have had more time to exploit these
+facilities within the project, it was important to achieve consensus
+around a solution that fit the needs of \GAP and its community and
+will provide a basis for developments for years to come.
+
+\subsection{Developments in \GAP 4.8 (Month 8)}\label{gap-4.8}
 
 \TODO{We should be consistent in terminology -- we publish releases
   rathert than releasing versions.}
@@ -82,7 +278,7 @@ and then a list containing any remaining ones to \verb|x|.
 \GAP 4.8 had seven public releases between Month 6 and Month 24, and
 was replaced by \GAP 4.9.
 
-\subsection{\GAP 4.9 (Month 33)}\label{gap-4.9}
+\subsection{Developments in \GAP 4.9 (Month 33)}\label{gap-4.9}
 
 \GAP 4.9 continued the restructuring and modernizing of the core \GAP
 system, aiming at the greater reliability, flexibility and performance
@@ -170,7 +366,7 @@ The \GAP~4.9.1 release also incorporated many smaller performance improvements. 
 at runtime. While maintaining readability through naming, uses of
 these constants can be optimized as a function is parsed, so that they
 are at least as fast as using explicit values. Another notable improvement was
-to the widely used  sorting functions which now use the best
+<to the widely used  sorting functions which now use the best
 recently published algorithms and were also made more maintainable by
 restructuring the implementation.
 
@@ -199,7 +395,7 @@ with other modern programming languages:
 \GAP 4.9 had three public releases between Months 33-37, and
 was replaced by \GAP 4.10.
 
-\subsection{\GAP 4.10 (Month 39)}\label{gap-4.10}
+\subsection{Developments in \GAP 4.10 (Month 39)}\label{gap-4.10}
 
 The release of \GAP 4.9 with the new build system allowed the
 restructuring of the core \GAP system to continue, and allowed us to
@@ -367,7 +563,7 @@ allow to create and work with charts and graphs.
   dates for the report in the UI WP1}
 
 
-\subsection{\GAP 4.11 (anticipated in November 2019)}\label{gap-4.11}
+\subsection{Developments in \GAP 4.11 (anticipated in November 2019)}\label{gap-4.11}
 
 % Since they are released on GitHub, I see no reason not to also
 % highlight changes which are merged and definitely coming out in
@@ -485,197 +681,3 @@ GAP release & Release date & Number of test files & Number of lines \\
 \end{tabular}
 \end{center}
 
-\subsection{libGAP: allowing 3rd party code to link \GAP as a library}\label{libgap}
-
-The initial connection between \Sage and \GAP was developed around
-2006, and relied on running a full \GAP process with which \Sage
-communicated through UNIX pipes, creating \GAP input as text and then parsing
-the text which was output from \GAP. This enabled an initial connection, but
-introduced considerable overhead converting objects to and from text
-representations and passing them between processes, and considerable
-unreliability, since \Sage was essentially using \GAP through an
-interface designed for humans, rather than programs.
-
-A better solution is to provide a C API enabling \GAP to be integrated
-into the \Sage process, and allowing a \GAP session to be started,
-objects created, functions called and results retrieved via C function
-calls. This is, however, not a mode of operation for which \GAP was
-ever designed, and implementing it in a robust and flexible way
-required considerable adaptations to the system, essentially
-disentangling the computational engine from the user interface, while retaining,
-for example, the ability to dynamically load C code from \GAP
-packages into the process that was using libGAP. Another complication
-is the need to make sure that the \GAP memory manager does not delete
-objects which the calling process will want in the future.
-
-Based on an initial version developed within the \Sage team, a fully
-general-purpose and flexible version was released in \GAP 4.10.0
-(Month 39).
-
-Subsequent releases have improved and will continue to improve the
-robustness of libGAP, and to extend its API with new functionality (See Chapter 2 
-``Changes between \GAP 4.9 and \GAP 4.10'' of the 
-``\GAP - Changes from Earlier Versions'' manual for the detailed
-descriptions). This has allowed \Sage to drop its custom 
-modifications to \GAP and use an official, documented and regularly 
-tested \GAP interface instead, starting from SageMath 8.6 (Month 41).
-
-% See SageTrac ticket 22626 made that happen; it was merged in 
-% SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
-
-\subsection{Linguistic Reflection}\label{syntaxtree}
-The \GAP programming language, in which much of the system is written
-is interpreted and dynamically-typed (somewhat like the better-known
-Python). It has a unique ``method selection'' system
-(\cite{BreuerLinton98}) in which the type of objects reflects
-mathematical information learned about them at runtime, which method
-selection depends on the types of all arguments.
-
-A compiler for the language (converting \GAP code
-into C extensions to the \GAP kernel) has been available for many
-years as part of \GAP, but gives surprisingly little speedup on most code, and has not
-seen widespread adoption. The main reason for this is that objects
-types must still be checked, and method selection decisions made, at
-run-time, even in compiled code.
-
-\Sage, implemented initially in Python, faced many of the same
-problems, and addressed them by adopting, and promoting
-development of, the \href{http://cython.org}{Cython} project which
-extends the Python language with C-like types and constructions to
-allow more effective compilation.
-
-In WP5 the \GAP team have sought a natural and usable way to deliver
-similar benefits for the \GAP language (bearing in mind the relative
-sizes of the \GAP and Python user and developer communities). After
-some experiments and a great deal of discussion across the community,
-we have settled on ``Linguistic reflection'', combined with code
-annotations (pragmas) as an approach that offered a good return of
-performance and other benefits for the effort invested.
-
-The key infrastructural tools for both of these have now been added to
-the \GAP language and interpreter. The new \verb|SyntaxTree| function
-``unpacks'' the workspace representation of a \GAP function,
-converting into a data structure which can be easily manipulated by
-\GAP, and converted back into a new executable \GAP function when
-needed. Code annotations, in the form of pragmas are retained through
-this process, so that the programmer can use them to guide in
-programme transformation, and different software transformers can use
-them to communicate. All of this functionality is publicly available
-now in the development version of \GAP on GitHub and will be included
-in \GAP 4.11 (expected November 2019).
-
-Future versions will build on this for optimisation, OpenMP-style
-semi-automatic parallelisation and (our original motivating
-application) to produce specialized versions of functions which reduce
-the amount of run-time method selection required, allowing them to be
-executed more quickly and compiled to C more effectively.
-
-As a small example, consider the following code fragment:
-\begin{verbatim}
-foo := function(n, x, y)
-    local z,i;
-    z := 0;
-    for i in [1..n] do
-        #% x and y always integers
-        z := z+Gcd(x,y);
-    od;
-    return z;
-end;
-\end{verbatim}
-The \verb|#%| here denotes a pragma.
-
-This can be unpacked:
-\begin{Small}
-\begin{verbatim}
-gap> t:= SyntaxTree(foo)!.tree;
-rec( name := "foo", nams := [ "n", "x", "y", "z", "i" ], narg := 3, 
-  nloc := 2, 
-  stats := 
-    rec( 
-      statements := 
-        [ 
-          rec( lvar := 4, rhs := rec( type := "EXPR_INT", value := 0 ), 
-              type := "STAT_ASS_LVAR" ), 
-          rec( 
-              body := 
-                [ 
-                  rec( type := "STAT_PRAGMA", 
-                      value := "% x and y always integers" ), 
-                  rec( lvar := 4, 
-                      rhs := 
-                        rec( 
-                          left := 
-                            rec( lvar := 4, type := "EXPR_REF_LVAR" ), 
-                          right := 
-                            rec( 
-                              args := 
-                                [ 
-                                  rec( lvar := 2, 
-                                      type := "EXPR_REF_LVAR" ), 
-                                  rec( lvar := 3, 
-                                      type := "EXPR_REF_LVAR" ) ], 
-                              funcref := 
-                                rec( gvar := "Gcd", 
-                                  type := "EXPR_REF_GVAR" ), 
-                              type := "EXPR_FUNCCALL_2ARGS" ), 
-                          type := "EXPR_SUM" ), 
-                      type := "STAT_ASS_LVAR" ) ], 
-              collection := 
-                rec( first := rec( type := "EXPR_INT", value := 1 ), 
-                  last := rec( lvar := 1, type := "EXPR_REF_LVAR" ), 
-                  type := "EXPR_RANGE" ), type := "STAT_FOR_RANGE2", 
-              variable := rec( lvar := 5, type := "EXPR_REF_LVAR" ) ), 
-          rec( obj := rec( lvar := 4, type := "EXPR_REF_LVAR" ), 
-              type := "STAT_RETURN_OBJ" ) ], type := "STAT_SEQ_STAT3" )
-    , type := "EXPR_FUNC", variadic := false )
-\end{verbatim}
-\end{Small}
-
-All of the necessary information is here for a simple \GAP program to
-locate the pragma and using the information in it, replace the general
-function \verb|Gcd| by the specialized \verb|GcdInt| statically.
-Doing this by hand for the moment, we get:
-\begin{verbatim}
-gap> u := StructuralCopy(t);;
-gap> u.stats.statements[2].body[1].value := "% Gcd specialised to GcdInt";;
-gap> u.stats.statements[2].body[2].rhs.right.funcref.gvar := "GcdInt";;
-gap> bar := SYNTAX_TREE_CODE(u);;
-\end{verbatim}
-
-automatically producing a new function which prints as
-
-\begin{verbatim}
-gap> Print(bar);
-function ( n, x, y )
-    local z, i;
-    z := 0;
-    for i in [ 1 .. n ] do
-        #% Gcd specialised to GcdInt
-        z := z + GcdInt( x, y );
-    od;
-    return z;
-end
-\end{verbatim}
-
-which executes approximately five times faster than \verb|foo|:
-\begin{verbatim}
-gap> foo(10^7, 102334155, 165580141);; time
-2245
-gap> bar(10^7, 102334155, 165580141);; time;
-424
-\end{verbatim}
-
-\textbf{Note:} It is important to understand that this is \emph{not} a
-source code level transformation. Automated transformation tools built
-on this foundation do
-not need to parse or emit \GAP syntax, and all questions of scope,
-including bindings in closures, are already resolved. A small planned
-extension will add profiling information to the syntaxtree when available.
-
-Other applications for this technology include automated
-parallelisation (in combination with \HPCGAP) and traditional code optimizations.
-
-While we would have preferred to have had more time to exploit these
-facilities within the project, it was important to achieve consensus
-around a solution that fit the needs of \GAP and its community and
-will provide a basis for developments for years to come.
