@@ -117,8 +117,9 @@ $p$-adic lifting and Chinese remainder techniques.
 This led to a multi-modular (or RNS, residue number system) $p$-adic
 lifting.
 We further improve this variant in several ways to deliver a parallel
-RNS $p$-adic lifting solver. Algorithm~\ref{alg:ParMultiModSolve} reflects
-these improvements with the two following salient features:
+RNS $p$-adic lifting solver. The novel
+Algorithm~\ref{alg:ParMultiModSolve} reflects these improvements with
+the two following salient features:
 \begin{enumerate}
 \item The costly updates in the main loop of \cite{ChSt05} were
   performed via matrix-vector arbitrary precision multiplications over
@@ -170,7 +171,7 @@ these improvements with the two following salient features:
     \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
     \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
     \For{$i\leftarrow 1 \dots \ell$ in parallel}
-      \State $B_i \leftarrow  A^{-1} \mod p_i$
+      \State\label{lin:GINV} $B_i \leftarrow  A^{-1} \mod p_i$
       \State $\vect{r}^{(i)}\leftarrow \vect{b} \mod p_i$
       \State $\vect{y}^{(i)} \leftarrow 0$
     \EndFor
@@ -180,7 +181,7 @@ these improvements with the two following salient features:
     \For{$i\leftarrow 1\dots\ell$ in parallel}
     \State $(\vect{\phi}^{(i)},\vect{\rho}^{(i)}) \leftarrow
     \texttt{divmod}(\vect{r}^{(i)},p_i)$\Comment{$\vect{r}^{(i)} = p_i \vect{\phi}^{(i)} + \vect{\rho}^{(i)}$}
-    \State $\vect{c}^{(i)}  \leftarrow \mat{B_i} \vect{\rho}^{(i)} \mod p_i$
+    \State\label{lin:GEMV} $\vect{c}^{(i)}  \leftarrow \mat{B_i} \vect{\rho}^{(i)} \mod p_i$
     \State $\vect{y}^{(i)} \leftarrow \vect{y}^{(i)} + \vect{c}^{(i)} p_i^j$
 %    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
     \EndFor
@@ -230,28 +231,68 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{A multicore $p$-adic lifting}
+Thanks to our implementation of Algorithm~\ref{alg:ParMultiModSolve}, 
+we obtain improvements on arbitrary precision parallel rational
+solving.
+All the experiments in this Section were obtained on a \TODO{ @GHz }
+machine.
 
-Adapted from and improving on \cite{ChSt05}.
+Roughly, the dominant costs of Algorithm~\ref{alg:ParMultiModSolve}
+are within lines~\ref{lin:GINV}, \ref{lin:GEMV} and~\ref{lin:ZGEMM},
+which we will denote by the GINV (matrix inversion), GEMV
+(matrix-vector iteration) and ZGEMM (matrix-matrix multiplication over
+$\mathbb{Z}$).
+Their respective costs are given by $\ell\cdot\GO{n^\omega}$,
+$k_\ell\ell\cdot\GO{n^2}$ and $k_\ell\cdot\GO{n^2\ell^{\omega-1}}$,
+where $\ell$ is the parameter and $k_\ell\ell\approx n \cdot
+\texttt{bitsize}$ is approximately a constant.
+
+Thus we see that by increasing $\ell$ we increase the overall number
+of operations, but the hope is to trade some slow operations of ZGEMM
+for some very fast operations of GINV. 
+We also see that the dominant cost should remain unchanged within GEMV, but
+that by increasing $\ell$ we increase the potential for overall
+parallelism. 
+
+This analysis is backed up by experiments as we show in the following.
+
+First, the technique of the double RNS basis, combined with the
+gathering of updates is shown, in sequential, in
+Figures~\ref{fig:rnsdixon_seqprimescount}
+and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending $\ell$
+(``primes'' is the Figures), we increase the overall work but this
+can pay at different thresholds for different matrix dimensions and
+bitsizes. In sequential we can see some $30\%$ gains on a single core,
+even for small matrices.
 
 
 \begin{figure}[htb]
 \begin{center}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-primesCount}
 \end{center}
-\caption{Sequential RNS Dixon.}\label{fig:rnsdixon_seqprimescount}
+\caption{Sequential RNS Dixon with fixed bitsize.}\label{fig:rnsdixon_seqprimescount}
 \end{figure}
 \begin{figure}[htb]
 \begin{center}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-bitsize}
 \end{center}
-\caption{Sequential RNS Dixon.}\label{fig:rnsdixon_seqprimescount}
+\caption{Sequential RNS Dixon with fixed matrix dimension.}\label{fig:rnsdixon_seqbitsize}
 \end{figure}
+
+Now in parallel this is strikingly more interesting as shown in
+Figures~\ref{fig:rnsdixon_parallel_threads}
+and~\ref{fig:rnsdixon_parallel}. Indeed, there, we see that the
+overall work increases with the increase of $\ell$ (see the top
+histograms in Figure~\ref{fig:rnsdixon_parallel}).
+But this increase is negligible when the matrix size is larger (almost
+no more ``red'' ), and the parallelization pays of ($9.5$ speed-up
+with $16$ cores).
 
 \begin{figure}[htb]
 \begin{center}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-threads}
 \end{center}
-\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel}
+\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel_threads}
 \end{figure}
 
 \begin{figure}[htb]
@@ -259,15 +300,8 @@ Adapted from and improving on \cite{ChSt05}.
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b}
 \end{center}
-\caption{Balance between initialization and lifting phases. In each cluster, left column correspond to a sequential run,
+\caption{Balance between matrix inversion (GINV) and lifting phases (GEMV+ZGEMM). In each cluster, left column correspond to a sequential run,
 and right column to a run with 16 cores}\label{fig:rnsdixon_parallel}
-\end{figure}
-
-\begin{figure}[htb]
-\begin{center}
-  \includegraphics[width=.9\textwidth]{Pictures/RNSDixon/parallel-threads}
-\end{center}
-\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
