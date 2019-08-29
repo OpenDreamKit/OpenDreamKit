@@ -113,11 +113,51 @@ contained in a sequence of less expensive linear algebra operations (matrix-vect
 However, the strongly iterative structure of this algorithm makes it both harder to parallelize and less cache
 efficient.
 In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
-$p$-adic lifting and Chinese remainder techniques.
-We further improved this variant to deliver a parallel $p$-adic lifting solver. \TODO{explain the improvements}
+$p$-adic lifting and Chinese remainder techniques. 
+We further improved this variant in several ways to deliver a parallel
+$p$-adic lifting solver. Algorithm~\ref{alg:ParMultiModSolve} reflects
+these improvements with the two following salient features:
+\begin{enumerate}
+\item We gather the costly updates, that were performed via
+  matrix-vector arbitrary precision multiplications over the integers
+  with an RNS basis,
+  in order to perform instead a parallel matrix-matrix multiplication;
+  this can be seen in lines~\ref{} of Algorithm~\ref{alg:ParMultiModSolve}
+\item We restrict the RNS basis to primes individually larger than the
+  multi-modular ones in order to speed up the RNS/integer conversions 
+  and use the parallel RNS improvement of~\cite{DGLS18}.
+\end{enumerate}
+
+%\begin{algorithm}[htb]
+%  \caption{Multi-modular $p$-adic rational solver}\label{alg:ChSt}
+%  \begin{algorithmic}[1]
+%    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
+%    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+%    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+%    \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
+%    \For{$i\leftarrow 1 \dots \ell$}
+%      \State $B_i \leftarrow  A^{-1} \mod p_i$
+%      \State $\vect{r}^{(i,0)}\leftarrow \vect{b} \mod p_i$
+%    \EndFor
+%    \For{$j\leftarrow 0\dots k-1$}
+%    \For{$i\leftarrow 1\dots\ell$}
+%    \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r_i} \mod p_i$
+%    \State $(\vect{Q}^{(i,j)},\vect{R}^{(i,j)}) \leftarrow
+%    \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{Q}^{(i,j)} + \vect{R}^{(i,j)}$}
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{Q}^{(i,j)}+\frac{\vect{R}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+%    \EndFor
+%    \EndFor
+%    \For{$i\leftarrow 1\dots\ell$}
+%    \State $\vect{y}^{(i)} \leftarrow \sum_{j=0}^{k-1} \vect{c}^{(i,j)} p_i^j$
+%    \EndFor
+%    \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
+%    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i^k )$
+%  \State \Return $\vect{x}/d$
+%\end{algorithmic}
+%\end{algorithm}
 
 \begin{algorithm}[htb]
-  \caption{Parallel multi-modular $p$-adic rational solver}
+  \caption{Parallel multi-modular $p$-adic rational solver}\label{alg:ParMultiModSolve}
   \begin{algorithmic}[1]
     \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
     \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
@@ -127,13 +167,18 @@ We further improved this variant to deliver a parallel $p$-adic lifting solver. 
       \State $B_i \leftarrow  A^{-1} \mod p_i$
       \State $\vect{r}^{(i,0)}\leftarrow \vect{b} \mod p_i$
     \EndFor
+    \State Pick primes $q_1,\dots, q_\tau$ all $>\max_i\{p_i\}$, such
+    that $\prod_{i=1}^\tau q_i \geq n||A||_\infty$
     \For{$j\leftarrow 0\dots k-1$}
     \For{$i\leftarrow 1\dots\ell$ in parallel}
     \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r_i} \mod p_i$
-    \State $(\vect{Q}^{(i,j)},\vect{R}^{(i,j)}) \leftarrow
-    \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{Q}^{(i,j)} + \vect{R}^{(i,j)}$}
-    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{Q}^{(i,j)}+\frac{\vect{R}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+    \State $(\vect{\phi}^{(i,j)},\vect{\rho}^{(i,j)}) \leftarrow
+    \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{\phi}^{(i,j)} + \vect{\rho}^{(i,j)}$}
+    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
     \EndFor
+
+    \State ... \TODO{Gather}
+
     \EndFor
     \For{$i\leftarrow 1\dots\ell$ in parallel}
     \State $\vect{y}^{(i)} \leftarrow \sum_{j=0}^{k-1} \vect{c}^{(i,j)} p_i^j$
@@ -195,5 +240,7 @@ In order to let a user be able to harness the power of a graphic accelerator
 
 %%% Local Variables:
 %%% mode: latex
+%%% mode: flyspell
+%%% ispell-local-dictionary: "american"
 %%% TeX-master: "report"
 %%% End:
