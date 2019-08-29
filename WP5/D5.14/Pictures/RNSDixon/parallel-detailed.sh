@@ -10,14 +10,14 @@ DATA_FILENAME="parallel-detailed_${DIMENSION}n_${BITSIZE}b.txt"
 GNUPLOT_FILENAME=".parallel-detailed.gnp"
 GNUPLOT_OUTPUT_FILENAME="parallel-detailed.pdf"
 
-PS="1 2 4 8 16 32"
+PS="1 2 4 8 16"
 
 # Split by cluster
 
 PLOT_COMMAND="plot"
 for P in ${PS}; do
     FILENAME=".p_${P}.txt"
-    TS="1 16"
+    TS="1 4"
 
     echo "T INIT LIFTING" > ${FILENAME}
     for T in ${TS}; do
@@ -27,8 +27,8 @@ for P in ${PS}; do
     done
 
     # Hide titles for after first drawing
-    if [ "${P}" == "1" ]; then
-        TITLE_INIT="Initialization"
+    if [ "${P}" == "2" ]; then
+        TITLE_INIT="Matrix inversions"
         TITLE_LIFTING="Lifting"
     else
         TITLE_INIT=""
@@ -48,7 +48,7 @@ set style fill solid border rgb "#202020"
 
 set boxwidth 0.8
 set grid ytics
-set key top left
+set key top center
 
 set key autotitle columnheader
 set xlabel 'primes count (${DIMENSION}x${DIMENSION} bitsize ${BITSIZE})'
