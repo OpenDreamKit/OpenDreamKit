@@ -432,7 +432,7 @@ in shows that the graph indeed crosses the real axis twice:
 The speedup profile for each individual command depends on the relative cost
 of the pre- or post-processing phases. For instance testing determinants and
 matrix kernels, both computed by Chinese remaindering techniques, the
-perceived speedups caps around 10.8 and 2.7 respectively, instead of the
+perceived speedups caps around 10.8 and 5.9 respectively, instead of the
 previous 13.6:
 
 \begin{verbatim}
@@ -460,8 +460,10 @@ ymin=1, ymax=32,
 \end{tikzpicture}
 \end{center}
 
-\noindent The difference with the previous \texttt{ellan} example is easily
-explained:
+\noindent
+The sequential times were respectively 32.3s for the determinant and
+19.9s for the kernel. The difference with the previous \texttt{ellan} example
+is easily explained:
 \begin{enumerate}
   \item We do not know in advance the actual result size so we resort to a
     doubling strategy, which makes it harder to optimize parameters.
@@ -471,16 +473,17 @@ explained:
   \item The overhead is more inportant now since modular linear algebra
     internally involve three parallelized operations: reducing our input
     modulo many small primes $(p_i)$, the modular matrix computations and
-    chinese remaindering to obtain a result modulo the product of all $p_i$.
+    chinese remaindering to obtain a result modulo the product $N$ of all $p_i$.
 
   \item In addition, the kernel involves the rational reconstruction of basis
-    vectors from modular results modulo $N$, contrary to the determinant
-    which is here known to be an integer. The reconstruction is currently
-    done in the main thread; in this example, this makes it the dominant part
-    of the algorithm, cancelling most of parallelization gains. The
-    reconstruction could be moved to the parallel section of the code but
-    this causes difficulties in other examples. In any case, there is
-    room for improvement here.
+    vectors from modular results modulo $N$ and the check that those belong
+    to the kernel, contrary to the determinant which is here known to be an
+    integer and is directly guaranteed to be correct. The final check is
+    currently done in the main thread; in this example, it uses 25\% of the
+    real computing time, cancelling some of the parallelization gains.
+    The check could be moved to the parallel section of the code but this
+    causes difficulties in other examples. In any case, there is room for
+    improvement here.
 \end{enumerate}
 
 \subsection{MPI}
