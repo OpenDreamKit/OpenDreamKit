@@ -75,9 +75,32 @@ Thus, MitM and MDDL form the nucleus of a common vocabulary for typical mathemat
 %These can and should eventually be linked to representation standards in other domains. 
 %For mathematical datasets, the math-specific aspects attacked by our work are the dominant factor.
 
-Currently, the infrastructure produced includes everything necessary
-to display a simple website with basic search functionality, shown in Figure~\ref{fig:joe}.
-\ednote{@TW: describe infrastructure}
+\begin{figure}[ht]
+  \includegraphics[width=0.8\textwidth]{DMH_infra.pdf}
+  \caption{\dmh Infrastructure}\label{fig:dmhstruct}
+\end{figure}
+
+Currently, the infrastructure produced includes everything necessary to display a simple website with basic search functionality. 
+The interface is shown in Figure~\ref{fig:joe}, it's structure in \ref{fig:dmhstruct}. 
+The infrastructure consists of four main parts - a database (currently either Postgres of Sqlite), a backend (written in Django), a frontend (running inside the users' browser and written in React), and a data importer.
+
+To import data into system we start with an MDDL description of the dataset. 
+This is used to generate a so-called schema. 
+The schema takes the form of a json file and aggregates all information required for the system as a whole to function. 
+This schema contains all dataset properties along with the codecs used for them, all human-readable dataset descriptions and other meta-data. 
+In a first step, the importer records all this information inside the database. 
+
+Next, the encoded data is provided to the importer in the form of one or several json files. 
+The importer can then use this file, and the schema, to interpret each value correctly and store it inside the database, concluding the import. 
+During this process it also records appropriate data provenance. 
+
+The frontend of the system is written in React. 
+It runs inside the users's browser and communicates with the backend via REST. 
+Currently, it enables two main tasks, displaying all data inside a specific dataset, and searching for data subject to specific criteria. 
+
+The frontend first requests the list of properties and used codecs from the backend. 
+Based on this information, it then uses the appropriate UI components to build a search interface or present the specific values. 
+This architecture implies that apart from adding support for new codecs, neither the frontend nor the backend code needs to be changed when a new dataset becomes available. 
 
 \begin{figure}[ht]
   \includegraphics{data_joe.png}
