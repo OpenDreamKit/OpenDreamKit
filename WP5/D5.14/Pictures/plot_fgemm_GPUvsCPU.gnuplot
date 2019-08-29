@@ -1,10 +1,10 @@
-set xlabel "n"
-set ylabel "Gfops"
-set title "FFLAS::fgemm over GF(1048573) on a Xeon E5-2680 v4 and NVIDIA K40 GPU"
+set xlabel "matrix dimension n"
+set ylabel "Speed (Gfops)"
+set title "FFLAS::fgemm over GF(131071) on a Xeon Gold 6130 and NVIDIA V100 GPU"
 set key top left
 #set logscale y 
 #set logscale x
 
 set terminal pdf enhanced color
 set output "fgemm_GPUvsCPU.pdf"
-plot "fgemm_gpu.data"  using 8:4 title 'FFLAS with CUBLAS (GPU)' with lines lw 1, "" using 8:4 title 'FFLAS with OpenBLAS (CPU)' with lines lw 1,
+plot "fgemm_bigfoot.data"  every 3 using 8:4 title 'FFLAS with CUBLAS (1 GPU)' with linespoints lw 1, "" every 3::2 using 8:4 title 'FFLAS with OpenBLAS (CPU) 32 cores' with linespoints lw 1, "" every 3::1 using 8:4 title 'FFLAS with OpenBLAS (CPU) 1 core' with linespoints lw 1,

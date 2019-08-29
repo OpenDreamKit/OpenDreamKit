@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #114 on 2019-08-24 {.notoc}
+# Deliverable description, as taken from Github issue #114 on 2019-08-29 {.notoc}
 
 - **WP5:** [High Performance Mathematical Computing](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5)
 - **Lead Institution:** CNRS
@@ -6,7 +6,7 @@
 - **Nature:** Demonstrator
 - **Task:** T5.1 (#99) 
 - **Proposal:** [p. 51](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **[Report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.16/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.16/))
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.16/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.16/))
 
 **The Pari library** is a state-of-the-art library for number theory and an important component of the Sage computational system. Together with the `gp` command line interface and the `gp2c` compiler, it forms the Pari/GP package. This deliverable implements a generic parallel engine in the Pari/GP system, uses it inside the system to implement fast parallel variants of existing sequential code and exports it for library users. The released Pari/GP suite (PARI-2.12) makes those improvements and new features available for the community, in particular Sage users and all softwares using the Pari library.
 

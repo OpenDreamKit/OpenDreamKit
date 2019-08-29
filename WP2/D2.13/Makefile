@@ -17,5 +17,4 @@ clean:
 	rm -f *.toc
 	rm -f *.xml
 	rm -f *.out
-	rm -f *.bib
 	rm -f report.pdf

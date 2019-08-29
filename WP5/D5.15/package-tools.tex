@@ -1,0 +1,446 @@
+\subsection{Improvements to \GAP Package Tools}\label{sec:package-tools}
+
+Sections \ref{sec:packages}, \ref{meataxe64}, \TODO{more} have shown
+that developments important to our goal of a flexible, widely portable high performance
+mathematical software system can increasingly occur in packages, as
+well as in the core \GAP system. For that reason, as well as pursuit
+of the broader goals of WP 2 (\TODO{others?}) we have attached
+considerable priority to a supporting and promoting a healthy \GAP
+package ecosystem. We have supported this through the developments described in subsection~\ref{testing}, together with community
+supporting activities described in D2.15, \TODO{check D2.15}, with
+good effect. Within the duration of the \ODK
+project we have observed rapid growth of the number of \GAP packages
+and of active package
+authors and steady improvements in the quality of package testing and more frequent
+package updates. This has both been supported by, and encouraged, the
+development of a wide range of tools to help package authors.
+
+In this section we will first introduce these tools, and then discuss the
+impact which they had on the package ecosystem together with the increased
+adoption of the open development model by package authors,
+
+\subsubsection{ReleaseTools and GitHubPagesForGAP}
+Our collaborator Max Horn (University of Siegen) developed {\sf ReleaseTools}
+and {\sf GitHubPagesForGAP} (\url{https://github.com/gap-system/ReleaseTools/}
+and \url{https://github.com/gap-system/GitHubPagesForGAP}) which allow package
+authors to fully automate the release procedure of a \GAP package hosted on GitHub
+and maintaining its website hosted on GitHub pages,
+reducing the time needed to publish it to a matter of minutes.
+
+The \GAP package {\sf Example} by Werner Nickel, Greg Gamble and
+Alexander Konovalov \cite{example}, which acts as a package template,
+has been consistently maintained to keep up with the updates
+of the packages infrastructure and demonstrate a model use of modern
+development tools.
+%It switched to using {\tt TestDirectory} to demonstrate how to use 
+%multiple test files in a GAP package, and migrated
+%to GitHub, using {\sf ReleaseTools/GitHubPagesForGAP}
+%for new releases. The guidance for package authors, formerly offered
+%as an appendix to the {\sf Example} package manual, was moved to the GAP
+%Reference manual in \GAP~4.9 release. Finally, the {\sf Example} package
+%demonstrates how to set up Travis CI and CodeCov. Package authors
+%may copy its configuration files and adapt them with minimal changes.
+
+\subsubsection{PackageMaker}
+To offer an alternative way to create a package,
+Max Horn developed a GAP package called {\sf PackageMaker}
+(\url{https://github.com/gap-system/PackageMaker}) (not yet redistributed with \GAP),
+which provides an interactive  ``package wizard'' which allows the
+user to fill in the basic details 
+of the intended package and then create all the files needed to
+provide the basic structure of the package. A particularly relevant
+strength of this tool is that it hides the additional complexities of
+packages which include C or C++ code, removing a barrier to faster implementation
+of key kerne;s
+
+\subsubsection{AutoDoc}
+\GAP packages are required to provide documentation.  The key central
+format for \GAP documentation is XML-based, defined in the {\sf
+  GAPDoc} package, and while convenient in many ways, can be rather
+cumbersome and error prone to write by hand.
+In 2012 Sebastian Gutsche 
+and Max Horn (both now at the University of Siegen) developed the 
+{\sf AutoDoc} package \cite{autodoc} which creates
+documentation from simple structured comments in the source code,
+similat to pydoc or javadoc.
+
+By now, {\sf AutoDoc} has become very reliable and configurable, and
+is in use by 89 GAP packages.
+% for building some parts or their whole manuals.
+% the number 89 was determined by 
+%
+% grep 'AutoDoc(' */makedoc.g | wc -l
+%
+% a note "parts or their whole manuals" is essential - 
+% it is possible to build a GAPDoc manual using AutoDoc
+% and automatically generate title page, updating the
+% metadata from those in PackageInfo.g, avoiding the need
+% to duplicate details in two places. The rest of the
+% manuals for such packages may still remain in XML.
+
+\subsubsection{Continuous Integration Support for Package Authors}
+Using Docker containers described in Section~\ref{sec:gap-infra}
+and shown on Figure~\ref{fig:gap-docker} enabled making 
+results of regression tests for \GAP packages publicly
+available via Travis CI. Using a prebuilt docker image 
+greatly reduced the runtime of the test and allowed to
+have a separate test configuration for each package,
+easily discoverable via Travis CI interface.
+
+Figure~\ref{fig:gap-docker-pkg-tests} shows a fragment of the dashboard
+from \url{https://github.com/gap-system/gap-distribution} which 
+indicates tests status. In this situation, it happened that a fresh
+change in the master branch broke tests in one of the packages;
+\comment{In fact, in this particular case changes in \GAP were made that 
+an empty list no longer qualifies as legal input to {\tt IsDiagonalMat},
+but that was used in the {\sf Cryst} package}
+the author was immediately notified and reacted with a quick fix.
+\comment{I also have a version of screenshots with the required tests passing}
+
+% \comment{this must be clear from picture}
+%We separate passing and failing tests into different
+%Travis jobs, and use that to monitor their status and check that
+%changes in GAP do not break package tests. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-docker-pkg-tests}
+    \caption{Dashboard for Travis tests of \GAP packages (GitHub view)}
+    \label{fig:gap-docker-pkg-tests}
+\end{figure}
+
+
+\comment{not sure if  Figure~\ref{fig:gap-infra-travis} adds anything new
+- may be deleted?}
+The setup for such tests is organized in the gap-infra GitHub organisation
+(\url{https://github.com/gap-infra}. Figure~\ref{fig:gap-infra-travis} shows a 
+screenshot of a dashboard which indicates tests status.
+\comment{All these screenshots may be superfluous - I made them to show
+what could be included, we can remove some or cut parts of them out later}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-infra-travis}
+    \caption{Dashboard for Travis tests of \GAP packages (Travis CI view)}
+    \label{fig:gap-infra-travis}
+\end{figure}
+
+\comment{this may be too technical}
+One of the extensions of the package testing framework, greatly 
+facilitated by packages migrating to GitHub, was adding tests not
+only for the latest official releases of GAP packages, but also
+for their \emph{development} versions.
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-stable-4.10-devel
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-master-devel
+In this case, the onus to check tests outcomes is on package authors,
+and they are able to see how the changes that they have made to
+a package but not released yet work in different settings (stable/master,
+with default/without/with all packages).
+
+Figure~\ref{fig:gap-packages-travis} shows a screenshot of a 
+report on the activity in the gap-packages organization 
+for the last month (for the current version of 
+this report, check \url{https://travis-ci.org/gap-packages?tab=insights}).
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-packages-travis}
+    \caption{Activity of Travis tests in gap-packages GitHub organization}
+    \label{fig:gap-packages-travis}
+\end{figure}
+
+Finally, Figure~\ref{fig:gap-packages-codecov} show the code coverage
+leaderboard. We aim at ensuring that code coverage for packages is 
+not worse than for the core GAP system, but packages presented there 
+put a lot of efforts in ensuring that their coverage is close to 100\%. 
+\comment{the screenshot may be cropped to end at Memoisation package}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-packages-codecov}
+    \caption{Codecov leaderboard for in gap-packages GitHub organization}
+    \label{fig:gap-packages-codecov}
+\end{figure}
+
+\subsection{Open Development of \GAP Packages -- Measure of Uptake
+  and Quality}
+\TODO{Explain why this is not in a WP2 report?}
+\comment{}
+
+As an evidence of the widespread adoption of the open development model, 
+at the time of writing only 4 packages redistributed with GAP do not have a public 
+source code repository (to compare, in Month 38 there were still 23 such 
+packages). In some cases, that involved non-trivial efforts to establish 
+contacts with authors who left academia, getting their permission and 
+establishing package license, populating a new repository with releases 
+history using archives of past releases, and adopting the packages to
+be collectively maintained by the GAP Group. This helps to preserve the
+code in usable state, necessary to reproduce computational results, and
+may eventually result in finding new maintainers for these packages.
+Moving to GitHub made it easier to get new contributors to existing
+packages. As Figure~\ref{fig:gap-package-tests}
+shows, the number of individuals involved in package development
+increased from 158 in Month 3 to 196 in Month 46. 
+
+Figure~\ref{fig:gap-package-releases} shows the number of \GAP packages
+included in some \GAP release and their distribution by the year of their
+release. At the beginning of the project, GAP 4.7.9 published in November
+2015 included 119 packages, 52\% of which were released in 2014--2015.
+Now, GAP 4.10.2 included 145 packages, 88\% of which were released in
+2018--2019. The ``long tail'' of packages that haven't been updated for
+a long time is gradually reducing.
+%(we take measures of not breaking
+%existing functionality, but old packages are usually not picking up
+%new improvements; and may prevent us from withdrawing obsolete
+%functionality). 
+Larger proportion of recent releases means that 
+packages are updated to make use of the recent \GAP developments,
+and are responsive to reports about detected problems.
+This is greatly facilitated by hosting packages on GitHub which 
+allows GAP developers a very efficient way to provide help by submitting 
+pull requests and even publishing releases on behalf of package authors.
+%who prefer to overlook mathematical functionality and general development of the
+%package but do not want to dive into technicalities of release wrapping.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-package-releases}
+    \caption{Number of \GAP packages and their release year}
+    \label{fig:gap-package-releases}
+\end{figure}
+
+
+Over the same time, not only package releases became more frequent, but also their quality
+improved. If in November 52\% of packages did not provide a standard 
+test at all, presently 78\% of packages do have a standard test 
+% https://github.com/gap-packages/gap-packages.github.io/issues/9
+so their authors are responsible for regular testing them 
+with GAP releases and development versions.
+Some of them use their own setup for continuous integration
+(like e.g. the \href{https://homalg-project.github.io/}{\sf homalg} project,
+which uses \href{https://circleci.com/}{CircleCI}).
+At the moment of writing, in the stable-4.10 branch,
+standard tests pass for 102 packages
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-stable-4.10
+and fail for 12.
+% https://travis-ci.org/gap-infra/gap-docker-pkg-tests-stable-4.10-staging 
+(it may be worth to note what "fail" means - not serious bugs
+but different output, or incompatibility with some other package
+not loaded by default).
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/gap-package-tests}
+    \caption{Number of \GAP packages, their authors, and packages with tests.}
+    \label{fig:gap-package-tests}
+\end{figure}
+
+% grep github currentPackageInfoURLList | wc -l
+Another illustrative statistics is the number of \GAP packages
+with the websites hosted on GitHub pages (some of them use
+their own setup, different from {\sf GitHubPagesForGAP}.
+The following table gives this number for August of each respective year:
+
+\begin{center}
+\begin{tabular}{| c | c | c | c | c | c |} 
+\hline
+Year & 2015 & 2016 & 2017 & 2018 & 2019 \\
+\hline
+Number of packages & 14 & 45 & 61 & 92 & 124 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{The \GAP package manager}\label{pkg-manager}
+
+\subsubsection{Background}
+
+For many years, the installation of packages in \GAP has been an entirely manual
+process.  If a user requires a package that is not currently installed on their
+system, they are required to visit the \GAP website, or the website of the
+required package, download an archive or repository and extract it into their
+package directory.  In many cases, they must also compile the package before
+use, in a process that is not consistent between packages.  Worst of all, any
+dependencies must also be installed individually, including all these steps for
+each one.
+
+This awkward installation procedure is mitigated by the inclusion of a large
+number of packages with the main release archive (145 packages were included
+with \GAP 4.10.2).  This solution masks the problem for the majority of users,
+who do not require any more specialized packages.  However, it also results in a
+1.6 GB standard installation, of which the packages make up 1.4 GB.  
+\TODO{maybe add how many lines of GAP code and C code are there}
+While some packages are used by almost every \GAP user because they
+enhance the performance of core \GAP features, 
+only a subset of the others will be needed by any specific end
+user. This may be explicit (when they load a package relevant to their
+research interests) or implicit (to satisfy package dependencies).
+\TODO{Adding packages as a user to a central installation. Installing development
+  versions of packages}
+
+The possibility of a more sophisticated package management system for \GAP has
+been discussed for some time, and was realized with the creation of {\sf
+  PackageManager} \cite{PackageManager} in
+Month 37, by Michael Torpey.  Development started after a discussion at
+\GAP Days Fall 2018 (\url{https://www.gapdays.de/gapdays2018-fall/}) and an
+initial release was made before the end of that meeting.  New features have been
+added in various further releases across the past year.
+
+\TODO{Give some kind of justification for why this is being reported
+  in WP5}
+
+\subsubsection{Design}
+
+{\sf PackageManager} is a \GAP package itself, which is operated from inside a
+\GAP session.  This approach to package management was chosen over an external
+manager, since it allows users to install and remove packages without ever
+leaving the \GAP prompt.  The first advantage of this is that
+users have a comfortable environment, without needing to learn how to use
+external tools; and the second is that, in most cases, packages can be installed
+and loaded without restarting the session, as shown in Figure \ref{fig:pkgman-sample}.
+This means that users' workflow is interrupted as little as possible, and they do
+not need to save and reload their work.
+
+\begin{figure}[!ht]
+    \centering
+    {\tiny
+\begin{verbatim}
+gap> InstallPackage("digraphs");
+#I  Getting PackageInfo URLs...
+#I  Retrieving PackageInfo.g from https://gap-packages.github.io/Digraphs/PackageInfo.g ...
+#I  Downloading archive from URL https://github.com/gap-packages/Digraphs/releases/download\
+/v0.15.4/digraphs-0.15.4.tar.gz ...
+#I  Saved archive to /tmp/tmcLM2FI/digraphs-0.15.4.tar.gz
+#I  Extracting to /home/user/.gap/pkg/digraphs-0.15.4 ...
+#I  Checking dependencies for Digraphs...
+#I    io >=4.5.1: true
+#I    orb >=4.8.2: true
+#I  Running compilation script on /home/user/.gap/pkg/digraphs-0.15.4 ...
+true
+gap> LoadPackage("digraphs", false);
+true
+\end{verbatim}
+    }
+    \caption{Installing a package using {\sf PackageManager}.}
+    \label{fig:pkgman-sample}
+\end{figure}
+
+The main functions provided by {\sf PackageManager} are \texttt{InstallPackage},
+\texttt{UpdatePackage}, and \texttt{RemovePackage}.  The first,
+\texttt{InstallPackage}, takes a string which can be in any of several different
+forms: the URL of an archive, repository, or package info file, or simply the
+name of a package.  In the case of a URL, the appropriate file is retrieved
+using an internet connection, and used to install the package; if a package name
+is given, it is looked up in a pre-defined list of package URLs and installed
+from there.  In most cases, the latest released version of a package is
+installed; a user can specify an older version by giving an explicit archive
+URL, or a development version by specifying a branch in a
+version control repository.  % currentPackageInfoURLList
+
+The ability to install a package given only its name is useful, but requires
+some important design decisions: how do we decide which packages to support, and
+which versions do we install by default?  One option would be to have a
+centralized repository (as is common for the {\sf APT} package manager) which
+contains a carefully checked set of package versions that are known to work with
+the installed version of \GAP and with each other; this has the advantage of
+stability and control, but may make it harder to get the latest software
+versions.  The other option is to store links to appropriate locations on the
+package websites, allowing the most recently released version to be installed
+without explicit approval from the \GAP authors; this approach is closer to the
+more liberal {\sf pip} package manager for the Python language.
+In the end, the latter approach was taken for the following reasons:
+\begin{itemize}
+\item approved package versions for a given release are likely to be included
+  with the \GAP installation anyway, and it is unlikely that users would need
+  to reinstall these;
+\item the latter approach requires no additional infrastructure, since a
+  \texttt{currentPackageInfoURLList} is already maintained for testing purposes;
+\item this approach encourages active use, and therefore testing, of recent releases.
+\end{itemize}
+This decentralized approach has therefore been adopted for the moment, though
+future development could move easily towards a different approach.
+
+\subsubsection{Features}
+
+Over the course of {\sf PackageManager}'s development, it has accumulated
+various features that automate as much of the installation process as possible.
+During installation, the following operations are carried out automatically:
+\begin{itemize}
+\item any kernel module is configured and compiled, if present;
+\item package documentation is built from source if necessary;
+\item prerequisites are installed using \texttt{prerequisites.sh} if present;
+\item all missing package dependencies are installed, or recompiled if broken;
+\item basic checks are performed to verify that installation was successful.
+\end{itemize}
+This has resulted in a reasonably smooth installation process, with very little
+friction encountered by a user who tries to get a new package working.  It is
+now a deposited package in \GAP, and is therefore distributed in the main
+archive with each release.
+
+\TODO{Mention that it uses ~/.gap/pkg ?  Or is that too technical? AK: in some
+non-technical words explain that the location will be visible from multiple
+GAP installations, and packages will remain even if the main GAP installation
+is deleted (e.g. during upgrade)}
+
+\subsubsection{Best practice}
+
+{\sf PackageManager} was written using modern open-source software technologies
+and practices.  In the report on OpenDreamKit D1.5, in Section 4.3.2, there are
+two checklists for best practices: one for software engineering, and one for
+dissemination.  The package fulfills all the requirements in both lists, as summarized in
+Tables \ref{tab:pkgman-se-check} and \ref{tab:pkgman-diss-check}.
+
+\begin{table}[h]
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{|p{5.1cm}|c|p{9.5cm}|}\hline
+    Version control & \checkmark & Git \\ \hline
+    Tests & \checkmark & \multirow{2}{*}{\GAP test suite with 99\% code coverage} \\ \cline{1-2}
+    Automated tests & \checkmark & \\ \hline
+    Continuous integration & \checkmark & Travis runs test suite for every commit \\ \hline
+    Automatic building of releases & \checkmark & {\sf ReleaseTools} (see above) \\ \hline
+  \end{tabular}
+  \vspace{0pt}
+  \caption{Software engineering good practice checklist for {\sf PackageManager}}
+  \label{tab:pkgman-se-check}
+\end{table}
+
+\begin{table}[h]
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{|p{5.1cm}|c|p{9.5cm}|}\hline
+    Host code publicly & \checkmark & \url{https://github.com/gap-packages/PackageManager} \\ \hline
+    Reference Manual (APIs) & \checkmark & GAPDoc/Autodoc, and hosted on package website \\ \hline
+    Tutorial (for beginning users) & \checkmark & \multirow{2}{9.5cm}{Quick examples in readme and manual, before more detailed documentation} \\ \cline{1-2}
+    Examples & \checkmark & \\ \hline
+    Live interactive online demos & \checkmark & Binder link included in readme \\ \hline
+    Support mechanisms & \checkmark & Github issues \\ \hline
+    How to cite the output? & \checkmark & Explained on readme and website \\ \hline
+    Installation mechanism & \checkmark & Distributed with \GAP, and can update itself \\ \hline
+    High level description accessible to non-experts & \checkmark & In readme, and chapter 1 of manual \\ \hline
+    URLs/Blog/etc to and from OpenDreamKit project & \checkmark & OpenDreamKit link and logo in readme \\ \hline
+    Grant acknowledgments & \checkmark & Acknowledged in readme \\ \hline
+    Open Source license & \checkmark & GPL v2 or later \\ \hline
+    Workshop & \checkmark & \multirow{2}{9.6cm}{Demos in \textit{CIRCA Seminar} (USTAN, Month 43) and \textit{Workshop on Mathematical Data} (Cernay, Month 48)} \\ \cline{1-2}
+    Engaging users & \checkmark & \\ \hline
+  \end{tabular}
+  \vspace{0pt}
+  \caption{Dissemination good practice checklist for {\sf PackageManager}}
+  \label{tab:pkgman-diss-check}
+\end{table}
+
+\subsubsection{Other uses}
+
+Aside from making the on-demand installation of individual packages easier, {\sf
+  PackageManager} has implications for the future of how \GAP is distributed.
+There are currently no plans to abandon the established approach of distributing
+deposited packages with the \GAP archive by default, but the presence of {\sf
+  PackageManager} would also make it possible to distribute an archive of
+minimal size, containing only the four required packages and {\sf
+  PackageManager} itself, installing others as needed.  Furthermore, it
+can be used by other systems that interact with \GAP in order to manage
+installations more easily.  The \cocalc system now contains {\sf PackageManager}
+as part of its \GAP 4.10.2 installation, enabling each user to install any
+packages they need without \cocalc operators being forced to manage these
+installations separately.  This is an example of positive two-way interaction
+with \cocalc, and sets as a good precedent for interaction with other
+systems.
+

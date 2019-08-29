@@ -3,15 +3,6 @@ It builds on our MathHub system, a portal for narrative and symbolic mathematica
 \dmh is a part of the MathHub portal and provides storage and hosting with integrated support for Deep FAIR.
 In the future, this will also allow for the development of mathematical query languages (i.e., queries that abstract from the encoding) and mathematical validation (e.g., type-checking relative to the mathematical types, not the database types).
 
-The Workshop on Mathematical data in Cernay, France (August 17-24th),
-was dedicated to improving the status of relational data in mathematics.
-The workshop brought together interested users and authors of mathematical datasets, 
-data framework developers, 
-and experts interested in integrating mathematical databases with computer algebra systems.
-The workshop enabled progress on several fronts.
-We sketched out a submission and editorial process for the platform.
-We also imported several real-life datasets into the system.
-
 \paragraph{Census of relational data in mathematics}
 In some areas of mathematics, research products can consist of
 listings or tabulations of complex mathematical objects and their properties.
@@ -39,7 +30,7 @@ Perhaps the most important immediate use for this census is as a
 ``market study'' for \dmh.
 It serves as a source of use cases for the infrastructure,
 as well as beginnings of a community of researchers that work with mathematical data.
-Even in this initial stage, the census gives the developers of MathDataHub
+Even in this initial stage, the census gives the developers of \dmh
 some idea of the requirements for the system in terms of the ranges of
 dataset size, complexity, etc.
 
@@ -65,28 +56,151 @@ Concretely, the codec is $\mathsf{MatrixAsArray}$ codec operator applied to the 
 These codec annotations capture the representation theorem that allows representing the mathematical objects as ground data that can be stored in databases. 
 %The tag \textsf{opaque} specifies that matrices cannot be used for filtering in the user interface. 
 
-The information is sufficient to generate a database schema -- here one table with columns $\mathsf{mat}$, $\mathsf{trace}$, and $\mathsf{orthogonal}$ -- as well as a database browser-like website frontend (see Figure~\ref{fig:joe}).
-The generation of APIs for computational software such as computer algebra systems is also possible and currently under development. 
+The information is sufficient to generate the datasets-specific components,
+including a web interface.
+The generation of APIs for computational software such as computer algebra systems 
+is also possible and currently under development.
+We describe this in more detail in the following section.
+
+\paragraph{Description of the \dmh prototype}
+The prototype uses MDDL dataset descriptions to produce the necessary infrastructure for each dataset.
+The concept of codecs is crucial in the sense that they transparently connect 
+the mathematical level of specification with the database level -- 
+a critical prerequisite for the deep FAIR properties postulated above.
+Moreover, in Figure~\ref{fig:joe-schema}, the mathematical background knowledge is 
+imported from a theory $\mathsf{IntegerMatrix}$ in the Math In The Middle ontology (MitM)~\cite{MitM:on}, 
+which supplies the full mathematical specification and thus the basis for \emph{Interoperability} and \emph{Reusability}; see~\cite{BerKohRab:tumdi19,WieKohRab:vtuimkb17,KohMuePfe:kbimss17} for details.
+The overhead of having to specify the semantics of the mathematical data is offset by the fact that we can reuse central resources like the MitM ontology and codec collection. 
+Thus, MitM and MDDL form the nucleus of a common vocabulary for typical mathematical relational datasets. 
+%These can and should eventually be linked to representation standards in other domains. 
+%For mathematical datasets, the math-specific aspects attacked by our work are the dominant factor.
+
+\begin{figure}[ht]
+  \includegraphics[width=0.8\textwidth]{DMH_infra.pdf}
+  \caption{\dmh Infrastructure}\label{fig:dmhstruct}
+\end{figure}
+
+Currently, the infrastructure produced includes everything necessary to display a simple website with basic search functionality. 
+The interface is shown in Figure~\ref{fig:joe}, it's structure in \ref{fig:dmhstruct}. 
+The infrastructure consists of four main parts - a database (currently either Postgres of Sqlite), a backend (written in Django), a frontend (running inside the users' browser and written in React), and a data importer.
+
+To import data into system we start with an MDDL description of the dataset. 
+This is used to generate a so-called schema. 
+The schema takes the form of a json file and aggregates all information required for the system as a whole to function. 
+This schema contains all dataset properties along with the codecs used for them, all human-readable dataset descriptions and other meta-data. 
+In a first step, the importer records all this information inside the database. 
+
+Next, the encoded data is provided to the importer in the form of one or several json files. 
+The importer can then use this file, and the schema, to interpret each value correctly and store it inside the database, concluding the import. 
+During this process it also records appropriate data provenance. 
+
+The frontend of the system is written in React. 
+It runs inside the users's browser and communicates with the backend via REST. 
+Currently, it enables two main tasks, displaying all data inside a specific dataset, and searching for data subject to specific criteria. 
+
+The frontend first requests the list of properties and used codecs from the backend. 
+Based on this information, it then uses the appropriate UI components to build a search interface or present the specific values. 
+This architecture implies that apart from adding support for new codecs, neither the frontend nor the backend code needs to be changed when a new dataset becomes available. 
 
 \begin{figure}[ht]
   \includegraphics{data_joe.png}
   \caption{Website for Joe's dataset}\label{fig:joe}
 \end{figure}
 
-Crucially,  the codec-based setup transparently connects the mathematical level of specification with the database level -- a critical prerequisite for the deep FAIR properties postulated above.
-Moreover, in Figure~\ref{fig:joe-schema}, the mathematical background knowledge is imported from a theory $\mathsf{IntegerMatrix}$ in the Math In The Middle ontology (MitM)~\cite{MitM:on}, which supplies the full mathematical specification and thus the basis for \emph{Interoperability} and \emph{Reusability}; see~\cite{BerKohRab:tumdi19,WieKohRab:vtuimkb17,KohMuePfe:kbimss17} for details.
-The overhead of having to specify the semantics of the mathematical data is offset by the fact that we can reuse central resources like the MitM ontology and codec collection. 
-Thus, MitM and MDDL form the nucleus of a common vocabulary for typical mathematical relational datasets. 
-%These can and should eventually be linked to representation standards in other domains. 
-%For mathematical datasets, the math-specific aspects attacked by our work are the dominant factor.
+\medskip
 
-\paragraph{Web-Interface Analysis}
-At the Workshop on Mathematical Data,
-Andrea Kohlhase tested the user experience of the existing web interface
-through user interviews.
+\emph{\dmh Data Model.} The following concepts appear in the data model.\ednote{@TW: sanity-check for the data model}
+\begin{itemize}
+
+\item \textbf{Dataset} corresponds to a single research product.
+It combines information about the \textbf{Items} it contains,
+the properties (mathematical invariants) each item has,
+which codecs are used to encode the actual values,
+and finally, the provenance.
+The provenance can be composed of several provenances for sub-datasets.
+The \textbf{Dataset}s can overlap non-trivially: 
+the smaller graphs in the Census of Cubic Vertex-Transitive Graphs\footnote{http://staff.matapp.unimib.it/~spiga/census.html}
+also appear in the list of Transitive Graphs)\footnote{http://staffhome.ecm.uwa.edu.au/~00013890/remote/trans/index.html},
+which also contains graphs of other degrees.
+
+\item \textbf{Item} is a single mathematical object, 
+represented in the system simply by a unique identifier.
+Examples of these include groups, graphs, lattices, and other complex mathematical objects.
+An \textbf{Item} can belong to more than one dataset:
+the Petersen graph naturally appears in both previously mentioned censuses.
+
+\item \textbf{Provenance} is information on how each datum was produced.
+Each \textbf{Item} needs to be linked to a provenance instance and 
+all data produced with an instance of provenance should belong to the same dataset.
+
+\item \textbf{Property} is a mathematical invariant of a mathematical structure.
+An example of a such a \textbf{Property} is orthogonality of a matrix.
+A property can be encoded in several ways
+(recall the case of integers in LMFDB, where three different encodings are used).
+Encodings of objects (such as the \texttt{graph6} representation for graphs)
+are a special case of properties.
+
+\item \textbf{Codec} A codec is a pair of partial mappings between 
+mathematical values of properties and the values represented in the database.
+We will describe codecs in more detail in a following section.
+
+\end{itemize}
+This data model is not final.
+Some further concepts will include ``Aggregated Datasets'' which will be composed of several datasets and will
+introduce support for databases such as the OEIS and House of Graphs.
+These curated datasets are composed of a large number of smaller contributions.
+
+\medskip
+
+\emph{Codecs} are the glue that bind the data to the semantics and the MitM ontology.
+They also separate the mathematical meaning from the implementation.
+This separation of concerns enables optimising the mathematical layer (including the interface)
+and the database implementation separately.
+These two layers have fundamentally different goals: 
+mathematicians (the users) do not care about the representation of data.
+On the other hand, the implementation needs 
+different representations of the data for different purposes.
+For \dmh we expanded the notion of codecs as used previously in \pn to include information for the interface.
+\begin{figure}[ht]
+  \includegraphics{codec.pdf}
+  \caption{Diagram of information held by a \dmh codec}\label{fig:codec}
+\end{figure}
+
+For example, let us consider one of the basic codecs, \texttt{StandardInt}.
+This codecs encodes elements of $\mathbb{Z}$ (mathematical type) 
+as standard \ednote{how many?}-bit integers (the database type).
+The current list of condition operators given a constant $c$ contains the following unary operators:
+$$
+\begin{array}{ccc}
+x \rightarrow x < c \qquad & \qquad x \rightarrow x > c \qquad & \qquad x \rightarrow x = c \\
+x \rightarrow x \leq c \qquad & \qquad x \rightarrow x \geq c \qquad & \qquad x \rightarrow x \neq c
+\end{array}
+$$
+The condition widget in the interface allows the user to enter the operator as a string,
+for example \texttt{"<3"}.
+This then gets mapped to a corresponding query at the database level.
+Finally, the presenter is direct and simply displays the integer value.
+
+
+\paragraph{The Workshop on Mathematical Data}
+ in Cernay, France (August 17-24th),
+was dedicated to improving the status of relational data in mathematics.
+The workshop brought together interested users and authors of mathematical datasets, 
+data framework developers, 
+and experts interested in integrating mathematical databases with computer algebra systems.
+The workshop enabled progress on several fronts,
+including mayor steps in the development of \dmh.
+These included improving the architecture and model, 
+as well as importing several real-life datasets into the system.
+We sketched out a submission and editorial process for the platform.
+We discussed provenance of data in mathematics and
+drafted a standard and formalisation of math data provenance.
+
+At the workshop, Dr. Andrea Kohlhase tested the user experience 
+of the existing web interface through user interviews.
 The list of issues identified through the interviews is available at the 
 workshop repository\footnote{https://github.com/OpenDreamKit/MathDataWorkshop/issues/3}.
-Andrea Kohlhase also produced a clickable prototype of an updated interface
+Dr. Andrea Kohlhase also produced a clickable prototype of an updated interface
 and used that in a few interviews combined with an eye-tracker test.
 
 

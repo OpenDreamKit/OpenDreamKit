@@ -72,7 +72,7 @@ phases by a Chinese remainder reconstruction followed by a vector rational recon
     \State $\vect{x}^{(i)} \leftarrow (\mat{A}^{(i)})^{-1} \vect{b}^{(i)} \mod p_i$
     \EndFor
   \State $\vect{y} \leftarrow \texttt{ChineseRemainder}(\vect{y}^{(1)},p_1,\dots, \vect{y}^{(\ell)},p_\ell)$
-  \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
+  \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i)$
   \State \Return $\vect{x}/d$
 \end{algorithmic}
 \end{algorithm}
@@ -91,51 +91,113 @@ digits in the $p$-adic expansion of the solution vector. This algorithm manages 
 by balancing two types of operations: expensive linear algebra (matrix inverse or LU decomposition) is
 perfomed only once over in small precision (a finite field) while the high precision part of the computation is
 contained in a sequence of less expensive linear algebra operations (matrix-vector products).
-\begin{algorithm}[htb]
-  \caption{$p$-adic lifting based rational solver}
-  \begin{algorithmic}[1]
-    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
-    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
-    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
-    \State Pick a prime $p$. Let $k$ such that $p^k \geq 2ND$
-    \State $\mat{B}\leftarrow \mat{A}^{-1} \mod p$
-    \State $\vect{r}\leftarrow \vect{b}$
-    \For{$i\leftarrow 0\dots k$}
-    \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
-    \State $\vect{r} \leftarrow  \frac{\vect{r} - \mat{A}\vect{x_i}}{p}$
-    \EndFor
-    \State $\vect{y} \leftarrow \sum_{i=0}^{k-1} \vect{c}^{(i)} p^i$
-    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
-  \State \Return $\vect{x}/d$
-\end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[htb]
+%  \caption{$p$-adic lifting based rational solver}
+%  \begin{algorithmic}[1]
+%    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
+%    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+%    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+%    \State Pick a prime $p$. Let $k$ such that $p^k \geq 2ND$
+%    \State $\mat{B}\leftarrow \mat{A}^{-1} \mod p$
+%    \State $\vect{r}\leftarrow \vect{b}$
+%    \For{$i\leftarrow 0\dots k$}
+%    \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
+%    \State $\vect{r} \leftarrow  \frac{\vect{r} - \mat{A}\vect{x_i}}{p}$
+%    \EndFor
+%    \State $\vect{y} \leftarrow \sum_{i=0}^{k-1} \vect{c}^{(i)} p^i$
+%    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
+%  \State \Return $\vect{x}/d$
+%\end{algorithmic}
+%\end{algorithm}
 
 However, the strongly iterative structure of this algorithm makes it both harder to parallelize and less cache
 efficient.
 In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
-$p$-adic lifting and Chinese remainder techniques.
-We further improved this variant to deliver a parallel $p$-adic lifting solver. \TODO{explain the improvements}
+$p$-adic lifting and Chinese remainder techniques. 
+This led to a multi-modular (or RNS, residue number system) $p$-adic
+lifting.
+We further improve this variant in several ways to deliver a parallel
+RNS $p$-adic lifting solver. Algorithm~\ref{alg:ParMultiModSolve} reflects
+these improvements with the two following salient features:
+\begin{enumerate}
+\item The costly updates in the main loop of \cite{ChSt05} were
+  performed via matrix-vector arbitrary precision multiplications over
+  the integers with a second RNS basis.
+  We instead gather those updates in order to perform instead a
+  matrix-matrix multiplication. 
+  This can be seen in line~\ref{lin:ZGEMM} of
+  Algorithm~\ref{alg:ParMultiModSolve}.
+\item We mix this algorithm with the parallel RNS improvement
+  of~\cite{DGLS18} and restrict the second RNS basis to primes
+  individually larger than the 
+  multi-modular high-level ones in order to speed up the RNS/integer
+  conversions. 
+\end{enumerate}
+
+%\begin{algorithm}[htb]
+%  \caption{Multi-modular $p$-adic rational solver}\label{alg:ChSt}
+%  \begin{algorithmic}[1]
+%    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
+%    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+%    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+%    \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
+%    \For{$i\leftarrow 1 \dots \ell$}
+%      \State $B_i \leftarrow  A^{-1} \mod p_i$
+%      \State $\vect{r}^{(i,0)}\leftarrow \vect{b} \mod p_i$
+%    \EndFor
+%    \For{$j\leftarrow 0\dots k-1$}
+%    \For{$i\leftarrow 1\dots\ell$}
+%    \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r_i} \mod p_i$
+%    \State $(\vect{Q}^{(i,j)},\vect{R}^{(i,j)}) \leftarrow
+%    \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{Q}^{(i,j)} + \vect{R}^{(i,j)}$}
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{Q}^{(i,j)}+\frac{\vect{R}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+%    \EndFor
+%    \EndFor
+%    \For{$i\leftarrow 1\dots\ell$}
+%    \State $\vect{y}^{(i)} \leftarrow \sum_{j=0}^{k-1} \vect{c}^{(i,j)} p_i^j$
+%    \EndFor
+%    \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
+%    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i^k )$
+%  \State \Return $\vect{x}/d$
+%\end{algorithmic}
+%\end{algorithm}
 
 \begin{algorithm}[htb]
-  \caption{$p$-adic lifting based rational solver}
+  \caption{Parallel multi-modular $p$-adic rational solver}\label{alg:ParMultiModSolve}
   \begin{algorithmic}[1]
     \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
     \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
     \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
-    \State Pick $\ell$ primes $p_1,\dots, p_\ell$
-    \State Pick a prime $p$. Let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
+    \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
     \For{$i\leftarrow 1 \dots \ell$ in parallel}
-      \State $B_i \leftarrow  A^{-1} \mod p_i$
+      \State\label{lin:GINV} $B_i \leftarrow  A^{-1} \mod p_i$
+      \State $\vect{r}^{(i)}\leftarrow \vect{b} \mod p_i$
+      \State $\vect{y}^{(i)} \leftarrow 0$
     \EndFor
-
-    \State ...
-    \State $\vect{r}\leftarrow \vect{b}$
-    \For{$i\leftarrow 0\dots k$}
-    \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
-    \State $\vect{r} \leftarrow  \frac{\vect{r} - \mat{A}\vect{x_i}}{p}$
+    \State Pick primes $q_1,\dots, q_\tau$, all $>\max_i\{p_i\}$, such
+    that $\prod_{s=1}^\tau q_s \geq n||A||_\infty$
+    \For{$j\leftarrow 0\dots k-1$}
+    \For{$i\leftarrow 1\dots\ell$ in parallel}
+    \State $(\vect{\phi}^{(i)},\vect{\rho}^{(i)}) \leftarrow
+    \texttt{divmod}(\vect{r}^{(i)},p_i)$\Comment{$\vect{r}^{(i)} = p_i \vect{\phi}^{(i)} + \vect{\rho}^{(i)}$}
+    \State\label{lin:GEMV} $\vect{c}^{(i)}  \leftarrow \mat{B_i} \vect{\rho}^{(i)} \mod p_i$
+    \State $\vect{y}^{(i)} \leftarrow \vect{y}^{(i)} + \vect{c}^{(i)} p_i^j$
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
     \EndFor
-    \State $\vect{y} \leftarrow \sum_{i=0}^{k-1} \vect{c}^{(i)} p^i$
-    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
+\newline{\Comment{Now compute simultaneously all the updates $\frac{\vect{r}^{(i)} -
+      \mat{A}\vect{c}^{(i)}}{p_i}$  in parallel:}}
+    \State Gather 
+    $\mat{R}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1)}&\ldots&\vect{\rho}^{(\ell)}\end{array}\right]$ 
+    and $\mat{C}\leftarrow\left[\begin{array}{ccc}\vect{c}^{(1)}&\ldots&\vect{c}^{(\ell)}\end{array}\right]$
+    \State\label{lin:ZGEMM}
+    $\mat{V}\leftarrow\mat{R}-\mat{A}\cdot\mat{C}$\Comment{Parallel RNS with $q_1,\dots, q_\tau$}
+    \For{$i\leftarrow 1\dots\ell$ in parallel}
+    \State $\vect{r}^{(i)}
+    \leftarrow\vect{\phi}^{(i)}+\frac{\vect{V_{*,i}}}{p_i}$\Comment{Multiply by $(p_i^{-1}{\mod{q_s}})$ in RNS, then reconvert to $\mathbb{Z}^n$}
+    \EndFor
+    \EndFor
+    \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
+    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i^k )$
   \State \Return $\vect{x}/d$
 \end{algorithmic}
 \end{algorithm}
@@ -162,34 +224,146 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 
 \begin{figure}[htb]
 \begin{center}
-  \includegraphics[width=.7\textwidth]{nodes_histogram}
+  \includegraphics[width=.8\textwidth]{nodes_histogram}
 \end{center}
 \caption{MPI-Chinese Remainder based rational solver.}\label{fig:mpi_histo}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{A multicore $p$-adic lifting}
+Thanks to our implementation of Algorithm~\ref{alg:ParMultiModSolve}, 
+we obtain improvements on arbitrary precision parallel rational
+solving.
+All the experiments in this Section were obtained on a \TODO{ @GHz }
+machine.
 
-Adapted from and improving on \cite{ChSt05}.
+Roughly, the dominant costs of Algorithm~\ref{alg:ParMultiModSolve}
+are within lines~\ref{lin:GINV}, \ref{lin:GEMV} and~\ref{lin:ZGEMM},
+which we will denote by the GINV (matrix inversion), GEMV
+(matrix-vector iteration) and ZGEMM (matrix-matrix multiplication over
+$\mathbb{Z}$).
+Their respective costs are given by $\ell\cdot\GO{n^\omega}$,
+$k_\ell\ell\cdot\GO{n^2}$ and $k_\ell\cdot\GO{n^2\ell^{\omega-1}}$,
+where $\ell$ is the parameter and $k_\ell\ell\approx n \cdot
+\texttt{bitsize}$ is approximately a constant.
+
+Thus we see that by increasing $\ell$ we increase the overall number
+of operations, but the hope is to trade some slow operations of ZGEMM
+for some very fast operations of GINV. 
+We also see that the dominant cost should remain unchanged within GEMV, but
+that by increasing $\ell$ we increase the potential for overall
+parallelism. 
+
+This analysis is backed up by experiments as we show in the following.
+
+First, the technique of the double RNS basis, combined with the
+gathering of updates is shown, in sequential, in
+Figures~\ref{fig:rnsdixon_seqprimescount}
+and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending $\ell$
+(``primes'' is the Figures), we increase the overall work but this
+can pay at different thresholds for different matrix dimensions and
+bitsizes. In sequential we can see some $30\%$ gains on a single core,
+even for small matrices.
+
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-primesCount}
+\end{center}
+\caption{Sequential RNS Dixon with fixed bitsize.}\label{fig:rnsdixon_seqprimescount}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-bitsize}
+\end{center}
+\caption{Sequential RNS Dixon with fixed matrix dimension.}\label{fig:rnsdixon_seqbitsize}
+\end{figure}
+
+Now in parallel this is strikingly more interesting as shown in
+Figures~\ref{fig:rnsdixon_parallel_threads}
+and~\ref{fig:rnsdixon_parallel}. Indeed, there, we see that the
+overall work increases with the increase of $\ell$ (see the top
+histograms in Figure~\ref{fig:rnsdixon_parallel}).
+But this increase is negligible when the matrix size is larger (almost
+no more ``red'' ), and the parallelization pays of ($9.5$ speed-up
+with $16$ cores).
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-threads}
+\end{center}
+\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel_threads}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b}
+\end{center}
+\caption{Balance between matrix inversion (GINV) and lifting phases (GEMV+ZGEMM). In each cluster, left column correspond to a sequential run,
+and right column to a run with 16 cores}\label{fig:rnsdixon_parallel}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{GPU enabled libraries}
 
-Graphic Processing Unit (GPU) have become a commonly used component in modern high performance computing.
-They offer a very large number of cores 
+Graphic Processing Unit (GPU) have become a widespread component in modern high performance computing plateforms. They
+offer a very high computing throughput for a contained power consumption but only for applications well suited for their
+constraints:
+\begin{itemize}
+\item the GPU has its own onboard memory and thus data transfer from and to the main memory are expensive and may
+  quickly become a bottleneck
+\item the type of computation must be very regular (same code kernel applied to multiple sets of data) with as few
+  branching and control instructions as possible.
+\end{itemize}
 
-In order to let a user be able to harness the power of a graphic accelerator
+Matrix multiplication is among these applications which can easily benefit from the power of GPUs. Other computations
+such as Gaussian elimination, require branching, data permutations, divisions and other operations much less suited for
+GPUs and therefore require communications back and forth between the main memory and the GPU memory.
+
+Nvidia provides a set of BLAS routines, for dense linear algebra of floating point numbers, supporting their GPUs in the
+library CUBLAS.
+
+The \texttt{fflas-ffpack} library aims at providing a similar set of routines over a finite field by relying exploiting a
+numerical BLAS under the hood. In this first attempt at supporting GPU's for finite field linear algebra, we therefore
+focused on interfacing CUBLAS in the \texttt{fflas-ffpack} library so that matrix multiplication over a finite field
+could benefit from CUBLAS' routines.
+
+The user of the library only need to specify at configure time a path where a CUDA library is installed:
+\begin{verbatim}
+$> ./configure --with-cuda=/applis/dahu/cuda/cuda-10.0/lib64
+\end{verbatim}
+
+He can then transparently run his code and benefit from the speedup of the BLAS library. Figure~\ref{fig:fgemm_gpu}
+shows the computation speed achieved on an NVIDIA Tesla V100 GPU, compared to the existing multi-core parallel
+implementation and the sequential implementation.
 
 \begin{figure}[htb]
 \begin{center}
-  \includegraphics[width=.7\textwidth]{Pictures/fgemm_GPUvsCPU}
+  \includegraphics[width=.9\textwidth]{Pictures/fgemm_GPUvsCPU}
 \end{center}
-\caption{Comparing the computation speed of FFLAS-FFPACK matrix product over the finite field $\text{GF}(1048573)$ between a GPU and a
-  single-threaded CPU.}\label{fig:fgemm_gpu}
+\caption{Comparing the computation speed of FFLAS-FFPACK matrix product over the finite field $\text{GF}(131071)$
+  between one GPU, 32 CPU cores and a single CPU core.}\label{fig:fgemm_gpu}
 \end{figure}
+The speed-up of one GPU with respect to the sequential implementation is up to a factor 39.5 and up to 2.46 with respect
+to a parallel execution on 32 cores.
+
+Note that the efficiency of the GPU runs is slowly increasing and therefore perform slower than the multicore
+implementation on smaller dimensions. This is due to the communication  time spent in transfering the data to and from
+the GPU. This overhead is quadratic in the matrix dimension and thus becomes negligeable compared to as the dimension
+increases.
+
+This is the reason why other routines relying on many matrix multiplication, such as Gaussian elimination, matrix
+inverse, etc, cannot blindly benefit from the efficiency of this matrix multiplication routine. Further work will
+consist in implementing dedicated finite field Gaussian elimination routines on the GPU, and/or exploring the various
+techniques to schedule the memory transfer so that they overlap with computation.
+
 \bibliographystyle{plainnat}
 \bibliography{D5.14}
 
+
 %%% Local Variables:
 %%% mode: latex
+%%% mode: flyspell
+%%% ispell-local-dictionary: "american"
 %%% TeX-master: "report"
 %%% End:

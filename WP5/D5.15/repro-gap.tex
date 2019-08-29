@@ -1,0 +1,113 @@
+\section{Sharing reproducible computational experiments}\label{sec:repro-gap}
+
+This appendix presents an example of organizing GAP code 
+and data to give others an opportunity to inspect them and rerun
+the computation on a freely available called \href{https://mybinder.org/}{Binder}.
+
+It demonstrates integration of a number of concepts mentioned
+in the report: GAP regression testing; setup for continuous
+integration and code coverage reports; Docker containers with
+the GAP distribution; and GAP Jupyter interface.
+
+For this demonstrator, we collaborated with the authors of \cite{black-box} 
+who worked on the code for this paper in the GitHub repository located 
+at \url{https://github.com/sukru-yalcinkaya/unipoly} in the file 
+called {\tt unipoly.g}.
+
+This code does not justify the creation of a new GAP package, 
+but it can reuse packages setup for Travis CI and Codecov by 
+creating a {\tt tst} directory with the test files and adapting
+{\tt .travis.yml} and {\tt .codecov.yml} configuration files
+from the \GAP package {\sf Example}. Importantly, it also
+allows to check that the code works in GAP 4.9, GAP 4.10 and 
+the master branch of the GAP repository, which is a prototype for
+GAP 4.11.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-repo}
+    \caption{unipoly project repository}
+    \label{fig:unipoly-repo}
+\end{figure}
+
+The next step is to produce a Jupyter notebook which combines input,
+output, and textual narrative in one document. The notebook contains
+the {\tt Read(unipoly.g);} command to read the code first. This is
+a good practice for organizing reproducible experiments: keeping the
+code in a single location in a {\tt .g} file allows its reuse and
+automated testing, and avoids code duplication. 
+
+When the authors prepared and committed the Jupyter notebook describing
+their calculation, they are ready to share it on
+\href{https://mybinder.org/}{Binder}. First they need to add 
+to their repository a {\tt Dockefile} with the following content:
+
+{\tiny
+\begin{verbatim}
+FROM gapsystem/gap-docker
+
+MAINTAINER Alexander Konovalov <alexander.konovalov@st-andrews.ac.uk>
+
+COPY --chown=1000:1000 . $HOME/unipoly
+
+RUN sudo pip3 install ipywidgets RISE
+
+RUN jupyter-nbextension install rise --user --py
+
+RUN jupyter-nbextension enable rise --user --py
+
+USER gap
+
+WORKDIR $HOME/unipoly
+\end{verbatim}
+}
+
+This file builds a Docker container based on the container {\tt gapsystem/gap-docker}
+with the latest GAP release, which we provide as an alternative GAP distribution
+(see Subsection~\ref{distro}). Additional commands specify how to copy the code into
+the new container, and install additional extensions for Jupyter-based slideshows.
+
+After that one should follow \href{https://mybinder.org/}{Binder} instructions to
+set up a new Binder project. A completed setup will allow to click on the ``launch binder''
+button in the README file on GitHub (as seen on Figure~\ref{fig:unipoly-repo}
+to start a Jupyter notebook server in the cloud,
+either using a prebuilt image of the project or by building a new one in case of any
+changes in the GitHub repository. When the server will be started, it will display
+a file browser as shown on Figure~\ref{fig:unipoly-files}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-files}
+    \caption{File browser running on Binder}
+    \label{fig:unipoly-files}
+\end{figure}
+
+Clicking on {\tt unipoly.ipynb}, the user will open the Jupyter notebook
+and will be able to rerun it as shown on Figure~\ref{fig:unipoly-notebook}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-notebook}
+    \caption{Jupyter notebook running on Binder}
+    \label{fig:unipoly-notebook}
+\end{figure}
+
+One could also switch to the slideshow mode (the notebook would require
+some configuration to explain which cells should be displayed on the
+same slide and which not), and run an interactive presentation, as
+as shown on Figure~\ref{fig:unipoly-slide}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/unipoly-slide}
+    \caption{Slideshow with interactive computation running on Binder}
+    \label{fig:unipoly-slide}
+\end{figure}
+
+Thus, connecting the project repository to Binder allows other users
+(e.g. readers or referees of the paper) to rerun computations on Binder
+without spending efforts on installing all necessary components
+(may be hard for them as non experts, may not always be possible;
+something may not work on Windows, etc.
+
+\TODO{what are the limitations of Binder and suggested workarounds}
