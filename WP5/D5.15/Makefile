@@ -7,3 +7,6 @@ report.pdf: report.tex report.bib $(IMAGES) deliverablereport.cls eudelivreport.
 	bibtex report
 	pdflatex report
 	pdflatex report
+
+clean:
+	rm -f report.pdf *.aux *.bbl *.blg *-blx.bib *.log *.out *.toc *.xml 
