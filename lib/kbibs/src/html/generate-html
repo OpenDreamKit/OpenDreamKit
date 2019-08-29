@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Check that we have the right number of parameters, otherwise die. 
+if [ "$#" -ne 3 ]; then 
+  >&2 echo "Illegal number of parameters (expected 3, got $#). ";
+  >&2 echo "Usage: $0 \$SRC \$DIST \$KWARC";
+  >&2 echo "Generates html from .html and .xml files"; 
+  exit 1;
+fi
+
+# read variables
+SRC="$1"
+DIST="$2"
+KWARC="$3"
+
+echo "Generating html from $SRC into $DIST"
+
+# files
+BIB_XSL="${SRC}html/bibliography.xsl"
+BIB_ALL_XSL="${SRC}html/bibliography-all.xsl"
+
+
+LTOPT="--quiet --bibliography=${DIST}ltxml/kcr.bib.xml --format=xhtml --path=${SRC}ltxml --preload=${SRC}ltxml/kwarcbibs.sty.ltxml"
+
+## now we extract all the HTML from kcr.bib
+TYPES='article incollection conference workshop thesis report unpublished misc wproceedings cproceedings cbook'
+for i in $KWARC; do
+    for j in $TYPES; do
+	echo "Generating special LaTeX file ${DIST}tex/$i-$j.tex";
+    	xsltproc --stringparam file $i-$j -o ${DIST}tex/$i-$j.tex ${BIB_XSL} ${DIST}ltxml/kcr.bib.xml;
+	echo "converting it to XML";
+	latexmlc ${LTOPT} --destination=${DIST}html/$i-$j.html ${DIST}tex/$i-$j.tex 2> >(tee ${DIST}tex/$i-$j.ltxlog >&2);
+    done;
+done;
+
+for j in $TYPES; do
+  echo "Generating special LaTeX file ${DIST}tex/$j.tex";
+  xsltproc --stringparam type $j -o ${DIST}tex/$j.tex ${BIB_ALL_XSL} ${DIST}ltxml/kcr.bib.xml;
+  echo "converting it to XML";
+	latexmlc ${LTOPT} --destination=${DIST}html/$j.html ${DIST}tex/$j.tex 2> >(tee ${DIST}tex/$j.ltxlog >&2);
+done;
