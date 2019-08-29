@@ -25,6 +25,8 @@ PARI-MT and the difficulty of composing a threaded systems into another.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Finite field linear algebra}
 
+\subsection{Context}
+
 Finite field linear algebra is a core building block in computational mathematics and deliver high computing throughput
 to a wide range of applications, including number theory, group theory, combinatorics, etc. \SageMath relies on the
 \fflasffpack library for its critical linear algebra operations on prime fields of less than 23 bits and consequently
@@ -32,10 +34,35 @@ also for numerous computations with multiprecision integer matrices.
 
 The \fflasffpack library had some preliminary support for multi-core parallelism for matrix
 multiplication and Gaussian elimination.
-Instead of being tight to a specific parallel language, the library uses a Domain Specific Language, Paladin~\cite{},
+Instead of being tight to a specific parallel language, the library uses a Domain Specific Language, Paladin~\cite{paladin},
 to provide the library programmer with unique API for writing parallel code, which is then translated into 
-OpenMP~\cite{}, Cilk~\cite{}, Intel-TBB~\cite{}, or XKaapi~\cite{} directives.
+OpenMP~\cite{openmp}, Cilk~\cite{cilk}, Intel-TBB~\cite{tbb}, or XKaapi~\cite{xkaapi} directives. Beside portability and independence from
+a given technology, this also makes it possible to benchmark and compare how parallel runtime perform. This is
+particularly important here, since many of the compute intensive routines of \fflasffpack share specificities that are
+often challenges for parallel runtime:
+\begin{description}
+\item[Recursion] by design,  sub-cubic linear algebra algorithms are recursive and so are most routines in the
+  library.
+\item[Heterogeneity] many exact computations must deal with data with size unknown before their actual computation. For
+  instance rank deficiencies in Gaussian elimination may generates a block decomposition of varying dimensions and
+  therefore computing tasks will have heterogeneous load.
+\item[Fine grain task parallelism] the combination of the two above constraints lead to consider recursive task
+  parallelism with fine grain, so that a workstealing engine could efficiently balance the heterogeneity. However,
+  recursive tasks have been for a long time rather inefficient in e.g. OpenMP implementations, and the ability to handle
+  numerous fine grain tasks is also demanding on parallel runtimes.
+\end{description}
 
+\subsection{Integration within \SageMath}
+
+The main tasks for the exposition of the parallel routines of \fflasffpack in \SageMath were the following:
+\begin{enumerate}
+\item improving existing parallel code for Gaussian elimination and matrix multiplication in the \fflasffpack library
+\item adding new parallel routines for the most commonly used operations in \SageMath: the determinant, the echelon
+  form, the rank, and the solution of a linear system.
+\item connecting these parallel routines in \SageMath using the Singleton class \texttt{Parallelism} to provide  the user
+  with a precise control on the number of threads allocated to the linear algebra routines. 
+  
+\end{enumerate}
 
 \begin{figure}[htb]
   \begin{center}
@@ -44,7 +71,8 @@ OpenMP~\cite{}, Cilk~\cite{}, Intel-TBB~\cite{}, or XKaapi~\cite{} directives.
   \end{center}
 \end{figure}
 
-
+\bibliographystyle{acm}
+\bibliography{D3.11}
 \end{document}
 
 %%% Local Variables:
