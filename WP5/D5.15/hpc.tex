@@ -12,7 +12,7 @@ different programme. This was an essential step to support further development o
 incorporated. It also provided general \GAP users an opportunity to start to experiment 
 with \HPCGAP, for which documentation is also provided.
 
-\TODO{Remember to provide a copy of the HPC-GAP manual as an appendix}
+%\TODO{Remember to provide a copy of the HPC-GAP manual as an appendix}
 
 \HPCGAP supports two models of parallel programming in \GAP, which can
 be combined: threads and tasks. Threads operate as in most languages.
@@ -26,37 +26,38 @@ Tasks are
 similar, but a task is submitted to a shared job queue and executed by
 one of a fixed-size pool of worker threads. Typically the calling
 programme will start a number of tasks and then wait for some or all
-of them to complete. A task can be scheduled to run only when another
-has completed. More complex dependencies can be expressed using
-milestones.
+of them to complete, leaving the task scheduler to allocate each task
+to a worker. A task can be scheduled to run only when another
+has completed, and more complex dependencies can be expressed using
+``milestones''.
 
 A number of data structures and other features are provided to
 simplify the programming of interactions between tasks and/or
-threads. These were decided in consultation with a group of \GAP
+threads. These were developed in consultation with a group of \GAP
 developers, based on the specific types of computation that they
 anticipated needing to parallelize. They include
 \begin{itemize}
 \item Atomic lists and records, which behave like standard \GAP data
     structures, but guarantee that their basic access operations are
-    thread-safe
+    thread-safe;
   \item Channels (efficient first-in-first-out data structures
-    designed to pass objects between threads or tasks),
+    designed to pass objects between threads or tasks);
   \item Synchronization variables which guarantee that exactly one
-    write to the variable will succeed
-  \item Traditional semaphores
+    write to the variable will succeed and
+  \item Traditional semaphores.
 \end{itemize}
 
 Full details can be found in the \HPCGAP manual in Appendix~\ref{sec:hpc-manual}.
 
 Implementing all of this efficiently required a substantial
-refactoring of the \GAP interpreter, but was otherwise not especially
-unique to \GAP.  What does present one of the main challenges in \HPCGAP, however, is that the \GAP
+refactoring of the \GAP interpreter, but presented no other challenges
+unique to \GAP.  What does present a serious challenges for \HPCGAP, however, is that the \GAP
 library makes very extensive use of shared global data, which is
 frequently updated as new knowledge is obtained. Removing this sharing
 of knowledge would make the overall system much less effective, as
 well as requiring millions of lines of code to be rewritten, but
 ensuring that access and updates to this data from different threads
-and tasks did not cause corruption or inconsistency was difficult.
+and tasks do not cause corruption or inconsistency was difficult.
 
 The approach taken was to limit access, in most cases, to
 data ``owned'' by the accessing thread, read-only data and ``public''
@@ -67,14 +68,13 @@ be updated ``atomically'', so any thread would see the old state
 access checks in the kernel, with the aim of ensuring that most unsafe
 data access should result in error messages, rather than inconsistent
 results. Experiments with this system have been reported in a number
-of papers for instance \cite{something}.
-\TODO{e.g. something from \url{https://scholar.google.co.uk/scholar?oi=bibs&hl=en&cites=17020645280914341716&as_sdt=5}}
+of papers, for instance \cite{HPCGAP-paper}.
 
 The main remaining challenge is to complete the adaptation of the
 enormous legacy codebase represented by \GAP's library and key
 packages to use these mechanisms effectively, and to keep the
 underlying mechanisms working as the core \GAP codebase
-evolves. Fusing the codebases, as was done in \GAP 4.10 was a critical
+evolves. Fusing the codebases, as was done in \GAP~4.10 was a critical
 step in this work, meaning, for instance, that all changes to \GAP are
 tested in \HPCGAP automatically.
 
@@ -116,8 +116,8 @@ abbreviation ``mtx'' for ``matrix'' and the fact that a key operation
 in computational representation theory is to ``chop'' a module into
 its irreducible components).
 
-Working with external collaborators (primarily R.A.~Parker),
-we have supported (and continue to contribute to ) the design and development 
+Working with external collaborators (primarily R.A.~Parker), we have
+supported (and continue to contribute to ) the design and development
 of a new C and assembler library, called ``meataxe64'' which takes
 advantage of new algorithmic ideas, and of powerful features of modern
 CPUs, to deliver a quantum leap in performance for matrix
@@ -126,12 +126,17 @@ memory computers. This project has involved radical innovations in
 low-level data formats and arithmetic algorithms, in cache-friendly
 loop structures (similar to the now standard in BLAS implementations,
 but made more complex by the need to reorganize and reformat both
-inputs and outputs of a multiplication). 
+inputs and outputs of a multiplication), in matrix level reduction
+algorithms (both for non-prime fields of all characteristics, inspired
+by Albrecht \cite{m4rie}, and along Strassen-Winograd lines), in a
+very efficient dataflow-driven thread farm and in high-level
+algorithms, especially for Gaussian elimination. A number of
+publications are in preparation.
 
-We have implemented a
-\GAP interface to this C library (the ``meataxe64 \GAP package'' \cite{meataxe64}) currently in
-beta-test, and are in the process of revising higher levels of the software stack to make best
-use of it.
+We have implemented a \GAP interface to this C library (the
+``meataxe64 \GAP package'' \cite{meataxe64}) currently in beta-test,
+and are in the process of revising higher levels of the software stack
+to make best use of it.
 
 The meataxe64 C library is multi-threaded using a bespoke and very
 effective thread-farm that supports a powerful dataflow module of
@@ -149,7 +154,8 @@ square matrices of the given dimension with entries from $GF(q)$. In
 these tables the throughput is calculated as the cube of the dimension
 divided by the elapsed (``wall-clock'') time, ignoring algorithmic
 techniques that may reduce the actual number of field operations
-needed. The unit (Gfop/s) is billions of field operations per second.
+needed. The unit (Gfop/s) is billions of field operations per
+second. 
 
 
 \begin{small}
