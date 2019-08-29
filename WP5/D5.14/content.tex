@@ -166,22 +166,26 @@ these improvements with the two following salient features:
     \For{$i\leftarrow 1 \dots \ell$ in parallel}
       \State $B_i \leftarrow  A^{-1} \mod p_i$
       \State $\vect{r}^{(i,0)}\leftarrow \vect{b} \mod p_i$
+      \State $\vect{y}^{(i)} \leftarrow 0$
     \EndFor
     \State Pick primes $q_1,\dots, q_\tau$ all $>\max_i\{p_i\}$, such
     that $\prod_{i=1}^\tau q_i \geq n||A||_\infty$
     \For{$j\leftarrow 0\dots k-1$}
     \For{$i\leftarrow 1\dots\ell$ in parallel}
-    \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r_i} \mod p_i$
+    \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r}^{(i,j)} \mod p_i$
+    \State $\vect{y}^{(i)} \leftarrow \vect{y}^{(i)} + \vect{c}^{(i,j)} p_i^j$
     \State $(\vect{\phi}^{(i,j)},\vect{\rho}^{(i,j)}) \leftarrow
     \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{\phi}^{(i,j)} + \vect{\rho}^{(i,j)}$}
-    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
     \EndFor
-
-    \State ... \TODO{Gather}
-
-    \EndFor
+    \State Gather 
+    $\mat{R}^{(j)}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1,j)}&\ldots&\vect{\rho}^{(\ell,j)}\end{array}\right]$ 
+    and $\mat{C}^{(j)}\leftarrow\left[\begin{array}{ccc}\vect{c}^{(1,j)}&\ldots&\vect{c}^{(\ell,j)}\end{array}\right]$
+    \State
+    $\mat{V}^{(j)}\leftarrow\mat{R}^{(j)}-\mat{A}\cdot\mat{C}^{(j)}$\hfill{\Comment{Parallel RNS with $q_1,\dots, q_\tau$}}
     \For{$i\leftarrow 1\dots\ell$ in parallel}
-    \State $\vect{y}^{(i)} \leftarrow \sum_{j=0}^{k-1} \vect{c}^{(i,j)} p_i^j$
+    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{V_{*,i}}^{(j)}}{p_i}$
+    \EndFor
     \EndFor
     \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
     \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i^k )$
