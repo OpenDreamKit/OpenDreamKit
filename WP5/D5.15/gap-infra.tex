@@ -29,10 +29,10 @@ and \emph{memory regressions} where a test becomes slower, or uses
 much more memory after a change.
 
 Regression testing has been used by \GAP in one or another form since 
-1980s, and by the start of \ODK, \GAP had established testing infrastructure
+1980s, and by the beginning of the \ODK project, \GAP had established its testing infrastructure
 based on the private \href{https://jenkins.io/}{\sf Jenkins} installation
-at USTAN, not accessible outside USTAN network. That was a major limiting
-factor, because sharing tests outcomes with other developers and
+at USTAN, not accessible outside USTAN network. That was a major limitation,
+because sharing tests outcomes with other developers and
 allowing them to reproduce tests in the same environment was cumbersome
 and required a lot of manual steps, requiring additional staff time.
 
@@ -66,26 +66,42 @@ stuff. Then explain how we got there and what all the components are?}
 
 The widespread adoption of the open development model by the
 developers of the \GAP system and especially package authors and
-maintainers, occurring over the duration of \ODK, allowed \GAP
-to substantially improve development workflows.
-Today, anyone who is interested in checking the
-status of the GAP test suite, can visit the public dashboard at
-at \url{https://github.com/gap-system/gap-distribution/}, 
-displayed on Figure~\ref{fig:gap-core-tests}.
-
-The top part of Figure~\ref{fig:gap-core-tests} shows core system GAP tests,
-which are run for every change made to the repository.
+maintainers, taking place over the duration of \ODK, allowed \GAP
+to substantially improve development workflows and
+increase robustness of the system. For example,
+today anyone who is interested in checking the
+status of the GAP test suite can visit the public dashboard
+displayed on Figure~\ref{fig:gap-core-tests} at
+\url{https://github.com/gap-system/gap-distribution/}.
+It shows the status of the core system GAP tests,
+which are run for every change made to the repository,
+under ``Core GAP system tests". 
 The ``status'' buttons lead to the test reports on the
 public continuous integration platform \href{https://travis-ci.org/}{Travis CI}, and
 the ``code coverage'' buttons lead to the public \href{https://codecov.io/}{Codecov} service
-which produces the code coverage reports. Figure~\ref{fig:gap-core-tests} also
-illustrated how the code coverage improved just over the last year,
-since from 69\% in GAP 4.9.3 to 84\% in the master branch
-(the prototype of the coming GAP~4.11 release). This level of testing
-is achieved by the \GAP test 
-suite for the core system consisting of a total of 707 test files at the time of writing
-totaling over $60\,000$ lines,
-as well as of the tests that check the correctness of over
+which produces the code coverage reports. 
+
+This level of testing of the core \GAP system is achieved by 
+the comprehensive test suite. The table below shows its increase
+over the period.
+
+% find . -name '*.tst' | wc -l
+% find . -name '*.tst' | xargs wc -l
+\begin{center}
+\begin{tabular}{| l | l | c | c | c |} 
+\hline
+GAP release & Release date & Number of        & Number of lines & Code coverage \\
+            &              & test files       &                 &               \\
+\hline GAP 4.7.8  & November 2015 (Month 3)   & 69 & 21981 & N/A \\
+\hline GAP 4.8.10 & January 2018 (Month 29 )  & 91 & 28586 & N/A \\
+\hline GAP 4.9.3  & September 2018 (Month 37) & 564 & 41456 & 69 \% \\
+\hline GAP 4.10.2 & June 2019 (Month 46)      & 648 & 53362 & 76 \% \\
+\hline GAP 4.11   & November 2019 (planned)   & 707 & 61280 & 84 \% \\
+\hline
+\end{tabular}
+\end{center}
+
+In addition, we also test the correctness of over
 over $14,000$ lines of 1810 manual examples.
 %% \comment{1336 mansections containing examples;
 %% 1641 (ref) + 169 (tut) = 1810 examples;
@@ -108,8 +124,7 @@ over $14,000$ lines of 1810 manual examples.
 %%
 %% 
 % and some further code in the {\tt benchmarks} directory. 
-\TODO{Perhaps move the table with the number of lines in tests here, 
-and also include code coverage in the table}
+%
 \GAP package authors are recommended to 
 use a similar approach to testing and to provide their own regression
 tests. Many do, adding, in total over a quarter of a million lines of
@@ -122,7 +137,17 @@ further tests.
     \label{fig:gap-core-tests}
 \end{figure}
 
-The bottom part of Figure~\ref{fig:gap-core-tests} shows the status 
+In addition to public infrastructure,
+at the same time, we continue to use Jenkins installation in USTAN 
+for daily and weekly tests, running package updates system (Subsection~\ref{pkg-update}), wrapping and
+testing release candidates (Subsection~\ref{distro}) and other automated tasks. 
+It is also very valuable for tests with non-trivial runtime and memory requirements
+which can not be run using free Travis CI services, and for the specific setup needed
+to build and test \GAP distribution for Windows.
+
+\subsection{Docker containers for testing, using and sharing GAP code}
+
+Under ``Package integration tests'' Figure~\ref{fig:gap-core-tests} shows the status 
 of package integration tests
 which are run once in 24 hours using a Docker container with
 a snapshot of the GAP development version
@@ -138,16 +163,6 @@ test logs for each of the configurations.
     \label{fig:gap-docker-master-testsuite}
 \end{figure}
 
-At the same time, we continue to use Jenkins installation in USTAN 
-for daily and weekly tests, running package updates system (Subsection~\ref{pkg-update}), wrapping and
-testing release candidates (Subsection~\ref{distro}) and other automated tasks. It is also very valuable since 
-it does not impose time limits on output inactivity and the overall duration
-of the job; second, it allows us to log in into the test workspace for
-debugging; third, with the specific \GAP setup for Windows we build it on a
-machine with a Cygwin installation, and then install it on a clean Windows
-machine to test there. 
-
-\subsection{Docker containers for testing, using and sharing GAP code}
 
 The Docker container for the test displayed on Figure~\ref{fig:gap-docker-master-testsuite}
 is one of a set of containers that we maintain for various purposes, from offering 
