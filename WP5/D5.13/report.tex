@@ -8,6 +8,91 @@
 \usepackage[backend=bibtex]{biblatex}
 \addbibresource{report.bib}
 
+\usepackage{tikz}
+\usetikzlibrary{plotmarks}
+
+\begin{filecontents}{zp20.data}
+#Threads 	Power [mW]
+1	1.0
+2	0.957696
+3	0.958378
+4	0.9413
+6	0.947257
+8	0.927686
+10	0.904027
+12	0.8998
+14	0.911984
+16	0.895612
+20	0.860703
+24	0.84717
+28	0.847703
+32  0.825368
+\end{filecontents}
+
+\begin{filecontents}{z20.data}
+#Threads	Power [mW]
+1	1.0
+2	1.0
+3	0.97561
+4	0.955414
+6	0.947867
+8	0.931677
+10	0.923077
+12	0.917431
+14	0.911854
+16	0.903614
+20	0.895522
+24	0.892857
+28  0.874636
+32  0.765306
+\end{filecontents}
+
+\begin{filecontents}{zp20.data}
+#Threads 	Power [mW]
+1	1.0
+2	0.957696
+3	0.958378
+4	0.9413
+6	0.947257
+8	0.927686
+10	0.904027
+12	0.8998
+14	0.911984
+16	0.895612
+20	0.860703
+24	0.84717
+28	0.847703
+32  0.825368
+\end{filecontents}
+
+\begin{filecontents}{z16.data}
+#Threads	Power [mW]
+1	1.0
+2	0.94955
+3	0.924561
+4	0.89322
+6	0.84051
+8	0.823438
+10	0.810769
+12	0.80581
+14	0.784226
+16	0.765988
+\end{filecontents}
+
+\begin{filecontents}{zp16.data}
+#Threads	Power [mW]
+1	1.0
+2	0.942149
+3	0.924012
+4	0.912
+6	0.904762
+8	0.904762
+10	0.885437
+12	0.883721
+14	0.880309
+16	0.863636
+\end{filecontents}
+
 \begin{document}
 \maketitle
 % This will be the abstract, fetched from the github description
@@ -72,6 +157,7 @@ $16$  & $0.86$  & $5.19$ &$0.66$  & $1.50$\\ \hline
 \label{table_sparse_mul1}
 \end{table}
 The multiplication over $\mathbb{Z}/p \mathbb{Z}$ is overall faster and scales better. The efficiency on $16$ threads is $0.86$ versus an efficiency of $0.76$ over $\mathbb{Z}$. This is to be expected as the memory management of elements of $\mathbb{Z}$ via \textsc{GMP} adds overhead. As we increase the size of the problem we can observe better scaling as shown in Table \ref{table_sparse_mul2}. Now the efficiency on $16$ threads is $0.90$ ($0.90$ for $\mathbb{Z}/p \mathbb{Z}$), and the efficiency on $32$ threads is $0.76$ ($0.82$ for $\mathbb{Z}/p \mathbb{Z}$).
+The efficiencies for all multiplications in this section are summarized in Figure \ref{figure_efficiencies}.
 \begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | }
 & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
@@ -94,6 +180,53 @@ $32$  & $4.9$ &  $17.9$  &$2.04$ & $5.12$\\ \hline
 \caption{Sparse multiplication for $(m, n) = (20, 20)$.}
 \label{table_sparse_mul2}
 \end{table}
+
+\begin{figure}
+\begin{tikzpicture}[y=5cm, x=.325cm,font=\sffamily]
+ 	%axis
+	\draw (0,0) -- coordinate (x axis mid) (32,0);
+    	\draw (0,0) -- coordinate (y axis mid) (0,1);
+    	%ticks
+    	\foreach \x in {0,2,...,32}
+     		\draw (\x,1pt) -- (\x,-3pt)
+			node[anchor=north] {\x};
+    	\foreach \y in {0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0}
+     		\draw (1pt,\y) -- (-3pt,\y) 
+     			node[anchor=east] {\y}; 
+	%labels      
+	\node[below=0.8cm] at (x axis mid) {Threads};
+	\node[rotate=90, above=0.8cm] at (y axis mid) {Efficiency};
+
+	%plots
+	\draw plot[mark=*, mark options={fill=white}] 
+		file {z20.data};
+	\draw plot[mark=triangle*, mark options={fill=white} ] 
+		file {zp20.data};
+	\draw plot[mark=*, mark options={fill=black}] 
+		file {z16.data};
+	\draw plot[mark=triangle*, mark options={fill=black} ] 
+		file {zp16.data};
+
+    
+	%legend
+	\begin{scope}[shift={(5,0.5)}] 
+	\draw[yshift=0\baselineskip] (0,0) -- 
+		plot[mark=*, mark options={fill=white}] (0.25,0) -- (0.5,0) 
+		node[right]{(20,20) sparse multiplication over $\mathbb{Z}$};
+	\draw[yshift=-1\baselineskip] (0,0) -- 
+		plot[mark=triangle*, mark options={fill=white}] (0.25,0) -- (0.5,0)
+		node[right]{(20,20) sparse multiplication over $\mathbb{Z}/p\mathbb{Z}$};
+	\draw[yshift=-2\baselineskip] (0,0) -- 
+		plot[mark=*, mark options={fill=black}] (0.25,0) -- (0.5,0)
+		node[right]{(16,16) sparse multiplication over $\mathbb{Z}$};
+	\draw[yshift=-3\baselineskip] (0,0) -- 
+		plot[mark=triangle*, mark options={fill=black}] (0.25,0) -- (0.5,0)
+		node[right]{(16,16) sparse multiplication over $\mathbb{Z}/p\mathbb{Z}$};
+	\end{scope}
+\end{tikzpicture}
+\caption{Efficiency of the sparse multiplication as defined by $\frac{\text{time on }1 \text{ thread}}{n \cdot \text{time on }n \text{ threads}}$}
+\label{figure_efficiencies}
+\end{figure}
 
 \section{Dense Multiplication}
 \label{section_dense_mul}

@@ -45,7 +45,7 @@
     It will prepare the final integration of a broader set of such
     parallel features for the end of the project.”}
 
-With Deliverable~\delivref{hpc}{LinBox-algo}, we developped, released and integrated in the
+With Deliverable~\delivref{hpc}{LinBox-algo}, we developed, released and integrated in the
 \Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
 When installing the latest \Sage release on a multithreaded multicore server, it
 only takes one configure option to let fflas-ffpack use a multi-threaded BLAS
@@ -128,126 +128,82 @@ Many \GAP packages also have been updated to work in \GAP 4.9 and make use of it
 \subparagraph{\longtaskref{hpc}{hpc-linbox}}
   \label{hpc@hpc-linbox}
 
-The deliverable~\longdelivref{hpc}{LinBox-algo} due for this reporting period is
-delivered on time. The contribution, as detailed in the report is twofold:
-\begin{compactitem}
-\item Several algorithmic innovations have been produced: a new matrix invariant
-  for rank profiles~\cite{DumPerSul:fcrpmgbd16}, a new symmetric matrix
-  factorization algorithm and its high performance implementation has been
-  proposed~\cite{DuPe18}; new representation and algorithms for quasi-separable
-  matrices~\cite{Pernet:cqm16,PerSto:tsegqm17}, and new developments on 
-  interactive certificates for the security of large scale distributed
-  computations on unsafe
-  resources~\cite{DumKalTho:lticmpdsm16,DumLucPer:cftearp17}. These results have been
-  presented in the main venues in the domain:
-  the international conference ISSAC'16-17-18 and the Journal of Symbolic computation.
-\item Major software developments have happened in the LinBox ecosystem, increasing
-  robustness, maintainability and introducing new computational features, such
-  as the new symmetric factorization algorithm or a parallel triangular matrix
-  inversion implementation. Not only have these library been closely integrated
-  within \Sage, but the interface has been fully rethought thanks to a broader
-  support of C++ in Cython.
-\end{compactitem}
+The deliverable~\longdelivref{hpc}{LinBox-distributed} due for this reporting period is
+delivered on time.
 
+A first focus was made on distributed computing, with an MPI parallelization of a Chinese remainder based
+algorihtm. The prototypical implementation first produced was then cleanly integrated in the mainstream code of the
+library. Its performance show a very nice scaling with the number of compute nodes on a 256 cores cluster. Although this
+approach is best suited for large scale parallelization, its generates a suboptimal workload which become a major
+concern on large instances.
 
-Deliverable~\longdelivref{hpc}{LinBox-distributed} is making good progress
-  thanks to the work of our \ODK engineer Hongguang Zhu. Several code prototypes
-  already implement a Chinese remainder based parallel rational solver on a distributed
-  infrastructure. We are now working on improving the communication patterns,
-  and on designing a parallel rational vector reconstruction algorithm, as it
-  has now become the bottleneck in this computation.
-  
+An alternative approach based on $p$-adic lifting has an  asymptotically smaller workload, but is intrinsically more
+sequential, and therefore less suited for large scale parallelization. 
+A major contribution in this task is a new algorithm combining $p$-adic lifting and Chinese remaindering in order to
+expose more parallelism without sacrifying the gain in the workload.
+We also provide a full-featured  implementation of this new algorithm in LinBox, which shows delivers both high
+efficiency in sequential, and scales well up to 16 cores on a multicore server.
+
+Lastly, we also introduced a support for GPUs in the \fflasffpack library and show how matrix product over a finite
+field benefit from these accelerators.
+
+All these software improvements are closely integrated in the mainstream code of the \fflasffpack and \LinBox libraries.
+
   \subparagraph{\longtaskref{hpc}{hpc-singular}}
   \label{hpc@hpc-singular}
 
   The only deliverable under consideration for this reporting period
   is~\longdelivref{hpc}{singular-polyarith}
 
-Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular are not. Since the last update much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}. We also now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex. Suggestions by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau have been invaluable.
+Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular were not. Much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}.
 
-The serial implementations of the operations of multiplication, division and GCD are complete in both the dense and sparse cases and the performance is competitive with other systems. The parallel implementation of multiplication is also complete with competitive performance as well. We are on track to have division and GCD parallelized and delivered on time.
+We now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex over the integers mod p and rationals. Continued engagement by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau has been invaluable.
 
-We have also been able to parallelize polynomial root clustering, which is a
-major engine in Singular that benefits from fine-grained
-parallelization. Performance improvements continue to be made by Remi Imbach
-(now at NYU following his ODK contract). The fully working implementation is
-at \url{https://github.com/rimbach/Ccluster}.
+Parallel and serial implementations of the operations of multiplication, division and GCD are complete and perform well in both the dense and sparse cases. The performance is more than competitive with all other systems we are aware of, both on a single core and on multiple cores.
 
+Basic arithmetic in Singular now benefits directly from the implementation and researchers are already working on leveraging the new implementation in other areas, e.g. Gr\"{o}bner bases over rational functions, Gr\"{o}bner bases with a bottleneck on multivariate arithmetic and polynomial factorisation. Early indications are that all of these are going to experience a huge improvement for many real-world research applications.
 
+Other systems such as the new Oscar computer algebra system already benefit directly from the new ODK implementation. 
 
+Sage will automatically benefit directly at the next update of the Singular version in Sage.
 
   \subparagraph{\longtaskref{hpc}{hpc-mpir}}
   \label{hpc@hpc-mpir}
 
-  All deliverables for this task have been delivered at the previous
-  reporting period.
+  Not applicable for this period.
   
   \subparagraph{\longtaskref{hpc}{hpc-combi}}
   \label{hpc@hpc-combi}
 
-  The goal of this task is to use combinatorics as a source of challenges to
-  experiment on various HPC techniques. Recall that from the first reporting
-  period, deliverable~\longdelivref{hpc}{sage-paral-tree} successfully
-  implemented a MapReduce programming model on large datasets described by a
-  recursion tree. Since it is written purely in Python, the code doesn't
-  perform well when the computation in each node is short. A good technology
-  for handling such situations with fine grain parallelism, is
-  \software{Cilk++}. However since both Intel and GCC teams decided to
-  discontinue \software{Cilk++} support, we looked for some replacement and
-  also to scale from shared memory to cluster. It turns out that there isn't
-  currently any widespread well maintained replacement.
-
-  On the other hand, while writing our code to experiment with various
-  solutions, we came to realize that designing new algorithms based on the
-  vector primitive of the modern processor (AVX instruction set) allows to
-  gain large speedup ($2\times$ to $50\times$) on the handling of small
-  combinatorial objects. By requiring the invention of new algorithms, this
-  becomes definitely a research question. As a preliminary results, we started
-  to develop a library called HPCombi which can already speed up some
-  computation of \software{GAP} and \software{Sage} through the
-  \software{libsemigroup} library. This work resulted in a keynote talk at the
-  PASCO 2017 conference and an invitation to the Scottish Programming Language
-  Seminar 2018.
-
-  On the less experimental side, progress has been made into Sage to compute
-  with integer vector which are ubiquitous in combinatorics. Using Cython, we
-  wrote a bridge called \software{PPLPy} for the \software{PPL} library which
-  now provides access to the PPL library to any Python user. This package use
-  general linear programming techniques to enumerate integer vectors.
-  Improving \Sage capabilities in polytope computations and linear algebra is
-  critical for combinatorics. Similarly two other interfaces have been developed
-  to \software{LaTTe} (counting integral points in polytopes) and
-  \software{PolyMake} (the reference software for Polyhedral computations).
-  Finally, some more combinatorial objects were optimized using the Cython
-  technology, namely permutations and Lyndon words (which are a combinatorial
-  tool to deals with vectors up to a cyclic permutation).
+  Not applicable for this period.
 
 
   \subparagraph{\longtaskref{hpc}{pythran}}
   \label{hpc@hpc-pythran}
+  Not applicable for this period.
 
-  The goal of this task is to make Pythran easily integratable in large-scale
-  project, taking into account native dependencies, compilation time, memory
-  footprint, speed and size of compiled binaries as well as multi-platform
-  support. Integration with \software{cython} is a possible mean to achieve
-  this goal.
+%%   The goal of this task is to make Pythran easily integratable in large-scale
+%%   project, taking into account native dependencies, compilation time, memory
+%%   footprint, speed and size of compiled binaries as well as multi-platform
+%%   support. Integration with \software{cython} is a possible mean to achieve
+%%   this goal.
 
-  Two projects have been selected for this task: \software{scipy} and
-  \software{scikit-image}. These projects are relevant for \software{pythran}
-  because they have many small to medium kernels that can benefit from
-  compilation. Even though \software{pythran} has not been selected as a scipy
-  backend, the exchanges with the community have led to a great deal of
-  improvements of which all \software{Pythran} users take advantage.  The
-  \software{scikit-image} community is still examining the possibility of using
-  \software{pythran} as an acceleration mean.
+%%   Two projects have been selected for this task: \software{scipy} and
+%%   \software{scikit-image}. These projects are relevant for \software{pythran}
+%%   because they have many small to medium kernels that can benefit from
+%%   compilation. Even though \software{pythran} has not been selected as a scipy
+%%   backend, the exchanges with the community have led to a great deal of
+%%   improvements of which all \software{Pythran} users take advantage.  The
+%%   \software{scikit-image} community is still examining the possibility of using
+%%   \software{pythran} as an acceleration mean.
 
-  Integration of  \software{pythran} as a \software{cython} backend for
-  \software{numpy} has improved in various aspects: better error detection,
-  more supported expression patterns and improved performance for the compiled
-  expressions.
+%%   Integration of  \software{pythran} as a \software{cython} backend for
+%%   \software{numpy} has improved in various aspects: better error detection,
+%%   more supported expression patterns and improved performance for the compiled
+%%   expressions.
 
-Deliverable~\longdelivref{hpc}{sage-HPCcombi} is shared with
-Task~\longlocaltaskref{hpc}{hpc-combi}, the status of which we reported on above.
+%% Deliverable~\longdelivref{hpc}{sage-HPCcombi} is shared with
+%% Task~\longlocaltaskref{hpc}{hpc-combi}, the status of which we reported on above.
 
   \subparagraph{\longtaskref{hpc}{hpc-jupyter}}
   \label{hpc@hpc-jupyter}
@@ -258,9 +214,15 @@ Task~\longlocaltaskref{hpc}{hpc-combi}, the status of which we reported on above
 %% in the Universities of Sheffield and Manchester in the United Kingdom. It is also used
 %% on the regional N8 HPC facility, a system shared by the eight most research
 %% intensive universities in the North of England.
+  Not applicable for this period.
 
-  All deliverables for this task have been delivered at the previous
-  reporting period.
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "report"
+%%% End:
+
 
 %  LocalWords:  subsubsection hpc compactitem super-optimizer vectorized factorization
 %  LocalWords:  texttt fflas-ffpack longmilestoneref emph JupyterHub-based specialized

@@ -113,7 +113,7 @@ contained in a sequence of less expensive linear algebra operations (matrix-vect
 However, the strongly iterative structure of this algorithm makes it both harder to parallelize and less cache
 efficient.
 In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
-$p$-adic lifting and Chinese remainder techniques. 
+$p$-adic lifting and Chinese remainder techniques.
 This led to a multi-modular (or RNS, residue number system) $p$-adic
 lifting.
 We further improve this variant in several ways to deliver a parallel
@@ -125,14 +125,14 @@ the two following salient features:
   performed via matrix-vector arbitrary precision multiplications over
   the integers with a second RNS basis.
   We instead gather those updates in order to perform instead a
-  matrix-matrix multiplication. 
+  matrix-matrix multiplication.
   This can be seen in line~\ref{lin:ZGEMM} of
   Algorithm~\ref{alg:ParMultiModSolve}.
 \item We mix this algorithm with the parallel RNS improvement
   of~\cite{DGLS18} and restrict the second RNS basis to primes
-  individually larger than the 
+  individually larger than the
   multi-modular high-level ones in order to speed up the RNS/integer
-  conversions. 
+  conversions.
 \end{enumerate}
 
 %\begin{algorithm}[htb]
@@ -187,8 +187,8 @@ the two following salient features:
     \EndFor
 \newline{\Comment{Now compute simultaneously all the updates $\frac{\vect{r}^{(i)} -
       \mat{A}\vect{c}^{(i)}}{p_i}$  in parallel:}}
-    \State Gather 
-    $\mat{R}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1)}&\ldots&\vect{\rho}^{(\ell)}\end{array}\right]$ 
+    \State Gather
+    $\mat{R}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1)}&\ldots&\vect{\rho}^{(\ell)}\end{array}\right]$
     and $\mat{C}\leftarrow\left[\begin{array}{ccc}\vect{c}^{(1)}&\ldots&\vect{c}^{(\ell)}\end{array}\right]$
     \State\label{lin:ZGEMM}
     $\mat{V}\leftarrow\mat{R}-\mat{A}\cdot\mat{C}$\Comment{Parallel RNS with $q_1,\dots, q_\tau$}
@@ -231,7 +231,7 @@ The implementations referred to for this deliverable are made in the \Linbox lib
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{A multicore $p$-adic lifting}
-Thanks to our implementation of Algorithm~\ref{alg:ParMultiModSolve}, 
+Thanks to our implementation of Algorithm~\ref{alg:ParMultiModSolve},
 we obtain improvements on arbitrary precision parallel rational
 solving.
 All the experiments in this Section were obtained on a \TODO{ @GHz }
@@ -249,10 +249,10 @@ where $\ell$ is the parameter and, from the algorithm, $k\ell\approx n \cdot
 
 Thus we see that by increasing $\ell$ we increase the overall number
 of operations, but the hope is to trade some slow operations of ZGEMM
-for some very fast operations of GINV. 
+for some very fast operations of GINV.
 We also see that the dominant cost should remain unchanged within GEMV, but
 that by increasing $\ell$ we increase the potential for
-parallelism. 
+parallelism.
 
 This analysis is backed up by experiments as we show in the following.
 %
@@ -301,13 +301,15 @@ histogram).
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b_total}
 \end{center}
-\caption{Balance between matrix inversion (GINV) and lifting phases (GEMV+ZGEMM). In each cluster, left column correspond to a sequential run,
-and right column to a run with 16 cores}\label{fig:rnsdixon_parallel}
+\caption{Balance between matrix inversion (GINV) and lifting phases
+  (GEMV+ZGEMM). In each cluster, leftmost column correspond to a
+  sequential run, then to $4$ and $8$ cores andwith the rightmost
+column to a run with $16$ cores}\label{fig:rnsdixon_parallel}
 \end{figure}
 
 Further work is required to tune up at a finer grain the different
 levels of parallelism used in the large precision RNS matrix-matrix
-multiplication or to automatically deduce the right choice of 
+multiplication or to automatically deduce the right choice of
 parameter $\ell$ from the characteristics of the matrix and the right
 hand side.
 

@@ -1,18 +1,18 @@
 \def\MWS{MathWebSearch\xspace}
+\ednote{TW: Proper citations}
 
 In the \pn VRE toolkit approach, a virtual research environment (VRE) is based on software and data components (called D/K/S-bases in the original proposal) under a joint user interface.
 Here we concentrate on a crucial aspect of this, the interaction of the D/K/S-base with the UI in mathematical Jupyter notebooks and interactive mathematical documents -- see ~\cite{ODK-D4.2} for a discussion of the concepts.
-In particular, mathematical Notebooks allow users to navigate the combined information space of all the underlying tools, systems and
-resources integrated into the VRE as one. 
+In particular, mathematical Notebooks allow users to navigate the combined information space of all the underlying tools, systems and resources integrated into the VRE as one. 
 However, they aggravate the already serious problem of finding the piece of knowledge (or Notebook) a mathematician wants.
 Of course, there is a text search engine built into  GitHub that can distinguish notebooks by file type, but as well well know, this only helps it the mathematician can already express her information through a bag of words.
-When it comes to formulae, the GitHub search engines is essentially blind. 
+When it comes to formulae, the GitHub search engine is essentially blind. 
 Thus, we decided to adapt the \MWS formula search engine to this \pn joint user interface. 
 
 \subsection{The \MWS Formula Search Engine}
 
 \MWS is a web application that provides low-latency answers to full-text queries which consist of keywords and formulae.
-We give only a brief overview of the pre-existing \MWS architecture here and refer the reader to~\cite{ProKoh:mwssofse12} and ~\cite{ODK-D6.1}. 
+We give only a brief overview of the pre-existing \MWS architecture here and refer the reader to~\cite{ProKoh:mwssofse12} and ~\cite{ODK-D6.1} for details. 
 We furthermore describe our re-worked design in Section~\ref{sec:software:deployment} below.
 In a nutshell, \MWS consists of a search web application (the \MWS daemon) that indexes formula harvests (essentially lists of content MathML formulae and URI references) and answers queries (Content MathML schemata with query variables).
 Multiple domain-specific front-ends can talk to the \MWS daemon using an XML-based protocol, they transform the user's information into Content MathML queries. 
@@ -41,21 +41,21 @@ The previous \MWS deployments required a significant amount of application-speci
 This code was typically written by students, and as a result it was not of high quality. 
 In particular, most code was too specialized to be re-usable. 
 
-This made it impossible to directly use \MWS inside OpenDreamKit. 
+This made it impossible to directly use \MWS as part of the OpenDreamKit VRE Toolkit. 
 To allow using \MWS flexibly, we needed to inject the system with a lot of software engineering. 
 To achieve this, we developed new infrastructure on top of the core \MWS daemon. 
 This works takes the form of several components, each of which can deployed independently using Docker (see also \WPref{component-architecture}).
 The structure of our infrastructure can be seen in Figure~\ref{fig:mwsdeployment}, with new components in green. 
 
 \begin{figure}[ht]
-  \includegraphics[width=0.8\textwidth]{mws_layout.pdf}
-  \caption{Structure of our newly developed \MWS Deployment Infrastructure. Newly developed and updated components colored in green. }\label{fig:mwsdeployment}
+  \includegraphics[width=1.0\textwidth]{mws_layout.pdf}
+  \caption{Structure of our newly developed \MWS Deployment Infrastructure. Newly developed and updated components colored in green, components available as Docker Containers show the Docker logo.  }\label{fig:mwsdeployment}
 \end{figure}
 
 We describe the components of our infrastructure. 
 
 \paragraph{The \MWS Daemon}
-The central component is the \textit{\MWS daemon}, which can be found in the bottom left. 
+The central component is the \textit{\MWS daemon}, which can be found in the bottom left of Figure~\ref{fig:mwsdeployment}. 
 As previously, it uses an \textit{Index} and exposes an XML-based API for queries. 
 The only change we made to the core daemon is that it now exists inside a Docker Container at \footnote{\url{https://hub.docker.com/r/mathwebsearch/mathwebsearch/}}. 
 
@@ -70,19 +70,23 @@ This periodically sends updated harvests to the \textit{indexer}, which then in 
 This process ensures that the Index remains up-to-date, and does not have to be re-generated manually. 
 The source code of this component can be found at \footnote{\url{https://github.com/MathWebSearch/mws-cron}}. 
 
+The index consists of a set of highly optimized binary files. 
+Usually, the index is stored on disk by the indexer, and then loaded into memory by the \MWS daemon when responding to queries. 
+However, for small harvests a shortcut exists: the \MWS daemon can re-build an index every time it starts up and store it directly into memory, skipping the explicit indexing step. 
+This enables us to extremely quickly deploy \MWS for small enough harvests. 
 \paragraph{Frontend, mwsapi and the query syntax parser}
 
 In order to process end user queries, we introduced several additional components.
 
-The most important component of these is a new React-powered \textit{frontend}\footnote{\url{https://github.com/MathWebSearch/frontend}}, which runs inside the users' browser. 
-It allows users to enter a formula search query, and view the results. 
-The frontend contains corpus-specific branding and text, and is otherwise not corpus-specific. 
+The most important component of these is a new React-powered \textit{frontend}\footnote{\url{https://github.com/MathWebSearch/frontend}}, which runs inside the users' browser or as a component of a web information system such as MathHub. 
+It allows users to enter a formula search query and view the results. 
+The frontend contains corpus-specific branding and text, but is otherwise not corpus-specific. 
 In particular the querying code which interacts with the backend components, does not require specialization. 
 
 While the \MWS daemon only understands formulae in Content MathML, users often enter them using different representations, such as \LaTeX. 
 For this purpose, the frontend allows entering queries in human-writable, corpus-specific syntax. 
-In order to transform the user query into a system-understood query, we make use of a new component called the \textit{Query Syntax Parser}. 
-For {\LaTeX} syntax this is achieved using {\LaTeX}ML along with a custom \MWS extension, but this component is fully interchangeable if the user desires other syntaxes. 
+To transform the user query into a system-understood query, we make use of a new component called the \textit{Query Syntax Parser}. 
+For {\LaTeX} syntax this is achieved using {\LaTeX}ML \ednote{TW: cite LaTeXML} along with a custom \MWS extension for it\ednote{TW: cite latexml-plugin-mws}, but this component is fully interchangeable if the user desires other syntaxes. 
 
 The frontend does not directly send MathML queries to the \textit{Daemon}.
 Instead, it sends them to a thin API layer on top called \textit{mwsapi}. 
@@ -94,12 +98,14 @@ The source code and documentation are available on Github at \footnote{\url{http
 As the frontend, the mwsapi server and the Query Syntax Presenter are all exposed to the end-user under the same url, a proxy delegating requests accordingly was also necessary. 
 This is using an nginx server. 
 
-\subsection{Building a Notebook Search}
+\subsection{Building a SageMath Notebook Search Application}
 
-Sage can produce \LaTeX\ formulae as output\ednote{TW@MK: Not sure how to describe this in more detail; should we ask Nicolas for this?}.
-Using the newly developed infrastructure above, it was straightforward to apply \MWS and enable users to search for these formulae. 
+SageMath can produce \LaTeX\ formulae as output. 
+Recall that mathematical Notebooks allow users to navigate the combined information space of all the underlying tools, systems and resources integrated into the VRE as one. 
+These formulae are part of this combined information space, and are something that mathematicians want to search for.
+Using the newly developed infrastructure above, it was straightforward to apply \MWS and enable users to perform such searches. 
 
-Applying our infrastructure involved two steps, which we briefly describe below.
+Applying our infrastructure involved several steps, which we briefly describe below.
 
 \paragraph{Harvesting Formulae}
 To enable \MWS to search the formulae, we needed to build a harvester that extracted formulae from a notebook and as ContentMathML formulae. 
@@ -124,7 +130,10 @@ However, as Sage produces \LaTeX\ formulae, we can re-use the {\LaTeX}ML query s
 
 The third and final step involved deploying the system.
 This required minor customization in the branding of the frontend. 
+\ednote{TW: Describe docker compose}
+
 The user interface is deployed at \url{https://jupytersearch.mathweb.org} and can be seen in Figure~\ref{fig:mwsnotebookfront}.
+\ednote{TW: Describe system}
 
 In addition the notebook search, we have also exercised a similar progress for the $n$-category Cafe (nLab, \url{https://ncatlab.org/}, a community-run semantic wiki on category theory and applications with more than 13K pages). 
 Similar to notebooks, NLab also contains formulae in \LaTeX\ syntax, enabling us to largely re-use all components we had created previously.  The NLab Harvester can be found at \footnote{\url{https://github.com/MathWebSearch/nlab_harvester}}, and the corresponding frontend at \url{https://nlabsearch.mathweb.org}.
