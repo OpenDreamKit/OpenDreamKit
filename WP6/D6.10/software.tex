@@ -114,8 +114,7 @@ The script to achieve this can be found at \footnote{\url{https://github.com/Ope
 
 To test our harvester, we decided to make use of Sage Jupyter Notebooks found on GitHub. 
 We implemented a second Python script which used the GitHub API to download all matching files and then apply our harvester to them. 
-This process resulted in an \MWS Harvest of $0$ documents, containing $0$ formulae\ednote{TW: Update numbers}.
-
+There are approximately $10000$ matching SageMath notebooks on GitHub, totalling to approximatly $5800000$ expressions\footnote{An expression is a \MWS-indexed subterm of a formula. }. 
 \paragraph{Query Syntax Parser}
 
 To enable users to search the formulae in an appropriate syntax, a query syntax parser was required. 
@@ -123,17 +122,31 @@ However, as Sage produces \LaTeX\ formulae, we can re-use the {\LaTeX}ML query s
 
 \paragraph{Deploying the system}
 
+The third and final step involved deploying the system.
+This consisted of deploying the various involved Docker Containers. 
+For this purpose we made use of a tool called Docker Compose\ednote{TW: cite Docker Compose}. 
+Docker Compose allows defining complex interactions between containers in a simple docker compose file. 
+The tool then automatically starts containers as described in this file. 
+For our \MWS application we only needed to adapt a generic \MWS Docker-Compose file with the public website URL and appropriate branding for the frontend. 
+
 \begin{figure}[ht]
   \includegraphics[width=\textwidth]{mwsnotebookfront.png}
   \caption{The deployed Jupyter Notebook Search Frontend}\label{fig:mwsnotebookfront}
 \end{figure}
 
-The third and final step involved deploying the system.
-This required minor customization in the branding of the frontend. 
-\ednote{TW: Describe docker compose}
-
 The user interface is deployed at \url{https://jupytersearch.mathweb.org} and can be seen in Figure~\ref{fig:mwsnotebookfront}.
-\ednote{TW: Describe system}
+To perform a search, users first enter a formula with query variables to search for in the central search box. 
+In this case the query $\sin{x} + y$ was entered and $x$ and $y$ were marked as query variables by prefixing them with a ?. 
+Next, the search query was rendered by {\LaTeX}ML, which can be seen in the top right. 
+To then view the search results users had to click the green search button. 
+This caused the query to be sent to \MWS. 
+
+The results of the query can then be seen in the bottom half of the image.
+In this case, the query took $0.0621$ seconds and returned $4$ results. 
+To not clutter the page with too many details, results can be expanded individually. 
+In this case, the user choose to only expand one particular result. 
+For this result, several details can be seen -- the url of the notebook it was found in, the matching formula, and the subsituted query variables. 
+The query variables are colored for easy visibility -- here $x$ matched the term $2\Phi$ and is colored red and $y$ matched the term $1$ and is colored blue. 
 
 In addition the notebook search, we have also exercised a similar progress for the $n$-category Cafe (nLab, \url{https://ncatlab.org/}, a community-run semantic wiki on category theory and applications with more than 13K pages). 
 Similar to notebooks, NLab also contains formulae in \LaTeX\ syntax, enabling us to largely re-use all components we had created previously.  The NLab Harvester can be found at \footnote{\url{https://github.com/MathWebSearch/nlab_harvester}}, and the corresponding frontend at \url{https://nlabsearch.mathweb.org}.
