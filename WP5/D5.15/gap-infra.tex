@@ -5,16 +5,16 @@ As well as developments in the core system and in packages, we have
 dedicated considerable effort to improving our infrastructure and
 processes.  In this section we describe developments in the technical
 processes which support our developers (especially package
-developers), connect them to our user community, and aim to ensure the
+developers). These processes connect developers to our user community and aim to ensure the
 robustness and quality of the integrated system, something essential
 to its use in demanding large-scale computations. Some of the
 technical developments (especially around continuous integration) were
-reported in D3.8 (Month 36), and some of the associated advocacy
+reported in D3.8 (Month 36), and some of the associated advocacy,
 training and support in deliverables D2.2, D2.11 and D2.15. This
-section updates and extends those focussed reports, taking a broad
-view of our tools and processes and focussing on the visible benefits
+section updates and extends those focused reports, taking a broad
+view of our tools and processes and focusing on the visible benefits
 of these changes to developers and package authors. In subsection
-\ref{sec:uptake} we assess the impact that this work has had on has
+\ref{sec:uptake} we assess the impact that this work has
 had on the developers and package authors.
 
 \subsection{Regression testing}\label{testing}
@@ -61,9 +61,9 @@ and time-consuming with many manual steps.
 %changes in some unacceptable way} 
 %
 
-With the widespread adoption of open development models by the
+During \ODK there has been widespread adoption of open development models by the
 \GAP system and package developers and
-maintainers, taking place during \ODK, we have also been able to move
+maintainers. As a result, we have also been able to move
 to an open regression testing infrastructure, which has enabled us
 to substantially improve \GAP development and testing workflows and
 develop a more robust system with less effort. For example,
@@ -74,6 +74,14 @@ snapshot is shown in figure~\ref{fig:gap-core-tests}.
 This dashboard shows the status of the core system GAP tests,
 which are run for every change made to the repository, as well as
 package integration tests described below.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=5cm]{images/gap-core-tests}
+    \caption{Dashboard with core GAP system and package integration tests}
+    \label{fig:gap-core-tests}
+\end{figure}
+
 
 The ``status'' lights are actually active buttons, which lead to the
 full test reports, held on the public continuous integration platform
@@ -87,31 +95,35 @@ This level of open continuous testing has led to huge improvements in
 the quality of the system, with far fewer bug reports than previously,
 and saved enormous effort in integrating releases.
 
-At the heart of the testing of the core \GAP system is achieved by the
+At the heart of the testing of the core \GAP system is our
 comprehensive test suite. The table in
 figure~\ref{fig:test-suite-growth} shows its increase over the period.
+In addition, we also test the correctness of the
+over $14,000$ lines in the 1810 examples in our manuals. We promote a similar testing approach to \GAP package authors and
+encourage them to provide their own regression
+tests. Many do, adding, in total over a quarter of a million lines of
+further tests in the distributed system, which are run when new
+versions of packages and/or of the core system are being tested for
+integration into a release.
+
 
 % find . -name '*.tst' | wc -l
 % find . -name '*.tst' | xargs wc -l
 \begin{figure}[!ht]
 \begin{center}
 \begin{tabular}{| l | l | c | c | c |} 
-\hline
-GAP release & Release date & Number of        & Number of lines & Code coverage \\
-            &              & test files       & in test files   &               \\
-\hline GAP 4.7.8  & November 2015 (Month 3)   & 69 & 21981 & N/A \\
-\hline GAP 4.8.10 & January 2018 (Month 29 )  & 91 & 28586 & N/A \\
-\hline GAP 4.9.3  & September 2018 (Month 37) & 564 & 41456 & 69 \% \\
-\hline GAP 4.10.2 & June 2019 (Month 46)      & 648 & 53362 & 76 \% \\
-\hline GAP 4.11   & November 2019 (planned)   & 707 & 61280 & 84 \% \\
-\hline
+\hline GAP release & Release date & Number of & Number of lines & Code
+coverage \\ & & test files & in test files & \\ \hline GAP 4.7.8 &
+November 2015 (Month 3) & 69 & 21981 & N/A \\ \hline GAP 4.8.10 &
+January 2018 (Month 29 ) & 91 & 28586 & N/A \\ \hline GAP 4.9.3 &
+September 2018 (Month 37) & 564 & 41456 & 69 \% \\ \hline GAP 4.10.2 &
+June 2019 (Month 46) & 648 & 53362 & 76 \% \\ \hline GAP 4.11 &
+November 2019 (planned) & 707 & 61280 & 84 \% \\ \hline
 \end{tabular}
 \caption{Growth of the GAP test suite}\label{fig:test-suite-growth}
 \end{center}
 \end{figure}
 
-In addition, we also test the correctness of the
-over $14,000$ lines in the 1810 examples in our manuals.
 %% \comment{1336 mansections containing examples;
 %% 1641 (ref) + 169 (tut) = 1810 examples;
 %% 13262 (ref) + 940 (tut) = 14202 lines}. 
@@ -135,47 +147,35 @@ over $14,000$ lines in the 1810 examples in our manuals.
 % and some further code in the {\tt benchmarks} directory. 
 %
 
-We promote a similar testing approach to \GAP package authors and
-encourage them to provide their own regression
-tests. Many do, adding, in total over a quarter of a million lines of
-further tests in the distributed system, which are run when new
-versions of packages and/or of the core system are being tested for
-integration into a release.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=5cm]{images/gap-core-tests}
-    \caption{Dashboard with core GAP system and package integration tests}
-    \label{fig:gap-core-tests}
-\end{figure}
 
 \subsection{Docker containers for testing, using and sharing GAP code}\label{docker}
 
-We continued to maintain and expand the range of Docker containers,
+We have continued to maintain and expand the range of Docker containers,
 initially reported in D3.1 and then in D3.8. Our main applications of
 these containers are:
 \begin{itemize}
-\item speeding up regression tests by running container-based jobs on Travis CI;
+\item speeding up regression tests on Travis CI;
 \item sharing reproducible experiments in GAP Jupyter notebooks running on
   Binder (see Appendices~\ref{sec:repro-gap} and
   \ref{sec:libsemigroups-notebook});
-\item as an alternative distributions,
-  in particular this helps users who may not have administrator access
-  to their systems, to access packages that they cannot run otherwise
+\item as an alternative distribution.
+This particularly helps users who may not have administrator access
+  to their systems, or to access packages that they cannot run otherwise
   (e.g. due to missing dependencies or incompatibility with the operating system).
 \end{itemize}
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=12cm]{images/gap-docker}oif
+    \includegraphics[width=12cm]{images/gap-docker}
     \caption{Selected \GAP Docker containers on Docker Hub}
     \label{fig:gap-docker}
 \end{figure}
-
+ 
 These containers are publicly available on Docker Hub (see Figure~\ref{fig:gap-docker}).
 Containers with the development versions of \GAP and packages are updated daily, and have
 the largest number of downloads since they are regularly used for testing. An example of
-a test using such container could be found under ``Package integration tests'' on
+a test using such container could be found under ``Package integration
+tests'' in the dashboard shown in 
 Figure~\ref{fig:gap-core-tests}. Clicking on the ``status'' button leads to the overview displayed
 in Figure~\ref{fig:gap-docker-master-testsuite}, from where one could inspect
 test output for each of the configurations. 

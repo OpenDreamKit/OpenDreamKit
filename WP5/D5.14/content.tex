@@ -126,7 +126,7 @@ the two following salient features:
   the integers with a second RNS basis.
   We instead gather those updates in order to perform instead a
   matrix-matrix multiplication.
-  This can be seen in line~\ref{lin:ZGEMM} of
+  This can be seen in line~\ref{lin:MMZ} of
   Algorithm~\ref{alg:ParMultiModSolve}.
 \item We mix this algorithm with the parallel RNS improvement
   of~\cite{DGLS18} and restrict the second RNS basis to primes
@@ -279,7 +279,10 @@ in-node parallelism. On this particular cluster OpenMP is, for some
 unkown reason, much slower than MPI and therefore our Hybrid algorithm
 is slower than the pure MPI implementation. Nonetheless this hybrid
 implementation allows to not duplicate the data within each node and
-therefore enables the solution of much larger matrices 
+therefore enables the solution of much larger matrices, for instance a
+solving a random $10000{\times}10000$ system with $100$ bits entries
+and obtaining an exact solution vector of $2.5$GB (that is more than
+two million bits per coefficient of the output).
 
 \begin{table}[htb]
 \renewcommand{\arraystretch}{1.1}
@@ -312,17 +315,14 @@ therefore enables the solution of much larger matrices
 \hline
 \vspace{0pt}
 \end{tabular}
-\caption{Combined MPI/OMP prototyping}\label{tab:HybridMPIOMP}
+\caption{Combined MPI/OpenMP prototyping}\label{tab:HybridMPIOMP}
 \end{table}
-
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{A multicore $p$-adic lifting}
 Thanks to our implementation of Algorithm~\ref{alg:ParMultiModSolve},
-we obtain improvements on arbitrary precision parallel rational
+we also obtain improvements on arbitrary precision parallel rational
 solving.
 All the experiments in this Section were obtained on a single machine
 equipped with $4{\times}18$ E7-8860v4 cores @2.2Ghz.
