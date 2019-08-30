@@ -34,7 +34,7 @@ The inclusion of \textsc{Flint} multivariate polynomial arithmetic has improved 
 \section{Details of the systems}
 Besides the three monomial orders \emph{lexicographic}, \emph{graded lexicographic} and \emph{graded reverse lexicographic} used commonly in \textsc{Singular}, \textsc{Flint} supports polynomials with exponents of unlimited size. Since \textsc{Singular} has a fixed and limited size on the exponents this second feature is somewhat moot for \textsc{Singular} users. About two years into this project we had to redesign the fundamentals of the multivariate polynomials in \textsc{Flint} to achieve the desired flexibility and performance. By the end of the next two years more than $100,000$ additional lines of code dedicated to multivariate arithmetic had been added. This includes many redesigns as bottlenecks were discovered and implementations were redone.
 
-We run our benchmarks on the server {\tt nenepapa}, which has two sixteen core Intel Xeon E5-2697A v4 processors at $2.6$ GHz and $700$GB of memory. We show the timing of the basic operation in \textsc{FLINT} in the column labelled \emph{flint} and the timing of the new version of \textsc{Singular} in the column \emph{sing}. At the time of running these benchmarks, {\tt nenepapa} was also running two instances of long outstanding calculations. This seemed to only slightly negatively affect the timings on $32$ threads.
+We run our benchmarks on the server {\tt nenepapa}, which has two sixteen core Intel Xeon E5-2697A v4 processors at $2.6$ GHz and $700$GB of memory. We show the timing of the basic operation in \textsc{FLINT} in the column labelled \emph{flint} and the timing of the new version of \textsc{Singular} in the column \emph{sing}. At the time of running these benchmarks, {\tt nenepapa} was also running two instances of long running calculations. This seemed to only slightly negatively affect the timings on $32$ threads.
 
 The largest characteristic $p$ supported by \textsc{Singular} for arithmetic over finite fields is $p = 2^{29}-3$, and this is the prime we use to test arithmetic over $\mathbb{Z}/p \mathbb{Z}$. Both \textsc{Flint} and \textsc{Singular} use the \textsc{GMP} library for elements of $\mathbb{Z}$ with a special representation for integers less than $2^{62}$ ($2^{61}$ for \textsc{Singular}) in absolute value; small integers and elements of $\mathbb{Z}/p \mathbb{Z}$ both take one word of memory while large integers are managed by \textsc{GMP}. All times are reported in seconds.
 
@@ -44,7 +44,7 @@ We defined the efficiency on $n$ threads as
 \begin{equation*}
 \text{efficiency} = \frac{\text{ \textsc{Flint} time on $1$ thread}}{n \cdot \text{\textsc{Flint} time on $n$ threads}}\text{.}
 \end{equation*}
-In order to obtain reasonable efficiencies, it is necessary to limit the turbo mode of the processor (see Section \ref{section_code}) and to pin threads to cores as {\tt nenepapa} is unable to consistently schedule threads on the same core.
+In order to measure efficiency of the code, rather than the server CPU's, it is necessary to limit all CPU's to the same frequency, by disabling Intel's turbo boost, which otherwise runs the CPU at a higher frequency if fewer threads are being used (see Section \ref{section_code}). It is also necessary to pin threads to cores as {\tt nenepapa} is unable to consistently schedule threads on the same core and prefers hyperthreads over physical CPU's.
 
 \section{Sparse Multiplication}
 \label{section_sparse_mul}
@@ -52,8 +52,8 @@ Parallel multiplication has been investigated previously in \cite{Monagan:2009:P
 \begin{equation*}
 (1+x+y+2z^2+3t^3+5u^5)^m \cdot (1+u+t+2z^2+3y^3+5x^5)^n
 \end{equation*}
-for $m=n=16$, where the product is already quite large with $28$ million terms. As shown in \cite{Monagan:2009:PSP:1576702.1576739}, it is difficult to obtain a good speed up on this example. The reason for this is that the inputs each have only $20$ thousand terms, so the majority of the time is spent writing down the answer, where only $14$ additions are done per term on average. Table \ref{table_sparse_mul1} shows the timings with $16$ threads. The poor scaling of the \textsc{Singular} times over $\mathbb{Z}$ can be explained easily: Besides testing the multiplication in \textsc{Flint}, this benchmark tests the creation of large polynomials in \textsc{Singular}, which is a task bounded by the scaling of {\tt malloc}. In addition to having larger clean-up costs, the benchmark over $\mathbb{Z}$ puts three times as much pressure on {\tt malloc} as it does over $\mathbb{Z}/p\mathbb{Z}$.
-\begin{table}
+for $m=n=16$, where the product is already quite large with $28$ million terms. As shown in \cite{Monagan:2009:PSP:1576702.1576739}, it is difficult to obtain a good speed up on this example. The reason for this is that the inputs each have only $20$ thousand terms, so the majority of the time is spent writing down the answer, where only $14$ additions are done per term on average. Table \ref{table_sparse_mul1} shows the timings with $16$ threads. The poor scaling of the \textsc{Singular} times over $\mathbb{Z}$ can be explained easily: besides testing the multiplication in \textsc{Flint}, this benchmark tests the creation of large polynomials in \textsc{Singular}, which is a task bounded by the scaling of {\tt malloc}. In addition to having larger clean-up costs, the benchmark over $\mathbb{Z}$ puts three times as much pressure on {\tt malloc} as it does over $\mathbb{Z}/p\mathbb{Z}$.
+\begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | }
  & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
 \#th   & flint & sing & flint & sing\\ \hline
@@ -72,7 +72,7 @@ $16$  & $0.86$  & $5.19$ &$0.66$  & $1.50$\\ \hline
 \label{table_sparse_mul1}
 \end{table}
 The multiplication over $\mathbb{Z}/p \mathbb{Z}$ is overall faster and scales better. The efficiency on $16$ threads is $0.86$ versus an efficiency of $0.76$ over $\mathbb{Z}$. This is to be expected as the memory management of elements of $\mathbb{Z}$ via \textsc{GMP} adds overhead. As we increase the size of the problem we can observe better scaling as shown in Table \ref{table_sparse_mul2}. Now the efficiency on $16$ threads is $0.90$ ($0.90$ for $\mathbb{Z}/p \mathbb{Z}$), and the efficiency on $32$ threads is $0.76$ ($0.82$ for $\mathbb{Z}/p \mathbb{Z}$).
-\begin{table}
+\begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | }
 & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
 \#th   & flint & sing & flint & sing\\ \hline
@@ -103,7 +103,7 @@ When the input polynomials have a density past a certain threshold, it is possib
 \end{equation*}
 As the inputs to the multiplication in this case each have $46$ thousand terms, and the product only has $635$ thousand terms, the amount of work per output term is much higher than in Section \ref{section_sparse_mul}. Table \ref{table_dense_mul} shows that the efficiency on $16$ threads is $0.93$ in both cases. However, as this approach breaks up the input problem into a limited number of pieces, and only some of these pieces are large, this approach is effective at low thread counts but does not scale past $16$ threads. 
 
-\begin{table}
+\begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | }
 & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
 \#th   & flint & sing & flint & sing\\ \hline
@@ -127,7 +127,7 @@ For this benchmark we simply divide the product in Section \ref{section_sparse_m
 It is important to note that we are in fact computing two things: (1) whether the dividend is divisible by the divisor and (2) the quotient if it is. As with sparse multiplication, the approach of Gastineau and Laskar \cite{Gastineau:2015:PSM:2790282.2790285} scales better than the approach of Monagan and Pearce \cite{Monagan:2010:PSP:1837210.1837227}. Division is more difficult to parallelize than multiplication because the algorithm is highly sequential: Most terms in the quotient depend on previous terms in the quotient for their calculation. For this reason, the algorithm requires locks on the generated quotient, and only one thread can be generating quotient terms at a time. We achieve an efficiency of $0.71$ on $16$ threads ($0.78$ for $\mathbb{Z}/p\mathbb{Z}$) as shown in Table \ref{table_sparse_div}.
 Since one of the inputs to the algorithm is large, this tests not only the division in \textsc{Flint} but also the conversion from \textsc{Singular} to \textsc{Flint}. In order to obtain reasonable timings with \textsc{Singular} over $\mathbb{Z}$, it was necessary to force \textsc{Flint} to borrow \textsc{Singular}'s integers. With this optimization the overhead over $\mathbb{Z}$ is much less than the corresponding overhead in Table \ref{table_sparse_mul1}. However, conversion overhead does not scale well for the following reason: The time to merely traverse \textsc{Singular}'s linked list representation of the dividend is about $0.7$ seconds in this benchmark. This operation is necessary to find the polynomial's length, is an inherently serial operation, and consumes all of the conversion overhead over $\mathbb{Z}/p\mathbb{Z}$ on $16$ threads.
 
-\begin{table}
+\begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | }
  & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
 \#th   & flint & sing & flint & sing\\ \hline
@@ -149,7 +149,7 @@ $16$  & $0.88$ & $2.01$  &$0.78$ & $1.30$\\ \hline
 \section{Sparse GCD}
 For this benchmark we calculate $\operatorname{gcd}(a^{m_1}b^{n_1}, a^{m_2}b^{n_2})$\text{,}
 where $a=1+x+y^5+z^4+t^{40}+u^{50}$ and $b=1+x^9+y^2+z^{11}+t^7+u^{27}$. This calculation requires at least a dozen steps to be completed in serial, and we achieve an efficiency of $0.72$ on $16$ threads ($0.66$ for $\mathbb{Z}/p\mathbb{Z}$) by parallelizing the majority of these steps as shown in Table \ref{table_sparse_gcd}. The overhead from converting between the \textsc{Singular} format is negligible here. The algorithm over $\mathbb{Z}/p\mathbb{Z}$ suffers because, while the input problem can be split up into several pieces of work, the recombination of the results from each thread is an extra step not present in the serial algorithm. Furthermore, this recombination becomes less efficient with greater numbers of smaller pieces.
-\begin{table}
+\begin{table}[htb]
 \begin{tabular}{l | r | r | }
  & $\mathbb{Z}$ & $\mathbb{Z}/p \mathbb{Z}$ \\ \hline
 \#th   & flint & flint\\ \hline
@@ -180,22 +180,22 @@ There are four main areas where fast polynomial arithmetic can be expected to sp
 
 \begin{enumerate}
 \item Basic arithmetic for arithmetic's sake.
-\item Groebner bases.
+\item Gr\"{o}bner bases.
 \item Primary decomposition/factorisation.
 \item Rational functions.
 \end{enumerate}
 
 No. 1. Here we are talking about users implementing algorithms in Singular which need to do basic arithmetic, i.e. multiplication, division and gcd of polynomials. As the default polynomial format in Singular is the linked-list sparse distributed format, a conversion to and from Flint array sparse distributed format is unavoidable. One still gets a big speedup in practice, but as you can see from timings, conversion costs may actually dominate, meaning you don't get a linear speedup with cores. This is essential behaviour and we have expended much effort in minimizing the cost. The user still wins, however, so it is worth the effort. The timings above directly demonstrate these benefits.
 
-No. 2. Here you can only expect to gain when there are large divisions done in the Buchberger algorithm for Groebner bases, which is not used for every Groebner basis application. However, it does still have significant applications. We have encountered such examples in real world applications recently (albeit with orderings that we nearly but don't quite support yet). Many such examples exist in real research with orderings that we do support and we expect big gains here. Work under this heading (supporting additional orderings, etc.) will go on for years after ODK and we will be leveraging the new multivariate engine in many new ways.
+No. 2. Here you can only expect to gain when there are large divisions done in the Buchberger algorithm for Gr\"{o}bner bases, which is not used for every Gr\"{o}bner basis application. However, it does still have significant applications. We have encountered such examples in real world applications recently (albeit with orderings that we nearly but don't quite support yet). Many such examples exist in real research with orderings that we do support and we expect big gains here. Work under this heading (supporting additional orderings, etc.) will go on for years after ODK and we will be leveraging the new multivariate engine in many new ways.
 
-No. 3. Primary decomposition depends heavily on factorisation of multivariate polynomials. But factorisation can be a life's work, compared to a four year ODK project, and so lies completely outside the scope of ODK. Daniel Schultz has already begun work on a new factoring engine in Singular, based on our ODK work and the preliminary results are extremely encouraging.
+No. 3. Primary decomposition depends heavily on factorisation of multivariate polynomials. But factorisation can be a life's work, compared to a four year ODK project, and so lies completely outside the scope of ODK. Daniel Schultz has already begun work on integrating the ODK parallel multivariate work in the Singular factoring engine, as a means of disseminating our work, and the preliminary results are extremely encouraging.
 
-No. 4. William Hart and Hans Schoenemann have been implementing fast rational functions based on the ODK work. Here conversion costs do NOT occur. Rational functions are constructed in the array format and never leave that format. One can even do Groebner bases over rational function fields without conversion, and this is a very important application in Singular. However, one should temper one's expectations. Although the single core gains may make orders of magnitude difference here, it is common for the rational functions to be too small to benefit from parallelisation. However, when "coefficient explosion" does occur, then it becomes critical. However, one should also realise that in such cases it is often better to use a modular Groebner basis algorithm, if available. On the other hand, this may have been merely due to the prior lack of fast rational functions in the past, and even with the modular algorithm, one will still critically benefit from the ODK work, since one still has to do the same computations mod p, which our ODK work implements. The code for fast rational functions is currently essentially finished (it has been written by William Hart, independently of ODK funding but directly based on the fast ODK arithmetic). It needs some new Singular interpreter features to be added by Hans when he returns from holidays in order to be functional. Experience tells us the speedups could potentially be orders of magnitude (seconds compared to weeks in some real world cases).
+No. 4. William Hart and Hans Sch\"{o}nemann have been implementing fast rational functions based on the ODK work. Here conversion costs do NOT occur. Rational functions are constructed in the Flint array format and never leave that format. One can even do Gr\"{o}bner bases over rational function fields without conversion, and this is a very important application in Singular. However, one should temper one's expectations. Although the single core gains may make orders of magnitude difference here, it is common for the rational functions to be too small to benefit from parallelisation. However, when "coefficient explosion" does occur, then it becomes critical. However, one should also realise that in such cases it is often better to use a modular Gr\"{o}bner basis algorithm, if available. On the other hand, this may have been merely due to the prior lack of fast rational functions in the past, and even with the modular algorithm, one will still critically benefit from the ODK work, since one still has to do the same computations mod p, which our ODK work implements. The code for fast rational functions is currently essentially finished (it has been written by William Hart, independently of ODK funding but directly based on the fast ODK arithmetic). It needs some new Singular interpreter features to be added by Hans Sch\"{o}nemann when he returns from holidays in order to be functional. Experience tells us the speedups could potentially be orders of magnitude (seconds compared to weeks in some real world cases).
 
-We should also mention that the computer algebra system Oscar is already benefiting from the ODK work. For example, Oscar depends on the ODK work entirely for an important application from group theory (again using fast rational functions). There are also already applications in number theory within our research group in Kaiserslautern. That's all completely independent of ODK, but it's worth knowing that the benefits are being multiplied across multiple systems.
+We should also mention that the new computer algebra system Oscar is already benefiting from the ODK work. For example, Oscar depends on the ODK work entirely for an important application from group theory (again using fast rational functions). There are also already applications in number theory within our research group in Kaiserslautern. That's all completely independent of ODK, but it's worth knowing that the benefits are being multiplied across multiple systems.
 
-From an Oscar perspective, the conversion costs are only incurred when converting \emph{from} the Flint format \emph{to} Singular format when a Groebner basis computation is needed, where the conversion cost is usually not relevant compared to the cost of the Groebner basis computation, which can be doubly exponential (in the worst case). Other systems are free to approach things in a similar way, and then the cost of conversion becomes a moot point. We have in fact learned a lot about how such a system should be constructed from this work, which we look forward to sharing with the community, both through our ODK dissemination and ongoing research projects.
+From an Oscar perspective, the conversion costs mentioned above are only incurred when converting \emph{from} the Flint format \emph{to} Singular format when a Groebner basis computation is needed, where the conversion cost is usually not relevant compared to the cost of the Groebner basis computation, which can be doubly exponential (in the worst case). Other systems are free to approach things in a similar way, and then the cost of conversion becomes a moot point. We have in fact learned a lot about how such a system should be constructed from this work, which we look forward to sharing with the community, both through our ODK dissemination and ongoing research projects.
 
 \section{Comparisons with other systems}
 \subsection{Giac}
@@ -206,8 +206,8 @@ its optimizations enabled. Updates from the author will be provided
 on the aforementioned blog.
 
 \subsection{Trip}
-\textsc{Trip} \cite{Gastineau:2011:TCA:1940475.1940518} is a system dedicated to computations in celestial mechanics and offers parallel polynomial multiplication over $\mathbb{Z}$ in a variety of polynomial formats. We chose the format that seemed to give the best timings on {\tt nenepapa}. The current version 1.6.42 of \textsc{Trip} suffered from poor scalability. One of the authors pointed out that this is due to usage of the system {\tt malloc} and provided us with a patched version of \textsc{Trip} using {\tt jemalloc} and instructions to test it over $\mathbb{Z}/p\mathbb{Z}$ . It is interesting to note that \textsc{Trip} reaches an efficiency of $0.82$ on our largest benchmark for \emph{both} $\mathbb{Z}$ and $\mathbb{Z}/p\mathbb{Z}$, suggesting that it handles elements of $\mathbb{Z}$ with slightly better scaling than \textsc{Flint}.
-\begin{table}
+\textsc{Trip} \cite{Gastineau:2011:TCA:1940475.1940518} is a system dedicated to computations in celestial mechanics and offers parallel polynomial multiplication over $\mathbb{Z}$ in a variety of polynomial formats. We chose the format that seemed to give the best timings on {\tt nenepapa}. We noted that version 1.6.42 of \textsc{Trip} suffered from poor scalability. One of the authors pointed out that this is due to usage of the system {\tt malloc} and provided us with a patched version of \textsc{Trip} using {\tt jemalloc} and instructions to test it over $\mathbb{Z}/p\mathbb{Z}$. It is interesting to note that \textsc{Trip} reaches an efficiency of $0.82$ on our largest benchmark for \emph{both} $\mathbb{Z}$ and $\mathbb{Z}/p\mathbb{Z}$, suggesting that it handles elements of $\mathbb{Z}$ with slightly better scaling than \textsc{Flint}.
+\begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | r | r | r | r | r |}
  & \multicolumn{3}{|c|}{\textsc{Trip}} & \multicolumn{6}{|c|}{\textsc{Trip} patched} \\ \hline
  & {dense} & \multicolumn{2}{|c|}{sparse} & \multicolumn{2}{|c|}{dense} & \multicolumn{4}{|c|}{sparse} \\ \hline
@@ -235,7 +235,7 @@ $32$  &  &   & $8.6$                 &  $1.016$ & $1.075$ & $1.10$ & $1.21$ & $5
 \subsection{Maple}
 The parallel multiplication of Monagan and Pearce \cite{Monagan:2009:PSP:1576702.1576739} is accessible through \textsc{Maple}. With the exception of the benchmark in Section \ref{section_dense_mul}, unpredictable garbage collection dominated the timings, which did not scale with the number of cores. We did not pin threads nor did we try to control the turbo setting for this machine as it did not belong to us, and only $12$ threads were reliably available. Table \ref{table_maple} shows a perfect efficiency on $12$ threads for \textsc{Maple}, but it is not the fastest algorithm for these polynomials as evinced by the super-linear speed up on low thread counts.
 
-\begin{table}
+\begin{table}[htb]
 \begin{tabular}{l | r | r | r | r | }
  & \multicolumn{2}{|c|}{$\mathbb{Z}$} & \multicolumn{2}{|c|}{$\mathbb{Z}/p \mathbb{Z}$} \\ \hline
 \#th   & flint & maple & flint & maple\\ \hline
@@ -285,7 +285,7 @@ for (i = 1; i <= 16; i++) {
 \section{Conclusion and Future work}
 We have successfully sped up multivariate polynomial arithmetic in \textsc{Singular} over the coefficient fields $\mathbb{Q}$ and $\mathbb{Z}/p \mathbb{Z}$ while providing additional speed through the use of thread level parallelism. This was accomplished through a new set of multivariate modules in the library \textsc{Flint}, which can easily be integrated into other systems as well. Multivariate arithmetic is not an embarrassingly parallel problem, and the fastest single core algorithms require complicated data structures with unpredictable memory usage. Our benchmarks indicate that we have not compromised single core performance and have good scaling up to $8$ threads with multiplication scaling well to $16$ threads or even $32$ threads on large problems.
 
-Although outside of the scope of this deliverable, we have started to implement \textsc{Singular}'s multivariate factorization in \textsc{Flint}. We have also implemented a rational function coefficient domain for \textsc{Singular} which will use \textsc{Flint} polynomials directly in \textsc{Singular} without incurring any conversion costs.
+We have started to rework \textsc{Singular}'s multivariate factorization to benefit from the ODK improvements in \textsc{Flint} and begun to identify future improvements to that implementation that will maximise the performance impact of the ODK work. We have also implemented a rational function coefficient domain for \textsc{Singular} which will use \textsc{Flint} polynomials directly in \textsc{Singular} without incurring any conversion costs.
 
 Since \textsc{Flint} and \textsc{Singular} are the multivariate
 polynomial computational work horses of many computational systems,
