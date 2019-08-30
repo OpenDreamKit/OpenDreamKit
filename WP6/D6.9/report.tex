@@ -88,19 +88,19 @@ by researchers to create a reproducible record of computed results that can be
 included in papers, or shared with collaborators that have no knowledge of the
 memoisation system.
 
-The aim of ODK Task 6.9 is to establish a persistent memoisation framework to
-cache results in Python and GAP across sessions, in a way that is easy to deploy
+The aim of \ODK Task 6.9 is to establish a persistent memoisation framework to
+cache results in Python and \GAP across sessions, in a way that is easy to deploy
 and configure, and allows for results to be shared reliably between different
 researchers.  Deliverable 6.9 requires a ``shared persistent memoisation library
-for Python/Sage'', which is fulfilled by \pypersist{}, a new Python library
-written by the current author.  The corresponding software for GAP has also been
-created, in the form of GAP's \Memoisation{} package, which has
+for Python/\Sage'', which is fulfilled by \pypersist{}, a new Python library
+written by the current author.  The corresponding software for \GAP has also been
+created, in the form of \GAP's \Memoisation{} package, which has
 approximately the same features as \pypersist{}, and aims to be as compatible as
 possible with it.
 
 In this report, we will present a review of some existing tools for memoisation
 (Section \ref{sec:existing}), describe the new Python library \pypersist{} and
-the new GAP package \Memoisation{} (Section \ref{sec:pypersist}), show how they
+the new \GAP package \Memoisation{} (Section \ref{sec:pypersist}), show how they
 can be used together (Section \ref{sec:cross-system}), and give an overview of
 the future direction of this project (Section \ref{sec:future}).
 
@@ -128,12 +128,12 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
     & \rotatebox{270}{Custom keys}
     & \rotatebox{270}{Custom pickling}
     & \rotatebox{270}{Metadata}
-    & \rotatebox{270}{Sage support}
+    & \rotatebox{270}{\Sage support}
     & \rotatebox{270}{Compiled~~}
     \\ \hline
-    Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  &  & & \checkmark  &  \\ \hline
-    Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark &  &  &  & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
-    Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
+    \Sage \texttt{func\_persist} & \checkmark & \Sage & \checkmark & \checkmark & \checkmark &  &  &  &  &  & & \checkmark  &  \\ \hline
+    \Sage \texttt{cached\_function} & \checkmark & \Sage & \checkmark & \checkmark &  &  &  & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
+    \Sage \texttt{cached\_method} & \checkmark & \Sage & \checkmark & \checkmark &  &  & \checkmark & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
     \texttt{persist} &  & $2/3$ &  & \checkmark & \checkmark &  &  &  &  &  &  &  &  \\ \hline
     \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  &  &  &  &  \\ \hline
     \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  \\ \hline
@@ -148,10 +148,10 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
   \label{tab:comparison-of-tools}
 \end{table}
 
-\subsection{GAP}
-GAP functions can be installed as methods for an object's
+\subsection{\GAP}
+\GAP functions can be installed as methods for an object's
 \emph{operations} and \emph{attributes}, and if they are, their results are
-stored for the duration of the current GAP session.  However, these results are
+stored for the duration of the current \GAP session.  However, these results are
 never saved to disk unless the session itself is stored, and the option is only
 available for methods of an object.  Since there is a lack of any other
 well-established tools for memoising functions, the \Memoisation{} package was
@@ -160,12 +160,12 @@ created.  It contains all the features described in Table
 fact that it is written in pure \GAP and is therefore not compiled.  The
 features are shown in more detail in the next chapter.
 
-\subsection{Sage}
-There exists in Sage a simple function decorator, \texttt{func\_persist}, which
+\subsection{\Sage}
+There exists in \Sage a simple function decorator, \texttt{func\_persist}, which
 can be applied to a function to save its output to disk.  This is a working
 memoisation tool, and even this functionality has great practical use, but the
 tool has very little configurability: the only option that can be given is to
-specify the directory in which results are stored.  Sage also contains two more
+specify the directory in which results are stored.  \Sage also contains two more
 configurable tools for memoising functions and methods, respectively named
 \texttt{cached\_function} and \texttt{cached\_method}.  These allow a function
 or method to be memoised with a custom key-generating function, meaning that
@@ -181,9 +181,9 @@ use in a later session.
 
 These three decorators are useful, but limited.  Not only do they lack certain
 options such as database caching and custom output pickling, but they rely on
-other parts of the Sage system, and therefore cannot be used more broadly in
-generic Python programs.  Python memoisation tools exist outside Sage that can
-in principle be applied to Sage.
+other parts of the \Sage system, and therefore cannot be used more broadly in
+generic Python programs.  Python memoisation tools exist outside \Sage that can
+in principle be applied to \Sage.
 
 \subsection{Python}
 Many memoisation tools are available on PyPI, each with a slightly different
@@ -191,7 +191,7 @@ philosophy and set of features.  Table \ref{tab:comparison-of-tools} summarises
 four examples of these, indicating each one's features and status:
 \texttt{persist} and \texttt{redis-simple-cache} have not been updated in
 several years, while \texttt{PyMemoize} lacks even the custom key function
-provided by the Sage tools.
+provided by the \Sage tools.
 
 Perhaps the most promising of the existing tools is \texttt{dogpile.cache}, an
 API for caching function and method outputs to a variety of backends; this is a
@@ -204,7 +204,7 @@ add these features, rather than creating a new tool.  However, given the wide
 scope of the \texttt{dogpile} project, which is largely focused on thread
 management, it was decided to proceed with a new tool that could be adapted more
 easily to suit the specific requirements of the project, such as bespoke support
-for Sage-specific objects, and compatibility with the GAP \Memoisation{} package
+for \Sage-specific objects, and compatibility with the \GAP \Memoisation{} package
 which was developed in parallel.
 
 To fulfill these requirements, the \pypersist{} package was created.  It runs in
@@ -336,7 +336,7 @@ In order to store an object in a cache, it needs to be preserved on disk or in a
 database.  For this purpose, we require sometimes complex objects to be
 \textit{pickled} and \textit{unpickled} -- that is, converted to a string for
 storing, and converted back when retrieved later.  The default methods use
-Python's \texttt{pickle} module (or, if appropriate, Sage's own pickling
+Python's \texttt{pickle} module (or, if appropriate, \Sage's own pickling
 functions) or \GAP's \texttt{IO\_Pickle}, and a base 64 encoding to produce strings that
 can be written without invisible or difficult-to-display characters.  However,
 like much of these packages' functionality, custom \texttt{pickle} and
@@ -364,7 +364,7 @@ manipulate it directly.
 \subsection{Software engineering}
 Both \pypersist{} and \Memoisation{} were written using modern open-source software technologies
 and practices, with an emphasis on clarity of understanding and ease of use.
-The report on OpenDreamKit D1.5 contains, in Section 4.3.2.1, a checklist of
+The report on \ODK D1.5 contains, in Section 4.3.2.1, a checklist of
 software engineering best practices.  The packages fulfill all the requirements
 in that list, as summarised in Tables \ref{tab:pypersist-se-check} and \ref{tab:memo-se-check}.
 
@@ -397,7 +397,7 @@ in that list, as summarised in Tables \ref{tab:pypersist-se-check} and \ref{tab:
 \end{table}
 
 \subsection{Dissemination}
-The report on OpenDreamKit D1.5 also contains, in Section 4.3.2.2, a checklist
+The report on \ODK D1.5 also contains, in Section 4.3.2.2, a checklist
 of best practices for dissemination.  The packages also fulfill all of these
 requirements, as summarised in Tables \ref{tab:pypersist-diss-check} and \ref{tab:memo-diss-check}.
 
@@ -413,7 +413,7 @@ requirements, as summarised in Tables \ref{tab:pypersist-diss-check} and \ref{ta
     How to cite the output? & \checkmark & Explained in readme and manual \\ \hline
     Installation mechanism & \checkmark & Installation via \emph{pip}, explained in readme and manual \\ \hline
     High level description accessible to non-experts & \checkmark & In readme, manual and Binder \\ \hline
-    URLs/Blog/etc to and from OpenDreamKit project & \checkmark & Links to OpenDreamKit in readme, in manual, and on PyPI distribution page \\ \hline
+    URLs/Blog/etc to and from \ODK project & \checkmark & Links to \ODK in readme, in manual, and on PyPI distribution page \\ \hline
     Grant acknowledgements & \checkmark & Acknowledged in readme and manual \\ \hline
     Open Source license & \checkmark & GPL v2 or later \\ \hline
     Workshop & \checkmark & \multirow{2}{9.6cm}{Demo and discussion at \emph{Free Computational Mathematics} (CIRM, Luminy, Month 42)} \\ \cline{1-2}
@@ -436,7 +436,7 @@ requirements, as summarised in Tables \ref{tab:pypersist-diss-check} and \ref{ta
     How to cite the output? & \checkmark & Explained in readme and on website \\ \hline
     Installation mechanism & \checkmark & Installation via \texttt{PackageManager}, explained in readme and manual \\ \hline
     High level description accessible to non-experts & \checkmark & In readme and manual \\ \hline
-    URLs/Blog/etc to and from OpenDreamKit project & \checkmark & OpenDreamKit link and logo in readme \\ \hline
+    URLs/Blog/etc to and from \ODK project & \checkmark & \ODK link and logo in readme \\ \hline
     Grant acknowledgements & \checkmark & Acknowledged in readme \\ \hline
     Open Source license & \checkmark & BSD 3-clause licence \\ \hline
     Workshop & \checkmark & \multirow{2}{9.6cm}{Demo and discussion at \textit{Workshop on Mathematical Data} (Cernay, Month 48)} \\ \cline{1-2}
@@ -491,7 +491,7 @@ In order for the packages to be used, they must be easy to install.  The
 \pypersist{} package is hosted on PyPI at
 \url{https://pypi.org/project/pypersist}, making installation as simple as
 typing \texttt{pip install pypersist} for any user connected to the internet.
-The \Memoisation{} package can now be installed using GAP's own package manager,
+The \Memoisation{} package can now be installed using \GAP's own package manager,
 another new piece of \GAP infrastructure from \ODK.  Each installation method is
 explained in the appropriate project's readme, and the procedure for
 \pypersist{} is also on the first page of its manual.
@@ -617,7 +617,7 @@ in \GAP, \Sage and Python.
 \subsection{Features}
 
 \paragraph{CouchDB}
-Support currently exists in \pypersist{} for a MongoDB database backend.  This
+Support currently exists in \pypersist{} and \Memoisation{} for a MongoDB database backend.  This
 works well, but there are certain features offered by the CouchDB system that
 might also be useful.  CouchDB emphasises ease of setup, and allows information
 to be added and retrieved from the database via HTTP, with a human-readable
@@ -627,7 +627,7 @@ would require little deviation from the existing code for MongoDB, and could
 result in big improvements in ease of use, ease of setup, and interoperability.
 
 \paragraph{Better metadata}
-\pypersist{} has the capacity to store metadata, which may be useful for storing
+\pypersist{} and \Memoisation{} have the capacity to store metadata, which may be useful for storing
 information about a given computation.  However, no
 metadata is stored by default, and metadata is not validated in any way when a
 result is loaded from the cache.  Some decision should be made on what metadata
@@ -646,37 +646,37 @@ such as Git, in which the timestamp and author of a commit give some useful
 information.  But a more full-featured provenance-tracking system could be added
 in the future, recording the exact time and place that a computation was
 performed, as well as the user that called it, and version numbers for both
-\pypersist{} and the function being memoised.
+\pypersist{}/\Memoisation{} and the function being memoised.
 
 \paragraph{Permissions}
 In a multi-user memoisation cache, it would be useful to have explicit support
 for permissions handling.  Most of the functionality for this could be delegated
 to the backend -- for example, any database system has support for user
 permissions, and Git repositories can be set up to accept certain requests from
-only certain users -- but it would be useful if \pypersist{} handled this
+only certain users -- but it would be useful if \pypersist{} and \Memoisation{} handled this
 properly instead of simply raising an error when an interaction is unsuccessful.
 
 \paragraph{Verbosity}
 Results in \pypersist{} are stored and retrieved silently, and users are not
 made aware of its existence in any way except when errors are raised (for
-example due to a hash collision or HTTP error).  It may be useful at times to
-display messages to the screen showing the progress of memoisation, so that
+example due to a hash collision or HTTP error).  The \Memoisation{} package, on the other hand,
+displays messages to the screen showing its progress, so that
 interested users have a record of exactly what is being written and read at what
-time and in what location.  Different levels of verbosity showing different
-levels of information may be useful.
+time and in what location.  Different levels of verbosity are also available, showing different
+levels of information.  This verbosity should be included in \pypersist{} as well.
 
-\paragraph{Sage integration}
+\paragraph{\Sage integration}
 As shown in Table \ref{tab:comparison-of-tools}, there exist three different
-tools already in Sage for memoising data.  Now that \pypersist{} has overtaken
+tools already in \Sage for memoising data.  Now that \pypersist{} has overtaken
 \texttt{func\_persist} in terms of features, it is possible that it could replace this tool
 entirely; with some additional work (support for compiled functions,
 optimization), it could replace \texttt{cached\_function} and
 \texttt{cached\_method} as well.
 With careful integration and testing to ensure that there were no
 regressions, \pypersist{} could be imported and used instead of those tools,
-possibly with the addition of some Sage-specific options that would allow it to
+possibly with the addition of some \Sage-specific options that would allow it to
 be used as effectively as possible.  However, \pypersist{} should remain a
-generic Python package that can be used outside as well as inside Sage.
+generic Python package that can be used outside as well as inside \Sage.
 
 \paragraph{Search by property}
 The core behaviour of a memoisation system is to look up a single input and
@@ -688,12 +688,6 @@ test the primality of several integers, a researcher who desires prime numbers
 might search through the cache for all inputs that returned \texttt{true}.  This
 can be achieved using the current system, but some kind of indexing might be
 helpful, to allow answers to be returned more quickly.
-
-\subsection{Reporting}
-It is planned that \pypersist{} version 1.0 will be released by the end of the
-OpenDreamKit project.  The work done in preparation for that release, including
-the features mentioned above, may be summarised in a later report that would act
-as an addendum to this document.
 
 \end{document}
 
