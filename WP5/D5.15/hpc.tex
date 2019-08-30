@@ -3,7 +3,7 @@
 Experiments with parallel computing in \GAP date back to the late
 1990s. The pargap package by Gene Cooperman and others \cite{pargap}
 implemented a limited set of MPI bindings and experimented with a
-number of variations of the master-slave paradigm. It was not
+number of variations of the master--slave paradigm. It was not
 widely adopted due, we believe, to a lack of suitable clusters available to typical
 \GAP users at the time, and issues with robustness, installation and
 debugging support.
@@ -30,7 +30,7 @@ support safe multi-threaded programming in \GAP, dubbed \HPCGAP. This
 had been in development for some time as a fork of \GAP and the \HPCGAP and \GAP
 codebases had diverged. In this release we reunified them,
 making thread support a compile-time option instead of requiring a completely
-different programme. This was an essential step to support further development of 
+different program. This was an essential step to support further development of
 \HPCGAP, and ensure that new developments in \GAP could be quickly
 incorporated. It also provided general \GAP users an opportunity to start to experiment 
 with \HPCGAP, for which documentation is also provided.
@@ -48,7 +48,7 @@ alternative to global variables.
 Tasks are
 similar, but a task is submitted to a shared job queue and executed by
 one of a fixed-size pool of worker threads. Typically the calling
-programme will start a number of tasks and then wait for some or all
+program will start a number of tasks and then wait for some or all
 of them to complete, leaving the task scheduler to allocate each task
 to a worker. A task can be scheduled to run only when another
 has completed, and more complex dependencies can be expressed using
@@ -58,7 +58,7 @@ A number of data structures and other features are provided to
 simplify the programming of interactions between tasks and/or
 threads. These were developed in consultation with a group of \GAP
 developers, based on the specific types of computation that they
-anticipated needing to parallelize. They include
+anticipated needing to parallelize. They include:
 \begin{itemize}
 \item Atomic lists and records, which behave like standard \GAP data
     structures, but guarantee that their basic access operations are
@@ -66,15 +66,14 @@ anticipated needing to parallelize. They include
   \item Channels (efficient first-in-first-out data structures
     designed to pass objects between threads or tasks);
   \item Synchronization variables which guarantee that exactly one
-    write to the variable will succeed and
+    write to the variable will succeed; and
   \item Traditional semaphores.
 \end{itemize}
-
 Full details can be found in the \HPCGAP manual in Appendix~\ref{sec:hpc-manual}.
 
 Implementing all of this efficiently required a substantial
 refactoring of the \GAP interpreter, but presented no other challenges
-unique to \GAP.  What does present a serious challenges for \HPCGAP, however, is that the \GAP
+unique to \GAP.  What does present a serious challenge for \HPCGAP, however, is that the \GAP
 library makes very extensive use of shared global data, which is
 frequently updated as new knowledge is obtained. Removing this sharing
 of knowledge would make the overall system much less effective, as
@@ -97,12 +96,12 @@ The main remaining challenge is to complete the adaptation of the
 enormous legacy codebase represented by \GAP's library and key
 packages to use these mechanisms effectively, and to keep the
 underlying mechanisms working as the core \GAP codebase
-evolves. Fusing the codebases, as was done in \GAP~4.10 was a critical
+evolves. Fusing the codebases, as was done in \GAP~4.10, was a critical
 step in this work, meaning, for instance, that all changes to \GAP are
 tested in \HPCGAP automatically.
 
 The effectiveness of the underlying task mechanism is illustrated in
-the graph in figure \ref{fig:hpcgap-speedups}, which shows the speedups (wall-clock time on $n$
+the graph in Figure \ref{fig:hpcgap-speedups}, which shows the speedups (wall-clock time on $n$
 cores versus CPU time on one core) achieved in running 1000 test tasks
 (each taking about 300ms) with various numbers of worker threads on a 64
 core AMD ``bulldozer'' system. These cores share L2 cache and decode
@@ -139,15 +138,15 @@ abbreviation ``mtx'' for ``matrix'' and the fact that a key operation
 in computational representation theory is to ``chop'' a module into
 its irreducible components).
 
-Working with external collaborators (primarily R.A.~Parker), we have
-supported (and continue to contribute to ) the design and development
-of a new C and assembler library, called ``meataxe64'' which takes
+Working with external collaborators (primarily R.~A.~Parker), we have
+supported (and continue to contribute to) the design and development
+of a new C and assembler library, called ``meataxe64'', which takes
 advantage of new algorithmic ideas, and of powerful features of modern
 CPUs, to deliver a quantum leap in performance for matrix
 multiplication and Gaussian elimination on modern multi-core shared
 memory computers. This project has involved radical innovations in
 low-level data formats and arithmetic algorithms, in cache-friendly
-loop structures (similar to the now standard in BLAS implementations,
+loop structures (similar to those now standard in BLAS implementations,
 but made more complex by the need to reorganize and reformat both
 inputs and outputs of a multiplication), in matrix level reduction
 algorithms (both for non-prime fields of all characteristics, inspired
@@ -161,18 +160,18 @@ We have implemented a \GAP interface to this C library (the
 and are in the process of revising higher levels of the software stack
 to make best use of it.
 
-The meataxe64 C library is multi-threaded using a bespoke and very
+The meataxe64 C library is multi-threaded using a bespoke and
 effective thread-farm that supports a powerful dataflow module of
-computation. With this the library can make very efficient
+computation. With this, the library can efficiently make
 use of multiple cores for large enough matrices, whether used from
-\HPCGAP or regular \GAP. Particular care is taken to limit the use of
+\HPCGAP or single-threaded \GAP. Particular care is taken to limit the use of
 shared caches and of memory bandwidth in each task, so that they
 interfere as little as possible. 
 
-Tables \ref{fig:matmult:gap}, \ref{fig:matmult:mtx64},
+Tables \ref{fig:matmult:gap}, \ref{fig:matmult:mtx64} and
 \ref{fig:matmult:par} indicate the performance gains and
 speedups obtained by meataxe64 compared to our existing code.  The
-data is based on run-times for multiplication two random dense
+data is based on run-times for multiplication of two random dense
 square matrices of the given dimension with entries from $GF(q)$. In
 these tables the throughput is calculated as the cube of the dimension
 divided by the elapsed (``wall-clock'') time, ignoring algorithmic
