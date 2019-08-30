@@ -6,15 +6,21 @@ In the future, this will also allow for the development of mathematical query la
 \paragraph{Census of relational data in mathematics}
 In some areas of mathematics, research products can consist of
 listings or tabulations of complex mathematical objects and their properties.
-These datasets can be later used by researchers to form or refute conjectures.
+These datasets can later be used by researchers to form or refute conjectures.
 To facilitate the collection of information about relational data in mathematics,
 we set up a database with a website frontend~\cite{bercic:cmo:table}.
+The ``relational data'' part of Figure~\ref{fig:datasets} is a subset of this database.
 While it grew out of the necessity to keep track of the information, 
 it has at least two further goals.
 First, it aims to make it easy for anyone to see what information has been collected so far.
 Second, it aims to eventually make it easy to contribute information.
 
-The information about the datasets can be displayed a few different views
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth]{mathdb}
+  \caption{Census website}\label{fig:census}
+\end{figure}
+
+The information about the datasets can be displayed in different views
 (with switching implemented through tabs): 
 general information, information about size, 
 information pertaining to the FAIR principles,
@@ -40,7 +46,8 @@ Finally, we plan to use the new information as a basis for a more structured cen
 
 \paragraph{Mathematical data description language (MDDL)}
 We developed a mathematical data description language MDDL in~\cite{BerKohRab:tumdi19} (Math Data Description Language) that uses symbolic data to specify the semantics of relational data.
-MDDL schemas combine the low-level schemas of relational database with high-level descriptions (which critically use symbolic mathematical data) of the mathematical types of the data in the tables.
+MDDL schemas combine the low-level schemas of relational database with high-level specifications
+(which critically use symbolic mathematical data) of the mathematical types of the data in the tables.
 
 \begin{figure}[ht]
   \includegraphics[width=.48\textwidth]{data_joe-schema}
@@ -92,11 +99,12 @@ In a first step, the importer records all this information inside the database.
 
 Next, the encoded data is provided to the importer in the form of one or several JSON files. 
 The importer can then use this file, and the schema, to interpret each value correctly and store it inside the database, concluding the import. 
-During this process it also records appropriate data provenance. 
+During this process the importer also records appropriate data provenance. 
 
-The frontend of the system is written in React. 
+The frontend of the system is written in the React web framework.
 It runs inside the users's browser and communicates with the backend via REST. 
-Currently, it enables two main tasks, displaying all data inside a specific dataset, and searching for data subject to specific criteria. 
+Currently, it enables two main tasks: displaying all data inside a specific dataset, 
+and searching for data subject to specific criteria. 
 
 The frontend first requests the list of properties and used codecs from the backend. 
 Based on this information, it then uses the appropriate UI components to build a search interface or present the specific values. 
@@ -109,9 +117,8 @@ This architecture implies that apart from adding support for new codecs, neither
 
 \medskip
 
-\emph{\dmh Data Model.} The following concepts appear in the data model.\ednote{@TW: sanity-check for the data model}
+\emph{The \dmh Data Model.} The following concepts appear in the data model.\ednote{@TW: sanity-check for the data model}
 \begin{itemize}
-
 \item \textbf{Dataset} corresponds to a single research product.
 It combines information about the \textbf{Items} it contains,
 the properties (mathematical invariants) each item has,
@@ -142,10 +149,18 @@ are a special case of properties.
 
 \item \textbf{Codec} A codec is a pair of partial mappings between 
 mathematical values of properties and the values represented in the database.
-We will describe codecs in more detail in a following section.
-
+A codecs combines the concepts of 
+\begin{itemize}
+\item a \emph{mathematical type},
+\item \emph{condition operators}, and
+\item a \emph{database type}
 \end{itemize}
-This data model is not final.
+with interface components such as a presenter (value display, possibly via a view) and condition widgets.
+We will describe codecs in more detail in the following section.
+\end{itemize}
+
+This data model already works well over a large set of examples we have examined so far.
+To support more datasets, we will add further concepts in the future.
 Some further concepts will include ``Aggregated Datasets'' which will be composed of several datasets and will
 introduce support for databases such as the OEIS and House of Graphs.
 These curated datasets are composed of a large number of smaller contributions.
@@ -160,14 +175,16 @@ These two layers have fundamentally different goals:
 mathematicians (the users) do not care about the representation of data.
 On the other hand, the implementation needs 
 different representations of the data for different purposes.
-For \dmh we expanded the notion of codecs as used previously in \pn to include information for the interface.
+For \dmh we expanded the notion of codecs as used previously in \pn~\cite{WieKohRab:vtuimkb17}
+to include information for the interface.
 \begin{figure}[ht]
   \includegraphics{codec.pdf}
   \caption{Diagram of information held by a \dmh codec}\label{fig:codec}
 \end{figure}
 
+
 For example, let us consider one of the basic codecs, \texttt{StandardInt}.
-This codecs encodes elements of $\mathbb{Z}$ (mathematical type) 
+This codec encodes elements of $\mathbb{Z}$ (mathematical type) 
 as standard \ednote{how many?}-bit integers (the database type).
 The current list of condition operators given a constant $c$ contains the following unary operators:
 $$
@@ -182,7 +199,7 @@ This then gets mapped to a corresponding query at the database level.
 Finally, the presenter is direct and simply displays the integer value.
 
 
-\paragraph{The Workshop on Mathematical Data}
+\paragraph{The Workshop on Mathematical Data.}
  in Cernay, France (August 17-24th),
 was dedicated to improving the status of relational data in mathematics.
 The workshop brought together interested users and authors of mathematical datasets, 
@@ -196,15 +213,49 @@ We sketched out a submission and editorial process for the platform.
 We discussed provenance of data in mathematics and
 drafted a standard and formalisation of math data provenance.
 
-At the workshop, Dr. Andrea Kohlhase tested the user experience 
+At the workshop, dr. Andrea Kohlhase tested the user experience 
 of the existing web interface through user interviews.
-The list of issues identified through the interviews is available at the 
+The following points summarise the results of the user interface analysis.
+\begin{itemize}
+\item Users want easy access to definitions of concepts.
+\item Users would appreciate having an interface in their language.
+\item The search area and the result set area need to be consistent, or clearly indicate when they are not.
+\item Users want to edit the view of the result set.
+They want to select the columns they want to see as well as be able to reorder them.
+In particular, they may or may not want to see the columns corresponding to the conditions they chose.
+\item Users need to sort the result set, possibly by more than one column.
+\item Good defaults need to be set for which columns are visible initially and how they are ordered.
+\item Users want to export a whole dataset or a result set to Gap, Sage, Excel/CVS, etc.
+\item Users need to be able to combine simple conditions on properties into more complex filters.
+Composing the atomic conditions with logical \texttt{OR}, negation, \texttt{IF} in addition to \texttt{AND} would be welcome.
+\item A user needs to be able to share the link to their search.
+\end{itemize}
+A detailed list of issues identified through the interviews is available at the 
 workshop repository\footnote{https://github.com/OpenDreamKit/MathDataWorkshop/issues/3}.
 Dr. Andrea Kohlhase also produced a clickable prototype of an updated interface
 and used that in a few interviews combined with an eye-tracker test.
 
+\paragraph{Conclusions and Evaluation}
+Discussions on the user interface showed that the system will need to support from contributors beyond dataset authors and infrastructure developers.
+The interface
+\begin{itemize}
+\item would reach more users if it were available in multiple languages,
+\item needs to show definitions of concepts,
+\item needs to have good defaults for ordering of conditions and columns, and
+\item needs to have good defaults for which columns are visible.
+\end{itemize}
+All of these features are valuable, since they make the system more usable.
+However, it can not fall to the infrastructure developers or the dataset authors to provide the information necessary to support them:
+On one hand, they require domain specific knowledge the infrastructure developers can not be expected to have.
+They also represent a significant amount of effort and should not be done by the authors themselves.
 
+Incidentally, the workshop showed that it can be fruitful to bring together  researchers who know what kind of datasets their community would benefit from and researchers who know how to generate such datasets.
+One such collaboration started at the workshop.
 
+\emph{Finally, but probably most importantly, 
+the workshop showed that the research community accepts the idea of a system like \dmh
+and is taking it seriously to the extent that several participants offered help with tasks such as dataset reviews.}
+%\end{mdframed}
 
 %%% Local Variables:
 %%% mode: latex
@@ -213,4 +264,4 @@ and used that in a few interviews combined with an eye-tracker test.
 %%% TeX-master: "report"
 %%% End:
 
-%  LocalWords:  flexiformal BerKohRab:tumdi19 includegraphics textwidth textbf textsf textsf textsf ednote BerKohRab:tumdi19,WieKohRab:vtuimkb17,KohMuePfe:kbimss17 externalize Cernay shareability mathsf emph emph dmh fig:dmhstruct medskip mathbb rightarrow qquad qquad rightarrow qquad qquad rightarrow leq geq neq
+%  LocalWords:  flexiformal BerKohRab:tumdi19 includegraphics textwidth textbf textsf textsf textsf ednote BerKohRab:tumdi19,WieKohRab:vtuimkb17,KohMuePfe:kbimss17 externalize Cernay shareability mathsf emph emph dmh fig:dmhstruct medskip mathbb rightarrow qquad qquad rightarrow qquad qquad rightarrow leq geq neq mathdb WieKohRab:vtuimkb17
