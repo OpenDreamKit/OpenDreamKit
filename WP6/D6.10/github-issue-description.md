@@ -8,7 +8,7 @@
 
 The title of this deliverable was originally *Full-text search (Formulae +  Keywords) in OpenDreamKit*, but in the last grant proposal amendment the scope was broadened to a report on the remaining **WP6** activities and achievements -- also to account for the new task **T6.10**. As the focus last reporting period was on integrating mathematical data, the title was changed to better account for this. 
  
-This report summarizes the achievements in Work Package 6 over the last year of the OpenDreamKit project: By oversight the title in the grant agreement has not been updated. Concretely, this report reports on the results of WP6T10: Math Search Engine and WP6T11: Isabelle Case Study and tasks T6-8 (case studies in mathematical data sets). 
+This report summarizes the achievements in Work Package 6 over the last year of the OpenDreamKit project: By oversight the title in the grant agreement has not been updated. Concretely, this report expounds on the results of WP6T10: Math Search Engine and WP6T11: Isabelle Case Study and tasks T6-8 (case studies in mathematical data sets).
 
 In the last year, significant progress has been made in four areas: 
 -  the understanding of D/K/S-bases: we have codified the experiences in the OpenDreamKit project into a tetrapodal view on "doing mathematics", which extends the Data/Knowledge/Software model of the proposal by "narration" and  "organization" aspects. 
@@ -17,4 +17,4 @@ In the last year, significant progress has been made in four areas:
   * developed both an innovative model of (deep) FAIR in mathematics (and have integrated it with the MitM paradigm developed in OpenDreamKit),  
   * have implemented in a prototypical system (data.mathhub), and have
   * evaluated it on the mathematical community outside the core OpenDreamKit community. 
-- computational mathematical documents (the S aspect of D/K/S or the "narration" and "computation" aspects of the finer tetrapod model). Here we have developed a formula harvester for jupyter notebooks and a formula search engine that builds on them (as envisioned in task T10 of WP6).  
+- computational mathematical documents (the S aspect of D/K/S or the "narration" and "computation" aspects of the finer tetrapod model). Here we have developed a formula harvester for Jupyter notebooks and a formula search engine that builds on them (as envisioned in task T10 of WP6).
