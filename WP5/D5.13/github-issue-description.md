@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #111 on 2019-08-29 {.notoc}
+# Deliverable description, as taken from Github issue #111 on 2019-08-30 {.notoc}
 
 - **WP5:** [High Performance Mathematical Computing](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP5)
 - **Lead Institution:** University of Kaiserslautern
