@@ -27,6 +27,31 @@ Ragan-Kelley, Vidar Fauske, Marcin Kostur, Jerzy \L{}uczka
 \newpage
 
 
+\section{Introduction}
+
+Interactive web pages have always been an attractive tool in
+education. In \longdelivref{dissem}{ibook1} we have presented example of
+interactive books, which can not only contain animations or widgets
+but also due to \texttt{@interact} decorator and ``sagecell``
+technology, can be modified and extented while reading.
+
+On the other hand a well estabilished tool for experimentation is a
+notebook interface. It posseses also a capabilities requite for rich
+text authoring. Here, we deliver two interactive books: Problems in
+Physics and ``Introduction to Python Computational Science and
+Engineering``. We have used \Jupyter notebook as a common platform for
+both prototyping the code and experimentaion as well as authoring the
+manuscipt. We will also present two workflows and ``cookie-cutter``
+repository which allows easy start for anyone interested.
+
+
+The main conclusion of this work is that the \Jupyter notebook-only
+solution provides a way to write a high-quality book containing
+scientific computations. Due to \ODK effords we managed not only to
+lower barriers for including computations in science education but
+also significantly improve maintanability of such interactive
+materials by proper use of automated validation.
+
 \section{Reducing barriers for learners and teachers using interactive textbooks}
 
 \subsection{Learners perspective}
@@ -110,7 +135,7 @@ in practice.
 
 In the following, we detail the work on the interactive textbooks:
 ``Computational Science and Engineering'' (Sec.~\ref{sec:computational-science-and-engineering})
-and ``Problems in Physics with \Sage'' (Sec.~\ref{seq:problems-in-physics}).
+and ``Problems in Physics with \SageMath'' (Sec.~\ref{seq:problems-in-physics}).
 Then we reflect on our experience with Jupyter based interactive
 textbooks, both from the learner and author perspectives (Sec.~\ref{sec:auth-using-inter}).
 
@@ -205,13 +230,13 @@ version on Binder.\footnote{https://github.com/gcpeixoto/lecture-ipynb/blob/mast
 
 
 
-\section{Interactive text books: Problems in Physics with SageMath}
+\section{Interactive text books: Problems in Physics with \SageMath}
 \label{seq:problems-in-physics}
 
 
 \subsection{Context and overview}
 
-Problems in Physics with \Sage is a set of lecture notes collected for
+Problems in Physics with \SageMath is a set of lecture notes collected for
 over one decade during teaching activities at University of
 Silesia. Topics range from classical mechanics to dynamical systems
 and transport processes. Those materials have been used for teaching
@@ -242,10 +267,10 @@ The complete book consists of three parts and are  open source and available fro
 under a Creative Commons license (Attribution-NonCommercial 4.0
 International (CC BY-NC 4.0)).
 
-\subsection{Part I: Classical Mechanics with \Sage}
+\subsection{Part I: Classical Mechanics with \SageMath}
 
 This book contains set of problems solved with the help of computer
-algebra. It consists of \Jupyter notebooks and uses  \Sage kernel.
+algebra. It consists of \Jupyter notebooks and uses  \SageMath kernel.
 
 Problem solving problem in classical mechanics often require an hour
 or more of paper and pencil algebra. It is mostly connected with
@@ -415,10 +440,24 @@ structured machine-readable formats.
 
 \bigskip
 
-We have used the following technologies and processes to improve the
-quality and maintainability of the open source textbook:
-\begin{itemize}
+There are many ways to work with notebook-based source materials.  We
+have used the technologies and processes described below to improve
+the quality and maintainability of the open source textbook. We
+distringuish two cases, which differ in very first decision - if one
+wants to keep output of the notebooks in version control or not.
 
+\subsubsection{Workflow I - notebooks with output}
+
+In this case we assume that notebooks are committed to a version
+controll system (typically git) with output-cells. It gives the author
+the option of later using this output for automated testing. The
+live-example if this scenario is a book ``Introduction to Python
+Computational Science and Engineering''.
+
+In order to make most out of this worlflow we have used the following
+technologies and processes to improve the quality and maintainability
+of the open source textbook.
+\begin{itemize}
 \item The sources are available and publicly readable on
   Github\footnote{https://github.com/fangohr/introduction-to-python-for-computational-science-and-engineering}
 \item Changes in the files are tracked through commits in Git.
@@ -490,10 +529,77 @@ quality and maintainability of the open source textbook:
 %\newpage\printbibliography
 \end{itemize}
 
+
+\subsubsection{Workflow II - notebooks without output}
+
+We have applied this workflow to Problems in Physics books.
+Key concepts of this scenario are following: 
+
+\begin{enumerate}
+
+\item Notebooks are stored in version control system without output.
+\item ``Makefile`` is ised to keep all prescriptions for bulting
+  pdf/html etc. 
+\item \nbconvert is used to automatically execute and clean notebooks.
+\item It will work with different \Jupyter kenrels: we tested wit
+  against \SageMath and \Python.
+\item Notebook will use ``PDF`` environment variable to distinguish
+  between interactive output or static one. In the \Python process is
+  it easily accesible as \texttt{os.environ['PDF']}. This can be
+  interesting when using interactive features like \texttt{@interact}
+  in \Sage, which should be replaces by static figures in pdf format. 
+\item All cells with tags ``nbtest`` will be removed from pdf or html
+  output. This mechanism can be used for regression testing.
+\item We will include \texttt{Dockerfile} which allows to run a given
+  repo on mybinder service.
+  
+\end{enumerate}
+
+Clearly, not all parts are obligatory. For example one can skip
+tagging cells or reading environmental variables, at least in inital
+phase of authoring. 
+
+Typically, since everyone starts with testing of notebook repository and
+checks if all scripts are working properly, we decided to add 
+``authoring\_cookie\_cutter`` to  OpenDreamKit github repositories\footnote{\scriptsize
+\url{https://github.com/OpenDreamKit/authoring_cookie_cutter}}
+
+One can easily adapt it to own needs. It contains MyBinder link, which
+means that is is possible immediately try it.
+
+So the practical  way of working can be as follows:
+
+\begin{enumerate}
+
+\item Setup a directory and software environment (using
+  e.g. ``authoring\_cookie\_cutter``.
+\item Create/edit or modify notebooks
+\item Run ``make pdf`` or/and ``make html``
+\item Check for errors in execution.
+\item Commit changes, notebooks are cleared from output in main
+  directory after building of html/pdf version. 
+\end{enumerate}
+
+Interestingly, since the output is removed from notebooks using
+\nbconvert, building pdf or html will execute the whole book it serves
+itself a validation test since this process will stop at any
+errors. It will assure that a notebook will run from the top to
+bottom, potentially revealing side effects of execution of cells out
+of order. One can additionally add explicit tests, which can be
+optionally made invisible in a final version of manuscript.
+
+Execution of whole book can be computationally intensive, but we can
+utilize multiprocessing capabilities and run each individual notebooks
+on diffrerent CPU core, e.g. in 4-cores system we might use: \texttt{make html
+-j4}.
+
+
+
+
 \subsection{Integration into MyBinder}
 
-The following  textbooks are available through MyBinder service: on the github webpage of the
-books link to the MyBinder service is provided.
+The following textbooks are available through MyBinder service: on the
+github webpage of the books link to the MyBinder service is provided.
 
 \begin{itemize}
 \item ``Introduction to Python for Computational Science and Engineering''\footnote{\scriptsize\url{https://github.com/fangohr/introduction-to-python-for-computational-science-and-engineering/blob/master/Readme.md}}
@@ -525,12 +631,12 @@ notebooks (which are relevant to learners) in this human readable
 file.
 
 When we build the container for the continuous integration (see
-Sec.~\ref{sec:good-pract-softw}), we use a \texttt{Dockerfile} in a subdirectory
-\texttt{docker/} (so that Binder does not see this file as it would
-override the requirements provided in \texttt{requirements.txt}), and
-when building the Docker image, we pip-install all dependencies listed
-in the \texttt{requirements.txt} file. We thus eliminate duplication
-of requirements completely.
+Sec.~\ref{sec:good-pract-softw}), we use a \texttt{Dockerfile} in a
+subdirectory \texttt{docker/} (so that Binder does not see this file
+as it would override the requirements provided in
+\texttt{requirements.txt}), and when building the Docker image, we
+pip-install all dependencies listed in the \texttt{requirements.txt}
+file. We thus eliminate duplication of requirements completely.
 
 
 
