@@ -1,27 +1,35 @@
 \section{Sharing reproducible computational experiments}\label{sec:repro-gap}
 
-This appendix presents an example of organizing GAP code 
-and data to give others an opportunity to inspect them and rerun
-the computation on a freely available called \href{https://mybinder.org/}{Binder}.
-
+This appendix shows how GAP code and data may be organised
+in a reproducible computational experiment which can be run
+on a freely available service called \href{https://mybinder.org/}{Binder}.
 It demonstrates integration of a number of concepts mentioned
-in the report: GAP regression testing; setup for continuous
-integration and code coverage reports; Docker containers with
-the GAP distribution; and GAP Jupyter interface.
+in the report: 
+GAP regression testing (\ref{testing});
+GAP Docker containers (\ref{docker});
+setup for continuous integration and code coverage reports
+for GAP packages (\ref{sec:package-tools}); 
+and the GAP Jupyter interface (\ref{gap-4.10}).
 
-For this demonstrator, we collaborated with the authors of \cite{black-box} 
-who worked on the code for this paper in the GitHub repository located 
-at \url{https://github.com/sukru-yalcinkaya/unipoly} in the file 
-called {\tt unipoly.g}.
+For this demonstrator, we use the supplementary code for the 
+paper \cite{black-box} by
+Alexandre Borovik and \c{S}\"{u}kr\"{u} Yal\c{c}{\i}nkaya.
+In this paper they present a polynomial time algorithm for 
+solving a major problem in computational group theory, 
+which remained open since 1999 \cite{babai-beals}. 
+The code implementing is algorithm is located in the file
+{\tt unipoly.g} at \url{https://github.com/sukru-yalcinkaya/unipoly}.
 
-This code does not justify the creation of a new GAP package, 
-but it can reuse packages setup for Travis CI and Codecov by 
+Presently, the authors do not intent to organise their code
+in the form of a new \GAP package; nevertheless 
+it can reuse packages setup for Travis CI and Codecov by 
 creating a {\tt tst} directory with the test files and adapting
 {\tt .travis.yml} and {\tt .codecov.yml} configuration files
-from the \GAP package {\sf Example}. Importantly, it also
-allows to check that the code works in GAP 4.9, GAP 4.10 and 
+from the \GAP package {\sf Example}. Connecting their repository
+to Travis CI and Codecov, the authors will be able to automatically 
+check that the code works in \GAP~4.9, \GAP~4.10 and 
 the master branch of the GAP repository, which is a prototype for
-GAP 4.11.
+\GAP~4.11.
 
 \begin{figure}[!ht]
     \centering
@@ -33,7 +41,7 @@ GAP 4.11.
 The next step is to produce a Jupyter notebook which combines input,
 output, and textual narrative in one document. The notebook contains
 the {\tt Read(unipoly.g);} command to read the code first. This is
-a good practice for organizing reproducible experiments: keeping the
+a good practice for organising reproducible experiments: keeping the
 code in a single location in a {\tt .g} file allows its reuse and
 automated testing, and avoids code duplication. 
 
@@ -42,7 +50,9 @@ their calculation, they are ready to share it on
 \href{https://mybinder.org/}{Binder}. First they need to add 
 to their repository a {\tt Dockefile} with the following content:
 
-{\tiny
+\begin{figure}[!ht]
+    \centering
+    {\Small
 \begin{verbatim}
 FROM gapsystem/gap-docker
 
@@ -60,11 +70,14 @@ USER gap
 
 WORKDIR $HOME/unipoly
 \end{verbatim}
-}
+    }
+    \caption{Docker file for Binder.}
+    \label{fig:pkgman-sample}
+\end{figure}
 
 This file builds a Docker container based on the container {\tt gapsystem/gap-docker}
-with the latest GAP release, which we provide as an alternative GAP distribution
-(see Subsection~\ref{distro}). Additional commands specify how to copy the code into
+with the latest \GAP release
+(see Subsection~\ref{docker}). Additional commands specify how to copy the code into
 the new container, and install additional extensions for Jupyter-based slideshows.
 
 After that one should follow \href{https://mybinder.org/}{Binder} instructions to

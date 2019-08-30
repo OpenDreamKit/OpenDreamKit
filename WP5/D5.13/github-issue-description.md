@@ -6,7 +6,7 @@
 - **Nature:** Demonstrator
 - **Task:** T5.4 (#102)
 - **Proposal:** [p. 51](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/Proposal/proposal-www.pdf)
-- **[Report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.13/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.13/))
+- **[Final report](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.13/report-final.pdf)** ([sources](https://github.com/OpenDreamKit/OpenDreamKit/raw/master/WP5/D5.13/))
 
 Singular is a computer algebra system aimed at computations in algebraic geometry and is one of the key components used by SageMath. Computing with multivariate polynomials being at the core of Singular, their performance impacts the whole system.
 
