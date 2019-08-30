@@ -20,7 +20,7 @@
 \RequirePackage{listings}
 \RequirePackage{pdata}
 \RequirePackage{import}
-\RequirePackage{hyperref}
+%\RequirePackage{hyperref}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
