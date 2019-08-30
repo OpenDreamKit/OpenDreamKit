@@ -6,15 +6,21 @@ In the future, this will also allow for the development of mathematical query la
 \paragraph{Census of relational data in mathematics}
 In some areas of mathematics, research products can consist of
 listings or tabulations of complex mathematical objects and their properties.
-These datasets can be later used by researchers to form or refute conjectures.
+These datasets can later be used by researchers to form or refute conjectures.
 To facilitate the collection of information about relational data in mathematics,
 we set up a database with a website frontend~\cite{bercic:cmo:table}.
+The ``relational data'' part of Figure~\ref{fig:datasets} is a subset of this database.
 While it grew out of the necessity to keep track of the information, 
 it has at least two further goals.
 First, it aims to make it easy for anyone to see what information has been collected so far.
 Second, it aims to eventually make it easy to contribute information.
 
-The information about the datasets can be displayed a few different views
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth]{mathdb}
+  \caption{Census website}\label{fig:census}
+\end{figure}
+
+The information about the datasets can be displayed in different views
 (with switching implemented through tabs): 
 general information, information about size, 
 information pertaining to the FAIR principles,
@@ -40,7 +46,8 @@ Finally, we plan to use the new information as a basis for a more structured cen
 
 \paragraph{Mathematical data description language (MDDL)}
 We developed a mathematical data description language MDDL in~\cite{BerKohRab:tumdi19} (Math Data Description Language) that uses symbolic data to specify the semantics of relational data.
-MDDL schemas combine the low-level schemas of relational database with high-level descriptions (which critically use symbolic mathematical data) of the mathematical types of the data in the tables.
+MDDL schemas combine the low-level schemas of relational database with high-level specifications
+(which critically use symbolic mathematical data) of the mathematical types of the data in the tables.
 
 \begin{figure}[ht]
   \includegraphics[width=.48\textwidth]{data_joe-schema}
@@ -92,11 +99,12 @@ In a first step, the importer records all this information inside the database.
 
 Next, the encoded data is provided to the importer in the form of one or several JSON files. 
 The importer can then use this file, and the schema, to interpret each value correctly and store it inside the database, concluding the import. 
-During this process it also records appropriate data provenance. 
+During this process the importer also records appropriate data provenance. 
 
-The frontend of the system is written in React. 
+The frontend of the system is written in the React web framework.
 It runs inside the users's browser and communicates with the backend via REST. 
-Currently, it enables two main tasks, displaying all data inside a specific dataset, and searching for data subject to specific criteria. 
+Currently, it enables two main tasks: displaying all data inside a specific dataset, 
+and searching for data subject to specific criteria. 
 
 The frontend first requests the list of properties and used codecs from the backend. 
 Based on this information, it then uses the appropriate UI components to build a search interface or present the specific values. 
@@ -109,7 +117,7 @@ This architecture implies that apart from adding support for new codecs, neither
 
 \medskip
 
-\emph{\dmh Data Model.} The following concepts appear in the data model.\ednote{@TW: sanity-check for the data model}
+\emph{The \dmh Data Model.} The following concepts appear in the data model.\ednote{@TW: sanity-check for the data model}
 \begin{itemize}
 
 \item \textbf{Dataset} corresponds to a single research product.
@@ -145,7 +153,8 @@ mathematical values of properties and the values represented in the database.
 We will describe codecs in more detail in a following section.
 
 \end{itemize}
-This data model is not final.
+This data model already works well over a large set of examples we have examined so far.
+To support more datasets, we will add further concepts in the future.
 Some further concepts will include ``Aggregated Datasets'' which will be composed of several datasets and will
 introduce support for databases such as the OEIS and House of Graphs.
 These curated datasets are composed of a large number of smaller contributions.
@@ -160,14 +169,15 @@ These two layers have fundamentally different goals:
 mathematicians (the users) do not care about the representation of data.
 On the other hand, the implementation needs 
 different representations of the data for different purposes.
-For \dmh we expanded the notion of codecs as used previously in \pn to include information for the interface.
+For \dmh we expanded the notion of codecs as used previously in \pn~\cite{WieKohRab:vtuimkb17}
+to include information for the interface.
 \begin{figure}[ht]
   \includegraphics{codec.pdf}
   \caption{Diagram of information held by a \dmh codec}\label{fig:codec}
 \end{figure}
 
 For example, let us consider one of the basic codecs, \texttt{StandardInt}.
-This codecs encodes elements of $\mathbb{Z}$ (mathematical type) 
+This codec encodes elements of $\mathbb{Z}$ (mathematical type) 
 as standard \ednote{how many?}-bit integers (the database type).
 The current list of condition operators given a constant $c$ contains the following unary operators:
 $$
