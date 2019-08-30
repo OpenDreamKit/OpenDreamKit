@@ -21,27 +21,25 @@ Note that we use alignments~\cite{MueGauKal:cacfms17} with concepts from an inte
 \caption{Virtuoso Output for the Example Query using Alignments}\label{fig:query}
 \end{figure}
 
-\ednote{check if Dennis can supply Isabelle screenshots}
-
 %Similarly,  we can e.g. use the \lstinline|ulo:orcid| and \lstinline|dcterms:creator| properties to e.g. query for all theorems by Michael Kohlhase or Claudio Sacerdoti Coen using their ORCID.
 
 \paragraph{Transitive Queries} The result of the query above only depends on the explicitly generated RDF triples. Semantic Web tools that understand OWL allow more complex queries. % For example, if we want to query for \emph{all theorems whose proofs depend on statements with incomplete proofs}, it is sufficient to specify in the ontology that \ind{uses} is transitive, and add a property to identify incomplete proofs.
 For example, Virtuoso implements custom extensions that allow for querying the transitive closure of a relation. The resulting query syntax is a little convoluted, and we omit some details in the example below.
 \begin{lstlisting}
 SELECT ?o ?dist WHERE { {
-      SELECT ?s ?o WHERE { ?s ulo:uses ?o }
+      SELECT ?s ?o WHERE { ?s ulo:declares ?o }
     }
     OPTION ( TRANSITIVE, t_distinct, t_in(?s), t_out(?o), t_min (1),
              t_max (10), t_step ('step_no') as ?dist ) .
-    FILTER ( ?s = <cic:/Bignums/BigN/BigN/BigNring.con> )
+    FILTER ( ?s = <https://isabelle.in.tum.de?HOL.Nat> )
   }
 ORDER BY ?dist DESC 2
 \end{lstlisting}
-The above code queries for all symbols recursively used in the (effectively randomly chosen) Lemma \texttt{BigNring} stating that the ring of arbitrary large natural numbers in base $2^{31}$ is a semiring; the output for that query is shown in Figure \ref{fig:query2}.
+The above code queries for all symbols recursively declared in the (effectively randomly chosen) Theory \texttt{HOL.Nat} declaring the natural numbers and associated concepts; the output for that query is shown in Figure \ref{fig:query2}.
 
 
 \begin{figure}[ht]\centering
-\includegraphics[width=0.5\textwidth]{ulo_queryresult2}
+\includegraphics[width=0.7\textwidth]{ulo_queryresult2}
 \caption{Virtuoso Output for the Transitive Example Query}\label{fig:query2}
 \end{figure}
 
