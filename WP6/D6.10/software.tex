@@ -64,13 +64,15 @@ The indexer, as an application-independent component, has also been dockerized \
 First we extract a set of ContentMathML formulae using a corpus-specific \textit{Harvester} (bottom right). 
 The generated \textit{Harvest} is then sent to the \textit{Indexer} (bottom center), which generates or updates the \textit{Index}. 
 
-The technical index exists in two forms, as an on-disk index and 
-
 Additionally, we introduced a new scheduler component called \textit{MWS cron}. 
 This periodically sends updated harvests to the \textit{indexer}, which then in turn updates the index. 
 This process ensures that the Index remains up-to-date, and does not have to be re-generated manually. 
 The source code of this component can be found at \footnote{\url{https://github.com/MathWebSearch/mws-cron}}. 
 
+The index consists of a set of highly optimized binary files. 
+Usually, the index is stored on disk by the indexer, and then loaded into memory by the \MWS daemon when responding to queries. 
+However, for small harvests a shortcut exists: the \MWS daemon can re-build an index every time it starts up and store it directly into memory, skipping the explicit indexing step. 
+This enables us to extremely quickly deploy \MWS for small enough harvests. 
 \paragraph{Frontend, mwsapi and the query syntax parser}
 
 In order to process end user queries, we introduced several additional components.
