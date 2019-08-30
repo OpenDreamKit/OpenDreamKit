@@ -87,9 +87,9 @@ in tickets
 which will appear in release 8.9 of \SageMath.
 
 As a side note, the integration of these new releases including the contributions to \delivref{hpc}{LinBox-algo} lead
-to a significant speed-up in the sequential computation time of finite field linear algebra in \SagemMath, as show in
-Table~\ref{tab:release}
-
+to a significant speed-up in the sequential computation time of finite field linear algebra in \SageMath, as show in
+Table~\ref{tab:release}.
+%
 \begin{table}[htb]
   \begin{tabular}{lcccc}
     \toprule
@@ -109,32 +109,76 @@ Table~\ref{tab:release}
   \label{tab:release}
 \end{table}
 
-For Item (3), we explored sevral options and chose to extend the Singleton class \texttt{Parallelism} in \SageMath to
+For Item (3), we explored sevral options and chose rely on and extend the Singleton class \texttt{Parallelism} in
+\SageMath. This class work as a dictionnary registering the number of threads with which each component in \SageMath can
+run in parallel.
 
-The following code generates a random $2000\times 2000$ matrix over $\mathbb{Z}/65521\mathbb{Z}$ and computes its
-determinant using 16 cores:
+For example, the following code requires than any linear algebra routine relying on linbox be parallelized on 16 cores.
 
-\begin{verbatim}
-sage: a=random_matrix(GF(65521),2000)
+\begin{lstlisting}
 sage: Parallelism().set("linbox",16)
-sage: d=a.determinant()  
-\end{verbatim}
+\end{lstlisting}
 
+The follwoing session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
+$\mathbb{Z}/65521\mathbb{Z}$ with itself using 16 cores:
+\begin{lstlisting}
+pernet@dahu34:~/soft/sage$ ./sage 
+SageMath version 8.9.beta8, Release Date: 2019-08-25
+sage: a=random_matrix(GF(65521),8000)
+sage: Parallelism()
+Number of processes for parallelization:
+ - linbox computations: 1
+ - tensor computations: 1
+sage: time b=a*a
+CPU times: user 17.5 s, sys: 1.04 s, total: 18.5 s
+Wall time: 18.5 s
+sage: Parallelism().set("linbox",16)
+sage: Parallelism()
+Number of processes for parallelization:
+ - linbox computations: 16
+ - tensor computations: 1
+sage: time b=a*a
+CPU times: user 28.9 s, sys: 4.85 s, total: 33.8 s
+Wall time: 2.41 s
+\end{lstlisting}
 
+Figure~\ref{fig:histo_sage} shows computation time of three high level sage routines
+  \texttt{b=a*a},  \texttt{a.determinant()} and \texttt{a.echelon\_form()} on a large square matrix of
+order $20000$, with varying number of cores.
 \begin{figure}[htb]
   \begin{center}
     \includegraphics[width=.8\textwidth]{Pictures/histo_bigfoot3}
     \caption{Parallel computation time for some finite field linear algebra operations in SageMath on a 32 core Intel
       Xeon 6130 Gold. Matrices are $20\,000\times 20\,000$ with full rank over $\mathbb{Z}/1\,048\,573\mathbb{Z}$. }
+    \label{fig:histo_sage}
   \end{center}
 \end{figure}
+The speed-up relative to a single threaded run of these timings is reported in Figure~\ref{fig:speedup_sage}
 \begin{figure}[htb]
   \begin{center}
     \includegraphics[width=.7\textwidth]{Pictures/speedup_bigfoot3}
     \caption{Parallel speedup for some finite field linear algebra operations in SageMath on a 32 core Intel
       Xeon 6130 Gold. Matrices are $20\,000\times 20\,000$ with full rank over $\mathbb{Z}/1\,048\,573\mathbb{Z}$.}
+    \label{fig:speedup_sage}
   \end{center}
 \end{figure}
+
+The scalability shown on Figure~\ref{fig:speedup_sage} is good but not close to the best theoretical linear
+speedup. This comes from the following reasons:
+\begin{itemize}
+\item first, the interface between the system \SageMath (running an interactive ipython) and the compiled code of the
+  library has adds a constant overhead despite our efforts to reduce it as much as possible. According to Amdhal's law,
+  such an overhead severly penalizes the speedup measured;
+\item the use of subcubic arithmetic for the sequential matrix product tasks, implies that the workload increases with
+  the number of cores. Therefore the true ideal speed-up curve should lie slightly below the main diagonal;
+\item we did not disable the turbo-boost on this server. Consequently, runs on few cores are likely executed at a higher
+  clock frequency, hence penalizing the speedup for large number of cores.
+\end{itemize}
+
+Still, these timings show that very high performances can be attained directly from the high level interface of
+\SageMath, for instance the computation speed on 32 cores reaches 838Gfops for matrix multiplication and 301 Gfops for
+the determinant.
+
 
 \bibliographystyle{acm}
 \bibliography{D3.11}
