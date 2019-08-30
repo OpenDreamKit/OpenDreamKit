@@ -2,7 +2,7 @@ Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
 - Website: [OpenDreamKit.org](http://www.OpenDreamKit.org)
-- Proposal files: [Proposal/](Proposal/), we also use the proposal as a basis the developing grant agreements, etc. and for the macros. 
+- Proposal files: [Proposal/](Proposal/), we also use the proposal as a basis the developing grant agreements, etc. and for the macros.
 - Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -71,11 +71,11 @@ Partners must be keeping in mind the Commission asks not to accept more than 6 m
 #### Data related to open access publications
 
 The lead partner of a publication will send to the Project Manager all the data related to the peer-reviewed publication once it is given full openaccess. Data related to a publication are all the data needed to reexamine the research leading to the publication.
-The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications. 
+The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications.
 
 #### Openaire
 
-Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
+Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage:
 https://www.openaire.eu/search/project?projectId=corda__h2020::1930bdaa9032dd5b34f25841ebf3e8d1
 
 In order for publications and data to appear on this website, one must state when completing forms on the openaccess paltform (such as ArXiv) and Zenodo websites that the concerned work is being financed by Horizon 2020 project number 676541.
@@ -179,7 +179,7 @@ status report, ...) needs to be on the issue.
       activities, future plans.
 
     The distinction between what was done before, for, and after the
-    deliverable should be strictly unambigous.
+    deliverable should be strictly unambiguous.
 
     This description should be self-contained. Still, it's recommended
     to enrich it with cross links as appropriate.  In particular add
@@ -205,18 +205,24 @@ status report, ...) needs to be on the issue.
   the report file and copy the relevant style files with:
 
       make WPX/DX.Z/report.pdf
-  
+
   Rerunning this command later will update the style files if needed and recompile
   the report.
-  
+
   See the existing reports for further examples.
-  
+
   The github issue description is semi-automatically included in the
   report. To fetch it from github, run the following command from
   ODK's main repository (no worry if this step fails for you; the
   coordinator will anyway run it before submitting the deliverable):
 
-      DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
+      DIR=WPX/DX.Z
+      rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/github-issue-description.tex $DIR/report.pdf
+
+  You can then commit the updated github issue description and pdf with:
+
+      cp $DIR/report.pdf $DIR/report-final.pdf; git add -f $DIR/github-issue-description* $DIR/report-final.pdf; git commit -m "`basename $DIR`: updated github issue description and report pdf" $DIR/github-issue-description* $DIR/report-final.pdf; cp $DIR/report-final.pdf /tmp
+
 
   The report shall be self-contained. Indeed, the
   deliverable will be evaluated based upon its version submitted on
@@ -245,7 +251,7 @@ status report, ...) needs to be on the issue.
   - by whoever else you may think is relevant
 
   Plan ahead, as this will take a couple days!
-  
+
 - Write a blog post in [ODK's news](http://opendreamkit.org/news/)
 
 - Send a notice to participants@opendreamkit.org
@@ -309,7 +315,7 @@ debriefing.
 
   - Day 1: test (mock presentation). This should be the exact same setup
     as on the day of the meeting (day 3). But without the EU reviewers.
-  
+
   - Day 2: project meetings
 
   - Day 3: official review with
