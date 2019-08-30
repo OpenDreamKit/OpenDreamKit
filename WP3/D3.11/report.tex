@@ -38,29 +38,29 @@ PARI-MT and the difficulty of composing a threaded systems into another.
 
 \subsection{Context}
 
-Finite field linear algebra is a core building block in computational mathematics and deliver high computing throughput
-to a wide range of applications, including number theory, group theory, combinatorics, etc. \SageMath relies on the
+Finite field linear algebra is a core building block in computational mathematics.
+It has a wide range of applications, including number theory, group theory, combinatorics, etc. \SageMath relies on the
 \fflasffpack library for its critical linear algebra operations on prime fields of less than 23 bits and consequently
 also for numerous computations with multiprecision integer matrices.  
 
 The \fflasffpack library had some preliminary support for multi-core parallelism for matrix
 multiplication and Gaussian elimination.
-Instead of being tight to a specific parallel language, the library uses a Domain Specific Language, Paladin~\cite{paladin},
+Instead of being tied to a specific parallel language, the library uses a Domain Specific Language, Paladin~\cite{paladin},
 to provide the library programmer with unique API for writing parallel code, which is then translated into 
 OpenMP~\cite{openmp}, Cilk~\cite{cilk}, Intel-TBB~\cite{tbb}, or XKaapi~\cite{xkaapi} directives. Beside portability and independence from
-a given technology, this also makes it possible to benchmark and compare how parallel runtime perform. This is
+a given technology, this also makes it possible to benchmark and compare how parallel runtimes perform. This is
 particularly important here, since many of the compute intensive routines of \fflasffpack share specificities that are
 often challenges for parallel runtime:
 \begin{description}
-\item[Recursion] by design,  sub-cubic linear algebra algorithms are recursive and so are most routines in the
+\item[Recursion] by design, subcubic linear algebra algorithms are recursive and so are most routines in the
   library.
 \item[Heterogeneity] many exact computations must deal with data with size unknown before their actual computation. For
   instance rank deficiencies in Gaussian elimination may generates a block decomposition of varying dimensions and
   therefore computing tasks will have heterogeneous load.
-\item[Fine grain task parallelism] the combination of the two above constraints lead to consider recursive task
-  parallelism with fine grain, so that a workstealing engine could efficiently balance the heterogeneity. However,
+\item[Fine grained task parallelism] the combination of the two above constraints leads to consider recursive task
+  fine-grained parallelism, such that a work-stealing engine could efficiently balance the heterogeneity. However,
   recursive tasks have been for a long time rather inefficient in e.g. OpenMP implementations, and the ability to handle
-  numerous fine grain tasks is also demanding on parallel runtimes.
+  numerous small tasks is also demanding on parallel runtimes.
 \end{description}
 
 \subsection{Integration within \SageMath}
@@ -110,7 +110,7 @@ Table~\ref{tab:release}.
 \end{table}
 
 For Item (3), we explored sevral options and chose rely on and extend the Singleton class \texttt{Parallelism} in
-\SageMath. This class work as a dictionnary registering the number of threads with which each component in \SageMath can
+\SageMath. This class work as a dictionary registering the number of threads with which each component in \SageMath can
 run in parallel.
 
 For example, the following code requires than any linear algebra routine relying on linbox be parallelized on 16 cores.
@@ -119,7 +119,7 @@ For example, the following code requires than any linear algebra routine relying
 sage: Parallelism().set("linbox",16)
 \end{lstlisting}
 
-The follwoing session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
+The following session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
 $\mathbb{Z}/65521\mathbb{Z}$ with itself using 16 cores:
 \begin{lstlisting}
 pernet@dahu34:~/soft/sage$ ./sage 
@@ -169,8 +169,8 @@ speedup. This comes from the following reasons:
 \item first, the interface between the system \SageMath (running an interactive ipython) and the compiled code of the
   library has adds a constant overhead despite our efforts to reduce it as much as possible. According to Amdhal's law,
   such an overhead severly penalizes the speedup measured;
-\item the use of subcubic arithmetic for the sequential matrix product tasks, implies that the workload increases with
-  the number of cores. Therefore the true ideal speed-up curve should lie slightly below the main diagonal;
+\item the use of subcubic arithmetic for the sequential matrix product tasks implies that the workload increases with
+  the number of cores. Therefore, the true ideal speed-up curve should lie slightly below the main diagonal;
 \item we did not disable the turbo-boost on this server. Consequently, runs on few cores are likely executed at a higher
   clock frequency, hence penalizing the speedup for large number of cores.
 \end{itemize}
