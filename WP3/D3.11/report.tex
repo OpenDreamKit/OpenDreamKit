@@ -81,10 +81,33 @@ ecosystem: \texttt{givaro-4.1.1}\footnote{\url{https://github.com/linbox-team/gi
 \texttt{linbox-1.6.3}\footnote{\url{https://github.com/linbox-team/linbox/releases/tag/v1.6.3}} then integrated into \SageMath
 in tickets
 \begin{itemize}
-\item  \url{https://trac.sagemath.org/ticket/27444} and
-\item  \url{https://trac.sagemath.org/ticket/26932}.
+\item  \url{https://trac.sagemath.org/ticket/26932} and
+\item  \url{https://trac.sagemath.org/ticket/27444},
 \end{itemize}
+which will appear in release 8.9 of \SageMath.
 
+As a side note, the integration of these new releases including the contributions to \delivref{hpc}{LinBox-algo} lead
+to a significant speed-up in the sequential computation time of finite field linear algebra in \SagemMath, as show in
+Table~\ref{tab:release}
+
+\begin{table}[htb]
+  \begin{tabular}{lcccc}
+    \toprule
+&    \multicolumn{2}{c}{$\mathbb{Z}/4\,194\,301\mathbb{Z}$}&    \multicolumn{2}{c}{$\mathbb{Z}/251\mathbb{Z}$}\\
+    & Before & After & Before & After\\
+    \midrule
+    Matrix product & 3.61& 3.57&1.59&1.5 \\
+    Determinant &  2.96& 1.52 &1.54&0.731\\
+    Echelon form & 3.59& 1.86 & 1.82& 0.692 \\
+    Linear system & 8.9 & 5.13 & 3.7&1.79\\ 
+    \bottomrule
+  \end{tabular}
+  \vspace{1em}
+  
+  \caption{Improvement of the sequential code with \texttt{fflas-ffpack-2.4.3}. Computation time in seconds for a
+    $4000\times    4000$ machine over a 22 bits and a 8 bits finite field, on an Intel i7-8950 CPU.}
+  \label{tab:release}
+\end{table}
 
 The following code generates a random $2000\times 2000$ matrix over $\mathbb{Z}/65521\mathbb{Z}$ and computes its
 determinant using 16 cores:
@@ -99,13 +122,15 @@ sage: d=a.determinant()
 \begin{figure}[htb]
   \begin{center}
     \includegraphics[width=.8\textwidth]{Pictures/histo_bigfoot3}
-    \caption{Parallel computation time for some finite field linear algebra operations in SageMath}
+    \caption{Parallel computation time for some finite field linear algebra operations in SageMath on a 32 core Intel
+      Xeon 6130 Gold. Matrices are $20\,000\times 20\,000$ with full rank over $\mathbb{Z}/1\,048\,573\mathbb{Z}$. }
   \end{center}
 \end{figure}
 \begin{figure}[htb]
   \begin{center}
     \includegraphics[width=.7\textwidth]{Pictures/speedup_bigfoot3}
-    \caption{Parallel speedup for some finite field linear algebra operations in SageMath}
+    \caption{Parallel speedup for some finite field linear algebra operations in SageMath on a 32 core Intel
+      Xeon 6130 Gold. Matrices are $20\,000\times 20\,000$ with full rank over $\mathbb{Z}/1\,048\,573\mathbb{Z}$.}
   \end{center}
 \end{figure}
 

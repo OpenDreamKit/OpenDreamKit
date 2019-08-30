@@ -1,6 +1,6 @@
 set xlabel "matrix dimension n"
 set ylabel "Speed (Gfops)"
-set title "FFLAS::fgemm over GF(131071) on a Xeon Gold 6130 and NVIDIA V100 GPU"
+#set title "FFLAS::fgemm over GF(131071) on a Xeon Gold 6130 and NVIDIA V100 GPU"
 set key top left
 #set logscale y 
 #set logscale x
