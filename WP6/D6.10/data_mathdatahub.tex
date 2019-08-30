@@ -117,37 +117,45 @@ This architecture implies that apart from adding support for new codecs, neither
 
 \medskip
 
-\emph{The \dmh Data Model.} The following concepts appear in the data model.\ednote{@TW: sanity-check for the data model}
+\emph{The \dmh Data Model.} The following concepts appear in the data model.
 \begin{itemize}
-\item \textbf{Dataset} corresponds to a single research product.
-It combines information about the \textbf{Items} it contains,
+\item A \textbf{datum} is the atomic concept in the system.
+Every datum belongs to a dataset.
+It gives a value for some property of some item.
+It has a provenance and is represented with a codec.
+We can not eliminate the possibility of encountering more than one value
+for a property of an item---this could happen due to a computational error.
+
+\item A \textbf{dataset} corresponds to a single research product
+and consists of a set of single data items (\emph{datum}s).
+It combines information about the items it contains,
 the properties (mathematical invariants) each item has,
 which codecs are used to encode the actual values,
-and finally, the provenance.
-The provenance can be composed of several provenances for sub-datasets.
-The \textbf{Dataset}s can overlap non-trivially: 
+and finally, the provenances of all data contained in it.
+The datasets can overlap non-trivially: 
 the smaller graphs in the Census of Cubic Vertex-Transitive Graphs\footnote{http://staff.matapp.unimib.it/~spiga/census.html}
 also appear in the list of Transitive Graphs)\footnote{http://staffhome.ecm.uwa.edu.au/~00013890/remote/trans/index.html},
 which also contains graphs of other degrees.
 
-\item \textbf{Item} is a single mathematical object, 
+\item An \textbf{item} is a single mathematical object, 
 represented in the system simply by a unique identifier.
 Examples of these include groups, graphs, lattices, and other complex mathematical objects.
-An \textbf{Item} can belong to more than one dataset:
+An item can belong to more than one dataset:
 the Petersen graph naturally appears in both previously mentioned censuses.
 
 \item \textbf{Provenance} is information on how each datum was produced.
-Each \textbf{Item} needs to be linked to a provenance instance and 
-all data produced with an instance of provenance should belong to the same dataset.
+Note that a datum can have more than one provenance.
+This happens whenever the value of a property of an item is
+computed independently in different datasets.
 
-\item \textbf{Property} is a mathematical invariant of a mathematical structure.
-An example of a such a \textbf{Property} is orthogonality of a matrix.
+\item A \textbf{property} is a mathematical invariant of a mathematical structure.
+An example of a such a property is orthogonality of a matrix.
 A property can be encoded in several ways
 (recall the case of integers in LMFDB, where three different encodings are used).
 Encodings of objects (such as the \texttt{graph6} representation for graphs)
 are a special case of properties.
 
-\item \textbf{Codec} A codec is a pair of partial mappings between 
+\item A \textbf{codec} is a pair of partial mappings between 
 mathematical values of properties and the values represented in the database.
 A codecs combines the concepts of 
 \begin{itemize}
@@ -158,6 +166,11 @@ A codecs combines the concepts of
 with interface components such as a presenter (value display, possibly via a view) and condition widgets.
 We will describe codecs in more detail in the following section.
 \end{itemize}
+
+\begin{figure}[ht]
+  \includegraphics[width=0.6\textwidth]{data-model.pdf}
+  \caption{Diagram of the \dmh data model}\label{fig:data-model}
+\end{figure}
 
 This data model already works well over a large set of examples we have examined so far.
 To support more datasets, we will add further concepts in the future.

@@ -45,7 +45,7 @@
     It will prepare the final integration of a broader set of such
     parallel features for the end of the project.”}
 
-With Deliverable~\delivref{hpc}{LinBox-algo}, we developped, released and integrated in the
+With Deliverable~\delivref{hpc}{LinBox-algo}, we developed, released and integrated in the
 \Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
 When installing the latest \Sage release on a multithreaded multicore server, it
 only takes one configure option to let fflas-ffpack use a multi-threaded BLAS
@@ -103,27 +103,40 @@ functions on participants dual-core laptops.
 \subparagraph{\longtaskref{hpc}{hpc-gap}}
 \label{hpc@hpc-gap}
 
-No deliverable is due for the evaluation period but steady progress was made on
-Deliverable~\longdelivref{hpc}{GAP-HPC-report}. Over this period, eight releases were cut
-incorporating contributions to Deliverable~\longdelivref{component-architecture}{hpc-configure}.
+Deliverable~\longdelivref{hpc}{GAP-HPC-report} was completed at the end of this period,
+reporting all of the developments in the \GAP system during the project which are relevant
+to, or provide essential context for, this workpackage.
 
-Another major direction of efforts is the HPC-GAP integration:
-HPC-GAP is a fork of \GAP initiated during the \scienceproject project, which
-enables multithreaded calculations. Now that HPC-GAP has reached
-maturity, it's critical for its widespread use and long term
-maintainability to merge it back into \GAP's master branch.
-The first step towards this long-standing goal, which is at the core of
-Task~\localtaskref{hpc}{hpc-gap}, is the major release of \GAP 4.9, published in 2018 and allowing compilation in HPC-GAP
-compatibility mode. It comes together with the new manual book called ``HPC-GAP Reference Manual'',
-which is also available online at \url{https://www.gap-system.org/Manuals/doc/hpc/chap0.html}.
-HPC-GAP integration required a major
-refactorization of \GAP's build system
-mainly developed by our external collaborator Max Horn (Giessen) into \GAP's master
-branch during the Sage-GAP-Days-85 we organized in March 2017. 
-An overview of the most important changes introduced in GAP 4.9.1,
-with links to corresponding GitHub entries,
-can be found in the \GAP manual: \url{https://www.gap-system.org/Manuals/doc/changes/chap2.html}.
-Many \GAP packages also have been updated to work in \GAP 4.9 and make use of its new features.
+During reporting period 3 the main areas of effort were:
+\begin{itemize}
+\item Follow-up work to the integration of HPC-GAP into the main codebase reported in
+  the previous period. This work improves the robustness of the system and dramatically reduced the
+  differences between the two versions of the sourcecode.
+\item
+  Development of the \GAP interface to the meataxe64 high performance linear algebra library (to which
+  we also contributed significant development effort). This system targets large calculations over
+  small finite fields on multi-core shared memory computers. The interface makes almost all of the
+  capabilities of meataxe64 callable from \GAP, something which is not only a quantum leap in
+  performance for \GAP in this critical area, but also allows easy prototyping in \GAP of new
+  algorithms for meataxe64.  This libraru can make use of multiple cored whether or not it is being
+  called from \HPCGAP. A full set of benchmarks are included in D5.15, but as a highlight, two
+  dense random $320\,000\times 320\,000$ matrices over $GF(2)$ can be multiplied in just over 1000
+  seconds on a 64 core AMD ``bulldozer'' system.
+  \item Release of ``libGAP'' a general-purpose C API for \GAP, replacing the custom patches
+    previously used in \Sage. This allows any program, including in particular HPC code to call on the
+    functionality of \GAP efficiently and without the need to run a separate \GAP process. This makes
+    much more fine grained interaction possible.
+  \item Development and release of a new linguistic reflection API in \GAP, allowing \GAP programs to
+    access and modify the executable representation of their own functions at run-time. This will be
+    the basis of future automatic parallelisation and optimisation tools.
+  \item Very much improved profiling tools
+  \item Release of the new package ``ferret'' which achieves world-leading performance in partition
+    backtrack, a critical, and notoriusly challenging computational kernel
+  \item Extensive developments in our testing and release infrastructure with the overall goal of
+    ensuring that \GAP users have easy access to a reliable, up-to-date and mutually compatible set of
+    versions of the large suite of packages redistributed with \GAP.
+\end{itemize}
+
 
 \subparagraph{\longtaskref{hpc}{hpc-linbox}}
   \label{hpc@hpc-linbox}
@@ -155,18 +168,17 @@ All these software improvements are closely integrated in the mainstream code of
   The only deliverable under consideration for this reporting period
   is~\longdelivref{hpc}{singular-polyarith}
 
-Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular are not. Since the last update much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}. We also now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex. Suggestions by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau have been invaluable.
+Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular were not. Much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}.
 
-The serial implementations of the operations of multiplication, division and GCD are complete in both the dense and sparse cases and the performance is competitive with other systems. The parallel implementation of multiplication is also complete with competitive performance as well. We are on track to have division and GCD parallelized and delivered on time.
+We now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex over the integers mod p and rationals. Continued engagement by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau has been invaluable.
 
-We have also been able to parallelize polynomial root clustering, which is a
-major engine in Singular that benefits from fine-grained
-parallelization. Performance improvements continue to be made by Remi Imbach
-(now at NYU following his ODK contract). The fully working implementation is
-at \url{https://github.com/rimbach/Ccluster}.
+Parallel and serial implementations of the operations of multiplication, division and GCD are complete and perform well in both the dense and sparse cases. The performance is more than competitive with all other systems we are aware of, both on a single core and on multiple cores.
 
+Basic arithmetic in Singular now benefits directly from the implementation and researchers are already working on leveraging the new implementation in other areas, e.g. Gr\"{o}bner bases over rational functions, Gr\"{o}bner bases with a bottleneck on multivariate arithmetic and polynomial factorisation. Early indications are that all of these are going to experience a huge improvement for many real-world research applications.
 
+Other systems such as the new Oscar computer algebra system already benefit directly from the new ODK implementation. 
 
+Sage will automatically benefit directly at the next update of the Singular version in Sage.
 
   \subparagraph{\longtaskref{hpc}{hpc-mpir}}
   \label{hpc@hpc-mpir}
@@ -216,6 +228,14 @@ at \url{https://github.com/rimbach/Ccluster}.
 %% on the regional N8 HPC facility, a system shared by the eight most research
 %% intensive universities in the North of England.
   Not applicable for this period.
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "report"
+%%% End:
+
 
 %  LocalWords:  subsubsection hpc compactitem super-optimizer vectorized factorization
 %  LocalWords:  texttt fflas-ffpack longmilestoneref emph JupyterHub-based specialized

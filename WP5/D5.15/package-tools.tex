@@ -357,16 +357,18 @@ true
     \label{fig:pkgman-sample-b}
 \end{figure}
 
-The main functions provided by {\sf PackageManager} are \texttt{InstallPackage},
-\texttt{UpdatePackage}, and \texttt{RemovePackage}.  The first,
-\texttt{InstallPackage}, can take as argument the URL of an archive, repository, or package info file, or simply the
+The most important function provided by {\sf PackageManager} is
+\texttt{InstallPackage}, which can take as argument the URL of an archive, repository, or package info file, or simply the
 name of a package.  In the case of a URL, the appropriate file is retrieved
 using an internet connection, and used to install the package; if a package name
 is given, it is looked up in a pre-defined list of package URLs and installed
 from there.  In most cases, the latest released version of a package is
 installed, but a user can specify an older version by giving an explicit archive
 URL, or a development version by specifying a branch in a
-version control repository.  % currentPackageInfoURLList
+version control repository.
+Also provided are \texttt{RemovePackage} and \texttt{UpdatePackage}, which
+remove a package or update a package to the latest version, given the package's
+name.
 
 The ability to install a package given only its name is useful, but requires
 some important design decisions: how do we decide which packages to support, and
@@ -385,7 +387,7 @@ In the end, the latter approach was taken for the following reasons:
   with the \GAP installation anyway, and it is unlikely that users would need
   to reinstall these;
 \item the latter approach requires no additional infrastructure, since a
-  \texttt{currentPackageInfoURLList} is already maintained for testing purposes;
+  list of URLs for package info files is already maintained for testing purposes;
 \item this approach encourages active use, and therefore testing, of recent releases.
 \end{itemize}
 This decentralized approach has therefore been adopted for the moment, though
@@ -399,8 +401,8 @@ During installation, the following operations are carried out automatically:
 \begin{itemize}
 \item any kernel module is configured and compiled, if present;
 \item package documentation is built from source if necessary;
-\item external software prerequisites are installed using a package
-  specific shell script \texttt{prerequisites.sh} if present;
+\item external software prerequisites are installed using a package-specific
+  shell script, if one is present;
 \item all missing package dependencies are installed, or recompiled if broken;
 \item basic checks are performed to verify that installation was successful.
 \end{itemize}
