@@ -101,6 +101,8 @@ the amount of run-time method selection required, allowing them to be
 executed more quickly and compiled to C more effectively.
 
 As a small example, consider the following code fragment:
+
+
 \begin{Small}
 \begin{verbatim}
 foo := function(n, x, y)
@@ -114,10 +116,13 @@ foo := function(n, x, y)
 end;
 \end{verbatim}
 \end{Small}
-The \verb|#%| here denotes a pragma.
 
-This can be unpacked:
-\begin{Small}
+The \verb|#%| here denotes a pragma. This can be unpacked to produce
+the cumbersome, but easily processed data structure shown in figure \ref{fig:syntaxtree}.
+
+\begin{figure}[!ht]
+  \begin{mdframed}
+  \begin{Small}
 \begin{verbatim}
 gap> t:= SyntaxTree(foo)!.tree;
 rec( name := "foo", nams := [ "n", "x", "y", "z", "i" ], narg := 3, 
@@ -161,25 +166,39 @@ rec( name := "foo", nams := [ "n", "x", "y", "z", "i" ], narg := 3,
               type := "STAT_RETURN_OBJ" ) ], type := "STAT_SEQ_STAT3" )
     , type := "EXPR_FUNC", variadic := false )
 \end{verbatim}
-\end{Small}
+  \end{Small}
+  \end{mdframed}
+  \caption{A Full Syntax Tree Data Structure}\label{fig:syntaxtree}
+  \end{figure}
+  
 
-All of the necessary information is here for a simple \GAP program to
-locate the pragma and using the information in it, replace the general
-function \verb|Gcd| by the specialized \verb|GcdInt| statically.
-Doing this by hand for the moment, we get:
+This data structure contains all of the necessary information is here
+a simple \GAP program to locate the pragma and using the information
+in it, replace the general function \verb|Gcd| by the specialized
+\verb|GcdInt| statically.  Doing this by hand for the moment, we can
+produce the session in figure \ref{fig:using-syntaxtree}. This shows 
+the full round trip for one executable \GAP function \verb|foo| to an
+optimised one which executes approximated five times faster.
+
+\begin{figure}[!ht]
+  \begin{mdframed}
 \begin{Small}
 \begin{verbatim}
+gap> foo := function(n, x, y)
+>     local z,i;
+>     z := 0;
+>     for i in [1..n] do
+>         #% x and y always integers
+>         z := z+Gcd(x,y);
+>     od;
+>     return z;
+> end;
+function( n, x, y ) ... end
+gap> t := SyntaxTree(foo)!.tree;;
 gap> u := StructuralCopy(t);;
 gap> u.stats.statements[2].body[1].value := "% Gcd specialised to GcdInt";;
 gap> u.stats.statements[2].body[2].rhs.right.funcref.gvar := "GcdInt";;
 gap> bar := SYNTAX_TREE_CODE(u);;
-\end{verbatim}
-\end{Small}
-
-automatically producing a new function which prints as
-
-\begin{Small}
-\begin{verbatim}
 gap> Print(bar);
 function ( n, x, y )
     local z, i;
@@ -190,18 +209,17 @@ function ( n, x, y )
     od;
     return z;
 end
-\end{verbatim}
-\end{Small}
-
-which executes approximately five times faster than \verb|foo|:
-\begin{Small}
-\begin{verbatim}
 gap> foo(10^7, 102334155, 165580141);; time
 2245
 gap> bar(10^7, 102334155, 165580141);; time;
 424
 \end{verbatim}
 \end{Small}
+  \end{mdframed}
+  \caption{An example of manual optimisation using pragmas and Syntax
+    Trees}\label{fig:using-syntaxtree}
+  \end{figure}
+  
 
 \textbf{Note:} It is important to understand that this is \emph{not} a
 source code level transformation. Automated transformation tools built
