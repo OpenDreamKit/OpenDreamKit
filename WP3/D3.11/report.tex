@@ -1,9 +1,20 @@
 \documentclass{deliverablereport}
 
+\usepackage{pdfpages}
+\usepackage{multirow}
+\usepackage{doi}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=cyan,
+  linkcolor=blue,
+  citecolor=blue,
+}
+
 \deliverable{component-architecture}{hpc-configure}
 \deliverydate{XX/YY/201Z}
 \duedate{31/08/2019 (M48)}
-\author{Author names}
+\author{Alexis Breust, Jean-Guillaume Dumas, Clément Pernet, Hongguang Zhu}
 
 \newcommand{\fflasffpack}{\textsc{fflas-ffpack}\xspace}
 \begin{document}
@@ -56,17 +67,44 @@ often challenges for parallel runtime:
 
 The main tasks for the exposition of the parallel routines of \fflasffpack in \SageMath were the following:
 \begin{enumerate}
-\item improving existing parallel code for Gaussian elimination and matrix multiplication in the \fflasffpack library
-\item adding new parallel routines for the most commonly used operations in \SageMath: the determinant, the echelon
-  form, the rank, and the solution of a linear system.
+\item improving existing parallel code for Gaussian elimination and matrix multiplication in the \fflasffpack library;
+\item adding new parallel routines in \fflasffpack for the most commonly used operations in \SageMath: the determinant,
+  the echelon form, the rank, and the solution of a linear system;
 \item connecting these parallel routines in \SageMath using the Singleton class \texttt{Parallelism} to provide  the user
   with a precise control on the number of threads allocated to the linear algebra routines. 
-  
 \end{enumerate}
+
+The first two items involved 15 pull-requests, merged and released in
+\texttt{fflas-ffpack-2.4.3}\footnote{\url{https://github.com/linbox-team/fflas-ffpack/releases/tag/2.4.3}}. This release
+was produced simultaneously with that of the two other libraries in the \Linbox
+ecosystem: \texttt{givaro-4.1.1}\footnote{\url{https://github.com/linbox-team/givaro/releases/tag/4.1.1}} and
+\texttt{linbox-1.6.3}\footnote{\url{https://github.com/linbox-team/linbox/releases/tag/v1.6.3}} then integrated into \SageMath
+in tickets
+\begin{itemize}
+\item  \url{https://trac.sagemath.org/ticket/27444} and
+\item  \url{https://trac.sagemath.org/ticket/26932}.
+\end{itemize}
+
+
+The following code generates a random $2000\times 2000$ matrix over $\mathbb{Z}/65521\mathbb{Z}$ and computes its
+determinant using 16 cores:
+
+\begin{verbatim}
+sage: a=random_matrix(GF(65521),2000)
+sage: Parallelism().set("linbox",16)
+sage: d=a.determinant()  
+\end{verbatim}
+
 
 \begin{figure}[htb]
   \begin{center}
     \includegraphics[width=.8\textwidth]{Pictures/histo_bigfoot3}
+    \caption{Parallel computation time for some finite field linear algebra operations in SageMath}
+  \end{center}
+\end{figure}
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{Pictures/speedup_bigfoot3}
     \caption{Parallel speedup for some finite field linear algebra operations in SageMath}
   \end{center}
 \end{figure}
