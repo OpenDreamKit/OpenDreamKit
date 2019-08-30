@@ -8,11 +8,13 @@
 \usepackage{multicol}
 \usepackage{multirow}
 
-\newcommand{\pypersist}{\texttt{pypersist}}
+\newcommand{\pypersist}{\textsc{pypersist}}
+\newcommand{\Memoisation}{\textsc{memoisation}}
 
 \begin{document}
 \maketitle
 % This will be the abstract, fetched from the github description
+% TODO: update abstract on Github
 \githubissuedescription
 \clearpage
 
@@ -91,20 +93,22 @@ cache results in Python and GAP across sessions, in a way that is easy to deploy
 and configure, and allows for results to be shared reliably between different
 researchers.  Deliverable 6.9 requires a ``shared persistent memoisation library
 for Python/Sage'', which is fulfilled by \pypersist{}, a new Python library
-written by the current author.  The corresponding software for GAP is in
-progress, in the form of GAP's \texttt{Memoisation} package, which aims to have
-the same features as \pypersist{}, and to be as compatible as possible with it.
+written by the current author.  The corresponding software for GAP has also been
+created, in the form of GAP's \Memoisation{} package, which has
+approximately the same features as \pypersist{}, and aims to be as compatible as
+possible with it.
 
 In this report, we will present a review of some existing tools for memoisation
-(Section \ref{sec:existing}), describe the new Python library \pypersist{}
-(Section \ref{sec:pypersist}), and give an overview of the future direction of
-this project (Section \ref{sec:future}).
+(Section \ref{sec:existing}), describe the new Python library \pypersist{} and
+the new GAP package \Memoisation{} (Section \ref{sec:pypersist}), show how they
+can be used together (Section \ref{sec:cross-system}), and give an overview of
+the future direction of this project (Section \ref{sec:future}).
 
 \section{Existing tools}
 \label{sec:existing}
 
 In this section we will consider some tools that already exist for memoisation,
-with a focus on Python and Sage tools.  Some of the tools we discuss are only
+in Python, \Sage and \GAP.  Some of the tools we discuss are only
 intended for a subset of the complete memoisation process, while others are more
 full-featured but lack some important desirable features.  A comparison of these
 tools is shown in Table \ref{tab:comparison-of-tools}.
@@ -127,7 +131,6 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
     & \rotatebox{270}{Sage support}
     & \rotatebox{270}{Compiled~~}
     \\ \hline
-    GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  & \checkmark &  &  &  &  &  &  \\ \hline
     Sage \texttt{func\_persist} & \checkmark & Sage & \checkmark & \checkmark & \checkmark &  &  &  &  &  & & \checkmark  &  \\ \hline
     Sage \texttt{cached\_function} & \checkmark & Sage & \checkmark & \checkmark &  &  &  & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
     Sage \texttt{cached\_method} & \checkmark & Sage & \checkmark & \checkmark &  &  & \checkmark & \checkmark & \checkmark &  &  & \checkmark & \checkmark \\ \hline
@@ -135,21 +138,27 @@ tools is shown in Table \ref{tab:comparison-of-tools}.
     \texttt{PyMemoize} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark &  & \checkmark &  &  &  &  &  &  \\ \hline
     \texttt{redis-simple-cache} &  & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  &  &  &  &  \\ \hline
     \texttt{dogpile.cache} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark  &  &  &  &  \\ \hline
-    \texttt{pypersist} & \checkmark & $2/3$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark &  \\
+    \pypersist{} & \checkmark & $2/3/\Sage$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark &  \\ \hline
     \hline
+    \GAP operation/attribute & \checkmark & --- &  & \checkmark &  &  & \checkmark & \checkmark &  &  &  &  &  \\ \hline
+    \Memoisation{} & \checkmark & --- &  & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark &  &  \\ \hline
   \end{tabular}
   \vspace{7pt}
-  \caption{Comparison of memoisation tools}
+  \caption{Comparison of memoisation tools in Python/\Sage and in \GAP}
   \label{tab:comparison-of-tools}
 \end{table}
 
 \subsection{GAP}
-First, we should consider the existing persistence tools built into GAP and
-Sage.  GAP functions can be installed as methods for an object's
+GAP functions can be installed as methods for an object's
 \emph{operations} and \emph{attributes}, and if they are, their results are
 stored for the duration of the current GAP session.  However, these results are
 never saved to disk unless the session itself is stored, and the option is only
-available for methods of an object.
+available for methods of an object.  Since there is a lack of any other
+well-established tools for memoising functions, the \Memoisation{} package was
+created.  It contains all the features described in Table
+\ref{tab:comparison-of-tools}, except for those specific to Python, and for the
+fact that it is written in pure \GAP and is therefore not compiled.  The
+features are shown in more detail in the next chapter.
 
 \subsection{Sage}
 There exists in Sage a simple function decorator, \texttt{func\_persist}, which
@@ -195,69 +204,109 @@ add these features, rather than creating a new tool.  However, given the wide
 scope of the \texttt{dogpile} project, which is largely focused on thread
 management, it was decided to proceed with a new tool that could be adapted more
 easily to suit the specific requirements of the project, such as bespoke support
-for Sage-specific objects, and compatibility with the GAP memoisation package
-which would be developed in parallel.
+for Sage-specific objects, and compatibility with the GAP \Memoisation{} package
+which was developed in parallel.
 
 To fulfill these requirements, the \pypersist{} package was created.  It runs in
-Python version 2 and 3, and it contains all the features mentioned in Table
+Python versions 2 and 3, and it contains all the features mentioned in Table
 \ref{tab:comparison-of-tools}, except those features related to Cython.  More
 information about \pypersist{} is given in Section \ref{sec:pypersist}.
 
-\section{pypersist}
+\section{\pypersist{} and \Memoisation{}}
 \label{sec:pypersist}
 
-\pypersist{} is a package for Python 2 and 3, created specifically to address
-the requirements of this deliverable.  It has all the features considered in
-Table \ref{tab:comparison-of-tools}, having been designed with these features in
-mind.
+To address the requirements of this deliverable, two closely related pieces of
+software were created: the Python package \pypersist{} and the \GAP package
+\Memoisation{}.  They have approximately the same features, as shown in Table
+\ref{tab:comparison-of-tools}, and they were designed to be compatible, as
+explained in Section \ref{sec:cross-system}.
 
 \subsection{Features}
 \label{sec:features}
 
-We now summarise some of the features of \pypersist{}.  The detailed workings of
-the package are outside the scope of this report, but full documentation is
-available at \url{https://pypersist.readthedocs.io}, and an extensive annotated
-demonstration of the package's features is given in an interactive notebook
-hosted on Binder at
-\url{https://mybinder.org/v2/gh/mtorpey/pypersist/master?filepath=binder/demo.ipynb}.
+We now summarise some of the features of \pypersist{} and \Memoisation{}.  The
+detailed workings of the packages are outside the scope of this report, but full
+documentation is available at \url{https://pypersist.readthedocs.io} and
+\url{https://gap-packages.github.io/Memoisation/}.  The features of the packages
+are also demonstrated in interactive notebooks hosted on Binder and linked in
+the respective readme files.
+% \url{https://mybinder.org/v2/gh/mtorpey/pypersist/master?filepath=binder/demo.ipynb}.
 
 \paragraph{Decorator}
-In order to use all the features of the package, the \texttt{persist} decorator
-is the only thing that needs to be imported.  After this, a function can be
-memoised by simply adding \texttt{@persist} above it.  This minimal setup
-produces memoisation with safe defaults, and allows users to exploit the package
-with no additional knowledge of its features.  However, using
-\texttt{@persist(...)} allows further customisation via arguments.
+\pypersist{} provides a function decorator, \texttt{persist}, which is used to
+memoise a function.  After this decorator is imported, a Python function can be
+memoised by simply typing \texttt{@persist} above it.  In \GAP, which does not
+have function decorators, the \Memoisation{} package instead provides
+\texttt{MemoisedFunction}, which simply takes a function and returns a memoised
+version of it.  This minimal setup produces memoisation with safe defaults, and
+allows users to exploit these packages with no additional knowledge of their
+features.  However, further customisation is possible by adding arguments to the
+decorator in the form \texttt{@persist(...)} or by providing an options record
+as the second argument to \texttt{MemoisedFunction}.  Examples are shown in
+Figure \ref{fig:how-to-call}.
+
+\begin{figure}[h]
+  \centering
+  \begin{minipage}[t]{.45\textwidth}
+    {\tiny
+    \begin{verbatim}
+@persist(funcname="power_number",
+         cache="file://my_results",
+         pickle=str,
+         unpickle=int)
+def power(x, y):
+    return x ** y
+    \end{verbatim}
+    }
+  \end{minipage}
+  \quad
+  \begin{minipage}[t]{.45\textwidth}
+    {\tiny
+    \begin{verbatim}
+power := MemoisedFunction({x, y} -> x ^ y,
+      rec(funcname := "power_number",
+          cache := "file://my_results",
+          pickle := String,
+          unpickle := Int));
+    \end{verbatim}
+    }
+  \end{minipage}
+  \caption{Memoising a function in \pypersist{} and \Memoisation{}}
+  \label{fig:how-to-call}
+\end{figure}
 
 \paragraph{Configurable cache location}
-By default, results are saved to the \texttt{persist/<funcname>} subdirectory of
+By default, results in \pypersist{} and \Memoisation{} are saved respectively to
+the \texttt{persist/<funcname>} and \texttt{memo/<funcname>} subdirectories of
 the current working directory.  However, by providing a string as the
-\texttt{cache} argument of \texttt{@persist}, this location can be changed.
+\texttt{cache} argument of \texttt{@persist} or \texttt{MemoisedFunction}, this
+location can be changed (see Figure \ref{fig:how-to-call}).
 
 \paragraph{Configurable function name}
 In order to avoid confusion between two different functions with the same name,
-a \texttt{funcname} argument can be supplied to \texttt{@persist}, which should
+a \texttt{funcname} argument can be supplied, which should
 be a string that uniquely identifies the function.  This string could include a
 version number, author name, or anything else required to ensure uniqueness.
 
 \paragraph{MongoDB cache}
 Support is provided for caching results in a MongoDB database, via the REST
-interface provided by Python's \texttt{Eve} package.  If a \texttt{cache}
+interface provided by Python's \texttt{eve} package.  If a \texttt{cache}
 argument is provided which starts with \texttt{mongodb://}, then it is
 interpreted as the address of a MongoDB server which can send and receive
 results for the function, and that server will be used instead of saving results
 locally.  Such a server can be set up using the \texttt{mongodb\_server/run.py}
-script distributed with \pypersist{}.
+script distributed identically with \pypersist{} and \Memoisation{}.
 
 \paragraph{Custom key function}
 Each entry in a function's cache is stored using a unique key based on the
 arguments supplied to the function; two sets of arguments should have the same
-key only if they produce the same output.  By default, we use a tuple of the
-arguments, with their names, sorted alphabetically, and with any default
-arguments removed.  This allows for equivalent calls such as \texttt{foo(x=3,
-  y=5)} and \texttt{foo(y=5, x=3)} to be treated equally.  However, the
-decorator takes an optional \texttt{key} argument, which should be a function
-that takes a list of arguments and produces a key based on them.  A developer
+key only if they produce the same output.  By default, \pypersist{} uses a tuple of the
+arguments, with their names, sorted alphabetically, and with any default arguments removed;
+this allows for equivalent calls such as \texttt{foo(x=3,
+  y=5)} and \texttt{foo(y=5, x=3)} to be treated equally.
+\Memoisation{} simply uses a list of the arguments.  However, users can
+specify a \texttt{key} argument, which should be a function
+that takes the same arguments as the function and produces a key based on them.  A developer
 could thus choose to ignore arguments that control, for example, verbosity, or
 other options that do not affect the function's return value.
 
@@ -276,7 +325,7 @@ keys to be produced.
 \paragraph{Storing keys}
 By default, a key is not stored after it has been hashed, and correctness is
 assumed due to the vanishingly small probability of an SHA-256 hash collision.
-However, for complete correctness, the decorator takes an argument
+However, for complete correctness, the packages support an argument
 \texttt{storekey} which, if set to true, stores keys along with results, and
 checks them when looking up results, raising an error if a hash collision is
 detected.  This also allows a user to iterate over the stored keys of a cache,
@@ -288,30 +337,36 @@ database.  For this purpose, we require sometimes complex objects to be
 \textit{pickled} and \textit{unpickled} -- that is, converted to a string for
 storing, and converted back when retrieved later.  The default methods use
 Python's \texttt{pickle} module (or, if appropriate, Sage's own pickling
-functions) and a base 64 encoding to produce strings that
+functions) or \GAP's \texttt{IO\_Pickle}, and a base 64 encoding to produce strings that
 can be written without invisible or difficult-to-display characters.  However,
-like much of \texttt{pypersist}'s functionality, custom \texttt{pickle} and
+like much of these packages' functionality, custom \texttt{pickle} and
 \texttt{unpickle} functions can be specified that do this a different way.  This
 can allow results to be stored in a human-readable way which can then be used
-outside Python, or even to be stored using a format such as OpenMath for use in
+outside Python and \GAP, or even to be stored using a format such as OpenMath for use in
 a completely different computer system.
 
 \paragraph{Manual cache interaction}
 It may be necessary at some time to modify a memoisation cache manually --
 perhaps to remove an inaccurate result, or to add a result that was found before
-the cache was created.  This can be done directly in \pypersist{} -- a memoised
+the cache was created.  This can be done directly in both packages.
+In \pypersist{}, a memoised
 function \texttt{foo} has an attribute \texttt{foo.cache} which can be used much
 like a dictionary, reading, setting and deleting entries as desired.
 Furthermore, if \texttt{storekey} is set to true, or if an \texttt{unhash}
 method is provided, \texttt{foo.cache} is an iterable object with attributes
 \texttt{keys}, \texttt{values} and \texttt{items} that can be used in loops.
+Similarly in \Memoisation{}, a memoised function \texttt{foo} has a component
+\texttt{foo!.cache} which satisfies \texttt{IsLookupDictionary}; it can
+therefore be used with the \GAP functions \texttt{AddDictionary},
+\texttt{KnowsDictionary} and \texttt{LookupDictionary}, if a user wishes to
+manipulate it directly.
 
 \subsection{Software engineering}
-\texttt{pypersist} was written using modern open-source software technologies
+Both \pypersist{} and \Memoisation{} were written using modern open-source software technologies
 and practices, with an emphasis on clarity of understanding and ease of use.
 The report on OpenDreamKit D1.5 contains, in Section 4.3.2.1, a checklist of
-software engineering best practices.  The package fulfills all the requirements
-in that list, as summarised in Table \ref{tab:pypersist-se-check}.
+software engineering best practices.  The packages fulfill all the requirements
+in that list, as summarised in Tables \ref{tab:pypersist-se-check} and \ref{tab:memo-se-check}.
 
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
@@ -327,19 +382,24 @@ in that list, as summarised in Table \ref{tab:pypersist-se-check}.
   \label{tab:pypersist-se-check}
 \end{table}
 
-The project was developed from the beginning using Git, and the full history is
-available in the repository.  A test suite using \textit{pytest} is included in
-the repository, and is run by Travis every time a commit or pull request is
-added on Github.  The comprehensiveness of this suite is measured by
-\textit{codecov}, and covers 98\% of the code in the package, with the only
-untested lines being those that handle difficult-to-produce HTTP errors.  The
-package is built for PyPI using Python's well-established \texttt{setuptools}
-module, and several such releases have already been made.
+\begin{table}[h]
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{|p{5.1cm}|c|p{9.5cm}|}\hline
+    Version control & \checkmark & Git \\ \hline
+    Tests & \checkmark & \multirow{2}{*}{\GAP test suite with 98\% code coverage} \\ \cline{1-2}
+    Automated tests & \checkmark & \\ \hline
+    Continuous integration & \checkmark & Travis runs test suite for every commit \\ \hline
+    Automatic building of releases & \checkmark & \texttt{ReleaseTools} for \GAP (see D5.15) \\ \hline
+  \end{tabular}
+  \vspace{0pt}
+  \caption{Software engineering good practice checklist for \Memoisation{}}
+  \label{tab:memo-se-check}
+\end{table}
 
 \subsection{Dissemination}
 The report on OpenDreamKit D1.5 also contains, in Section 4.3.2.2, a checklist
-of best practices for dissemination.  The package also fulfills all of these
-requirements, as summarised in Table \ref{tab:pypersist-diss-check}.
+of best practices for dissemination.  The packages also fulfill all of these
+requirements, as summarised in Tables \ref{tab:pypersist-diss-check} and \ref{tab:memo-diss-check}.
 
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.2}
@@ -356,7 +416,7 @@ requirements, as summarised in Table \ref{tab:pypersist-diss-check}.
     URLs/Blog/etc to and from OpenDreamKit project & \checkmark & Links to OpenDreamKit in readme, in manual, and on PyPI distribution page \\ \hline
     Grant acknowledgements & \checkmark & Acknowledged in readme and manual \\ \hline
     Open Source license & \checkmark & GPL v2 or later \\ \hline
-    Workshop & \checkmark & \multirow{2}{9.6cm}{Demo and discussion at \emph{Free Computational Mathematics} conference, CIRM, Luminy, France, Feb 2019} \\ \cline{1-2}
+    Workshop & \checkmark & \multirow{2}{9.6cm}{Demo and discussion at \emph{Free Computational Mathematics} (CIRM, Luminy, Month 42)} \\ \cline{1-2}
     Engaging users & \checkmark & \\ \hline
   \end{tabular}
   \vspace{0pt}
@@ -364,49 +424,77 @@ requirements, as summarised in Table \ref{tab:pypersist-diss-check}.
   \label{tab:pypersist-diss-check}
 \end{table}
 
-Development of \pypersist{} was open from the start, available publicly on
-Github, including its full commit history.  The issue tracker on its Github page
-has been used to track upcoming new features, as well as bugs and other
+\begin{table}[h]
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{|p{5.1cm}|c|p{9.5cm}|}\hline
+    Host code publicly & \checkmark & \href{https://github.com/gap-packages/Memoisation}{\texttt{github.com/gap-packages/Memoisation}} \\ \hline
+    Reference Manual (APIs) & \checkmark & \href{https://gap-packages.github.io/Memoisation/doc/chap0.html}{\texttt{gap-packages.github.io/Memoisation}} \\ \hline
+    Tutorial (for beginning users) & \checkmark & \multirow{3}{9.5cm}{Examples section in readme, and Binder demo with extensive annotations: \texttt{binder/demo.ipynb} \\ (linked from readme)} \\ \cline{1-2}
+    Examples & \checkmark & \\ \cline{1-2}
+    Live interactive online demos & \checkmark & \\ \hline
+    Support mechanisms & \checkmark & Github issues \\ \hline
+    How to cite the output? & \checkmark & Explained in readme and on website \\ \hline
+    Installation mechanism & \checkmark & Installation via \texttt{PackageManager}, explained in readme and manual \\ \hline
+    High level description accessible to non-experts & \checkmark & In readme and manual \\ \hline
+    URLs/Blog/etc to and from OpenDreamKit project & \checkmark & OpenDreamKit link and logo in readme \\ \hline
+    Grant acknowledgements & \checkmark & Acknowledged in readme \\ \hline
+    Open Source license & \checkmark & BSD 3-clause licence \\ \hline
+    Workshop & \checkmark & \multirow{2}{9.6cm}{Demo and discussion at \textit{Workshop on Mathematical Data} (Cernay, Month 48)} \\ \cline{1-2}
+    Engaging users & \checkmark & \\ \hline
+  \end{tabular}
+  \vspace{0pt}
+  \caption{Dissemination good practice checklist for \Memoisation{}}
+  \label{tab:memo-diss-check}
+\end{table}
+
+Development of both packages was open from the start, available publicly on
+Github, including their full commit histories.  The issue trackers on their Github pages
+have been used to track upcoming new features, as well as bugs and other
 problems.  All documentation, tools, and setup are included directly in the Git
 repository, so that everything is kept in one place and can be tracked as a
 single unit.
 
-The package's documentation is mostly generated directly from the docstrings in
-its source files.  This means that code is documented where it is written,
+The packages' documentation is mostly generated directly from the source files,
+using Sphinx and GAPDoc/Autodoc respectively.
+This means that code is documented where it is written,
 making the code easier to understand and avoiding the need to duplicate
-documentation with extra comments.  Numpy-style docstrings are used throughout
+documentation with extra comments.  Numpy-style docstrings are used throughout \pypersist{}
 -- this widely used standard was chosen for its minimal syntax, which allows the
 strings to be easily read and understood in plaintext without any processing or
-compilation.  A readme is included, written in Markdown, with a simple
+compilation.  A readme is included in each project, written in Markdown, with a simple
 two-sentence introduction, a guide to installation, and a small number of examples
-showing how to get started.  Autodoc and Sphinx are used to convert the
-docstrings and the readme, with very little additional documentation required,
-into a legible manual, which is hosted on \textit{ReadTheDocs} and linked from
-the readme itself.  This manual is updated automatically on each push to the
-repository.  In this way, the documentation is accessible, clear, and
+showing how to get started.  The manual for each package is hosted online,
+\pypersist{} on \textit{ReadTheDocs} and \Memoisation{} on its own website, both
+of which are linked from the appropriate Github page.  In this way, the
+documentation is accessible, clear, and
 maintainable.
 
-The minimal examples in the readme are supplemented by a Jupyter notebook which
-is also included with the project.  This notebook imports \pypersist{} and
-demonstrates every feature available, with annotations explaining each example.
-The notebook can be loaded locally by anyone with a Jupyter installation, but
-for better accessibility it is also hosted on Binder, with its address linked at
-the bottom of the readme, as well as in a badge at the top.  This demo loads the
+The minimal examples in the readme are supplemented by the Jupyter notebooks
+included with the projects.
+These notebook can be loaded locally by anyone with a Jupyter installation, but
+for better accessibility they are also hosted on Binder, with the address linked at
+the bottom of each readme, as well as in a badge at the top.  The \pypersist{} demo loads the
 most recent version of \pypersist{}, and therefore also acts as an additional
 test suite, since it requires the package to be in a working state in order to
 demonstrate its features.  The outputs of the executable cells are not saved
-into the notebook -- instead it is left to readers to execute the cells
+into the notebooks -- instead it is left to readers to execute the cells
 themselves, producing an interactive experience which may encourage the reader to
 experiment, and may lead to a better understanding of how the package works.
-This notebook was demonstrated at the \emph{Free Computational Mathematics}
-conference held in CIRM, Luminy, France, in February 2019, prompting a
-discussion and feedback from users.
+The \pypersist{} notebook was demonstrated at the \emph{Free Computational Mathematics}
+conference held in CIRM, Luminy, France, in Month 42, prompting a
+discussion and feedback from users.  A demo of both packages working together
+was shown at the \textit{Workshop on Mathematical Data} held in Cernay
+in Month 48 (it approximately followed Section \ref{sec:cross-system}) also
+prompting discussion.
 
-In order for \pypersist{} to be used, it must be easy to install.  The package
-is hosted on PyPI at \url{https://pypi.org/project/pypersist}, making
-installation as simple as typing \texttt{pip install pypersist} for any user
-connected to the internet.  This installation method is explained in the
-project's readme, and therefore also on the first page of its manual.
+In order for the packages to be used, they must be easy to install.  The
+\pypersist{} package is hosted on PyPI at
+\url{https://pypi.org/project/pypersist}, making installation as simple as
+typing \texttt{pip install pypersist} for any user connected to the internet.
+The \Memoisation{} package can now be installed using GAP's own package manager,
+another new piece of \GAP infrastructure from \ODK.  Each installation method is
+explained in the appropriate project's readme, and the procedure for
+\pypersist{} is also on the first page of its manual.
 
 % 3rd checklist: perhaps doesn't add anything to include?
 % \subsection{Pathways to impact}
@@ -415,16 +503,116 @@ project's readme, and therefore also on the first page of its manual.
 % \item[{$\square$}] Workshops to gather feedback
 % \end{itemize}
 
+\section{Interoperability}
+\label{sec:cross-system}
+
+By default, \pypersist{} caches are not compatible with \Memoisation{} caches.
+\GAP and Python have different data types, and the default \texttt{pickle} and
+\texttt{hash} functions are different between the two packages.  For this
+reason, the default cache locations are separate when caching to disk, and
+different namespaces are used when writing to a database.
+
+However, it is possible to customise a cache in a variety of ways, as described
+in Section \ref{sec:features}, and it is certainly possible to specify options
+that allow a \pypersist{} cache and a \Memoisation{} cache to share results with
+each other.  The following example was presented as a demo at the
+\textit{Workshop on Mathematical Data} mentioned above.
+
+\subsection{Example}
+\label{sec:cross-system-example}
+
+Consider the following fragment of Python code.  It defines a function
+\texttt{prime\_factors} that performs deliberately badly, including a 2-second
+sleep, but should correctly calculate the prime factors of an integer.
+
+{\tiny
+\begin{verbatim}
+from time import sleep
+from pypersist import persist
+
+@persist(
+    cache="file://shared",
+    key=lambda n: n,
+    hash=str,
+    pickle=lambda L: "\n".join(map(str, L)),
+    unpickle=lambda s: [int(n) for n in s.split("\n") if n!=""],
+)
+def prime_factors(n):
+    factors = []
+    d = 2
+    while n > 1:
+        while n % d != 0:
+            d += 1
+        factors.append(d)
+        n /= d
+    sleep(2)
+    return factors
+\end{verbatim}
+}
+
+The function itself has been memoised by being decorated with \texttt{@persist},
+and several custom options have been specified:
+\begin{itemize}
+\item \texttt{cache} defines the location of the cache as being inside
+  \texttt{shared/} in the current directory;
+\item \texttt{key} defines the single input \texttt{n} as a unique key for each
+  memoised result;
+\item \texttt{hash} is the function that simply writes an integer out as a
+  string in base 10 (this, with ``.out'', will be the filename);
+\item \texttt{pickle} takes the list of prime factors, and prints each one to a
+  separate line in a text file, also in base 10;
+\item \texttt{unpickle} turns this file back into the list of integers.
+\end{itemize}
+This will result in quite a human-readable cache: results will be stored inside
+the present directory, in \texttt{shared/prime\_factors/}, and each result will
+be saved in a single file with \texttt{<n>.out} as the filename, and one prime
+factor printed on each line.  This cache could be used as an educational tool,
+and bears no traces of having been created by \pypersist{} at all.
+
+\GAP has a much better method for computing prime factors: the library function
+\texttt{Factors}.  We memoise this as follows.
+
+{\tiny
+\begin{verbatim}
+LoadPackage("Memoisation");
+
+prime_factors := MemoisedFunction(Factors, rec(
+    funcname := "prime_factors",
+    cache := "file://shared",
+    key := IdFunc,
+    hash := String,
+    pickle := L -> JoinStringsWithSeparator(List(L, String), "\n"),
+    unpickle := str -> List(SplitString(str, "\n"), Int)
+));
+\end{verbatim}
+}
+
+Note that all the same memoisation options have been specified: \texttt{cache},
+\texttt{key}, \texttt{hash}, \texttt{pickle} and \texttt{unpickle} have been
+translated into \GAP code and included just as in the \pypersist{} example.
+However, note that an additional argument \texttt{funcname} has been specified;
+this is so that we use the directory \texttt{shared/prime\_factors/} instead of
+the default \texttt{shared/Factors/}.
+
+These two functions will now load and store each other's results.  If we compute
+a new example in Python first, it will take a whole 2 seconds to complete, but
+if we calculate it first in \GAP and then in Python, it will appear to complete
+instantly, as the overhead of reading a list of integers from a file is
+negligible.  This is not only an example of how flexible a cache can be in these
+two packages, but also an example of how different mathematical systems can
+communicate with each other and share results.
+
 \section{Future direction}
 \label{sec:future}
 
-Although \pypersist{} now has many features and is well-tested, it is still in
-development.  It is hoped that as more developers begin to use it, they will
-provide feedback that will inform the development further, whether by revealing
+Although \pypersist{} and \Memoisation{} now have many features and are
+well-tested, they are still in
+development.  It is hoped that as more developers begin to use them, they will
+provide feedback that will inform development further, whether by revealing
 bugs, or by requesting new features.  There are already several features that
 are planned, and work will continue on this project as time goes on.  In this
-section we describe some aims for the future direction of Task 6.9, in
-\pypersist{} and beyond.
+section we describe some aims for the future direction of persistent memoisation
+in \GAP, \Sage and Python.
 
 \subsection{Features}
 
@@ -477,18 +665,6 @@ interested users have a record of exactly what is being written and read at what
 time and in what location.  Different levels of verbosity showing different
 levels of information may be useful.
 
-\paragraph{GAP version}
-Though Deliverable 6.9 only requires a ``shared persistent memoisation library
-for Python/Sage'', Task 6.9 also discusses a GAP version of this library.  GAP
-would benefit from all the features included in \pypersist{}, and a GAP version
-of this library would also be able to interface with the same cache as the
-Python version in certain circumstances, allowing results to be shared across
-different computer algebra systems as well as across different sessions.  A
-prototype of this already exists in the form of GAP's \texttt{Memoisation}
-package, which was developed in parallel with \pypersist{}.  However, this
-prototype is not yet stable or full-featured, and should be developed into a
-tool comparable to the Python version.
-
 \paragraph{Sage integration}
 As shown in Table \ref{tab:comparison-of-tools}, there exist three different
 tools already in Sage for memoising data.  Now that \pypersist{} has overtaken
@@ -525,4 +701,3 @@ as an addendum to this document.
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
-
