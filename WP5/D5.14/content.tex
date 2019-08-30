@@ -243,19 +243,19 @@ which we will denote by the GINV (matrix inversion), GEMV
 (matrix-vector iteration) and ZGEMM (matrix-matrix multiplication over
 $\mathbb{Z}$).
 Their respective costs are given by $\ell\cdot\GO{n^\omega}$,
-$k_\ell\ell\cdot\GO{n^2}$ and $k_\ell\cdot\GO{n^2\ell^{\omega-1}}$,
-where $\ell$ is the parameter and $k_\ell\ell\approx n \cdot
-\texttt{bitsize}$ is approximately a constant.
+$k\ell\cdot\GO{n^2}$ and $k\cdot\GO{n^2\ell^{\omega-1}}$,
+where $\ell$ is the parameter and, from the algorithm, $k\ell\approx n \cdot
+\frac{\texttt{bitsize}}{\log_2(p)}$ is approximately a constant.
 
 Thus we see that by increasing $\ell$ we increase the overall number
 of operations, but the hope is to trade some slow operations of ZGEMM
 for some very fast operations of GINV. 
 We also see that the dominant cost should remain unchanged within GEMV, but
-that by increasing $\ell$ we increase the potential for overall
+that by increasing $\ell$ we increase the potential for
 parallelism. 
 
 This analysis is backed up by experiments as we show in the following.
-
+%
 First, the technique of the double RNS basis, combined with the
 gathering of updates is shown, in sequential, in
 Figures~\ref{fig:rnsdixon_seqprimescount}
@@ -279,14 +279,15 @@ even for small matrices.
 \caption{Sequential RNS Dixon with fixed matrix dimension.}\label{fig:rnsdixon_seqbitsize}
 \end{figure}
 
-Now in parallel this is strikingly more interesting as shown in
+Now in parallel we obtain good speed-up, as shown in
 Figures~\ref{fig:rnsdixon_parallel_threads}
 and~\ref{fig:rnsdixon_parallel}. Indeed, there, we see that the
 overall work increases with the increase of $\ell$ (see the top
 histograms in Figure~\ref{fig:rnsdixon_parallel}).
 But this increase is negligible when the matrix size is larger (almost
-no more ``red'' ), and the parallelization pays of ($9.5$ speed-up
-with $16$ cores).
+no more ``red'' in the bottom histogram), and the parallelization pays
+of ($9.6$ speed-up for our new Algorithm with $16$ cores in the bottom
+histogram).
 
 \begin{figure}[htb]
 \begin{center}
@@ -298,11 +299,17 @@ with $16$ cores).
 \begin{figure}[htb]
 \begin{center}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
-  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b_total}
 \end{center}
 \caption{Balance between matrix inversion (GINV) and lifting phases (GEMV+ZGEMM). In each cluster, left column correspond to a sequential run,
 and right column to a run with 16 cores}\label{fig:rnsdixon_parallel}
 \end{figure}
+
+Further work is required to tune up at a finer grain the different
+levels of parallelism used in the large precision RNS matrix-matrix
+multiplication or to automatically deduce the right choice of 
+parameter $\ell$ from the characteristics of the matrix and the right
+hand side.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{GPU enabled libraries}
