@@ -29,9 +29,32 @@
 \section{Introduction}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Number Theory}
+\section{Using a multi-threaded \Pari}
 
-PARI-MT and the difficulty of composing a threaded systems into another.
+As reported in \delivref{hpc}{pari-hpc2}, the number theory library \Pari supports
+multi-threading for various operations.
+\Sage uses \Pari for its number theory functionality.
+Since \Sage simply interfaces \Pari, it should in theory
+be trivial to use \Pari-MT (the multi-threading-enabled configuration of \Pari) in \Sage:
+just enable multi-threading and that's it.
+
+Unfortunately, some problems arise:
+it turns out that \Pari-MT is not compatible with
+threads that are created outside of \Pari's control.
+So, an application that is already multi-threaded cannot use \Pari-MT without additional effort.
+This is in particular a problem for the documentation builder of \Sage,
+which uses \Pari to create images for the documentation.
+Since this can take a long time, \Sage uses Python's
+multiprocessing module for this,
+which (perhaps confusingly) also uses multiple threads.
+
+We expect that this problem can be solved with some additional effort
+in either the \Sage--\Pari interface or within \Pari itself.
+Unfortunately, there was not enough time to further investigate this.
+
+Nevertheless, it is easily possible to use \Pari-MT in \Sage
+if one is careful not to build the documentation,
+nor to use any other kind of multi-threading.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Finite field linear algebra}
