@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #40 on 2019-08-29 {.notoc}
+# Deliverable description, as taken from Github issue #40 on 2019-08-30 {.notoc}
 
 - **WP2:** [Community Building, Training, Dissemination, Exploitation, and Outreach](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP2)
 - **Lead Institution:** Université Paris-Sud
@@ -26,7 +26,7 @@ TODO:
 - [ ] Sage Days 100 -- Geometry and dynamics of surfaces June or July 2019, MPI Bonn Germany @videlec 
 - [x]  Sage Days 102 - University of Ibadan: (July 15-19, 2019, Ibadan, Nigeria) Sage Days Nigeria @embray
 - [ ] GAP Singular Meeting and School August 2019 @sebasguts 
-- [ ] Cernay Data base workshop @katjabercic 
+- [x] Cernay Data base workshop @katjabercic 
 - [ ] Cernay Report writing sprint @nthiery
 - [ ] Micromagnetics dissemination? @fangohr @marijanbeg 
 - [ ] GAP Tutorial at GAP in Algebraic Research school (Aachen, November 2018) @alex-konovalov 
