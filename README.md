@@ -219,6 +219,8 @@ status report, ...) needs to be on the issue.
       DIR=WPX/DX.Z
       rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/github-issue-description.tex $DIR/report.pdf
 
+  (requires PyGithub and PyYAML: `pip install PyGithub PyYAML`).
+
   You can then commit the updated github issue description and pdf with:
 
       cp $DIR/report.pdf $DIR/report-final.pdf; git add -f $DIR/github-issue-description* $DIR/report-final.pdf; git commit -m "`basename $DIR`: updated github issue description and report pdf" $DIR/github-issue-description* $DIR/report-final.pdf; cp $DIR/report-final.pdf /tmp
