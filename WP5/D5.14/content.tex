@@ -114,7 +114,7 @@ However, the strongly iterative structure of this algorithm makes it both harder
 efficient.
 In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
 $p$-adic lifting and Chinese remainder techniques.
-This led to a multi-modular (or RNS, residue number system) $p$-adic
+This led to a multi-modular (also called RNS, Residue Number System) $p$-adic
 lifting.
 We further improve this variant in several ways to deliver a parallel
 RNS $p$-adic lifting solver. The novel
@@ -122,17 +122,18 @@ Algorithm~\ref{alg:ParMultiModSolve} reflects these improvements with
 the two following salient features:
 \begin{enumerate}
 \item The costly updates in the main loop of \cite{ChSt05} were
-  performed via matrix-vector arbitrary precision multiplications over
-  the integers with a second RNS basis.
-  We instead gather those updates in order to perform instead a
-  matrix-matrix multiplication.
+  performed via matrix-vector  multiplications with over
+  the arbitrary precision integers with a second RNS basis.
+  We instead gather these updates into  a single
+  matrix-matrix multiplication, having better cache efficiency and more suitable
+  for parallelization.
   This can be seen in line~\ref{lin:MMZ} of
   Algorithm~\ref{alg:ParMultiModSolve}.
-\item We mix this algorithm with the parallel RNS improvement
+\item We combine this algorithm with the parallel RNS improvement
   of~\cite{DGLS18} and restrict the second RNS basis to primes
   individually larger than the
-  multi-modular high-level ones in order to speed up the RNS/integer
-  conversions.
+  ones of the  higher-level RNS system, in order to have a free reduction of the
+  input into the second RNS/integer basis.
 \end{enumerate}
 
 %\begin{algorithm}[htb]
@@ -207,26 +208,38 @@ the two following salient features:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \section{High performance parallelization}
 
-The implementations referred to for this deliverable are made in the \Linbox library.
+The implementations referred to for this deliverable are made available in the
+\Linbox library. Experiments were performed on the Luke and Dahu clusters of the
+GRICAD-CIMENT\footnote{\url{https://gricad.univ-grenoble-alpes.fr/}} HPC
+federation of Grenoble site. The 2 multicore servers funded by OpenDreamKit
+project have been 
+integrated within the luke cluster and share with the community (with  highest
+priority access to OpenDreamKit members). In exchange, we were able to
+experiment with any server on the data-center. This allowed us to access to a
+high-end GPU server, and more importantly, to a cluster with many multiple homogeneous
+nodes, the cost of which requires the implementation of such federation of user
+projects.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{MPI based Chinese remainder algorithm}
 
-\begin{itemize}
-\item  Full MPI vs Hybrid MPI-OMP (memory savings).
-\item Asymptotically fast vector Chinese remainder $\Rightarrow$ not a bottleneck anymore
-\end{itemize}
+%% \begin{itemize}
+%% \item  Full MPI vs Hybrid MPI-OMP (memory savings).
+%% \item Asymptotically fast vector Chinese remainder $\Rightarrow$ not a bottleneck anymore
+%% \end{itemize}
 
-\TODO{Pretty convincing figure about scaling factors! Maybe add a line
-  representing what a perfect parallelisation would achieve for
-  comparison? How comes that the size of the matrix barely matters?}
+%% \TODO{Pretty convincing figure about scaling factors! Maybe add a line
+%%   representing what a perfect parallelisation would achieve for
+%%   comparison? How comes that the size of the matrix barely matters?}
+%% CP: because we change the bitsize so that the overall worload remain more or
+%% less the same.
 
 We first report on the implementation of the parallelization of
-Algorithm~\ref{alg:CRTRS} with different matrix dimensions and entry
+Algorithm~\ref{alg:CRTRS} with various matrix dimensions and entry
 bitsize. 
 On a cluster where each node is equipped
-with $2{\times}16$ Intel Gold-6130 @2.1Ghz cores, we obtain the
+with $2{\times}32$ Intel Gold-6130 @2.1Ghz cores, we obtain the
 timings reported in
 Figure~\ref{fig:mpi_histo}.
 This is for instance a speed up of about $160$ on $8$ nodes.
@@ -239,16 +252,16 @@ This is for instance a speed up of about $160$ on $8$ nodes.
 \end{figure}
 
 The parallelization here is performed only on the main loop,
-that is lines~\ref{lin:CRT:RNSA} and~\ref{lin:CRT:RNSb} (RNS) and
-line~\ref{lin:CRT:solve} (Solve), whereas the Chinese remaindering
+that is lines~\ref{lin:CRT:RNSA} and~\ref{lin:CRT:RNSb} (RNS reduction) and
+line~\ref{lin:CRT:solve} (Solve), whereas the Chinese Remainder reconstruction
 (line~\ref{lin:CRT:CRT} -- CRT) 
 and the rational reconstruction (line~\ref{lin:CRT:RR} -- RR) are
-performed on a single core. 
-Indeed, Table~\ref{tab:MPICRT}, shows the details of the obtained
-timings and we see that the Wall time of these two latter parts is not
-dominating.
-
-
+performed on a single core.
+Note that the Chinese remaindering reconstruction phase, with such large
+dimension and bitsize could become a bottlneck with a classic
+implementation. However the asymptotically fast algorithm in \Linbox for this
+task, made this operation negligeable compared to the core of the iteration.
+%
 \begin{table}[htb]
 \renewcommand{\arraystretch}{1.1}
 \begin{tabular}{rrrrrrrrr}
@@ -269,13 +282,18 @@ dominating.
 \hline
 \vspace{0pt}
 \end{tabular}
-\caption{Respective timings of the steps of the MPI CRT}\label{tab:MPICRT}
+\caption{Respective timings of the steps of the MPI Chinese Remainder based
+  rational solver on 8 nodes of 32 Intel Xeon Gold 6130 code.}\label{tab:MPICRT}
 \end{table}
+The profiling of the timings, given in Table~\ref{tab:MPICRT}, confirms that the
+Wall time of these two latter parts is not dominating. As a consequence, it was
+parallelization of these operations was not of high priority and we chose to
+delay to future work.
 
 We also report in Table~\ref{tab:HybridMPIOMP} on some prototype
 hybrid MPI/OpenMP implementation where on each node we switch to use
-SMP parallelism with OpenMP instead of having MPI handling also the
-in-node parallelism. On this particular cluster OpenMP is, for some
+shared memory parallelism with OpenMP instead of having MPI handling also the
+in-node parallelism. On this particular implementation and cluster OpenMP is, for some
 unkown reason, much slower than MPI and therefore our Hybrid algorithm
 is slower than the pure MPI implementation. Nonetheless this hybrid
 implementation allows to not duplicate the data within each node and
@@ -314,14 +332,22 @@ two million bits per coefficient of the output).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{A multicore $p$-adic lifting}
-Thanks to our implementation of Algorithm~\ref{alg:ParMultiModSolve},
-we also obtain improvements on arbitrary precision parallel rational
-solving.
+
+As an alternative to the overwhelming workload of the Chinese Remainder
+approach, we now focus on Algorithm~\ref{alg:ParMultiModSolve} and its
+implementation in a multicore parallel computing setting.
 All the experiments in this Section were obtained on a single machine
 equipped with $4{\times}18$ E7-8860v4 cores @2.2Ghz.
 
+We implemented Algorithm~\ref{alg:ParMultiModSolve} in the \Linbox
+library as a full-featured routine with the standard of library code and not of
+a prototype benchmarking code. It required therefore a significant effort to
+first cleanup, fix, and redesign the existing $p$-adic lifting code and its API
+in the library. Then the new implementation could be smoothly inserted in this
+API and the library user can now smoothly switch from one implementation to the
+other and enable parallelization.
 
-Roughly, the dominant costs of Algorithm~\ref{alg:ParMultiModSolve}
+The dominant costs of Algorithm~\ref{alg:ParMultiModSolve}
 are within lines~\ref{lin:INV}, \ref{lin:MVmod} and~\ref{lin:MMZ},
 which we will denote by the INV (matrix inversion), MVmod
 (matrix-vector iteration) and MMZ (matrix-matrix multiplication over
@@ -331,20 +357,19 @@ $\GO{k\ell\cdot{}n^2}$ and $\GO{k\cdot{}n^2\ell^{\omega-1}}$,
 where $\ell$ is the parameter and $k\ell\approx n \cdot
 \frac{\texttt{bitsize}}{\log_2(p)}$ is a constant for any $\ell$.
 
-Thus we see that by increasing $\ell$ we increase the overall number
-of operations, but the hope is to trade some slow operations of MMZ
+Consequently, increasing $\ell$ leads to an increase of the overall number
+of operations, but it will hopefully trade some slow operations of MMZ
 for some very fast operations of INV.
 We also see that the dominant cost should remain unchanged within MVmod, but
-that by increasing $\ell$ we increase the potential for
-parallelism.
+increasing $\ell$ will also increase the potential for parallelism.
 
 This analysis is backed up by experiments as we show in the following.
 %
 First, the technique of the double RNS basis, combined with the
 gathering of updates is shown, in sequential, in
 Figures~\ref{fig:rnsdixon_seqprimescount}
-and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending $\ell$
-(``primes'' is the Figures), we increase the overall work but this
+and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending the number of primes
+$\ell$, we increase the overall work but this 
 can pay at different thresholds for different matrix dimensions and
 bitsizes. In sequential we can see some $30\%$ gains on a single core,
 even for small matrices.
@@ -363,35 +388,39 @@ even for small matrices.
 \caption{Sequential RNS Dixon with fixed matrix dimension.}\label{fig:rnsdixon_seqbitsize}
 \end{figure}
 
-Now in parallel we obtain good speed-up, as shown in
-Figures~\ref{fig:rnsdixon_parallel_threads}
-and~\ref{fig:rnsdixon_parallel}. Indeed, there, we see that the
-overall work increases with the increase of $\ell$ (see the top
-histograms in Figure~\ref{fig:rnsdixon_parallel}).
-But this increase is negligible when the matrix size is larger (almost
-no more ``red'' in the bottom histogram), and the parallelization pays
-of ($9.6$ speed-up for our new Algorithm with $16$ cores in the bottom
-histogram).
-
-\begin{figure}[htb]
+Now in parallel, we obtain good speed-up, as shown in
+Figures~\ref{fig:rnsdixon_parallel_threads} and~\ref{fig:rnsdixon_parallel}.
+Figure~\ref{fig:rnsdixon_parallel_threads} illustrates the fact that a rather
+good scaling can be obtained as long as the number of primes $\ell$ remain
+larger than the number of threads.
+\begin{figure}[htbp]
 \begin{center}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-threads}
 \end{center}
 \caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel_threads}
 \end{figure}
-
-\begin{figure}[htb]
+\begin{figure}[htbp]
 \begin{center}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b_total}
 \end{center}
 \caption{Balance between matrix inversion (INV) and lifting phases
   (MVmod+MMZ). In each cluster, leftmost column correspond to a
-  sequential run, then to $4$ and $8$ cores andwith the rightmost
-column to a run with $16$ cores}\label{fig:rnsdixon_parallel}
+  sequential run, then to $4$, $8$ and $16$ cores.}\label{fig:rnsdixon_parallel}
 \end{figure}
 
-Further work is required to tune up at a finer grain the different
+Figure~\ref{fig:rnsdixon_parallel} illustrates how the number primes $\ell$
+balances the workload between inversions and lifting. On a small instance (top
+part), the overall work may increases for large $\ell$. This problem disapears
+for larger instances (bottom part), as the efficiency of the INV operation on
+large matrices, make it negligible (almost
+no more ``red'' in the bottom histogram), and the parallelization pays
+of ($9.6$ speed-up for our new Algorithm with $16$ cores in the bottom
+histogram).
+
+
+
+Further work is required to tune up at a finer grain the various
 levels of parallelism used in the large precision RNS matrix-matrix
 multiplication or to automatically deduce the right choice of
 parameter $\ell$ from the characteristics of the matrix and the right
