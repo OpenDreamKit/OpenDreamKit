@@ -9,7 +9,7 @@
 Solving exactly over the field of rational numbers, requires a careful attention to the size of the numbers being
 manipulated. Indeed, rational numbers are represented by a pair of multiprecision integers, a numerator and
 denominator. Applying the standard direct methods designed for solving approximately systems with floating point
-rational numbers would lead to a blowup in the bitsize of the coefficients, and result in overwelming computation
+rational numbers would lead to a blowup in the bit-size of the coefficients, and result in overwhelming computation
 overheads, with time complexities often not even polynomial.
 
 \subsection{State of the art}
@@ -22,11 +22,11 @@ approximately using floating point numbers.
 
 First, the use of rational reconstruction makes it possible to recover the rational solution from the solution of the same
 system projected into a large enough finite field.
-This approach avoids the  swell in the bitsize of the intermediate computations and compute with the arithmetic precision of the output for a total cost of $\GO{n^5}$.
+This approach avoids the  swell in the bit-size of the intermediate computations and compute with the arithmetic precision of the output for a total cost of $\GO{n^5}$.
 Then, using  multi-modular representation and the Chinese Remainder Theorem, reduces this cost  to $\SO{n^4}$.
-This cost, corresponding to the arithmetic complexity of Gaussian elimination multiplied by the bitsize of the output,
-is sub-optimal. By better balancing the computation load between numerous arithmetic operation on small bitsize and
-few operations on large bitsize, one can hope to further reduce this complexity. This is achieved by $p$-adic lifting
+This cost, corresponding to the arithmetic complexity of Gaussian elimination multiplied by the bit-size of the output,
+is sub-optimal. By better balancing the computation load between numerous arithmetic operation on small bit-size and
+few operations on large bit-size, one can hope to further reduce this complexity. This is achieved by $p$-adic lifting
 techniques~\cite{Dix82}, reaching a $\SO{n^3}$ time complexity. Improving the complexity for this problem is still a
 very active topic: \cite{Sto05} reduced it to $\SO{n^\omega}$ using randomization, and the same
 complexity can now be reached deterministically since this year~\cite{BLS19}.
@@ -78,18 +78,18 @@ phases by a Chinese remainder reconstruction followed by a vector rational recon
 \end{algorithm}
 
 In sequential versions of this algorithm, the Chinese remainder and rational reconstruction can be performed on the fly
-after each iteration, in order to detect stabilization and allow to terminate the loop earlier than what the possibily
-pessimistic bound on the solution requires. In parallel, this would generate depency between the parallel tasks and we
+after each iteration, in order to detect stabilization and allow to terminate the loop earlier than what the possibly
+pessimistic bound on the solution requires. In parallel, this would generate dependency between the parallel tasks and we
 thus chose to disable this feature.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{The $p$-adic lifting approach}
 
-The $p$-adic lifting approach, developped in~\cite{Dix82} is based on a Newton iteration to compute iteratively the
+The $p$-adic lifting approach, developed in~\cite{Dix82} is based on a Newton iteration to compute iteratively the
 digits in the $p$-adic expansion of the solution vector. This algorithm manages to reduce the cost of Chinese Remaindering
 by balancing two types of operations: expensive linear algebra (matrix inverse or LU decomposition) is
-perfomed only once over in small precision (a finite field) while the high precision part of the computation is
+performed only once over in small precision (a finite field) while the high precision part of the computation is
 contained in a sequence of less expensive linear algebra operations (matrix-vector products).
 %\begin{algorithm}[htb]
 %  \caption{$p$-adic lifting based rational solver}
@@ -211,7 +211,7 @@ the two following salient features:
 The implementations referred to for this deliverable are made available in the
 \Linbox library. Experiments were performed on the Luke and Dahu clusters of the
 GRICAD-CIMENT\footnote{\url{https://gricad.univ-grenoble-alpes.fr/}} HPC
-federation of Grenoble site. The 2 multicore servers funded by OpenDreamKit
+federation of Grenoble site. The 2 multi-core servers funded by OpenDreamKit
 project have been 
 integrated within the luke cluster and share with the community (with  highest
 priority access to OpenDreamKit members). In exchange, we were able to
@@ -237,9 +237,9 @@ projects.
 
 We first report on the implementation of the parallelization of
 Algorithm~\ref{alg:CRTRS} with various matrix dimensions and entry
-bitsize. 
+bit-size. 
 On a cluster where each node is equipped
-with $2{\times}32$ Intel Gold-6130 @2.1Ghz cores, we obtain the
+with $2{\times}32$ Intel Gold-6130 @2.1GHz cores, we obtain the
 timings reported in
 Figure~\ref{fig:mpi_histo}.
 This is for instance a speed up of about $160$ on $8$ nodes.
@@ -258,17 +258,17 @@ line~\ref{lin:CRT:solve} (Solve), whereas the Chinese Remainder reconstruction
 and the rational reconstruction (line~\ref{lin:CRT:RR} -- RR) are
 performed on a single core.
 Note that the Chinese remaindering reconstruction phase, with such large
-dimension and bitsize could become a bottlneck with a classic
+dimension and bit-size could become a bottleneck with a classic
 implementation. However the asymptotically fast algorithm in \Linbox for this
-task, made this operation negligeable compared to the core of the iteration.
+task, made this operation negligible compared to the core of the iteration.
 %
 \begin{table}[htb]
 \renewcommand{\arraystretch}{1.1}
 \begin{tabular}{rrrrrrrrr}
 \hline
-\multirow{2}{*}{Cores} & \multirow{2}{*}{N}& \multirow{2}{*}{Bitsize}
+\multirow{2}{*}{Cores} & \multirow{2}{*}{N}& \multirow{2}{*}{Bit-size}
 & \multirow{2}{*}{$\ell$}& RNS & Solve & CRT& RR & Total \\
- & &  & & cpu (s) & cpu (s) & Wall (s)& Wall (s) & Wall (s) \\
+ & &  & & CPU (s) & CPU (s) & Wall (s)& Wall (s) & Wall (s) \\
 \hline
  64  & 1000 & 1000 & 91364 & 11537.1 & 17080.8 & 67.4 & 69.6 & 619.6 \\
  64  & 2000 & 200& 37362 & 6740.0 & 31138.3 & 50.1 & 24.9 & 702.7 \\
@@ -294,7 +294,7 @@ We also report in Table~\ref{tab:HybridMPIOMP} on some prototype
 hybrid MPI/OpenMP implementation where on each node we switch to use
 shared memory parallelism with OpenMP instead of having MPI handling also the
 in-node parallelism. On this particular implementation and cluster OpenMP is, for some
-unkown reason, much slower than MPI and therefore our Hybrid algorithm
+unknown reason, much slower than MPI and therefore our Hybrid algorithm
 is slower than the pure MPI implementation. Nonetheless this hybrid
 implementation allows to not duplicate the data within each node and
 therefore enables the solution of much larger matrices, for instance a
@@ -309,20 +309,20 @@ two million bits per coefficient of the output).
  Nodes  &  2      &  2      &  2      &  2      &  2      &  2\\
  Threads  &  1  &  16  &  1  &  16  &  1  &  16 \\
  N      &  1000   &  1000   &  2000   &  2000   &  4000   &  4000  \\
- Bitsize &  1000  &  1000  &  200   &  200   &  20    &  20  \\
- Walltime (s)  &  425.5   &  880.2   &  434.4   &  812.9   &  354.0   &  866.2  \\
+ Bit-size &  1000  &  1000  &  200   &  200   &  20    &  20  \\
+ Wall-time (s)  &  425.5   &  880.2   &  434.4   &  812.9   &  354.0   &  866.2  \\
 \hline
  Nodes  &  4      &  4      &  4      &  4      &  4      &  4      &  6      &  6    \\
  Threads  &  1  &  16  &  1  &  16  &  1  &  16  &  1  &  16  \\
  N      &  1000   &  1000   &  2000   &  2000   &  4000   &  4000   &  10000  &  10000  \\
- Bitsize &  1000  &  1000  &  200   &  200   &  20    &  20   &  40    &  40    \\
- Walltime (s)  &  302.4   &  519.5   &  285.2   &  422.0   &  240.6   &  422.7   &  - &  12026.3   \\
+ Bit-size &  1000  &  1000  &  200   &  200   &  20    &  20   &  40    &  40    \\
+ Wall-time (s)  &  302.4   &  519.5   &  285.2   &  422.0   &  240.6   &  422.7   &  - &  12026.3   \\
 \hline
  Nodes  &  8      &  8      &  8      &  8      &  8      &  8      &  8      &  8      \\
  Threads  &  1  &  16  &  1  &  16  &  1  &  16  &  1  &  16  \\
  N      &  1000   &  1000   &  2000   &  2000   &  4000   &  4000   &  10000  &  10000  \\
- Bitsize &  1000  &  1000  &  200   &  200  &  20    &  20    &  100   &  100   \\
- Walltime (s)  &  248.4   &  417.0   &  242.0    &  300.8   &  185.4   &  325.6   &  -   &  21443.8   \\
+ Bit-size &  1000  &  1000  &  200   &  200  &  20    &  20    &  100   &  100   \\
+ Wall-time (s)  &  248.4   &  417.0   &  242.0    &  300.8   &  185.4   &  325.6   &  -   &  21443.8   \\
 \hline
 \vspace{0pt}
 \end{tabular}
@@ -331,13 +331,13 @@ two million bits per coefficient of the output).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
-\subsection{A multicore $p$-adic lifting}
+\subsection{A multi-core $p$-adic lifting}
 
 As an alternative to the overwhelming workload of the Chinese Remainder
 approach, we now focus on Algorithm~\ref{alg:ParMultiModSolve} and its
-implementation in a multicore parallel computing setting.
+implementation in a multi-core parallel computing setting.
 All the experiments in this Section were obtained on a single machine
-equipped with $4{\times}18$ E7-8860v4 cores @2.2Ghz.
+equipped with $4{\times}18$ E7-8860v4 cores @2.2GHz.
 
 We implemented Algorithm~\ref{alg:ParMultiModSolve} in the \Linbox
 library as a full-featured routine with the standard of library code and not of
@@ -371,7 +371,7 @@ Figures~\ref{fig:rnsdixon_seqprimescount}
 and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending the number of primes
 $\ell$, we increase the overall work but this 
 can pay at different thresholds for different matrix dimensions and
-bitsizes. In sequential we can see some $30\%$ gains on a single core,
+bit-sizes. In sequential we can see some $30\%$ gains on a single core,
 even for small matrices.
 
 
@@ -411,7 +411,7 @@ larger than the number of threads.
 
 Figure~\ref{fig:rnsdixon_parallel} illustrates how the number primes $\ell$
 balances the workload between inversions and lifting. On a small instance (top
-part), the overall work may increases for large $\ell$. This problem disapears
+part), the overall work may increases for large $\ell$. This problem disappears
 for larger instances (bottom part), as the efficiency of the INV operation on
 large matrices, make it negligible (almost
 no more ``red'' in the bottom histogram), and the parallelization pays
@@ -429,11 +429,11 @@ hand side.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{GPU enabled libraries}
 
-Graphic Processing Unit (GPU) have become a widespread component in modern high performance computing plateforms. They
+Graphic Processing Unit (GPU) have become a widespread component in modern high performance computing platforms. They
 offer a very high computing throughput for a contained power consumption but only for applications well suited for their
 constraints:
 \begin{itemize}
-\item the GPU has its own onboard memory and thus data transfer from and to the main memory are expensive and may
+\item the GPU has its own on-board memory and thus data transfer from and to the main memory are expensive and may
   quickly become a bottleneck
 \item the type of computation must be very regular (same code kernel applied to multiple sets of data) with as few
   branching and control instructions as possible.
@@ -469,9 +469,9 @@ implementation and the sequential implementation.
 The speed-up of one GPU with respect to the sequential implementation is up to a factor 39.5 and up to 2.46 with respect
 to a parallel execution on 32 cores.
 
-Note that the efficiency of the GPU runs is slowly increasing and therefore perform slower than the multicore
-implementation on smaller dimensions. This is due to the communication  time spent in transfering the data to and from
-the GPU. This overhead is quadratic in the matrix dimension and thus becomes negligeable compared to as the dimension
+Note that the efficiency of the GPU runs is slowly increasing and therefore perform slower than the multi-core
+implementation on smaller dimensions. This is due to the communication  time spent in transferring the data to and from
+the GPU. This overhead is quadratic in the matrix dimension and thus becomes negligible compared to as the dimension
 increases.
 
 This is the reason why other routines relying on many matrix multiplication, such as Gaussian elimination, matrix
