@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \section{Algorithmic aspect}
 
-Solving exactly over the field of rational numbers, requires a careful attention to the size of the numbers being
+Solving exactly over the field of rational numbers, requires paying a careful attention to the size of the numbers being
 manipulated. Indeed, rational numbers are represented by a pair of multiprecision integers, a numerator and
 denominator. Applying the standard direct methods designed for solving approximately systems with floating point
 rational numbers would lead to a blowup in the bit-size of the coefficients, and result in overwhelming computation
@@ -22,12 +22,12 @@ approximately using floating point numbers.
 
 First, the use of rational reconstruction makes it possible to recover the rational solution from the solution of the same
 system projected into a large enough finite field.
-This approach avoids the  swell in the bit-size of the intermediate computations and compute with the arithmetic precision of the output for a total cost of $\GO{n^5}$.
+This approach avoids the  swell in the bit-size of the intermediate computations and computes with the arithmetic precision of the output for a total cost of $\GO{n^5}$.
 Then, using  multi-modular representation and the Chinese Remainder Theorem, reduces this cost  to $\SO{n^4}$.
 This cost, corresponding to the arithmetic complexity of Gaussian elimination multiplied by the bit-size of the output,
-is sub-optimal. By better balancing the computation load between numerous arithmetic operation on small bit-size and
+is sub-optimal. By better balancing the computation load between numerous arithmetic operations on small bit-size and
 few operations on large bit-size, one can hope to further reduce this complexity. This is achieved by $p$-adic lifting
-techniques~\cite{Dix82}, reaching a $\SO{n^3}$ time complexity. Improving the complexity for this problem is still a
+techniques~\cite{Dix82}, reaching an $\SO{n^3}$ time complexity. Improving the complexity for this problem is still a
 very active topic: \cite{Sto05} reduced it to $\SO{n^\omega}$ using randomization, and the same
 complexity can now be reached deterministically since this year~\cite{BLS19}.
 
@@ -78,7 +78,7 @@ phases by a Chinese remainder reconstruction followed by a vector rational recon
 \end{algorithm}
 
 In sequential versions of this algorithm, the Chinese remainder and rational reconstruction can be performed on the fly
-after each iteration, in order to detect stabilization and allow to terminate the loop earlier than what the possibly
+after each iteration, in order to detect stabilization and allow one to terminate the loop earlier than what the possibly
 pessimistic bound on the solution requires. In parallel, this would generate dependency between the parallel tasks and we
 thus chose to disable this feature.
 
@@ -122,10 +122,10 @@ Algorithm~\ref{alg:ParMultiModSolve} reflects these improvements with
 the two following salient features:
 \begin{enumerate}
 \item The costly updates in the main loop of \cite{ChSt05} were
-  performed via matrix-vector  multiplications with over
+  performed via matrix-vector  multiplications over
   the arbitrary precision integers with a second RNS basis.
   We instead gather these updates into  a single
-  matrix-matrix multiplication, having better cache efficiency and more suitable
+  matrix-matrix multiplication, which has better cache efficiency and is more suitable
   for parallelization.
   This can be seen in line~\ref{lin:MMZ} of
   Algorithm~\ref{alg:ParMultiModSolve}.
@@ -213,7 +213,7 @@ The implementations referred to for this deliverable are made available in the
 GRICAD-CIMENT\footnote{\url{https://gricad.univ-grenoble-alpes.fr/}} HPC
 federation of Grenoble site. The 2 multi-core servers funded by OpenDreamKit
 project have been 
-integrated within the luke cluster and share with the community (with  highest
+integrated within the luke cluster and shared with the community (with  highest
 priority access to OpenDreamKit members). In exchange, we were able to
 experiment with any server on the data-center. This allowed us to access to a
 high-end GPU server, and more importantly, to a cluster with many multiple homogeneous
@@ -286,19 +286,19 @@ task, made this operation negligible compared to the core of the iteration.
   rational solver on 8 nodes of 32 Intel Xeon Gold 6130 code.}\label{tab:MPICRT}
 \end{table}
 The profiling of the timings, given in Table~\ref{tab:MPICRT}, confirms that the
-Wall time of these two latter parts is not dominating. As a consequence, it was
+Wall time of these two latter parts is not dominating. As a consequence,
 parallelization of these operations was not of high priority and we chose to
-delay to future work.
+delay this to future work.
 
-We also report in Table~\ref{tab:HybridMPIOMP} on some prototype
+We also report in Table~\ref{tab:HybridMPIOMP} on a prototype
 hybrid MPI/OpenMP implementation where on each node we switch to use
 shared memory parallelism with OpenMP instead of having MPI handling also the
 in-node parallelism. On this particular implementation and cluster OpenMP is, for some
 unknown reason, much slower than MPI and therefore our Hybrid algorithm
 is slower than the pure MPI implementation. Nonetheless this hybrid
 implementation allows to not duplicate the data within each node and
-therefore enables the solution of much larger matrices, for instance a
-solving a random $10000{\times}10000$ system with $100$ bits entries
+therefore enables the solution of much larger matrices, for instance
+solving a random $10000{\times}10000$ system with $100$ bit entries
 and obtaining an exact solution vector of $2.5$GB (that is more than
 two million bits per coefficient of the output).
 
@@ -336,12 +336,12 @@ two million bits per coefficient of the output).
 As an alternative to the overwhelming workload of the Chinese Remainder
 approach, we now focus on Algorithm~\ref{alg:ParMultiModSolve} and its
 implementation in a multi-core parallel computing setting.
-All the experiments in this Section were obtained on a single machine
+All the experiments in this Section were conducted on a single machine
 equipped with $4{\times}18$ E7-8860v4 cores @2.2GHz.
 
 We implemented Algorithm~\ref{alg:ParMultiModSolve} in the \Linbox
 library as a full-featured routine with the standard of library code and not of
-a prototype benchmarking code. It required therefore a significant effort to
+prototype benchmarking code. It required therefore a significant effort to
 first cleanup, fix, and redesign the existing $p$-adic lifting code and its API
 in the library. Then the new implementation could be smoothly inserted in this
 API and the library user can now smoothly switch from one implementation to the
@@ -349,13 +349,13 @@ other and enable parallelization.
 
 The dominant costs of Algorithm~\ref{alg:ParMultiModSolve}
 are within lines~\ref{lin:INV}, \ref{lin:MVmod} and~\ref{lin:MMZ},
-which we will denote by the INV (matrix inversion), MVmod
+which we will denote by  INV (matrix inversion), MVmod
 (matrix-vector iteration) and MMZ (matrix-matrix multiplication over
 $\mathbb{Z}$).
 Their respective costs are given by $\GO{\ell\cdot{}n^\omega}$,
 $\GO{k\ell\cdot{}n^2}$ and $\GO{k\cdot{}n^2\ell^{\omega-1}}$,
-where $\ell$ is the parameter and $k\ell\approx n \cdot
-\frac{\texttt{bitsize}}{\log_2(p)}$ is a constant for any $\ell$.
+where $\ell$ is the parameter and the product $k\ell\approx n \cdot
+\frac{\texttt{bitsize}}{\log_2(p)}$ is a constant not depending on $\ell$.
 
 Consequently, increasing $\ell$ leads to an increase of the overall number
 of operations, but it will hopefully trade some slow operations of MMZ
@@ -366,7 +366,7 @@ increasing $\ell$ will also increase the potential for parallelism.
 This analysis is backed up by experiments as we show in the following.
 %
 First, the technique of the double RNS basis, combined with the
-gathering of updates is shown, in sequential, in
+gathering of updates is shown, for sequential code, in
 Figures~\ref{fig:rnsdixon_seqprimescount}
 and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending the number of primes
 $\ell$, we increase the overall work but this 
@@ -388,7 +388,7 @@ even for small matrices.
 \caption{Sequential RNS Dixon with fixed matrix dimension.}\label{fig:rnsdixon_seqbitsize}
 \end{figure}
 
-Now in parallel, we obtain good speed-up, as shown in
+Now for parallel code, we obtain good speed-up, as shown in
 Figures~\ref{fig:rnsdixon_parallel_threads} and~\ref{fig:rnsdixon_parallel}.
 Figure~\ref{fig:rnsdixon_parallel_threads} illustrates the fact that a rather
 good scaling can be obtained as long as the number of primes $\ell$ remain
@@ -405,22 +405,22 @@ larger than the number of threads.
   \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b_total}
 \end{center}
 \caption{Balance between matrix inversion (INV) and lifting phases
-  (MVmod+MMZ). In each cluster, leftmost column correspond to a
+  (MVmod+MMZ). In each cluster, the leftmost column corresponds to a
   sequential run, then to $4$, $8$ and $16$ cores.}\label{fig:rnsdixon_parallel}
 \end{figure}
 
-Figure~\ref{fig:rnsdixon_parallel} illustrates how the number primes $\ell$
+Figure~\ref{fig:rnsdixon_parallel} illustrates how the number of primes $\ell$
 balances the workload between inversions and lifting. On a small instance (top
-part), the overall work may increases for large $\ell$. This problem disappears
+part), the overall work may increase for large $\ell$. This problem disappears
 for larger instances (bottom part), as the efficiency of the INV operation on
-large matrices, make it negligible (almost
+large matrices make it negligible (almost
 no more ``red'' in the bottom histogram), and the parallelization pays
-of ($9.6$ speed-up for our new Algorithm with $16$ cores in the bottom
+off ($9.6$ speed-up for our new Algorithm with $16$ cores in the bottom
 histogram).
 
 
 
-Further work is required to tune up at a finer grain the various
+Further work is required to fine tune the various
 levels of parallelism used in the large precision RNS matrix-matrix
 multiplication or to automatically deduce the right choice of
 parameter $\ell$ from the characteristics of the matrix and the right
@@ -429,7 +429,7 @@ hand side.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
 \subsection{GPU enabled libraries}
 
-Graphic Processing Unit (GPU) have become a widespread component in modern high performance computing platforms. They
+Graphic Processing Units (GPUs) have become a widespread component in modern high performance computing platforms. They
 offer a very high computing throughput for a contained power consumption but only for applications well suited for their
 constraints:
 \begin{itemize}
@@ -439,24 +439,24 @@ constraints:
   branching and control instructions as possible.
 \end{itemize}
 
-Matrix multiplication is among these applications which can easily benefit from the power of GPUs. Other computations
-such as Gaussian elimination, require branching, data permutations, divisions and other operations much less suited for
+Matrix multiplication is among the applications which can easily benefit from the power of GPUs. Other computations
+such as Gaussian elimination require branching, data permutations, divisions and other operations much less suited for
 GPUs and therefore require communications back and forth between the main memory and the GPU memory.
 
 Nvidia provides a set of BLAS routines, for dense linear algebra of floating point numbers, supporting their GPUs in the
 library CUBLAS.
 
-The \texttt{fflas-ffpack} library aims at providing a similar set of routines over a finite field by relying exploiting a
+The \texttt{fflas-ffpack} library aims at providing a similar set of routines over a finite field by exploiting a
 numerical BLAS under the hood. In this first attempt at supporting GPU's for finite field linear algebra, we therefore
 focused on interfacing CUBLAS in the \texttt{fflas-ffpack} library so that matrix multiplication over a finite field
 could benefit from CUBLAS' routines.
 
-The user of the library only need to specify at configure time a path where a CUDA library is installed:
+The user of the library only needs to specify at configure time a path where a CUDA library is installed:
 \begin{verbatim}
 $> ./configure --with-cuda=/applis/dahu/cuda/cuda-10.0/lib64
 \end{verbatim}
 
-He can then transparently run his code and benefit from the speedup of the BLAS library. Figure~\ref{fig:fgemm_gpu}
+The user can then transparently run their code and benefit from the speedup of the BLAS library. Figure~\ref{fig:fgemm_gpu}
 shows the computation speed achieved on an NVIDIA Tesla V100 GPU, compared to the existing multi-core parallel
 implementation and the sequential implementation.
 
@@ -466,15 +466,15 @@ implementation and the sequential implementation.
 \end{center}
 \caption{Computation speed of FFLAS-FFPACK matrix product over $\mathbb{Z}/131071\mathbb{Z}$ on a server with 1 NVidia  Tesla V100 GPU, and 32 Intel Xeon Gold 6130 cores.}\label{fig:fgemm_gpu}
 \end{figure}
-The speed-up of one GPU with respect to the sequential implementation is up to a factor 39.5 and up to 2.46 with respect
+The speed-up of one GPU with respect to the sequential implementation is up to a
+factor of 39.5 faster and up to 2.46 times faster with respect
 to a parallel execution on 32 cores.
 
 Note that the efficiency of the GPU runs is slowly increasing and therefore perform slower than the multi-core
 implementation on smaller dimensions. This is due to the communication  time spent in transferring the data to and from
-the GPU. This overhead is quadratic in the matrix dimension and thus becomes negligible compared to as the dimension
-increases.
-
-This is the reason why other routines relying on many matrix multiplication, such as Gaussian elimination, matrix
+the GPU. This overhead is quadratic in the matrix dimension and thus becomes
+negligible compared to the actual computation time as the dimension increases.
+This is the reason why other routines relying on many calls to matrix multiplication, such as Gaussian elimination, matrix
 inverse, etc, cannot blindly benefit from the efficiency of this matrix multiplication routine. Further work will
 consist in implementing dedicated finite field Gaussian elimination routines on the GPU, and/or exploring the various
 techniques to schedule the memory transfer so that they overlap with computation.
