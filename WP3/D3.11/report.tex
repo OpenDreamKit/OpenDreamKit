@@ -26,94 +26,12 @@
 
 \tableofcontents
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+% The multithreading features of \Pari get naturally exposed in \Sage.
+% However, at this stage, parallelism can only be controlled at compile
+% time, not at run time, and remains fragile when multithreading is used
+% concomitantly elsewhere in \Sage. This makes it unsuitable for
+% production release of \Sage.
 
-End-user computational mathematics systems such as \SageMath must deal with 
-conflicting constraints such as:
-\begin{compactenum}
-\item covering a broad, if not exhaustive, range of features,
-\item in a high level and user-friendly API,
-\item relying on highly tuned dedicated libraries or sub-systems to
-  achieve competitive performance.
-\end{compactenum}
-
-A common use case of such software is to perform  experimental mathematics,
-for e.g. testing conjectures on as many as possible instances with dimensions as
-large as possible. In this perspective, users seek for computational efficiency
-and the ability to harness the power of high-end HPC servers or clusters.
-
-Work-package 5 has resulted in either enabling or drastically enhancing the high
-performance capabilities of several computational mathematics systems
-(\longtaskref{hpc}{hpc-pari}, \longtaskref{hpc}{hpc-gap} and
-\longtaskref{hpc}{hpc-singular}) or of dedicated libraries
-(\longtaskref{hpc}{hpc-linbox}).
-%
-Based on these results, we now investigate how to expose the HPC capabilities of
-those components to the end-user level in the \SageMath system.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Difficulties in composing parallel software systems}
-
-In our  investigations, it appeared that composing a parallel system into
-another system was more challenging than anticipated, for several reasons
-depending on each system.
-\subsection{Using a multi-threaded Singular}
-
-The \Singular system now outsources its multivariate polynomial arithmetic
-to the \texttt{FLINT} library which makes use of a data representation optimised
-for parallel polynomial arithmetic. The native \Singular representation is optimised
-for Gr\"{o}bner basis computations (which can also be run in parallel). In order to
-benefit from this new work, an HPC aware \SageMath would either require effort to
-update the \SageMath system to any changes in the \Singular API since the last
-official \Singular release, or \SageMath would have to be rewritten to bypass \Singular
-and offload multivariate arithmetic directly to \Flint. The latter would be a significant
-effort and not possible for this deliverable. The former would normally happen after
-the next official release of \Singular, which happens approximately yearly. There will
-still be some effort required.
-Such changes are usually extensive across the whole system, as Singular is an external
-computer algebra system in its own right, rather than an isolated library providing one
-or a few functions.
-
-There are advantages to doing this integration work after the next release. According
-to the \Singular team, fast rational functions, factorisation and additional polynomial
-orderings that directly benefit from the new parallel multivariate arithmetic are being
-worked on independently of the ODK project.
-
-
-\subsection{HPC GAP}
-
-A similar situation applies with the progresses on HPC-GAP: for the time being,
-the HPC capabilities of GAP are only available through the HPC-GAP platform and
-exposing them through the \texttt{libgap} library would require a significant effort.
-
-\subsection{Using a multi-threaded \Pari}
-
-As reported in \delivref{hpc}{pari-hpc2}, the number theory library \Pari supports
-multi-threading for various operations.
-\Sage uses \Pari for its number theory functionality.
-Since \Sage simply interfaces \Pari, it should in theory
-be trivial to use \Pari-MT (the multi-threading-enabled configuration of \Pari) in \Sage:
-just enable multi-threading and that's it.
-
-Unfortunately, some problems arise:
-it turns out that \Pari-MT is not compatible with
-threads that are created outside of \Pari's control.
-So, an application that is already multi-threaded cannot use \Pari-MT without additional effort.
-This is in particular a problem for the documentation builder of \Sage,
-which uses \Pari to create images for the documentation.
-Since this can take a long time, \Sage uses Python's
-multiprocessing module for this,
-which (perhaps confusingly) also uses multiple threads.
-
-We expect that this problem can be solved with some additional effort
-in either the \Sage--\Pari interface or within \Pari itself.
-Unfortunately, there was not enough time to further investigate this.
-
-Nevertheless, it is easily possible to use \Pari-MT in \Sage
-if one is careful not to build the documentation,
-nor to use any other kind of multi-threading.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Exposing the parallel finite field linear algebra library \Linbox}
@@ -235,7 +153,8 @@ Figure~\ref{fig:histo_sage} shows computation time of three high level sage rout
 order $20000$, with varying number of cores.
 \begin{figure}[htb]
   \begin{center}
-    \includegraphics[width=.8\textwidth]{Pictures/histo_bigfoot3}
+    \TODO{reintroduce missing picture}
+    %\includegraphics[width=.8\textwidth]{Pictures/histo_bigfoot3}
     \caption{Parallel computation time for some finite field linear algebra operations in SageMath on a 32 core Intel
       Xeon 6130 Gold. Matrices are $20\,000\times 20\,000$ with full rank over $\mathbb{Z}/1\,048\,573\mathbb{Z}$. }
     \label{fig:histo_sage}
@@ -267,6 +186,70 @@ Still, these timings show that very high performances can be attained directly f
 \SageMath, for instance the computation speed on 32 cores reaches 838Gfops\footnote{$1\text{Gfops} = 10^9$ field
   operations per second.} for matrix multiplication and 301 Gfops for
 the determinant.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Challenges of composing parallel software systems}
+
+We now report on our investigations toward exposing in \SageMath the
+parallel features of the subsystem \Singular, \GAP, and \PARI. We
+discuss partial successes, unique challenges, and pathways to
+integration in the production release of \SageMath.
+
+\subsection{Using a multi-threaded \Singular}
+
+The \Singular system now outsources its multivariate polynomial arithmetic
+to the \FLINT library which makes use of a data representation optimised
+for parallel polynomial arithmetic. The native \Singular representation is optimised
+for Gr\"{o}bner basis computations (which can also be run in parallel). In order to
+benefit from this new work, an HPC aware \SageMath would either require effort to
+update the \SageMath system to any changes in the \Singular API since the last
+official \Singular release, or \SageMath would have to be rewritten to bypass \Singular
+and offload multivariate arithmetic directly to \FLINT. The latter would be a significant
+effort and not possible for this deliverable. The former would normally happen after
+the next official release of \Singular, which happens approximately yearly. There will
+still be some effort required.
+Such changes are usually extensive across the whole system, as Singular is an external
+computer algebra system in its own right, rather than an isolated library providing one
+or a few functions.
+
+There are advantages to doing this integration work after the next release. According
+to the \Singular team, fast rational functions, factorisation and additional polynomial
+orderings that directly benefit from the new parallel multivariate arithmetic are being
+worked on independently of the ODK project.
+
+
+\subsection{HPC GAP}
+
+A similar situation applies with the progresses on HPC-GAP: for the time being,
+the HPC capabilities of GAP are only available through the HPC-GAP platform and
+exposing them through the \texttt{libgap} library would require a significant effort.
+
+\subsection{Using a multi-threaded \Pari}
+
+As reported in \delivref{hpc}{pari-hpc2}, the number theory library \Pari supports
+multi-threading for various operations.
+\Sage uses \Pari for its number theory functionality.
+Since \Sage simply interfaces \Pari, it should in theory
+be trivial to use \Pari-MT (the multi-threading-enabled configuration of \Pari) in \Sage:
+just enable multi-threading and that's it.
+
+Unfortunately, some problems arise:
+it turns out that \Pari-MT is not compatible with
+threads that are created outside of \Pari's control.
+So, an application that is already multi-threaded cannot use \Pari-MT without additional effort.
+This is in particular a problem for the documentation builder of \Sage,
+which uses \Pari to create images for the documentation.
+Since this can take a long time, \Sage uses Python's
+multiprocessing module for this,
+which (perhaps confusingly) also uses multiple threads.
+
+We expect that this problem can be solved with some additional effort
+in either the \Sage--\Pari interface or within \Pari itself.
+Unfortunately, there was not enough time to further investigate this.
+
+Nevertheless, it is easily possible to use \Pari-MT in \Sage
+if one is careful not to build the documentation,
+nor to use any other kind of multi-threading.
 
 
 \bibliographystyle{acm}
