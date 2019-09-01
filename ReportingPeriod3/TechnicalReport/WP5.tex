@@ -18,7 +18,7 @@
   %% \item A closer integration of \Linbox in \Sage with improved reliability and
   %%   computing efficiency.
   \item A full-featured parallelisation engine, supporting POSIX threads and
-  MPI, for PARI in production release of the software
+  MPI, for \PariGP in production release of the software
   \item Release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
   %    \item A new super-optimizer for vectorized assembly code and its
   %  exploitation to improve the performances of the MPIR code.
@@ -62,43 +62,45 @@ better scaling with respect to available CPU cores.
 \paragraph{Tasks}
 
 \subparagraph{\longtaskref{hpc}{hpc-pari}}
-Deliverable~\longdelivref{hpc}{pari-hpc1} has been merged
- with \longdelivref{hpc}{pari-hpc2} in the revised workplan.
+Deliverable~\longdelivref{hpc}{pari-hpc1} was merged with
+\longdelivref{hpc}{pari-hpc2} in the revised workplan. The deliverable
+\delivref{hpc}{pari-hpc2} is released on time.
 
-Deliverable~\delivref{hpc}{pari-hpc2} is on time or even ahead of schedule.
-The generic engine for Deliverable~\delivref{hpc}{pari-hpc1} was written and
-finalized in 2015 and 2016 and is in production since PARI-2.9 (released
-11/2016), it supports sequential evaluation (no parallelism), POSIX threads and
-MPI within the same code base.
-Development work since then is targeted at using the engine wherever it makes
-sense in the code base. The current situation (PARI-2.11, released 07/2018)
-includes:
+The release 2.12 of the \PariGP suite features a MultiThread engine,
+used transparently in all tools from the suite: the \Pari library, the
+command line interface \texttt{gp} and the GP2C compiler. Written in 2015 and
+2016, the engine supports sequential evaluation (no parallelism), POSIX
+threads and MPI within the same code base. It is now being progressively
+used wherever it makes sense in the code base and this is by nature work
+in progress. In \Pari-2.12, the MT engine is a central component of
 \begin{itemize}
 \item fast (near linear time) Chinese remaindering;
-\item fast linear algebra over Q and cyclotomic fields, a critical component of
-the new "Modular Forms" package;
-\item polynomial resultant in $\mathbb{Z}[X]$ via Chinese remainders;
+\item fast linear algebra over $\mathbb{Q}$ and cyclotomic fields,
+  a critical component of the new "Modular Forms" package;
+\item polynomial resultants in
+  $\mathbb{Z}[X] \times \mathbb{Z}[X,Y]$ (via fast Chinese remainders and
+    evaluation / interpolation), a basic tool for algebraic number theory;
 \item computation of classical modular polynomials for about 20 classical
-invariants (j, Weber functions, small eta quotients...);
+invariants (j, Weber functions, small eta quotients\dots);
 \item discrete logarithm over finite fields (prime fields and
-$\mathbb{F}_{p^e}$ for word-sized prime $p$) - polynomial resultant in
-$\mathbb{Z}[X] \times \mathbb{Z}[X,Y]$ via 
-Chinese remainders / evaluation;
-\item APRCL primality proof.
+$\mathbb{F}_{p^e}$ for word-sized prime $p$) ;
+\item Adleman-Pomerance-Rumely-Cohen-Lenstra primality proof;
+\item Fourier coefficients of $L$-functions (Hasse-Weil and Artin
+  $L$-functions);
+\item hi-resolution plot of mathematical functions using parallel evaluation.
 \end{itemize}
 
-More work is underway regarding the development of  ECPP, integer
-factorization engines, class group and units computations.
-
-Compared to the pre-existing sequential code, the parallel version adds about 15 extra lines of
-C on average (conveniently encapsulated in a separate "worker" object). As usual
-in "embarassingly parallel" code, the measured speedup is essentially linear in
-the number of available cores. The resulting GP binary has been successfully
-crash-tested by a panel of users during the 2017 PARI/GP Atelier in Lyon:
-basically, substituting the \texttt{Configure} instruction by \texttt{Configure --mt=pthreads}
-before compilation transparently yields the expected speedups for the target
-functions on participants dual-core laptops. 
-
+The \texttt{master} branch on the public development server includes further
+\begin{itemize}
+  \item values of complex $L$-functions (via parallel computation of
+    Meijer $G$-functions);
+  \item a new thread-safe version of the Multiple Polynomial Quadratic Sieve
+    (MPQS) integer factoring algorithm, ready to be parallelized;
+\end{itemize}
+The parallel-enabled components of the \PariGP suite have been advertised 
+(including tutorial sessions) and tested by participants during PARI/GP
+workshops in Grenoble (2016), Lyon (2017), Besançon (2018) and Bordeaux
+(2019).
 
 \subparagraph{\longtaskref{hpc}{hpc-gap}}
 \label{hpc@hpc-gap}

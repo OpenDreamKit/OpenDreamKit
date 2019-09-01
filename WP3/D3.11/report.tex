@@ -12,9 +12,9 @@
 }
 
 \deliverable{component-architecture}{hpc-configure}
-\deliverydate{XX/YY/201Z}
+\deliverydate{01/09/2019}
 \duedate{31/08/2019 (M48)}
-\author{Alexis Breust, Jean-Guillaume Dumas, Clément Pernet, Hongguang Zhu}
+\author{Alexis Breust, Karim Belabas, Jean-Guillaume Dumas, Jeroen Demeyer, William B. Hart, Steve Linton, Clément Pernet, Hongguang Zhu}
 
 \newcommand{\fflasffpack}{\textsc{fflas-ffpack}\xspace}
 \begin{document}
@@ -24,43 +24,131 @@
 
 % write the report here
 
+\tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Number Theory}
+End-user computational mathematics systems such as \SageMath must deal with 
+conflicting constraints such as:
+\begin{compactenum}
+\item covering a broad, if not exhaustive, range of features,
+\item in a high level and user-friendly API,
+\item relying on highly tuned dedicated libraries or sub-systems to
+  achieve competitive performance.
+\end{compactenum}
 
-PARI-MT and the difficulty of composing a threaded systems into another.
+A common use case of such software is to perform  experimental mathematics,
+for e.g. testing conjectures on as many as possible instances with dimensions as
+large as possible. In this perspective, users seek for computational efficiency
+and the ability to harness the power of high-end HPC servers or clusters.
+
+Work-package 5 has resulted in either enabling or drastically enhancing the high
+performance capabilities of several computational mathematics systems
+(\longtaskref{hpc}{hpc-pari}, \longtaskref{hpc}{hpc-gap} and
+\longtaskref{hpc}{hpc-singular}) or of dedicated libraries
+(\longtaskref{hpc}{hpc-linbox}).
+%
+Based on these results, we now investigate how to expose the HPC capabilities of
+those components to the end-user level in the \SageMath system.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Finite field linear algebra}
+\section{Difficulties in composing parallel software systems}
+
+In our  investigations, it appeared that composing a parallel system into
+another system was more challenging than anticipated, for several reasons
+depending on each system.
+\subsection{Using a multi-threaded Singular}
+
+The \Singular system now outsources its multivariate polynomial arithmetic
+to the \texttt{FLINT} library which makes use of a data representation optimised
+for parallel polynomial arithmetic. The native \Singular representation is optimised
+for Gr\"{o}bner basis computations (which can also be run in parallel). In order to
+benefit from this new work, an HPC aware \SageMath would either require effort to
+update the \SageMath system to any changes in the \Singular API since the last
+official \Singular release, or \SageMath would have to be rewritten to bypass \Singular
+and offload multivariate arithmetic directly to \Flint. The latter would be a significant
+effort and not possible for this deliverable. The former would normally happen after
+the next official release of \Singular, which happens approximately yearly. There will
+still be some effort required.
+Such changes are usually extensive across the whole system, as Singular is an external
+computer algebra system in its own right, rather than an isolated library providing one
+or a few functions.
+
+There are advantages to doing this integration work after the next release. According
+to the \Singular team, fast rational functions, factorisation and additional polynomial
+orderings that directly benefit from the new parallel multivariate arithmetic are being
+worked on independently of the ODK project.
+
+
+\subsection{HPC GAP}
+
+A similar situation applies with the progresses on HPC-GAP: for the time being,
+the HPC capabilities of GAP are only available through the HPC-GAP platform and
+exposing them through the \texttt{libgap} library would require a significant effort.
+
+\subsection{Using a multi-threaded \Pari}
+
+As reported in \delivref{hpc}{pari-hpc2}, the number theory library \Pari supports
+multi-threading for various operations.
+\Sage uses \Pari for its number theory functionality.
+Since \Sage simply interfaces \Pari, it should in theory
+be trivial to use \Pari-MT (the multi-threading-enabled configuration of \Pari) in \Sage:
+just enable multi-threading and that's it.
+
+Unfortunately, some problems arise:
+it turns out that \Pari-MT is not compatible with
+threads that are created outside of \Pari's control.
+So, an application that is already multi-threaded cannot use \Pari-MT without additional effort.
+This is in particular a problem for the documentation builder of \Sage,
+which uses \Pari to create images for the documentation.
+Since this can take a long time, \Sage uses Python's
+multiprocessing module for this,
+which (perhaps confusingly) also uses multiple threads.
+
+We expect that this problem can be solved with some additional effort
+in either the \Sage--\Pari interface or within \Pari itself.
+Unfortunately, there was not enough time to further investigate this.
+
+Nevertheless, it is easily possible to use \Pari-MT in \Sage
+if one is careful not to build the documentation,
+nor to use any other kind of multi-threading.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Exposing the parallel finite field linear algebra library \Linbox}
+
+We were then more successful in exposing the parallel features of the \Linbox
+library, and more specifically of its kernel for finite field linear algebra,
+\texttt{fflas-ffpack}. By nature, a library is designed with composability in
+mind, and thread safety is among the required features a parallel library should
+provide.
 
 \subsection{Context}
 
-Finite field linear algebra is a core building block in computational mathematics and deliver high computing throughput
-to a wide range of applications, including number theory, group theory, combinatorics, etc. \SageMath relies on the
+Finite field linear algebra is a core building block in computational mathematics.
+It has a wide range of applications, including number theory, group theory, combinatorics, etc. \SageMath relies on the
 \fflasffpack library for its critical linear algebra operations on prime fields of less than 23 bits and consequently
-also for numerous computations with multiprecision integer matrices.  
+also for numerous computations with multi-precision integer matrices.  
 
 The \fflasffpack library had some preliminary support for multi-core parallelism for matrix
 multiplication and Gaussian elimination.
-Instead of being tight to a specific parallel language, the library uses a Domain Specific Language, Paladin~\cite{paladin},
+Instead of being tied to a specific parallel language, the library uses a Domain Specific Language, Paladin~\cite{paladin},
 to provide the library programmer with unique API for writing parallel code, which is then translated into 
 OpenMP~\cite{openmp}, Cilk~\cite{cilk}, Intel-TBB~\cite{tbb}, or XKaapi~\cite{xkaapi} directives. Beside portability and independence from
-a given technology, this also makes it possible to benchmark and compare how parallel runtime perform. This is
+a given technology, this also makes it possible to benchmark and compare how parallel runtimes perform. This is
 particularly important here, since many of the compute intensive routines of \fflasffpack share specificities that are
 often challenges for parallel runtime:
 \begin{description}
-\item[Recursion] by design,  sub-cubic linear algebra algorithms are recursive and so are most routines in the
+\item[Recursion] by design, sub-cubic linear algebra algorithms are recursive and so are most routines in the
   library.
 \item[Heterogeneity] many exact computations must deal with data with size unknown before their actual computation. For
   instance rank deficiencies in Gaussian elimination may generates a block decomposition of varying dimensions and
   therefore computing tasks will have heterogeneous load.
-\item[Fine grain task parallelism] the combination of the two above constraints lead to consider recursive task
-  parallelism with fine grain, so that a workstealing engine could efficiently balance the heterogeneity. However,
+\item[Fine grained task parallelism] the combination of the two above constraints leads to consider recursive task
+  fine-grained parallelism, such that a work-stealing engine could efficiently balance the heterogeneity. However,
   recursive tasks have been for a long time rather inefficient in e.g. OpenMP implementations, and the ability to handle
-  numerous fine grain tasks is also demanding on parallel runtimes.
+  numerous small tasks is also demanding on parallel runtimes.
 \end{description}
 
 \subsection{Integration within \SageMath}
@@ -109,8 +197,8 @@ Table~\ref{tab:release}.
   \label{tab:release}
 \end{table}
 
-For Item (3), we explored sevral options and chose rely on and extend the Singleton class \texttt{Parallelism} in
-\SageMath. This class work as a dictionnary registering the number of threads with which each component in \SageMath can
+For Item (3), we explored several options and chose rely on and extend the Singleton class \texttt{Parallelism} in
+\SageMath. This class work as a dictionary registering the number of threads with which each component in \SageMath can
 run in parallel.
 
 For example, the following code requires than any linear algebra routine relying on linbox be parallelized on 16 cores.
@@ -119,7 +207,7 @@ For example, the following code requires than any linear algebra routine relying
 sage: Parallelism().set("linbox",16)
 \end{lstlisting}
 
-The follwoing session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
+The following session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
 $\mathbb{Z}/65521\mathbb{Z}$ with itself using 16 cores:
 \begin{lstlisting}
 pernet@dahu34:~/soft/sage$ ./sage 
@@ -168,9 +256,9 @@ speedup. This comes from the following reasons:
 \begin{itemize}
 \item first, the interface between the system \SageMath (running an interactive ipython) and the compiled code of the
   library has adds a constant overhead despite our efforts to reduce it as much as possible. According to Amdhal's law,
-  such an overhead severly penalizes the speedup measured;
-\item the use of subcubic arithmetic for the sequential matrix product tasks, implies that the workload increases with
-  the number of cores. Therefore the true ideal speed-up curve should lie slightly below the main diagonal;
+  such an overhead severely penalizes the speedup measured;
+\item the use of sub-cubic arithmetic for the sequential matrix product tasks implies that the workload increases with
+  the number of cores. Therefore, the true ideal speed-up curve should lie slightly below the main diagonal;
 \item we did not disable the turbo-boost on this server. Consequently, runs on few cores are likely executed at a higher
   clock frequency, hence penalizing the speedup for large number of cores.
 \end{itemize}

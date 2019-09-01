@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #143 on 2019-08-30 {.notoc}
+# Deliverable description, as taken from Github issue #143 on 2019-08-31 {.notoc}
 
 - **WP6:** [Data/Knowledge/Software-Bases](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP6)
 - **Lead Institution:** University of St Andrews
