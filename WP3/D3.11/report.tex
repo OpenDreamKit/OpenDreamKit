@@ -196,32 +196,50 @@ integration in the production release of \SageMath.
 
 \subsection{Using a multi-threaded \Singular}
 
-The \Singular system now outsources its multivariate polynomial arithmetic
-to the \FLINT library which makes use of a data representation optimised
-for parallel polynomial arithmetic. The native \Singular representation is optimised
-for Gr\"{o}bner basis computations (which can also be run in parallel). In order to
-benefit from this new work, an HPC aware \SageMath would either require effort to
-update the \SageMath system to any changes in the \Singular API since the last
-official \Singular release, or \SageMath would have to be rewritten to bypass \Singular
-and offload multivariate arithmetic directly to \FLINT. The latter would be a significant
-effort and not possible for this deliverable. The former would normally happen after
-the next official release of \Singular, which happens approximately yearly. There will
-still be some effort required.
-Such changes are usually extensive across the whole system, as Singular is an external
-computer algebra system in its own right, rather than an isolated library providing one
-or a few functions.
+In~\delivref{}{} we report on the parallelisation of multivariate
+polynomial arithmetic in \Singular. This as achieved by outsourcing
+its polynomial arithmetic to the \FLINT library, and implementing
+parallelism there using of a data representation optimised for that
+purpose (\Singular's data representation of multivariate polyomials is
+optimised for Gr\"{o}bner basis computations, which can also be run in
+parallel). As of now, this new implementation is available in the
+latest production release of \FLINT, but not yet in \Singular's own
+production release, due next winter un \Singular's approximate yearly
+schedule.
 
-There are advantages to doing this integration work after the next release. According
-to the \Singular team, fast rational functions, factorisation and additional polynomial
-orderings that directly benefit from the new parallel multivariate arithmetic are being
-worked on independently of the ODK project.
+There are two natural pathways for \Sage to benefit from this new
+work. The first approach is to bypass \Singular and offload
+multivariate arithmetic directly to \FLINT. This would require
+significant efforts, well beyond the scope of this deliverable.
+
+The alternative is to wait until the next \Singular production release
+and its integration in \Sage. This latter step normally happens some
+time after the \Singular release; indeed \Singular is a standalone
+computer algebra system in its own right rather than an isolated
+library providing one or a few functions. Hence changes in the
+\Singular API usually requires updates across the whole \Sage system.
+
+
+
+According to the \Singular team, fast rational functions,
+factorisation and additional polynomial orderings that directly
+benefit from the new parallel multivariate arithmetic are being worked
+on independently of the ODK project.
+
+The former would normally happen after the next official release of
+\Singular, which happens approximately yearly. There will still be
+some additional effort required.\TODO{evaluation in PM?}
+
+There are advantages to doing this integration work after the next release. 
 
 
 \subsection{HPC GAP}
 
-A similar situation applies with the progresses on HPC-GAP: for the time being,
-the HPC capabilities of GAP are only available through the HPC-GAP platform and
-exposing them through the \texttt{libgap} library would require a significant effort.
+A similar situation applies with the progresses on HPC-GAP: for the
+time being, the HPC capabilities of GAP are only available through
+HPC-GAP as a standalone system, and exposing them through the
+\texttt{libgap} library would require a significant effort. For
+details, see~\delivref{hpc}{gap}.
 
 \subsection{Using a multi-threaded \Pari}
 
