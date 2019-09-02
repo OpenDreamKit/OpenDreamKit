@@ -416,9 +416,230 @@ stable after \Sage is officially migrated to Python 3 (see below).
 
 \section{Work accomplished}
 
+If a software can be installed on a system, then, in principle, it can
+be packaged for it. %
+And, indeed, a \Sage package for Ubuntu had been distributed through
+an unofficial channel for many years.
+
+The difficulty is not packaging a software, as much as packaging it
+\emph{properly}. %
+Indeed, a package system tries to fulfill several goals:
+\begin{itemize}
+\item Code reuse: by having a separate package for a component shared
+  by several software, the component can be installed only once and
+  reused many times. This obviously saves disk space, and in the case
+  of shared libraries it also saves memory and cpu, since the library
+  needs only be loaded once in shared memory.
+
+\item Compatibility: different software may depend on different
+  versions of a same component, and break when incompatible versions
+  are used. By ensuring that all software within a release is mutually
+  compatible, Linux distributions provide a smooth experience for the
+  user.
+
+  Nevertheless, some times it is impossible to satisfy all dependent
+  software with a single version of a component, in this case, it is
+  not unusual for Linux distributions to provide two different
+  versions of the same component installable side to side (e.g.,
+  Python 2 and Python 3 are both available in all Linux distributions
+  at the time of writing). While this approach is in tension with the
+  goal of code reuse, it is sometimes the most pragmatic one.
+  
+\item Flexibility: a software may rely on two components to do the
+  same job, using indifferently one or the other according to which is
+  available in the system. By having separate packages, a user can
+  freely choose which component he prefers to have installed, and even
+  change his mind later, without breaking dependent software.
+\end{itemize}
+
+It is clear that, the higher the number of dependencies, the higher
+the complexity of packaging a software is. %
+In the case of \ODK, a single software may interact with hundreds of
+packages, as illustrated in
+Tables~\ref{tab:odk-2015}--\ref{tab:odk-2019}. %
+
+In this sense, the legacy unofficial \Sage package for Ubuntu,
+installing all of \Sage and its dependencies nearly as a unique huge
+package, was not playing by the rules, which explains why it was not
+included in the official repositorites. %
+Furthermore, the strong traditions of the Debian community (length of
+the release cycle, large quantity of scientific software already
+packaged, reluctance to host alternative/modified versions of
+packages), exacerbated the problem and made packaging \Sage and its
+dependencies extremely challenging.
+
+The successful packaging of all \ODK components in Debian/Ubuntu was
+thus the result of several actions undertaken by the \ODK members in
+concert with the concerned communities. %
+We list below the most important actions.
+
+\begin{description}
+\item[Workshops dedicated to packaging] A series of workshop
+  specifically targeted at packaging was organized in Cernay (near
+  Paris):
+  \begin{itemize}
+  \item \Sage days 77, April 4--8, 2016, see \delivref{dissem}{workshops-1};
+  \item \Sage days 85, April 30 -- May 4, 2018, see \delivref{dissem}{workshops-3};
+  \item \Sage days 101, June 17--21, 2019, see \delivref{dissem}{workshops-4}.
+  \end{itemize}
+  They were the occasion to gather the various actors involved in
+  packaging \ODK components, exchange ideas, run experiments, and
+  sprint on development. %
+  A mailing list \texttt{sage-packaging@googlegroups.com} was created
+  to keep exchanging on issues related to packaging after the
+  workshops.
+
+\item[Limiting \emph{patches}] When a project depends on an external
+  component, it may need, in some instances, to \emph{patch} the
+  external dependency, i.e., create a slightly modified version of the
+  official component that interfaces better with the project. %
+  Several different reasons may lead a project to patch a dependency:
+  \begin{itemize}
+  \item A bug is found in the dependency, but its developers either
+    disagree with the proposed fix, or have a timeline for releasing
+    it that is incompatible with that of the dependent project.
+  \item The dependency makes assumptions about its environment (file
+    paths, system resources, \dots) that are unsatisfied within the
+    dependent project.
+  \item Two or more dependencies are incompatible, but the dependent
+    project needs all; a patch to one of the dependencies may help
+    them coexist.
+  \end{itemize}
+
+  While patches may be unavoidable, they complicate the work for
+  package maintainers: which version of a component should be included
+  in the official repository, the original or the patched one? %
+  In some cases, it may be necessary to include both, which negates
+  the benefits cited previously. %
+  For this reason, Linux distributions usually discourage projects
+  patching dependencies, keeping that prerogative to themselves. %
+
+  \Sage, owing to its large number of dependencies, has traditionally
+  behaved very badly in this respect, maintaining a large set of
+  patches. %
+  An great amount of work has gone into \emph{pushing patches
+    upstream} (i.e., having them accepted in the original project)
+  whenever possible, and in removing useless or avoidable patches.
+  
+\item[Updating dependencies] As dependencies evolve, it is necessary
+  to ensure that the dependent project is as compatible as possible
+  with the latest version. %
+  Failing which, package maintainers would be faced with the dilemma
+  of updating the dependency and thus breaking the dependent, or
+  keeping the dependency at an obsolete version.
+
+  While in most cases updating a dependency requires little to no
+  work, major version changes may require considerable effort. %
+  Notable examples for \Sage were the upgrade of \Singular from
+  version 3 to 4, and the upgrade of Python from version 2 to 3. %
+  The former was completed in mid-2016, one year and a half after the
+  initial release of \Singular 4; the latter is still underway (see
+  next section).
+  
+\item[Modularization of \ODK software] Identifying and cutting out
+  meaningful components from a large piece of software can also help
+  make packaging easier; delegating work even more.
+
+  With the help of \ODK, the various software projects undertook a
+  broad effort in modularizing their code base, leading to a
+  considerable reduction in duplicated efforts and improved code
+  quality. %
+
+  Important examples are the adoption of Jupyter as unified user
+  interface, which in the case of \Sage paved the way to the
+  deprecation of the old Notebook. %
+  The development of \libGAP (see~\delivref{hpc}{GAP-HPC-report}) let
+  \Sage depend on an officially supported C API to \GAP, rather than
+  on fragile bindings developed internally. %
+  Finally, spinning the projects CySignals and CyPari off mainline
+  \Sage simplified the process of packaging it, and allowed other
+  projects outside \ODK to depend on them without having to import the
+  full \Sage.
+
+\item[Providing alternate workflows for user-contributed code]
+  Finally, a different issue, mostly relevant to full-fledged computer
+  algebra systems, is the packaging of user-contributed code
+  \emph{for} the system. %
+  Indeed, there is a growing demand for workflows that allow to easily
+  share code developed by the users of a system, and this demand can
+  hardly be fulfilled by a distribution's package repository. %
+  In the same vein of language-specific package repositories, the need
+  was felt to have repositories for \Sage and \GAP.%
+  \footnote{Due to its smaller and more specialized user base, a
+    repository for \PariGP seems unjustified for the moment. %
+    \Singular is in the process of migrating to Julia, in the context
+    of the OSCAR project, and will likely use the standard Julia
+    package tools when the migration will be complete.} %
+  
+  \GAP already had a package system before the start of \ODK, but this
+  was the occasion to improve the existing tools and simplify the
+  workflows for the users. See~\delivref{hpc}{GAP-HPC-report}.
+
+  \Sage used to encourage its users to directly contribute code to the
+  mainline, however this could be a frustrating experience for
+  beginners, who had to learn the coding standards of \Sage and go
+  through the standard review process; it also led in some cases to
+  \emph{bit-rotting}: old unmaintained code in \Sage with no designed
+  maintainer. %
+  Some \Sage developers advocated distributing user code in the form
+  of SPKGs, the internal format \Sage uses to pack dependencies. %
+  Although this is a valid method, the responsibility of hosting the
+  SPKG still falls on the user, and the available tools are rather
+  limited. %
+  
+  Lately, a consensus has developed in the community on encouraging
+  users to use the standard Python packaging tools, and host their
+  packages on PyPI, the main repository for Python projects. %
+  Support for installing packages from PyPI has been integrated in
+  \Sage via the \texttt{sage -pip} command, and documentation and
+  example packages%
+  \footnote{\url{https://github.com/sagemath/sage_sample}.}%
+  have been developed to guide the user in the process.
+
+  While these improvements do not directly impact packaging for Linux
+  distributions, the added possibilities for the end-users enable
+  faster growth of the projects, at no additional expense for package
+  maintainers.
+\end{description}
 
 \section{The future}
 
+The quantity of work spent to have software properly packaged raises
+the question of its sustainability. %
+Indeed, many tasks are recurring and need to be iterated at each new
+release cycle: updating dependencies, integrating patches upstream,
+maintaining interfaces, \dots %
+While the end of \ODK will be felt, we argue that the efforts done
+until now will not be lost, and will greatly simplify the tasks of
+package maintainers.  %
+Indeed, the need for some of the actions undertaken had been felt for
+a long time, and \ODK offered the occasion to address many
+long-standing issues. %
+With \ODK coming to an end, many foundational issues have already been
+solved, and only recurring tasks need to be dealt with for updating
+packages.
+
+Among the major foundational issues still open, is the migration of
+\Sage to Python 3.%
+\footnote{Python 2 reaches its end of life in 2020. After that point,
+  it will become nearly impossible to package a Python 2 version of
+  \Sage for any system.} %
+Fortunately, thanks to a titanic effort involving hundreds of entries
+in the issue tracker,%
+\footnote{\url{https://trac.sagemath.org/ticket/26212}.}  with the
+help of members of \ODK,%
+\footnote{We are grateful to F. Chapoton for leading this effort.}
+\Sage is now compatible with Python 3, and only a few months away from
+officially abandoning Python 2.
+
+The move to Python 3 will also be the occasion to advance on several
+projects that had stalled because of the limitations of Python 2. %
+In particular, packaging for Conda-forge will be simplified after the
+shift, and it will be easier to build Windows-compatible Anaconda
+packages. %
+Anaconda packages will also enable easier building of JupyterHub and
+Binder-compatbile images, further stimulating the development of
+workflows based on \ODK components.
 
 \end{document}
 
