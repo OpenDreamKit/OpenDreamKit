@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #60 on 2019-09-02 {.notoc}
+# Deliverable description, as taken from Github issue #60 on 2019-09-03 {.notoc}
 
 - **WP3:** [Component Architecture](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP3)
 - **Lead Institution:** Univ. Grenoble Alpes
