@@ -10,6 +10,7 @@
   linkcolor=blue,
   citecolor=blue,
 }
+\lstset{basicstyle=\ttfamily}
 
 \deliverable{component-architecture}{hpc-configure}
 \deliverydate{04/09/2019}
@@ -98,6 +99,9 @@ which will appear in release 8.9 of \SageMath.
 As a side note, the integration of these new releases including the contributions to \delivref{hpc}{LinBox-algo} led
 to a significant speed-up in the sequential computation time of finite field linear algebra in \SageMath, as show in
 Table~\ref{tab:release}.
+A significant part of these speedups is due to both improvements and extended support for SIMD vector
+instruction sets.
+
 %
 \begin{table}[htb]
   \begin{tabular}{lcccc}
@@ -118,14 +122,12 @@ Table~\ref{tab:release}.
   \label{tab:release}
 \end{table}
 %
-A significant part of these speedups is due to both improvements and extended support for SIMD vector
-instruction sets.
 
-For Item (3), we explored several options and chose to rely on and extend the Singleton class \texttt{Parallelism} in
+For Item (3), we explored several options and chose to rely on and extend the singleton class \texttt{Parallelism} in
 \SageMath. This class works as a dictionary registering the number of threads with which each component in \SageMath can
 run in parallel.
 
-For example, the following code requires that any linear algebra routine relying on linbox be parallelized on 16 cores.
+For example, the following code requires that any linear algebra routine relying on \Linbox be parallelized on 16 cores.
 
 \begin{lstlisting}
 sage: Parallelism().set("linbox",16)
@@ -178,12 +180,12 @@ The speed-up relative to a single threaded run of these timings is reported in F
 The scalability shown on Figure~\ref{fig:speedup_sage} is good but not close to the best theoretical linear
 speedup. This happens for the following reasons:
 \begin{itemize}
-\item first, the interface between the system \SageMath (running an interactive ipython) and the compiled code of the
+\item First, the interface between the system \SageMath (running an interactive ipython) and the compiled code of the
   library adds a constant overhead despite our efforts to reduce it as much as possible. According to Amdhal's law,
   such an overhead severely penalizes the speedup measured;
-\item the use of sub-cubic arithmetic for the sequential matrix product tasks implies that the workload increases with
+\item The use of sub-cubic arithmetic for the sequential matrix product tasks implies that the workload increases with
   the number of cores. Therefore, the true ideal speed-up curve should lie slightly below the main diagonal;
-\item we did not disable the turbo-boost on this server. Consequently, runs on few cores are likely executed at a higher
+\item We did not disable the turbo-boost on this server. Consequently, runs on few cores are likely executed at a higher
   clock frequency, hence penalizing the speedup for large numbers of cores.
 \end{itemize}
 
@@ -410,7 +412,7 @@ overcome to create a working, fully-fledged HPC distribution:
   technical work and will only interoperate with other systems that have been specifically
   designed to cooperate with it.
 
-  This problem is particularly acute when using packages as libraries, e.g. via libGap.
+  This problem is particularly acute when using packages as libraries, e.g. via \texttt{libgap}.
 
 \item Threaded allocators: although the system malloc is threadsafe, it is not efficient in a
   multithreaded environment, especially on OSX. Allocators such as Singular's omalloc are not
