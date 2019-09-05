@@ -22,11 +22,11 @@ We contribute to the achievements of these objectives through the creation of so
 
 Sage has a long history of integrating and distributing large mathematical libraries/software as a whole, with relatively little attention given to defining and exposing interfaces. This conscious compromise was made by the Sage community during the first stages of the project, in order to reach as quickly as possible the critical mass required for its survival. Component re-usability was then not the main focus for the Sage community; at the same time the non-standard and relatively underused package system discouraged writing and maintaining autonomous libraries. These factors contributed to make the Sage distribution what is usually described as a “monolith” (Sage library code alone, not counting included libraries, makes up for 1.5M lines of code and documentation), hard to distribute, to maintain, to port, and to develop with as it reached maturity. On the other hand, GAP has been distributing community-developed “GAP packages” for a long time, but faced fragmentation issues, at the code and at the community level. The rudimentary package system added more technical difficulties to GAP’s development model.
 
-We achieve the stated goal of packaging for major Linux distributions through several actions:
+We achieved the stated goal of packaging for major Linux distributions through several actions:
 
 - Workshops dedicated to packaging,
 - Limiting *patched* dependencies in OpenDreamKit software,
 - Updating dependencies of OpenDreamKit software,
 - Modularization of OpenDreamKit software,
 - Providing alternate workflows for user-contributed code, thanks to system-specific packaging tools and repositories.
-
+- Contributing to packaging OpenDreamKit components, new or pre-existing, for cross-platforms packaging systems.
