@@ -74,7 +74,7 @@ distributions with their package format.
     \texttt{.deb} & Debian, Ubuntu, Mint, Knoppix, Raspbian, \dots & apt \\
     Portage & Gentoo, Chrome OS, \dots & emerge\\
     \texttt{PKGBUILD} & Arch, Manjaro, \dots & pacman\\
-    Anaconda & \emph{OS-agnostic} & conda
+    Conda & \emph{OS-agnostic}, user-level & conda
   \end{tabular}
   \caption{Most popular Linux distributions and package formats}
   \label{tab:pkg-fmt}
@@ -133,7 +133,7 @@ and package manager for some popular programming languages relevant to
 
 \emph{Agnostic} package systems push the concept one step further, by
 being unrelated to both an OS and a programming language. %
-Currently, one of the most popular package systems is Anaconda, which
+Currently, one of the most popular package systems is Conda, which
 consists of an open-source package manager (conda), and a
 community-led package repository (Conda-forge%
 \footnote{\url{https://conda-forge.org/}}), %
@@ -142,14 +142,14 @@ Originally born as a package system for Python, it has evolved into an
 OS-and-language-agnostic package system targeted at scientific
 computing and data science. %
 Centered around JupyterLab and the Jupyter notebook for its user
-interface, Anaconda offers a one-stop solution to install all
+interface, Conda offers a one-stop solution to install all
 programming languages, libraries and tools to work on scientific
 projects.
 
 Being primarily targeted at developers, rather than end users, both
 language-specific and language-agnostic package repositories are
 usually open to contributions from anyone at any time.%
-\footnote{In some cases, for example Anaconda, a separate curated package
+\footnote{In some cases, for example Conda, a separate curated package
   repository may be offered to paying customers.} %
 Unlike OS package repositories, they do not aim at having a full set
 of software all compatible with one another at any given time, but
@@ -186,7 +186,7 @@ Typically, software projects (as opposed to libraries) also provide
 executable installers from their web pages, thus installation by the
 installer pattern is always an option for the end user, and in some
 cases (e.g., installation on Windows) even the preferred one
-(see~\delivref{component-architecture}{portability-cygwin}).
+(see~\longdelivref{component-architecture}{portability-cygwin}).
 
 Packaging software for package repositories is rarely the
 responsibility of the software developer, and indeed, outside a few
@@ -194,12 +194,16 @@ exceptional cases, \ODK software is not packaged by \ODK members. %
 While not our direct responsibility, it is nevertheless of
 primary importance that our software is made available through as many
 package repositories as possible. %
-Indeed, while most end-users (Windows users in particular) who install
+Indeed, while many end-users (Windows users in particular) who install
 software on their personal computers are perfectly happy with the
-installer pattern, \ODK's goal is to reach a much larger audience:
-shared server and cloud infrastructures, the vast majority of which
-run under Linux, are extremely reliant on package managers
+installer pattern,
+the usual practice for Linux end-users and even more system
+administrators is to install
+software through package managers. \ODK's goal is also to reach a much larger
+audience through shared servers and cloud infrastructures; the vast majority of them
+run under Linux and are extremely reliant on package managers
 (both OS-specific and OS-agnostic) for installing software.
+
 
 This deliverable describes the efforts made by \ODK to have all its
 software components packaged for the official repositories of all
@@ -334,8 +338,10 @@ software).
 \Sage (version 3.0 at the time) had been packaged in Debian for the last time
 in 2010, but fell out of the official distribution due to incompatible
 dependencies. %
-Ubuntu used to have an unofficial \Sage package, also installing
-\Singular and other dependencies alongside, but this package offered
+Ubuntu users also had access to a \Sage package contributed by
+Jan Groenewald from AIMS on an unofficial channel. This package also installed
+\Singular and other dependencies alongside; however, for the sake of
+simplicity it was monolithic and offered
 little in terms of compatibility and integration with the rest of the
 system.
 
@@ -367,7 +373,8 @@ the same time.
 \end{table}
 
 The next Debian release cycle came to completion in July 2019; all
-\ODK packages were updated and improved for the occasion, with a
+\ODK packages were updated and improved for the occasion, requiring
+tight collaboration between the involved communities, with a
 marked simplification of the dependency tree. %
 Table~\ref{tab:odk-2019} summarizes information on the packages
 available in Debian 10 (codenamed "Buster").
@@ -412,8 +419,8 @@ Indeed, a package system tries to fulfill several goals:
 \begin{itemize}
 \item Code reuse: by having a separate package for a component shared
   by several software, the component can be installed only once and
-  reused many times. This obviously saves disk space, and in the case
-  of shared libraries it also saves memory and cpu, since the library
+  reused many times. This obviously saves disk space and, in the case
+  of shared libraries, it also saves memory and cpu since the library
   needs to only be loaded once in shared memory.
 
 \item Compatibility: different software may depend on different
@@ -532,14 +539,18 @@ We list below the most important actions.
 
   Important examples are the adoption of Jupyter as unified user
   interface, which in the case of \Sage paved the way to the
-  deprecation of the old Notebook. %
-  The development of \libGAP (see~\delivref{hpc}{GAP-HPC-report}) let
+  deprecation of the old \texttt{sagenb} notebook. %
+  The development of \libGAP (see~\longdelivref{hpc}{GAP-HPC-report}) let
   \Sage depend on an officially supported C API to \GAP, rather than
   on fragile bindings developed internally. %
   Finally, spinning the projects CySignals and CyPari off mainline
   \Sage simplified the process of packaging it, and allowed other
   projects outside \ODK to depend on them without having to import the
-  full \Sage.
+  full \Sage. Work was also carried out to reduce customization
+  of the Sphinx documentation system through upstream contributions
+  and low-level contributions to Python and Cython to standardize
+  their introspection API, leading to simplified Sphinx's logic
+  (see~\longdelivref{UI}{sage-sphinx}).
 
 \item[Providing alternate workflows for user-contributed code]
   A different issue, mostly relevant to full-fledged computer
@@ -554,8 +565,8 @@ We list below the most important actions.
     repository for \PariGP seems unjustified for the moment.} %
   
   \GAP already had a package system before the start of \ODK, but this
-  was the occasion to improve the existing tools and simplify the
-  workflows for the users. See~\delivref{hpc}{GAP-HPC-report}.
+  was the occasion to improve the existing tools and automatize the
+  workflows for the users (see~\longdelivref{hpc}{GAP-HPC-report}).
 
   \Sage used to encourage its users to directly contribute code to the
   mainline, however this could be a frustrating experience for
@@ -598,10 +609,12 @@ Indeed, the need for some of the actions undertaken had been felt for
 a long time, and \ODK offered the occasion to address many
 long-standing issues. %
 With \ODK coming to an end, many foundational issues have already been
-solved, and only recurring tasks need to be dealt with for updating
-packages.
+solved, good practices have been taken on by the community, and only recurring tasks need to be dealt with for updating
+packages. Last, but not least, the community had feared for the
+longest time that proper packaging of such complex software was out of
+reach, and this psychological barrier has been taken down.
 
-Among the major foundational issues still open, is the migration of
+Among the major foundational issues still open is the migration of
 \Sage to Python 3.%
 \footnote{Python 2 reaches its end of life in 2020. After that point,
   it will become nearly impossible to package a Python 2 version of
@@ -612,17 +625,21 @@ in the issue tracker,%
 help of members of \ODK,%
 \footnote{We are grateful to F. Chapoton for leading this effort.}
 \Sage is now compatible with Python 3, and only a few months away from
-officially abandoning Python 2.
+officially migrating from Python 2.
 
 The move to Python 3 will also be the occasion to advance on several
 projects that had stalled because of the limitations of Python 2. %
 In particular, packaging for Conda-forge will be simplified after the
-shift, and it will be easier to build Windows-compatible Anaconda
-packages. %
-Anaconda packages will also enable easier building of JupyterHub and
+shift.%, and it will be easier to build Windows-compatible Conda packages
+Conda packages will also enable easier building of JupyterHub and
 Binder-compatible images, further stimulating the development of
 workflows based on \ODK components.
 
+Not directly related to packaging, the move to Python 3 will also
+facilitate gradual typing through type annotations, which will pave
+the way to more static analysis (for more robustness and possibly
+performance) and will facilitate semantic integration of systems as
+explored in WP6.
 \end{document}
 
 %%% Local Variables:
