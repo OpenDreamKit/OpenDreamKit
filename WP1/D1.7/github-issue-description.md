@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #23 on 2019-09-05 {.notoc}
+# Deliverable description, as taken from Github issue #23 on 2019-09-06 {.notoc}
 
 - **WP1:** [Project Management](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP1)
 - **Lead Institution:** Université Paris-Sud
