@@ -378,11 +378,12 @@ different ways to effectively author and distribute material, and in
 particular large structured documents such as textbooks.
 
 In \longdelivref{dissem}{ibook1} we have explored the use of the
-sphinx documentation system. This offers very high quality output to
-html and pdf, strong cross-references support, and smooth integration
+\texttt{Sphinx} documentation system. This offers very high quality output to
+HTML and PDF, strong support for complex documents with
+cross-references and deep structure, and smooth integration
 in the usual developer toolkit (editor, version control, testing,
 ...). We managed to implement in addition embedded sagecell for an
-interactive html version. The major disadvantage is, however, a non
+interactive HTML version. The major disadvantage is, however, a non
 negligible barrier for many authors: they have to learn ``yet
 another`` authoring tool and need to have some minimal fluency in ICT
 to be able to perform edit-compile-view cycle.
@@ -399,43 +400,60 @@ many sections; the more computer-savvy contributed directly their
 notebooks by pull-requests on GitHub. The others simply contributed
 them by e-mail.
 
-
 In this case the superior flexibility of \texttt{Sphinx system} was
 sacrificed for simplicity, while maintaining high quality standards.
 
+Meanwhile, the community has explored several variants of those
+workflows. On is the \texttt{jupyter-book}
+project\footnote{\url{https://github.com/jupyter/jupyter-book}}, where
+content is authored using markup and \Jupyter notebooks. The content
+is then fed to the Jekyll static web site generator; just like the
+\texttt{Sphinx} this system allows more control over the output
+generated, but requires more time for development. Another is
+PreTeXT\footnote{\url{https://pretextbook.org/}}, where documents are
+authored in XML. Finally many authors in mathematics appreciate
+writing their documents in LaTeX, using SageTeX to include code
+snippets, although at this stage non PDF export is experimental.
 
-We have also demonstrated that the approach in \delivref{dissem}{ibook1} and
-the notebook-based workflow (descibed here) are complementary and each can be
-used dependent on the situation. The notebook-based workflow is better for computer
-science-based topics or problem-oriented books. It clearly has a lower barrier
-for authors; collaboration is also easier, especially for people who are not
-excellent in ICT.
+Conclusion: we have demonstrated that the approach in
+\delivref{dissem}{ibook1} and the notebook-based workflow (described
+here) are complementary and each can be used dependent on the
+situation. The notebook-based workflow fits well computation-based
+topics or problem-oriented books where each section is relatively
+short. It clearly has a lower barrier for authors; collaboration is
+also easier, especially for people who are not excellent in ICT. For
+complex books or documents where the strictly linear structure of
+notebooks (e.g. there can't be a code cell within an itemize list)
+becomes too rigid, it's worth using markup based solutions like
+\texttt{Sphinx} or \texttt{PreTeXT} despite their higher complexity.
 
-An interesting observation could be that a \texttt{Sphinx} webpage with
-interactive sagecell code and rich text looks similar to a \Jupyter notebook.
-One could ask -- which is better? There is no clear-cut answer, but the key
-difference is that with \Jupyter notebooks we can easily make our own copies of
-an existing notebook, primed for individual explorations and modification.
-Results and modification can be saved and shared in a single file.  In the
-\texttt{Sphinx} page the exploration is even easier as it can be done in the
-web version of the book, but it cannot be easily saved or modified. In each
-case, authors have to decide which use case is more important. We found that
-for biophysics students, easy access to quick experimentations with a single
-formula/equation/ODE is usefull, while during a course e.g. in computational
-fluid dynamics working in one's own notebook is the only practical option.
-
-Conclusion: It may be recommended to work on classical monographs which
-are based on computations and contain code using collections of
-notebooks. One scenario is that notebooks are the final form and
-various output formats (e.g. PDF, HTML) are automatically generated
-in workflows as described further in this deliverable. However, tools
-that were partially developed in \ODK, allow for a relatively simple
-export to both \texttt{rst} format for \texttt{sphinx}) as well as to
-\LaTeX, for further development in those environments. We did so in
+Transitioning from the notebook-based to the markup-based workflows
+is relatively painless,
+thanks to tools, partially developed in \ODK. We did so in
 \delivref{dissem}{ibook1}: initial -- experimental -- versions of
 materials were authored in notebooks and when they became mature we
-converted them to \texttt{rst} format and included them in an interactive
-book.
+converted them to \texttt{rst} format and included them in an
+interactive book.
+
+Whichever the authoring workflow is chosen, the document can be
+automatically exported to a variety of format: PDF, interactive HTML pages
+with interactive cells or collections of Jupyter Notebooks. It should
+be observed that the latter two are similar. Which is better?
+There is no clear-cut answer, but the key
+difference is that with \Jupyter notebooks we can easily make our own copies of
+an existing notebook, primed for individual explorations and modification.
+Results and modification can be saved and shared in a single file.
+With an interactive HTML page, the exploration can
+be done on the spot with no download etc; however changes are limited
+to code cells and cannot be easily saved; this also adds a dependency
+on external services with their usual caveats in terms of privacy, e.g.
+if sensitive data is to be treated.
+We found that, for biophysics students, easy access to quick
+experimentation with a single formula/equation/ODE is usefull, while
+during a course, e.g. in computational fluid dynamics, working in one's
+own notebook is the only practical option. We therefore recommend
+to generate both HTML and notebook versions, with the former linking to
+the latter.
 
 \bigskip
 
@@ -535,16 +553,16 @@ are following:
   by version control, e.g. with Git.
 \item The notebooks are stored, however, without outputs.
 \item a ``Makefile`` is used to automatize the processes: building of
-  the pdf and html versions, etc.
+  the PDF and HTML versions, etc.
 \item \nbconvert is used to automatically execute and clean notebooks
-  and to produce the pdf and html versions.
-\item The conversion to html can produce interactive figures (such as
+  and to produce the PDF and HTML versions.
+\item The conversion to HTML can produce interactive figures (such as
   \texttt{@interact}). Alternatively, it can produce static figures in
-  `pdf`. This is configured by the environment variable
+  `PDF`. This is configured by the environment variable
   \texttt{os.environ['PDF']}.
 \item Regression tests can be embedded in the notebook, as input cells
-  marked with an ``nbtest`` tag. Such cells are removed during the pdf
-  or html conversion.
+  marked with an ``nbtest`` tag. Such cells are removed during the PDF
+  or HTML conversion.
 \item A \texttt{Dockerfile} is provided which allows to run a given
   repo on mybinder service.
 \end{enumerate}
@@ -570,7 +588,7 @@ Here is the workflow in practice:
 \end{enumerate}
 
 Interestingly, since the notebooks do not contain output, building the
-pdf or the html will re-execute the whole book, stopping at any error.
+PDF or the HTML will re-execute the whole book, stopping at any error.
 Hence this also serves as basic validation test, assuring that a
 notebook will run from the top to bottom. This helps revealing side
 effects of execution of cells accidently out of order.
