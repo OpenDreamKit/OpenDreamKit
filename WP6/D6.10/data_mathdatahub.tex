@@ -59,7 +59,10 @@ and the Boolean property whether they are orthogonal.
 Figure~\ref{fig:joe-schema} shows a MDDL theory that describes his database schema.
 For example, the mathematical type of the field $\mathsf{mat}$ is integer $2\times2$ matrices;
 the $\mathsf{codec}$ annotation specifies how this mathematical type is be encoded as a low-level database type (in this case: arrays of integers).
-Concretely, the codec is $\mathsf{MatrixAsArray}$ codec operator applied to the identity codec for integers.
+Concretely, the codec is the $\mathsf{MatrixAsArray}$ codec operator applied to the identity codec \footnote{
+  Here `identity codec' means that mathematical integers are stored straightforwardly as database integers.
+  This is not an identity in the mathematical sense, as e.g. integers larger than $64$ bit can not be stored in the database like this.
+} for integers.
 These codec annotations capture the representation theorem that allows representing the mathematical objects as ground data that can be stored in databases. 
 %The tag \textsf{opaque} specifies that matrices cannot be used for filtering in the user interface. 
 
@@ -88,7 +91,7 @@ Thus, MitM and MDDL form the nucleus of a common vocabulary for typical mathemat
 \end{figure}
 
 Currently, the infrastructure produced includes everything necessary to display a simple website with basic search functionality. 
-The interface is shown in Figure~\ref{fig:joe}, it's structure in \ref{fig:dmhstruct}. 
+The interface is shown in Figure~\ref{fig:joe}, its structure in Figure~\ref{fig:dmhstruct}.
 The infrastructure consists of four main parts - a database (currently either Postgres of Sqlite), a backend (written in Django), a frontend (running inside the users' browser and written in React), and a data importer.
 
 To import data into system we start with an MDDL description of the dataset. 
@@ -102,7 +105,7 @@ The importer can then use this file, and the schema, to interpret each value cor
 During this process the importer also records appropriate data provenance. 
 
 The frontend of the system is written in the React web framework.
-It runs inside the users's browser and communicates with the backend via REST. 
+It runs inside the users' browser and communicates with the backend via REST. 
 Currently, it enables two main tasks: displaying all data inside a specific dataset, 
 and searching for data subject to specific criteria. 
 
@@ -117,7 +120,9 @@ This architecture implies that apart from adding support for new codecs, neither
 
 \medskip
 
-\emph{The \dmh Data Model.} The following concepts appear in the data model.
+\emph{The \dmh Data Model.}
+The data model can be seen in Figure~\ref{fig:data-model}.
+The following concepts appear in the data model.
 \begin{itemize}
 \item A \textbf{datum} is the atomic concept in the system.
 Every datum belongs to a dataset.
@@ -132,9 +137,8 @@ It combines information about the items it contains,
 the properties (mathematical invariants) each item has,
 which codecs are used to encode the actual values,
 and finally, the provenances of all data contained in it.
-The datasets can overlap non-trivially: 
-the smaller graphs in the Census of Cubic Vertex-Transitive Graphs\footnote{http://staff.matapp.unimib.it/~spiga/census.html}
-also appear in the list of Transitive Graphs)\footnote{http://staffhome.ecm.uwa.edu.au/~00013890/remote/trans/index.html},
+The datasets can overlap non-trivially, e.g. the smaller graphs in the Census of Cubic Vertex-Transitive Graphs\footnote{http://staff.matapp.unimib.it/~spiga/census.html}
+also appear in the list of Transitive Graphs\footnote{http://staffhome.ecm.uwa.edu.au/~00013890/remote/trans/index.html},
 which also contains graphs of other degrees.
 
 \item An \textbf{item} is a single mathematical object, 
@@ -143,13 +147,13 @@ Examples of these include groups, graphs, lattices, and other complex mathematic
 An item can belong to more than one dataset:
 the Petersen graph naturally appears in both previously mentioned censuses.
 
-\item \textbf{Provenance} is information on how each datum was produced.
+\item \textbf{Provenance} is information on how and under which conditions each datum was produced.
 Note that a datum can have more than one provenance.
 This happens whenever the value of a property of an item is
 computed independently in different datasets.
 
 \item A \textbf{property} is a mathematical invariant of a mathematical structure.
-An example of a such a property is orthogonality of a matrix.
+An example of such a property is orthogonality of a matrix.
 A property can be encoded in several ways
 (recall the case of integers in LMFDB, where three different encodings are used).
 Encodings of objects (such as the \texttt{graph6} representation for graphs)
@@ -157,7 +161,7 @@ are a special case of properties.
 
 \item A \textbf{codec} is a pair of partial mappings between 
 mathematical values of properties and the values represented in the database.
-A codecs combines the concepts of 
+A codec combines the concepts of
 \begin{itemize}
 \item a \emph{mathematical type},
 \item \emph{condition operators}, and
@@ -172,10 +176,10 @@ We will describe codecs in more detail in the following section.
   \caption{Diagram of the \dmh data model}\label{fig:data-model}
 \end{figure}
 
-This data model already works well over a large set of examples we have examined so far.
+This data model already works well over the large set of examples we have examined so far.
 To support more datasets, we will add further concepts in the future.
-Some further concepts will include ``Aggregated Datasets'' which will be composed of several datasets and will
-introduce support for databases such as the OEIS and House of Graphs.
+One of the concepts we want to add are ``Aggregated Datasets''. 
+These are composed of several datasets and will introduce support for databases such as the OEIS\cite{Sloane:OEIS} or House of Graphs\cite{HOG:journal}.
 These curated datasets are composed of a large number of smaller contributions.
 
 \medskip
@@ -198,7 +202,7 @@ to include information for the interface.
 
 For example, let us consider one of the basic codecs, \texttt{StandardInt}.
 This codec encodes elements of $\mathbb{Z}$ (mathematical type) 
-as standard \ednote{how many?}-bit integers (the database type).
+as standard $64$-bit integers (the database type).
 The current list of condition operators given a constant $c$ contains the following unary operators:
 $$
 \begin{array}{ccc}
@@ -219,14 +223,14 @@ The workshop brought together interested users and authors of mathematical datas
 data framework developers, 
 and experts interested in integrating mathematical databases with computer algebra systems.
 The workshop enabled progress on several fronts,
-including mayor steps in the development of \dmh.
+including major steps in the development of \dmh.
 These included improving the architecture and model, 
 as well as importing several real-life datasets into the system.
 We sketched out a submission and editorial process for the platform.
 We discussed provenance of data in mathematics and
 drafted a standard and formalisation of math data provenance.
 
-At the workshop, dr. Andrea Kohlhase tested the user experience 
+At the workshop, Dr. Andrea Kohlhase tested the user experience
 of the existing web interface through user interviews.
 The following points summarise the results of the user interface analysis.
 \begin{itemize}
@@ -249,7 +253,7 @@ Dr. Andrea Kohlhase also produced a clickable prototype of an updated interface
 and used that in a few interviews combined with an eye-tracker test.
 
 \paragraph{Conclusions and Evaluation}
-Discussions on the user interface showed that the system will need to support from contributors beyond dataset authors and infrastructure developers.
+Discussions on the user interface showed that the system will need to support contributors beyond dataset authors and infrastructure developers.
 The interface
 \begin{itemize}
 \item would reach more users if it were available in multiple languages,

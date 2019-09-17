@@ -1,4 +1,4 @@
-\section{Developments in the core \GAP system}\label{sec:core-gap}
+\section{Developments in the Core \GAP System}\label{sec:core-gap}
 
 This Section highlights some of the most important
 changes to the core \GAP system released
@@ -14,7 +14,7 @@ included as an Appendix~\ref{sec:changes-manual} to this report.
 This work includes many contributions from collaborators outside \ODK,
 whose authorship can be seen from the version control history.
 
-\subsection{libGAP: allowing 3rd party code to link \GAP efficiently as a library}\label{libgap}
+\subsection{libGAP: Allowing 3rd Party Code to Link \GAP Efficiently as a Library}\label{libgap}
 
 The initial connection between \Sage and \GAP was developed around
 2006, and relied on running a full \GAP process with which \Sage
@@ -27,13 +27,13 @@ interface designed for humans, rather than programs.
 
 A better solution is to provide a C API enabling \GAP to be integrated
 into the \Sage process, and allowing a \GAP session to be started,
-objects created, functions called and results retrieved via C function
+objects created, functions called and results retrieved, via C function
 calls. This is, however, not a mode of operation for which \GAP was
 ever designed, and implementing it in a robust and flexible way
 required considerable adaptations to the system, essentially
 disentangling the computational engine from the user interface, while retaining,
 for example, the ability to dynamically load C code from \GAP
-packages into the process that was using libGAP. Another complication
+packages into the process that was using \software{libGAP}. Another complication
 is the need to make sure that the \GAP memory manager does not delete
 objects which the calling process will want in the future.
 
@@ -42,10 +42,12 @@ general-purpose and flexible version was released in \GAP 4.10.0
 (Month 39).
 
 Subsequent releases have improved and will continue to improve the
-robustness of libGAP, and to extend its API with new functionality (See Chapter 2 
+robustness of \software{libGAP}, and to extend its API with new functionality
+(For the detailed descriptions, see Chapter 2 
 ``Changes between \GAP 4.9 and \GAP 4.10'' of the 
-``\GAP - Changes from Earlier Versions'' manual for the detailed
-descriptions). This has allowed \Sage to drop its custom 
+``\GAP\,- Changes from Earlier Versions'' manual,
+provided in Appendix~\ref{sec:changes-manual}).
+This has allowed \Sage to drop its custom 
 modifications to \GAP and use an official, documented and regularly 
 tested \GAP interface instead, starting from SageMath 8.6 (Month 41).
 
@@ -53,24 +55,24 @@ tested \GAP interface instead, starting from SageMath 8.6 (Month 41).
 % SageMath 8.6.beta0, so SageMath 8.6 had it but not SageMath 8.5.
 
 \subsection{Linguistic Reflection -- Supporting Transformation and
-  Optimisation of \GAP functions at runtime}\label{syntaxtree}
-The \GAP programming language, in which much of the system is written
-is interpreted and dynamically-typed (somewhat like the better-known
+  Optimisation of \GAP Functions at Runtime}\label{syntaxtree}
+The \GAP programming language, in which much of the system is written,
+is interpreted and dynamically typed (somewhat like the better-known
 Python). It has a unique ``method selection'' system
-(\cite{BreuerLinton98}) in which the type of objects reflects
-mathematical information learned about them at runtime, which method
-selection depends on the types of all arguments.
+(\cite{BreuerLinton98}) in which the type of an object reflects
+mathematical information learned about it at runtime; method
+selection uses the known types of all arguments in order to choose a method.
 
 A compiler for the language (converting \GAP code
 into C extensions to the \GAP kernel) has been available for many
 years as part of \GAP, but gives surprisingly little speedup on most code, and has not
-seen widespread adoption. The main reason for this is that objects
+seen widespread adoption. The main reason for this is that objects'
 types must still be checked, and method selection decisions made, at
 run-time, even in compiled code.
 
 \Sage, implemented initially in Python, faced many of the same
 problems, and addressed them by adopting, and promoting
-development of, the \href{http://cython.org}{Cython} project which
+development of, the \href{http://cython.org}{Cython} project, which
 extends the Python language with C-like types and constructions to
 allow more effective compilation.
 
@@ -85,17 +87,17 @@ performance and other benefits for the effort invested.
 The key infrastructural tools for both of these have now been added to
 the \GAP language and interpreter. The new \verb|SyntaxTree| function
 ``unpacks'' the workspace representation of a \GAP function,
-converting into a data structure which can be easily manipulated by
+converting it into a data structure which can be easily manipulated by
 \GAP, and converted back into a new executable \GAP function when
-needed. Code annotations, in the form of pragmas are retained through
+needed. Code annotations in the form of pragmas are retained through
 this process, so that the programmer can use them to guide in
-programme transformation, and different software transformers can use
+program transformation, and different software transformers can use
 them to communicate. All of this functionality is publicly available
 now in the development version of \GAP on GitHub and will be included
 in \GAP 4.11 (expected November 2019).
 
-Future versions will build on this for optimisation, OpenMP-style
-semi-automatic parallelisation and (our original motivating
+Future versions will build on this for optimization, OpenMP-style
+semi-automatic parallelization and (our original motivating
 application) to produce specialized versions of functions which reduce
 the amount of run-time method selection required, allowing them to be
 executed more quickly and compiled to C more effectively.
@@ -118,7 +120,7 @@ end;
 \end{Small}
 
 The \verb|#%| here denotes a pragma. This can be unpacked to produce
-the cumbersome, but easily processed data structure shown in figure \ref{fig:syntaxtree}.
+the cumbersome, but easily processed data structure shown in Figure \ref{fig:syntaxtree}.
 
 \begin{figure}[!ht]
   \begin{mdframed}
@@ -172,13 +174,13 @@ rec( name := "foo", nams := [ "n", "x", "y", "z", "i" ], narg := 3,
   \end{figure}
   
 
-This data structure contains all of the necessary information is here
-a simple \GAP program to locate the pragma and using the information
+This data structure contains all of the necessary information for
+a simple \GAP program to locate the pragma and, using the information
 in it, replace the general function \verb|Gcd| by the specialized
 \verb|GcdInt| statically.  Doing this by hand for the moment, we can
-produce the session in figure \ref{fig:using-syntaxtree}. This shows 
-the full round trip for one executable \GAP function \verb|foo| to an
-optimised one which executes approximated five times faster.
+produce the session in Figure \ref{fig:using-syntaxtree}. This shows 
+the full round trip from one executable \GAP function \verb|foo| to an
+optimised one \verb|bar| which completes in approximately one fifth the time.
 
 \begin{figure}[!ht]
   \begin{mdframed}
@@ -226,10 +228,10 @@ source code level transformation. Automated transformation tools built
 on this foundation do
 not need to parse or emit \GAP syntax, and all questions of scope,
 including bindings in closures, are already resolved. A small planned
-extension will add profiling information to the syntaxtree when available.
+extension will add profiling information to the syntax tree when available.
 
 Other applications for this technology include automated
-parallelisation (in combination with \HPCGAP) and traditional code optimizations.
+parallelization (in combination with \HPCGAP) and traditional code optimizations.
 
 While we would have preferred to have had more time to exploit these
 facilities within the project, it was important to achieve consensus
@@ -240,15 +242,15 @@ will provide a basis for developments for years to come.
 
 \GAP 4.8 was the first major release of \GAP published
 after the start\footnote{In the report we
-refer to months of the project, i.e. Month 1 is September 2015 and Month 48 - August 2019.}
+refer to months of the project, i.e. Month 1 is September 2015, while Month 48 is August 2019.}
 of the \ODK project. 
-As a preparation for the planned integration of \HPCGAP branch
-(supporting \GAP language level threading ) into
-the core system some language extensions were backported to core
+In preparation for the planned integration of the \HPCGAP branch
+(supporting \GAP language-level threading) into
+the core system, some language extensions were backported to core
 \GAP at this stage. 
-This helped to unify the codebase of both \GAP~4 and \HPCGAP
-by allowing to read \HPCGAP code in a single-threaded
-\GAP session. For example the
+This helped to unify the codebases of \GAP~4 and \HPCGAP
+by allowing \HPCGAP code to be read in a single-threaded
+\GAP session. For example, the
 \verb|atomic|, \verb|readonly| and \verb|readwrite| keywords used for
 controlling access to shared data in \HPCGAP were
 added as ``no-ops'' to the regular \GAP language.
@@ -256,14 +258,14 @@ added as ``no-ops'' to the regular \GAP language.
 
 In addition, this release also provided support for much enhanced
 profiling, essential to all our performance engineering work.
-Previously \GAP\ allowed tracking of the CPU time spent
+Previously, \GAP\ allowed tracking of the CPU time spent
 executing each function, but the new features in this release
 reduced this granularity to individual lines of \GAP
 code. Related developments also made it easier to track time spent on
 individual lines of C code in the \GAP kernel. A further related
 feature makes it very easy to measure ``test coverage'' -- the
 proportion of the system that has actually been executed by a given
-set of tests. The {\sf Profiling} package \cite{profiling} by Christopher Jefferson
+set of tests. The \software{Profiling} package \cite{profiling} by Christopher Jefferson
 (USTAN) provided excellent tools for transforming these profiles into
 various human-readable forms. These features supported later work on
 enhancing both the performance and the reliability of \GAP, through
@@ -291,7 +293,7 @@ and then a list containing any remaining ones to \verb|x|.
 \end{itemize}
 
 \GAP 4.8 had seven public releases between Month 6 and Month 24, and
-was replaced by \GAP 4.9.
+was replaced by \GAP 4.9 in Month 33.
 
 \subsection{Developments in \GAP 4.9 (Month 33)}\label{gap-4.9}
 
@@ -300,7 +302,7 @@ system, aiming at the greater reliability, flexibility and performance
 which would be needed for \GAP users to gain the full advantage of the \ODK ecosystem.
 For example, we removed our old home-grown large integer arithmetic
 implementation, and committed fully to the state of the art external
-library \href{???}{GMP}. This
+library \href{https://gmplib.org/}{\software{GMP}}. This
 move continues our cautious programme of exploiting existing free
 software in our core system. Our caution here is based on
 experience. Moving too quickly in this area in the past has created
@@ -328,14 +330,14 @@ encouraging integration of existing C libraries in packages complements
 our cautious approach mentioned above to including them in the core
 system.
 
-One such example is the {\sf Semigroups} package \cite{Semigroups} by James D.
+One such example is the \software{Semigroups} package \cite{Semigroups} by James D.
 Mitchell (USTAN).  This started as a pure \GAP package not requiring compilation,
 but a number of key algorithms from it were later converted into C and C++ in
 order to achieve the high performance necessary for its use in mathematical
 research.  Rather than keeping these algorithms in a simple \GAP kernel
-extension, they were made into a separate C++ library called {\sf libsemigroups}
+extension, they were made into a separate C++ library called \software{libsemigroups}
 \cite{libsemigroups}, which does not rely on \GAP or any of its packages.  This
-library is a required component of the {\sf Semigroups} package, and provides
+library is a required component of the \software{Semigroups} package, and provides
 high-performance code to compute such objects as presentations, Cayley graphs
 and rewriting systems for finite semigroups, as well as information about
 semigroup congruences.  Many parts of the library support multi-threading,
@@ -344,37 +346,37 @@ even when not running \HPCGAP.  Furthermore, the library can be accessed from
 Python or \Sage via \href{https://github.com/libsemigroups/libsemigroups-python-bindings}{a special set of Python bindings}
  without
 any need for \GAP to be loaded.  The development of these bindings, other work
-on {\sf libsemigroups}, and the mathematical research that came from it, are
+on \software{libsemigroups}, and the mathematical research that came from it, are
 good examples of \ODK collaboration between USTAN and UPSud.
-An example of {\sf libsemigroups} being called used through \GAP is shown in
+An example of \software{libsemigroups} being called and used through \GAP is shown in
 Appendix~\ref{sec:libsemigroups-notebook}.
 
-Another example is the {\sf curlInterface} package \cite{curlInterface}
+Another example is the \software{curlInterface} package \cite{curlInterface}
 by Christopher Jefferson and Michael Torpey, which first appeared
-in \GAP 4.9.3 distribution, allows a user to interact 
-with http and https servers on the internet, using the {\sf curl} library, 
-and has been crucial for implementing the {\sf PackageManager} package
-\cite{PackageManager}, described in Subsection~\ref{pkg-manager}.
+in \GAP 4.9.3 distribution.  This package allows a user to interact 
+with http and https servers on the Internet, using the \software{curl} library, 
+and is used by the \software{PackageManager} package
+\cite{PackageManager} described in Subsection~\ref{pkg-manager}.
 
-\GAP~4.9.1 release also incorporated the new {\sf ZeroMQInterface}
+The \GAP~4.9.1 release also incorporated the new \software{ZeroMQInterface}
 package
 \cite{ZeroMQInterface} by Markus Pfeiffer and Reimer Behrends, which
 provides both low-level bindings as well as some higher level interfaces
-for the {\sf ZeroMQ} message passing library for \GAP and \HPCGAP, 
+for the \software{ZeroMQ} message passing library for \GAP and \HPCGAP, 
 enabling lightweight distributed computation. 
 
 
-The release of this package at this time allowed us to include in \GAP~4.9.2
-further three packages, namely the {\sf JupyterKernel} package \cite{JupyterKernel} 
+The release of this package at this time allowed us to include in \GAP~4.9.2 a
+further three packages.  Firstly we have the \software{JupyterKernel} package \cite{JupyterKernel} 
 by Markus Pfeiffer, developed under WP4 and reported in deliverable D4.7,
 providing a so-called kernel for the
 \href{https://jupyter.org/}{Jupyter interactive document system}. This package
-requires GAP packages {\sf IO}, {\sf ZeroMQInterface}, {\sf json},
-and also two new packages by Markus Pfeiffer called
-{\sf crypting} and {\sf uuid} \cite{crypting,uuid}, all included 
-into \GAP~4.9.2 distribution.
+requires GAP packages \software{IO}, \software{ZeroMQInterface}, \software{json},
+and also two other new packages by Markus Pfeiffer called
+\software{crypting} and \software{uuid} \cite{crypting,uuid}, all included 
+in the \GAP~4.9.2 distribution.
 
-\GAP~4.9.3 also included the {\sf datastructures} package \cite{datastructures}
+\GAP~4.9.3 also included the \software{datastructures} package \cite{datastructures}
 by Markus Pfeiffer, Max Horn, Christopher Jefferson and Steve Linton, which aims 
 at providing standard datastructures, consolidating existing code and improving 
 on it, in particular in view of \HPCGAP.
@@ -384,8 +386,8 @@ The \GAP~4.9.1 release also incorporated many smaller performance improvements. 
 at runtime. While maintaining readability through naming, uses of
 these constants can be optimized as a function is parsed, so that they
 are at least as fast as using explicit values. Another notable improvement was
-<to the widely used  sorting functions which now use the best
-recently published algorithms and were also made more maintainable by
+to the widely used  sorting functions which now use the best
+recently published algorithms and were also made easier to maintain by
 restructuring the implementation.
 
 Debugging  and profiling tools were also improved based on experience with
@@ -397,7 +399,7 @@ with other modern programming languages:
     functions with any number of arguments, so that, for example,
     \verb|{a,b} -> a+b| abbreviates \verb|function(a,b) return a+b; end|. 
 \item more flexibility in \GAP expression syntax,
-  where previously there were annoying technical restrictions. For
+  where previously there were unintuitive technical restrictions. For
   example, an entry of the sum of two vectors can now be accessed as
   \verb|x := (v+w)[i]| instead of \verb|u := v+w; x := u[i]|.
   
@@ -410,28 +412,28 @@ with other modern programming languages:
 
 \end{itemize}
 
-\GAP 4.9 had three public releases between Months 33-37, and
-was replaced by \GAP 4.10.
+\GAP 4.9 had three public releases between Months 33 and 37, and
+was replaced by \GAP~4.10 in Month 39.
 
 \subsection{Developments in \GAP 4.10 (Month 39)}\label{gap-4.10}
 
 The release of \GAP 4.9 with the new build system allowed the
 restructuring of the core \GAP system to continue, and allowed us to
 finalize a number of other ongoing changes, leading to \GAP 4.10
-after a shorter than usual interval. \GAP 4.10 is current
+after a shorter-than-usual interval. \GAP 4.10 is the current
 version of \GAP, with the latest release being \GAP 4.10.2, published
 in Month 46, and \GAP 4.11 expected in November 2019.
 
 The most important new feature in \GAP 4.10 was the first public
-release of \texttt{libGAP}: an
+release of \software{libGAP}: an
 option to compile \GAP as a C library instead of a stand-alone
 executable. This is very important for many uses of \GAP in \ODK and
-is discussed further in section \ref{libgap} below.
+was discussed in further detail in Section \ref{libgap} below.
 
 \GAP 4.10 also provides experimental support for using alternative
-memory management systems, notably the \href{??}{Julia} garbage
-collector and the \href{???}{Boehm garbage collector}, in place of the
-GASMAN system which was developed for \GAP 4 in the 1990s.  These
+memory management systems, notably the \href{https://julialang.org/}{Julia} garbage
+collector and the \href{http://www.hboehm.info/gc/}{Boehm garbage collector}, in place of the
+\software{GASMAN} system which was developed for \GAP 4 in the 1990s.  These
 garbage collectors are thread-safe (important for \HPCGAP) and the
 option to use the Julia garbage collector will allow tight integration
 of \GAP with Julia programs and other systems via Julia. Use of Julia
@@ -443,21 +445,21 @@ Mathematics and their Application'' and is seen as complementary to \ODK.
 The work on improving debugging and profiling in \GAP has
 continued. Profiling now reports memory usage as well as CPU time, and
 additional checking options (both internal and by using external tools such as
-\href{???}{valgrind}) help to detect misuse of memory in the kernel.
+\href{http://www.valgrind.org/}{\software{valgrind}}) help to detect misuse of memory in the kernel.
 
 Using the improved debugging and profiling facilities we were able to
 detect many performance bottlenecks and confirm that new code
 genuinely improved performance, as well as detecting many bugs much
 earlier in the development process. To alleviate performance
 bottlenecks in key applications, we rewrote much of the method
-selection (dispatch) code \GAP to C and gained large speedups by
+selection (dispatch) code from \GAP to C and gained large speedups by
 re-engineering many integer arithmetic functions.
 
 For example, the table below gives the CPU time in milliseconds required
 to run the following calculation:
 
 \begin{verbatim}
-for i in [1..k] do x:= 1/p^q mod n; od
+for i in [1..k] do x:= 1/p^q mod n; od;
 \end{verbatim}
 \medbreak
 \begin{center}
@@ -489,8 +491,7 @@ p & q    & n          & k        & ms, before & ms, after \\
 %gap> q:=1/2^6000;;n:=3^6000;; for i in [1..6000] do x:= (q mod n); od; time;
 %692
 
-%\TODO{Maybe drop this next one, a bit technical? AK: maybe (mention only last
-%line maybe - enables calculation not easily doable in default memory settings before?}
+%DDrop this next one, a bit technical
 %
 %Also, \verb|InverseMatMod| with integer modulus has been improved.% #2426
 %The following table shows the runtime needed to call
@@ -538,17 +539,17 @@ In general, these are very effective, and the deduced information can
 lead the system to chose better methods for subsequent
 calculations. For instance, when a group learns its order, if that
 order is finite and odd, then by the celebrated
-Feit-Thomson theorem the group must be solvable. Once that
+Feit--Thomson theorem the group must be solvable. Once that
 is known, much more efficient methods can be applied for many
 subsequent calculations.
 
-While this is a very powerful feature in most situations, in some
+While this is a powerful feature in most situations, in some
 calculations, a large number of short-lived objects are created,
 and the immediate methods use a great deal of time deducing knowledge
 about each of them
 that will never be used. The profiling developments made this 
 easily visible for the first time, and some small adjustments to the
-immediate methods produced up to a six-fold speed up in fundamental
+immediate methods produced up to a six-fold speed-up in fundamental
 operations such as computing isomorphism groups. For instance, the
 run-time for the code fragment below dropped from 130
 seconds to 22.
@@ -564,32 +565,29 @@ IsomorphismGroups(G,PcGroupCode(CodePcGroup(G),Size(G)))<>fail;
 }
 
 
-We have also continued to develop package {\sf JupyterKernel} following 
+We have also continued to develop package \software{JupyterKernel} following 
 its inclusion in \GAP~4.9 to enhance its usability. The advent of
-\href{https://mybinder.org/}{Binder} allowed us to give users and 
+\href{https://mybinder.org/}{Binder} allowed us to give users an
 opportunity to try \GAP Jupyter notebooks online 
 and share reproducible \GAP experiments (see Appendix~\ref{sec:repro-gap}).
 
-The inclusion of the {\sf JupyterKernel} package and its associated 
+The inclusion of the \software{JupyterKernel} package and its associated 
 dependencies into \GAP~4.9 facilitated the appearance of new packages
 extending its graphical capabilities. \GAP 4.10.0 incorporated 
-the {\sf Francy} package \cite{Francy} by Manuel Martins and
-the {\sf JupyterViz} package \cite{JupyterViz} by 
+the \software{Francy} package \cite{Francy} by Manuel Martins and
+the \software{JupyterViz} package \cite{JupyterViz} by 
 Nathan Carter\footnote{Nathan Carter visited USTAN on sabbatical from
 Bentley University in 2018--2019, and was employed part time to work
-mainly on WP3. 
-on 
- partially supported by OpenDreamKit.
-In addition to {\sf JupyterViz}, he also carried out a major redesign
-of his {\sf GroupExplorer} software -- a popular teaching resource, 
+mainly on WP3. In addition to \software{JupyterViz}, he also carried out a major redesign
+of his \software{GroupExplorer} software -- a popular teaching resource, 
 accompanied by the textbook \cite{Carter-book}, which had been developed
 in the previous decade and was in an
-urgent need of modernisation. The new version, available
+urgent need of modernization. The new \software{GroupExplorer} version, available
 at \cite{GroupExplorer}, also allows a user to load and run the \GAP code
-to construct and explore groups from the {\sf GroupExplorer} library
-interactively launching a \GAP session on a \SageMath cell server.
+to construct and explore groups from the \software{GroupExplorer} library
+interactively, launching a \GAP session on a \SageMath cell server.
 }
-which allow to create and work with charts and graphs. The latter
+which allow users to create and work with charts and graphs. The latter
 package also allows the user to produce graphics from the \GAP command line.
 
 
@@ -609,9 +607,9 @@ publicly  available on GitHub to developers or anyone else interested.
 
 One important and relevant feature of this release will be the ``syntaxtree'' reflection
 API for \GAP, allowing \GAP programs to access and modify the internals of \GAP
-functions and opening up a range of possibilities for optimisation, automatic
-parallelisation, and more effective compilation into C. This is
-discussed in more detail in section \ref{syntaxtree} below. 
+functions and opening up a range of possibilities for optimization, automatic
+parallelization, and more effective compilation into C. This is
+discussed in more detail in Section \ref{syntaxtree} above. 
 
 Additional relevant features are continued improvements to debugging and
 profiling facilities (for example,
@@ -624,9 +622,9 @@ giving more library methods human-readable names;
 %#2900 %#1633 
 and enhancements to the testing infrastructure designed to make the
 test suite more robust and easier to run, and tests more independent
-and easier to write.
+and easier to write).
 
-The \texttt{libGAP} API has been extended
+The \software{libGAP} API has been extended
 to allow programs using the system in this way
 more convenient access to \GAP objects such as
 %#2998, #2999, #3007 
