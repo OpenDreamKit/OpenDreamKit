@@ -1,0 +1,250 @@
+\subsubsection{WorkPackage 5: High Performance Mathematical Computing}
+  \label{hpc}
+%Explain, task per task, the work carried out in WP during the reporting period giving details of the work carried out by each beneficiary involved.
+
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  \paragraph{Overview}
+
+  Workpackage 5 is about the development of high performance computing tools in
+  mathematical virtual research environments. It is addressed at the level
+  of each kernel library composing the computational tools of the project (\Pari,
+  \GAP, \Linbox, \MPIR, \Sage, \Singular, ...), and also at the level of interfacing and exposing
+  core parallel features to higher level programming interfaces.
+
+  Key results obtained over the period for WorkPackage 5 are the following:
+  %% Only list deliverables produced in the reporting period
+  \begin{compactitem}
+  %% \item A closer integration of \Linbox in \Sage with improved reliability and
+  %%   computing efficiency.
+  \item A full-featured parallelisation engine, supporting POSIX threads and
+  MPI, for \PariGP in production release of the software
+  \item Release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
+  %    \item A new super-optimizer for vectorized assembly code and its
+  %  exploitation to improve the performances of the MPIR code.
+  \item A new symmetric matrix factorization algorithm over finite fields, and
+  its high-performance implementation in the \texttt{fflas-ffpack} library.
+  \item Major redesign the the polynomial arithmetic used in Singular delivering
+  state of the art efficiency.
+\end{compactitem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subparagraph{Milestones}
+
+\subparagraph{\longmilestoneref{hpc-prototype}}
+
+\emph{“User story: Astrid wants to run compute intensive routines
+    involving both dense linear algebra and combinatorics. She has
+    access through a JupyterHub-based VRE to a high end multi-core
+    machine which includes a vanilla \Sage installation. She
+    automatically benefits from the HPC features of the underlying
+    specialized libraries (\Linbox, ...). This is a proof of concept
+    of the overall framework to integrate the HPC advances of
+    specialized libraries into a general purpose VRE.
+    %
+    It will prepare the final integration of a broader set of such
+    parallel features for the end of the project.”}
+
+With Deliverable~\delivref{hpc}{LinBox-algo}, we developed, released and integrated in the
+\Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
+When installing the latest \Sage release on a multithreaded multicore server, it
+only takes one configure option to let fflas-ffpack use a multi-threaded BLAS
+and therefore expose its parallel speed-up to the end-user of Sage. This feature
+is compliant with the use of a higher level of parallelism, through process
+workstealing queues that \textit{Astrid} may be using in her combinatorics code, as those
+exposed in \delivref{hpc}{sage-HPCcombi}. Now that this first proof of concept has been
+successfully achieved, we are working in exposing the more advanced parallel
+routines of fflas-ffpack into \Sage, following~\delivref{hpc}{LinBox-DSL}. It
+should in particular make Gaussian elimination and related routines enjoy a
+better scaling with respect to available CPU cores.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Tasks}
+
+\subparagraph{\longtaskref{hpc}{hpc-pari}}
+Deliverable~\longdelivref{hpc}{pari-hpc1} was merged with
+\longdelivref{hpc}{pari-hpc2} in the revised workplan. The deliverable
+\delivref{hpc}{pari-hpc2} is released on time.
+
+The release 2.12 of the \PariGP suite features a MultiThread engine,
+used transparently in all tools from the suite: the \Pari library, the
+command line interface \texttt{gp} and the GP2C compiler. Written in 2015 and
+2016, the engine supports sequential evaluation (no parallelism), POSIX
+threads and MPI within the same code base. It is now being progressively
+used wherever it makes sense in the code base and this is by nature work
+in progress. In \Pari-2.12, the MT engine is a central component of
+\begin{itemize}
+\item fast (near linear time) Chinese remaindering;
+\item fast linear algebra over $\mathbb{Q}$ and cyclotomic fields,
+  a critical component of the new "Modular Forms" package;
+\item polynomial resultants in
+  $\mathbb{Z}[X] \times \mathbb{Z}[X,Y]$ (via fast Chinese remainders and
+    evaluation / interpolation), a basic tool for algebraic number theory;
+\item computation of classical modular polynomials for about 20 classical
+invariants (j, Weber functions, small eta quotients\dots);
+\item discrete logarithm over finite fields (prime fields and
+$\mathbb{F}_{p^e}$ for word-sized prime $p$) ;
+\item Adleman-Pomerance-Rumely-Cohen-Lenstra primality proof;
+\item Fourier coefficients of $L$-functions (Hasse-Weil and Artin
+  $L$-functions);
+\item hi-resolution plot of mathematical functions using parallel evaluation.
+\end{itemize}
+
+The \texttt{master} branch on the public development server includes further
+\begin{itemize}
+  \item values of complex $L$-functions (via parallel computation of
+    Meijer $G$-functions);
+  \item a new thread-safe version of the Multiple Polynomial Quadratic Sieve
+    (MPQS) integer factoring algorithm, ready to be parallelized;
+\end{itemize}
+The parallel-enabled components of the \PariGP suite have been advertised 
+(including tutorial sessions) and tested by participants during PARI/GP
+workshops in Grenoble (2016), Lyon (2017), Besançon (2018) and Bordeaux
+(2019).
+
+\subparagraph{\longtaskref{hpc}{hpc-gap}}
+\label{hpc@hpc-gap}
+
+Deliverable~\longdelivref{hpc}{GAP-HPC-report} was completed at the end of this period,
+reporting all of the developments in the \GAP system during the project which are relevant
+to, or provide essential context for, this workpackage.
+
+During reporting period 3 the main areas of effort were:
+\begin{itemize}
+\item Follow-up work to the integration of HPC-GAP into the main codebase reported in
+  the previous period. This work improves the robustness of the system and dramatically reduced the
+  differences between the two versions of the sourcecode.
+\item
+  Development of the \GAP interface to the meataxe64 high performance linear algebra library (to which
+  we also contributed significant development effort). This system targets large calculations over
+  small finite fields on multi-core shared memory computers. The interface makes almost all of the
+  capabilities of meataxe64 callable from \GAP, something which is not only a quantum leap in
+  performance for \GAP in this critical area, but also allows easy prototyping in \GAP of new
+  algorithms for meataxe64.  This libraru can make use of multiple cored whether or not it is being
+  called from \HPCGAP. A full set of benchmarks are included in D5.15, but as a highlight, two
+  dense random $320\,000\times 320\,000$ matrices over $GF(2)$ can be multiplied in just over 1000
+  seconds on a 64 core AMD ``bulldozer'' system.
+  \item Release of ``libGAP'' a general-purpose C API for \GAP, replacing the custom patches
+    previously used in \Sage. This allows any program, including in particular HPC code to call on the
+    functionality of \GAP efficiently and without the need to run a separate \GAP process. This makes
+    much more fine grained interaction possible.
+  \item Development and release of a new linguistic reflection API in \GAP, allowing \GAP programs to
+    access and modify the executable representation of their own functions at run-time. This will be
+    the basis of future automatic parallelisation and optimisation tools.
+  \item Very much improved profiling tools
+  \item Release of the new package ``ferret'' which achieves world-leading performance in partition
+    backtrack, a critical, and notoriusly challenging computational kernel
+  \item Extensive developments in our testing and release infrastructure with the overall goal of
+    ensuring that \GAP users have easy access to a reliable, up-to-date and mutually compatible set of
+    versions of the large suite of packages redistributed with \GAP.
+\end{itemize}
+
+
+\subparagraph{\longtaskref{hpc}{hpc-linbox}}
+  \label{hpc@hpc-linbox}
+
+The deliverable~\longdelivref{hpc}{LinBox-distributed} due for this reporting period is
+delivered on time.
+
+A first focus was made on distributed computing, with an MPI parallelization of a Chinese remainder based
+algorihtm. The prototypical implementation first produced was then cleanly integrated in the mainstream code of the
+library. Its performance show a very nice scaling with the number of compute nodes on a 256 cores cluster. Although this
+approach is best suited for large scale parallelization, its generates a suboptimal workload which become a major
+concern on large instances.
+
+An alternative approach based on $p$-adic lifting has an  asymptotically smaller workload, but is intrinsically more
+sequential, and therefore less suited for large scale parallelization. 
+A major contribution in this task is a new algorithm combining $p$-adic lifting and Chinese remaindering in order to
+expose more parallelism without sacrifying the gain in the workload.
+We also provide a full-featured  implementation of this new algorithm in \Linbox, which shows delivers both high
+efficiency in sequential, and scales well up to 16 cores on a multicore server.
+
+Lastly, we also introduced a support for GPUs in the \texttt{fflasffpack} library and show how matrix product over a finite
+field benefit from these accelerators.
+
+All these software improvements are closely integrated in the mainstream code of the \texttt{fflasffpack} and \Linbox libraries.
+
+  \subparagraph{\longtaskref{hpc}{hpc-singular}}
+  \label{hpc@hpc-singular}
+
+  The only deliverable under consideration for this reporting period
+  is~\longdelivref{hpc}{singular-polyarith}
+
+Multivariate polynomials are represented in Singular using the sdmp format. While this data structure is generally amenable to parallelization, the implementation and some of the algorithms in Singular were not. Much work has been invested in updating the algorithms and data structures and making Singular polynomial arithmetic competitive with other systems. This work has been done in the Singular submodule Flint, whose code is available at \url{https://github.com/wbhart/flint2}.
+
+We now support polynomial exponents of unlimited size with the three basic monomial orderings of lex, deglex, and degrevlex over the integers mod p and rationals. Continued engagement by colleagues in the HPC community including Bernard Parisse, Michael Monagan, Roman Pearce, and Micka\"el Gastineau has been invaluable.
+
+Parallel and serial implementations of the operations of multiplication, division and GCD are complete and perform well in both the dense and sparse cases. The performance is more than competitive with all other systems we are aware of, both on a single core and on multiple cores.
+
+Basic arithmetic in Singular now benefits directly from the implementation and researchers are already working on leveraging the new implementation in other areas, e.g. Gr\"{o}bner bases over rational functions, Gr\"{o}bner bases with a bottleneck on multivariate arithmetic and polynomial factorisation. Early indications are that all of these are going to experience a huge improvement for many real-world research applications.
+
+Other systems such as the new Oscar computer algebra system already benefit directly from the new ODK implementation. 
+
+Sage will automatically benefit directly at the next update of the Singular version in Sage.
+
+  \subparagraph{\longtaskref{hpc}{hpc-mpir}}
+  \label{hpc@hpc-mpir}
+
+  Not applicable for this period.
+  
+  \subparagraph{\longtaskref{hpc}{hpc-combi}}
+  \label{hpc@hpc-combi}
+
+  Not applicable for this period.
+
+
+  \subparagraph{\longtaskref{hpc}{pythran}}
+  \label{hpc@hpc-pythran}
+  Not applicable for this period.
+
+%%   The goal of this task is to make Pythran easily integratable in large-scale
+%%   project, taking into account native dependencies, compilation time, memory
+%%   footprint, speed and size of compiled binaries as well as multi-platform
+%%   support. Integration with \software{cython} is a possible mean to achieve
+%%   this goal.
+
+%%   Two projects have been selected for this task: \software{scipy} and
+%%   \software{scikit-image}. These projects are relevant for \software{pythran}
+%%   because they have many small to medium kernels that can benefit from
+%%   compilation. Even though \software{pythran} has not been selected as a scipy
+%%   backend, the exchanges with the community have led to a great deal of
+%%   improvements of which all \software{Pythran} users take advantage.  The
+%%   \software{scikit-image} community is still examining the possibility of using
+%%   \software{pythran} as an acceleration mean.
+
+%%   Integration of  \software{pythran} as a \software{cython} backend for
+%%   \software{numpy} has improved in various aspects: better error detection,
+%%   more supported expression patterns and improved performance for the compiled
+%%   expressions.
+
+%% Deliverable~\longdelivref{hpc}{sage-HPCcombi} is shared with
+%% Task~\longlocaltaskref{hpc}{hpc-combi}, the status of which we reported on above.
+
+  \subparagraph{\longtaskref{hpc}{hpc-jupyter}}
+  \label{hpc@hpc-jupyter}
+  
+%% It is common for academic High Performance Computing (HPC) clusters to make
+%% use of schedulers based on Sun Grid Engine with Son of Grid Engine as one of
+%% the most popular. It is used, for example, on the institutional HPC systems
+%% in the Universities of Sheffield and Manchester in the United Kingdom. It is also used
+%% on the regional N8 HPC facility, a system shared by the eight most research
+%% intensive universities in the North of England.
+  Not applicable for this period.
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "report"
+%%% End:
+
+
+%  LocalWords:  subsubsection hpc compactitem super-optimizer vectorized factorization
+%  LocalWords:  texttt fflas-ffpack longmilestoneref emph JupyterHub-based specialized
+%  LocalWords:  longtaskref longdelivref delivref finalized mathbb embarassingly taskref
+%  LocalWords:  scienceproject refactorization organized LinBox-algo DumPerSul:fcrpmgbd16
+%  LocalWords:  Pernet:cqm16,PerSto:tsegqm17 DumKalTho:lticmpdsm16,DumLucPer:cftearp17
+%  LocalWords:  Cython Hongguang singular-polyarith sdmp parallelization deglex degrevlex
+%  LocalWords:  Monagan Micka parallelized parallelize Imbach hpc-mpir sage-paral-tree
+%  LocalWords:  Cilk libsemigroup optimized pythran integratable scipy scikit-image numpy
+%  LocalWords:  sage-HPCcombi hpc-jupyter

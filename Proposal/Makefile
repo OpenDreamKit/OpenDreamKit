@@ -46,9 +46,8 @@ draft:  $(SRC)
 
 grantagreement:
 	$(MAKE) $(MAKEFAGS) -w PROPOSAL=grantagreement.tex -W grantagreement.tex all
-	pdftk grantagreement.pdf cat 1-35 61-end output grantagreement-striped.pdf
-	mv grantagreement-striped.pdf grantagreement.pdf
-
+	mv grantagreement.pdf grantagreement-full.pdf
+	pdftk grantagreement-full.pdf cat 1-36 62-end output grantagreement.pdf
 
 install: final
 	cp final.pdf proposal-www.pdf
@@ -57,7 +56,9 @@ install: final
 
 bbl:	$(BBL)
 $(BBL): %.bbl: %.aux
-	bibtex -min-crossrefs=100 -terse $<
+	biber $*
+
+#bibtex -min-crossrefs=100 -terse $<
 
 $(TSIMP.pdf): %.pdf: %.tex $(PROPCLS) $(PDATA)
 	$(PDFLATEX) $< || $(RM) $@
@@ -126,6 +127,7 @@ diff:	allinone.tex
 	# latexexpand final.tex -o allinone-old.tex
 	# copy the result to this directory
 	-rm diff.*
+	latexexpand final.tex -o allinone.tex
 	latexdiff  allinone-old.tex allinone.tex > diff.tex
 	sed -i   s/blue/DarkGreen/ diff.tex
 	sed -i   "s/^.milestonetable/%milestonetable/" diff.tex

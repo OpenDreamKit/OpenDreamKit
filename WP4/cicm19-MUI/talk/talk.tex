@@ -1,0 +1,299 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+
+\usepackage{listings}
+
+\makeatletter
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.2\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{~~(\insertshortinstitute)}
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatother
+
+
+%Packages
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{mmt}
+
+%\usepackage[
+%    type={CC},
+%    modifier={by-nc-sa},
+%    version={3.0},
+%]{doclicense}
+
+%META-INFORMATION
+\title[Semantic Documents and Dynamic Notebooks]{Integrating Semantic Mathematical Documents and Dynamic Notebooks}
+\author[Tom Wiesing et al.]{Kai Amann, Michael Kohlhase, Florian Rabe, and \underline{Tom Wiesing}\\Computer Science, FAU Erlangen-N{\"u}rnberg}
+\date[July 12 2019, CICM Prague]{July 12, 2019\\Conference on Intelligent Computer Mathematic\\Prague, Czech Republic}
+
+\begin{document}
+    %TITLEPAGE
+    \frame{\titlepage}
+    \begin{frame}{Documents}
+        \begin{columns}
+        \column{0.7\textwidth}
+            \begin{itemize}
+                \item \textbf{Document} = `a written, drawn, presented, or memorialized representation of thought' (Wikipedia)
+                \begin{itemize}
+                    \item Papers
+                    \item Talks
+                    \item Books
+                    \item Websites
+                \end{itemize}
+                \item Useful for \textbf{presenting} knowledge
+                \item Caveat: Documents are usually \textbf{static}
+                \begin{itemize}
+                    \item they do not allow interaction with this knowledge
+                \end{itemize}
+                \item Focus on \textbf{Mathematical Documents} in this talk
+            \end{itemize}
+                \column{0.3\textwidth}
+            \includegraphics[scale=0.25]{images/doc}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}{Notebooks + Jupyter}
+        \begin{columns}
+        \column{0.4\textwidth}
+            \begin{itemize}
+                \item Notebooks build on the REPL paradigm
+                \begin{itemize}
+                    \item REPL = \textbf{R}ead \textbf{E}val \textbf{P}rint \textbf{L}oop
+                \end{itemize}
+                \item consist of a set of cells, each of which has
+                \begin{itemize}
+                    \item code
+                    \item documentation
+                    \item Widgets
+                \end{itemize}
+                \item very \textbf{interactive}
+            \end{itemize}
+        \column{0.6\textwidth}
+            \includegraphics[scale=0.2]{images/notebook}
+        \end{columns}
+
+        \begin{itemize}
+            \item \textbf{Jupyter} = FOSS Notebook Implementation
+                \begin{itemize}
+                    \item written in Python
+                    \item supports different programming languages using \textbf{kernels}
+                \end{itemize}
+            \item to make use of notebooks, authors also need to know \textbf{programming}
+                \begin{itemize}
+                    \item document authors already need to know their field
+                    \item similar for readers
+                \end{itemize}
+        
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{Goals and Challenges}
+        \begin{itemize}
+            \item \textbf{Idea:} Combine notebooks and documents to get interactivity with little programming
+            \begin{itemize}
+                \item How can we combine the notebook and document paradigms?
+                \item How can we support flexible interactions without forcing authors to program?
+            \end{itemize}
+
+            \item Our solution
+            \begin{itemize}
+                \item Make use of \textbf{OMDOC} as it can represent flexi-formal documents
+                \item Import them into MMT
+                \item Build a \textbf{Jupyter Kernel} for an MMT REPL
+                \item Expand this Kernel to support Widgets \textit{(more on what exactly those are later)}
+                \item Make the result accessible directly from within documents
+            \end{itemize}
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}[fragile]{Goals and Challenges (2) }
+        \includegraphics[scale=0.5]{images/acwidget}
+    \end{frame}
+    
+    \begin{frame}{Architecture of Jupyter and Kernels}
+        \begin{columns}
+        \column{0.6\textwidth}
+            \begin{itemize}
+                \item Frontend: Implemented using \textbf{TypeScript} in the browser
+                \item Backend: Implemented using \textbf{Python}
+                \begin{itemize}
+                    \item programming-language features delegated to \textbf{language-specific} kernels
+                \end{itemize}
+            \end{itemize}
+        \column{0.4\textwidth}
+            \centering
+            \includegraphics[scale=0.25]{images/jupyterarch}
+            \scalebox{.3}{Image Copyright (c) 2017, Project Jupyter Contributors. All rights reserved.}
+        \end{columns}
+        \begin{itemize}
+            \item Kernels communicate with the backend using a dedicated protocol
+            \begin{itemize}
+                \item provide a REPL-style interface + widget support
+                \item can in principle be implemented in any language
+                \item usually written in the language they offer support for
+            \end{itemize}
+            \item We want to build a Jupyter kernel + REPL for MMT
+        \end{itemize}
+        
+    \end{frame}
+
+    \begin{frame}[fragile]{MMT}
+        \begin{itemize}
+            \item \textbf{MMT} = Meta-Meta-Tool
+            \begin{itemize}
+                \item framework for knowledge representation, implemented in Scala
+                \item developed mainly by \textit{Florian Rabe}
+                \item avoids a specific representational paradigm and is language-independent
+                \item makes use of \textbf{OMDOC} and can handle formal and informal documents
+            \end{itemize}
+            \item Knowledge is modeled using theory graphs
+            \begin{itemize}
+                \item theory = collection of declarations 
+                \item declaration = represents a \textbf{symbol}, \textbf{statement} or \textbf{property}
+                \item theory graphs = theories and relations between them, e.g. truth-preserving mappings or extensions
+            \end{itemize}
+        \end{itemize}
+        \input{graph.tex}
+    \end{frame}
+
+    \begin{frame}{A Jupyter Kernel for MMT}
+        \begin{itemize}
+            \item Opening a notebook = starting a \textbf{new session}
+            \begin{itemize}
+                \item each session contains a set of commands
+                \item similar to an MMT document = set of declarations
+                \item declaration = \textbf{symbol} and optional \textbf{definition} and \textbf{type}
+            \end{itemize}
+            \item principle: create a new MMT theory for each session
+            \begin{itemize}
+                \item each input generates a new declaration within the current document
+                \item definition is the input of the user
+            \end{itemize}
+            \item Recall: MMT is language and semantics independent
+            \begin{itemize}
+                \item based on user-defined formalization
+                \item definitions may contained \textbf{unevaluated} symbols
+                \item may not be simplified
+            \end{itemize}
+            \item MMT also supports nesting of theories
+            \item $\Rightarrow$ it is not sufficient to provide only commands to write declarations
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{A sample notebook}
+         \begin{columns}
+        \column{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.4]{images/notebooknested}
+        \column{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.8]{images/theorynested}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}{What are Widgets?}
+        \begin{itemize}
+            \item widgets = \textbf{GUI component} that allows Jupyter kernels to provide graphical interfaces
+            \begin{itemize}
+                \item e.g. button, slider, input field, output field, labels, ...
+                \item go \textbf{beyond} the REPL paradigm
+            \end{itemize}
+
+            \item can be plugged together interactively
+            \item consist of kernel-side and frontend code
+            \begin{itemize}
+                \item frontend contains HTML, CSS + JavaScript
+                \item kernel holds the state of the widget
+            \end{itemize}
+            \item Kernels can implement custom widgets
+            \begin{itemize}
+                \item plugging existing ones together or
+                \item making new ones from scratch
+            \end{itemize}
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{The active computation widget}
+        \includegraphics[scale=.5]{images/activecomp}
+        \begin{itemize}
+            \item the user can enter a \textbf{term} and a \textbf{set of variables}
+            \item widget allows to change the variables and compute the result
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}[fragile]{Widgets inside Static Documents}
+        \begin{itemize}
+            \item \textbf{Idea: } Make our \textbf{Active Computation} usable directly from documents
+            \begin{itemize}
+                \item We need to know \textbf{the formula} that we want to interact with
+                \begin{itemize}
+                    \item Let the user click on it
+                \end{itemize}
+                \item We need to know the \textbf{context} and \textbf{variables}
+                \begin{itemize}
+                    \item Annotate them on the document
+                \end{itemize}
+            \end{itemize}
+        \end{itemize}
+
+        \begin{columns}
+        \column{0.35\textwidth}
+            \centering
+            \includegraphics[scale=0.25]{images/doc}
+        \column{0.65\textwidth}
+            \input{html.tex}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}[fragile]{ Goal (again) }
+        \includegraphics[scale=0.5]{images/acwidget}
+    \end{frame}
+
+
+    \section{Conclusion}
+
+    \begin{frame}{Conclusion}
+        \begin{itemize}
+            \item We have presented an integration of Documents and Notebooks
+            \begin{itemize}
+                \item based on \textbf{OMDoc} and \textbf{MMT}
+                \item consists of a \textbf{MMT Jupyter Kernel} with \textbf{widget} support
+                \item initial integration into \textbf{Documents}
+            \end{itemize}
+
+            %\item We have only given an overview here, and shown a few examples
+            %\begin{itemize}
+            %    \item \textit{If you are interested, have a look at the paper for more details!}
+            %\end{itemize}
+
+            \item Questions, Comments, Concerns?
+
+            \item Thank You For Listening!
+
+            \vspace{2em}
+
+            %\item {
+            %    \tiny
+            %    \def\doclicense@imagewidth{cm}
+            %    \doclicenseThis
+            %}
+
+        \end{itemize}
+    \end{frame}
+
+\end{document}

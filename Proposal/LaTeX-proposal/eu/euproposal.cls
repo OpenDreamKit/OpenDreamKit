@@ -10,16 +10,20 @@
 \ProvidesClass{euproposal}[2016/12/15 v1.5 EU Proposal]
 \newif\ifpartB\partBfalse
 \DeclareOption{partB}{\partBtrue}
+\newif\if@split\@splitfalse
+\DeclareOption{split}{\@splittrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
 \ProcessOptions
-\ifpartB\LoadClass[report,noRAM]{proposal}\else\LoadClass[noRAM]{proposal}\fi
+\ifpartB\LoadClass[report]{proposal}\else\LoadClass{proposal}\fi
 \RequirePackage{longtable}
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
+\RequirePackage{datetime}
 \RequirePackage{chngcntr}
 \counterwithin{figure}{subsection}
 \counterwithin{table}{subsection}
+\setcounter{secnumdepth}{4}
 \ifpartB
 \def\thepart{\Alph{part}}
 \setcounter{part}{2}
@@ -46,7 +50,7 @@
   {\huge\textbf\prop@gen@title}\\[.4cm]
   \ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[2cm]\fi
 \end{center}
-{\large\textbf{Date of Preparation: \today}}
+{\large\textbf{Date of Preparation: \today: \currenttime}}
 \\[1em]
 \begin{large}
  \begin{description}
@@ -71,7 +75,13 @@
 \newpage
 \fi% ifgrantagreement
 \setcounter{tocdepth}{2}\setcounter{part}{2}}
-{\newpage\printbibliography[heading=warnpubs]}
+{\newpage\printbibliography[heading=warnpubs]%
+\if@split
+\newwrite\@@SPLIT%
+\immediate\openout\@@SPLIT=SPLIT.at%
+\protected@write\@@SPLIT{}{\thepage}%
+\closeout\@@SPLIT%
+\fi}% if@split
 \def\prop@gen@instrument{Proposal Instrument (e.g. IP)}
 \define@key{site@desc}{box}[true]{\def\site@desc@box{#1}%
 \pdata@def{sitedesc}{\@site}{box}{#1}}
@@ -148,6 +158,8 @@
 \define@key{mst}{wdeliv}{\gdef\mst@wdeliv{#1}}
 \define@key{mst}{wverif}{\gdef\mst@wverif{#1}}
 \newcommand\milestonetable[1][]{%
+\IfFileExists{./\jobname.deliverables}{% to avoid errros
+\message{euproposal.cls: Generating Milestones Table}%
 \def\mst@caption{Milestones, Deliverables, and Verification}%
 \def\mst@wname{2.5cm}\def\mst@wdeliv{7cm}\def\mst@wverif{4cm}
 \setkeys{mst}{#1}%
@@ -174,14 +186,15 @@
 &\textbf{\miles@legend@verif}\\\hline\hline
 \mst@lines
 \end{tabular}
-\caption{\mst@caption}\label{tab:milestonetable}
-\end{table}
-\footnotetext\miles@legend@footnote}
+\caption{\mst@caption\ ($^\ast$\miles@legend)}\label{tab:milestonetable}
+\end{table}}
+{\ClassWarning{not formatting mile stones table yet, deliverables are
+  still missing; generate\jobname.deliverables\ to get it!}}}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@mo{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
-\newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
-\newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
+\newcommand\miles@legend@involved{WPs$^\ast$/Deliverables involved}
+\newcommand\miles@legend{WP is first number in deliverable label}
 \newcommand\prop@milesfor[1]{\edef\@delivs{\pdataref@safe{mile}{#1}{delivs}}%
 \let\m@sep=\relax\def\new@sep{,\ }%
 \@for\@I:=\@delivs\do{\m@sep\pdataRef{deliv}\@I{label}\let\m@sep=\new@sep}}
@@ -191,9 +204,8 @@
 \newenvironment{riskcont}[3]
 {\begin{risk}{#1}{#2}{#3}\textbf{Contingency:} }
 {\end{risk}}
-\newcommand\keypubs[2][]{%
-\paragraph{Key publications relevant to the project}%
-{\prop@paperlist[#1]{#2}}}
+\newcommand\keypubs[1]{%
+\begin{refsection}\nocite{#1}\printbibliography[heading=empty]\end{refsection}}
 \endinput
 %%
 %% End of file `euproposal.cls'.

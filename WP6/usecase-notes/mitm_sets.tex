@@ -1,0 +1,91 @@
+\documentclass{article}
+\title{Compiling Math-in-the-Middle Interoperability into P2P Integration}
+\author{Michael Kohlhase\\FAU Erlangen-N\"urnberg}
+\usepackage[style=alphabetic,backend=bibtex]{biblatex}
+\addbibresource{../../lib/kbibs/kwarcpubs.bib}
+\addbibresource{../../lib/kbibs/extpubs.bib}
+\addbibresource{../../lib/kbibs/kwarccrossrefs.bib}
+\addbibresource{../../lib/kbibs/extcrossrefs.bib}
+\def\cn#1{\ensuremath{\mathsf{#1}}}
+\def\defemph{\textbf}
+\usepackage{tikz}
+\usetikzlibrary{mmt}
+\usepackage{wrapfig}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+In \cite{DehKohKon:iop16} we have introduced the Math-in-the-Middle (MitM) paradigm for
+interoperability for mathematical software systems. In a nutshell the MitM ontology
+modularly formalizes textbook mathematics as an MMT theory, we generate system API
+theories the formalize the types, constructors, and interface functions of the systems,
+and we curate alignmnets between the API theories and the MitM ontologies that can be used
+to translate objects from the systems to MitM and thus use the MitM ontology as a pivot
+for translating between systems; see \cite{KohMuePfe:kbimss17} for details and use cases.
+
+We claimed in that we can also compile MitM interoperability into more efficient
+peer-to-peer translations. In this note we look at this in detail.
+
+\section{Preliminaries: Abstract and Concrete Representations}
+
+We call a representation of a mathematical structure \defemph{abstract}, if it corresponds
+to (one of) the usual textbook definitions and \defemph{concrete}, if it realizes an
+abstract representation in terms of an representation that is already established or
+computationally more efficient. 
+
+\begin{wrapfigure}r{1.5cm}\vspace*{-1em}
+  \begin{tikzpicture}[yscale=1.5]
+    \node (a) at (0,1) {\cn{A}};
+    \node (c) at (0,0) {\cn{C}};
+    \draw[view] (a) to[bend left=25] node[right] {$i$} (c);
+    \draw[view,dotted] (c) to[bend left=25] node[left] {$e$} (a);
+  \end{tikzpicture}
+\end{wrapfigure}
+In MMT, we can formalize abstract and concrete representations with theories and views; We
+refer the reader to~\cite{KohRabSac:fvip11} for an in-depth discussion; abstract theories
+are called ``specification'' and concrete ones ``implementation'' there.  The general
+situation is as in the diagram on the right: there is a view $i$ from the the abstract
+theory $\cn{A}$ to the concrete theory $\cn{C}$ and a -- possibly partial -- embedding
+view back.
+
+Initially, the MitM ontology was mainly intended for abstract theories, but
+following~\cite{KohRabSac:fvip11}, we propose to extend it with concrete theories for the
+``platonic implementations'' in computational systems. An example for this is the theory
+of polynomials, which are implemented 
+
+
+\section{Sharing Finite Sets between Sage and GAP}
+
+We look at the case of representing finite sets in the MitM ontology and how that can use
+bea for compiling glue code. Background: GAP represents sets as ordered duplicate-free
+lists and Sage uses the underlying python set type, which is realized as unordered
+duplicate-free lists\footnote{We disregard for the moment that python allows mixed-type
+  lists.}.
+
+\begin{figure}[ht]\centering
+\begin{tikzpicture}[xscale=2.5,yscale=1.3]
+  \node[thy] (fs) at (0,3) {$\mmtthy{FinSet}{set}{}$}; 
+  \node[thy] (l) at (-1,3) {$\mmtthy{list}{cons,nil}{}$}; 
+  \node[thy] (ps) at (1,2.5) {$\mmtthy{FinPOSet}{<}{}$};
+  \node[thy] (lnd) at (-1,1) {$\mmtthy{ListNoDup}{}{}$};
+  \node[thy] (o) at (1,1) {$\mmtthy{OListNoDup}{sort}{}$};
+  \node[thy] (s) at (-1,0) {$\mmtthy{Sage.set}{set}{}$};
+  \node[thy] (g) at (1,0) {$\mmtthy{Gap.set}{set}{}$};
+  \draw[include] (fs) -- (ps);
+  \draw[include] (l) -- (lnd);
+  \draw[biview] (fs) -- (lnd);
+  \draw[biview] (ps) -- (o);
+  \draw[view] (lnd) to[bend left=15] node[above]{\scriptsize\cn{sort}} (o); 
+  \draw[view] (o) to[bend left=15] node[below]{\scriptsize\cn{id}} (lnd); 
+\end{tikzpicture}
+\caption{Abstract and Concrete Finite Sets and their Implementations}\label{fig:sets}
+\end{figure}
+
+
+\printbibliography
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

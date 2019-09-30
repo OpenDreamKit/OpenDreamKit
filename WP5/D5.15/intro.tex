@@ -1,0 +1,131 @@
+\section{Introduction}
+This report describes the work undertaken in connection with Task~5.2:
+  a wide range of developments within the \GAP system to meet the
+  general objective of workpackage 5 (``improve the performance of the
+  computational components of \ODK''). We have worked on supporting
+  the use of a range of High Performance Computing environments,
+  prioritizing those most accessible to our users, namely multi-core
+  systems, adding to our existing support for clusters and cloud
+  computing. We have also made fundamental performance improvements
+  and improvements to our tools, processes and to the programming
+  language, that benefit all \GAP users.
+
+In a system such as \GAP, which is actively developed by a widely
+distributed team, only a few of whom are part of the \ODK project, any
+developments which are to be useful to users of \GAP (whether as a component of
+\ODK or not) need to be maintainable, and
+integrate well with the general flow of \GAP development, which itself
+has to be nurtured and supported. Because of this, it is neither
+possible nor desirable to clearly delineate every development which
+is part of Task~5.2 from every one which is not. On the other hand,
+the impetus and resources from the \ODK project have meant that \ODK
+goals have pervaded a great deal of \GAP's evolution over the last
+four years.
+
+In light of this, this report will necessarily include  a broad
+survey of all the major developments in \GAP and its package ecosystem
+over the period, but we will concentrate on, and highlight, links between
+these developments and \ODK goals. Work which is specifically part of
+other work packages is reported in appropriate deliverables, but these
+are mainly quite focused, leaving a broad range of material for this report.
+
+\subsection{Context and Background}
+
+Recall that \GAP (``Groups, Algorithms, Programming'') is a software system for
+computational discrete mathematics, with its origins in finite group
+theory. The system has been developed continually since 1986, with the
+first public release in 1988. Throughout its life it has been made
+available free of charge for use, extension and non-commercial
+redistribution. It is widely used by researchers in mathematics,
+computer science and other disciplines, and has been cited in
+\href{https://www.gap-system.org/Doc/Bib/bib.html}{more than 3000
+  research publications}. It is also widely used in teaching.
+
+Thus far, \GAP has
+normally been used via a single-threaded text-based ``read--eval--print loop'' user interface, with the
+same \GAP language serving both for the interface and for the
+implementation of much of the system. A research user 
+may use the system purely interactively, as a ``desk calculator'', but
+typically will extend the system with a small or large collection of
+\GAP functions and complete their research calculations by interacting
+with those. One of the goals of \GAP-related work in \ODK is to offer
+a range of flexible alternatives to this in line with current
+practices in other areas, and more suited for modern high-performance
+computers.
+
+A key feature of \GAP today is the rapidly growing ecosystem of
+contributed extensions called ``packages'' (145 are redistributed with
+\GAP 4.10.2). These packages may: extend mathematical functionality of
+the system by implementing new algorithms; provide mathematical
+datasets, together with search and access functions, or provide
+enhanced tools for users and/or developers. Packages can be published
+independently of the core \GAP system, and each has a separate
+authorship. Packages that pass our checks (for example having
+documentation and tests and not causing regressions in the core system
+or clashes with other packages) can (at the author's request) be
+automatically redistributed with \GAP releases. Again at the author's
+choice, they may be
+submitted for ``refereeing'', a process designed to be analogous to the
+refereeing of scientific papers, providing both quality control for
+the user and recognition for the author.
+
+For the last decade or more, the majority of the
+development work in the \GAP ecosystem has been in packages.
+Another area of \GAP development under \ODK is to ensure
+that the package system (including the infrastructure used to gather,
+test and release packages) scales as the number of packages grows.
+
+
+Prior to the start of \ODK, a number of initiatives had developed
+alternative models for the use of \GAP. \SageMath (\Sage hereafter)
+has used \GAP for much of its group theoretic functionality since
+2006. One benefit of that was that it allowed the use of \GAP
+functionality through \Sage's notebook user interface. In the Framework~6 project
+``SCIEnce: Symbolic Computation Infrastructure for Europe'' we
+developed a powerful and flexible remote procedure call interface to
+\GAP using the \href{https://www.openmath.org/}{OpenMath} data representation format, called
+\href{https://www.openmath.org/standard/scscp/}{SCSCP}
+(Symbolic Computation Software Composability Protocol) one of
+whose roles was to support coarse-grained distributed computation. In
+a UK-funded software development project, \HPCGAP, we began the
+development of an intrinsically multi-threaded version of \GAP. As
+well as new software, these projects gave us insight into the parallel
+and high-performance computing needs of our user community, leading
+us, for instance, to remain more focused on multi-core servers and
+\textit{ad hoc} clusters (such as a mathematical research group or
+department might provide) than on ``supercomputers''. Even on these
+systems, interactive use rather than ``batch'' computation remains the
+norm, and we aim to support that, and enhance it through Jupyter
+notebooks rather than force users to a model that does not suit them.
+
+The central thrust of the involvement of \GAP in \ODK is increased
+diversity of users and models of use. To this end, in WP3~we have
+added support for direct use of \GAP via Jupyter notebooks as an
+alternative to our 1980s text-based user interface. In this work package we report the
+work intended to support \GAP users in performing larger and more
+demanding computations. This includes general work on increasing the
+performance and robustness of \GAP and its packages, continued
+development of our support for shared memory parallel computing via
+\HPCGAP and \software{MeatAxe64} and maintenance of our support for distributed
+memory parallel computing using the SCSCP package \cite{SCSCP}.
+We also report enhancements to the \GAP language and to
+\GAP's development and debugging tools and our support for package
+developers. More demanding computations require more complex software
+to be written, debugged, optimized and shared, and these changes
+enable that.
+
+\subsection{Overview}
+This report is divided into sections as follows: 
+section \ref{sec:hpc} reports on two major initiatives supporting
+parallel computation on multi-core shared memory
+systems: \HPCGAP and \software{MeatAxe64}. Section  \ref{sec:core-gap}
+reports a wide range of relevant general developments in the core \GAP
+system, highlighting \software{libGAP} which gives a much faster and
+more reliable link to other systems and the new linguistic reflection
+facilities which will provide a basis for future developments in
+optimization and automatic parallelization. Section \ref{sec:packages}
+similarly surveys relevant developments among the many new or updated packages.
+Section \ref{sec:gap-infra} discusses our work aimed at improving
+robustness and reliability, both of \GAP and its packages. This
+includes both new tool support and new processes. 
+

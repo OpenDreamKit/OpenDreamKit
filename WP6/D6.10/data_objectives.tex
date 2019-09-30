@@ -1,0 +1,80 @@
+\begin{figure*}[ht]\centering
+\begin{tabular}{|l|ll|}
+\hline
+Service & Shallow & Deep \\
+\hline
+Identification & DOI for a dataset & DOIs for each entry \\
+Provenance & who created the dataset? & how was each entry computed? \\
+Validation & is this valid XML? & does this XML represent a set of polynomials? \\
+Access & download a dataset & download a specific fragment\\
+Finding & find a dataset & find entries with certain properties\\
+Reuse & \multicolumn{2}{c|}{impractical without accessible semantics}\\
+Interoperability & \multicolumn{2}{c|}{impossible without accessible semantics}\\
+\hline
+\end{tabular}
+\caption{Examples of shallow and deep FAIR services}\label{fig:deepfair}
+\end{figure*}
+% \ednote{In the table with shallow/deep services the meanings of deep as ``datum level'' and ``mathematical meaning all the way through'' are being mixed}
+
+\begin{figure*}[ht]\centering
+  \begin{tabular}{|l||l|l|l|l|}\hline
+    Data & Findable & Accessible & Interoperable & Reusable \\\hline\hline
+    Symbolic & Hard & Easy & Hard & Hard \\\hline
+    Relational & \multicolumn{4}{c|}{Impossible without access to the encoding function} \\\hline
+    Linked & \multicolumn{4}{c|}{Easy but only applicable to the small fragment of the semantics that is exposed} \\\hline
+    Narrative & Hard & License-encumbered & \multicolumn2{c|}{Human-only}\\\hline
+  \end{tabular}
+  \caption{Deep FAIR readiness of mathematical data}\label{fig:FAIR-readiness}
+\end{figure*}
+
+Relational and linked data can be easily processed and shared using standardized formats such as CSV or RDF.
+But in doing so, the semantics of the original mathematical objects is not part of the shared resource: in relational data, understanding the semantics requires knowing the details of the representation theorem and the encoding; in linked data, almost the entire semantics is abstracted away anyway, which also makes it hard to precisely document the semantics of the links.
+For datasets with very simple semantics, this can be remedied by attaching informal labels (e.g., column heads for relational data), metadata, or free-text documentation.
+But this is not sufficient for datasets in mathematics and related scientific disciplines where the semantics is itself very complex.
+
+For example, an object's semantic type (e.g., ``polynomial with integer coefficients'') is typically very different from the type as which it is encoded and shared (e.g., ``list of integers'').
+The latter allows reconstructing the original, but only if its type and encoding function (e.g., ``the entries in the list are the coefficients in order of decreasing degree'') are known.
+Already for polynomials, the subtleties make this a problem in practice, e.g., consider different coefficient orders, sparse vs. dense encodings, or multivariate polynomials.
+Even worse, it is already a problem for seemingly trivial cases like integers: for example, the various datasets in the LMFDB use at least 3 different encodings for integers (because the trivial encoding of using the CPU's built-in integers does not work because the involved numbers are too big).
+But mathematicians routinely use much more complex objects like graphs, surfaces, or algebraic structures.
+
+We speak of \textbf{accessible semantics} if data has metadata annotations that allow recovering the exact semantics of the individual entries of a data set.
+Notably, in mathematics, this semantics metadata is very complex, usually symbolic data itself that cannot be easily annotated ad hoc.
+But without knowing the semantics, mathematical datasets only allow FAIR services that operate on the dataset as a whole, which we call \textbf{shallow} FAIR services.
+But it is much more important to users to have \textbf{deep} services, i.e., services that process individual entries of the dataset.
+
+Figure~\ref{fig:deepfair} gives some examples of the contrast between shallow and deep services.
+Note that deep services do not always require accessible semantics for every entry, e.g., deep accessibility can be realized without.
+But many deep services are only possible if the service can access and understand the semantics of each entry of the dataset, e.g., deep search requires checking for each entry whether it matches the search criteria.
+
+In mathematics, shallow FAIR services are relatively easy to build but have significantly smaller practical relevance than deep FAIR services.
+Deep services, on the other hand, are so difficult to build that they are essentially non-existent except when built ad hoc for individual datasets.
+Figure~\ref{fig:FAIR-readiness} gives an overview of the difficulty for the different kinds of data.
+
+
+Note that while deep FAIR services are particularly desirable in mathematics, their advantages are by no means limited to mathematics.
+For example, in 2016 \cite{ZieEreElO:GeneErrors16}, researchers found widespread errors in papers in genomics journals with supplementary Microsoft Excel gene lists. 
+About 20\% of them contain erroneous gene names because the software misinterpreted string-encoded genes as months.
+In engineering, encoding mistakes can quickly become safety-critical, i.e., if a dataset of numbers is shared without their physical units, precision, and measurement type.
+With accessible semantics, datasets can be validated automatically against their semantic type to avoid errors such as falsely interpreting a measurement in inches as a measurement in meters, a gene name as a month, or a column-vector matrix as a row-vector matrix.
+
+%We aim to build a coherent representation standard for mathematical data that systematically makes the semantics accessible.
+%This enables (i) prototyping universally applicable Deep FAIR services that improve on the existing ad hoc or limited solutions and (ii) making a wide variety of existing datasets available via a central platform.
+
+In order to support the development Deep FAIR services for mathematics, we extend the original FAIR requirements from~\cite{WilDumAal:FAIR16}, which focused on shallow FAIR, to deep FAIR:
+\begin{enumerate}
+  \item[\textbf{DF}] The internal structure of each object is represented and indexed in a way that allows searching for individual entries.
+  \item[\textbf{DA}] Each dataset includes a representation of the semantics of the represented objects.
+  %representation of each object semantics stays accessible even after the objects are no longer available.
+  \item[\textbf{DI}] The representation of each object uses a formal, accessible, shared, and broadly applicable language for knowledge representation, uses FAIRly shared vocabularies, and where applicable includes qualified references to other representations.
+  \item[\textbf{DR}] The representation of each object is richly described with a plurality of accurate and relevant attributes, is released with a clear and accessible data usage license, is associated with detailed provenance information, and meets domain-relevant community standards.
+\end{enumerate}
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  textbf inparahighlight centering hline bigskip newpart textwidth textwidth OAFproject:on Modelica Modelica:on ConderCensuses:on LeemansPolytopes:on PotocnikCensuses:on cdot10 cdot lmfdb:on zbMATH zbMATH:on disambig swMATH swMATH:on ednote realized standardized

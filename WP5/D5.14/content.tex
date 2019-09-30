@@ -1,0 +1,491 @@
+\newcommand{\GO}[1]{\ensuremath{O(#1)}\xspace}
+\newcommand{\SO}[1]{\ensuremath{O\tilde\ (#1)}\xspace}
+\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}\xspace}
+\newcommand{\mat}[1]{\ensuremath{\mathbf{#1}}\xspace}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\section{Algorithmic aspect}
+
+Solving exactly over the field of rational numbers, requires paying a careful attention to the size of the numbers being
+manipulated. Indeed, rational numbers are represented by a pair of multiprecision integers, a numerator and
+denominator. Applying the standard direct methods designed for solving approximately systems with floating point
+rational numbers would lead to a blowup in the bit-size of the coefficients, and result in overwhelming computation
+overheads, with time complexities often not even polynomial.
+
+\subsection{State of the art}
+%% \TODO{clarify from the onset that the following paragraph is about
+%%   literature, not work done here (right?)}
+
+In a series of algorithmic innovations, summarized in Table~\ref{tab:complexities}, the time complexity for solving exactly a linear system over the rationals has
+been reduced to $\SO{n^3}$ or $\SO{n^\omega}$ which is asymptotically as fast as the complexity for solving
+approximately using floating point numbers.
+
+First, the use of rational reconstruction makes it possible to recover the rational solution from the solution of the same
+system projected into a large enough finite field.
+This approach avoids the  swell in the bit-size of the intermediate computations and computes with the arithmetic precision of the output for a total cost of $\GO{n^5}$.
+Then, using  multi-modular representation and the Chinese Remainder Theorem, reduces this cost  to $\SO{n^4}$.
+This cost, corresponding to the arithmetic complexity of Gaussian elimination multiplied by the bit-size of the output,
+is sub-optimal. By better balancing the computation load between numerous arithmetic operations on small bit-size and
+few operations on large bit-size, one can hope to further reduce this complexity. This is achieved by $p$-adic lifting
+techniques~\cite{Dix82}, reaching an $\SO{n^3}$ time complexity. Improving the complexity for this problem is still a
+very active topic: \cite{Sto05} reduced it to $\SO{n^\omega}$ using randomization, and the same
+complexity can now be reached deterministically since this year~\cite{BLS19}.
+
+
+
+\begin{table}[htb]
+\begin{tabular}{lc}
+  \toprule
+  Method  & Bit complexity \\
+  \midrule
+  Gauss over $\mathbb{Q}$ & $2^{\GO{n}}$ \\
+  Gauss $\mod \text{bound}(sol)$ & $\GO{n^5}$\\
+  CRT $\times$ Gauss $\mod p$ & $\SO{n^4}, \SO{n^\omega+1}$\\
+  $p$-adic lifting & $\SO{n^3}, \SO{n^\omega}$\\
+  \bottomrule
+\end{tabular}
+\caption{Brief overview of algorithmic innovations for solving linear systems over the rationals}\label{tab:complexities}
+\end{table}
+
+While $p$-adic lifting techniques achieve the best complexity for sequential computations, they are unfortunately very
+iterative in their structure, and therefore harder to parallelize at a large scale. On the contrary, Chinese remainder
+based methods offer an embarrassingly parallel structure, but cost a factor of $n$ more. We have therefore chosen to
+explore both approaches which will be described in the following subsections.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\subsection{The Chinese remainder approach}
+
+We recall here the principle of the Chinese Remainder based rational solver:
+the linear system over the integers is reduced modulo a series of prime numbers. Each of these systems can then be solved
+independently, therefore exposing a large degree of parallelism. The rational solution can then be recovered in two
+phases by a Chinese remainder reconstruction followed by a vector rational reconstruction.
+
+\begin{algorithm}[htb]
+  \caption{Chinese Remainder based rational solver}\label{alg:CRTRS}
+  \begin{algorithmic}[1]
+    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
+    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+    \State Pick $\ell$ primes $p_1,\dots, p_\ell$ such that $\prod_{i=1}^\ell p_i \geq 2ND$
+    \For{$i\leftarrow 1\dots \ell$}
+    \State\label{lin:CRT:RNSA} $\mat{A}^{(i)} \leftarrow \mat{A}\mod p_i$
+    \State\label{lin:CRT:RNSb} $\vect{b}^{(i)} \leftarrow \vect{b}\mod p_i$
+    \State\label{lin:CRT:solve} $\vect{x}^{(i)} \leftarrow (\mat{A}^{(i)})^{-1} \vect{b}^{(i)} \mod p_i$
+    \EndFor
+  \State\label{lin:CRT:CRT} $\vect{y} \leftarrow \texttt{ChineseRemainder}(\vect{y}^{(1)},p_1,\dots, \vect{y}^{(\ell)},p_\ell)$
+  \State\label{lin:CRT:RR} $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i)$
+  \State \Return $\vect{x}/d$
+\end{algorithmic}
+\end{algorithm}
+
+In sequential versions of this algorithm, the Chinese remainder and rational reconstruction can be performed on the fly
+after each iteration, in order to detect stabilization and allow one to terminate the loop earlier than what the possibly
+pessimistic bound on the solution requires. In parallel, this would generate dependency between the parallel tasks and we
+thus chose to disable this feature.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\subsection{The $p$-adic lifting approach}
+
+The $p$-adic lifting approach, developed in~\cite{Dix82} is based on a Newton iteration to compute iteratively the
+digits in the $p$-adic expansion of the solution vector. This algorithm manages to reduce the cost of Chinese Remaindering
+by balancing two types of operations: expensive linear algebra (matrix inverse or LU decomposition) is
+performed only once over in small precision (a finite field) while the high precision part of the computation is
+contained in a sequence of less expensive linear algebra operations (matrix-vector products).
+%\begin{algorithm}[htb]
+%  \caption{$p$-adic lifting based rational solver}
+%  \begin{algorithmic}[1]
+%    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$}
+%    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+%    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+%    \State Pick a prime $p$. Let $k$ such that $p^k \geq 2ND$
+%    \State $\mat{B}\leftarrow \mat{A}^{-1} \mod p$
+%    \State $\vect{r}\leftarrow \vect{b}$
+%    \For{$i\leftarrow 0\dots k$}
+%    \State $\vect{c}^{(i)}  \leftarrow \mat{B} \vect{r} \mod p_i$
+%    \State $\vect{r} \leftarrow  \frac{\vect{r} - \mat{A}\vect{x_i}}{p}$
+%    \EndFor
+%    \State $\vect{y} \leftarrow \sum_{i=0}^{k-1} \vect{c}^{(i)} p^i$
+%    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction(\vect{y})}$
+%  \State \Return $\vect{x}/d$
+%\end{algorithmic}
+%\end{algorithm}
+
+However, the strongly iterative structure of this algorithm makes it both harder to parallelize and less cache
+efficient.
+In \cite{ChSt05}, Storjohann and Chen devised a way to improve the cache efficiency thanks to a hybrid combination of
+$p$-adic lifting and Chinese remainder techniques.
+This led to a multi-modular (also called RNS, Residue Number System) $p$-adic
+lifting.
+We further improve this variant in several ways to deliver a parallel
+RNS $p$-adic lifting solver. The novel
+Algorithm~\ref{alg:ParMultiModSolve} reflects these improvements with
+the two following salient features:
+\begin{enumerate}
+\item The costly updates in the main loop of \cite{ChSt05} were
+  performed via matrix-vector  multiplications over
+  the arbitrary precision integers with a second RNS basis.
+  We instead gather these updates into  a single
+  matrix-matrix multiplication, which has better cache efficiency and is more suitable
+  for parallelization.
+  This can be seen in line~\ref{lin:MMZ} of
+  Algorithm~\ref{alg:ParMultiModSolve}.
+\item We combine this algorithm with the parallel RNS improvement
+  of~\cite{DGLS18} and restrict the second RNS basis to primes
+  individually larger than the
+  ones of the  higher-level RNS system, in order to have a free reduction of the
+  input into the second RNS/integer basis.
+\end{enumerate}
+
+%\begin{algorithm}[htb]
+%  \caption{Multi-modular $p$-adic rational solver}\label{alg:ChSt}
+%  \begin{algorithmic}[1]
+%    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
+%    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+%    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+%    \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
+%    \For{$i\leftarrow 1 \dots \ell$}
+%      \State $B_i \leftarrow  A^{-1} \mod p_i$
+%      \State $\vect{r}^{(i,0)}\leftarrow \vect{b} \mod p_i$
+%    \EndFor
+%    \For{$j\leftarrow 0\dots k-1$}
+%    \For{$i\leftarrow 1\dots\ell$}
+%    \State $\vect{c}^{(i,j)}  \leftarrow \mat{B_i} \vect{r_i} \mod p_i$
+%    \State $(\vect{Q}^{(i,j)},\vect{R}^{(i,j)}) \leftarrow
+%    \texttt{divmod}(\vect{r}^{(i,j)},p_i)$\hfill\Comment{$\vect{r}^{(i,j)} = p_i \vect{Q}^{(i,j)} + \vect{R}^{(i,j)}$}
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{Q}^{(i,j)}+\frac{\vect{R}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \hfill\Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+%    \EndFor
+%    \EndFor
+%    \For{$i\leftarrow 1\dots\ell$}
+%    \State $\vect{y}^{(i)} \leftarrow \sum_{j=0}^{k-1} \vect{c}^{(i,j)} p_i^j$
+%    \EndFor
+%    \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
+%    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i^k )$
+%  \State \Return $\vect{x}/d$
+%\end{algorithmic}
+%\end{algorithm}
+
+\begin{algorithm}[htb]
+  \caption{Parallel multi-modular $p$-adic rational solver}\label{alg:ParMultiModSolve}
+  \begin{algorithmic}[1]
+    \Require{$\mat{A}\in \mathbb{Z}^{n\times n},\vect{b}\in\mathbb{Z}^n$, $\ell$ a parameter}
+    \Ensure{$\vect{x}$ such that $\mat{A}\vect{x}=\vect{b}$}
+    \State $N,D \leftarrow \text{SolutionBounds}(\mat{A},b)$
+    \State Pick $\ell$ primes $p_1,\dots, p_\ell$ and let $k$ such that $\prod_{i=1}^\ell p_i^k \geq 2ND$
+    \For{$i\leftarrow 1 \dots \ell$ in parallel}
+      \State\label{lin:INV} $B_i \leftarrow  A^{-1} \mod p_i$
+      \State $\vect{r}^{(i)}\leftarrow \vect{b} \mod p_i$
+      \State $\vect{y}^{(i)} \leftarrow 0$
+    \EndFor
+    \State Pick primes $q_1,\dots, q_\tau$, all $>\max_i\{p_i\}$, such
+    that $\prod_{s=1}^\tau q_s \geq n||A||_\infty$
+    \For{$j\leftarrow 0\dots k-1$}
+    \For{$i\leftarrow 1\dots\ell$ in parallel}
+    \State $(\vect{\phi}^{(i)},\vect{\rho}^{(i)}) \leftarrow
+    \texttt{divmod}(\vect{r}^{(i)},p_i)$\Comment{$\vect{r}^{(i)} = p_i \vect{\phi}^{(i)} + \vect{\rho}^{(i)}$}
+    \State\label{lin:MVmod} $\vect{c}^{(i)}  \leftarrow \mat{B_i} \vect{\rho}^{(i)} \mod p_i$
+    \State $\vect{y}^{(i)} \leftarrow \vect{y}^{(i)} + \vect{c}^{(i)} p_i^j$
+%    \State $\vect{r}^{(i,j+1)} \leftarrow\vect{\phi}^{(i,j)}+\frac{\vect{\rho}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$ \Comment{$\frac{\vect{r}^{(i,j)} - \mat{A}\vect{c}^{(i,j)}}{p_i}$}
+    \EndFor
+\newline{\Comment{Now compute simultaneously all the updates $\frac{\vect{r}^{(i)} -
+      \mat{A}\vect{c}^{(i)}}{p_i}$  in parallel:}}
+    \State Gather
+    $\mat{R}\leftarrow\left[\begin{array}{ccc}\vect{\rho}^{(1)}&\ldots&\vect{\rho}^{(\ell)}\end{array}\right]$
+    and $\mat{C}\leftarrow\left[\begin{array}{ccc}\vect{c}^{(1)}&\ldots&\vect{c}^{(\ell)}\end{array}\right]$
+    \State\label{lin:MMZ}
+    $\mat{V}\leftarrow\mat{R}-\mat{A}\cdot\mat{C}$\Comment{Parallel RNS with $q_1,\dots, q_\tau$}
+    \For{$i\leftarrow 1\dots\ell$ in parallel}
+    \State $\vect{r}^{(i)}
+    \leftarrow\vect{\phi}^{(i)}+\frac{\vect{V_{*,i}}}{p_i}$\Comment{Multiply by $(p_i^{-1}{\mod{q_s}})$ in RNS, then reconvert to $\mathbb{Z}^n$}
+    \EndFor
+    \EndFor
+    \State $\vect{y} \leftarrow \texttt{ParallelChineseRemainder}(\vect{y}^{(1)},p_1^k,\dots, \vect{y}^{(\ell)},p_\ell^k)$
+    \State $\vect{x},d\leftarrow \texttt{VectorRationalReconstruction}(\vect{y},\prod_{i=1}^\ell p_i^k )$
+  \State \Return $\vect{x}/d$
+\end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\section{High performance parallelization}
+
+The implementations referred to for this deliverable are made available in the
+\Linbox library. Experiments were performed on the Luke and Dahu clusters of the
+GRICAD-CIMENT\footnote{\url{https://gricad.univ-grenoble-alpes.fr/}} HPC
+federation of Grenoble site. The 2 multi-core servers funded by OpenDreamKit
+project have been 
+integrated within the luke cluster and shared with the community (with  highest
+priority access to OpenDreamKit members). In exchange, we were able to
+experiment with any server on the data-center. This allowed us to access to a
+high-end GPU server, and more importantly, to a cluster with many multiple homogeneous
+nodes, the cost of which requires the implementation of such federation of user
+projects.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\subsection{MPI based Chinese remainder algorithm}
+
+%% \begin{itemize}
+%% \item  Full MPI vs Hybrid MPI-OMP (memory savings).
+%% \item Asymptotically fast vector Chinese remainder $\Rightarrow$ not a bottleneck anymore
+%% \end{itemize}
+
+%% \TODO{Pretty convincing figure about scaling factors! Maybe add a line
+%%   representing what a perfect parallelisation would achieve for
+%%   comparison? How comes that the size of the matrix barely matters?}
+%% CP: because we change the bitsize so that the overall worload remain more or
+%% less the same.
+
+We first report on the implementation of the parallelization of
+Algorithm~\ref{alg:CRTRS} with various matrix dimensions and entry
+bit-size. 
+On a cluster where each node is equipped
+with $2{\times}32$ Intel Gold-6130 @2.1GHz cores, we obtain the
+timings reported in
+Figure~\ref{fig:mpi_histo}.
+This is for instance a speed up of about $160$ on $8$ nodes.
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{nodes_histogram}
+\end{center}
+\caption{MPI-Chinese Remainder based rational solver.}\label{fig:mpi_histo}
+\end{figure}
+
+The parallelization here is performed only on the main loop,
+that is lines~\ref{lin:CRT:RNSA} and~\ref{lin:CRT:RNSb} (RNS reduction) and
+line~\ref{lin:CRT:solve} (Solve), whereas the Chinese Remainder reconstruction
+(line~\ref{lin:CRT:CRT} -- CRT) 
+and the rational reconstruction (line~\ref{lin:CRT:RR} -- RR) are
+performed on a single core.
+Note that the Chinese remaindering reconstruction phase, with such large
+dimension and bit-size could become a bottleneck with a classic
+implementation. However the asymptotically fast algorithm in \Linbox for this
+task, made this operation negligible compared to the core of the iteration.
+%
+\begin{table}[htb]
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{rrrrrrrrr}
+\hline
+\multirow{2}{*}{Cores} & \multirow{2}{*}{N}& \multirow{2}{*}{Bit-size}
+& \multirow{2}{*}{$\ell$}& RNS & Solve & CRT& RR & Total \\
+ & &  & & CPU (s) & CPU (s) & Wall (s)& Wall (s) & Wall (s) \\
+\hline
+ 64  & 1000 & 1000 & 91364 & 11537.1 & 17080.8 & 67.4 & 69.6 & 619.6 \\
+ 64  & 2000 & 200& 37362 & 6740.0 & 31138.3 & 50.1 & 24.9 & 702.7 \\
+ 64  & 4000 & 20 & 9450& 2702.9 & 39037.1 & 19.6 & 6.9& 711.9 \\
+ 128 & 1000 & 1000 & 91364 & 11536.6 & 17136.8 & 67.6 & 71.1 & 398.4 \\
+ 128 & 2000 & 200& 37362 & 6811.4 & 31193.5 & 50.4 & 25.4& 401.7 \\
+ 128 & 4000 & 20 & 9450& 2733.1 & 39307.9 & 21.1 & 7.2& 379.3 \\
+ 256 & 1000 & 1000 & 91364 & 11565.7 & 17138.2 & 70.2 & 73.5& 290.8 \\
+ 256 & 2000 & 200& 37362 & 6814.9 & 31245.4 & 51.0 & 25.5 & 253.4 \\
+ 256 & 4000 & 20 & 9450& 2738.3 & 39405.1 & 19.1 & 6.9& 209.9 \\
+\hline
+\vspace{0pt}
+\end{tabular}
+\caption{Respective timings of the steps of the MPI Chinese Remainder based
+  rational solver on 8 nodes of 32 Intel Xeon Gold 6130 code.}\label{tab:MPICRT}
+\end{table}
+The profiling of the timings, given in Table~\ref{tab:MPICRT}, confirms that the
+Wall time of these two latter parts is not dominating. As a consequence,
+parallelization of these operations was not of high priority and we chose to
+delay this to future work.
+
+We also report in Table~\ref{tab:HybridMPIOMP} on a prototype
+hybrid MPI/OpenMP implementation where on each node we switch to use
+shared memory parallelism with OpenMP instead of having MPI handling also the
+in-node parallelism. On this particular implementation and cluster OpenMP is, for some
+unknown reason, much slower than MPI and therefore our Hybrid algorithm
+is slower than the pure MPI implementation. Nonetheless this hybrid
+implementation allows to not duplicate the data within each node and
+therefore enables the solution of much larger matrices, for instance
+solving a random $10000{\times}10000$ system with $100$ bit entries
+and obtaining an exact solution vector of $2.5$GB (that is more than
+two million bits per coefficient of the output).
+
+\begin{table}[htb]
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{r|rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr}
+\hline
+ Nodes  &  2      &  2      &  2      &  2      &  2      &  2\\
+ Threads  &  1  &  16  &  1  &  16  &  1  &  16 \\
+ N      &  1000   &  1000   &  2000   &  2000   &  4000   &  4000  \\
+ Bit-size &  1000  &  1000  &  200   &  200   &  20    &  20  \\
+ Wall-time (s)  &  425.5   &  880.2   &  434.4   &  812.9   &  354.0   &  866.2  \\
+\hline
+ Nodes  &  4      &  4      &  4      &  4      &  4      &  4      &  6      &  6    \\
+ Threads  &  1  &  16  &  1  &  16  &  1  &  16  &  1  &  16  \\
+ N      &  1000   &  1000   &  2000   &  2000   &  4000   &  4000   &  10000  &  10000  \\
+ Bit-size &  1000  &  1000  &  200   &  200   &  20    &  20   &  40    &  40    \\
+ Wall-time (s)  &  302.4   &  519.5   &  285.2   &  422.0   &  240.6   &  422.7   &  - &  12026.3   \\
+\hline
+ Nodes  &  8      &  8      &  8      &  8      &  8      &  8      &  8      &  8      \\
+ Threads  &  1  &  16  &  1  &  16  &  1  &  16  &  1  &  16  \\
+ N      &  1000   &  1000   &  2000   &  2000   &  4000   &  4000   &  10000  &  10000  \\
+ Bit-size &  1000  &  1000  &  200   &  200  &  20    &  20    &  100   &  100   \\
+ Wall-time (s)  &  248.4   &  417.0   &  242.0    &  300.8   &  185.4   &  325.6   &  -   &  21443.8   \\
+\hline
+\vspace{0pt}
+\end{tabular}
+\caption{Combined MPI/OpenMP prototyping (- for memory thrashing)}\label{tab:HybridMPIOMP}
+\end{table}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\subsection{A multi-core $p$-adic lifting}
+
+As an alternative to the overwhelming workload of the Chinese Remainder
+approach, we now focus on Algorithm~\ref{alg:ParMultiModSolve} and its
+implementation in a multi-core parallel computing setting.
+All the experiments in this Section were conducted on a single machine
+equipped with $4{\times}18$ E7-8860v4 cores @2.2GHz.
+
+We implemented Algorithm~\ref{alg:ParMultiModSolve} in the \Linbox
+library as a full-featured routine with the standard of library code and not of
+prototype benchmarking code. It required therefore a significant effort to
+first cleanup, fix, and redesign the existing $p$-adic lifting code and its API
+in the library. Then the new implementation could be smoothly inserted in this
+API and the library user can now smoothly switch from one implementation to the
+other and enable parallelization.
+
+The dominant costs of Algorithm~\ref{alg:ParMultiModSolve}
+are within lines~\ref{lin:INV}, \ref{lin:MVmod} and~\ref{lin:MMZ},
+which we will denote by  INV (matrix inversion), MVmod
+(matrix-vector iteration) and MMZ (matrix-matrix multiplication over
+$\mathbb{Z}$).
+Their respective costs are given by $\GO{\ell\cdot{}n^\omega}$,
+$\GO{k\ell\cdot{}n^2}$ and $\GO{k\cdot{}n^2\ell^{\omega-1}}$,
+where $\ell$ is the parameter and the product $k\ell\approx n \cdot
+\frac{\texttt{bitsize}}{\log_2(p)}$ is a constant not depending on $\ell$.
+
+Consequently, increasing $\ell$ leads to an increase of the overall number
+of operations, but it will hopefully trade some slow operations of MMZ
+for some very fast operations of INV.
+We also see that the dominant cost should remain unchanged within MVmod, but
+increasing $\ell$ will also increase the potential for parallelism.
+
+This analysis is backed up by experiments as we show in the following.
+%
+First, the technique of the double RNS basis, combined with the
+gathering of updates is shown, for sequential code, in
+Figures~\ref{fig:rnsdixon_seqprimescount}
+and~\ref{fig:rnsdixon_seqbitsize}. We see that by extending the number of primes
+$\ell$, we increase the overall work but this 
+can pay at different thresholds for different matrix dimensions and
+bit-sizes. In sequential we can see some $30\%$ gains on a single core,
+even for small matrices.
+
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-primesCount}
+\end{center}
+\caption{Sequential RNS Dixon with fixed bitsize.}\label{fig:rnsdixon_seqprimescount}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/sequential-bitsize}
+\end{center}
+\caption{Sequential RNS Dixon with fixed matrix dimension.}\label{fig:rnsdixon_seqbitsize}
+\end{figure}
+
+Now for parallel code, we obtain good speed-up, as shown in
+Figures~\ref{fig:rnsdixon_parallel_threads} and~\ref{fig:rnsdixon_parallel}.
+Figure~\ref{fig:rnsdixon_parallel_threads} illustrates the fact that a rather
+good scaling can be obtained as long as the number of primes $\ell$ remain
+larger than the number of threads.
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-threads}
+\end{center}
+\caption{Parallel RNS Dixon.}\label{fig:rnsdixon_parallel_threads}
+\end{figure}
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_100n_40b}
+  \includegraphics[width=.8\textwidth]{Pictures/RNSDixon/parallel-detailed_500n_400b_total}
+\end{center}
+\caption{Balance between matrix inversion (INV) and lifting phases
+  (MVmod+MMZ). In each cluster, the leftmost column corresponds to a
+  sequential run, then to $4$, $8$ and $16$ cores.}\label{fig:rnsdixon_parallel}
+\end{figure}
+
+Figure~\ref{fig:rnsdixon_parallel} illustrates how the number of primes $\ell$
+balances the workload between inversions and lifting. On a small instance (top
+part), the overall work may increase for large $\ell$. This problem disappears
+for larger instances (bottom part), as the efficiency of the INV operation on
+large matrices make it negligible (almost
+no more ``red'' in the bottom histogram), and the parallelization pays
+off ($9.6$ speed-up for our new Algorithm with $16$ cores in the bottom
+histogram).
+
+
+
+Further work is required to fine tune the various
+levels of parallelism used in the large precision RNS matrix-matrix
+multiplication or to automatically deduce the right choice of
+parameter $\ell$ from the characteristics of the matrix and the right
+hand side.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%ùù
+\subsection{GPU enabled libraries}
+
+Graphic Processing Units (GPUs) have become a widespread component in modern high performance computing platforms. They
+offer a very high computing throughput for a contained power consumption but only for applications well suited for their
+constraints:
+\begin{itemize}
+\item the GPU has its own on-board memory and thus data transfer from and to the main memory are expensive and may
+  quickly become a bottleneck
+\item the type of computation must be very regular (same code kernel applied to multiple sets of data) with as few
+  branching and control instructions as possible.
+\end{itemize}
+
+Matrix multiplication is among the applications which can easily benefit from the power of GPUs. Other computations
+such as Gaussian elimination require branching, data permutations, divisions and other operations much less suited for
+GPUs and therefore require communications back and forth between the main memory and the GPU memory.
+
+Nvidia provides a set of BLAS routines, for dense linear algebra of floating point numbers, supporting their GPUs in the
+library CUBLAS.
+
+The \texttt{fflas-ffpack} library aims at providing a similar set of routines over a finite field by exploiting a
+numerical BLAS under the hood. In this first attempt at supporting GPU's for finite field linear algebra, we therefore
+focused on interfacing CUBLAS in the \texttt{fflas-ffpack} library so that matrix multiplication over a finite field
+could benefit from CUBLAS' routines.
+
+The user of the library only needs to specify at configure time a path where a CUDA library is installed:
+\begin{verbatim}
+$> ./configure --with-cuda=/applis/dahu/cuda/cuda-10.0/lib64
+\end{verbatim}
+
+The user can then transparently run their code and benefit from the speedup of the BLAS library. Figure~\ref{fig:fgemm_gpu}
+shows the computation speed achieved on an NVIDIA Tesla V100 GPU, compared to the existing multi-core parallel
+implementation and the sequential implementation.
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=.9\textwidth]{Pictures/fgemm_GPUvsCPU}
+\end{center}
+\caption{Computation speed of FFLAS-FFPACK matrix product over $\mathbb{Z}/131071\mathbb{Z}$ on a server with 1 NVidia  Tesla V100 GPU, and 32 Intel Xeon Gold 6130 cores.}\label{fig:fgemm_gpu}
+\end{figure}
+The speed-up of one GPU with respect to the sequential implementation is up to a
+factor of 39.5 faster and up to 2.46 times faster with respect
+to a parallel execution on 32 cores.
+
+Note that the efficiency of the GPU runs is slowly increasing and therefore perform slower than the multi-core
+implementation on smaller dimensions. This is due to the communication  time spent in transferring the data to and from
+the GPU. This overhead is quadratic in the matrix dimension and thus becomes
+negligible compared to the actual computation time as the dimension increases.
+This is the reason why other routines relying on many calls to matrix multiplication, such as Gaussian elimination, matrix
+inverse, etc, cannot blindly benefit from the efficiency of this matrix multiplication routine. Further work will
+consist in implementing dedicated finite field Gaussian elimination routines on the GPU, and/or exploring the various
+techniques to schedule the memory transfer so that they overlap with computation.
+
+\bibliographystyle{plainnat}
+\bibliography{D5.14}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: flyspell
+%%% ispell-local-dictionary: "american"
+%%% TeX-master: "report"
+%%% End:

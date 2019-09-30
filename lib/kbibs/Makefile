@@ -6,9 +6,9 @@ bib.cr				= kwarccrossrefs.bib extcrossrefs.bib
 bib.kcr 			= kwarcpubs.bib $(bib.cr)
 bib.ext				= extpubs.bib $(bib.kcr)
 bib.all				= preamble.bib $(bib.ext)
-bib.people			= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal jbetzendahl tpollinger
-bib.systems			= sissi tetrapod TNTBase arXMLiv cpoint jomdoc kat krextor llamapun mathhub mmt mws omdoc openmathmap sTeX sally smglom swim kat
-bib.projects			= FormalCAD jem latin logosphere mathsearch oaf odk odkWP6 omoc once-cs openmath-tn MaMoReD
+bib.people			= mkohlhase akohlhase miancu dginev cjucovschi twiesing dmueller frabe cprodescu clange cdavid vzholudev cmueller nmueller fhorozal jbetzendahl tpollinger mrapp kbercic cshi mrupprecht jfschaefer
+bib.systems			= sissi tetrapod TNTBase arXMLiv cpoint jomdoc kat krextor llamapun mathhub mmt mws omdoc openmathmap sTeX sally smglom swim
+bib.projects		= FormalCAD jem latin logosphere mathsearch oaf odk odkWP6 omoc once-cs openmath-tn MaMoReD comma almanac
 bib.theses			= phdthesis mscthesis bscthesis theses
 bib.do				= $(bib.people) $(bib.projects) $(bib.systems) $(bib.theses)
 

@@ -1,0 +1,240 @@
+Jupyter notebooks consist of a sequence of cells; each of which contains either rich text or code that can be evaluated. 
+The Jupyter user interface is implemented using TypeScript in the browser.
+The backend is implemented in Python and delegates the programming-language specific features to so-called kernels via a networking protocol. 
+Each kernel works exactly like a REPL, that is to say they receive the user input of the code cells and produce output to be presented to the user. 
+Additionally, kernels can implement custom interactions using widgets, consisting of re-usable user interface components that communicate directly with the kernel.  
+Kernels for a specific programming language are typically implemented in that programming language, to ease implementation and make use of existing tool support.
+For details we refer the reader to \cite{jupyter-doc:on}. 
+
+We designed and implemented a Jupyter kernel for MMT. 
+The source code is available at \cite{mmt_jupyter:on}. 
+We describe the requirements of an MMT REPL in Section~\ref{sec:kernel:reqs}, its interface in Section~\ref{sec:kernel:syntax}, the implementation in Section~\ref{sec:kernel:impl} and our conversion between MMT data structures and notebook in Section~\ref{sec:kernel:mapping}.
+In Section~\ref{sec:kernel:widgets}, we describe and discuss our implementation of widgets within our kernel. 
+
+\subsection{A REPL for MMT}\label{sec:kernel:reqs}
+
+MMT differs from typical computational engines in Jupyter in that it does not only (and not even primarily) perform computation but also handles symbolic expressions with uninterpreted function symbols whose semantics is described by logical axioms.
+Another important difference is how MMT handles context and background knowledge.
+Kernels for (mathematics-oriented or general purpose) programming languages, as typical in Jupyter, build and maintain a dynamic context of declarations with imperative assignment and stack-oriented shadowing and rely on a fixed --- often object-oriented --- background library of computational functionality.
+MMT, on the other hand, uses graphs of inter-connected theories to represent a multitude of possible contexts and background libraries to move knowledge between contexts.
+To adequately handle these subtleties, we systematically specified a new interface for Jupyter-style interactions with MMT.
+
+\paragraph{Example}
+\def\cn#1{\ensuremath{\mathsf{#1}}}
+\def\gray#1{\textcolor{gray}{#1}}
+
+\begin{wrapfigure}{r}{0.33\textwidth}\vspace*{-2em}
+\begin{tikzpicture}[xscale=.7,yscale=.8]\footnotesize
+  \node[thy] (Mon) at (0,1.2)
+  {$\mmtthy{Monoid}{\gray{\cn{U},\;\cn{op},\;\cn{e},\; \cn{unit}}}{}$};
+  \node[thy] (CGr) at (0,3) {$\mmtthy{CGrp}{\gray{\cn{i},\;\cn{inv},\;\cn{comm}}}{}$};
+  \node[thy] (Ring) at (-3.5,3) {$\mmtthy{Ring}{\gray{\cn{dist}}}{}$};
+  \draw[include](Mon) -- (CGr);
+  \draw[struct](CGr) -- node[below]{$\cn{add}$}(Ring);
+  \draw[struct](Mon) -- node[left]{$\cn{mul}$} (Ring);
+\end{tikzpicture}\vspace*{-.5em}
+\caption{Rings in MMT}\label{fig:ringraph}\vspace*{-2em}
+\end{wrapfigure}
+MMT uses theory graphs to model mathematical knowledge (see Figure~\ref{fig:ringraph}). 
+This theory graph shows two kinds of inheritance mechanisms in MMT: commutative groups (theory \cn{CGrp}) include monoids (\cn{Monoid}), inheriting all Monoid objects (the universe \cn{U}, the operation\cn{op}, and the unit element \cn{e}) and the unit axiom \cn{unit}. Rings are formed by combining a (multiplicative) monoid with an (additive) commutative group. Inclusion roughly corresponds to class inheritance in object-oriented programming, while MMT structures duplicate material.
+Here the operation \cn{op} from Monoid forms both addition ($+=\cn{add}/\cn{op}$) and multiplication ($*=\cn{mul}/\cn{op}$) in a ring and the Monoid unit becomes both zero ($\cn{add}/\cn{e}$) and the one elements ($\cn{mul}/\cn{e}$) of the ring. 
+
+The MMT system is usually used to answer queries such as computing particular, inherited ring axioms: $x+0=x$ and $x*1=x$ or determining the theorems and axioms of (i.e. inherited into) a theory. 
+
+\subsection{Interface and Sessions}\label{sec:kernel:syntax}
+On top of the notebook abstraction, Jupyter interactions are managed in \textbf{sessions}: every browser page opening a notebook creates a new session.
+
+MMT already has an abstraction that can closely model a notebook, called a document. 
+In MMT terms, a document is a narrative construct that contains a sequence of declarations. 
+For details, see the MMT documentation at \cite{Rabe:MMT}. 
+Each input within the Jupyter session can be represented as a single declaration within the corresponding document; see Section~\ref{sec:kernel:mapping} for further applications of this mapping. 
+
+Thus it makes sense to represent each session as an ephemeral MMT document.
+We call an MMT document \textbf{ephemeral}, iff it is (at least initially; it can be serialized and saved) created only in memory in the MMT process; apart from this, it behaves like any other MMT document.
+This gives each session a unique MMT URI, which in turn allows full referencing of all document components.
+All commands executed within a session manipulate the associated document, most importantly by interactively creating new theories and then calling MMT algorithms on them.
+The latter include but are not limited to computation.
+
+\paragraph{Input}
+The possible inputs accepted by the MMT kernel come in three groups.
+\begin{enumerate}
+\item \textbf{Global management commands} allow displaying and deleting all current sessions.
+ In practice, these commands are typically not available to common users, which should only have access to their own session.
+\item \textbf{Local management commands} allow starting, quitting, and restarting the current session. These are the main commands issued by the frontend in response to user action.
+\item \textbf{Content commands} are the mathematically meaningful commands and described below.
+\end{enumerate}
+
+The content commands are again divided into three groups:
+\begin{enumerate}
+ \item \textbf{Write-commands} send new content to the MMT backend to build the current MMT document step by step.
+   The backend maintains one implicit, ephemeral MMT document for each session, and any write command changes that document.
+ \item \textbf{Read-commands} retrieve information from the backend without changing the session's document.
+   These include lookups (both in the session document and in any other accessible document) or computations.
+  \item \textbf{Interactive-commands} that create a new user interface component allowing the user to interactively read and write MMT content. 
+   In the Jupyter system these are implemented as widgets which extend the REPL-paradigm; see Section~\ref{sec:kernel:widgets}. 
+\end{enumerate}
+
+A write-command typically consists of a single MMT declaration roughly corresponding to a line in a typical MMT source file.
+However, the nesting of declarations is very important in MMT.
+This is in contrast to many programming language kernels where nesting is often optional, e.g., to define new functions or classes;
+for many current kernels, it makes sense to simplify the implementation by requiring that the entire top-level command, including any nesting, be contained in a single cell.
+
+In our MMT kernel, all declarations that may contain nested declarations (most importantly all MMT documents and theories) are split into parts as follows: the header, the list of nested declarations, and a special end-of-nesting marker.
+Each of these is communicated in a separate write-command.
+The semantics of MMT is carefully designed in such a way that \emph{i}) any local scope arising from nesting has a unique URI, and \emph{ii}) if a well-formed MMT document is built incrementally by appending individual declarations to a currently open local scope, any intermediate document is also well-formed.
+This is critical to make our implementation feasible: the MMT kernel maintains the current document as well as the URI of the current scope; any write-command affects the current scope, possibly closing it or creating new subscopes.
+This ensures that all nested declarations are parsed and interpreted in the right scope.
+
+\begin{figure}[ht]%\vspace{-20pt}
+  \begin{minipage}[c]{6.5cm}\includegraphics[width=\linewidth]{screenshots/nesting}\end{minipage}\quad
+  \begin{minipage}[c]{4.5cm}\includegraphics[width=\linewidth]{../D4.11/test_theory}\end{minipage}
+  \caption{Content Commands for Building Theory Graphs}\label{fig:test_theory}
+  \vspace{-20pt}
+\end{figure}
+
+For example, the sequence of commands on the left of Figure~\ref{fig:test_theory} builds two nested theories, where the inner one refers to the type \texttt{a} declared in the outer one.
+The right-hand side of Figure~\ref{fig:test_theory} shows the equivalent MMT surface syntax on the right.
+Semantically, there is no difference between entering the left-hand side interactively via our new kernel or processing the write commands on the right with the standard MMT parser.
+
+An additional special write-command is \texttt{eval T}.
+It interprets \texttt{T} in the current scope, infers its type \texttt{A}, computes its value \texttt{V}, and then adds the declaration \texttt{resI:A=V} to the current theory, where \texttt{I} is a running counter of unnamed declarations.
+This corresponds most closely to the REPL functionality in typical Jupyter kernels.
+
+While write-commands correspond closely to the available types of MMT declarations, the set of read-commands is extensible.
+For example, the commands \texttt{get U} where \texttt{U} is any MMT URI returns the MMT declaration of that URI.
+
+\paragraph{Output}
+The kernel returns the following kinds of return messages:
+\begin{enumerate}
+\item \textbf{Admin messages} are strings returned in response to session management commands.
+\item \textbf{New-element messages} return the declaration that was added by a write-command.
+\item \textbf{Existing-element messages} return the declaration that was retrieved by a \texttt{get} command.
+\end{enumerate}
+
+Like read-commands, the set of output messages is extensible.
+The new-element and existing-element messages initially return the declaration in MMT's abstract syntax.
+A post-processing layer specific to Jupyter renders them in HTML5+MathML (presentation).
+That way, the core kernel functionality can be reused easily in frontends other than Jupyter.
+
+\subsection{Implementation}\label{sec:kernel:impl}
+
+Generally, Jupyter emphasizes protocols that specify the communication between frontend and backend. 
+% Recall that the frontend is a Jupyter notebook and the backend consists of kernels specific to and implemented in various programming languages.
+% This requires a certain duplication of implementation and, critically, maintenance, e.g., when implementing xeus, xwidgets and similar libraries for C++.
+
+Executing the user commands requires a strong integration with the MMT system, which is implemented in Scala.
+Even though a Jupyter Scala kernel exists, we implement the MMT kernel on top of the Jupyter Python kernel infrastructure which is by far the best developed one. 
+We implement all Jupyter-specific functionality, especially the communication and management, in Python, while all mathematically relevant logic is handled in Scala.
+
+Our implementation consists of three layers.
+The top layer (depicted on the left of Figure~\ref{fig:architecture-diagram}) is a Python module that implements the abstract class for Jupyter kernels.
+The bottom layer is a Scala class adding a general-purpose REPL to MMT that handles all the logic of MMT documents.
+This can be reused easily in other frontends e.g., the IntelliJ IDE plugin for MMT.
+User commands are entered in the front-end and sent to the top layer, which forwards all requests to the bottom layer and all responses from the bottom layer to the client.
+The communication between the top and bottom layer is handled by a middle layer which bridges between Python and MMT, formats results in HTML5, and adds interactive functionality via widgets.
+
+
+This bridging of programming languages is a generally difficult problem. 
+We chose to make use of the Py4J library~\cite{Py4J:on}, a Python-JVM bridge that allows seamless interaction between Python and any JVM-based language (such as Scala).
+Thus, our Python kernel can call MMT code directly.
+Valuable Py4j features include callbacks from MMT to Python, shared memory (by treating pointers to JVM objects as Python values), and synchronized garbage collection.
+That allows our kernel to directly and easily benefit from future improvements to the MMT backend, without needing to duplicate these improvements in kernel-specific code. 
+
+As Py4J works at the Java/JVM level, we provide a Python module that performs the bureaucracy of matching up advanced Python and Scala features.
+This is distributed along with the Jupyter Kernel. 
+
+\subsection{Converting between Jupyter Notebooks and MMT Documents}\label{sec:kernel:mapping}
+
+Recall that we were to closely model each notebook as an MMT document. 
+To integrate Jupyter notebooks and MMT documents, we make use of two fortunate design properties:
+
+Firstly, the Jupyter notebook format is well-documented~\cite{nbformat:on}. 
+We implemented an \textbf{OMDoc/NB} API in MMT that can extract the MMT content of a notebook and generate a notebook pre-filled with some MMT content.
+
+Secondly, MMT abstracts from the file formats for MMT documents -- e.g. MMT's native surface syntax, \sTeX, or prover libraries -- and  maintains a cross-format document space  of any document that can be converted into OMDoc.
+The OMDoc/NB API to adds Jupyter notebooks into this.
+Thus, we can support the following workflow:
+\begin{compactenum}
+ \item MMT content is written in any format and available as OMDoc.
+ \item A new interactive notebook is written, using some of that content.
+ \item The notebook is stored as a file and MMT extracts the relevant content as OMDoc.
+ \item Any other MMT document (including other notebooks) can now use this content.
+\end{compactenum}
+
+\subsection{Graphical User Interfaces via Jupyter Widgets}\label{sec:kernel:widgets}
+
+Jupyter widgets are interactive GUI components (e.g., input fields, sliders, etc.) that allow Jupyter kernels to provide graphical interfaces.
+While the concept is general, it is most commonly used to refer to the Python-based widget library developed for the Python kernel.
+A widget encapsulates state that is maintained in an instance of a Python class on the server and displayed via a corresponding Javascript/HTML component on the client.
+A major advantage of our kernel design is that we can reuse these widgets directly in Scala using PY4J (in the top layer)
+
+As our kernel's intelligence is maintained in MMT and thus Scala, we had to write some middle layer code to allow our kernel to create widgets.
+This code uses Py4J to expose the widget-management functionality of the top layer to the lower layers.
+This is done via a class of callback functions $C$ that are passed along when the former calls the latter.
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=12cm]{figures/ArchitectureDiagram}
+  \caption{
+    Architecture diagram.
+    Steps that simply forward data from one layer to the next are not shown explicitly. 
+  }\label{fig:architecture-diagram}
+\end{figure}
+
+
+Figure~\ref{fig:architecture-diagram} shows the details of the communication.
+The upper part shows the simplest (widget-less) case: MMT content is entered in the frontend and forwarded to the bottom layer, and the response is forwarded in the opposite direction. 
+
+The lower part shows a more complex widget-based interaction.
+First of all, we add special management commands that are not passed on to the GUI-agnostic bottom layer.
+Instead, they are identified by the middle layer, which responds by delegating to a GUI application.
+This application then builds its graphical interface by calling the callbacks passed along by the top layer.
+This results in a widget object in Python that is returned to the top layer and then forwarded to the frontend.
+
+As usual, GUI components may themselves carry callback functions for handling events that are triggered by user interaction with the GUI in the frontend.
+While conceptually straightforward, this leads to an unusually deep nesting of cross-programming language callbacks.
+When creating a widget, the Scala-based GUI application may pass Scala callbacks whose implementation makes use of the callbacks provided by the top layer.
+Thus, a user interaction triggers an MMT callback in the Python top layer, which is executed on the Scala side via Py4J, which in turn may call the Python callbacks exposed via Py4J.
+
+\paragraph*{Example: In-Document Computation}
+We present an example of a GUI application inside of a notebook. 
+We will later use this widget for active in-document computation. 
+Figure~\ref{fig:ac} presents a simple example. 
+
+\begin{wrapfigure}{r}{0.68\textwidth}\vspace*{-2.5em}
+  \includegraphics[width=0.68\textwidth]{screenshots/activecomp}\vspace*{-1em}
+  \caption{An Active Computation widget in a Notebook via Jupyter/MMT Widgets}\label{fig:ac}
+  \vspace{-20pt}
+\end{wrapfigure}
+This notebook first defines a new theory (in \texttt{In[1]}), called AdditionExample.
+This theory makes use of the MMT implementation of real number arithmetics.  
+
+Our widget is then triggered in \texttt{In[2]} by the special command \texttt{active computation}. 
+It takes two parameters, a list of variables (here $a$ and $b$) and a term (here $a + b$). 
+
+These parameters are sent to the middle layer of our MMT kernel (see again Figure~\ref{fig:architecture-diagram}). 
+This Scala code then parses the parameters (using the bottom layer), and instructs the middle layer to create a label and a text field for each variable. 
+Furthermore, it also instructs the python code to create a button labeled \texttt{Simplify} and registers a callback inside the Scala code to be executed when the button is pressed. 
+The labels, input fields and the button being used here are standard Jupyter widgets. 
+
+In our case the user has already entered some terms, $1.2$ for $a$ and $2.3$ for $b$, and already clicked the \texttt{Simplify} button. 
+This triggered the previously registered callback in the middle layer. 
+The function first used the bottom layer to parse the terms inside the input fields. 
+It then substituted the results into the original term $a + b$. 
+The result of this substitution (in this case $1.2 + 2.3$) was then simplified (again using bottom layer code). 
+This resulted in the final output of $3.5$. 
+
+The important take-away here is not the difficulty of the computation\footnote{
+  In our current implementation we compute using MMT, which models it of using term simplification. 
+  However in principle it is possible to use any kind of computation engine here. 
+  We want to integrate the active computation widget with our work on the Math-In-The-Middle paradigm (such as in \cite{ODK-D6.5}) which would be ideally suited for further applications. 
+}; it is the seamless integration between the frontend, top, middle and bottom layer code. 
+This example demonstrates that our design makes it very easy to build and deploy simple GUI applications for MMT --- we still have the full power of Jupyter widgets at our fingertips. 
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "paper"
+%%% End:
+
+%  LocalWords:  Jupyter newpart textbf ednote centering texttt includegraphics synchronized customizable inparaenum Realizing subsubsection serialized emph emph emphasizes xeus xwidgets textit activecomp synchronization wrapfigure vspace textwidth

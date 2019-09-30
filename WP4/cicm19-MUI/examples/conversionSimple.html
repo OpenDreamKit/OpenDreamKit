@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Emc</title>
+
+   <style>
+        span.defines {
+            color: blue;
+            font-style: italic;
+        }
+        math.formula {
+            color:  rgb(117, 67, 16);
+        }
+        body {
+            text-align: justify;
+        }
+    </style>
+    <menu type="context" id="mymenu">
+        <menuitem label="Local Computation" onclick="upload_nb();" icon="/images/refresh-icon.png"></menuitem>
+    </menu>
+</head>
+
+<body>
+    <h2>Mass-energy equivalence</h2>
+    <div data-theory="?EEC">
+    <p>
+        The energy <span class="defines">E</span> is the quantitative property that must be transferred to an object in order to perform work on, or to heat the object.
+        The mass <span class="defines">m</span> is both a property of a physical body and a measure of its resistance to acceleration (a change in its state of motion) when a net force is applied.
+    </p>
+    <p>
+        The speed of light in vacuum, commonly denoted <span class="defines">c</span>, is a universal, physical constant inportant in many areas of physics.
+        Its exact value is 299,792,458 meters per second (approximately 300,000 km/s (186,000 mi/s)).
+    </p>
+    <p>
+        Combining these quantities we now can define Einsteins formula as <span contextmenu="mymenu" onmouseover="setContext(event)">
+            <math data-decls="m,c" data-uri="?E" alttext="E=mc^2" class="formula">
+                <semantics>
+                    <mrow>
+                    <mi>E</mi>
+                    <mo>=</mo>
+                    <mrow>
+                        <mi>m</mi>
+                        <mo>&#x2062;</mo>
+                        <msup>
+                        <mi>c</mi>
+                        <mn>2</mn>
+                        </msup>
+                    </mrow>
+                    </mrow>
+                </semantics>
+            </math>
+        </span>.
+    </p>
+    </div>
+</body>
+
+<script>
+    var server_url = "http://localhost:8888";
+    var context = null;
+    function setContext(e){
+        context = e.target;
+    }
+
+    function upload_nb(){
+        var current_context = context;
+        var data_decls = current_context.getAttribute("data-decls");
+        var data_uri = current_context.getAttribute("data-uri");
+        var data_theory = search_for_data_theory(current_context);
+        
+        var cells = [];
+        cells.push(cell("theory A"));
+        cells.push(cell("include "+data_theory));
+        cells.push(cell("active computation "+data_decls+" "+data_uri));
+        
+        var nb_json = convert_to_nb(cells);
+
+        var xhr = new XMLHttpRequest();
+        var nb_b64 = btoa(JSON.stringify(nb_json));
+        var url = server_url+"/upload?url=data:application/ipynb%3B,"+nb_b64 // escape the ; with %3B
+        window.open(url);
+    }
+
+
+    function search_for_data_theory(doc_element){
+        var data_theory = doc_element.getAttribute("data-theory");
+        if (data_theory)
+            return data_theory;
+        var parent = doc_element.parentNode;
+        var grandparent = parent.parentNode; 
+        // if grandparent == null we're the last parent before the body
+        if (parent && grandparent)
+            return search_for_data_theory(parent);
+        return null;
+    }
+
+
+    function convert_to_nb(cells) {
+        return {
+            "cells": cells,
+            "metadata": {
+                "kernelspec": {
+                    "display_name": "MMT",
+                    "language": "mmt",
+                    "name": "mmt"
+                },
+                "language_info": {
+                    "file_extension": ".mmt",
+                    "mimetype": "text/mmt",
+                    "name": "mmt"
+                }
+            },
+            "nbformat": 4,
+            "nbformat_minor": 2
+        };
+    }
+
+    function cell(code, type="code"){
+        if (type == 'code')
+            return {
+                "cell_type": "code",
+                "execution_count": null,
+                "metadata": {},
+                "outputs": [],
+                "source": [code]
+            };
+        else
+            return {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [code]
+            };
+    }
+
+   
+</script>
+
+</html>

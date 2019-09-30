@@ -1,0 +1,67 @@
+Mathematical software systems need to support two kinds of user interface paradigms.
+Firstly, mathematical \emph{documents} have been very successful for presenting mathematical knowledge.
+While there have been efforts to make them modular and interactive, they predominantly remain in the mode of archiving and transporting knowledge in Mathematics.
+Secondly, \emph{notebook} interfaces focus on REPL (Read/Eval/Print Loop) interaction leading to documents consisting of a sequence of computational cells within which the mathematical discourse is interspersed in the form of rich comments.
+A ``literate programming'' version of notebooks which gives mathematical discourse structural precedence is possible in principle but has not been supported consistently at the system level.
+
+A combination of both of these paradigms almost immediately leads to new applications. 
+One such application is the interaction with document-based systems, such as MMT, within a REPL.
+%We do not give an introduction to MMT here, instead we refer the interested reader to \cite{RabKoh:WSMSML13} and \cite{uniformal:URL}. 
+The MMT tool ecosystem only really supported IDE-interaction with MMT libraries via \textsf{Edit} and (recently) IntelliJ IDEA plugins. 
+While the MMT system provides a simple shell for interaction, this was only used for configuration and setup of the MMT process.
+We anticipate that the REPL-like interaction will feel more natural for users of interactive theorem provers and computer algebra systems.
+
+\paragraph{Goals and Challenges}
+Static documents do not allow for interactivity, and notebook approaches require significant programming knowledge to use.
+Our goal is to overcome these restrictions to enable domain experts to created interactive documents declaratively. 
+This leads us to two challenges
+\begin{compactenum}[\em i\rm )]
+\item How can we combine the notebook and document paradigms?
+\item How can we support flexible interactions without forcing authors to program?
+\end{compactenum}
+Traditionally, flexible interactions in (web) documents are handled by applets, small, document-embedded programs providing specialized functionality. 
+Modern notebook systems such as Jupyter, which we introduce in more detail below, provide the concept of widgets which provide applet-like functionality, but their combination into interactions still requires non-trivial programming.  
+
+\paragraph{Contribution}
+We present an integration of Jupyter Notebooks into the MathHub platform for hosting semantic, active documents.
+MathHub offers versioned persistent storage for semantically enhanced mathematical documents and knowledge representations.
+These are unified into the OMDoc/MMT format and loaded into a cross-document-format mathematical knowledge space managed by the MMT system (written in Scala).  
+MathHub is a web frontend for showing OMDoc/MMT content as (largely static) mathematical documents.
+Jupyter offers a uniform interface to various computation facilities in the form of a read-eval-print loop (REPL), which can be seen as dynamic, ephemeral documents.
+The system consists of a general, feature-rich browser-based REPL interface that communicates to a system-specific backend, called a Jupyter kernel that supplies the computational capabilities.
+Such a kernel either connects the native system REPL via a generic Python kernel or uses language-specific network libraries. 
+
+Generally, the integration of MathHub and Jupyter consists of two challenges:
+\begin{compactenum}[\em i\rm )]
+\item the integration of the document paradigms and user interfaces 
+and
+\item the integration of the knowledge management and computation services.
+\end{compactenum}
+The latter requires defining the semantics of the mathematical knowledge maintained in the user interfaces, and both Jupyter and MathHub are parametric in this semantics.
+In Jupyter, a separate kernel must be provided for each concrete language.
+In particular there are separate kernels for all computation systems used in OpenDreamKit.
+In MathHub, the determination of the semantics is delegated to the MMT system. This paper describes progress in both integration challenges.
+
+\paragraph{Overview} In Section~\ref{sec:mmt-jp}, for the integration of services, we present an MMT kernel for Jupyter.
+This not only makes the MMT functionality available at the Jupyter level, but also deeply integrates Jupyter widgets with the MMT Scala level.
+Widgets are a key Jupyter feature that reaches far beyond the standard REPL interaction.
+For instance, the Jupyter community has developed a large array of widgets for interactive 2D and 3D visualization of data in the form of charts, maps, tables, etc.
+
+In Section~\ref{sec:nb-mh}, for the integration of document paradigms, we first show how to extend MathHub with a Jupyter server that allows viewing notebooks stored in MathHub.
+Then we present a MathHub feature that allows using interactive, ephemeral Jupyter Notebooks as subdocuments of static mathematical documents, e.g., HTML pages generated from scientific articles.
+
+In Section~\ref{sec:mitm-nb}, we present two case studies that evaluate our results: in-document computing facilities in active documents and a knowledge-based specification dialog for modeling and simulation.
+Section~\ref{sec:concl} concludes the paper.
+
+\paragraph{Acknowledgements}
+We acknowledge financial support from the OpenDreamKit Horizon 2020 European Research Infrastructures project (\#676541).
+The authors gratefully acknowledge the support of the Jupyter team and in particular the advice of Benjamin Ragan-Kelly.
+The MoSIS system was developed in collaboration with Theresa Pollinger~\cite{PolKohKoe:kacse18}.
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "paper"
+%%% End:
+
+%  LocalWords:  emph Jupyter inparaenum ednote sec:mmt-jp visualization sec:nb-mh sec:mitm-nb sec:concl PolKohKoe:kacse18 Mathhub compactenum RabKoh:WSMSML13 textsf newpart specialized

@@ -1,0 +1,658 @@
+\documentclass{deliverablereport}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=cyan,
+  linkcolor=blue,
+  citecolor=blue,
+}
+
+\deliverable{component-architecture}{sage-distribution}
+\deliverydate{05/09/2019}
+\duedate{31/08/2019 (M48)}
+\author{Luca De Feo \emph{et al.}}
+
+\begin{document}
+\maketitle
+% This will be the abstract, fetched from the github description
+\githubissuedescription
+\tableofcontents
+\clearpage
+
+\section{Package repositories in Linux}
+
+Operating systems offer several ways to install and/or update
+software. %
+For a long time, Microsoft Windows has accustomed its users to the
+``installer'' pattern: obtain an executable, by downloading it or by
+running it from external media (e.g., a CD or DVD), which takes care
+of installing the software in the appropriate locations.
+
+At the same time, Linux\footnote{In this report, we use the name Linux for short;
+  technically this is just the name of the system kernel, and the full
+  operating system is called GNU/Linux.}
+\emph{distributions} have privileged a
+different software delivery mechanism: official (and unofficial)
+\emph{repositories}, collections of installable \emph{packages} that
+software called a \emph{package manager} can retrieve (typically via
+download) and install in the appropriate location. %
+Thanks to ever increasing Internet speeds, the package repository
+model has gained in popularity, and has notably been replicated by the
+``app store'' concept of mobile OSes, and more recently Windows 10.
+
+While in the installer model the responsibility for packaging and
+distributing software mostly falls on the software vendor, the package
+repository model allows for a variety of policies: in the Linux space,
+it is customary for distributions to have official repositories, where
+software are packaged by select members of the community, along with
+unofficial repositories where packages can be contributed by anyone.
+
+\subsection{Package ecosystems in Linux}
+
+Over time, several different package formats have developed for Linux,
+with associated package managers. %
+Linux distributions tend to support chiefly one specific package
+format, eventually providing tools for manipulating packages in other
+formats. %
+There is usually a distinction between \emph{source packages} and
+\emph{binary packages}: the former contain source code, and are
+eventually used to build the latter. %
+Most Linux distributions provide software to end users in the form of
+binary packages (Gentoo is a notable exception); in the rest of this
+document we will mostly refer to binary packages.
+
+The two most popular package formats are \texttt{.deb} and
+\texttt{.rpm}, respectively created by the Debian and Red Hat
+distributions. %
+Nowadays, each of them serves as the main format for several popular
+distributions; Table~\ref{tab:pkg-fmt} summarizes the principal Linux
+distributions with their package format.
+
+\begin{table}[hb]
+  \centering
+  \begin{tabular}{l | p{0.5\textwidth} | l}
+    Package format & Distributions & Package manager\\
+    \hline
+    \texttt{.rpm} & RHEL, Fedora, CentOS, OpenMandriva, OpenSUSE, \dots & yum\\
+    \texttt{.deb} & Debian, Ubuntu, Mint, Knoppix, Raspbian, \dots & apt \\
+    Portage & Gentoo, Chrome OS, \dots & emerge\\
+    \texttt{PKGBUILD} & Arch, Manjaro, \dots & pacman\\
+    Conda & \emph{OS-agnostic}, user-level & conda
+  \end{tabular}
+  \caption{Most popular Linux distributions and package formats}
+  \label{tab:pkg-fmt}
+\end{table}
+
+One of the main prerogatives of a Linux distribution is to choose what
+packages to make available through its official repositories, prepare
+them, and ensure that they are compatible with one another. %
+Different distributions that use the same package format may or may
+not share the same packages. %
+For example, Debian and Ubuntu have mostly disjoint package sets,
+prepared independently by the respective communities; however some
+packages in Ubuntu, notably those that pertain to \ODK, are provided
+by the DebianScience team%
+\footnote{\url{https://wiki.debian.org/DebianScience}.}.
+
+\subsection{Other packaging paradigms}
+
+Besides ``classic'' Linux package systems, several other paradigms
+have emerged over the years.
+
+Most programming languages nowadays come with an official repository
+where source code or pre-compiled code can be stored in the form of
+packages, and retrieved using a language-specific package manager,
+regardless of the OS of the user. %
+Examples of this paradigm are the Python Package Index (PyPI)%
+\footnote{\url{https://pypi.org/}} %
+for Python, or the Comprehensive R Archive Network (CRAN)%
+\footnote{\url{https://cran.r-project.org/}} %
+for R. %
+While language-specific repositories are mainly targeted at code
+written in the respective programming language, every system also
+offers facilities to install dependencies written in other programming
+languages, such as pre-compiled C libraries, thus blurring the
+boundary between the OS package manager and the programming language
+one. %
+Table~\ref{tab:pkg-lang} summarizes the official package repository
+and package manager for some popular programming languages relevant to
+\ODK.
+
+\begin{table}
+  \centering
+  \begin{tabular}{l | l | l}
+    Programming language & Official repository & Package managers\\
+    \hline
+    Python & PyPI & pip\\
+    Julia & General & Pkg\\
+    R & CRAN & install\\
+    Perl & CPAN & PPM\\
+    JavaScript & NPM & npm \\
+    \emph{any} & Conda-forge & conda
+  \end{tabular}
+  \caption{Some programming languages and their official package systems}
+  \label{tab:pkg-lang}
+\end{table}
+
+\emph{Agnostic} package systems push the concept one step further, by
+being unrelated to both an OS and a programming language. %
+Currently, one of the most popular package systems is Conda, which
+consists of an open-source package manager (conda), and a
+community-led package repository (Conda-forge%
+\footnote{\url{https://conda-forge.org/}}), %
+backed by a commercial company named Anaconda. %
+Originally born as a package system for Python, it has evolved into an
+OS-and-language-agnostic package system targeted at scientific
+computing and data science. %
+Centered around JupyterLab and the Jupyter notebook for its user
+interface, Conda offers a one-stop solution to install all
+programming languages, libraries and tools to work on scientific
+projects.
+
+Being primarily targeted at developers, rather than end users, both
+language-specific and language-agnostic package repositories are
+usually open to contributions from anyone at any time.%
+\footnote{In some cases, for example Conda, a separate curated package
+  repository may be offered to paying customers.} %
+Unlike OS package repositories, they do not aim at having a full set
+of software all compatible with one another at any given time, but
+rather at having all versions (including bleeding edge) of any given
+software installable at all time. %
+To better cater to development workflows, these package managers
+usually provide an isolation mechanism (often called
+\emph{environments}) that permits to have several versions of the same
+software installed and running at the same time. %
+This way, even if two software systems have conflicting dependencies, they can
+be installed at the same time by having two separate environments for
+them.
+
+While potentially more demanding in resources, the installation model
+based on isolated environments allows more flexibility, and is
+especially interesting for \emph{reproducible} software builds. %
+It has thus been replicated in the OS space by some Linux
+distributions, in particular NixOS%
+\footnote{\url{https://nixos.org/}} %
+and GUIX%
+\footnote{\url{https://guix.gnu.org/}}. %
+A more extreme mechanism uses \emph{containerization} to isolate
+software so that distinct environments do not even share system
+resources such as file-systems or process tables. %
+This is the approach, taken for example by Red Hat's Container Linux%
+\footnote{\url{https://coreos.com/}} %
+(formerly CoreOS), which is primarily targeted at cloud infrastructures.
+
+\subsection{Relevance for \ODK}
+
+The software made by \ODK is primarily available as source code and
+precompiled binaries from the respective project web pages. %
+Typically, software projects (as opposed to libraries) also provide
+executable installers from their web pages, thus installation by the
+installer pattern is always an option for the end user, and in some
+cases (e.g., installation on Windows) even the preferred one
+(see~\longdelivref{component-architecture}{portability-cygwin}).
+
+Packaging software for package repositories is rarely the
+responsibility of the software developer, and indeed, outside a few
+exceptional cases, \ODK software is not packaged by \ODK members. %
+While not our direct responsibility, it is nevertheless of
+primary importance that our software is made available through as many
+package repositories as possible. %
+Indeed, while many end-users (Windows users in particular) who install
+software on their personal computers are perfectly happy with the
+installer pattern,
+the usual practice for Linux end-users and even more system
+administrators is to install
+software through package managers. \ODK's goal is also to reach a much larger
+audience through shared servers and cloud infrastructures; the vast majority of them
+run under Linux and are extremely reliant on package managers
+(both OS-specific and OS-agnostic) for installing software.
+
+
+This deliverable describes the efforts made by \ODK to have all its
+software components packaged for the official repositories of all
+major Linux distributions. %
+While not precisely within the scope of this deliverable, we also
+report on packaging for OS-agnostic repositories, and on the impact on
+software design.
+
+A different packaging issue is having a package system \emph{for}
+\ODK software, in the same vein as language-specific package
+systems. %
+For example, \GAP has developed a package format, a package manager,
+and maintains an official repository, so that users can publish and
+share their code written in \GAP with other users. %
+Since this aspect of packaging is inextricably linked with the former,
+we also report on it.
+
+
+\section{Linux packages for \ODK components}
+
+The goal of this deliverable was to have official packages for all
+major Linux distributions for all \ODK components. %
+Before the start of \ODK, availability varied greatly among
+distributions and software. %
+To begin, it is necessary to define what is meant by ``major''
+distribution; in an inevitably biased way, we chose to target the
+following distributions:
+
+\begin{itemize}
+\item Debian, Fedora: for their popularity among advanced end-users
+  and system administrators;
+\item Ubuntu: for its popularity among beginners and casual users, as well as
+  in the server and cloud space;
+\item Arch, Gentoo: for their popularity among power-users.
+\end{itemize}
+
+Being the lone project depending upon all other \ODK components, \Sage
+is automatically the most challenging to package. %
+Hence, packagers for \Sage are usually, though not always, also
+responsible for packaging most \ODK components within a
+distribution. %
+Table~\ref{tab:maintainers} summarizes the currently active package
+maintainers for each of the distributions above; with the exception of
+Bill Allombert, and some occasional members of the Debian Science
+group, all package maintainers are external to the \ODK project.
+
+\begin{table}
+  \centering
+  \begin{tabular}{p{0.5\textwidth} | p{0.5\textwidth}}
+    Distribution & Maintainers\\
+    \hline
+    Debian, Ubuntu & Bill Allombert, Debian Science\\
+    Fedora & Paulo César Pereira de Andrade \emph{et al.}\\
+    Arch & Antonio Rojas, Felix Yan\\
+    Gentoo & François Bissey \emph{et al.}\\
+    Conda-forge & Isuru Fernando \emph{et al.}
+  \end{tabular}
+  \caption{Package maintainers for various distributions}
+  \label{tab:maintainers}
+\end{table}
+
+With the exception of Debian and Ubuntu, all distributions above have
+a history of regularly packaging \Sage (and thus all its dependencies)
+since at least 2013, well before the start of \ODK. %
+Hence, the strategy adopted for this deliverable was to have \Sage
+packaged for Debian, in collaboration with the Debian Science team,
+with all \Sage dependencies and packages for Ubuntu automatically
+following from this work.
+
+Debian has a two year long \emph{release cycle}, each cycle beginning at the
+middle of odd numbered years. %
+This means that every two years the community decides on which
+packages should be included in the next stable release, at which point
+a \emph{freeze} happens and packages within a release can only be
+updated to fix bugs and security issues. %
+``Missing the train'' for one release cycle means that software
+cannot enter Debian for the next two years. %
+Table~\ref{tab:debian} summarizes the Debian releases that happened
+during the 2015-2019 period.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{c c c}
+    Codename & Number & Date\\
+    \hline
+    Jessie & 8 & April 26th, 2015\\
+    Stretch & 9 & June 17th, 2017\\
+    Buster & 10 & July 6th, 2019
+  \end{tabular}
+  \caption{Debian releases during the \ODK project}
+  \label{tab:debian}
+\end{table}
+
+Ubuntu has a similar two year long \emph{long-term-support (LTS)}
+release cycle, but also a shorter six-month cycle for quicker
+releases, thus allowing more chances to release a package.
+
+\subsection{Status before \ODK}
+
+At the start of \ODK, only packages for \PariGP and \GAP were
+available in Debian/Ubuntu, thanks to the continued efforts of Bill
+Allombert, a long time member of the Debian community. %
+
+Information on the packages available at the end of 2015 are summarized in
+Table~\ref{tab:odk-2015}; for succinctness, we only list the four
+core computer algebra systems (CAS) distributed by \ODK, leaving libraries out
+of the picture.%
+\footnote{Libraries typically have fewer dependencies and are easier to
+  package.} %
+To give an idea of the complexity of the task, we list the number of
+packages in the dependency tree of each software package (i.e., the total
+number of packages that would get installed on a fresh Debian system
+with no other software than the package manger); we do the same for
+the number of \emph{dependent} packages (packages that depend on the
+software).
+
+\begin{table}
+  \centering
+  \begin{tabular}{l | c | c | c | c | c}
+    Software & Stable version & Version in Debian & Maintainer & Dependencies & Dependents \\
+    \hline
+    \GAP & 4.7.8 & 4r7p5-2 & Bill Allombert & 13 & 9\\
+    \PariGP & 2.7.4 & 2.7.2-1 & Bill Allombert & 36 & 6\\
+    \Sage & 6.8 & --- & --- & --- & ---\\
+    \Singular & 4.0.1 & --- & --- & --- & ---\\
+  \end{tabular}
+  \caption{\ODK packages in Debian Jessie, September 1, 2015. Source
+    \url{http://snapshot.debian.org/}.}
+  \label{tab:odk-2015}
+\end{table}
+
+\Sage (version 3.0 at the time) had been packaged in Debian for the last time
+in 2010, but fell out of the official distribution due to incompatible
+dependencies. %
+Ubuntu users also had access to a \Sage package contributed by
+Jan Groenewald from AIMS on an unofficial channel. This package also installed
+\Singular and other dependencies alongside; however, for the sake of
+simplicity it was monolithic and offered
+little in terms of compatibility and integration with the rest of the
+system.
+
+\subsection{Current status}
+
+The first occasion to have all \ODK components packaged for Debian was offered
+by the \emph{freeze} for the Debian 9.0 (codenamed "Stretch") release in 2017. %
+Thanks to the intense collaboration between \ODK and the Debian
+Science team, the occasion was not missed, thus achieving the goal of
+the deliverable 24 months in advance of the projected deadline. %
+Table~\ref{tab:odk-2017} summarizes information on the packages
+available in Debian Stretch. %
+The same packages were added to the official Ubuntu repositories at
+the same time.
+
+\begin{table}
+  \centering
+  \begin{tabular}{l | c | c | c | c | c}
+    Software  & Stable version & Version in Debian & Maintainer & Dependencies & Dependents \\
+    \hline
+    \GAP      & 4.8.8 & 4r8p6-2         & Bill Allombert &  14 & 20\\
+    \PariGP   & 2.9.3 & 2.9.1-1         & Bill Allombert &  39 &  9\\
+    \Sage     &   8.0 & 7.4-9           & Debian Science & 653 &  3\\
+    \Singular & 4.0.3 & 1:4.0.3-p3+ds-5 & Debian Science &  21 &  4\\
+  \end{tabular}
+  \caption{\ODK packages in Debian Stretch, August 31, 2017. Source
+    \url{http://snapshot.debian.org/}.}
+  \label{tab:odk-2017}
+\end{table}
+
+The next Debian release cycle came to completion in July 2019; all
+\ODK packages were updated and improved for the occasion, requiring
+tight collaboration between the involved communities, with a
+marked simplification of the dependency tree. %
+Table~\ref{tab:odk-2019} summarizes information on the packages
+available in Debian 10 (codenamed "Buster").
+
+\begin{table}
+  \centering
+  \begin{tabular}{l | c | c | c | c | c}
+    Software  & Stable version & Version in Debian & Maintainer & Dependencies & Dependents \\
+    \hline
+    \GAP      & 4.10.2 & 4r10p0-7        & Bill Allombert &  15 & 13\\
+    \PariGP   & 2.11.2 & 2.11.1-2        & Bill Allombert &  41 &  9\\
+    \Sage     &    8.8 & 8.6-6           & Debian Science & 593 &  3\\
+    \Singular &  4.1.2 & 1:4.1.1-p2+ds-3 & Debian Science &  23 &  4\\
+  \end{tabular}
+  \caption{\ODK packages in Debian Buster, August 29, 2019. Source
+    \url{http://snapshot.debian.org/}.}
+  \label{tab:odk-2019}
+\end{table}
+
+\subsection{Beyond Linux packages}
+
+Having achieved the goals of the deliverable largely in advance, we
+took the occasion to explore other package repositories. %
+At the \ODK workshop in Cernay (see~\delivref{dissem}{workshops-4}),
+besides experiments with GUIX and Nix packages, a sprint took place to
+have \Sage packaged for Conda-forge. %
+At the time of writing, the latest \Sage 8.8 and all its dependencies
+are available on Conda-forge for the Linux and MacOS platforms. %
+This packaging effort is still experimental, and will only become
+stable after \Sage is officially migrated to Python 3 (see below).
+
+In addition, and according to our development best practices, most of
+the new software developed by OpenDreamKit has been packaged for e.g.
+PyPI if not Conda; this includes for example JOOMMF/UberMag
+(\longdelivref{dissem}{oommfnb-vre-deliver}), nbval, nbdime
+(\longdelivref{UI}{jupyter-test}), pypersist
+(\longdelivref{dksbases}{persistent-memoization}), etc.
+
+\section{Work accomplished}
+
+If a piece of software can be installed on a system, then, in principle, it can
+be packaged for it. %
+And, indeed, a \Sage package for Ubuntu had been distributed through
+an unofficial channel for many years.
+
+The difficulty is not packaging software, as much as packaging it
+\emph{properly}. %
+Indeed, a package system tries to fulfill several goals:
+\begin{itemize}
+\item Code reuse: by having a separate package for a component shared
+  by several software, the component can be installed only once and
+  reused many times. This obviously saves disk space and, in the case
+  of shared libraries, it also saves memory and cpu since the library
+  needs to only be loaded once in shared memory.
+
+\item Compatibility: different software may depend on different
+  versions of the same component, and break when incompatible versions
+  are used. By ensuring that all software within a release is mutually
+  compatible, Linux distributions provide a smooth experience for the
+  user.
+
+  Nevertheless, sometimes it is impossible to satisfy all dependent
+  software with a single version of a component. In this case, it is
+  not unusual for Linux distributions to provide two different
+  versions of the same component installable side-by-side (e.g.,
+  Python 2 and Python 3 are both available in all Linux distributions
+  at the time of writing). While this approach is in tension with the
+  goal of code reuse, it is sometimes the most pragmatic one.
+  
+\item Flexibility: software may rely on two components to do the
+  same job, using indifferently one or the other according to which is
+  available in the system. By having separate packages, users can
+  freely choose which component they prefer to have installed, and even
+  change their mind later, without breaking dependent software.
+\end{itemize}
+
+It is clear that, the higher the number of dependencies, the higher
+the complexity of packaging a software is. %
+In the case of \ODK, a single software package may interact with hundreds of
+packages, as illustrated in
+Tables~\ref{tab:odk-2015}--\ref{tab:odk-2019}. %
+
+The legacy unofficial \Sage package for Ubuntu,
+installing all of \Sage and its dependencies in a handful of huge
+packages, was not playing by the rules, which explains why it was not
+included in the official repositorites. %
+Furthermore, the strong traditions of the Debian community (length of
+the release cycle, large quantity of scientific software already
+packaged, reluctance to host alternative/modified versions of
+packages), exacerbated the problem and made packaging \Sage and its
+dependencies extremely challenging.
+
+The successful packaging of all \ODK components in Debian/Ubuntu was
+thus the result of several actions undertaken by the \ODK members in
+concert with the concerned communities. %
+We list below the most important actions.
+
+\begin{description}
+\item[Workshops dedicated to packaging] A series of workshops
+  specifically targeted at packaging was organized in Cernay (near
+  Paris):
+  \begin{itemize}
+  \item \Sage days 77, April 4--8, 2016, see \delivref{dissem}{workshops-1};
+  \item \Sage days 85, April 30 -- May 4, 2018, see \delivref{dissem}{workshops-3};
+  \item \Sage days 101, June 17--21, 2019, see \delivref{dissem}{workshops-4}.
+  \end{itemize}
+  They were the occasion to gather the various actors involved in
+  packaging \ODK components, exchange ideas, run experiments, and
+  sprint on development. %
+  A mailing list \texttt{sage-packaging@googlegroups.com} was created
+  to keep exchanging on issues related to packaging after the
+  workshops.
+
+\item[Limiting \emph{patches}] When a project depends on an external
+  component, it may need, in some instances, to \emph{patch} the
+  external dependency, i.e., create a slightly modified version of the
+  official component that interfaces better with the project. %
+  Several different reasons may lead a project to patch a dependency:
+  \begin{itemize}
+  \item A bug is found in the dependency, but its developers either
+    disagree with the proposed fix, or have a timeline for releasing
+    it that is incompatible with that of the dependent project.
+  \item The dependency makes assumptions about its environment (file
+    paths, system resources, \dots) that are unsatisfied within the
+    dependent project.
+  \item Two or more dependencies are incompatible, but the dependent
+    project needs all; a patch to one of the dependencies may help
+    them coexist.
+  \end{itemize}
+
+  While patches may be unavoidable, they complicate the work for
+  package maintainers: which version of a component should be included
+  in the official repository, the original or the patched one? %
+  In some cases, it may be necessary to include both, which negates
+  the benefits cited previously. %
+  For this reason, Linux distributions usually discourage projects
+  patching dependencies, keeping that prerogative to themselves. %
+
+  \Sage, owing to its large number of dependencies, has traditionally
+  behaved very badly in this respect, maintaining a large set of
+  patches. %
+  An great amount of work has gone into \emph{pushing patches
+    upstream} (i.e., having them accepted in the original project)
+  whenever possible, and in removing useless or avoidable patches.
+  
+\item[Updating dependencies] As dependencies evolve, it is necessary
+  to ensure that the dependent project is as compatible as possible
+  with the latest version,
+  failing which package maintainers would be faced with the dilemma
+  of updating the dependency and thus breaking the dependent, or
+  keeping the dependency at an obsolete version.
+
+  While in most cases updating a dependency requires little to no
+  work, major version changes may require considerable effort. %
+  Notable examples for \Sage were the upgrade of \Singular from
+  version 3 to 4, and the upgrade of Python from version 2 to 3. %
+  The former was completed in mid-2016, one year and a half after the
+  initial release of \Singular 4; the latter is still underway (see
+  next section).
+  
+\item[Modularization of \ODK software] Identifying and cutting out
+  meaningful components from a large piece of software can also help
+  make packaging easier; delegating work even more.
+
+  With the help of \ODK, the various software projects undertook a
+  broad effort in modularizing their code base, leading to a
+  considerable reduction in duplicated efforts and improved code
+  quality. %
+
+  Important examples are the adoption of Jupyter as unified user
+  interface, which in the case of \Sage paved the way to the
+  deprecation of the old \texttt{sagenb} notebook. %
+  The development of \libGAP (see~\longdelivref{hpc}{GAP-HPC-report}) let
+  \Sage depend on an officially supported C API to \GAP, rather than
+  on fragile bindings developed internally. %
+  Finally, spinning the projects CySignals and CyPari off mainline
+  \Sage simplified the process of packaging it, and allowed other
+  projects outside \ODK to depend on them without having to import the
+  full \Sage. Work was also carried out to reduce customization
+  of the Sphinx documentation system through upstream contributions
+  and low-level contributions to Python and Cython to standardize
+  their introspection API, leading to simplified Sphinx's logic
+  (see~\longdelivref{UI}{sage-sphinx}).
+
+\item[Providing alternate workflows for user-contributed code]
+  A different issue, mostly relevant to full-fledged computer
+  algebra systems, is the packaging of user-contributed code
+  \emph{for} the system. %
+  Indeed, there is a growing demand for workflows that facilitate easy
+  sharing of code developed by the users of a system, and this demand can
+  hardly be fulfilled by a distribution's package repository. %
+  In the same vein of language-specific package repositories, the need
+  was felt to have repositories for \Sage and \GAP.%
+  \footnote{Due to its smaller and more specialized user base, a
+    repository for \PariGP seems unjustified for the moment.} %
+  
+  \GAP already had a package system before the start of \ODK, but this
+  was the occasion to improve the existing tools and automatize the
+  workflows for the users (see~\longdelivref{hpc}{GAP-HPC-report}).
+
+  \Sage used to encourage its users to directly contribute code to the
+  mainline, however this could be a frustrating experience for
+  beginners, who had to learn the coding standards of \Sage and go
+  through the standard review process; it also led in some cases to
+  \emph{bit-rotting}: old unmaintained code in \Sage with no designated
+  maintainer. %
+  Some \Sage developers advocated distributing user code in the form
+  of SPKGs, the internal format \Sage uses to pack dependencies. %
+  Although this is a valid method, the responsibility of hosting the
+  SPKG still falls on the user, and the available tools are rather
+  limited. %
+  
+  Lately, a consensus has developed in the community on encouraging
+  users to use the standard Python packaging tools, and host their
+  packages on PyPI, the main repository for Python projects. %
+  Support for installing packages from PyPI has been integrated in
+  \Sage via the \texttt{sage -pip} command, and documentation and
+  example packages%
+  \footnote{\url{https://github.com/sagemath/sage_sample}.}%
+  have been developed to guide the user in the process.
+
+  While these improvements do not directly impact packaging for Linux
+  distributions, the added possibilities for the end-users enable
+  faster growth of the projects, at no additional expense for package
+  maintainers.
+\end{description}
+
+\section{The future}
+
+The quantity of effort expended to have software properly packaged raises
+the question of its sustainability. %
+Indeed, many tasks are recurring and need to be iterated at each new
+release cycle: updating dependencies, integrating patches upstream,
+maintaining interfaces, \dots %
+While the end of \ODK will be felt, we argue that the efforts undertaken
+until now will not be lost, and will greatly simplify the workflow of
+package maintainers.  %
+Indeed, the need for some of the actions undertaken had been felt for
+a long time, and \ODK offered the occasion to address many
+long-standing issues. %
+With \ODK coming to an end, many foundational issues have already been
+solved, good practices have been taken on by the community, and only recurring tasks need to be dealt with for updating
+packages. Last, but not least, the community had feared for the
+longest time that proper packaging of such complex software was out of
+reach, and this psychological barrier has been taken down.
+
+Among the major foundational issues still open is the migration of
+\Sage to Python 3.%
+\footnote{Python 2 reaches its end of life in 2020. After that point,
+  it will become nearly impossible to package a Python 2 version of
+  \Sage for any system.} %
+Fortunately, thanks to a titanic effort involving hundreds of entries
+in the issue tracker,%
+\footnote{\url{https://trac.sagemath.org/ticket/26212}.}  with the
+help of members of \ODK,%
+\footnote{We are grateful to F. Chapoton for leading this effort.}
+\Sage is now compatible with Python 3, and only a few months away from
+officially migrating from Python 2.
+
+The move to Python 3 will also be the occasion to advance on several
+projects that had stalled because of the limitations of Python 2. %
+In particular, packaging for Conda-forge will be simplified after the
+shift.%, and it will be easier to build Windows-compatible Conda packages
+Conda packages will also enable easier building of JupyterHub and
+Binder-compatible images, further stimulating the development of
+workflows based on \ODK components.
+
+Not directly related to packaging, the move to Python 3 will also
+facilitate gradual typing through type annotations, which will pave
+the way to more static analysis (for more robustness and possibly
+performance) and will facilitate semantic integration of systems as
+explored in WP6.
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

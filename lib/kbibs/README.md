@@ -17,8 +17,11 @@ cd /path/to/your/setup
 mkdir -p KWARC
 cd KWARC
 git clone https://github.com/KWARC/bibs
-echo 'export BIBINPUTS = "$(BIBINPUTS):/path/to/your/setup/KWARC/bibs"' >> ~/.bashrc
+echo 'export BIBINPUTS="${BIBINPUTS}:/path/to/your/setup/KWARC/bibs:"' >> ~/.bashrc
 ```
+
+Your `BIBINPUTS` should look something like this: `".//:/path/to/your/setup/KWARC/bibs:"`.
+
 Of course you will have to replace ```/path/to/your/setup``` with a path appropriate to
 your system.
 

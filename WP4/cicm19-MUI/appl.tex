@@ -1,0 +1,71 @@
+  The immediate application of the Jupyter/MMT integration presented in this paper is interacting with MMT in a REPL.
+  The MMT tool ecosystem only really supported IDE-interaction with MMT libraries via JEdit and (recently) IntelliJ IDEA plugins. 
+  While the MMT system provides a simple shell for interaction, this was only used for configuration and setup of the MMT process.
+  We anticipate that the REPL-like interaction will feel more natural for users of interactive theorem provers and computer algebra systems.
+  Even for the new MathScheme-style of specifying theory graph libraries via theory combinators~\cite{ShaRab:dcm19} e.g.,
+\begin{lstlisting}[mathescape]
+semigroup = extend magma by {assoc: $\vdash\forall{a,b,c}:G. a\circ (b\circ c) = (a\circ b)\circ c $}
+\end{lstlisting}
+  is well-suited to development/experimentation in a REPL followed by generating an OMDoc file from the recorded notebook.
+
+\subsection{Towards a Virtual Research Environment based on the Math-in-the-Middle Paradigm}
+
+
+Another direct application is in the context of the OpenDreamKit project, which integrates various independently developed computational engines into a mathematical virtual research environment following the Math-in-the-Middle (MitM) approach~\cite{DehKohKon:iop16}.
+This uses the MMT language for formalizing mathematical background knowledge (which we store in MathHub documents of type MMT) and the MMT system for integrating computation tools.
+Therefore, Jupyter-MMT notebooks can serve as a unified user interface for MitM systems.
+
+For example, consider the theory\footnote{Available at \url{https://gl.mathhub.info/ODK/lmfdb/blob/master/source/schemas/tutorial_example.mmt}}  in Figure~\ref{fig:hecke}, which serves as our standard example for the interaction between MMT and LMFDB (a large database of mathematical objects that was integrated with MMT in previous deliverables of OpenDreamKit).
+We can now rewrite it as a notebook.
+
+A screenshot of the resulting notebook, as displayed by a Jupyter server running our MMT kernel, is shown in Figure~\ref{fig:lmfdbexample}.
+
+\begin{wrapfigure}{r}{0.7\textwidth}
+  \includegraphics[width=\linewidth]{../D4.11/hecke}\vspace*{-1em}
+  \caption{A Theory for LMFDB/MMT Interaction}\label{fig:hecke}\vspace*{-3em}
+\end{wrapfigure}
+The selected declaration of \texttt{mycurve} accesses the elliptic curve \texttt{11a1} that is stored in LMFDB.
+When the Jupyter kernel for MMT processes this command, the bottom layer of the kernel dynamically retrieves this curve from LMFDB and builds from it an object of type \texttt{elliptic\_curve} in the MitM ontology.\bigskip
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=0.9\textwidth]{screenshots/heckenb}
+  \caption{The Beginning of the Notebook for the theory from Figure~\ref{fig:hecke}}\label{fig:lmfdbexample}
+\end{figure}
+
+\subsection{Domain specific applications e.g., MoSIS}
+Our second case study addresses a \emph{knowledge gap} that is commonly encountered in computational science and engineering:
+To set up a simulation, we need to combine domain knowledge (usually in terms of physical principles), model knowledge (e.g., about suitable partial differential equations) with simulation (i.e., numerics/computing) knowledge.
+In current practice, this is resolved by intense collaboration between experts, which incurs non-trivial translation and communication overheads.
+With the infrastructure presented in this paper, we can do better.
+In fact, the MoSIS application was developed in parallel to our Jupyter/MathHub integration and MoSIS requirements helped inform the the development.
+We have ported the original version~\cite{PolKohKoe:kacse18} to the new infrastructure, simplifying and extending it in the course.
+All in all, the interaction part of the MoSIS project would now be a straightforward software development exercise instead of a contribution of its own. 
+
+\begin{figure}[ht]\centering
+  \begin{minipage}[c]{.49\textwidth}
+    \includegraphics[width=\textwidth]{../D4.11/proto}
+  \end{minipage}
+  \begin{minipage}[c]{.49\textwidth}
+    \includegraphics[width=\textwidth]{../D4.11/Screenshot_interview}
+  \end{minipage}
+  \caption{MoSIS Information Architecture and Dialogue}\label{fig:prototype}
+\end{figure}
+
+Concretely, MoSIS uses a Jupyter notebook that has access to an MMT theory graph on MathHub.info.  Our Jupyter/MMT/MathHub integration enabled building an interview application that hides these mathematical details from the user.
+
+Based on this theory graph, we built a targeted knowledge acquisition dialog that supports the formalization of domain knowledge, combines it with simulation knowledge and finally drives a simulation run --- all integrated into a Jupyter Notebook.
+Figure~\ref{fig:prototype} shows the general architecture:
+The left side shows the simulation engine \textsf{ExaStencils}~\cite{exastencils.on} and the MMT system that acts as the theory graph interface.
+The right hand side shows the interview --- a Jupyter notebook --- as the active document and how it interacts with the MMT kernel.
+The user only sees the notebook.
+She answers the knowledge acquisition questions presented by MoSIS until MoSIS can generate a configuration file for ExaStencils.
+The latter builds efficient code from it through the ExaSlang layers and computes the results and visualizations, which MoSIS in turn incorporates into the notebook. 
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "paper"
+%%% End:
+
+%  LocalWords:  MitM-Based Formalized formalizing Jupyter-MMT ednote summarize centering includegraphics textwidth Jupyter fig:lmfdbexample texttt mycurve texttt textbf lmfdb_example emph PolKohKoe:kacse18 fig:pde-theory fbox textheight pde-theory formalization textsf exastencils.on visualizations newpart JEdit DehKohKon:iop16 ShaRab:dcm19 wrapfigure vspace bigskip heckenb Mathhub

@@ -2,7 +2,7 @@ Main repository for the OpenDreamKit H2020 European project
 ===========================================================
 
 - Website: [OpenDreamKit.org](http://www.OpenDreamKit.org)
-- Proposal files: [Proposal/](Proposal/), we also use the proposal as a basis the developing grant agreements, etc. and for the macros. 
+- Proposal files: [Proposal/](Proposal/), we also use the proposal as a basis the developing grant agreements, etc. and for the macros.
 - Proposal evaluation: [ProposalEvaluation/](ProposalEvaluation/)
 - E-Concertation with other H2020 E-infrastructure projects: [EConcertation/](EConcertation/)
 - [![Join the chat at https://gitter.im/OpenDreamKit/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenDreamKit/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -71,11 +71,11 @@ Partners must be keeping in mind the Commission asks not to accept more than 6 m
 #### Data related to open access publications
 
 The lead partner of a publication will send to the Project Manager all the data related to the peer-reviewed publication once it is given full openaccess. Data related to a publication are all the data needed to reexamine the research leading to the publication.
-The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications. 
+The Project Manager will publish the data linked to publications on http://zenodo.org/. Thanks to the publications’ DOIs, the data will be linked to publications.
 
 #### Openaire
 
-Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage: 
+Once publications are published on an openaccess platform and their data published on Zenodo, the OpenAire website will be linkage between them. All OpenDreamKit published work will be present on this webpage:
 https://www.openaire.eu/search/project?projectId=corda__h2020::1930bdaa9032dd5b34f25841ebf3e8d1
 
 In order for publications and data to appear on this website, one must state when completing forms on the openaccess paltform (such as ArXiv) and Zenodo websites that the concerned work is being financed by Horizon 2020 project number 676541.
@@ -179,7 +179,7 @@ status report, ...) needs to be on the issue.
       activities, future plans.
 
     The distinction between what was done before, for, and after the
-    deliverable should be strictly unambigous.
+    deliverable should be strictly unambiguous.
 
     This description should be self-contained. Still, it's recommended
     to enrich it with cross links as appropriate.  In particular add
@@ -205,18 +205,26 @@ status report, ...) needs to be on the issue.
   the report file and copy the relevant style files with:
 
       make WPX/DX.Z/report.pdf
-  
+
   Rerunning this command later will update the style files if needed and recompile
   the report.
-  
+
   See the existing reports for further examples.
-  
+
   The github issue description is semi-automatically included in the
   report. To fetch it from github, run the following command from
   ODK's main repository (no worry if this step fails for you; the
   coordinator will anyway run it before submitting the deliverable):
 
-      DIR=WPX/DX.Z; rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/report.pdf
+      DIR=WPX/DX.Z
+      rm $DIR/report.pdf $DIR/github-issue-description*; make $DIR/github-issue-description.tex $DIR/report.pdf
+
+  (requires PyGithub and PyYAML: `pip install PyGithub PyYAML`).
+
+  You can then commit the updated github issue description and pdf with:
+
+      cp $DIR/report.pdf $DIR/report-final.pdf; git add -f $DIR/github-issue-description* $DIR/report-final.pdf; git commit -m "`basename $DIR`: updated github issue description and report pdf" $DIR/github-issue-description* $DIR/report-final.pdf; cp $DIR/report-final.pdf /tmp
+
 
   The report shall be self-contained. Indeed, the
   deliverable will be evaluated based upon its version submitted on
@@ -245,7 +253,7 @@ status report, ...) needs to be on the issue.
   - by whoever else you may think is relevant
 
   Plan ahead, as this will take a couple days!
-  
+
 - Write a blog post in [ODK's news](http://opendreamkit.org/news/)
 
 - Send a notice to participants@opendreamkit.org
@@ -281,14 +289,14 @@ status report, ...) needs to be on the issue.
 - Create an issue to discuss the organization of the workshop (choosing the date, ...)
 - Propose potential dates with potential participants using Framadate/Doodle or any likewise tool -> Send a first mail to participants@opendreamkit.org / community@opendreamkit.org announcing the plan to organize the workshop.
 - Decide the date as early as possible (at least 2 months before workshop) -> send a second mail when date is fixed
-- Build the agenda  thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
+- Build the agenda thanks to the related github issue (Coordination Team and the organiser create the agenda for a steering committee meeting)
 - Send the agenda and an invitation to the event to all participants
-- Use the repository [http://OpenDreamKit.github.io/meetings/](http://OpenDreamKit.github.io/meetings/)
-  to host the web page and public documents about each meeting
+- Announce the workshop on ODK's blog; see e.g. https://opendreamkit.org/2018/06/20/Hamburg-DisseminationWorkshop-SteeringMeeting/
+- Use the repository [https://github.com/OpenDreamKit/OpenDreamKit.github.io/tree/master/meetings](https://github.com/OpenDreamKit/OpenDreamKit.github.io/tree/master/meetings) to host the web page and public documents about each meeting
 - Run regular oral status reports
 - Prepare a written report
 - Set up a survey at the end of each workshop to know how the next ones can be improved
-- Refer the workshop on the website (http://opendreamkit.org/follow/  -> reports) and create a link the reference to your workshop minutes
+- Refer the workshop on the website (http://opendreamkit.org/follow/  -> reports) and create a link to your workshop minutes
 
 For ODK, but also for all of those that are watching with hope over
 our shoulders, it's important to write useful reports on our work
@@ -296,7 +304,7 @@ during the workshops. To be productive, we should write those reports
 collaboratively and on the fly.
 
 Suggested approach: initialize the report with the list of projects,
-and put it on a collaborative pad (e.g. framapad). Then, during each
+and put it on a collaborative pad (e.g. hackmd). Then, during each
 status report, display the report on the screen, and ask everybody to
 take lives notes both on the plan and what's done, directly in a
 synthetic project-by-project form. The goal is to have a couple
@@ -309,7 +317,7 @@ debriefing.
 
   - Day 1: test (mock presentation). This should be the exact same setup
     as on the day of the meeting (day 3). But without the EU reviewers.
-  
+
   - Day 2: project meetings
 
   - Day 3: official review with

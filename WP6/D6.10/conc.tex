@@ -1,0 +1,65 @@
+The main achievements made in Work Package 6 over the last year of the OpenDreamKit project were:
+\begin{compactenum}
+\item the re-conceptualization of integrating the different aspects of doing mathematics, which led to a better understanding of the nature and intended semantics of VRE components (see Section~\ref{sec:tetrapod}),
+\item the integration of a major formal knowledge base into the MitM Ontology, which provides the pivotal point for system integration and service discovery (see Section~\ref{sec:knowledge}),
+\item the development of a semantic model for mathematical datasets (see Section~\ref{sec:data}), which has been used in \WPref{dksbases} in two ways: 
+  \begin{compactitem}
+  \item The Warwick group inventoried all the LFMDB datasets, and to (manually) recover their specifications (schema information) at the mathematical and data base level.
+    In essence this retrofits the existing LFMDB project with the a more semantic level and has led to a vastly improved and more semantic API for LMFDB (see \url{http://www.lmfdb.org/api2/}) that has recently come online.
+    Moreover, a \Sage interface based on this new API is currently under development.
+  \item The Erlangen group built a from-scratch implementation of a hub for mathematical data (see Section~\ref{sec:hub}).
+  \end{compactitem}
+\item special and adapted search facilities for all kinds of mathematical data and VRE components (see Section~\ref{sec:software}),
+\item a standalone implementation of persistent memoization in Python and GAP (see \delivref{dksbases}{persistent-memoization}).
+\end{compactenum}
+Several of these were described in detail in this report.
+In order to describe the general picture, we briefly go over the various parts in the rest of this section.
+
+\paragraph{Knowledge}
+We have introduced an upper ontology for formal mathematical libraries (ULO), which we propose as a community standard, and we exemplified its usefulness at a large scale.
+We posit ULO as an interface layer that enables a separation of concerns between library maintainers and users/application developers.
+Regarding the former, we have shown how ULO data can be extracted from formal knowledge libraries such as Isabelle.
+We encourage other library maintainers to build similar extractors.
+Regarding the latter, we have shown how powerful, scalable applications like querying can be built with relative ease on top of ULO datasets.
+We encourage other users and library-near developers to build similar ULO applications, or using future datasets provided for other libraries.
+
+Finally, we expect our own and other researchers' applications to generate feedback on the specific design of ULO, most likely identifying various omissions and ambiguities.
+We will collect these and make them available for a future release of ULO 1.0, which should culminate in a standardization process.
+
+\paragraph{Data}
+We have analyzed the state of research data in mathematics with a focus on the instantiation of the general FAIR principles to mathematical data.
+Realizing FAIR mathematical data is much more difficult than for other disciplines because mathematical data is inherently complex, so much so that datasets can only be understood (both by humans or machines) if their semantics is not only evident but itself suitable for automated processing.
+Thus, the accessibility of the mathematical meaning of the data in all its depth becomes a prerequisite to any strong infrastructure for FAIR mathematical data.
+
+Based on these observations, we developed the concept of Deep FAIR research data in mathematics.
+As a first step towards developing a Deep FAIR--enabling standard for mathematical datasets, we focused on relational datasets.
+We presented the prototypical \dmh system, which lets mathematicians integrate a dataset by specifying its semantics using a central knowledge and codec collection.
+We expect that \dmh also helps alleviate the problem of \emph{disappearing datasets}:
+Many datasets are created in the scope of small, underfunded or unfunded research projects, often by junior researchers or PhD students, and are often abandoned when developer change research areas or pursue a non-academic career.
+
+\paragraph{Software: computational mathematical documents}
+For the S aspect of what was called D/K/S-structures in the \pn proposal or the \textbf{narration} and \textbf{computation} aspects of the finer tetrapod model from Figure~\ref{fig:tetrapod}, we have developed a formula harvester for Jupyter notebooks and a formula search engine that builds on them.
+
+To make this possible, we had to invest a heavy dose of software engineering into the MathWebSearch system: Even though the system has successfully been used as a formula search engine in the zbMATH publication information system (see \url{https://zbmath.org/formulae/}), the deployment of the system required a lot of domain-specific development and workflow integration.
+To this end we have developed Go bindings for the MathWebSearch daemon, documented the interfaces, and provided a web application wrapper.
+With this, specific applications only need a domain-specific harvester and minimal customization of our generic front-end. 
+We have exercised that for the Jupyter Search engine (as envisioned in task \taskref{dksbases}{mws}) and analogously for a formula search engine for the $n$-category Cafe (nLab, see \url{https://nlabsearch.mathweb.org/}).
+
+
+\paragraph{Persistent Memoization}
+As an integration layer between computation and data, we have developed a persistent memoization infrastructure.
+Even though it is called ``persistent'' memoization, the temporal scope of the memoized data is potentially less than the eternity-scope of datasets in LMFDB and \dmh.
+Indeed, the characteristic innovation in \delivref{dksbases}{persistent-memoization} is that mathematical objects and data can be shared across multiple computations, in multiple systems of in different runs of the same system.
+It allows omitting the semantic level, in which case systems are required to ensure data is read in with the same meaning that it had when it was written out.
+But it is flexible enough to use \dmh, or a variant of it, as the physical storage of the data.
+Thus, the borders between persistent memoization and mathematical datasets become fluent: indeed, datasets often start as private computation caches and gradually become complete, curated, published datasets.
+We will study the spectrum and conversions from memoization caches to \dmh datasets in the future. 
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  standardization analyzed Realizing emph ednote summarizes re-conceptualization WPref dksbases compactitem dmh delivref textbf textbf Jupyter zbMATH taskref mws customization

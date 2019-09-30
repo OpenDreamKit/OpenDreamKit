@@ -109,9 +109,11 @@
 % and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:ctan}. The
 % |dfgproposal| class adds the two options  
 % \begin{compactenum}
-% \item \DescribeMacro{general}|general|, which allows generates a first section with
-%   general proposal metadata (as the old form proposals required). This is useful to
-%   check all the data (and have a place to copy/paste from).
+% \item \DescribeMacro{general}|general|, which allows generates a title page and first
+%   section with general proposal metadata (as the old form proposals required). This is
+%   useful to check all the data (and have a place to copy/paste from). Also this should
+%   be used together with the |public| option (see in~\cite{Kohlhase:pplp:ctan}) to
+%   generate public versions of the proposal. 
 % \item \DescribeMacro{german}|german|, which makes all the generated parts in German.
 % \end{compactenum}
 % 
@@ -131,16 +133,19 @@
 % 
 % \subsection{Project-Related Papers}\label{sec:user:papers}
 % 
-% Since August 2010, DFG requests list of ``project-related papers'' as section 2.2. We
-% use the |biblatex| package to automate this. We only need to use
+% Since August 2010, DFG requests list of ``project-related papers'' as Section 2.2. of
+% the proposal. We use the |biblatex| package to automate this. We only need to use
 % \DescribeMacro{\dfgprojpapers}|\dfgprojpapers[|\meta{keys}|]{|\meta{refs}|}|,
 % \meta{refs} is a comma-separated list of {bib\TeX} keys from the {bib\TeX} database used
 % in the proposal. The \meta{keys} that specify whether sub-bibliographies are generated
 % (if \meta{keys} is non-empty) and which, and in which order. The \meta{keys} includes
-% any of the following: |articles|, |chapters|, |confpapers|, |inproceedings|, |wspapers|,
-% |theses|, |submitted|, |books|, and |techreports|. 
+% any of the following: |articles|, |chapters|, |confpapers|, |confpapers|, |wspapers|,
+% |theses|, |submitted|, |books|, and |techreports|. Both |confpapers| and |wspapers|
+% correspond to the bib{\TeX} entry type |@inproceedings|, but the first have the
+% additional specification |keywords = {conference},| somewhere in the entry to specify
+% that this entry is in the archival literature.
 %
-% So |\dfgprojpapers[books,articles,inproceedings]{|\meta{keys}|}| splits the generate
+% So |\dfgprojpapers[books,articles,confpapers]{|\meta{keys}|}| splits the generate
 % bibliography in to three sub-bibliographies with the titles: ``Articles'' ,
 % ``Monographs'', and ``Conference Papers''. The headings can be customized -- e.g. to
 % another language by adding |\def\prop@|\meta{key}|@heading{|\meta{Heading}|}| in the
@@ -341,7 +346,8 @@ Applicant\if@sites\ifnum\the@PIs>1{s}\fi\fi\ \deu{(Antragsteller)}}%
 %   class.
 %    \begin{macrocode}
 \renewenvironment{prop@proposal}
-{\ifsubmit\setcounter{page}{1}\else
+{\ifgeneral
+\ifsubmit\setcounter{page}{1}\else
 \thispagestyle{empty}%
 \begin{center}
 {\LARGE \prop@gen@instrument}\\[.2cm]
@@ -350,7 +356,7 @@ Applicant\if@sites\ifnum\the@PIs>1{s}\fi\fi\ \deu{(Antragsteller)}}%
 {\large\today}\\[1em]
 \WAauthorblock[aff]\prop@gen@PIs\\[2cm]
 \end{center}
-\ifgeneral\setcounter{section}{-1}
+\setcounter{section}{-1}
 \edef\keep@tocdepth{\value{tocdepth}}
 \setcounter{tocdepth}{2}\tableofcontents
 \setcounter{tocdepth}{\keep@tocdepth}
@@ -362,7 +368,7 @@ Applicant\if@sites\ifnum\the@PIs>1{s}\fi\fi\ \deu{(Antragsteller)}}%
 \dfg@area@field
 \ifdeutsch\subsection{Voraussichtliche Gesamtdauer}\else
 \subsection{Anticipated total duration \deu{(Voraussichtliche Gesamtdauer)}}
-\fi
+\fi% ifdeutsch
 \@ifundefined{prop@gen@totalduration}{????}{\prop@gen@totalduration};
 \ifdeutsch
 \@ifundefined{prop@gen@since}{Erstantrag}{Fortsetungsantrag, das Project l\"auft seit 
@@ -370,16 +376,16 @@ Applicant\if@sites\ifnum\the@PIs>1{s}\fi\fi\ \deu{(Antragsteller)}}%
 \else
 \@ifundefined{prop@gen@since}{initial proposal}{continuation proposal, the project started
   \prop@gen@since.}
-\fi
+\fi%ifdeutsch
 \ifdeutsch\subsection{Antragszeitraum}\else
 \subsection{Application period \deu{(Antragszeitraum)}}\fi
 \prop@gen@months\quad Months starting \prop@gen@start
 \@ifundefined{prop@gen@fundsuntil}{}
 { (\ifdeutsch Mittel reichen bis\else funds last until\fi\ \prop@gen@fundsuntil)}
 \ifdeutsch\else\selectlanguage{USenglish}\fi
-\newpage\fi%ifgeneral
+\newpage
 \setcounter{page}{0}%
-\fi}% ifsubmit
+\fi\fi}% ifsubmit ifgeneral
 {}
 %    \end{macrocode}
 % \end{environment}
@@ -550,6 +556,8 @@ Applicant\if@sites\ifnum\the@PIs>1{s}\fi\fi\ \deu{(Antragsteller)}}%
 \renewcommand\wp@legend@site{Partner}
 \renewcommand\wp@legend@effort{Aufwand\if@RAM{ (PM+HM)}\fi}
 \renewcommand\wp@legend@all{\textbf{Summe}}
+\renewcommand\wprm{\pdataref@safe{wp}\wp@id{RM}\if@RAM\ PM+\pdataref{wp}\wp@id{RAM} HM\fi}
+\renewcommand\gantt@footnote{Balken mit reduzierter H\"ohe (z.B. 50\%) bedeuten reduzierte Arbeitslast in dieser Phase (z.B. auf 50\%)}
 \renewcommand\gantt@caption@main{Zeitliche Verteilung der Arbeitspakete} 
 \renewcommand\gantt@caption@lower{draft: unten die Lastverteilung}
 \renewcommand\coherence@caption{Bisherige Kollaboration der {\pn} Partner}

@@ -113,7 +113,10 @@
 % and gives a comma separated list of options specified in~\cite{Kohlhase:pplp:svn}.  Some
 % versions EU proposals want non-standard numbering schemes (e.g. starting with
 % \textbf{B...} since we are writing Part B.), this can be reached by giving the |propB|
-% option.
+% option. Finally the |split| option cases the |euproposal| to write a file |SPLIT.at|
+% that can be used in the |Makefile| to split the final proposal |final.pdf| into a files
+% |final123.pdf| and |final45.pdf| for submission in the EU system (often this has to be
+% separated so that the submission system can count pages.)
 % 
 % \subsection{Proposal Metadata and Title page}\label{sec:user:metadata}
 % 
@@ -180,17 +183,16 @@
 % \DescribeMacro{riskcont}|riskcont| is a variant, where \meta{title} names a risk and the
 % body is a description of the contingency plan.
 % 
-% \subsection{Relevant Papers}\label{sec:user:papers}
+% \subsection{Relevant Papers/Key Publications}\label{sec:user:papers}
 % 
 % Sometimes we want to list the relevant papers in the site descriptions.  We use the
 % |biblatex| package to automate this. We only need to use
 % \DescribeMacro{\keypubs}|\keypubs[|\meta{keys}|]{|\meta{refs}|}|, where \meta{keys} that
-% specify what papers are selected and \meta{refs} is a comma-separated list of bibtex
+% specify what papers are selected and \meta{refs} is a comma-separated list of {bib\TeX}
 % keys from the bibTeX database used in the proposal.
 % 
-% The papers listed in |\keypubs| are put into a special bib\LaTeX category
-% \DescribeMacro{featured}|featured|, and can thus be excluded from the general
-% bibliography by adding |notcategory=featured| to the final |\printbibliography|.
+% The papers listed in |\keypubs| are put into a section bibliography which is displayed
+% in place.
 % 
 %
 % \begin{newpart}{MK@MK: This is new, and only partially implemented}
@@ -252,6 +254,8 @@
 %<*cls>
 \newif\ifpartB\partBfalse
 \DeclareOption{partB}{\partBtrue}
+\newif\if@split\@splitfalse
+\DeclareOption{split}{\@splittrue}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{proposal}}
 %</cls>
 %<reporting>\DeclareOption*{\PassOptionsToClass{\CurrentOption}{reporting}}
@@ -261,22 +265,27 @@
 %    Then we load the packages we make use of
 % 
 %    \begin{macrocode}
-%<cls>\ifpartB\LoadClass[report,noRAM]{proposal}\else\LoadClass[noRAM]{proposal}\fi
-%<reporting>\LoadClass[report,noRAM]{reporting}
+%<cls>\ifpartB\LoadClass[report]{proposal}\else\LoadClass{proposal}\fi
+%<reporting>\LoadClass[report]{reporting}
 %<*cls|reporting>
 \RequirePackage{longtable}
 \RequirePackage{eurosym}
 \RequirePackage{wrapfig}
 \RequirePackage{eupdata}
+\RequirePackage{datetime}
 %    \end{macrocode}
 % we want to change the numbering of figures and tables
 %    \begin{macrocode}
 \RequirePackage{chngcntr}
 \counterwithin{figure}{subsection}
 \counterwithin{table}{subsection}
+%    \end{macrocode}
+%    And finally, we set the section numbering depth, so that paragraphs are numbered and
+%    can be cross-referenced.
+%    \begin{macrocode}
+\setcounter{secnumdepth}{4}
 %</cls|reporting>
 %    \end{macrocode}
-%    
 % \subsection{Proposal Metadata and Title Page}\label{sec:impl:metadata}
 %  
 % We extend the metadata keys from the |proposal| class.
@@ -354,7 +363,7 @@
   \ifx\prop@gen@acronym\@empty\else{\LARGE Acronym: {\prop@gen@acronym}}\\[2cm]\fi
 \end{center}
 %{\large\prop@gen@instrument}\\
-{\large\textbf{Date of Preparation: \today}}
+{\large\textbf{Date of Preparation: \today: \currenttime}}
 % \ifsubmit\else\if@svninfo\if@gitinfo\\
 % {\large\textbf{Revision}: 
 % \if@svninfo\svnInfoRevision\fi\if@gitinfo\gitAbbrevHash\fi
@@ -385,7 +394,13 @@
 \newpage
 \fi% ifgrantagreement
 \setcounter{tocdepth}{2}\setcounter{part}{2}}
-{\newpage\printbibliography[heading=warnpubs]}
+{\newpage\printbibliography[heading=warnpubs]%
+\if@split
+\newwrite\@@SPLIT%
+\immediate\openout\@@SPLIT=SPLIT.at%
+\protected@write\@@SPLIT{}{\thepage}%
+\closeout\@@SPLIT%
+\fi}% if@split  
 %    \end{macrocode}
 % \end{environment}
 % 
@@ -522,13 +537,16 @@
 % \end{macro}
 % 
 % \begin{macro}{milestonetable}
-% here we do the work. 
+% here we do the work, but only if the file |\jobname.deliverables| exists to make sure
+% that the deliverables macros are really defined.
 %    \begin{macrocode}
 \define@key{mst}{caption}{\gdef\mst@caption{#1}}
 \define@key{mst}{wname}{\gdef\mst@wname{#1}}
 \define@key{mst}{wdeliv}{\gdef\mst@wdeliv{#1}}
 \define@key{mst}{wverif}{\gdef\mst@wverif{#1}}
 \newcommand\milestonetable[1][]{%
+\IfFileExists{./\jobname.deliverables}{% to avoid errros
+\message{euproposal.cls: Generating Milestones Table}%
 \def\mst@caption{Milestones, Deliverables, and Verification}%
 \def\mst@wname{2.5cm}\def\mst@wdeliv{7cm}\def\mst@wverif{4cm}
 \setkeys{mst}{#1}%
@@ -555,17 +573,18 @@
 &\textbf{\miles@legend@verif}\\\hline\hline
 \mst@lines
 \end{tabular}
-\caption{\mst@caption}\label{tab:milestonetable}
-\end{table}
-\footnotetext\miles@legend@footnote}
+\caption{\mst@caption\ ($^\ast$\miles@legend)}\label{tab:milestonetable}
+\end{table}}
+{\ClassWarning{not formatting mile stones table yet, deliverables are
+  still missing; generate\jobname.deliverables\ to get it!}}}
 %    \end{macrocode}
 % now the multilinguality support 
 %    \begin{macrocode}
 \newcommand\miles@legend@name{Name}
 \newcommand\miles@legend@mo{Mo}
 \newcommand\miles@legend@verif{Means of Verif.}
-\newcommand\miles@legend@involved{WPs\footnotemark/Deliverables involved}
-\newcommand\miles@legend@footnote{The work package number is the first number in the deliverable number.}
+\newcommand\miles@legend@involved{WPs$^\ast$/Deliverables involved}
+\newcommand\miles@legend{WP is first number in deliverable label}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -599,10 +618,11 @@
 % \subsection{Relevant Papers}\label{sec:impl:papers}
 % 
 % \begin{macro}{\keypubs}
+% we just use the {bib\LaTeX} |refsection| facility. NOTE, this needs biber to work
+% easily.
 %    \begin{macrocode}
-\newcommand\keypubs[2][]{%
-\paragraph{Key publications relevant to the project}%
-{\prop@paperlist[#1]{#2}}}
+\newcommand\keypubs[1]{%
+\begin{refsection}\nocite{#1}\printbibliography[heading=empty]\end{refsection}}
 %</cls>
 %    \end{macrocode}
 % \end{macro}
@@ -625,13 +645,19 @@
 % LocalWords:  cellcolor lightgray keypubs paperlist callname callid callid ifx csname
 % LocalWords:  challengeid challengeid objectiveid objectiveid outcomeid hfill if@gitinfo
 % LocalWords:  outcomeid metakeys workaddress numberline tempdima ifsubmit iconrowheight
-% LocalWords:  proposal.dtx texttt paperslist workaddress.dtx topicsaddressed thesite
+% LocalWords:  proposal.dtx texttt paperslist workaddress.dtx topicsaddressed thesite mst
 %  LocalWords:  topicsaddressed iconrowheight finalreport.tex printbibliography endcsname
-%  LocalWords:  reportperiod organisation thispagestyle gitAbbrevHash sitedescritpion
+%  LocalWords:  reportperiod organisation thispagestyle gitAbbrevHash sitedescritpion WPs
 %  LocalWords:  WAinstitution picv medskip newmdenv frametitle wpdelivs mdframed.sty emph
-%  LocalWords:  surroundwithmdframed emph riskcont prob grav ldots endinput
+%  LocalWords:  surroundwithmdframed emph riskcont prob grav ldots endinput optimized
 
 % Local Variables:
 % mode: doctex
 % TeX-master: t
 % End:
+%  LocalWords:  coordinatorsite coordinatorsite verif verif milestonetable milestonetable
+%  LocalWords:  wname wname wdeliv wdeliv wverif wverif biblatex notcategory newif gdef
+%  LocalWords:  grantagreement Initialization ifpartB partBfalse partBtrue report
+%  LocalWords:  chngcntr counterwithin ifgrantagreement currenttime mst@caption delivs
+%  LocalWords:  initialize deliv multilinguality prop@milesfor refsection nocite doctex
+%  LocalWords:  secnumdepth

@@ -1,1 +1,2 @@
-The sources of the technical report are  ../../WP1/D1.5/
+The sources of the technical report are in ../../WP1/D1.5/, with
+TechnicalReport.tex as master file.

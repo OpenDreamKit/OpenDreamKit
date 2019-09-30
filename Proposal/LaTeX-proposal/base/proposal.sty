@@ -29,9 +29,9 @@
 \RequirePackage[scaled=.90]{helvet}
 \RequirePackage{textcomp}
 \if@numericcites
-\RequirePackage[style=numeric,hyperref=auto,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\RequirePackage[style=numeric,hyperref=auto,defernumbers=true,giveninits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
 \else
-\RequirePackage[style=alphabetic,hyperref=auto,defernumbers=true,backend=bibtex,firstinits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
+\RequirePackage[style=alphabetic,hyperref=auto,defernumbers=true,giveninits=true,maxbibnames=9,maxcitenames=3]{biblatex}[2010/11-19]
 \fi
 \RequirePackage{csquotes}
 \RequirePackage{mdframed}
@@ -42,10 +42,10 @@
  citecolor=\prop@link@color,urlcolor=\prop@link@color,colorlinks=true,
  breaklinks=true, bookmarksopen=true]{hyperref}
 \ifsubmit
-\RequirePackage[hide]{ed}
+\RequirePackage[hide,marginnote]{ed}
 \if@svninfo\RequirePackage[final,today]{svninfo}\fi
 \else
-\RequirePackage[show]{ed}
+\RequirePackage[show,marginnote]{ed}
 \if@svninfo\RequirePackage[eso-foot,today]{svninfo}\fi
 \if@gitinfo\RequirePackage[mark]{gitinfo2}\fi
 \fi
@@ -105,11 +105,12 @@
 \newcounter{@PIs}
 \@ifundefined{prop@gen@PIs}{}{\@for\@I:=\prop@gen@PIs\do{\stepcounter{@PIs}}}
 \newcounter{@sites}
-\@ifundefined{prop@gen@sites}{}{\@for\@I:=\prop@gen@sites\do{\stepcounter{@sites}}}
+\@ifundefined{prop@gen@sites}{}{\@for\@I:=\prop@gen@sites\do{\stepcounter{@sites}}
+\pdata@def{all}{site}{count}{\the@site}}
 \setcounter{page}{0}
 \begin{prop@proposal}}
 {\end{prop@proposal}
-\pdata@def{prop}{page}{last}{\thepage}\ofpagefalse
+\pdata@def{prop}{page}{last}{\thepage}\ofpagefalse%
 \pdata@close}
 \newcommand\site[1]{\hyperlink{site@#1@target}{\wa@ref3{institution}{#1}{acronym}}}
 \newcommand\sitename[1]{\hyperlink{site@#1@target}{\wa@ref3{institution}{#1}{name}}}
@@ -295,9 +296,10 @@
 \else
 \@ifundefined{@wps}{}{\pdata@def{all}{wp}{ids}\@wps}
 \fi
-\ifdelivs\@ifundefined{mile@stones}{}
-{\@for\@I:=\mile@stones\do{%
-\pdata@def{mile}\@I{delivs}{\@ifundefined{\@I delivs}{}{\csname\@I delivs\endcsname}}}}\fi
+\ifdelivs\edef\mile@stones{\pdataref@safe{all}{mile}{ids}}
+\@for\@I:=\mile@stones\do{%
+  \message{milestone: \@I, delivs: \csname\@I delivs\endcsname}
+  \pdata@def{mile}\@I{delivs}{\@ifundefined{\@I delivs}{}{\csname\@I delivs\endcsname}}}\fi
 \ifwork@areas\pdata@def{all}{wa}{count}{\thewa}\fi
 \pdata@def{all}{wp}{count}{\theallwp}
 \ifdelivs
@@ -311,7 +313,7 @@
 \ifwork@areas
 \newcommand\task@label[3]{\task@@label{#1.#2.#3}}
 \else
-\newcommand\task@label[2]{\task@@label{T#1.#2}}
+\newcommand\task@label[2]{\task@@label{#1.#2}}
 \fi
 \define@key{task}{id}{\def\task@id{#1}\@dmp{id=#1}}
 \define@key{task}{wphases}{\def\task@wphases{#1}\@dmp{wphases=#1}}
@@ -323,12 +325,13 @@
 \define@key{task}{issue}{\def\task@issue{#1}}
 \define@key{task}{status}{\def\task@status{#1}}
 \def\@@status@canceled{canceled}
+\newif\if@taskshowwps\@taskshowwpsfalse
 \def\task@set#1{\edef\task@id{task\thetask@all}
 \def\task@wphases{0-0}\def\task@partners{}\def\task@lead{}\def\task@PM{}\def\task@title{}
 \setkeys{task}{#1}}
 \def\task@post@title@space{\;}
 \newcounter{alltasks}
-\def\task@post@title@space{ }
+\if@taskshowwps\else\def\task@post@title@space{}\fi
 \newcommand\task@legend@partners{Sites: }
 \newcommand\task@legend@PM{PM}
 \newenvironment{task}[1][]%
@@ -340,6 +343,7 @@
 \ifwork@areas\task@label\thewa\thewp\thetask@wp\else\task@label\thewp\thetask@wp\fi%
 \else\task@@label\thetask@wp\fi}]%
 \textbf\task@title\task@post@title@space%
+\if@taskshowwps
 \def\@initial{0-0}%
 \ifx\task@wphases\@initial\else%
 \let\@@sep=\relax\@for\@I:=\task@wphases%
@@ -347,15 +351,16 @@
 \@@sep\show@wphase\wphase@start\wphase@end\wphase@force%
 \let\@@sep=\sep@wphases}%
 \fi% initial
-\ifsubmit\else\ifx\task@PM\@empty\else\task@PM~\task@legend@PM;\fi\fi%
-\if@sites%
+\fi% \if@taskshowwps
+\ifsubmit\else\ifx\task@PM\@empty\else; \task@PM~\task@legend@PM\fi\fi%
+\if@sites;%
 \ifx\task@lead\@empty\else\ \task@legend@partners\site\task@lead~(\legend@lead)%
 \@for\@I:=\task@partners\do{, \site\@I}\\\fi%
 \ifx\task@partners\@empty
 \xdef\@@involvement{}\xdef\@@inv{}%
 \xdef\@@sep{, }\def\m@sep{}% do not show the sep the first time around
 \edef\@@sites{\prop@gen@sites}%
-{\let\site\relax% to to render it inert here
+{\let\site\relax% to render it insert here
 \@for\@site:=\@@sites\do{%
 \edef\@@RM{\pdataref@safe{\wp@id @\task@id}\@site{RM}}%
 \ifx\@@RM\@empty\else\xdef\@@inv{showit}%
@@ -496,12 +501,12 @@
  \expandafter\ifx\csname\@I delivs\endcsname\relax% Check that the miles@delivs is empty
   {\expandafter\xdef\csname\@I delivs\endcsname{\wpg@id @\deliv@id}}% if so, skip the separator
    \else\expandafter\xdef\csname\@I delivs\endcsname%if not add it
-      {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}%
+   {\csname\@I delivs\endcsname\d@sep\wpg@id @\deliv@id}\fi}}%
 }% end gray color
 }
 \newenvironment{wadeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wa}\else\deliv@error\fi}{}
 \newenvironment{wpdeliv}[2][]{\ifdelivs\wpg@deliv{#1}{#2}{wp}\else\deliv@error\fi}{}
-\newcommand\milestone@label[1]{M{#1}}
+\newcommand\milestone@label[1]{\textbf{M{#1}}}
 \newcommand\mileref[1]{\pdataRef{mile}{#1}{label}}
 \newcommand\miletref[1]{\mileref{#1}: \pdataRefFB{mile}{#1}{short}{title}}
 \newcounter{milestone}
@@ -689,10 +694,12 @@ ganttgray,.60/.60,.60,.60/0,0,.60/0,0,0,.40}
 \fi}
 \local@count0\relax%
 \@for\@site:=\prop@gen@sites\do{\global\advance\local@count by \pdataref@num\@@wp\@site{RM}}%
+\pdata@def{\@site}{RM}{count}{\the\local@count}
 \xdef\@@wp@line{\@@wp@line &\textbf{\the\local@count}}
 \if@RAM
 \global\local@count0\relax%
 \@for\@site:=\prop@gen@sites\do{\global\advance\local@count by \pdataref@num\@@wp\@site{RAM}}%
+\pdata@def{\@site}{RAM}{count}{\the\local@count}
 \xdef\@@wp@line{\@@wp@line &\textbf{\the\local@count}}
 \fi% if@RAM
 \else% if@sites
@@ -1032,7 +1039,7 @@ joint&\multicolumn{\the@site}{l|}{\jpub $\hat=$ publication, \jpro $\hat=$ proje
 \defbibheading{empty}{}
 \newif\if@allpapers\@allpaperstrue
 \newcommand\prop@ppl[3][]{\@allpapersfalse\message{ppl processing: #2}%
-\printbibliography[heading=subbibliography,type=#2,title=#3#1]%
+\printbibliography[category=featured,heading=subbibliography,type=#2,title=#3#1]%
 \@ifundefined{prop@rl}{\xdef\prop@rl{#2}}{\xdef\prop@rl{\prop@rl, #2}}}
 \newcommand\prop@prl[1]{\message{unclassified: #1}%
 \printbibliography[heading=subbibliography,title=Unclassified,#1]}%

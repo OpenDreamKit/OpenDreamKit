@@ -5,8 +5,8 @@
 # used to prepare official versions (hiding development/private info). 
 ###########################################################################
 # possibly customize the following variables to your setting
-PROPOSAL = proposal.tex# 	# the proposal
-BIB = ../lib/dummy.bib#	        # bibTeX databases
+PROPOSAL = proposal.tex# 	 # the proposal
 PROP.dir = ../../..
+BIB = ../lib/dummy.bib# # bibTeX databases
 ###########################################################################
 include $(PROP.dir)/lib/Makefile.dfgproposal 

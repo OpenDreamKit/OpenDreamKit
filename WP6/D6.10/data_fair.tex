@@ -1,0 +1,117 @@
+The FAIR principles as laid out in, e.g., \cite{WilDumAal:FAIR16} are strongly inspired by scientific datasets that contain arrays or tables of simple values like numbers.
+In these cases, it is comparatively easy to achieve FAIRness.
+But in mathematics and related sciences, the objects of interest are often highly structured entities which are much less uniform.
+Moreover, the meaning and provenance of the data must usually be given in the form of complex mathematical data themselves --- not just as simple metadata that can be easily annotated.
+Even more critically, while datasets in other disciplines are typically meant to be shared as a whole, it is very important for mathematical datasets to find, access, operate on, and reuse individual entries or sets of entries of a dataset.
+As a consequence, the representation and modeling of mathematical data is much more difficult than anticipated in~\cite{WilDumAal:FAIR16}.
+
+There are (at least) two aspects of FAIRness that are particularly important for mathematical data and 
+are not strongly stressed in the original principles.
+The first one of these is that the data need to be semantics aware.
+Computer applications and mathematically sound, interoperable services
+can only work if the mathematical meaning of the data is FAIR in all its depth.
+We call this ``deep FAIR''.
+
+\highlight{Due to the mathematical standard of rigor and the inherent complexity of mathematical data, deep FAIRness is both more difficult and more important for mathematics than for other scientific disciplines.
+That also means that mathematics is an ideal test case for developing the semantic aspects of the FAIR principles in general.}
+
+The second one is that the relevant principles need to apply to every datum.
+The importance of this requirement, particularly for identifiers (Findable),
+has already been pointed out in~\cite{BilTen:fingerprint13}.
+For example, while it is good that a catalogue of graphs has a globally unique and persistent identifier,
+it is much better if in addition to that, every graph in the catalogue also has one.
+This also extends to other FAIR principles.
+% \ednote{We need to make clear what we mean by FAIR for math data, this is a first attempt.  This should involve an explanation of where we go beyond the original principles.  It might only be that these things are not stressed there, as the principles are fairly vaguely written (on purpose).}
+% \ednote{To what extent does the datum level FAIR make sense for linked and symbolic data?}
+
+
+
+In the sequel, we discuss the four FAIR principles and the challenges they pose for mathematical data in increasing order of difficulty.
+
+\medskip
+
+\noindent\textbf{\emph{Accessible}}
+While they often lack unique identifiers, most mathematical datasets are available online on researchers' websites or via repository managers like GitHub.
+Barriers typical for sensitive data are rare, and open sharing is common.
+However, the level of accessibility desirable in practice is much higher due to the wide variety of internal structure in mathematical datasets.
+Access to individual entries or the rich internal structure of these entries is less common.
+
+Because each specialized tool is typically released with its own library, often written in tool-specific language, accessibility is very good for tool-associated data, but may be practically impossible across tools.
+
+% Because this functionality is so critical, many mathematical datasets are already shared in a way that assigns persistent and globally unique identifiers to each entry in the dataset or even to every subobject of each entry (e.g., OEIS \cite{OEIS:on}, LMFDB \cite{lmfdb:on}, FindStat \cite{findstat}, and others).
+% But this is usually done ad hoc, identifiers are not standardized across datasets and may not be persistent, and communication protocols are dataset-specific.
+
+%In mathematics, there is no standardized communications protocol for retrieving (meta)data.
+%Since there is little to no need for authentication and authorization procedures, the other hurdle of accessible (meta)data
+%in mathematics is standardizing a communications protocol.
+
+\medskip
+
+\textbf{\emph{Reusable}}
+Mathematical datasets are typically not reusable or very hard to reuse in the sense of FAIR.
+First of all, they are often shared without licenses with the implicit, but legally false assumption that putting them online makes them public domain.
+In practice, this is often unproblematic because this false assumption of the publisher may be canceled out by the same false assumption by the reuser.
+
+More critically, the associated documentation often does not cover how precisely the data was created or how the data is to be interpreted.
+This documentation is usually provided in ad hoc text files or implicitly in journal papers or software source code that potential users may not be aware of and whose detailed connection to the dataset may be elusive.
+And the lack of a standard for associating complex semantics and provenance data effectively precludes or impedes most reuse in practice.
+
+\medskip
+
+\textbf{\emph{Findable}}
+It is not common for datasets in mathematics to be indexed in registries.
+One often has to first find a paper describing the dataset, and then follow a link from there.
+The datasets themselves are sometimes searchable (such as~\cite{OEIS:on, hog}),
+and the objects inside them often get a dataset-level unique identifier.
+This is particularly successful for bibliographic metadata (e.g. in Math Reviews, zbMATH or swMATH).
+However, for individual datasets, identifiers are often non-persistent, e.g., when shared on researchers' homepages.
+
+Finding a mathematical object by its identifier or metadata is theoretically easy.
+But being findable in the sense of FAIR does not always imply being findable in practice:
+especially in mathematics, it is much more important to find objects by their semantic properties rather than by their identifier.
+The indexing necessary for this is very difficult.
+
+For example, consider an engineer who wants to prevent an electrical system from overheating and thus needs a tight estimate for the term $\int_a^b |V(t)I(t)| dt$ for all $a,b$, where $V$ is the voltage and $I$ the current.
+Search engines like Google are restricted to word-based searches of mathematical articles, which barely helps with finding mathematical objects because there are no keywords to search for.
+Computer algebra systems cannot help either since they to do not incorporate the necessary special knowledge.
+But the needed information is out there, e.g., in the form of
+\begin{quote}
+  \textbf{Theorem 17.} (H\"older's Inequality)\\\it
+  If $f$ and $g$ are measurable real functions, $l,h\in\mathbb{R}$, and  $p,q\in
+  [0,\infty)$, such that $1/p + 1/q = 1$, then 
+  \begin{equation}\label{eq:hi}
+  \int_l^h \left|f(x)g(x)\right| dx \leq\kern-.4em 
+    \left(\int_l^h\left|f(x)\right|^p dx\right)^\frac{1}{p} 
+    \kern-.5em
+    \left(\int_l^h\left|g(x)\right|^q dx \right)^\frac{1}{q}
+  \end{equation}
+\end{quote}
+and will even extend the calculation
+$\int_a^b |V(t)I(t)| dt\leq\left(\int_a^b\left|V(x)\right|^2 dx\right)^{\frac12}
+\left(\int_a^b\left|I(x)\right|^2 dx\right)^{\frac12}$
+after the engineer chooses $p=q=2$ (Cauchy-Schwarz inequality).
+Estimating the individual values of $V$ and $I$ is now a much simpler problem.
+
+Admittedly, Google would have found the information by querying for ``Cauchy-Schwarz H\"older'', but that keyword itself was the crucial information the engineer was missing in the first place. 
+In fact, it is not unusual for mathematical datasets to be so large that determining the identifier of the sought-after object is harder than recreating the object itself.
+
+\medskip
+
+\textbf{\emph{Interoperable}}
+The FAIR principles base interoperability on describing data in a ``formal, accessible, shared, and broadly applicable language for knowledge representation''.
+But due to the semantic richness of mathematical data, defining an appropriate language to allow for interoperability is a hard problem itself.
+Therefore, existing interoperability solutions tend to be domain-specific, limited, and brittle.
+
+For trivial examples, consider the dihedral group of order 8, which is called $D_4$ in SageMath but $D_8$ in GAP due to differing conventions in different mathematical communities (geometry vs. abstract algebra).
+Similarly, $0^\circ C$ in Europe is ``called'' $271.3 K$ in physics.
+In principle, this problem can be tackled by standardizing mathematical vocabularies, but in the face of millions of defined concepts in mathematics, this has so far proved elusive.
+Moreover, large mathematical datasets are usually shared in highly optimized encodings (or even a hierarchy of consecutive encodings), which knowledge representation languages must capture as well to allow for data interoperability.
+
+%%% Local Variables:
+%%% mode: latex
+%%% mode: visual-line
+%%% fill-column: 5000
+%%% TeX-master: "report"
+%%% End:
+
+%  LocalWords:  ednote Billey BilTen:fingerprint13 inparahighlight medskip noindent textbf emph lmfdb:on standardizing zbMATH swMATH a,b l,h mathbb p,q infty leq circ circ optimized specialized reuser standardized
