@@ -1,0 +1,132 @@
+%%
+%% This is file `pdata.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% proposal.dtx  (with options: `pdata')
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesPackage{pdata}[2016/12/15 v1.6 Project Data]
+\RequirePackage{workaddress}[2016/07/06]
+\RequirePackage{eurosym}
+\newif\if@sites\@sitesfalse\let\prop@gen@sites=\relax%
+\newcounter{@site}%
+\define@key{prop@gen}{site}{\@sitestrue\@dmp{site=#1}%
+\stepcounter{@site}\pdata@def{site}{#1}{number}{\the@site}%
+\@ifundefined{prop@gen@sites}{\xdef\prop@gen@sites{#1}}{\xdef\prop@gen@sites{\prop@gen@sites,#1}}%
+\define@key{prop@gen}{#1RM}{\pdata@def{site}{#1}{intendedRM}{##1}}%
+\if@RAM\define@key{prop@gen}{#1RAM}{\pdata@def{site}{#1}{intendedRAM}{##1}}\fi
+\define@key{workpackage}{#1RM}{\pdata@def\wp@id{#1}{RM}{##1}}%
+\if@RAM\define@key{workpackage}{#1RAM}{\pdata@def\wp@id{#1}{RAM}{##1}}\fi
+\define@key{task}{#1RM}{\pdata@def{\wp@id @\task@id}{#1}{RM}{##1}}%
+\if@RAM\define@key{task}{#1RAM}{\pdata@def{\wp@id @\task@id}{#1}{RAM}{##1}}\fi
+\define@key{prop@gen}{#1employed}{{\let\tabularnewline\relax\let\hline\relax\let\wa@ref\relax%
+\@ifundefined{prop@gen@employed@lines}%
+{\xdef\prop@gen@employed@lines{\wa@ref3{institution}{#1}{shortname} & ##1\tabularnewline\hline}}%
+{\xdef\prop@gen@employed@lines{\prop@gen@employed@lines \wa@ref3{institution}{#1}{shortname} & ##1\tabularnewline\hline}}}}}
+\define@key{prop@gen}{RM}{\@dmp{RM=#1}\if@sites%
+\PackageWarning{Do not use the RM key in the presence of sites}\else%
+\pdata@def{all}{intended}{RM}{#1}\fi}
+\define@key{prop@gen}{RAM}{\@dmp{RAM=#1}\if@sites%
+\PackageWarning{Do not use the RAM key in the presence of sites}\else%
+\pdata@def{all}{intended}{RAM}{#1}\fi}
+\define@key{prop@gen}{PI}{\@dmp{PI=#1}%
+\@ifundefined{prop@gen@PIs}{\xdef\prop@gen@PIs{#1}}{\xdef\prop@gen@PIs{\prop@gen@PIs,#1}}}
+\define@key{prop@gen}{pubspage}{\@ifundefined{prop@gen@pubspages}%
+{\xdef\prop@gen@pubspages{#1}}{\xdef\prop@gen@pubspages{\prop@gen@pubspages,#1}}}
+\define@key{prop@gen}{importfrom}{\message{importing proposal data from #1.pdata}\readpdata{#1}}
+\define@key{prop@gen}{instrument}{\def\prop@gen@instrument{#1}%
+\pdata@def{prop}{gen}{instrument}{#1}\@dmp{inst=#1}}
+\define@key{prop@gen}{title}{\def\prop@gen@title{#1}%
+\pdata@def{prop}{gen}{title}{#1}}
+\define@key{prop@gen}{acronym}{\gdef\prop@gen@acronym{#1}%
+\pdata@def{prop}{gen}{acronym}{#1}\@dmp{acro=#1}}
+\define@key{prop@gen}{acrolong}{\def\prop@gen@acrolong{#1}%
+\pdata@def{prop}{gen}{acrolong}{#1}}
+\define@key{prop@gen}{proposalnumber}{\def\prop@gen@proposalnumber{#1}%
+\pdata@def{prop}{gen}{proposalnumber}{#1}}
+\define@key{prop@gen}{discipline}{\def\prop@gen@discipline{#1}%
+\pdata@def{prop}{gen}{discipline}{#1}}
+\define@key{prop@gen}{areas}{\def\prop@gen@areas{#1}%
+\pdata@def{prop}{gen}{areas}{#1}}
+\define@key{prop@gen}{start}{\def\prop@gen@start{#1}%
+\pdata@def{prop}{gen}{start}{#1}}
+\define@key{prop@gen}{months}{\def\prop@gen@months{#1}%
+\pdata@def{prop}{gen}{months}{#1}}
+\define@key{prop@gen}{since}{\def\prop@gen@since{#1}%
+\pdata@def{prop}{gen}{since}{#1}}
+\define@key{prop@gen}{totalduration}{\def\prop@gen@totalduration{#1}%
+\pdata@def{prop}{gen}{totalduration}{#1}}
+\define@key{prop@gen}{fundsuntil}{\def\prop@gen@fundsuntil{#1}%
+\pdata@def{prop}{gen}{fundsuntil}{#1}}
+\define@key{prop@gen}{topdownPM}[true]{\def\prop@gen@topdownPM{#1}}
+\define@key{prop@gen}{botupPM}[true]{\def\prop@gen@botupPM{#1}}
+\define@key{prop@gen}{keywords}{\def\prop@gen@keywords{#1}}
+\newcommand\prop@gen@acro@default{ACRONYM}
+\def\prop@gen@acro{\prop@gen@acro@default}
+\newcommand\prop@gen@months@default{???months???}
+\def\prop@gen@months{\prop@gen@months@default}
+\newcommand\prop@gen@title@default{???Proposal Title???}
+\def\prop@gen@title{\prop@gen@title@default}
+\newcommand\prop@gen@instrument@default{??? Instrument ???}
+\def\prop@gen@instrument{\prop@gen@instrument@default}
+\newcommand\prop@tl[2]{\xdef\tab@line{}
+\@for\tl@ext:={#1}\do{\xdef\tab@line{\tab@line&#2}}
+\tab@line}
+\def\prop@gen@compactht{false}
+\define@key{prop@gen}{compactht}[true]{\def\prop@gen@compactht{#1}}
+\newif\ifwork@areas\work@areastrue
+\DeclareOption{noworkareas}{\work@areasfalse}
+\ProcessOptions
+\RequirePackage{xspace}
+\newwrite\pdata@out
+\newcommand\pdata@open[1]{\immediate\openout\pdata@out=#1.pdata}
+\newcommand\pdata@close{\closeout\pdata@out}
+\newcommand\readpdata[1]{\IfFileExists{#1.pdata}
+{\message{proposal: Reading Project Data}\makeatletter\input{#1.pdata}\makeatother}
+{proposal: No Project Data found, (forward) references may be compromized}}
+\newcommand\pdata@target[3]{\hypertarget{#1@#2@target}{#3}}
+\newcommand\pdata@def[4]{%\@pdata@def{#1}{#2}{#3}{#4}%
+  \protected@write\pdata@out{}{\string\@pdata@def{#1}{#2}{#3}{#4}}}
+\newcommand\@pdata@def[4]{\expandafter\gdef\csname #1@#2@#3\endcsname{#4}}
+\newcommand\pdataref[3]{\@ifundefined{#1@#2@#3}%
+               {\protect\G@refundefinedtrue\@latex@warning{#3 for #1 #2 undefined}??}%
+                {\csname #1@#2@#3\endcsname}}%
+\newcommand\pdataref@aux[3]{\@ifundefined{#1@#2@#3}{??}{\csname #1@#2@#3\endcsname}}%
+\newcommand\pdataref@num[3]{\@ifundefined{#1@#2@#3}{0}{\csname #1@#2@#3\endcsname}}%
+\newcommand\pdataref@safe[3]{\@ifundefined{#1@#2@#3}{}{\csname #1@#2@#3\endcsname}}%
+\newcommand\pdatarefFB[4]{\@ifundefined{#1@#2@#3}%
+{\@ifundefined{#1@#2@#4}%
+{\protect\G@refundefinedtrue\@latex@warning{both #3 and its fallback #4 undefined for #1 #2}??}%
+{\csname #1@#2@#4\endcsname}}
+{\csname #1@#2@#3\endcsname}}
+\newcommand\pdataRef[3]{\@ifundefined{#1@#2@#3}%
+{\protect\G@refundefinedtrue\@latex@warning{#3 for #1 #2 undefined}??}%
+{\hyperlink{#1@#2@target}{\csname #1@#2@#3\endcsname}}}
+\newcommand\pdataRefFB[4]{\@ifundefined{#1@#2@#3}%
+{\@ifundefined{#1@#2@#4}%
+{\protect\G@refundefinedtrue\@latex@warning{both #3 and its fallback #4 undefined for #1 #2}??}%
+{\hyperlink{#1@#2@target}{\csname #1@#2@#4\endcsname}}}
+{\hyperlink{#1@#2@target}{\csname #1@#2@#3\endcsname}}}
+\newcommand\prop@count[1]{\ifcase #1 zero\or one\or two\or three\or four\or five\or six\or seven \or
+  eight\or nine\or ten\or eleven \or twelve\else#1\fi}
+\newcommand\pdatacount[2]{\prop@count{\pdataref@num{#1}{#2}{count}}}
+\newcommand\pn{\pdataref{prop}{gen}{acronym}\xspace}
+\newcommand\pnlong{\pdataref{prop}{gen}{acrolong}\xspace}
+\newcommand\WPref[1]{\pdataRef{wp}{#1}{label}}
+\newcommand\WPtref[1]{\WPref{#1}: \pdataRefFB{wp}{#1}{short}{title}}
+\ifwork@areas
+\newcommand\WAref[1]{\pdataRef{wa}{#1}{label}}
+\newcommand\WAtref[1]{\WAref{#1}: \pdataRefFB{wa}{#1}{short}{title}}
+\fi
+\newcommand{\signatures}[1]{\section{#1}
+\qquad\number\day. \number\month. \number\year\\[6ex]
+\strut\qquad Date\hfill\@for\@p:=\prop@gen@PIs\do{%
+\wa@ref3{person}\@p{personaltitle}~\wa@ref3{person}\@p{name}\hfill}}
+\def\@dmp#1{\ifkeys\marginpar{\small #1}\fi}
+\renewcommand\euro{\officialeuro\xspace}
+
+\endinput
+%%
+%% End of file `pdata.sty'.
