@@ -6,30 +6,40 @@
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
   \paragraph{Overview}
 
-  Workpackage 5 is about the development of high performance computing tools in
-  mathematical virtual research environments. It is addressed at the level
-  of each kernel library composing the computational tools of the project (\Pari,
-  \GAP, \Linbox, \MPIR, \Sage, \Singular, ...), and also at the level of interfacing and exposing
-  core parallel features to higher level programming interfaces.
+  This work package is about better exploiting modern parallel
+  computer architectures in computational mathematics software,
+  notably when deployed within a Virtual Research Environment. It is
+  addressed at the level of individual computational components
+  (\Pari, \GAP, \Linbox, \MPIR, \Sage, \Singular, ...), and also at
+  the level of interfacing and exposing core parallel features to
+  higher level programming interfaces.
 
-  Key results obtained over the period for WorkPackage 5 are the following:
+  Key results obtained over the reporting period are the following:
   %% Only list deliverables produced in the reporting period
   \begin{compactitem}
+  \item \ednote{@ClementPernet: nothing to highlight about LinBox?}
   %% \item A closer integration of \Linbox in \Sage with improved reliability and
   %%   computing efficiency.
   \item A full-featured parallelisation engine, supporting POSIX threads and
-  MPI, for \PariGP in production release of the software
+    MPI, for \PariGP in production release of the software.
   \item Release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
   %    \item A new super-optimizer for vectorized assembly code and its
   %  exploitation to improve the performances of the MPIR code.
   \item A new symmetric matrix factorization algorithm over finite fields, and
-  its high-performance implementation in the \texttt{fflas-ffpack} library.
-  \item Major redesign the the polynomial arithmetic used in Singular delivering
-  state of the art efficiency.
-\end{compactitem}
+    its high-performance implementation in the \texttt{fflas-ffpack} library.
+  \item Major redesign of the polynomial arithmetic used in Singular,
+    delivering state of the art efficiency.
+  \end{compactitem}
+  In addition, we investigated how to exploit parallelism when
+  combining computational software; see
+  \longlocaltaskref{component-architecture}{component-for-HPC}, and
+  the following milestone.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subparagraph{Milestones}
+\paragraph{Milestones}
+
+\ednote{@ClementPernet: this is a milestone for the previous reporting
+period; do we want to keep it around? mention further work?}
 
 \subparagraph{\longmilestoneref{hpc-prototype}}
 
@@ -61,6 +71,7 @@ better scaling with respect to available CPU cores.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \paragraph{Tasks}
 
+\medskip
 \subparagraph{\longtaskref{hpc}{hpc-pari}}
 Deliverable~\longdelivref{hpc}{pari-hpc1} was merged with
 \longdelivref{hpc}{pari-hpc2} in the revised workplan. The deliverable
@@ -102,6 +113,7 @@ The parallel-enabled components of the \PariGP suite have been advertised
 workshops in Grenoble (2016), Lyon (2017), Besançon (2018) and Bordeaux
 (2019).
 
+\medskip
 \subparagraph{\longtaskref{hpc}{hpc-gap}}
 \label{hpc@hpc-gap}
 
@@ -113,21 +125,32 @@ During reporting period 3 the main areas of effort were:
 \begin{itemize}
 \item Follow-up work to the integration of HPC-GAP into the main codebase reported in
   the previous period. This work improves the robustness of the system and dramatically reduced the
-  differences between the two versions of the sourcecode.
+  differences between the two versions of the source code.
 \item
+  \ednote{@stevelinton, @alex-konovolov: briefly explain why meataxe is fundamental?
+    Something like: this is the workhorse for higher level
+    representation theoretical computations (character tables, etc).}
   Development of the \GAP interface to the meataxe64 high performance linear algebra library (to which
   we also contributed significant development effort). This system targets large calculations over
-  small finite fields on multi-core shared memory computers. The interface makes almost all of the
+  small finite fields on multi-core shared memory computers.
+  The interface makes almost all of the
   capabilities of meataxe64 callable from \GAP, something which is not only a quantum leap in
   performance for \GAP in this critical area, but also allows easy prototyping in \GAP of new
-  algorithms for meataxe64.  This libraru can make use of multiple cored whether or not it is being
+  algorithms for meataxe64.  This library can make use of multiple cores whether or not it is being
   called from \HPCGAP. A full set of benchmarks are included in D5.15, but as a highlight, two
   dense random $320\,000\times 320\,000$ matrices over $GF(2)$ can be multiplied in just over 1000
   seconds on a 64 core AMD ``bulldozer'' system.
-  \item Release of ``libGAP'' a general-purpose C API for \GAP, replacing the custom patches
-    previously used in \Sage. This allows any program, including in particular HPC code to call on the
+  \item Release of ``libGAP'' a general-purpose C API for \GAP. This allows any program, including in particular HPC code, to call on the
     functionality of \GAP efficiently and without the need to run a separate \GAP process. This makes
-    much more fine grained interaction possible.
+    fine grained interaction possible.
+
+    \ednote{@defeo, @embray: the following statement could be here or in WP3}
+    To interface with \GAP, SageMath formerly used a bespoke
+    implementation of ``libGAP``, requiring heavy patching of \GAP.
+    Having the functionality available upstream reduced considerably
+    the maintenance burden for SageMath developers and packagers
+    alike.
+
   \item Development and release of a new linguistic reflection API in \GAP, allowing \GAP programs to
     access and modify the executable representation of their own functions at run-time. This will be
     the basis of future automatic parallelisation and optimisation tools.
@@ -139,32 +162,38 @@ During reporting period 3 the main areas of effort were:
     versions of the large suite of packages redistributed with \GAP.
 \end{itemize}
 
-
+\medskip
 \subparagraph{\longtaskref{hpc}{hpc-linbox}}
   \label{hpc@hpc-linbox}
 
-The deliverable~\longdelivref{hpc}{LinBox-distributed} due for this reporting period is
-delivered on time.
+During this reporting period, we delivered~\longdelivref{hpc}{LinBox-distributed}.
 
 A first focus was made on distributed computing, with an MPI parallelization of a Chinese remainder based
-algorihtm. The prototypical implementation first produced was then cleanly integrated in the mainstream code of the
-library. Its performance show a very nice scaling with the number of compute nodes on a 256 cores cluster. Although this
-approach is best suited for large scale parallelization, its generates a suboptimal workload which become a major
-concern on large instances.
+algorithm. The first proof-of-concept implementation was then cleanly integrated in the mainstream code of the
+library. Its performance shows a very nice scaling with the number of compute nodes on a 256 cores cluster.
 
-An alternative approach based on $p$-adic lifting has an  asymptotically smaller workload, but is intrinsically more
-sequential, and therefore less suited for large scale parallelization. 
+\ednote{@ClementPernet: T5.3: proofread my changes; I was confused by the original text}
+
+Although this approach is best suited for parallelization on a large
+number of nodes, its total computational complexity ($O(n^?)$) becomes
+a major concern on large instances.
+%
+The usual alternative approach based on $p$-adic lifting has a better total computational complexity ($O(n^?)$), but is intrinsically more
+sequential, and therefore less suited for large scale parallelization.
 A major contribution in this task is a new algorithm combining $p$-adic lifting and Chinese remaindering in order to
-expose more parallelism without sacrifying the gain in the workload.
-We also provide a full-featured  implementation of this new algorithm in \Linbox, which shows delivers both high
-efficiency in sequential, and scales well up to 16 cores on a multicore server.
+expose more parallelism without sacrifying the gain in complexity.
+We also provide a full-featured  implementation of this new algorithm in \Linbox, which delivers high
+sequential efficiency and nevertheless scales well up to 16 cores.
+This compromise is a good fit for personal computers or the typical
+lab-wide computational server researchers have access to.
 
-Lastly, we also introduced a support for GPUs in the \texttt{fflasffpack} library and show how matrix product over a finite
+Lastly, we introduced support for GPUs in the \texttt{fflasffpack} library and showed how matrix product over a finite
 field benefit from these accelerators.
 
 All these software improvements are closely integrated in the mainstream code of the \texttt{fflasffpack} and \Linbox libraries.
 
-  \subparagraph{\longtaskref{hpc}{hpc-singular}}
+\medskip
+\subparagraph{\longtaskref{hpc}{hpc-singular}}
   \label{hpc@hpc-singular}
 
   The only deliverable under consideration for this reporting period
@@ -182,6 +211,7 @@ Other systems such as the new Oscar computer algebra system already benefit dire
 
 Sage will automatically benefit directly at the next update of the Singular version in Sage.
 
+\medskip
   \subparagraph{\longtaskref{hpc}{hpc-mpir}}
   \label{hpc@hpc-mpir}
 
@@ -234,7 +264,6 @@ Sage will automatically benefit directly at the next update of the Singular vers
 %%% Local Variables:
 %%% mode: latex
 %%% mode: visual-line
-%%% fill-column: 5000
 %%% TeX-master: "report"
 %%% End:
 
