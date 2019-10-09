@@ -17,7 +17,10 @@
   Key results obtained over the reporting period are the following:
   %% Only list deliverables produced in the reporting period
   \begin{compactitem}
-  \item \ednote{@ClementPernet: nothing to highlight about LinBox?}
+  \item An MPI based distributed  rational linear system solver based on Chinese remainder algorithm in \Linbox.
+  \item A new hybrid algorithm for rational linear system solving based on $p$-adic lifting and Chinese remainder.
+    algorithm, and its parallel implementation in \Linbox for multi-core servers.
+    %\ednote{@ClementPernet: nothing to highlight about LinBox?}
   %% \item A closer integration of \Linbox in \Sage with improved reliability and
   %%   computing efficiency.
   \item A full-featured parallelisation engine, supporting POSIX threads and
@@ -25,8 +28,6 @@
   \item Release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
   %    \item A new super-optimizer for vectorized assembly code and its
   %  exploitation to improve the performances of the MPIR code.
-  \item A new symmetric matrix factorization algorithm over finite fields, and
-    its high-performance implementation in the \texttt{fflas-ffpack} library.
   \item Major redesign of the polynomial arithmetic used in Singular,
     delivering state of the art efficiency.
   \end{compactitem}
@@ -38,9 +39,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \paragraph{Milestones}
 
-\ednote{@ClementPernet: this is a milestone for the previous reporting
-period; do we want to keep it around? mention further work?}
-
+%% \ednote{@ClementPernet: this is a milestone for the previous reporting
+%% period; do we want to keep it around? mention further work?}
+%% CP: YES, let's keep it and discuss how D3.11 improved our answer to this milestone. Done.
 \subparagraph{\longmilestoneref{hpc-prototype}}
 
 \emph{“User story: Astrid wants to run compute intensive routines
@@ -55,18 +56,53 @@ period; do we want to keep it around? mention further work?}
     It will prepare the final integration of a broader set of such
     parallel features for the end of the project.”}
 
-With Deliverable~\delivref{hpc}{LinBox-algo}, we developed, released and integrated in the
-\Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
-When installing the latest \Sage release on a multithreaded multicore server, it
-only takes one configure option to let fflas-ffpack use a multi-threaded BLAS
-and therefore expose its parallel speed-up to the end-user of Sage. This feature
-is compliant with the use of a higher level of parallelism, through process
-workstealing queues that \textit{Astrid} may be using in her combinatorics code, as those
-exposed in \delivref{hpc}{sage-HPCcombi}. Now that this first proof of concept has been
-successfully achieved, we are working in exposing the more advanced parallel
-routines of fflas-ffpack into \Sage, following~\delivref{hpc}{LinBox-DSL}. It
-should in particular make Gaussian elimination and related routines enjoy a
-better scaling with respect to available CPU cores.
+This milestone was already adressed at the second review meeting. Nonetheless, we would like to report on further
+developments in this line of work.
+
+While the  solution then proposed was limited to the use of a multi-threaded BLAS and used to require a minor configuration
+change at the install time of the \Sage software, \longdelivref{component-architecture}{hpc-configure} made this process
+more flexible to the user while offering a broader range of parallel routines.
+Indeed, the Singleton class \texttt{Parallelism} now provided the user with total control over the number of threads to
+be used for the linear algebra computations.
+The following session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
+$\mathbb{Z}/65521\mathbb{Z}$ with itself using 16 cores:
+\begin{lstlisting}
+pernet@dahu34:~/soft/sage$ ./sage 
+SageMath version 8.9.beta8, Release Date: 2019-08-25
+sage: a=random_matrix(GF(65521),8000)
+sage: Parallelism()
+Number of processes for parallelization:
+ - linbox computations: 1
+ - tensor computations: 1
+sage: time b=a*a
+CPU times: user 17.5 s, sys: 1.04 s, total: 18.5 s
+Wall time: 18.5 s
+sage: Parallelism().set("linbox",16)
+sage: Parallelism()
+Number of processes for parallelization:
+ - linbox computations: 16
+ - tensor computations: 1
+sage: time b=a*a
+CPU times: user 28.9 s, sys: 4.85 s, total: 33.8 s
+Wall time: 2.41 s
+\end{lstlisting}
+
+Moreover, the parallel code exposed to the user now includes many more routines, especially those related to exact
+Gaussian elimination provided by the \fflasffpack library: \texttt{Det, Rank, Solve, Echelon Forms, ...} as annonced in
+the previous technical report.
+
+%% With Deliverable~\delivref{hpc}{LinBox-algo}, we developed, released and integrated in the
+%% \Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
+%% When installing the latest \Sage release on a multithreaded multicore server, it
+%% only takes one configure option to let fflas-ffpack use a multi-threaded BLAS
+%% and therefore expose its parallel speed-up to the end-user of Sage. This feature
+%% is compliant with the use of a higher level of parallelism, through process
+%% workstealing queues that \textit{Astrid} may be using in her combinatorics code, as those
+%% exposed in \delivref{hpc}{sage-HPCcombi}. Now that this first proof of concept has been
+%% successfully achieved, we are working in exposing the more advanced parallel
+%% routines of fflas-ffpack into \Sage, following~\delivref{hpc}{LinBox-DSL}. It
+%% should in particular make Gaussian elimination and related routines enjoy a
+%% better scaling with respect to available CPU cores.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \paragraph{Tasks}
@@ -172,13 +208,13 @@ A first focus was made on distributed computing, with an MPI parallelization of 
 algorithm. The first proof-of-concept implementation was then cleanly integrated in the mainstream code of the
 library. Its performance shows a very nice scaling with the number of compute nodes on a 256 cores cluster.
 
-\ednote{@ClementPernet: T5.3: proofread my changes; I was confused by the original text}
-
+%% \ednote{@ClementPernet: T5.3: proofread my changes; I was confused by the original text}
+%% CP: done
 Although this approach is best suited for parallelization on a large
-number of nodes, its total computational complexity ($O(n^?)$) becomes
+number of nodes, its total computational complexity ($O{\tilde \ }(n^4)$) becomes
 a major concern on large instances.
 %
-The usual alternative approach based on $p$-adic lifting has a better total computational complexity ($O(n^?)$), but is intrinsically more
+The usual alternative approach based on $p$-adic lifting has a better total computational complexity ($O{\tilde \ }(n^3)$), but is intrinsically more
 sequential, and therefore less suited for large scale parallelization.
 A major contribution in this task is a new algorithm combining $p$-adic lifting and Chinese remaindering in order to
 expose more parallelism without sacrifying the gain in complexity.
@@ -187,10 +223,10 @@ sequential efficiency and nevertheless scales well up to 16 cores.
 This compromise is a good fit for personal computers or the typical
 lab-wide computational server researchers have access to.
 
-Lastly, we introduced support for GPUs in the \texttt{fflasffpack} library and showed how matrix product over a finite
+Lastly, we introduced support for GPUs in the \fflasffpack library and showed how matrix product over a finite
 field benefit from these accelerators.
 
-All these software improvements are closely integrated in the mainstream code of the \texttt{fflasffpack} and \Linbox libraries.
+All these software improvements are closely integrated in the mainstream code of the \fflasffpack and \Linbox libraries.
 
 \medskip
 \subparagraph{\longtaskref{hpc}{hpc-singular}}
