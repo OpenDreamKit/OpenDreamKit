@@ -1,4 +1,4 @@
-# Deliverable description, as taken from Github issue #40 on 2019-10-08 {.notoc}
+# Deliverable description, as taken from Github issue #40 on 2019-10-09 {.notoc}
 
 - **WP2:** [Community Building, Training, Dissemination, Exploitation, and Outreach](https://github.com/OpenDreamKit/OpenDreamKit/tree/master/WP2)
 - **Lead Institution:** Université Paris-Sud
