@@ -46,7 +46,7 @@ R%/eudelivreport.cls: Proposal/LaTeX-proposal/eu/eudelivreport.cls
 %/github-issue-description.tex: %/github-issue-description.md
 	sed -e 's/- \[[xX]\]/- $$\\checkmark$$/; s! \([^ ]*[a-z]\)#\([0-9][0-9]*\)! [\1#\2](https://github.com/\1/issues/\2)!g; s!\([^a-z]\)#\([0-9]\{1,3\}\)\([^0-9]\)!\1[#\2](https://github.com/OpenDreamKit/OpenDreamKit/issues/\2)\3!g;' $< | pandoc --toc-depth=1 -f markdown_github+tex_math_dollars+header_attributes+footnotes-hard_line_breaks -t latex | sed -e 's/\\section/\\section*/' > $@
 
-%/report.pdf: %/report.tex %/deliverablereport.cls %/eudelivreport.cls
+%/report.pdf: %/report.tex %/*.tex %/deliverablereport.cls %/eudelivreport.cls
 	@echo "-----------------------------------------------"
 	@echo "Compiling $@"
 	@echo "-----------------------------------------------"
