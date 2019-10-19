@@ -18,57 +18,55 @@
   %% Only list deliverables produced in the reporting period
   \begin{compactitem}
   \item An MPI based distributed  rational linear system solver based on Chinese remainder algorithm in \Linbox.
-  \item A new hybrid algorithm for rational linear system solving based on $p$-adic lifting and Chinese remainder.
+  \item A new hybrid algorithm for rational linear system solving based on $p$-adic lifting and Chinese remainder
     algorithm, and its parallel implementation in \Linbox for multi-core servers.
-    %\ednote{@ClementPernet: nothing to highlight about LinBox?}
   %% \item A closer integration of \Linbox in \Sage with improved reliability and
   %%   computing efficiency.
   \item A full-featured parallelisation engine, supporting POSIX threads and
     MPI, for \PariGP in production release of the software.
-  \item Release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
+  \item The release of GAP-4.9 allowing compilation  in HPC-GAP compatibility mode.
   %    \item A new super-optimizer for vectorized assembly code and its
   %  exploitation to improve the performances of the MPIR code.
-  \item Major redesign of the polynomial arithmetic used in Singular,
+  \item A major redesign of the polynomial arithmetic used in Singular,
     delivering state of the art efficiency.
   \end{compactitem}
   In addition, we investigated how to exploit parallelism when
   combining computational software; see
-  \longlocaltaskref{component-architecture}{component-for-HPC}, and
+  \longlocaltaskref{component-architecture}{component-for-HPC} and
   the following milestone.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \paragraph{Milestones}
 
-%% \ednote{@ClementPernet: this is a milestone for the previous reporting
-%% period; do we want to keep it around? mention further work?}
-%% CP: YES, let's keep it and discuss how D3.11 improved our answer to this milestone. Done.
 \subparagraph{\longmilestoneref{hpc-prototype}}
 
 \emph{“User story: Astrid wants to run compute intensive routines
-    involving both dense linear algebra and combinatorics. She has
-    access through a JupyterHub-based VRE to a high end multi-core
-    machine which includes a vanilla \Sage installation. She
-    automatically benefits from the HPC features of the underlying
-    specialized libraries (\Linbox, ...). This is a proof of concept
-    of the overall framework to integrate the HPC advances of
-    specialized libraries into a general purpose VRE.
-    %
-    It will prepare the final integration of a broader set of such
-    parallel features for the end of the project.”}
+  involving both dense linear algebra and combinatorics. She has
+  access through a JupyterHub-based VRE to a high end multi-core
+  machine which includes a vanilla \Sage installation. She
+  automatically benefits from the HPC features of the underlying
+  specialized libraries (\Linbox, ...). This is a proof of concept
+  of the overall framework to integrate the HPC advances of
+  specialized libraries into a general purpose VRE.
+  % 
+  It will prepare the final integration of a broader set of such
+  parallel features for the end of the project.”}
 
-This milestone was already adressed at the second review meeting. Nonetheless, we would like to report on further
-developments in this line of work.
+This milestone was already adressed at the second review meeting.
+Nonetheless, we now report on further developments bringing much of
+this proof of concept to production.
 
-While the  solution then proposed was limited to the use of a multi-threaded BLAS and used to require a minor configuration
-change at the install time of the \Sage software, \longdelivref{component-architecture}{hpc-configure} made this process
-more flexible to the user while offering a broader range of parallel routines.
-Indeed, the Singleton class \texttt{Parallelism} now provided the user with total control over the number of threads to
+The  solution then proposed was limited to the use of a multi-threaded BLAS and required a minor configuration
+change at the install time of the \Sage software. \longdelivref{component-architecture}{hpc-configure} made this process
+more flexible to the user, while offering a broader range of parallel routines.
+Indeed, the Singleton class \texttt{Parallelism} now provides the user with total control over the number of threads to
 be used for the linear algebra computations.
 The following session demonstrates the gain in parallelizing the product of a random $8000\times 8000$ matrix over
-$\mathbb{Z}/65521\mathbb{Z}$ with itself using 16 cores:
+$\mathbb{Z}/65521\mathbb{Z}$ with itself using 16 cores, using a
+vanilla Sage 8.9 installation:
 \begin{lstlisting}
-pernet@dahu34:~/soft/sage$ ./sage 
-SageMath version 8.9.beta8, Release Date: 2019-08-25
+pernet@dahu34:~/soft/sage$ ./sage
+SageMath version 8.9 Release Date: 2019-09-29
 sage: a=random_matrix(GF(65521),8000)
 sage: Parallelism()
 Number of processes for parallelization:
@@ -87,9 +85,11 @@ CPU times: user 28.9 s, sys: 4.85 s, total: 33.8 s
 Wall time: 2.41 s
 \end{lstlisting}
 
-Moreover, the parallel code exposed to the user now includes many more routines, especially those related to exact
-Gaussian elimination provided by the \fflasffpack library: \texttt{Det, Rank, Solve, Echelon Forms, ...} as annonced in
-the previous technical report.
+Moreover, as announced in the previous technical report, the parallel
+code exposed to the user now includes many more routines, especially
+those related to exact Gaussian elimination provided by the
+\fflasffpack library: \texttt{Det}, \texttt{Rank}, \texttt{Solve},
+\texttt{Echelon Forms}, etc.
 
 %% With Deliverable~\delivref{hpc}{LinBox-algo}, we developed, released and integrated in the
 %% \Sage the LinBox library and its core dependencies: fflas-ffpack and givaro.
