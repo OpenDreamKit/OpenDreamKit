@@ -1,0 +1,75 @@
+
+\frame{
+\frametitle{Main achievements}
+
+\begin{itemize}
+
+\item Multivariate polynomials are in the \textsc{Flint} library over the coefficient rings $\mathbb{Z}$, $\mathbb{Q}$, $\mathbb{F}_p$, $\mathbb{F}_{p^n}$ for $p < 2^{64}$. The monomial orderings \emph{lex}, \emph{deglex}, and \emph{degrevlex} are currently supported. The computer algebra system \textsc{Singular} now uses \textsc{Flint} for multiplication, exact division, and gcd over $\mathbb{Q}$ and $\mathbb{F}_p$ for $p>500$.
+
+\item The following operations are parallelized over $\mathbb{Z}$, $\mathbb{Q}$ and $\mathbb{F}_p$.
+\begin{itemize}
+\item multiplication
+\item divisibility testing
+\item greatest common divisor
+\end{itemize}
+
+\item The single-core algorithms are an improvement over the algorithms previously used in \textsc{Singular}.
+
+\item The parallelism on large problems is 80\% to 90\% efficient on 8 threads and 70\% to 80\% efficient on 16 threads.
+
+\item The library itself is well-tested and offers a consistent interface that allows it to be used for polynomial arithmetic in other computer algebra systems as well.
+
+\end{itemize}
+
+}
+
+\frame{
+\frametitle{New Perspectives}
+
+\begin{itemize}
+
+\item Though the single-core gains to arithmetic in \textsc{Singular} are real, the gains afforded by the thread-level parallelization of these operations are only applicable when the arithmetic operations are large.
+\begin{itemize}
+\item The process of splitting up the basic arithmetic task into independent tasks and combining the results is non-trivial and costs overhead.
+\item Decent scaling of the multiplication to $16$ or $32$ threads requires huge polynomials.
+\end{itemize}
+
+\item Calculations that perform many arithmetic operations on small polynomials cannot expect to gain from our parallelization.
+\begin{itemize}
+\item These kind of calculations must and usually can benefit from parallelization at a higher level.
+\end{itemize}
+
+\item Multi-core timings are surprisingly fickle.
+\begin{itemize}
+\item Especially when \texttt{malloc} is involved - \texttt{malloc} is necessary because the sizes of the answer and the intermediate expressions in sparse polynomial arithmetic are completely unpredictable.
+\item The fewer times \texttt{malloc} and \texttt{free} are called from a multi-threaded environment, the better!
+\end{itemize}
+
+\end{itemize}
+}
+
+
+\frame{
+\frametitle{New Directions}
+
+\begin{itemize}
+
+\item Support for more monomial orderings
+\begin{itemize}
+\item Besides the commonly used orderings \emph{lexicographic}, \emph{graded lexicographic}, and \emph{graded reverse lexicographic}, other orderings such as block orderings and weighted orderings are possible and are used in \textsc{Singular}.
+\item \textsc{Flint} is well-modularized and such orderings can be added once an interface is decided.
+\item Such additions will not degrade the performance of the existing orderings.
+\end{itemize}
+
+\item Factorization
+\begin{itemize}
+\item Polynomial factorization is an important operation in many algorithms used in algebraic geometry.
+\item Much of the infrastructure developed in \textsc{Flint} as part of ODK is directly applicable to factorization algorithms.
+\item This would further improve the performance of \textsc{Singular}'s factorization, which is already quite good.
+\end{itemize}
+
+\end{itemize}
+
+}
+
+
