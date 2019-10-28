@@ -232,18 +232,77 @@ features for the end of the project}
   
   Overall
   \begin{itemize}
-  \item ?? software releases
-  \item ?? research papers
+  \item 31 software releases
+  \item 16 research papers
   \end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-  {Outline}
+\begin{frame}  {Outline}
   \tableofcontents
 \end{frame}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Context and Focus}
+
+  \begin{frame}
+  \frametitle{Computational Kernels: linear algebra}
+  \begin{displayquote}
+    Mathematics is the art of reducing any problem to linear algebra\\
+    \hfill{-- W. Stein}
+  \end{displayquote}
+
+\uncover<2->{  \begin{center}%
+  \textbf{Linear algebra: a key building block for HPC}%
+  \end{center}
+  }
+  \begin{block}<2-> {Similarities with numerical HPC}
+    \begin{itemize}
+    \item central elementary problem to which others reduce to
+    \item (rather) simple algorithmic
+    \item high compute/memory intensity
+    \end{itemize}
+  \end{block}
+    \begin{block}<3->{Specificities}
+      \begin{itemize}
+      \item Multiprecision arithmetic $\Rightarrow$ lifting from finite  precision ($\mathbb{F}_p$)
+      \item Rank deficiency $\Rightarrow$ unbalanced dynamic blocking
+      \item Early adopter of subcubic matrix arithemtic $\Rightarrow$ recursion
+      \end{itemize}
+    \end{block}
+
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{Computational kernels: arithmetic}
+
+    \begin{itemize}
+    \item Wide variety of computing domains: $\Z,\Q,\Z/p\Z,\F_q, \F_q[X], \Z[X,Y,Z],..$
+    \item possibly with dynamic size
+    \end{itemize}
+
+    \begin{block}{Challenge}
+      \begin{itemize}
+      \item most often memory intensive operations \thus hard to parallelize
+      \item very fine grain, but billions of instance \thus fine tuning
+      \end{itemize}
+    \end{block}
+  \end{frame}
+  
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \begin{frame}
+%%   \frametitle{Libraries and systems}
+
+%%   \begin{block} {Systems}
+%%     \begin{itemize}
+%%     \item GAP: huge code base, large contributed package collection
+%%     \item PARI: 
+%%     \end{itemize}
+%%   \end{block}
+%% \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% \begin{frame}
 %% \frametitle{Addressing recommendations of review 1}
@@ -386,14 +445,14 @@ features for the end of the project}
   \begin{itemize}
     \item  Fast linear algebra over the rationals and cyclotomic fields
     \item  Fast Chinese remainders and multimodular reduction
-    \item Parallel polynomial resultant [not yet quasi-linear]
+    \item Parallel polynomial resultant
     \item  Fast modular polynomials and applications%: ECPP primality proving, SEA and Satoh point-counting
      \item  MPQS integer factorization rewrite
 
   \end{itemize}
   \begin{block}   {Well-honed strategy after preliminary assessment}
     \begin{itemize}
-    \item Improvement of code quality: refactoring, interface clarification
+%    \item Improvement of code quality: refactoring, interface clarification
     \item Creation of "worker" functions from existing code
     \item Insertion of actual parallel instructions
     \item Incremental buildup, independently instrumenting one high-level function at a time. 
@@ -518,26 +577,89 @@ features for the end of the project}
 \section{T5.2: Group theory with GAP}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \begin{frame}
+%%   \frametitle{T5.2: GAP}
+%%   \begin{block} {D5.15: Final report of GAP development}
+%%     \begin{itemize}
+%%     \item 8 releases were produced integrating contributions of D3.11 and D5.15
+%%     \item Towards an integration of HPC-GAP: main release GAP-4.9
+%%       \begin{itemize}
+%%       \item Build system refactoring
+%%       \item Ability to compile in HPC-GAP compatibility mode
+%%       \end{itemize}
+%%     \item Work in progress:
+%%       \begin{itemize}
+%%       \item  Multithreaded linear algebra: at the level of the \texttt{Meataxe} library
+%%       \item Introspection functionalities: on-the-fly optimisation decision
+%%       \end{itemize}
+%%     \end{itemize}
+%%   \end{block}
+%% \end{frame}
+
+
 \begin{frame}
-  \frametitle{T5.2: GAP}
-  \begin{block} {D5.15: Final report of GAP development}
-    \begin{itemize}
-    \item 8 releases were produced integrating contributions of D3.11 and D5.15
-    \item Towards an integration of HPC-GAP: main release GAP-4.9
-      \begin{itemize}
-      \item Build system refactoring
-      \item Ability to compile in HPC-GAP compatibility mode
-      \end{itemize}
-    \item Work in progress:
-      \begin{itemize}
-      \item  Multithreaded linear algebra: at the level of the \texttt{Meataxe} library
-      \item Introspection functionalities: on-the-fly optimisation decision
-      \end{itemize}
-    \end{itemize}
-  \end{block}
+  \frametitle{HPC GAP}
+
+  \begin{columns}
+    \begin{column}{.39\textwidth}
+        \begin{block}{HPC-GAP}
+          \begin{itemize}
+          \item Multi-threaded GAP.
+          \item Targets:
+            \begin{itemize}
+            \item multicore servers.
+            \item good speedups
+            \item high level abstraction
+            \end{itemize}
+            %    Flexible task farm; thread-safe data structures for the shared global knowledge pool; data race protection.
+            %    Much of the library and some packages are now thread-safe
+            %   Scaling is good 
+          \end{itemize}
+        \end{block}
+    \end{column}
+    
+    \begin{column}{.59\textwidth}
+      \begin{block} {Achievement}
+        \begin{itemize}
+        \item Fork from GAP,  diverged for a long time
+        \item Huge effort to bring it back in:\\   GAP 4.9.1 (Month 33).\\
+          \thus first GAP release with HPCGAP integrated as a compile-time option
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \begin{center}
+    \includegraphics[height=.45\textheight]{hpcgap-speedups}
+  \end{center}
+
+
 \end{frame}
+\begin{frame}
+  \frametitle{Dense linear algebra over small finite fields}
 
+  \begin{itemize}
+  \item Matrix multiplication, Gaussian elimination, echelon forms, etc
+  \item A key kernel for many GAP computations
+  \end{itemize}
 
+  \begin{block}{MeatAxe64}
+  A new C and assembler library, tuned for performance at all levels:
+
+  \begin{itemize}
+  \item new data representations and assembler kernels
+  \item new algorithms for many fields
+  \item control of cache usage and memory bandwidth
+    \thus allowing for sharing between threads and cores
+  \item  purpose built highly efficient task farm
+
+    \thus 1M x 1M dense matrix multiply over GF(2) in 8 hours (64 core AMD bulldozer).
+
+  \end{itemize}
+    Fully available from GAP.
+  \end{block}
+
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{T5.3: Exact linear algebra with LinBox}
@@ -586,8 +708,11 @@ features for the end of the project}
   Gauss over $\mathbb{Q}$ & $2^{\GO{n}}$ \\
   Gauss $\mod \text{bound}(sol)$ & $\GO{n^5}$\\
   Chinese Remaindering %CRT $\times$ Gauss $\mod p$
-  & $\SO{n^4}, \SO{n^\omega+1}$\\
-  $p$-adic lifting & $\SO{n^3}, \SO{n^\omega}$\\
+  & $\SO{n^4}
+  $\\
+  %\SO{n^{\omega+1}}$
+  $p$-adic lifting & $\SO{n^3}$\\
+  %, \SO{n^\omega}$\\
   \bottomrule
 \end{tabular}
   \end{center}
@@ -632,7 +757,7 @@ features for the end of the project}
         \end{center}
       \end{column}
       \end{columns}
-      \begin{block}<2->{Conclusions}
+      \begin{block}<1->{Conclusions}
         \begin{itemize}
         \item (almost) Embarrassingly parallel
         \item but overwhelming computational cost ($\SO{n^4}$)
@@ -1045,8 +1170,15 @@ features for the end of the project}
   
   Overall
   \begin{itemize}
-  \item ??? software relases
-  \item ??? research papers
+  \item 31 software relases
+    % 15 GAP
+    % 3 PARI
+    % 4 fflas
+    % 2 givaro
+    % 3 LinBox
+    % 1 FLINT
+    % 3 singular
+  \item 16 research papers
   \end{itemize}
 \end{frame}
   
@@ -1080,7 +1212,7 @@ features for the end of the project}
     \item dynamic runtime configuration\\
       \thus user decision based on algorithms (high level), not systems (low level)
       \thus compilation hurdle, vs slick interface of the VRE 
-    \item extend high level control over parallel resources to GPUs, cluster nodes, etc
+    \item extend high level control over parallel resources: GPUs, cluster nodes, etc
 
     \item keep as much HPC features as possible in  virtualization images
     \end{itemize}
