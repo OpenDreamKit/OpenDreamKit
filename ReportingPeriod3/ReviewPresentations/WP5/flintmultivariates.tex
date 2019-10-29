@@ -1,0 +1,136 @@
+%\frame{
+%\frametitle{Main achievements}
+
+%\begin{itemize}
+
+%% \item Multivariate polynomials are in the \textsc{Flint} library over the coefficient rings $\mathbb{Z}$, $\mathbb{Q}$, $\mathbb{F}_p$, $\mathbb{F}_{p^n}$ for $p < 2^{64}$. The monomial orderings \emph{lex}, \emph{deglex}, and \emph{degrevlex} are currently supported. The computer algebra system \textsc{Singular} now uses \textsc{Flint} for multiplication, exact division, and gcd over $\mathbb{Q}$ and $\mathbb{F}_p$ for $p>500$.
+
+%% \item The following operations are parallelized over $\mathbb{Z}$, $\mathbb{Q}$ and $\mathbb{F}_p$.
+%% \begin{itemize}
+%% \item multiplication
+%% \item divisibility testing
+%% \item greatest common divisor
+%% \end{itemize}
+
+%% \item The single-core algorithms are an improvement over the algorithms previously used in \textsc{Singular}.
+
+%% \item The parallelism on large problems is 80\% to 90\% efficient on 8 threads and 70\% to 80\% efficient on 16 threads.
+
+%% \item The library itself is well-tested and offers a consistent interface that allows it to be used for polynomial arithmetic in other computer algebra systems as well.
+
+%\end{itemize}
+
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Main achievements}
+
+%sizes are the term counts in the inputs and output.
+
+%The apparent wall at 32 threads over $\mathbb{Z}$ is not real and is an anomalous reading probably due to the fact that the 32 core server was running 2 other intensive jobs at the time.
+  \begin{block}{Multivariate Polynomial \only<1,2>{Multiplication}\only<3,4>{GCD} in \texttt{FLINT}}
+    \begin{columns}
+      \begin{column}   {.6\textwidth}
+%    \hspace{-.8em}
+        \vspace{1em}
+        \noindent
+        \only<1>{\input{sparsePM_plot1}}
+        \only<2>{\input{sparsePM_plot2}}
+        \only<3>{\input{sparseGCD_plot1}}
+        \only<4>{\input{sparseGCD_plot2}}
+      \end{column}
+      \begin{column}   {.38\textwidth}
+        \begin{itemize}
+     \item over $\mathbb{Z}$, $\mathbb{Q}$, $\mathbb{F}_p$, $\mathbb{F}_{p^n}$ for $p < 2^{64}$.
+     \item Lex, degLex and degGrevLex ordering supported
+       \item Sequential alg: improves \texttt{Singular}'s
+       \item Close to linear scaling
+       \item \texttt{Singular} now relies on \texttt{FLINT}
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{block}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{
+\frametitle{New Perspectives and directions}
+
+
+%% \item Though the single-core gains to arithmetic in \textsc{Singular} are real, the gains afforded by the thread-level parallelization of these operations are only applicable when the arithmetic operations are large.
+%% \begin{itemize}
+%% \item The process of splitting up the basic arithmetic task into independent tasks and combining the results is non-trivial and costs overhead.
+%% \item Decent scaling of the multiplication to $16$ or $32$ threads requires huge polynomials.
+%% \end{itemize}
+
+%% \item Calculations that perform many arithmetic operations on small polynomials cannot expect to gain from our parallelization.
+%% \begin{itemize}
+%% \item These kind of calculations must and usually can benefit from parallelization at a higher level.
+%% \end{itemize}
+\begin{columns}
+  \begin{column}{.53\textwidth}
+\begin{block}{Parallelizing memory intensive kernels}
+
+  \begin{itemize}
+  \item Overhead of split and combine
+  \item Only amortized for large instances
+%  \item Scaling is limited to a few cores on small instances
+  \item Parallelization  at a coarser grain
+\end{itemize}
+  \end{block}
+\end{column}
+
+\begin{column}{.45\textwidth}
+\begin{block} {Data placement}<2->
+  \begin{itemize}
+  \item Heavy use of dynamic allocation (\texttt{malloc})
+  \item Causes performances fickle
+  \item To be used with parsimony
+  \item Investigate dedicated  allocators
+  \end{itemize}
+\end{block}
+
+\end{column}
+\end{columns}
+
+\begin{block} <3-> {New directions}
+  Application driven:
+  \begin{itemize}
+  \item More orderings: block, weighted
+  \item Factorization: (harnessing most T5.4 contributions)
+  \end{itemize}
+  
+\end{block}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \frame{
+%% \frametitle{New Directions}
+
+%% \begin{block}  {Support for more monomial orderings}
+%% \begin{itemize}
+%% \item Besides Lex, GradLex, RevGradLex,
+%% \item block and weighted orderings required by applications in  \textsc{Singular}.
+%% \item Code modularity of \textsc{Flint}: limited effort to extend it
+%% \end{itemize}
+%% \end{block}
+%% \begin{block}{Factorization}
+%% \begin{itemize}
+%% \item Polynomial factorization is an important operation in many algorithms used in algebraic geometry.
+%% \item Much of the infrastructure developed in \textsc{Flint} as part of ODK is directly applicable to factorization algorithms.
+%% \item This would further improve the performance of \textsc{Singular}'s factorization, which is already quite good.
+%% \end{itemize}
+
+%% \end{block}
+
+%% }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "WP5_pres.tex"
+%%% End:
